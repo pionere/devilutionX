@@ -3,7 +3,7 @@
 #ifndef NOSOUND
 
 #include <SDL_mixer.h>
-#include "../defs.h"
+#include "../../defs.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

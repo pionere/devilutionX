@@ -6,8 +6,10 @@
 #include <chrono>
 #include "all.h"
 #include "misproc.h"
+#include "sfxdat.h"
 #include "engine/render/text_render.h"
 #include "dvlnet/packet.h"
+#include "utils/file_util.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -29,9 +31,9 @@ void CheckDungeonClear()
 
 void DumpDungeon()
 {
-	FILE* f0 = fopen("f:\\dundump0.txt", "wb");
-	FILE* f1 = fopen("f:\\dundump1.txt", "wb");
-	FILE* f2 = fopen("f:\\dundump2.txt", "wb");
+	FILE* f0 = FileOpen("f:\\dundump0.txt", "wb");
+	FILE* f1 = FileOpen("f:\\dundump1.txt", "wb");
+	FILE* f2 = FileOpen("f:\\dundump2.txt", "wb");
 	for (int j = 0; j < 48; j++)
 		for (int i = 0; i < 48; i++) {
 			BYTE v;
@@ -82,7 +84,7 @@ static void PrintText(const char* text, char lineSep, int limit)
 	const char* s = text;
 	// int i = 0, w;
 	BYTE col;
-	FILE* textFile = fopen("f:\\sample.txt", "wb");
+	FILE* textFile = FileOpen("f:\\sample.txt", "wb");
 
 	while (*s != '\0') {
 		if (*s == '$') {
@@ -113,6 +115,45 @@ static bool IsSkel(int mt)
 	return (mt >= MT_WSKELAX && mt <= MT_XSKELAX)
 		|| (mt >= MT_WSKELBW && mt <= MT_XSKELBW)
 		|| (mt >= MT_WSKELSD && mt <= MT_XSKELSD);
+}
+
+static int MonsterAiMissile(const MonsterAI &mai)
+{
+	if (mai.aiType == AI_ROUNDRANGED || mai.aiType == AI_RANGED || mai.aiType == AI_ROUNDRANGED2
+		|| mai.aiType == AI_COUNSLR || mai.aiType == AI_ZHAR || mai.aiType == AI_LAZARUS) {
+		int mm = mai.aiParam1;
+		if (mm == MIS_LIGHTNINGC2)
+			mm = MIS_LIGHTNING2;
+		if (mm == MIS_LIGHTNINGC)
+			mm = MIS_LIGHTNING;
+		if (mm == MIS_APOCAC2)
+			mm = MIS_EXAPOCA2;
+		if (mm == MIS_INFERNOC)
+			mm = MIS_INFERNO;
+		if (mm == MIS_CBOLTC)
+			mm = MIS_CBOLT;
+		if (missiledata[mm].mFileNum == MFILE_NONE || missiledata[mm].mFileNum == MFILE_ACTOR)
+			app_fatal("Unresolved ai-missile %d", mm);
+		return mm;
+	}
+	return -1;
+}
+
+static bool MonsterAiSpecial(const MonsterAI &mai, int animNum)
+{
+	if (mai.aiType == AI_FALLEN || mai.aiType == AI_SKELKING || mai.aiType == AI_ROUNDRANGED || mai.aiType == AI_ROUNDRANGED2
+		|| mai.aiType == AI_SNEAK || mai.aiType == AI_SCAV || mai.aiType == AI_MAGE || mai.aiType == AI_GARG || mai.aiType == AI_FAT
+		|| mai.aiType == AI_COUNSLR || mai.aiType == AI_ZHAR || mai.aiType == AI_LAZARUS
+#ifdef HELLFIRE
+		|| mai.aiType == AI_HORKDMN
+#endif
+		|| ((mai.aiType == AI_SNAKE || mai.aiType == AI_RHINO || mai.aiType == AI_BAT) && animNum == MOFILE_RHINO)
+		|| (mai.aiType == AI_RANGED && mai.aiParam2)
+		|| (mai.aiType == AI_ROUND && mai.aiParam1))
+
+		return true;
+
+	return false;
 }
 
 static BYTE GetUniqueItemPower(const UniqItemData& ui, int index)
@@ -156,13 +197,15 @@ static int GetUniqueItemParamB(const UniqItemData& ui, int index)
 
 static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 {
-	int i;
+	int i, dv = 0;
 	for (i = 1; i < 6; i++) {
-		if (pow == IPL_STR && GetUniqueItemPower(ui, i) == IPL_NOMINSTR)
-			return false;
+		if (pow == IPL_STR && GetUniqueItemPower(ui, i) == IPL_REQSTR) {
+			dv = GetUniqueItemParamA(ui, i);
+			break;
+		}
 	}
 	for (i = 0; i < NUM_IDI; i++) {
-		const ItemData& ids = AllItemsList[i];
+		const ItemData& ids = AllItemList[i];
 		if (ids.iUniqType == ui.UIUniqType) {
 			int minv;
 			switch (pow) {
@@ -171,12 +214,16 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 			case IPL_DEX: minv = ids.iMinDex; break;
 			default:ASSUME_UNREACHABLE; break;
 			}
-			if (minv != 0)
+			if (minv + dv != 0)
 				return true;
 		}
 	}
 	return false;
 }
+
+#define MIS_VELO_SHIFT      0
+#define MIS_BASE_VELO_SHIFT 16
+#define MIS_SHIFTEDVEL(x)   ((x) << MIS_VELO_SHIFT)
 
 /*static bool lessCrawlTableEntry(const POS32 *a, const POS32 *b)
 {
@@ -195,6 +242,35 @@ static bool lessCrawlTableEntryDist(const POS32 *a, const POS32 *b)
 	int da = a->x * a->x + a->y * a->y;
 	int db = b->x * b->x + b->y * b->y;
 	return da < db;
+}
+
+static bool lessCrawlTableEntryClockWise(const POS32 *a, const POS32 *b)
+{
+	int clockA = (a->x < 0 ? (a->y < 0 ? 3 : 2) : (a->y < 0 ? 0 : 1));
+	int clockB = (b->x < 0 ? (b->y < 0 ? 3 : 2) : (b->y < 0 ? 0 : 1));
+	if (clockA != clockB)
+		return clockA < clockB;
+	if (clockA & 1) {
+		if (clockA >= 2) {
+			if (a->x != b->x)
+				return a->x < b->x;
+			return a->y > b->y;
+		} else {
+			if (a->x != b->x)
+				return a->x > b->x;
+			return a->y < b->y;
+		}
+	} else {
+		if (clockA >= 2) {
+			if (a->x != b->x)
+				return a->x > b->x;
+			return a->y > b->y;
+		} else {
+			if (a->x != b->x)
+				return a->x < b->x;
+			return a->y < b->y;
+		}
+	}
 }
 
 static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const POS32 *a, const POS32 *b))
@@ -225,7 +301,7 @@ static void sortCrawlTable(POS32 *table, unsigned entries, bool (cmpFunc)(const 
 
 static void recreateCrawlTable()
 {
-	constexpr int version = 1;
+	constexpr int version = 2;
 	constexpr int r = version == 0 ? 18 : 15;
 	int crns[r + 1];
 	memset(crns, 0, sizeof(crns));
@@ -241,7 +317,7 @@ static void recreateCrawlTable()
 				dist++;
 			if (version != 0 && dist > 3) {
 				dist = (tx - dx) * (tx - dx) + (ty - dy) * (ty - dy);
-				dist = sqrt((double)dist) + 0.5f;
+				dist = (int)(sqrt((double)dist) + 0.5f);
 				// if (dist == 1 && (tx != dx || ty != dy))
 				//	dist++;
 			}
@@ -257,8 +333,10 @@ static void recreateCrawlTable()
 	for (int n = 0; n <= r; n++) {
 		if (version == 0)
 			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntry);
-		else
+		if (version == 1)
 			sortCrawlTable(ctableentries[n], crns[n], lessCrawlTableEntryDist);
+		if (version == 2)
+			sortCrawlTable(ctableentries[n], crns[n], n == r ? lessCrawlTableEntryClockWise : lessCrawlTableEntryDist);
 	}
 	LogErrorF("const int8_t CrawlTable[%d] = {", total * 2 + r + 1);
 	LogErrorF("	// clang-format off");
@@ -311,67 +389,67 @@ void ValidateData()
 #ifdef DEBUG_DATA
 	int i;
 #endif
-#if DEBUG_MODE
+#if !defined(NONET) && DEBUG_MODE
 	// dvlnet
 	{
-	net::packet_factory pktfty;
-	plr_t plr_self = 0;
-	plr_t plr_other = 1;
-	plr_t plr_mask = (1 << 0) | (1 << 1);
-	net::packet* pkt;
-	turn_t turn = 0;
-	cookie_t cookie = 123456;
-	const BYTE dynData[16] = "lwkejfwip";
-	const BYTE (&addr)[16] = dynData;
-	const BYTE (&addrs)[16] = dynData;
-	SNetGameData gameData;
+		net::packet_factory pktfty;
+		plr_t plr_self = 0;
+		plr_t plr_other = 1;
+		plr_t plr_mask = (1 << 0) | (1 << 1);
+		net::packet* pkt;
+		turn_t turn = 0;
+		cookie_t cookie = 123456;
+		const BYTE dynData[16] = "lwkejfwip";
+		const BYTE (&addr)[16] = dynData;
+		const BYTE (&addrs)[16] = dynData;
+		SNetGameData gameData;
 #ifdef ZEROTIER
-	SNetZtGame ztGameData;
+		SNetZtGame ztGameData;
 #endif
-	pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
-	if (!pkt->validate()) {
-		app_fatal("PT_MESSAGE is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
-	if (!pkt->validate()) {
-		app_fatal("PT_TURN is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
-	if (!pkt->validate()) {
-		app_fatal("PT_JOIN_REQUEST is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
-	if (!pkt->validate()) {
-		app_fatal("PT_JOIN_ACCEPT is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
-	if (!pkt->validate()) {
-		app_fatal("PT_CONNECT is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
-	if (!pkt->validate()) {
-		app_fatal("PT_DISCONNECT is invalid");
-	}
-	delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
+		if (!pkt->validate()) {
+			app_fatal("PT_MESSAGE is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
+		if (!pkt->validate()) {
+			app_fatal("PT_TURN is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_JOIN_REQUEST>(plr_self, net::PLR_BROADCAST, cookie);
+		if (!pkt->validate()) {
+			app_fatal("PT_JOIN_REQUEST is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
+		if (!pkt->validate()) {
+			app_fatal("PT_JOIN_ACCEPT is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
+		if (!pkt->validate()) {
+			app_fatal("PT_CONNECT is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_DISCONNECT>(plr_self, net::PLR_BROADCAST, plr_other);
+		if (!pkt->validate()) {
+			app_fatal("PT_DISCONNECT is invalid");
+		}
+		delete pkt;
 #ifdef ZEROTIER
-	pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
-	if (!pkt->validate()) {
-		app_fatal("PT_INFO_REQUEST is invalid");
-	}
-	delete pkt;
-	pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
-	if (!pkt->validate()) {
-		app_fatal("PT_INFO_REPLY is invalid");
-	}
-	delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_INFO_REQUEST>(plr_self, net::PLR_BROADCAST);
+		if (!pkt->validate()) {
+			app_fatal("PT_INFO_REQUEST is invalid");
+		}
+		delete pkt;
+		pkt = pktfty.make_out_packet<net::PT_INFO_REPLY>(plr_self, plr_other, (const BYTE*)&ztGameData);
+		if (!pkt->validate()) {
+			app_fatal("PT_INFO_REPLY is invalid");
+		}
+		delete pkt;
 #endif
 	}
-#endif // DEBUG
+#endif // !NONET && DEBUG_MODE
 	// text
 	//PrintText(gszHelpText, '|', LTPANEL_WIDTH - 2 * 7);
 #ifdef DEBUG_DATA
@@ -397,6 +475,12 @@ void ValidateData()
 			app_fatal("Invalid (zero) cursor height at %d.", i);
 	}
 	// meta-data
+	for (i = 0; i < NUM_DIRS; i++) {
+		int tx = DBORDERY, ty = DBORDERY;
+		int newx = tx + offset_x[i];
+		int newy = ty + offset_y[i];
+		assert(OPPOSITE(i) == GetDirection(newx, newy, tx, ty)); // required by MonTeleport
+	}
 	// recreateCrawlTable();
 	// - CrawlNum
 	for (int n = 0; n < lengthof(CrawlNum); n++) {
@@ -436,6 +520,52 @@ void ValidateData()
 	}
 	assert(CrawlTable[CrawlNum[4]] == 24); // required by MAI_Scav
 	assert(CrawlTable[CrawlNum[3]] == 24); // required by AddNovaC
+	{	// sfx
+		static const int snSFX[3][NUM_CLASSES] = {
+			// clang-format off
+#ifdef HELLFIRE
+			{ PS_WARR52, PS_ROGUE52, PS_MAGE52, PS_MONK52, PS_ROGUE52, PS_WARR52 },
+			{ PS_WARR49, PS_ROGUE49, PS_MAGE49, PS_MONK49, PS_ROGUE49, PS_WARR49 },
+			{ PS_WARR50, PS_ROGUE50, PS_MAGE50, PS_MONK50, PS_ROGUE50, PS_WARR50 },
+#else
+			{ PS_WARR52, PS_ROGUE52, PS_MAGE52 },
+			{ PS_WARR49, PS_ROGUE49, PS_MAGE49 },
+			{ PS_WARR50, PS_ROGUE50, PS_MAGE50 },
+#endif
+			// clang-format on
+		};
+		for (i = 0; i < NUM_CLASSES; i++) {
+			assert(sfxdata[sgSFXSets[SFXS_PLR_08][i]].bFlags & sfx_STREAM); // required by TalkToTowner
+			assert(sfxdata[sgSFXSets[SFXS_PLR_09][i]].bFlags & sfx_STREAM); // required by TalkToTowner
+			for (int n = 0; n < lengthof(snSFX); n++) {
+				assert(sfxdata[snSFX[n][i]].bFlags & sfx_STREAM); // required by CowSFX
+			}
+		}
+		for (i = 0; i < lengthof(minitxtdata); i++) {
+			int n = minitxtdata[i].sfxnr;
+			if (minitxtdata[i].txtstr && minitxtdata[i].txtstr[0] == '\0')
+				app_fatal("Scrolling text of minitext %d is empty.", n, i);
+			if (minitxtdata[i].txtsfxset) {
+				if ((unsigned)n >= NUM_SFXS)
+					app_fatal("Sfx-set (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr);
+				for (int c = 0; c < NUM_CLASSES; c++) {
+					if (!(sfxdata[sgSFXSets[n][c]].bFlags & sfx_STREAM))
+						app_fatal("Sfx-set (%d) of minitext %d is not streamed (%s) for class %d.", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr, c); // required by MonDoTalk, SpawnLoot
+				}
+			} else {
+				if ((unsigned)n >= NUM_SFXS)
+					app_fatal("Sfx (%d) of minitext %d is invalid (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr);
+				if (!(sfxdata[n].bFlags & sfx_STREAM))
+					app_fatal("Sfx (%d) of minitext %d is not streamed (%s).", n, i, minitxtdata[i].txtstr == NULL ? "(null)" : minitxtdata[i].txtstr); // required by MonDoTalk, SpawnLoot
+			}
+		}
+		assert(sfxdata[USFX_GARBUD4].bFlags & sfx_STREAM); // required by MAI_Garbud
+		assert(sfxdata[USFX_ZHAR2].bFlags & sfx_STREAM);   // required by MAI_Zhar
+		assert(sfxdata[USFX_SNOT3].bFlags & sfx_STREAM);   // required by MAI_SnotSpil
+		assert(sfxdata[USFX_LAZ1].bFlags & sfx_STREAM);    // required by MAI_Lazarus
+		assert(sfxdata[USFX_LACH3].bFlags & sfx_STREAM);   // required by MAI_Lachdanan
+		assert(sfxdata[USFX_WARLRD1].bFlags & sfx_STREAM); // required by MAI_Warlord
+	}
 	// quests
 	for (i = 0; i < lengthof(AllLevels); i++) {
 		int j = 0;
@@ -501,9 +631,14 @@ void ValidateData()
 	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonHitByMon and MonHitByPlr
 	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	assert(monsterdata[MT_GBAT].mAI.aiType == AI_BAT); // required by MAI_Bat
+#ifdef HELLFIRE
+	assert(missiledata[MIS_HORKDMN].mFileNum == MFILE_SPAWNS); // required by MAI_Horkdemon/InitMonsterGFX
+#endif
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_MTYPES; i++) {
 		const MonsterData& md = monsterdata[i];
+		if (strlen(md.mName) > sizeof(infostr) - 1)
+			app_fatal("Too long name for %s, %d (maximum is %d).", md.mName, i, sizeof(infostr)); // required by DrawInfoStr
 		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
 		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_SNAKE || md.mAI.aiType == AI_SNEAK || md.mAI.aiType == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
@@ -522,6 +657,115 @@ void ValidateData()
 			if (md.mAI.aiType != AI_GARG)
 				app_fatal("GARG_STONE flag is not supported by the AI of %s (%d).", md.mName, i);
 		}
+		// check missile animations of the monsters
+		int mm = MonsterAiMissile(md.mAI);
+		if (mm >= 0) {
+			bool hiddenAnim = missiledata[mm].mFileNum >= NUM_FIXMFILE;
+			if (i == MT_NMAGMA || i == MT_YMAGMA || i == MT_BMAGMA || i == MT_WMAGMA) {
+				if (missiledata[mm].mFileNum != MFILE_MAGBALL)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_RTHIN || i == MT_NTHIN || i == MT_XTHIN || i == MT_GTHIN) {
+				if (missiledata[mm].mFileNum != MFILE_THINLGHT)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_NACID || i == MT_RACID || i == MT_BACID || i == MT_XACID
+#ifdef HELLFIRE
+					|| i == MT_SPIDLORD
+#endif
+				) {
+				if (missiledata[mm].mFileNum != MFILE_ACIDBF)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_ACID) // MFILE_ACIDSPLA, MFILE_ACIDPUD ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_ACID, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_GSUCC) {
+				if (missiledata[mm].mFileNum != MFILE_SCUBMISB)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_SNOWWICH) // MFILE_SCBSEXPB ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_SNOWWICH, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_RSUCC) {
+				if (missiledata[mm].mFileNum != MFILE_SCUBMISD)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_HLSPWN) // MFILE_SCBSEXPD ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_HLSPWN, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_BSUCC) {
+				if (missiledata[mm].mFileNum != MFILE_SCUBMISC)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_SOLBRNR) // MFILE_SCBSEXPC ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_SOLBRNR, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_SMAGE || i == MT_OMAGE) {
+				if (missiledata[mm].mFileNum != MFILE_MAGEMIS)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_MAGE) // MFILE_MAGEEXP ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_MAGE, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_DIABLO) {
+				if (missiledata[mm].mFileNum != MFILE_FIREPLAR)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+#ifdef HELLFIRE
+			} else if (i == MT_SKLWING) {
+				/*if (mm != MIS_BONEDEMON) // MFILE_EXORA1_B ?
+					app_fatal("AI_...");
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA_B)
+					app_fatal("AI_...");*/
+			} else if (i == MT_BONEDEMN) {
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA_B)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_BONEDEMON) // MFILE_EXORA1_B ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_BONEDEMON, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_PSYCHORB) {
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_PSYCHORB) // MFILE_EXORA1 ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_PSYCHORB, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_NECRMORB) {
+				if (missiledata[mm].mFileNum != MFILE_MS_REB_B)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_NECROMORB) // MFILE_EXYEL2_B ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_NECROMORB, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_LICH) {
+				if (missiledata[mm].mFileNum != MFILE_MS_ORA_A)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_LICH) // MFILE_EXORA1_A ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_LICH, md.mName, i); // required by InitMonsterGFX
+			} else if (i == MT_ARCHLICH) {
+				if (missiledata[mm].mFileNum != MFILE_MS_YEB_A)
+					app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+				else if (!hiddenAnim)
+					app_fatal("Missile %d animation for monster %s (%d) is no longer optional.", mm, md.mName, i); // required by InitMonsterGFX
+				if (mm != MIS_ARCHLICH) // MFILE_EXYEL2_A ?
+					app_fatal("Explosion for Missile %d animation for monster %s (%d) is no longer necessary.", MIS_ARCHLICH, md.mName, i); // required by InitMonsterGFX
+#endif
+			} else if (missiledata[mm].mFileNum >= NUM_FIXMFILE) {
+				app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", mm, md.mName, i); // required by InitMonsterGFX
+			}
+#ifdef HELLFIRE
+		} else if (md.mAI.aiType == AI_HORKDMN) {
+			if (i != MT_HORKDMN)
+				app_fatal("Missile %d animation for monster %s (%d) might not be loaded.", MFILE_SPAWNS, md.mName, i); // required by InitMonsterGFX
+#endif
+		}
 		if (md.mAI.aiInt > UINT8_MAX - HELL_LEVEL_BONUS / 16) // required by InitMonsterStats
 			app_fatal("Too high aiInt %d for %s (%d).", md.mLevel, md.mName, i);
 		if (md.mAI.aiType == AI_MAGE && md.mAI.aiInt < 1)// required by MAI_Mage (RETREAT)
@@ -534,6 +778,8 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
+		if (md.moFileNum == MOFILE_GOLEM && i != MT_GOLEM)
+			app_fatal("Animation is not initialized properly for %s (%d).", md.mName, i); // required by InitMonsterGFX
 		if (lengthof(monfiledata) <= md.moFileNum)
 			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
 		BYTE afnumReq = 0, altDamReq = 0;
@@ -544,7 +790,7 @@ void ValidateData()
 			) {
 			afnumReq |= 2;
 		}
-		if (md.mAI.aiType == AI_FAT || md.mAI.aiType == AI_ROUND || md.mAI.aiType == AI_GARBUD || md.mAI.aiType == AI_SCAV || md.mAI.aiType == AI_GARG) { // required for MonStartSpAttack / MonDoSpAttack
+		if (md.mAI.aiType == AI_FAT || (md.mAI.aiType == AI_ROUND && md.mAI.aiParam1) || md.mAI.aiType == AI_GARBUD || md.mAI.aiType == AI_SCAV || md.mAI.aiType == AI_GARG) { // required for MonStartSpAttack / MonDoSpAttack
 			afnumReq |= 1;
 		}
 		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_GOLUM || IsSkel(i)) && monfiledata[md.moFileNum].moSndSpecial) { // required for MonStartSpStand
@@ -567,8 +813,10 @@ void ValidateData()
 				}
 			}
 		} else {
+#if DEV_MODE
 			if (monfiledata[md.moFileNum].moAFNum2 != 0)
 				LogErrorF("moAFNum2 is set for %s (%d), but it is not used.", md.mName, i);
+#endif
 		}
 		if (altDamReq != 0) {
 			if (altDamReq & 1) {
@@ -580,10 +828,12 @@ void ValidateData()
 					app_fatal("mHit2 is not set for %s (%d).", md.mName, i);
 			}
 		} else {
+#if DEV_MODE
 			if (md.mHit2 != 0)
 				LogErrorF("mHit2 is set for %s (%d), but it is not used.", md.mName, i);
 			if (md.mMaxDamage2 != 0)
 				LogErrorF("mMaxDamage2 is set (%d) for %s (%d), but it is not used.", md.mMaxDamage2, md.mName, i);
+#endif
 		}
 		if (md.mHit > INT_MAX /*- HELL_TO_HIT_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitMonsterStats
 			app_fatal("Too high mHit %d for %s (%d).", md.mHit, md.mName, i);
@@ -627,6 +877,12 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
+		for (int n = 0; n < NUM_MON_ANIM; n++) {
+			if (n != MA_SPECIAL && md.moAnimFrames[n] == 0 && i != MOFILE_GOLEM)
+				app_fatal("moAnimFrames[%d] is not set for %s (%d).", n, md.moGfxFile, i);
+			if (n != MA_SPECIAL && md.moAnimFrameLen[n] == 0)
+				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
+		}
 		if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
 			app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
@@ -641,6 +897,31 @@ void ValidateData()
 			app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_SPECIAL] == 0 && md.moAFNum2 != 0)
 			app_fatal("moAFNum2 is set for %s (%d), but it has no special animation.", md.moGfxFile, i);
+		if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
+			app_fatal("Inconsistent moAnimFrames/moAnimFrameLen settings for the special animation %s (%d).", md.moGfxFile, i);
+		// check if the special animation is used
+		bool spUsed = false;
+		for (int n = 0; n < NUM_MTYPES; n++) {
+			const MonsterData& msd = monsterdata[n];
+			if (msd.moFileNum != i) continue;
+			if (IsSkel(n) || n == MT_GOLEM || MonsterAiSpecial(msd.mAI, i)) {
+				if (md.moAnimFrames[MA_SPECIAL] == 0)
+					app_fatal("Missing special animation for monster %s (%d)", msd.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
+				spUsed = true;
+			}
+		}
+		for (int n = 0; uniqMonData[n].mtype != MT_INVALID; n++) {
+			const UniqMonData& um = uniqMonData[n];
+			if (monsterdata[um.mtype].moFileNum != i) continue;
+			if (MonsterAiSpecial(um.mAI, i)) {
+				if (md.moAnimFrames[MA_SPECIAL] == 0)
+					app_fatal("Missing special animation for unique monster %s (%d)", um.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
+				spUsed = true;
+			}
+		}
+		if (md.moAnimFrames[MA_SPECIAL] != 0 && !spUsed) {
+			app_fatal("Unused special animation for %s (%d)", md.moGfxFile, i);
+		}
 	}
 #endif
 	// umt checks for GetLevelMTypes
@@ -674,6 +955,7 @@ void ValidateData()
 	}
 #endif
 #ifdef DEBUG_DATA
+	bool sklwingBoned = false;
 	for (i = 0; uniqMonData[i].mtype != MT_INVALID; i++) {
 		const UniqMonData& um = uniqMonData[i];
 		if (um.mtype >= NUM_MTYPES)
@@ -730,11 +1012,12 @@ void ValidateData()
 		if (um.mUnqMag + monsterdata[um.mtype].mMagic > INT_MAX /*- HELL_MAGIC_BONUS */- HELL_LEVEL_BONUS * 5 / 2) // required by InitUniqueMonster
 			app_fatal("Too high mUnqMag %d for %s (%d).", um.mUnqMag, um.mName, i);
 		if (um.mMaxDamage == 0 && monsterdata[um.mtype].mMaxDamage != 0)
-			if (um.mAI.aiType != AI_LACHDAN)
+			if (um.mAI.aiType != AI_LACHDAN) {
 				app_fatal("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
-			else
+			} else {
 				DoLog("mMaxDamage is not set for unique monster %s (%d).", um.mName, i);
-		if (um.mMaxDamage2 == 0 && (um.mAI.aiType == AI_ROUND || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
+			}
+		if (um.mMaxDamage2 == 0 && ((um.mAI.aiType == AI_ROUND && um.mAI.aiParam1) || um.mAI.aiType == AI_FAT || um.mAI.aiType == AI_RHINO || um.mAI.aiType == AI_SNAKE))
 			app_fatal("mMaxDamage2 is not set for unique monster %s (%d).", um.mName, i);
 		if (um.mMaxDamage2 != 0 && (um.mAI.aiType == AI_SCAV || um.mAI.aiType == AI_GARG))
 			app_fatal("Fake special attack of the unique monster %s (%d) might hurt someone because mMaxDamage2 is set.", um.mName, i);
@@ -754,6 +1037,23 @@ void ValidateData()
 			app_fatal("Too high mmaxhp %d for %s (%d)", um.mmaxhp, um.mName, i);
 		if (monsterdata[um.mtype].mExp > UINT_MAX / (um.muLevel + HELL_LEVEL_BONUS)) // required by InitUniqueMonster
 			app_fatal("Too high mExp %d for unique monster %s (%d)", monsterdata[um.mtype].mExp, um.mName, i);
+		int umm = MonsterAiMissile(um.mAI);
+		if (umm >= 0 && missiledata[umm].mFileNum >= NUM_FIXMFILE) {
+			int bmm = MonsterAiMissile(monsterdata[um.mtype].mAI);
+			if (umm != bmm) {
+#ifdef HELLFIRE
+				if (um.mtype == MT_SKLWING && umm == MIS_BONEDEMON)
+					sklwingBoned = true;
+				else
+#endif
+					app_fatal("Missile %d animation for unique monster %s (%d) might not be loaded.", umm, um.mName, i); // required by InitMonsterGFX
+			}
+#ifdef HELLFIRE
+		} else if (um.mAI.aiType == AI_HORKDMN) {
+			if (um.mtype != MT_HORKDMN)
+				app_fatal("Missile %d animation for unique monster %s (%d) might not be loaded.", MFILE_SPAWNS, um.mName, i); // required by InitMonsterGFX
+#endif
+		}
 		uint16_t res = monsterdata[um.mtype].mMagicRes;
 		uint16_t resU = um.mMagicRes;
 		for (int j = 0; j < 8; j++, res >>= 2, resU >>= 2) {
@@ -764,49 +1064,54 @@ void ValidateData()
 		if (um.mmaxhp < monsterdata[um.mtype].mMaxHP)
 			DoLog("Warn: Low mmaxhp %d for %s (%d): lower than mMaxHP %d.", um.mmaxhp, um.mName, i, monsterdata[um.mtype].mMaxHP);
 	}
+#ifdef HELLFIRE
+	if (!sklwingBoned || missiledata[MIS_BONEDEMON].mFileNum < NUM_FIXMFILE)
+		app_fatal("Loading optional missile for MT_SKLWING monsters is no longer necessary."); // required by InitMonsterGFX
+#endif
 #endif
 	// items
-	if (AllItemsList[IDI_HEAL].iMiscId != IMISC_HEAL)
-		app_fatal("IDI_HEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_HEAL].iMiscId, AllItemsList[IDI_HEAL].iMinMLvl);
-	if (AllItemsList[IDI_FULLHEAL].iMiscId != IMISC_FULLHEAL)
-		app_fatal("IDI_FULLHEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_FULLHEAL].iMiscId, AllItemsList[IDI_FULLHEAL].iMinMLvl);
-	if (AllItemsList[IDI_MANA].iMiscId != IMISC_MANA)
-		app_fatal("IDI_MANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_MANA].iMiscId, AllItemsList[IDI_MANA].iMinMLvl);
-	if (AllItemsList[IDI_FULLMANA].iMiscId != IMISC_FULLMANA)
-		app_fatal("IDI_FULLMANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_FULLMANA].iMiscId, AllItemsList[IDI_FULLMANA].iMinMLvl);
-	if (AllItemsList[IDI_REJUV].iMiscId != IMISC_REJUV)
-		app_fatal("IDI_REJUV is not a rejuv potion, its miscId is %d, iminlvl %d.", AllItemsList[IDI_REJUV].iMiscId, AllItemsList[IDI_REJUV].iMinMLvl);
-	if (AllItemsList[IDI_FULLREJUV].iMiscId != IMISC_FULLREJUV)
-		app_fatal("IDI_FULLREJUV is not a rejuv potion, its miscId is %d.", AllItemsList[IDI_FULLREJUV].iMiscId, AllItemsList[IDI_FULLREJUV].iMinMLvl);
-	if (AllItemsList[IDI_BOOK1].iMiscId != IMISC_BOOK)
-		app_fatal("IDI_BOOK1 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK1].iMiscId, AllItemsList[IDI_BOOK1].iMinMLvl);
-	if (AllItemsList[IDI_BOOK4].iMiscId != IMISC_BOOK)
-		app_fatal("IDI_BOOK4 is not a book, its miscId is %d, iminlvl %d.", AllItemsList[IDI_BOOK4].iMiscId, AllItemsList[IDI_BOOK4].iMinMLvl);
-	if (AllItemsList[IDI_CAMPAIGNMAP].iMiscId != IMISC_MAP)
-		app_fatal("IDI_CAMPAIGNMAP is not a map, its miscId is %d, iminlvl %d.", AllItemsList[IDI_CAMPAIGNMAP].iMiscId, AllItemsList[IDI_CAMPAIGNMAP].iMinMLvl);
-	if (AllItemsList[IDI_CAMPAIGNMAP].iDurability != 1) // required because of affixes and map level
-		app_fatal("IDI_CAMPAIGNMAP stack-size is not one, its miscId is %d, iminlvl %d.", AllItemsList[IDI_CAMPAIGNMAP].iMiscId, AllItemsList[IDI_CAMPAIGNMAP].iMinMLvl);
-	if (AllItemsList[IDI_CAMPAIGNMAP].iValue != (1 << (MAXCAMPAIGNSIZE - 6)) - 1) // required by InitCampaignMap
-		app_fatal("IDI_CAMPAIGNMAP base value is invalid (%d vs. %d).", AllItemsList[IDI_CAMPAIGNMAP].iValue, (1 << (MAXCAMPAIGNSIZE - 2)) - 1);
+	if (AllItemList[IDI_HEAL].iMiscId != IMISC_HEAL)
+		app_fatal("IDI_HEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_HEAL].iMiscId, AllItemList[IDI_HEAL].iMinMLvl);
+	if (AllItemList[IDI_FULLHEAL].iMiscId != IMISC_FULLHEAL)
+		app_fatal("IDI_FULLHEAL is not a heal potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_FULLHEAL].iMiscId, AllItemList[IDI_FULLHEAL].iMinMLvl);
+	if (AllItemList[IDI_MANA].iMiscId != IMISC_MANA)
+		app_fatal("IDI_MANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_MANA].iMiscId, AllItemList[IDI_MANA].iMinMLvl);
+	if (AllItemList[IDI_FULLMANA].iMiscId != IMISC_FULLMANA)
+		app_fatal("IDI_FULLMANA is not a mana potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_FULLMANA].iMiscId, AllItemList[IDI_FULLMANA].iMinMLvl);
+	if (AllItemList[IDI_REJUV].iMiscId != IMISC_REJUV)
+		app_fatal("IDI_REJUV is not a rejuv potion, its miscId is %d, iminlvl %d.", AllItemList[IDI_REJUV].iMiscId, AllItemList[IDI_REJUV].iMinMLvl);
+	if (AllItemList[IDI_FULLREJUV].iMiscId != IMISC_FULLREJUV)
+		app_fatal("IDI_FULLREJUV is not a rejuv potion, its miscId is %d.", AllItemList[IDI_FULLREJUV].iMiscId, AllItemList[IDI_FULLREJUV].iMinMLvl);
+	if (AllItemList[IDI_BOOK1].iMiscId != IMISC_BOOK)
+		app_fatal("IDI_BOOK1 is not a book, its miscId is %d, iminlvl %d.", AllItemList[IDI_BOOK1].iMiscId, AllItemList[IDI_BOOK1].iMinMLvl);
+	if (AllItemList[IDI_BOOK4].iMiscId != IMISC_BOOK)
+		app_fatal("IDI_BOOK4 is not a book, its miscId is %d, iminlvl %d.", AllItemList[IDI_BOOK4].iMiscId, AllItemList[IDI_BOOK4].iMinMLvl);
+	if (AllItemList[IDI_CAMPAIGNMAP].iMiscId != IMISC_MAP)
+		app_fatal("IDI_CAMPAIGNMAP is not a map, its miscId is %d, iminlvl %d.", AllItemList[IDI_CAMPAIGNMAP].iMiscId, AllItemList[IDI_CAMPAIGNMAP].iMinMLvl);
+	if (AllItemList[IDI_CAMPAIGNMAP].iDurability != 1) // required because of affixes and map level
+		app_fatal("IDI_CAMPAIGNMAP stack-size is not one, its miscId is %d, iminlvl %d.", AllItemList[IDI_CAMPAIGNMAP].iMiscId, AllItemList[IDI_CAMPAIGNMAP].iMinMLvl);
+	if (AllItemList[IDI_CAMPAIGNMAP].iValue != (1 << (MAXCAMPAIGNSIZE - 6)) - 1) // required by InitCampaignMap
+		app_fatal("IDI_CAMPAIGNMAP base value is invalid (%d vs. %d).", AllItemList[IDI_CAMPAIGNMAP].iValue, (1 << (MAXCAMPAIGNSIZE - 2)) - 1);
 	static_assert(IDI_BOOK4 - IDI_BOOK1 == 3, "Invalid IDI_BOOK indices.");
-	if (AllItemsList[IDI_CLUB].iCurs != ICURS_CLUB)
-		app_fatal("IDI_CLUB is not a club, its cursor is %d, iminlvl %d.", AllItemsList[IDI_CLUB].iCurs, AllItemsList[IDI_CLUB].iMinMLvl);
-	if (AllItemsList[IDI_DROPSHSTAFF].iUniqType != UITYPE_SHORTSTAFF)
-		app_fatal("IDI_DROPSHSTAFF is not a short staff, its utype is %d, iminlvl %d.", AllItemsList[UITYPE_SHORTSTAFF].iUniqType, AllItemsList[UITYPE_SHORTSTAFF].iMinMLvl);
+	if (AllItemList[IDI_CLUB].iCurs != ICURS_CLUB)
+		app_fatal("IDI_CLUB is not a club, its cursor is %d, iminlvl %d.", AllItemList[IDI_CLUB].iCurs, AllItemList[IDI_CLUB].iMinMLvl);
+	if (AllItemList[IDI_DROPSHSTAFF].iUniqType != UITYPE_SHORTSTAFF)
+		app_fatal("IDI_DROPSHSTAFF is not a short staff, its utype is %d, iminlvl %d.", AllItemList[UITYPE_SHORTSTAFF].iUniqType, AllItemList[UITYPE_SHORTSTAFF].iMinMLvl);
 #ifdef DEBUG_DATA
 	int minAmu, minLightArmor, minMediumArmor, minHeavyArmor; //, maxStaff = 0;
 	minAmu = minLightArmor = minMediumArmor = minHeavyArmor = MAXCHARLEVEL;
-	int rnddrops = 0;
+	int rnddrops[ILVLMAX + 1][NUM_IARS][10];
+	rnddrops[0][0][0] = 0;
 	for (i = 0; i < NUM_IDI; i++) {
-		const ItemData& ids = AllItemsList[i];
+		const ItemData& ids = AllItemList[i];
 		if (ids.iName == NULL) {
 			if (i >= IDI_RNDDROP_FIRST || ids.iRnd != 0)
 				app_fatal("Invalid iRnd value for nameless item (%d)", i);
 			continue;
 		}
 		if (strlen(ids.iName) > 32 - 1)
-			app_fatal("Too long name for %s (%d)", ids.iName, i);
-		rnddrops += ids.iRnd;
+			app_fatal("Too long name for %s (%d)", ids.iName, i); // required by SetItemData
+		rnddrops[0][0][0] += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
 		if (ids.itype == ITYPE_NONE)
@@ -900,18 +1205,33 @@ void ValidateData()
 			}
 			if (ids.iDurability == 0)
 				app_fatal("Usable item %s (%d) with miscId %d must have a non-zero durablity(stacksize).", ids.iName, i, ids.iMiscId);
+		} else {
+			switch (ids.iMiscId) {
+			case IMISC_HEAL:
+			case IMISC_FULLHEAL:
+			case IMISC_MANA:
+			case IMISC_FULLMANA:
+			case IMISC_REJUV:
+			case IMISC_FULLREJUV:
+			case IMISC_SCROLL:
+				app_fatal("Non-Usable item %s (%d) with miscId %d is not handled by UseBeltItem.", ids.iName, i, ids.iMiscId);
+				break;
+			}
 		}
 		if (ids.iClass == ICLASS_QUEST && ids.iLoc != ILOC_UNEQUIPABLE)
 			app_fatal("Quest item %s (%d) must be unequippable, not %d", ids.iName, i, ids.iLoc);
 		if (ids.iClass == ICLASS_QUEST && ids.itype != ITYPE_MISC)
 			app_fatal("Quest item %s (%d) must be have 'misc' itype, otherwise it might be sold at vendors.", ids.iName, i);
 	}
+#if 0
+	LogErrorF("Max drop %d vs %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
+#endif
 #if UNOPTIMIZED_RNDITEMS
-	if (rnddrops > ITEM_RNDDROP_MAX)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, ITEM_RNDDROP_MAX);
+	if (rnddrops[0][0][0] > ITEM_RNDDROP_MAX)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], ITEM_RNDDROP_MAX);
 #else
-	if (rnddrops > 0x7FFF)
-		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops, 0x7FFF);
+	if (rnddrops[0][0][0] > 0x7FFF)
+		app_fatal("Too many drop options: %d. Maximum is %d", rnddrops[0][0][0], 0x7FFF);
 #endif
 	if (minLightArmor > 1)
 		app_fatal("No light armor for OperateArmorStand. Current minimum is level %d", minLightArmor);
@@ -923,15 +1243,53 @@ void ValidateData()
 	if (uniqMonData[UMT_HORKDMN].muLevel < minAmu)
 		app_fatal("No amulet for THEODORE. Current minimum is level %d, while the monster level is %d.", minAmu, uniqMonData[UMT_HORKDMN].muLevel);
 #endif
-	rnddrops = 0; i = 0;
+	memset(rnddrops, 0, sizeof(rnddrops));
+	i = 0;
 	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
-		rnddrops += pres->PLDouble ? 2 : 1;
-		if (pres->PLParam2 < pres->PLParam1) {
-			app_fatal("Invalid PLParam set for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+		const BYTE pow = pres->PLPower;
+		for (int ii = 0; ii < lengthof(pres->PLRanges); ii++) {
+			for (int n = pres->PLRanges[ii].from; n <= pres->PLRanges[ii].to; n++) {
+				int cnt = pres->PLDouble ? 2 : 1;
+				if (pres->PLIType & PLT_MISC)
+					rnddrops[n][ii][0] += cnt;
+				if (pres->PLIType & PLT_BOW)
+					rnddrops[n][ii][1] += cnt;
+				if (pres->PLIType & (PLT_STAFF | PLT_CHRG))
+					rnddrops[n][ii][2] += cnt;
+				if (pres->PLIType & PLT_MELEE)
+					rnddrops[n][ii][3] += cnt;
+				if (pres->PLIType & PLT_SHLD)
+					rnddrops[n][ii][4] += cnt;
+				if (pres->PLIType & PLT_HELM)
+					rnddrops[n][ii][5] += cnt;
+				if (pres->PLIType & PLT_LARMOR)
+					rnddrops[n][ii][6] += cnt;
+				if (pres->PLIType & PLT_MARMOR)
+					rnddrops[n][ii][7] += cnt;
+				if (pres->PLIType & PLT_HARMOR)
+					rnddrops[n][ii][8] += cnt;
+				if (pres->PLIType & PLT_MAP)
+					rnddrops[n][ii][9] += cnt;
+			}
 		}
-		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) { // required by SaveItemPower
-			app_fatal("PLParam too high for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
+		if (pres->PLParam2 < pres->PLParam1)
+			app_fatal("Invalid PLParam-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+		if (pres->PLParam2 - pres->PLParam1 >= 0x7FFF) // required by SaveItemPower
+			app_fatal("PLParam-range too high for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+		if (pres->PLParam1 == 0 && pres->PLParam2 == 0
+		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
+		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+			app_fatal("Invalid(zero) PLParams set for %d. prefix (power:%d)", i, pow);
+
+		if (pres->PLMinVal != pres->PLMaxVal) {
+			if (pres->PLMaxVal < pres->PLMinVal)
+				app_fatal("Invalid PL*Val-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2); // required by PLVal
+			if (pres->PLParam2 == pres->PLParam1)
+				app_fatal("Unused PL*Val-range set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2);
+			if ((pres->PLMaxVal - pres->PLMinVal) >= INT_MAX / (pres->PLParam2 - pres->PLParam1))
+				app_fatal("Too hight PL*Vals set for %d. prefix (power:%d, pparam:%d-%d)", i, pow, pres->PLParam1, pres->PLParam2); // required by PLVal
 		}
+
 		if (pres->PLPower == IPL_TOHIT_DAMP) {
 			if ((pres->PLParam2 >> 2) - (pres->PLParam1 >> 2) == 0) { // required by SaveItemPower
 				app_fatal("PLParam too low for %d. prefix (power:%d, pparam1:%d)", i, pres->PLPower, pres->PLParam1);
@@ -964,7 +1322,7 @@ void ValidateData()
 			}
 		}
 		if (pres->PLPower == IPL_DUR) {
-			if (pres->PLParam2 > 200) {
+			if (pres->PLParam1 <= -100 || pres->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. prefix (power:%d, pparam2:%d)", i, pres->PLPower, pres->PLParam2);
 			}
 		}
@@ -1004,14 +1362,69 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
-		app_fatal("Too many prefix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
-	rnddrops = 0;
+	int maxAffix = -1;
+	for (int ii = 0; ii < NUM_IARS; ii++) {
+		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
+		for (int n = 0; n <= ILVLMAX; n++) {
+			for (int k = 0; k < 10; k++) {
+				int drops = rnddrops[n][ii][k];
+				if (drops > maxAffix) {
+					maxAffix = drops;
+				}
+				if (drops > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many prefix options: %d (lvl%d for %s type%d), . Maximum is %d", drops, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+			}
+		}
+	}
+	memset(rnddrops, 0, sizeof(rnddrops));
 	const AffixData* sufs = PL_Suffix;
 	for (i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
+		const BYTE pow = sufs->PLPower;
+		for (int ii = 0; ii < lengthof(sufs->PLRanges); ii++) {
+			for (int n = sufs->PLRanges[ii].from; n <= sufs->PLRanges[ii].to; n++) {
+				int cnt = sufs->PLDouble ? 2 : 1;
+				if (sufs->PLIType & PLT_MISC)
+					rnddrops[n][ii][0] += cnt;
+				if (sufs->PLIType & PLT_BOW)
+					rnddrops[n][ii][1] += cnt;
+				if (sufs->PLIType & (PLT_STAFF | PLT_CHRG))
+					rnddrops[n][ii][2] += cnt;
+				if (sufs->PLIType & PLT_MELEE)
+					rnddrops[n][ii][3] += cnt;
+				if (sufs->PLIType & PLT_SHLD)
+					rnddrops[n][ii][4] += cnt;
+				if (sufs->PLIType & PLT_HELM)
+					rnddrops[n][ii][5] += cnt;
+				if (sufs->PLIType & PLT_LARMOR)
+					rnddrops[n][ii][6] += cnt;
+				if (sufs->PLIType & PLT_MARMOR)
+					rnddrops[n][ii][7] += cnt;
+				if (sufs->PLIType & PLT_HARMOR)
+					rnddrops[n][ii][8] += cnt;
+				if (sufs->PLIType & PLT_MAP)
+					rnddrops[n][ii][9] += cnt;
+			}
+		}
 		if (sufs->PLDouble)
-			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
-		rnddrops++;
+			app_fatal("Invalid PLDouble set for %d. suffix (power:%d, pparam1:%d)", i, pow, sufs->PLParam1);
+		if (sufs->PLParam2 < sufs->PLParam1)
+			app_fatal("Invalid PLParam-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+		if (sufs->PLParam2 - sufs->PLParam1 >= 0x7FFF) // required by SaveItemPower
+			app_fatal("PLParam-range too high for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+		if (sufs->PLParam1 == 0 && sufs->PLParam2 == 0
+		 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
+		 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+			app_fatal("Invalid(zero) PLParams set for %d. suffix (power:%d)", i, pow);
+
+		if (sufs->PLMinVal != sufs->PLMaxVal) {
+			if (sufs->PLMaxVal < sufs->PLMinVal)
+				app_fatal("Invalid PL*Val-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2); // required by PLVal
+			if (sufs->PLParam2 == sufs->PLParam1)
+				app_fatal("Unused PL*Val-range set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2);
+			if ((sufs->PLMaxVal - sufs->PLMinVal) >= INT_MAX / (sufs->PLParam2 - sufs->PLParam1))
+				app_fatal("Too hight PL*Vals set for %d. suffix (power:%d, pparam:%d-%d)", i, pow, sufs->PLParam1, sufs->PLParam2); // required by PLVal
+		}
+
 		if (sufs->PLPower == IPL_FASTATTACK) {
 			if (sufs->PLParam1 < 1 || sufs->PLParam2 > 4) {
 				app_fatal("Invalid PLParam set for %d. suffix (power:%d, pparam1:%d)", i, sufs->PLPower, sufs->PLParam1);
@@ -1036,7 +1449,7 @@ void ValidateData()
 			}
 		}
 		if (sufs->PLPower == IPL_DUR) {
-			if (sufs->PLParam2 > 200) {
+			if (sufs->PLParam1 <= -100 || sufs->PLParam2 > 200) {
 				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
@@ -1076,9 +1489,23 @@ void ValidateData()
 			}
 		}
 	}
-	if (rnddrops > ITEM_RNDAFFIX_MAX || rnddrops > 0x7FFF)
-		app_fatal("Too many suffix options: %d. Maximum is %d", rnddrops, ITEM_RNDAFFIX_MAX);
-
+	for (int ii = 0; ii < NUM_IARS; ii++) {
+		const char* loc = ii == IAR_DROP ? "drop" : ii == IAR_SHOP ? "shop" : "craft";
+		for (int n = 0; n <= ILVLMAX; n++) {
+			for (int k = 0; k < 10; k++) {
+				int dropts = rnddrops[n][ii][k];
+				if (dropts > maxAffix) {
+					maxAffix = dropts;
+				}
+				if (dropts > std::min(ITEM_RNDAFFIX_MAX, 0x7FFF))
+					app_fatal("Too many suffix options: %d (lvl%d for %s type%d), . Maximum is %d", dropts, n, loc, k, std::min(ITEM_RNDAFFIX_MAX, 0x7FFF));
+			}
+		}
+	}
+#if 0
+	LogErrorF("Max affix %d vs %d", maxAffix, ITEM_RNDAFFIX_MAX);
+#endif
+#if DEV_MODE
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
 		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
@@ -1110,13 +1537,24 @@ void ValidateData()
 		}
 		LogErrorF("Affix for lvl%2d: shop(%d:%d) loot(%d:%d/%d:%d) boy(%d:%d)", i, a, as, b, bs, w, ws, c, cs);
 	}
-
+#endif
 	// unique items
 	for (i = 0; i < NUM_UITEM; i++) {
 		const UniqItemData& ui = UniqueItemList[i];
 		for (int n = 1; n <= 6; n++) {
-			BYTE pow = GetUniqueItemPower(ui, n);
+			const BYTE pow = GetUniqueItemPower(ui, n);
+			const int paramA = GetUniqueItemParamA(ui, n);
+			const int paramB = GetUniqueItemParamB(ui, n);
 			if (pow != IPL_INVALID) {
+				if (paramB < paramA)
+					app_fatal("Invalid UIParam%d-range set for '%s' %d.", n, ui.UIName, i);
+				if (paramB - paramA >= 0x7FFF) // required by SaveItemPower
+					app_fatal("UIParam%d-range too high for '%s' %d.", n, ui.UIName, i);
+				if (paramA == 0 && paramB == 0
+				 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
+				 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
+					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+
 				for (int m = n + 1; m <= 6; m++) {
 					if (GetUniqueItemPower(ui, m) == pow)
 						app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
@@ -1131,38 +1569,38 @@ void ValidateData()
 			}
 			if (pow == IPL_ATTRIBS) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_STR || pow == IPL_MAG || pow == IPL_DEX || pow == IPL_VIT)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_STR || opow == IPL_MAG || opow == IPL_DEX || opow == IPL_VIT)
 						app_fatal("SaveItemPower does not support IPL_ATTRIBS and IPL_STR/IPL_MAG/IPL_DEX/IPL_VIT modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_ALLRES) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_FIRERES || pow == IPL_LIGHTRES || pow == IPL_MAGICRES || pow == IPL_ACIDRES)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_FIRERES || opow == IPL_LIGHTRES || opow == IPL_MAGICRES || opow == IPL_ACIDRES)
 						app_fatal("SaveItemPower does not support IPL_ALLRES and IPL_FIRERES/IPL_LIGHTRES/IPL_MAGICRES/IPL_ACIDRES modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_TOHIT) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_TOHIT_DAMP)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_TOHIT_DAMP)
 						app_fatal("SaveItemPower does not support IPL_TOHIT and IPL_TOHIT_DAMP modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_SETDAM && GetUniqueItemParamA(ui, n) == 0 && GetUniqueItemParamB(ui, n) == 0) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_DAMMOD || pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_DAMMOD || opow == IPL_DAMP || opow == IPL_TOHIT_DAMP || opow == IPL_CRYSTALLINE)
 						app_fatal("SaveItemPower does not support IPL_SETDAM (0) and IPL_DAMMOD/IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (n != m && (pow == IPL_DAMP || pow == IPL_TOHIT_DAMP || pow == IPL_CRYSTALLINE))
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (n != m && (opow == IPL_DAMP || opow == IPL_TOHIT_DAMP || opow == IPL_CRYSTALLINE))
 						app_fatal("SaveItemPower does not support IPL_DAMP/IPL_TOHIT_DAMP/IPL_CRYSTALLINE modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_SETAC) {
 				for (int m = 1; m <= 6; m++) {
-					pow = GetUniqueItemPower(ui, m);
-					if (pow == IPL_ACMOD)
+					const BYTE opow = GetUniqueItemPower(ui, m);
+					if (opow == IPL_ACMOD)
 						app_fatal("SaveItemPower does not support IPL_SETAC and IPL_ACMOD modifiers at the same time on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else if (pow == IPL_FASTATTACK) {
@@ -1170,7 +1608,7 @@ void ValidateData()
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 				if (GetUniqueItemParamB(ui, n) >= 3) {
 					for (int n = 0; n < NUM_IDI; n++) {
-						if (AllItemsList[n].iUniqType == ui.UIUniqType && AllItemsList[n].itype == ITYPE_BOW) {
+						if (AllItemList[n].iUniqType == ui.UIUniqType && AllItemList[n].itype == ITYPE_BOW) {
 							app_fatal("Too high UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by MissMonHitByPlr and MissPlrHitByPlr
 						}
 					}
@@ -1185,8 +1623,17 @@ void ValidateData()
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
 			} else if (pow == IPL_DUR) {
-				if (GetUniqueItemParamA(ui, n) <= 0 || GetUniqueItemParamB(ui, n) > 200)
+				if (GetUniqueItemParamA(ui, n) <= -100 || GetUniqueItemParamB(ui, n) > 200)
 					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+			} else if (pow == IPL_REQSTR) {
+				for (int n = 0; n < NUM_IDI; n++) {
+					if (AllItemList[n].iUniqType == ui.UIUniqType) {
+						if (AllItemList[n].iMinStr < -paramA)
+							app_fatal("Too low UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by iMinStr
+						if (UCHAR_MAX - AllItemList[n].iMinStr < paramB)
+							app_fatal("Too high UIParam%d set for '%s' %d.", n, ui.UIName, i); // required by iMinStr
+					}
+				}
 			} else if ((pow == IPL_STR || pow == IPL_MAG || pow == IPL_DEX) && GetUniqueItemParamA(ui, n) < 0 && HasUniqueItemReq(ui, pow)) {
 				for (int m = 1; m <= 6; m++) {
 					BYTE pw = GetUniqueItemPower(ui, m);
@@ -1213,7 +1660,7 @@ void ValidateData()
 		}
 		int n = 0;
 		for ( ; n < NUM_IDI; n++) {
-			if (AllItemsList[n].iUniqType == ui.UIUniqType)
+			if (AllItemList[n].iUniqType == ui.UIUniqType)
 				break;
 		}
 		if (n == NUM_IDI)
@@ -1248,6 +1695,28 @@ void ValidateData()
 			if (od.oAnimLen >= 0x7FFF) // required by SetupObject
 				app_fatal("Too high oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
 		}
+		if (od.oSFXCnt != 0) {
+			for (int n = 0; n < NUM_OBJECTS; n++) {
+				const ObjectData& obd = objectdata[n];
+				if (obd.ofindex != i) continue;
+				if (n == OBJ_SHRINEL || n == OBJ_SHRINER || n == OBJ_GOATSHRINE || n == OBJ_CAULDRON) continue;
+				if (od.oSFXCnt == 1 &&
+					(n == OBJ_BARREL || n == OBJ_BARRELEX
+#ifdef HELLFIRE
+				 || n == OBJ_URN || n == OBJ_URNEX || n == OBJ_POD || n == OBJ_PODEX
+#endif
+					)) continue;
+
+				if (od.oSFXCnt == 2 &&
+					(n == OBJ_L1LDOOR || n == OBJ_L1RDOOR || n == OBJ_L2LDOOR || n == OBJ_L2RDOOR || n == OBJ_L3LDOOR || n == OBJ_L3RDOOR
+#ifdef HELLFIRE
+				 || n == OBJ_L5LDOOR || n == OBJ_L5RDOOR
+#endif
+					)) continue;
+				if (obd.ofindex == i && n != OBJ_SHRINEL && n != OBJ_SHRINER && n != OBJ_GOATSHRINE && n != OBJ_CAULDRON)
+					app_fatal("Unsupported oSFXCnt for %s (%d) used by object %d", od.ofName, i, n);
+			}
+		}
 	}
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		const ObjectData& od = objectdata[i];
@@ -1273,7 +1742,10 @@ void ValidateData()
 #endif
 
 	// spells
+	assert(SFX_VALID(spelldata[SPL_DISARM].sSFX)); // required by On_DISARMXY
+	assert(SFX_VALID(spelldata[SPL_TELEKINESIS].sSFX)); // required by DoTelekinesis
 	assert(spelldata[SPL_RESURRECT].sManaCost == 0); // required by GetItemSpell
+	assert(!(spelldata[SPL_HEAL].sUseFlags & SFLAG_DUNGEON)); // required by UseBeltItem
 	assert(spelldata[SPL_TELEPORT].sSkillFlags & SDFLAG_TARGETED); // required by AddTeleport
 #define OBJ_TARGETING_CURSOR(x) ((x) == CURSOR_NONE || (x) == CURSOR_DISARM)
 	assert(OBJ_TARGETING_CURSOR(spelldata[SPL_DISARM].scCurs)); // required by TryIconCurs
@@ -1332,8 +1804,6 @@ void ValidateData()
 				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Rune of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasRuneSpell = true;
 			continue;
 		}
@@ -1344,8 +1814,6 @@ void ValidateData()
 				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sBookCost <= 0)
 				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Book of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasBookSpell = true;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
@@ -1357,9 +1825,6 @@ void ValidateData()
 				app_fatal("Too high sStaffMax %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Staff of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			hasStaffSpell = true;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
@@ -1367,8 +1832,6 @@ void ValidateData()
 				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i);
 			if ((sd.sSkillFlags & SDFLAG_TARGETED) && sd.scCurs == CURSOR_NONE)
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			hasScrollSpell = true;
@@ -1377,6 +1840,10 @@ void ValidateData()
 			app_fatal("Skill %s (%d) supposed to use a missile, but neither sType nor the SFLAG_RANGED-flag is set.", sd.sNameText, i);
 		//if (!(sd.sUseFlags & SFLAG_DUNGEON) && sd.sType != STYPE_NONE && sd.sType != STYPE_MAGIC && i != SPL_NULL)
 		//	app_fatal("GFX is not loaded in town for skill %s (%d).", sd.sNameText, i); // required by InitPlayerGFX
+		if (sd.sType != STYPE_NONE && !SFX_VALID(sd.sSFX))
+			app_fatal("Skill %s (%d) does not have a valid sfx-id.", sd.sNameText, i); // required by On_SKILLXY, On_SKILLRXY, On_SKILLMON, On_SKILLPLR
+		if ((sd.sMissile == MIS_OPITEM || sd.sMissile == MIS_REPAIR) && !SFX_VALID(sd.sSFX))
+			app_fatal("Item-Skill %s (%d) does not have a valid sfx-id.", sd.sNameText, i); // required by On_OPERATEITEM
 	}
 	if (!hasBookSpell)
 		app_fatal("No book spell for GetBookSpell.");
@@ -1394,19 +1861,37 @@ void ValidateData()
 		const MissileData& md = missiledata[i];
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
+		/*if ((md.mAddProc == AddBleed || md.mAddProc == AddBloodBoil || md.mAddProc == AddFireexp || md.mAddProc == AddInferno || md.mAddProc == AddMisexp)
+		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0])
+			app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);*/
+		if ((md.mProc == MI_Misexp || md.mProc == MI_MiniExp || md.mProc == MI_LongExp || md.mProc == MI_Bleed || md.mProc == MI_BloodBoil || md.mProc == MI_Inferno || md.mProc == MI_Acidsplat
+#ifdef HELLFIRE
+			 || md.mProc == MI_HorkSpawn
+#endif
+			)
+		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]) {
+			if (md.mAddProc != AddAttract)
+				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);
+			else if (md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0] /2u)
+				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0] / 2u);
+		}
+		if (md.mProc == MI_ExtExp
+		 && md.mdRange < misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] * misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
+			app_fatal("Animated-Missile %d has invalid duration (%d, expected at least %d).", i, md.mdRange, misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] * misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
+		}
+		if (md.mAddProc == AddCharge && md.mdPrSpeed != (int)(MIS_SHIFTEDVEL(16) / M_SQRT2))
+			app_fatal("Charge-Missile %d has invalid projectile-speed (%d, expected %d).", i, md.mdPrSpeed, (int)(MIS_SHIFTEDVEL(16) / M_SQRT2));
 		if (md.mAddProc == AddMisexp) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
 				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
 			}
 		}
-#ifdef HELLFIRE
-		if (md.mAddProc == AddHorkSpawn) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
-				assert(misfiledata[md.mFileNum].mfAnimLen[j] == 9);
+		if (md.mAddProc == AddTelekinesis) {
+			for (int n = 0; n < NUM_SPELLS; n++) {
+				if (spelldata[n].sMissile == i)
+					assert(spelldata[n].sSkillFlags & SDFLAG_TARGETED);
 			}
 		}
-#endif
 		if (md.mProc == NULL)
 			app_fatal("Missile %d has no valid mProc.", i);
 		if (md.mProc == MI_Misexp) {
@@ -1419,61 +1904,224 @@ void ValidateData()
 				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
+		if (md.mProc == MI_Inferno) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] < 24);
+			}
+		}
+		if (md.mProc == MI_Cbolt) {
+			assert(md.mdPrSpeed == missiledata[MIS_CBOLT].mdPrSpeed);
+		}
+		if (md.mProc == MI_Chain) {
+			assert(md.mdPrSpeed == missiledata[MIS_CHAIN].mdPrSpeed);
+		}
+		if (md.mProc == MI_Elemental) {
+			assert(md.mdPrSpeed == missiledata[MIS_ELEMENTAL].mdPrSpeed);
+		}
+		if (md.mProc == MI_Mage) {
+			assert(md.mdPrSpeed == missiledata[MIS_MAGE].mdPrSpeed);
+		}
+		if (md.mProc == MI_Acidpud)
+			assert(md.mFileNum == MFILE_ACIDPUD);
+		if (md.mProc == MI_BloodBoil) {
+			assert(md.mAddProc == AddBloodBoil);
+			// assert(md.mFileNum == MFILE_BLODBURS);
+		}
+		if (md.mProc == MI_Firewall || md.mProc == MI_FireWave)
+			assert(md.mFileNum == MFILE_FIREWAL);
+		if (md.mProc == MI_Flash)
+			assert(md.mFileNum == MFILE_BLUEXFR);
+		if (md.mProc == MI_Flash2)
+			assert(md.mFileNum == MFILE_BLUEXBK);
+		if (md.mProc == MI_Guardian) {
+			assert(md.mFileNum == MFILE_GUARD);
+			assert(misfiledata[md.mFileNum].mfAnimFAmt == 3);
+		}
+		if (md.mProc == MI_Portal) {
+			for (int j = 0; j < 16; j++) {
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_PORTAL].mfAnimLen[j]);
+			}
+		}
+		if (md.mProc == MI_Shroud)
+			assert(md.mFileNum == MFILE_SHROUD);
+		if (md.mProc == MI_Wind)
+			assert(md.mFileNum == MFILE_WIND);
+		if (md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_FireWave || md.mProc == MI_Flash || md.mProc == MI_Flash2
+		 || md.mProc == MI_Guardian || md.mProc == MI_Portal || md.mProc == MI_Shroud || md.mProc == MI_Wind) {
+			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+				if (misfiledata[md.mFileNum].mfAnimFrameLen[j] != 1)
+					app_fatal("Animated-Missile %d depending on mfAnimFrameLen is not a single stepper (%d: %d).", i, j, misfiledata[md.mFileNum].mfAnimFrameLen[j]);
+			}
+		}
+		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
+			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
+		}
+		if ((md.mProc == MI_Acidpud || md.mProc == MI_Flash2) != misfiledata[md.mFileNum].mfPreFlag)
+			app_fatal("Missile %d wont render correctly due to misconfigured preflag.", i);
 		if (md.mdFlags & MIF_ARROW) {
+			if (md.mAddProc != AddArrow)
+				app_fatal("Arrow-Missile %d is not added by AddArrow proc.", i); // required to initialize MISDIST / MISHIT
+			if (md.mProc != MI_Arrow && md.mProc != MI_AsArrow)
+				app_fatal("Arrow-Missile %d is not handled by MI_*Arrow proc.", i); // required to maintain MISDIST
 			if (i != MIS_ARROW && i != MIS_PBARROW && i != MIS_ASARROW && i != MIS_MLARROW && i != MIS_PCARROW)
 				app_fatal("Arrow-Missile %d is not handled in MissMonHitByPlr and in MissPlrHitByPlr.", i);
-		}
-		if (md.mDrawFlag) {
-			if (md.mFileNum == MFILE_NONE && i != MIS_RHINO && i != MIS_CHARGE)
-				app_fatal("Missile %d is drawn, but has no valid mFileNum.", i);
 		} else {
-			if (md.mFileNum != MFILE_NONE)
-				app_fatal("Missile %d is not drawn, but has valid mFileNum.", i);
-			if (md.miSFX != SFX_NONE)
-				app_fatal("Missile %d is not drawn, but has valid miSFX.", i);
+			if (md.mAddProc == AddApocaC2 && !(md.mdFlags & MIF_AREA))
+				app_fatal("Magic-Missile %d damage-direction is not handled in MissDirection.", i);
 		}
 	}
 	for (i = 0; i < NUM_MFILE; i++) {
 		const MisFileData& mfd = misfiledata[i];
-		if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
-			app_fatal("Missile %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
+		if (i != MFILE_NONE && !mfd.mfDrawFlag)
+			app_fatal("Missile-File %d is not rendered.", i);
+		if (mfd.mfAnimFAmt < 0)
+			app_fatal("Missile-File %d has negative mfAnimFAmt.", i);
+		if (mfd.mfAnimFAmt == 0) {
+			if (i != MFILE_NONE && i != MFILE_ACTOR)
+				app_fatal("Missile-File %d without animation.", i);
+		} else if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
+			app_fatal("Missile-File %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
+		if (mfd.mfAnimFAmt > NUM_DIRS && mfd.mfAnimFAmt != 16)
+			app_fatal("Missile-File %d has invalid mfAnimFAmt.", i); // required by AddMissile
+		for (int n = 0; n < 16; n++) {
+			if (n < mfd.mfAnimFAmt) {
+				if (mfd.mfAnimFrameLen[n] == 0 && mfd.mfAnimFlag) {
+					app_fatal("Missile-File %d has invalid mfAnimFrameLen.", i, n);
+				}
+				if (mfd.mfAnimLen[n] == 0 /*&& mfd.mfAnimFlag*/) {
+					app_fatal("Missile-File %d has invalid mfAnimLen.", i, n);
+				}
+			} else {
+				if (mfd.mfAnimFrameLen[n] != 0) {
+					app_fatal("Missile-File %d has unused mfAnimFrameLen setting (%d).", i, n);
+				}
+				if (mfd.mfAnimLen[n] != 0) {
+					app_fatal("Missile-File %d has unused mfAnimLen setting (%d).", i, n);
+				}
+			}
+		}
 	}
 #endif // DEBUG_DATA
+	assert((missiledata[MIS_ASARROW].mdFlags & MIF_SHROUD) == 0); // required by MI_AsArrow
 	assert((missiledata[MIS_ARROW].mdFlags & MIF_ARROW) != 0);   // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_PBARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_ASARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_MLARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
 	assert((missiledata[MIS_PCARROW].mdFlags & MIF_ARROW) != 0); // required by MissMonHitByPlr, MissPlrHitByPlr
+	assert(missiledata[MIS_EXFIRE].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_EXLGHT].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_EXMAGIC].mdPrSpeed == 0);             // required by AddElementalExplosion
+	assert(missiledata[MIS_EXACID].mdPrSpeed == 0);              // required by AddElementalExplosion
+	assert(missiledata[MIS_FLASH2].mdPrSpeed == 0);              // required by AddFlash
+	assert(missiledata[MIS_INFERNO].mdPrSpeed == 0);             // required by MI_InfernoC
+	assert(missiledata[MIS_ACIDPUD].mdPrSpeed == 0);             // required by MI_Acidsplat
+	assert(missiledata[MIS_FIREWALL].mdPrSpeed == 0);            // required by MI_Meteor, MI_WallC, AddRingC
+	assert(missiledata[MIS_LIGHTNING].mdPrSpeed == 0);           // required by MI_LightningC
+	assert(missiledata[MIS_LIGHTNING2].mdPrSpeed == 0);          // required by MI_LightningC
+	assert(missiledata[MIS_BLOODBOIL].mdPrSpeed == 0);           // required by MI_BloodBoilC
+	assert(missiledata[MIS_SWAMP].mdPrSpeed == 0);               // required by MI_BloodBoilC
+	assert(missiledata[MIS_STONE].mdPrSpeed == 0);               // required by MI_Rune
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
 	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);                                      // required by MI_Firewall
 	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);                                             // required by MI_Firewall
-	assert(misfiledata[MFILE_WIND].mfAnimFrameLen[0] == 1);                                      // required by MI_Wind
 	assert(misfiledata[MFILE_WIND].mfAnimLen[0] == 12);                                          // required by AddWind + GetDamageAmt to set/calculate damage
-	assert(misfiledata[MFILE_SHROUD].mfAnimFrameLen[0] == 1);                                    // required by MI_Shroud
 	assert(misfiledata[MFILE_RPORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);               // required by MI_Portal
 	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);                // required by MI_Portal
 	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);   // required by MI_Portal
-	assert(misfiledata[MFILE_PORTAL].mfAnimFrameLen[0] == 1);                                    // required by MI_Portal
-	assert(misfiledata[MFILE_RPORTAL].mfAnimFrameLen[0] == 1);                                   // required by MI_Portal
-	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash
-	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen[0] == 1);                                   // required by MI_Flash2
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREWAL].mfAnimFrameLen[0] == 1);                                   // required by MI_FireWave
 	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);                                    // required by MI_Meteor
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[0] == 1);                                     // required by MI_Guardian
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);                 // required by MI_Guardian
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen[2] == 1);                                     // required by MI_Guardian
-	assert(misfiledata[MFILE_INFERNO].mfAnimLen[0] < 24);                                        // required by MI_Inferno
+	assert(misfiledata[MFILE_LGHNING].mfAnimFAmt == 1);                                          // required by MI_Cbolt
+	assert(misfiledata[MFILE_SHATTER1].mfAnimFAmt == 1);                                         // required by MI_Stone
+	assert(misfiledata[MFILE_ARROWS].mfAnimLen[0] == 16);                                        // required by AddArrow
+	assert(misfiledata[MFILE_FARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[MFILE_LARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[MFILE_MARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[MFILE_PARROW].mfAnimFAmt == 16);                                          // required by AddArrow
+	assert(misfiledata[missiledata[MIS_EXFIRE].mFileNum].mfAnimFAmt < NUM_DIRS);                 // required by AddElementalExplosion
+	assert(misfiledata[missiledata[MIS_EXLGHT].mFileNum].mfAnimFAmt < NUM_DIRS);                 // required by AddElementalExplosion
+	assert(misfiledata[missiledata[MIS_EXMAGIC].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by AddElementalExplosion
+	assert(misfiledata[missiledata[MIS_EXACID].mFileNum].mfAnimFAmt < NUM_DIRS);                 // required by AddElementalExplosion
 	assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acidsplat
+	assert(misfiledata[missiledata[MIS_EXACIDP].mFileNum].mfAnimFAmt < NUM_DIRS);                // required by MI_Acid
+	assert(misfiledata[missiledata[MIS_LIGHTNING].mFileNum].mfAnimFAmt < NUM_DIRS);              // required by MI_LightningC
+	assert(misfiledata[missiledata[MIS_LIGHTNING2].mFileNum].mfAnimFAmt < NUM_DIRS);             // required by MI_LightningC
+	assert(misfiledata[missiledata[MIS_FIREWAVE].mFileNum].mfAnimFAmt < NUM_DIRS);               // required by AddFireWaveC
+	assert(misfiledata[missiledata[MIS_FIREWALL].mFileNum].mfAnimFAmt < NUM_DIRS);               // required by AddRingC, MI_WallC, MI_Meteor
+	assert(misfiledata[missiledata[MIS_LIGHTBALL].mFileNum].mfAnimFAmt < NUM_DIRS);              // required by AddNovaC
+	assert(misfiledata[missiledata[MIS_BLEED].mFileNum].mfAnimFAmt < NUM_DIRS);                  // required by MonHitByPlr, PlrHitByAny
+	assert(misfiledata[missiledata[MIS_FIREBOLT].mFileNum].mfAnimFAmt == 16 && missiledata[MIS_FIREBOLT].mdPrSpeed != 0); // required by Sentfire
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
-#ifdef DEBUG_DATA
+	// requirements by InitMonsterGFX
+	assert((int)MFILE_MAGBALL >= (int)NUM_FIXMFILE);
+	// assert((int)MFILE_KRULL >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_THINLGHT >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_ACIDBF >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_ACIDSPLA >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_ACIDPUD >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCUBMISB >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCBSEXPB >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCUBMISD >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCBSEXPD >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCUBMISC >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SCBSEXPC >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MAGEMIS >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MAGEEXP >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_FIREPLAR >= (int)NUM_FIXMFILE);
+#ifdef HELLFIRE
+	assert((int)MFILE_MS_ORA_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXORA1_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_ORA >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXORA1 >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_REB_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXYEL2_B >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_SPAWNS >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_ORA_A >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXORA1_A >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_MS_YEB_A >= (int)NUM_FIXMFILE);
+	assert((int)MFILE_EXYEL2_A >= (int)NUM_FIXMFILE);
+#endif
+	// -- requirements by InitMonsterGFX end
 	// players
-	for (i = 0; i < NUM_CLASSES; i++)
-		assert(PlrGFXAnimLens[i][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]); // required by StartWalk
+	assert(PlrAnimFrameLens[PGX_WALK] == 1); // required by PlrDoWalk
+	assert(PlrAnimFrameLens[PGX_ATTACK] == 1); // required by PlrDoAttack, PlrDoRangeAttack
+	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1); // required by PlrDoSpell
+	assert(PlrAnimFrameLens[PGX_DEATH] > 1); // required by PlrDoDeath
+#ifdef DEBUG_DATA
+	int wal = -1;
+	for (i = 0; i < NUM_CLASSES; i++) {
+		int pnum = 0;
+		plr._pClass = i;
+		for (int k = 0; k < 2; k++) {
+			currLvl._dType = k == 0 ? DTYPE_CATHEDRAL : DTYPE_TOWN;
+			for (int n = ANIM_ID_UNARMED; n <= ANIM_ID_STAFF; n++) {
+				plr._pgfxnum = n;
+				SetPlrAnims(0);
+				if (wal < 0)
+					wal = plr._pAnims[PGX_WALK].paFrames;
+				else if (wal != (int)plr._pAnims[PGX_WALK].paFrames)
+					app_fatal("Inconsistent walk-animation for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by StartWalk
+				if (n != ANIM_ID_BOW && plr._pAFNum == 0) {
+					app_fatal("Invalid attack-actionframe number for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon"); // required by PlrDoAttack
+				}
+				if (plr._pAnims[PGX_ATTACK].paFrames < plr._pAFNum) {
+					app_fatal("Invalid attack-animation setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_FIRE].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_LIGHTNING].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+				if (plr._pAnims[PGX_MAGIC].paFrames < plr._pSFNum) {
+					app_fatal("Invalid skill-animation (fire) setting for class %d with anim %d in %s", i, n, currLvl._dType == DTYPE_TOWN ? "town" : "dungeon");
+				}
+			}
+		}
+	}
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
 		//const int(*gl)[2] = &GossipList[i];
@@ -1495,7 +2143,7 @@ void LogErrorF(const char* msg, ...)
 	char tmp[256];
 	//snprintf(tmp, sizeof(tmp), "f:\\logdebug%d_%d.txt", mypnum, SDL_ThreadID());
 	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
-	FILE* f0 = fopen(tmp, "a+");
+	FILE* f0 = FileOpen(tmp, "a+");
 	if (f0 == NULL)
 		return;
 
@@ -1545,7 +2193,7 @@ void LogDumpQ()
 {
 	char tmp[256];
 	snprintf(tmp, sizeof(tmp), "f:\\logdebug%d.txt", mypnum);
-	FILE* f0 = fopen(tmp, "a+");
+	FILE* f0 = FileOpen(tmp, "a+");
 	if (f0 == NULL)
 		return;
 

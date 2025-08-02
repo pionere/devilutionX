@@ -1,7 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include "../defs.h"
+#include "../all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -9,7 +8,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-void DrawArtStr(const char* text, const SDL_Rect& rect, int flags);
+extern _uiheroinfo selhero_heroInfo;
 
 #ifdef __cplusplus
 }

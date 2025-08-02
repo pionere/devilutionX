@@ -119,8 +119,8 @@ static void gamemenu_exit_game(bool bActivate)
 	gamemenu_off();
 	NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_LOADING);
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	gbDeathflag = MDM_ALIVE;
 	// gbZoomInFlag = false;
 	FreeLevelMem();
@@ -128,8 +128,8 @@ static void gamemenu_exit_game(bool bActivate)
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	InitLevelCursor();
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	gbRedrawFlags = REDRAW_RECALC_FLASKS; // | REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	LoadPWaterPalette();
 	PaletteFadeIn(false);
 	interface_msg_pump();
@@ -139,17 +139,18 @@ static void gamemenu_exit_game(bool bActivate)
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
+	assert(saveProc == GameWndProc);
 	gamemenu_off();
 	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	SaveGame();
 	ClrDiabloMsg();
 	// InitLevelCursor();
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	interface_msg_pump();
-	SetWindowProc(saveProc);
+	SetWindowProc(GameWndProc); // saveProc);
 }
 
 static void gamemenu_restart_town(bool bActivate)
@@ -187,7 +188,7 @@ static void gamemenu_get_sound()
 static void gamemenu_get_gamma()
 {
 	gmenu_slider_steps(&sgSettingsMenu[2], 14 /*(100 - 30) / 5*/);
-	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, GetGamma());
+	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, 130 - GetGamma());
 }
 
 static void gamemenu_get_speed()
@@ -251,7 +252,7 @@ static void gamemenu_music_volume(bool bActivate)
 			music_start(AllLevels[currLvl._dLevelNum].dMusic);
 	}
 	gamemenu_get_music();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -278,7 +279,7 @@ static void gamemenu_sound_volume(bool bActivate)
 		; // assert(gbSoundOn);
 	}
 	gamemenu_get_sound();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -288,32 +289,35 @@ static void gamemenu_gamma(bool bActivate)
 
 	if (bActivate) {
 		gamma = GetGamma();
-		if (gamma == 30)
-			gamma = 100;
-		else
+		if (gamma == 100)
 			gamma = 30;
+		else
+			gamma = 100;
 	} else {
-		gamma = gmenu_slider_get(&sgSettingsMenu[2], 30, 100);
+		gamma = gmenu_slider_get(&sgSettingsMenu[2], 100, 30);
 	}
-	UpdateGamma(gamma);
+	SetGamma(gamma);
 	gamemenu_get_gamma();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 static void gamemenu_speed(bool bActivate)
 {
+	int speed;
+
 	if (bActivate) {
 		if (gnTicksRate == SPEED_NORMAL)
-			gnTicksRate = SPEED_FASTEST;
+			speed = SPEED_FASTEST;
 		else
-			gnTicksRate = SPEED_NORMAL;
+			speed = SPEED_NORMAL;
 	} else {
-		gnTicksRate = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
+		speed = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
 	}
-	setIniInt("Diablo", "Game Speed", gnTicksRate);
-	gnTickDelay = 1000 / gnTicksRate;
+	gnTicksRate = speed;
+	gnTickDelay = 1000 / speed;
+	setIniInt("Diablo", "Game Speed", speed);
 	gamemenu_get_speed();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 DEVILUTION_END_NAMESPACE

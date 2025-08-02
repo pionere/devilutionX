@@ -10,13 +10,13 @@ DEVILUTION_BEGIN_NAMESPACE
 /** In-game state of portals. */
 PortalStruct portals[MAXPORTAL];
 /** Current portal number (a portal array index). */
-int portalindex;
+static int portalindex;
 
 /** X-coordinate of each players portal in town. */
 static_assert(MAXPORTAL <= 4, "Portal coordinates in town must be set.");
-const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
+static const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
 /** Y-coordinate of each players portal in town. */
-const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
+static const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
 
 void InitPortals()
 {
@@ -34,8 +34,9 @@ void InitPortals()
 	portals[pidx]._rlevel = lvl;
 }*/
 
-void AddWarpMissile(int pidx, int x, int y)
+static void AddWarpMissile(int pidx, int x, int y)
 {
+	static_assert(MAXPORTAL == MAX_PLRS, "AddWarpMissile adds portal-missiles by portal-id.");
 	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, pidx, -1);
 }
 
@@ -75,26 +76,13 @@ void ActivatePortal(int pidx, int x, int y, int bLevel)
 //	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
 //}
 
-void RemovePortalMissile(int pidx)
-{
-	MissileStruct* mis;
-	int i;
-
-	//if (!PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
-	//	return;
-
-	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
-			mis->_miDelFlag = TRUE; // + AddUnLight
-		}
-	}
-}
-
 void DeactivatePortal(int pidx)
 {
-	RemovePortalMissile(pidx);
+	//if (PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
+	{
+		static_assert(MAXPORTAL == MAX_PLRS, "DeactivatePortal removes portal-missiles by portal-id.");
+		RemovePortalMissile(pidx);
+	}
 
 	portals[pidx]._rlevel = DLV_TOWN;
 }

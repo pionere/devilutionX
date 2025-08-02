@@ -5,17 +5,18 @@
 Installation instructions can be found on the [Installing](/docs/installing.md) page.
 
 ## Building from Source
-Install the [PacBrew openorbis SDK](https://github.com/PacBrew/pacbrew-packages), then run the following
- bash script.
+Install the [PacBrew openorbis SDK][pacbrew], then run the following
+ bash script:
 ```console
 devilutionX$ ./Packaging/ps4/build.sh
 ```
+
+[pacbrew]: https://github.com/PacBrew/pacbrew-packages
 
 ## Multiplayer
  - Not supported
 
 ## Controls
-
 - D-pad: move hero
 - ○: attack nearby enemies, talk to townspeople and merchants, pickup/place
      items in the inventory, OK while in main menu

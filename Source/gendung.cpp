@@ -269,6 +269,18 @@ void InitLvlDungeon()
 		// patch dSolidTable - L1.SOL
 		/*nMissileTable[28] = true; // fix inconsistent corners
 		nMissileTable[29] = true; // fix inconsistent corners
+		// make the downstairs missile-blocker
+		nMissileTable[106] = true;
+		nMissileTable[107] = true;
+		nMissileTable[108] = true;
+		// nMissileTable[109] = true;
+		nMissileTable[110] = true;
+		nMissileTable[112] = true;
+		nMissileTable[114] = true;
+		nMissileTable[118] = true;
+		//nMissileTable[336] = true;
+		//nMissileTable[337] = true;
+		//nMissileTable[338] = true;
 		// adjust SOL after fixCathedralShadows
 		nSolidTable[298] = true;
 		nSolidTable[304] = true;
@@ -276,11 +288,11 @@ void InitLvlDungeon()
 		nMissileTable[334] = false;
 		// - special subtiles for the banner setpiece
 		nBlockTable[336] = false;
-		nMissileTable[336] = false;
+		//nMissileTable[336] = false;
 		nBlockTable[337] = false;
-		nMissileTable[337] = false;
+		//nMissileTable[337] = false;
 		nBlockTable[338] = false;
-		nMissileTable[338] = false;
+		//nMissileTable[338] = false;
 		// - special subtile for the vile setmap
 		nMissileTable[335] = false;
 		// - with subtile-based automap

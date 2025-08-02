@@ -5,6 +5,8 @@ on: [push, pull_request]
 
 env:
   buildDir: '${{ github.workspace }}/build'
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -13,17 +15,28 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-DUSE_PATCH=OFF'
+            artifact: 'diablo-push-win.dmg'
+          - name: hellfire+patch
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-push-winp.dmg'
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: '813a241fb83adad503a391facaa6aa634631accc'
+        vcpkgGitCommitId: 'b91c3336aee7f32412508f7dd351ae2cabdb8819'
+        #vcpkgGitCommitId: '813a241fb83adad503a391facaa6aa634631accc'
         #vcpkgGitCommitId: 'f7423ee180c4b7f40d43402c2feb3859161ef625'
         #vcpkgGitCommitId: '095ee06e7f60dceef7d713e3f8b1c2eb10d650d7'
         #vcpkgGitCommitId: '927bc12e31148b0d44ae9d174b96c20e3bcf08eb'
@@ -59,4 +72,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
-        name: diablo-test-x86.zip
+        name: ${{ matrix.artifact }}

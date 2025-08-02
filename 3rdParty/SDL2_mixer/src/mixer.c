@@ -1665,7 +1665,7 @@ int Mix_Playing(int which)
 #ifdef FULL // CHUNK_ALIAS
 int Mix_PlayingChunk(Mix_Chunk* chunk)
 #else
-int Mix_PlayingChunk(Mix_Audio* chunk)
+int Mix_PlayingChunk(const Mix_Audio* chunk)
 #endif
 {
     int channel = chunk->lastChannel;

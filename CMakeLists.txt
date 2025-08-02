@@ -1,17 +1,23 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10...3.30)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135)
+# Projects added via `add_subdirectory` or `FetchContent` may have a lower
+# `cmake_minimum_required` than we set here. Set policies that we require
+# to their new value so that they still apply.
+foreach(_policy CMP0069 CMP0077 CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141 CMP0177)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
   endif()
 endforeach()
 
-# Projects added via `add_subdirectory` or `FetchContent` may have a lower
-# `cmake_minimum_required` than we set here. Set policies that we require
-# to their new value so that they still apply.
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+foreach(_policy CMP0169)
+  if(POLICY ${_policy})
+    cmake_policy(SET ${_policy} OLD)
+    set(CMAKE_POLICY_DEFAULT_${_policy} OLD)
+  endif()
+endforeach()
+
+message(STATUS "CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 if(NINTENDO_3DS)
@@ -56,7 +62,7 @@ if(VITA)
 endif()
 
 set(TARGET_PLATFORM host CACHE STRING "Target platform")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh windows9x)
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS host lepus retrofw rg350 gkd350h cpigamesh windows9x windowsXP)
 if(TARGET_PLATFORM STREQUAL "lepus")
   include(lepus_defs)
 elseif(TARGET_PLATFORM STREQUAL "retrofw")
@@ -69,6 +75,8 @@ elseif(TARGET_PLATFORM STREQUAL "cpigamesh")
   include(cpigamesh_defs)
 elseif(TARGET_PLATFORM STREQUAL "windows9x")
   include(windows9x_defs)
+elseif(TARGET_PLATFORM STREQUAL "windowsXP")
+  include(windowsXP_defs)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
@@ -79,6 +87,20 @@ if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|DragonFly|NetBSD")
     set(UBSAN OFF)
   endif()
   set(ASAN OFF)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  # Some notable Darwin (macOS kernel) versions are:
+  #   8.x == macOS 10.4 (Tiger)
+  #   9.x == macOS 10.5 (Leopard)
+  #
+  # Importantly, a lot of the APIs first appeared in version 9, including
+  # the feature availability API (the <Availability.h> header).
+  #
+  # For Darwin 8 and below, we have to rely on the kernel version
+  # to detect available APIs.
+  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\1" DARWIN_MAJOR_VERSION "${CMAKE_SYSTEM_VERSION}")
+  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\2" DARWIN_MINOR_VERSION "${CMAKE_SYSTEM_VERSION}")
 endif()
 
 if(WIN32)
@@ -93,6 +115,11 @@ if(WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
   set(USE_PATCH ON)
+  if(WINDOWS_STORE)
+    if(NTDDI_VERSION < NTDDI_WIN10)
+      set(FULLSCREEN_ONLY ON)
+    endif()
+  endif()
 endif()
 
 if(HAIKU)
@@ -159,6 +186,7 @@ option(USE_SDL1 "Use SDL1.2 instead of SDL2" OFF)
 option(NOSOUND "Disable sound support" OFF)
 option(STREAM_ALL_AUDIO "Stream all the audio. For extremely RAM-constrained platforms." OFF)
 option(NOWIDESCREEN "Disable widescreen support" OFF)
+option(FULLSCREEN_ONLY "Disable windowed mode" OFF)
 option(NONET "Disable network support" OFF)
 cmake_dependent_option(INET_MODE "Enable validation of network messages" OFF "NOT NONET" OFF)
 cmake_dependent_option(ADAPTIVE_NETUPDATE "Build adaptive network support" ON "NOT NONET" OFF)
@@ -170,14 +198,16 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-option(USE_PATCH "Create executable to patch assets" OFF)
+option(USE_PATCH "Build to use patched assets" ON)
+cmake_conditional_option(CREATE_PATCHER "Create executable to patch assets" ${USE_PATCH})
 option(CREATE_MPQONE "Merge assets if necessary" OFF)
 cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
 option(HAS_DPAD "Enable D-Pad support" ON)
-option(HAS_KBCTRL "Enable keyboard controller support" ON)
+option(HAS_KBCTRL "Enable keyboard controller support" OFF)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(VIRTUAL_GAMEPAD "Initialize default gamepad" OFF "NOT USE_SDL1" OFF)
 option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
 if(NOT NONET)
@@ -414,6 +444,8 @@ add_library(PKWare STATIC
   3rdParty/PKWare/pkware.cpp)
 target_include_directories(PKWare PUBLIC 3rdParty/PKWare)
 
+target_link_libraries(StormLib PRIVATE PKWare)
+
 set(devilutionx_SRCS
   Source/appfat.cpp
   Source/automap.cpp
@@ -430,7 +462,6 @@ set(devilutionx_SRCS
   Source/drlg_l4.cpp
   #Source/dthread.cpp
   Source/dx.cpp
-  Source/effects.cpp
   Source/encrypt.cpp
   Source/engine.cpp
   Source/error.cpp
@@ -449,12 +480,13 @@ set(devilutionx_SRCS
   Source/main.cpp
   Source/mainmenu.cpp
   Source/minitext.cpp
+  Source/minitextdat.cpp
   Source/misdat.cpp
   Source/missiles.cpp
   Source/monstdat.cpp
   Source/monster.cpp
   Source/movie.cpp
-  Source/mpqapi.cpp
+  #Source/mpqapi.cpp
   Source/msg.cpp
   Source/multi.cpp
   Source/nthread.cpp
@@ -470,13 +502,14 @@ set(devilutionx_SRCS
   Source/questdat.cpp
   Source/quests.cpp
   Source/scrollrt.cpp
+  Source/sfx.cpp
+  Source/sfxdat.cpp
   Source/sha.cpp
   Source/sound.cpp
   Source/spelldat.cpp
   Source/spells.cpp
   Source/stores.cpp
   Source/sync.cpp
-  Source/textdat.cpp
   Source/themes.cpp
   #Source/tmsg.cpp
   Source/town.cpp
@@ -501,7 +534,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/hostgame.cpp
   Source/DiabloUI/mainmenu.cpp
   Source/DiabloUI/progress.cpp
-  Source/DiabloUI/scrollbar.cpp
   Source/DiabloUI/selconn.cpp
   Source/DiabloUI/selgame.cpp
   Source/DiabloUI/selhero.cpp
@@ -509,7 +541,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/selyesno.cpp
   Source/DiabloUI/settingsmenu.cpp
   Source/DiabloUI/text.cpp
-  Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base_client.cpp
@@ -535,6 +566,7 @@ set(devilutionx_SRCS
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
+  Source/utils/filestream.cpp
   Source/utils/paths.cpp
   Source/utils/screen_reader.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
@@ -591,7 +623,6 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/effects_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -599,6 +630,7 @@ if(RUN_TESTS)
     test/player_test.cpp
     test/projectile_test.cpp
     test/scrollrt_test.cpp
+    test/sfx_test.cpp
     test/stores_test.cpp)
 endif()
 
@@ -629,7 +661,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH AND NOT ANDROID)
+if(CREATE_PATCHER)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -641,17 +673,18 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l3.cpp
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
-    tools/patcher/effects.cpp
-    tools/patcher/encrypt.cpp
+    #tools/patcher/encrypt.cpp
     tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
     tools/patcher/mainmenu.cpp
-    tools/patcher/mpqapi.cpp
+    #tools/patcher/mpqapi.cpp
     tools/patcher/palette.cpp
     tools/patcher/patchdung.cpp
     tools/patcher/scrollrt.cpp
+    tools/patcher/sfx.cpp
+    tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
@@ -667,14 +700,13 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp
     tools/patcher/DiabloUI/merger.cpp
+    tools/patcher/DiabloUI/patchdat.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
-    tools/patcher/DiabloUI/scrollbar.cpp
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
-    tools/patcher/DiabloUI/text_draw.cpp
-    tools/patcher/DiabloUI/title.cpp
+    #tools/patcher/DiabloUI/title.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
@@ -683,6 +715,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/storm/storm.cpp
     tools/patcher/storm/storm_cfg.cpp
     tools/patcher/utils/display.cpp
+    tools/patcher/utils/filestream.cpp
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
@@ -705,26 +738,29 @@ if(USE_PATCH AND NOT ANDROID)
       tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
-  set(PATCHER_SOURCES ${devil_patcher_SRCS})
-  if(APPLE)
-    list(APPEND PATCHER_SOURCES
-      Packaging/apple/AppIcon.icns
-      Packaging/apple/LaunchScreen.storyboard)
-  elseif(WIN32)
-    list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
-    if(HELLFIRE)
-      list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
-    else()
-      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+  if(ANDROID)
+    add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
+  else()
+    set(PATCHER_SOURCES ${devil_patcher_SRCS})
+    if(APPLE)
+      list(APPEND PATCHER_SOURCES
+        Packaging/apple/AppIcon.icns
+        Packaging/apple/LaunchScreen.storyboard)
+    elseif(WIN32)
+      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
+      if(HELLFIRE)
+        list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
+      else()
+        list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+      endif()
     endif()
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      MACOSX_BUNDLE
+      ${PATCHER_SOURCES})
   endif()
-  add_executable(${DEVIL_PATCHER}
-    WIN32
-    MACOSX_BUNDLE
-    ${PATCHER_SOURCES})
-
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
-    PKWare
+    #PKWare
     StormLib
     #smacker
     Radon)
@@ -753,14 +789,12 @@ endif()
 if(CMAKE_STRIP AND NOT DISABLE_STRIP)
   add_custom_command(
     TARGET ${BIN_TARGET} POST_BUILD
-    DEPENDS ${BIN_TARGET}
     COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
     ARGS $<TARGET_FILE:${BIN_TARGET}>)
 
   if(DEVIL_PATCHER)
     add_custom_command(
       TARGET ${DEVIL_PATCHER} POST_BUILD
-      DEPENDS ${DEVIL_PATCHER}
       COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${CMAKE_STRIP}>
       ARGS $<TARGET_FILE:${DEVIL_PATCHER}>)
   endif()
@@ -777,6 +811,11 @@ if(is_multi_config)
   endif()
 else()
   set(CONFIG_PATH config.h)
+  if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.25")
+    # This enables Edit & Continue support, see https://learn.microsoft.com/en-us/cpp/build/cmake-projects-in-visual-studio#edit-and-continue-for-cmake-projects
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug>:EditAndContinue>") # Sets /ZI compiler option, see https://cmake.org/cmake/help/latest/variable/CMAKE_MSVC_DEBUG_INFORMATION_FORMAT.html
+    add_link_options("$<$<CONFIG:Debug>:/INCREMENTAL>")
+  endif()
 endif()
 file(GENERATE OUTPUT ${CONFIG_PATH} CONTENT
 "#pragma once
@@ -850,6 +889,7 @@ foreach(
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
+  FULLSCREEN_ONLY
   NONET
   INET_MODE
   NETENCRYPT
@@ -863,9 +903,9 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
-  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF
@@ -939,6 +979,8 @@ foreach(
   JOY_BUTTON_TRIGGERRIGHT
   JOY_BUTTON_START
   JOY_BUTTON_BACK
+  DARWIN_MAJOR_VERSION
+  DARWIN_MINOR_VERSION
 )
   if(DEFINED ${def_name})
     list(APPEND def_list ${def_name}=${${def_name}})
@@ -1085,6 +1127,9 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
       )
     endforeach(SOURCE_FILE)
     target_compile_options(${BIN_TARGET} PRIVATE -Wno-builtin-macro-redefined)
+    if(DEVIL_PATCHER)
+      target_compile_options(${DEVIL_PATCHER} PRIVATE -Wno-builtin-macro-redefined)
+    endif()
   endif()
 
   # Note: For Valgrind support.
@@ -1107,8 +1152,13 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   #target_compile_options(${BIN_TARGET} PRIVATE "/W1")
-  target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
+  if(TCPIP)
+    target_compile_options(${BIN_TARGET} PRIVATE "-D_SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING")
+  endif()
   target_compile_options(${BIN_TARGET} PRIVATE "/Zc:__cplusplus")
+  if(DEVIL_PATCHER)
+    target_compile_options(${DEVIL_PATCHER} PRIVATE "/Zc:__cplusplus")
+  endif()
   # Disable Run-Time Type Information
   string(REGEX REPLACE "/GR" "/GR-" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   target_compile_options(${BIN_TARGET} PRIVATE "/permissive-")
@@ -1139,7 +1189,7 @@ if(APPLE)
     set(MACOSX_BUNDLE_REQUIRED_PLATFORM IPhoneOS)
     set_target_properties(${BIN_TARGET} PROPERTIES XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "9.0")
-  else()
+  elseif(DARWIN_MAJOR_VERSION GREATER_EQUAL 16)
     set(MACOSX_BUNDLE_REQUIRED_PLATFORM Carbon)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12.0")
   endif()
@@ -1216,17 +1266,34 @@ if(VITA)
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
   vita_create_self(${BIN_TARGET}.self ${BIN_TARGET} UNSAFE)
-  vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
-    VERSION ${VITA_VERSION}
-    NAME ${VITA_APP_NAME}
-    FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
-    FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-    FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-    FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/devilx.mpq devilx.mpq
+  if(DEVIL_PATCHER)
+    vita_create_self(${DEVIL_PATCHER}.self ${DEVIL_PATCHER} UNSAFE)
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self ${DEVIL_PATCHER}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+      FILE Packaging/resources/listfiles.txt listfiles.txt
+      FILE Packaging/resources/mpqfiles.txt mpqfiles.txt
   )
+  else()
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+  )
+  endif()
 endif()
 
 if(PS4)
@@ -1527,6 +1594,46 @@ if(CPACK)
     set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
     set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
     set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
+
+  elseif(PS5)
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
+    set(CPACK_STRIP_FILES TRUE)
+
+    install(TARGETS ${BIN_TARGET} DESTINATION .)
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.txt"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/homebrew.js"
+      DESTINATION "."
+    )
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/Packaging/ps5/sce_sys"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
+      DESTINATION "."
+    )
+
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
+
+    if(ZEROTIER)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
+        DESTINATION "LICENSE"
+      )
+    endif()
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/README-SDL.txt"
+      DESTINATION "LICENSE"
+    )
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -1556,11 +1663,13 @@ foreach(
   def_name
   HELLFIRE
   USE_PATCH
+  CREATE_PATCHER
   USE_MPQONE
   CREATE_MPQONE
   NOSOUND
   STREAM_ALL_AUDIO
   NOWIDESCREEN
+  FULLSCREEN_ONLY
   NONET
   INET_MODE
   NETENCRYPT
@@ -1574,6 +1683,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   ASAN

@@ -4,6 +4,7 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "plrctrls.h"
 #include "utils/display.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
@@ -32,7 +33,7 @@ static void InitLvlCutscene(BYTE lvl)
 {
 	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
 	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
-	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, PANEL_WIDTH);
+	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, BACKGROUND_ART_WIDTH);
 	LoadPalette(AllLevels[lvl].dLoadPal);
 }
 
@@ -64,15 +65,15 @@ static void InitCutscene(unsigned int uMsg)
 		break;
 	case DVL_DWM_DYNLVL:
 	case DVL_DWM_PORTLVL:
-		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
-		LoadPalette("Gendata\\Cutportl.pal");
+		sgpBackCel = CelLoadImage("gendata\\Cutportl.CEL", BACKGROUND_ART_WIDTH);
+		LoadPalette("gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
 	case DVL_DWM_LOADGAME:
-		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
-		LoadPalette("Gendata\\Cutstart.pal");
+		sgpBackCel = CelLoadImage("gendata\\Cutstart.CEL", BACKGROUND_ART_WIDTH);
+		LoadPalette("gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
@@ -100,9 +101,12 @@ static void DrawProgress()
 	int screen_x, screen_y;
 	unsigned w, i, j;
 
-	screen_x = PANEL_CENTERX(BAR_WIDTH);
-	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
-	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
+	screen_x = SCREEN_CENTERX(BAR_WIDTH);
+	screen_y = BACKGROUND_ART_TOP + (sgbLoadBarOnTop ? SCREEN_Y + TOP_BAR_Y : SCREEN_Y + BOTTOM_BAR_Y);
+	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
+	if (dst >= gpBufEnd)
+		return;
+	static_assert(BORDER_BOTTOM >= BAR_HEIGHT, "DrawProgress needs larger border.");
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
 	for (j = 0; j < BAR_HEIGHT; j++) {
@@ -133,26 +137,42 @@ static void DrawProgress()
 	};
 	static_assert(((BAR_WIDTH + lengthof(progession) - 1) / lengthof(progession)) == BAR_STEP, "Progression steps and labels are not in sync.");
 	unsigned progress = sgdwProgress / BAR_STEP;
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", COL_WHITE, FONT_KERN_SMALL);
+	PrintLimitedString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", BAR_WIDTH - 20, COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 
-static void DrawCutscene()
+static void DrawCutsceneBack()
+{
+	lock_buf(1);
+
+	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
+
+	unlock_buf(1);
+}
+
+static void RenderCutscene()
 {
 	Uint32 now = SDL_GetTicks();
-	if (sgdwProgress > 0 && sgdwProgress < BAR_WIDTH && now < sgdwNextCut) {
-		return; // skip drawing if the progression is too fast
+	bool skipRender = false;
+	// assert(sgdwProgress != 0);
+	if (/*sgdwProgress > 0 &&*/ !SDL_TICKS_PASSED(now, sgdwNextCut)) {
+		if (sgdwProgress < BAR_WIDTH)
+			return; // skip drawing if the progression is too fast
+		skipRender = true; // update the progress bar for fade-out
+	} else {
+		sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 	}
-	sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
 
 	lock_buf(1);
-	if (sgdwProgress == 0)
-		CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+	// if (sgdwProgress == 0)
+	//	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
 	unlock_buf(1);
-	scrollrt_draw_screen(false);
+
+	if (!skipRender)
+		scrollrt_render_screen(false);
 }
 
 void interface_msg_pump()
@@ -170,10 +190,10 @@ void IncProgress()
 {
 	interface_msg_pump();
 	sgdwProgress += BAR_STEP;
-	assert(sgdwProgress <= BAR_WIDTH);
+	assert(sgdwProgress <= BAR_WIDTH); // || sgpBackCel == NULL
 	// do not draw in case of quick-load
-	if (sgpBackCel != NULL)
-		DrawCutscene();
+	// if (sgpBackCel != NULL)
+		RenderCutscene();
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
@@ -336,8 +356,8 @@ void ShowCutscene(unsigned uMsg)
 	nthread_run();
 	static_assert((unsigned)DVL_DWM_LOADGAME == (unsigned)DVL_DWM_NEWGAME + 1 && (unsigned)NUM_WNDMSGS == (unsigned)DVL_DWM_LOADGAME + 1, "Check to save hero/level in ShowCutscene must be adjusted.");
 	if (uMsg < DVL_DWM_NEWGAME) {
+		pfile_update(true);
 		if (IsMultiGame) {
-			pfile_write_hero(false);
 			DeltaSaveLevel();
 		} else {
 			SaveLevel();
@@ -349,14 +369,15 @@ void ShowCutscene(unsigned uMsg)
 
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
-
+	assert(saveProc == GameWndProc);
 	interface_msg_pump();
-	ClearScreenBuffer();
-	// scrollrt_draw_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutscene
+	// scrollrt_render_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
-	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
-	DrawCutscene();
+	ClearScreenBuffer(); // must be after InitCutscene in case gbCineflag is set to clear after video-playback
+	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
+	DrawCutsceneBack();
 	PaletteFadeIn(false);
+	sgdwNextCut = SDL_GetTicks() + gnRefreshDelay; // calculate the next tick to draw the cutscene
 	IncProgress(); // "Memfree" (1)
 	FreeLevelMem();
 	IncProgress(); // "Music stop" (2)
@@ -392,11 +413,14 @@ void ShowCutscene(unsigned uMsg)
 		sgdwProgress = BAR_WIDTH - BAR_STEP;
 		IncProgress(); // "Fadeout" (16)
 		PaletteFadeOut();
+		// skip time due to fadein/out
+		extern Uint32 guNextTick;
+		guNextTick = SDL_GetTicks() + gnTickDelay; // += (uMsg < DVL_DWM_NEWGAME ? 2 : 1) * FADE_LEVELS;
 	}
 	FreeCutscene();
 
 	assert(ghMainWnd != NULL);
-	saveProc = SetWindowProc(saveProc);
+	saveProc = SetWindowProc(GameWndProc); // saveProc);
 	assert(saveProc == DisableInputWndProc);
 }
 

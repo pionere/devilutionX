@@ -23,6 +23,7 @@ int CheckMonCol(int _mnum_);
 int CheckPlrCol(int _pnum_);
 int AddElementalExplosion(int fdam, int ldam, int mdam, int hdam, bool isMonster, int mpnum);
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl);
+void RemovePortalMissile(int pnum);
 void LoadMissileGFX(BYTE midx);
 void InitGameMissileGFX();
 void FreeGameMissileGFX();

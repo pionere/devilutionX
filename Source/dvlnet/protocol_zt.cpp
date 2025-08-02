@@ -211,7 +211,7 @@ void protocol_zt::accept_all()
 				break;
 			}
 		}
-		if (pc.sock != 0 && pc.timeout < SDL_GetTicks()) {
+		if (pc.sock != 0 && SDL_TICKS_PASSED(SDL_GetTicks(), pc.timeout)) {
 			lwip_close(pc.sock);
 			pc.sock = 0;
 		}

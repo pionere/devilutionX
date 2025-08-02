@@ -1,9 +1,12 @@
 
 #include "diabloui.h"
-#include "../gameui.h"
-#include "../engine.h"
+#include "all.h"
+//#include "../gameui.h"
+//#include "../engine.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+DISABLE_SPEED_OPTIMIZATION
 
 static int _gnMainMenuResult;
 
@@ -14,7 +17,7 @@ static void UiMainMenuSelect(unsigned index)
 
 static void MainmenuEsc()
 {
-	unsigned last = gUIListItems.size() - 1;
+	unsigned last = (unsigned)gUIListItems.size() - 1;
 	if (SelectedItem == last) {
 		UiMainMenuSelect(last);
 	} else {
@@ -42,7 +45,7 @@ static void MainmenuLoad()
 	UiAddLogo();
 
 	//assert(gUIListItems.size() == numOptions);
-	SDL_Rect rect1 = { PANEL_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
+	SDL_Rect rect1 = { SCREEN_MIDX(MAINMENU_WIDTH), MAINMENU_TOP, MAINMENU_WIDTH, MAINMENU_ITEM_HEIGHT * numOptions };
 	gUiItems.push_back(new UiList(&gUIListItems, numOptions, rect1, UIS_HCENTER | UIS_VCENTER | UIS_HUGE | UIS_GOLD));
 
 	//assert(gUIListItems.size() == numOptions);
@@ -62,13 +65,15 @@ int UiMainMenuDialog()
 {
 	MainmenuLoad();
 
-	_gnMainMenuResult = NUM_MAINMENU;
+	_gnMainMenuResult = -1;
 	do {
 		UiRenderAndPoll();
-	} while (_gnMainMenuResult == NUM_MAINMENU);
+	} while (_gnMainMenuResult < 0);
 
 	MainmenuFree();
 	return _gnMainMenuResult;
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE
