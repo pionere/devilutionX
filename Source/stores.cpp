@@ -1958,20 +1958,18 @@ static void SmithRepairItem(int idx)
 	SendStoreCmd1(i, STORE_SREPAIR, storeitem._iIvalue);
 }
 
-static void S_SRepairEnter()
+static void S_UpdateEnter(int mode)
 {
 	int idx;
 
 	if (stextsel == STORE_BACK) {
 		STextESC();
-		// StartStore(STORE_SMITH);
-		// stextsel = STORE_SMITH_REPAIR;
 	} else {
-		DEBUG_ASSERT(stextflag == STORE_SREPAIR);
+		DEBUG_ASSERT(stextflag == mode);
 		stextlhold = stextsel;
 		stextxhold = stextselx;
 		stextvhold = stextsidx;
-		stextshold = STORE_SREPAIR;
+		stextshold = mode;
 		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
 		copy_pod(storeitem, storehold[idx]);
 		if (myplr._pGold < storehold[idx]._iIvalue)
@@ -1979,6 +1977,11 @@ static void S_SRepairEnter()
 		else
 			StartStore(STORE_CONFIRM);
 	}
+}
+
+static void S_SRepairEnter()
+{
+	S_UpdateEnter(STORE_SREPAIR);
 }
 
 static void S_WitchEnter()
@@ -2054,25 +2057,7 @@ static void WitchRechargeItem(int idx)
 
 static void S_WRechargeEnter()
 {
-	int idx;
-
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_WITCH);
-		// stextsel = STORE_WITCH_RECHARGE;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_WRECHARGE);
-		stextlhold = stextsel;
-		stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_WRECHARGE;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		copy_pod(storeitem, storehold[idx]);
-		if (myplr._pGold < storehold[idx]._iIvalue)
-			StartStore(STORE_NOMONEY);
-		else
-			StartStore(STORE_CONFIRM);
-	}
+	S_UpdateEnter(STORE_WRECHARGE);
 }
 
 static void S_BoyEnter()
@@ -2265,25 +2250,7 @@ static void S_StoryEnter()
 
 static void S_SIDEnter()
 {
-	int idx;
-
-	if (stextsel == STORE_BACK) {
-		STextESC();
-		// StartStore(STORE_STORY);
-		// stextsel = STORE_STORY_IDENTIFY;
-	} else {
-		DEBUG_ASSERT(stextflag == STORE_SIDENTIFY);
-		stextlhold = stextsel;
-		stextxhold = stextselx;
-		stextvhold = stextsidx;
-		stextshold = STORE_SIDENTIFY;
-		idx = stextsidx + ((stextsel - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextselx;
-		copy_pod(storeitem, storehold[idx]);
-		if (myplr._pGold < storehold[idx]._iIvalue)
-			StartStore(STORE_NOMONEY);
-		else
-			StartStore(STORE_CONFIRM);
-	}
+	S_UpdateEnter(STORE_SIDENTIFY);
 }
 
 static void S_TalkEnter()
