@@ -485,14 +485,17 @@ static void S_StartBuy(ItemStruct* items, int n, const char* prefix)
 	// gbRenderGold = true;
 	gbHasScroll = storenumh != 0;
 	char text[64];
-	char *msg;
+	const char* msg;
 	if (storenumh == 0) {
 		msg = "I have no %sitem for sale.";
 	} else {
 		// stextsidx = 0;
 		S_ScrollHold();
 
-		msg = "I have these %sitems for sale:";
+		if (storenumh == 1)
+			msg = "I have this %sitem for sale:";
+		else
+			msg = "I have these %sitems for sale:";
 	}
 	snprintf(text, lengthof(text), msg, prefix);
 	AddStoreFrame(text);
