@@ -1097,44 +1097,6 @@ static void StoreUpdateSelection()
 	}
 }
 
-/*void DrawStoreLineX(int sx, int sy, int dx, int dy, int length)
-{
-	int sxy, dxy, width;
-
-	width = BUFFER_WIDTH;
-	sxy = sx + 0 + width * (sy + 0);
-	dxy = dx + 0 + width * dy;
-
-	/// ASSERT: assert(gpBuffer != NULL);
-
-	int i;
-	BYTE *src, *dst;
-
-	src = &gpBuffer[sxy];
-	dst = &gpBuffer[dxy];
-
-	for (i = 0; i < BOXBORDER_WIDTH; i++, src += width, dst += width)
-		memcpy(dst, src, length);
-}
-void DrawStoreLineY(int sx, int sy, int dx, int dy, int height)
-{
-	int sxy, dxy, width;
-
-	width = BUFFER_WIDTH;
-	sxy = sx + 0 + width * (sy + 0);
-	dxy = dx + 0 + width * dy;
-
-	/// ASSERT: assert(gpBuffer != NULL);
-
-	int i;
-	BYTE *src, *dst;
-
-	src = &gpBuffer[sxy];
-	dst = &gpBuffer[dxy];
-
-	for (i = 0; i < height; i++, src += width, dst += width)
-		memcpy(dst, src, BOXBORDER_WIDTH);
-}*/
 static int current_store_line(int px, int py)
 {
 	int mx, my, y;
@@ -1223,7 +1185,6 @@ const ItemStruct* CurrentStoreItem()
 
 void DrawStore()
 {
-	STextStruct* sts;
 	int i, x, y;
 
 	y = LTPANEL_Y;
@@ -1250,7 +1211,7 @@ void DrawStore()
 	x += STORE_PNL_X_OFFSET;
 	y += STORE_PNL_Y_OFFSET;
 	for (i = 0; i < STORE_LINES; i++) {
-		sts = &stextlines[i];
+		const STextStruct* sts = &stextlines[i];
 		const bool lineSelected = i == stextsel;
 		const int ly = i * STORE_LINE_HEIGHT + sts->_syoff;
 		// if (sts->_sline)
@@ -1276,22 +1237,6 @@ void DrawStore()
 					sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
 
 					if (lineSelected && stextselx == n) {
-						// assert(gbWidePanel);
-						// DrawColorTextBoxSLine(px, py, 20 + i * STORE_LINE_HEIGHT, false);
-						/*
-						// top-left corner
-						DrawStoreLineX(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px, py, sx + 0 * INV_SLOT_SIZE_PX, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
-						// top-right corner
-						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - 3 * INV_SLOT_SIZE_PX, INV_SLOT_SIZE_PX / 2);
-						// bottom-left corner
-						DrawStoreLineX(px, py + TPANEL_HEIGHT - BOXBORDER_WIDTH, sx + 0 * INV_SLOT_SIZE_PX, sy - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 0 * INV_SLOT_SIZE_PX, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
-						// bottom-right corner
-						DrawStoreLineX(px + LTPANEL_WIDTH - INV_SLOT_SIZE_PX / 2, py + TPANEL_HEIGHT - BOXBORDER_WIDTH, sx + 2 * INV_SLOT_SIZE_PX - INV_SLOT_SIZE_PX / 2, sy - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
-						DrawStoreLineY(px + LTPANEL_WIDTH - BOXBORDER_WIDTH, py + TPANEL_HEIGHT - BOXBORDER_WIDTH - INV_SLOT_SIZE_PX / 2, sx + 2 * INV_SLOT_SIZE_PX - BOXBORDER_WIDTH, sy - INV_SLOT_SIZE_PX / 2 - BOXBORDER_WIDTH, INV_SLOT_SIZE_PX / 2);
-						*/
 						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 						if (sgbControllerActive) {
