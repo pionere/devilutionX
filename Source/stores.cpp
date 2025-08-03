@@ -475,19 +475,6 @@ static void AddStoreSell(const ItemStruct* is, int i)
 	AddStoreHoldItem(is, i, value);
 }
 
-static bool SmithSellOk(const ItemStruct* is)
-{
-	return /* commented out because _ivalue of stackable items are not maintained
-		(ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
-#ifdef HELLFIRE
-	 && (is->_itype != ITYPE_MISC || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
-#else
-	 && is->_itype != ITYPE_MISC
-#endif
-	 && is->_iClass != ICLASS_QUEST*/
-		ITYPE_DURABLE(is->_itype) && (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
-}
-
 static void S_StartSellOrUpdate(bool sell, void (*func)(const ItemStruct*, int), const char* title_0, const char* title_n)
 {
 	PlayerStruct* p;
@@ -521,6 +508,19 @@ static void S_StartSellOrUpdate(bool sell, void (*func)(const ItemStruct*, int),
 		msg = title_n;
 	}
 	AddStoreFrame(msg);
+}
+
+static bool SmithSellOk(const ItemStruct* is)
+{
+	return /* commented out because _ivalue of stackable items are not maintained
+		(ITYPE_DURABLE(is->_itype) || is->_itype == ITYPE_MISC)
+#ifdef HELLFIRE
+	 && (is->_itype != ITYPE_MISC || (is->_iMiscId > IMISC_OILFIRST && is->_iMiscId < IMISC_OILLAST))
+#else
+	 && is->_itype != ITYPE_MISC
+#endif
+	 && is->_iClass != ICLASS_QUEST*/
+		ITYPE_DURABLE(is->_itype) && (is->_itype != ITYPE_STAFF || is->_iSpell == SPL_NULL);
 }
 
 static void SmithSellItem(const ItemStruct* is, int i)
