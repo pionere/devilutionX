@@ -1820,7 +1820,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
  */
 static void StoreSellItem(int idx)
 {
-	int i, cost;
+	int i;
 
 	i = storehidx[idx];
 	if (i >= 0) {
@@ -1828,8 +1828,7 @@ static void StoreSellItem(int idx)
 	} else {
 		i = INVITEM_BELT_FIRST - (i + 1);
 	}
-	cost = storehold[idx]._iIvalue;
-	SendStoreCmd1(i, STORE_SSELL, cost);
+	SendStoreCmd1(i, STORE_SSELL, storeitem._iIvalue);
 }
 
 static void S_SSell()
