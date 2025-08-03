@@ -1573,9 +1573,9 @@ static void StoreShiftItems(ItemStruct *is)
  */
 static void SmithBuyItem(int idx)
 {
-	SendStoreCmd2(STORE_SBUY);
-
 	StoreShiftItems(&smithitem[idx]);
+
+	SendStoreCmd2(STORE_SBUY);
 }
 
 static void StoreStartBuy(int mode)
@@ -1617,10 +1617,11 @@ static void S_SBuyEnter()
  */
 static void SmithBuyPItem(int idx)
 {
-	SendStoreCmd2(STORE_SPBUY);
-
 	premiumitems[idx]._itype = ITYPE_NONE;
 	numpremium--;
+
+	SendStoreCmd2(STORE_SPBUY);
+
 	//SpawnPremium(StoresLimitedItemLvl());
 }
 
@@ -1932,12 +1933,10 @@ static void WitchBuyItem(int idx)
 {
 	if (idx < 3)
 		storeitem._iSeed = NextRndSeed();
+	else
+		StoreShiftItems(&witchitem[idx]);
 
 	SendStoreCmd2(STORE_WBUY);
-
-	if (idx >= 3) {
-		StoreShiftItems(&witchitem[idx]);
-	}
 }
 
 static void S_WBuyEnter()
@@ -2018,17 +2017,12 @@ static void BoyBuyItem(int idx)
  */
 static void HealerBuyItem(int idx)
 {
-	bool infinite;
-
-	infinite = idx < (IsMultiGame ? 3 : 2);
-	if (infinite)
+	if (idx < (IsMultiGame ? 3 : 2))
 		storeitem._iSeed = NextRndSeed();
+	else
+		StoreShiftItems(&healitem[idx]);
 
 	SendStoreCmd2(STORE_HBUY);
-
-	if (!infinite) {
-		StoreShiftItems(&healitem[idx]);
-	}
 }
 
 static void S_BBuyEnter()
