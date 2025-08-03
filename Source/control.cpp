@@ -418,35 +418,36 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const 
 }
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-static bool MoveToAtkMoveSkill(int sn, int st, const PlrSkillStruct &skill)
+static bool CurrentSkill(const PlrSkillStruct* skill, int sn, int st)
 {
-	if (skill._psAttack != SPL_INVALID)
-		return sn == skill._psAttack && st == skill._psAtkType;
-	if (skill._psMove != SPL_INVALID)
-		return sn == skill._psMove && st == skill._psMoveType;
+	if (skill->_psAttack != SPL_INVALID)
+		return sn == skill->_psAttack && st == skill->_psAtkType;
+	if (skill->_psMove != SPL_INVALID)
+		return sn == skill->_psMove && st == skill->_psMoveType;
 	return sn == SPL_NULL || sn == SPL_INVALID;
-}
-
-static bool CurrentSkill(int pnum, int sn, int st, bool altSkill)
-{
-	return MoveToAtkMoveSkill(sn, st, altSkill ? plr._pAltSkill : plr._pMainSkill);
 }
 #endif
 
 void DrawSkillList()
 {
-	int pnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
+	int pnum = mypnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
 	uint64_t mask;
 	bool selected;
 #if SCREEN_READER_INTEGRATION
 	BYTE prevSkill = currSkill;
+#endif
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	PlrSkillStruct* plrSkill = NULL;
+	if (_gbMoveCursor != 0) {
+		plrSkill = _gbMoveCursor == 1 ? &plr._pAltSkill : &plr._pMainSkill;
+		_gbMoveCursor = 0;
+	}
 #endif
 	currSkill = SPL_INVALID;
 	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
 	//y = SCREEN_CENTERY(190) + 190;
-	pnum = mypnum;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
@@ -497,8 +498,8 @@ void DrawSkillList()
 			ly = y - SCREEN_Y - SPLICON_HEIGHT;
 			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (_gbMoveCursor != 0) {
-				selected = CurrentSkill(pnum, j, i, _gbMoveCursor == 1);
+			if (plrSkill != NULL) {
+				selected = CurrentSkill(plrSkill, j, i);
 				if (selected) {
 					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
 				}
@@ -538,9 +539,6 @@ void DrawSkillList()
 			}
 		}
 	}
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	_gbMoveCursor = 0;
-#endif
 #if SCREEN_READER_INTEGRATION
 	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
 		SpeakText(spelldata[currSkill].sNameText);
