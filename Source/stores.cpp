@@ -1224,9 +1224,8 @@ void DrawStore()
 				if (is != NULL) {
 					int frame = is->_iCurs + CURSOR_FIRSTITEM;
 					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
-					int px = x, py = y + 1;
-					int sx = px + sts->_sx;
-					int sy = py + STORE_LINE_HEIGHT - 1 + ly;
+					int sx = x + sts->_sx;
+					int sy = y + STORE_LINE_HEIGHT + ly;
 					int frame_width = InvItemWidth[frame];
 					int frame_height = InvItemHeight[frame];
 
