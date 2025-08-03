@@ -479,7 +479,7 @@ static void S_StartSellOrUpdate(bool sell, void (*func)(const ItemStruct*, int),
 {
 	PlayerStruct* p;
 	ItemStruct* pi;
-	int i;
+	int i, n;
 	const char* msg;
 
 	storenumh = 0;
@@ -487,11 +487,11 @@ static void S_StartSellOrUpdate(bool sell, void (*func)(const ItemStruct*, int),
 		storehold[i]._itype = ITYPE_NONE;
 
 	p = &myplr;
-	if (!sell) {
-		pi = p->_pInvBody;
-		for (i = 0; i < NUM_INVLOC; i++, pi++)
-			func(pi, -(i + 1));
-	}
+	pi = sell ? p->_pSpdList : p->_pInvBody;
+	n = sell ? MAXBELTITEMS : NUM_INVLOC;
+	for (i = 0; i < n; i++, pi++)
+		func(pi, -(i + 1));
+
 	pi = p->_pInvList;
 	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++)
 		func(pi, i);
