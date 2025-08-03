@@ -233,9 +233,8 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	sx = px + STORE_PNL_X_OFFSET + x;
 	sy = py + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
-	limit -= x;
+	limit -= 2 * x;
 	if (cjustflag) {
-		// assert(x == 0); -- otherwise limit -= x; ?
 		width = GetSmallStringWidth(str);
 		// if (width < limit) {
 			sx += (limit - width) >> 1;
