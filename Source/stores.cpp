@@ -349,7 +349,7 @@ static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
 
 	ItemStatOk(mypnum, itm);
 
-	itm->_iIvalue = itm->_ivalue = value;
+	itm->_iIvalue = value;
 
 	storehidx[storenumh] = i;
 	storenumh++;
