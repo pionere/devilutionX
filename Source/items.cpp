@@ -1915,9 +1915,6 @@ static void GetUniqueItem(int ii, int uid)
 	items[ii]._iCurs = ui->UICurs;
 	items[ii]._iIvalue = ui->UIValue;
 
-	// if (items[ii]._iMiscId == IMISC_UNIQUE)
-	//	assert(items[ii]._iSeed == uid);
-
 	items[ii]._iUid = uid;
 	items[ii]._iMagical = ITEM_QUALITY_UNIQUE;
 	// items[ii]._iCreateInfo |= CF_UNIQUE;
@@ -1943,7 +1940,6 @@ static void SetupItem(int ii, int idx, int32_t iseed, unsigned lvl, unsigned qua
 
 	items[ii]._iCreateInfo |= quality << 11;
 
-	//if (items[ii]._iMiscId != IMISC_UNIQUE) {
 		if (quality >= CFDQ_GOOD
 		 || items[ii]._itype == ITYPE_STAFF
 		 || items[ii]._itype == ITYPE_RING
@@ -1959,10 +1955,6 @@ static void SetupItem(int ii, int idx, int32_t iseed, unsigned lvl, unsigned qua
 		}
 		// if (items[ii]._iMagical != ITEM_QUALITY_UNIQUE)
 			ItemRndDur(ii);
-	/*} else {
-		assert(items[ii]._iLoc != ILOC_UNEQUIPABLE);
-		GetUniqueItem(ii, iseed);
-	}*/
 }
 
 void SpawnUnique(int uid, int x, int y, int mode)
@@ -1973,7 +1965,6 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	while (AllItemList[idx].iUniqType != UniqueItemList[uid].UIUniqType) {
 		idx++;
 	}
-	assert(AllItemList[idx].iMiscId == IMISC_UNIQUE);
 
 	// SetupItem(MAXITEMS, idx, uid, items_get_currlevel(), CFDQ_NORMAL);
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
@@ -3182,8 +3173,6 @@ static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
 		desc = "right-click to read";
 		PrintItemString(x, y, desc);
 		return;
-	case IMISC_UNIQUE:
-		return;
 	case IMISC_EAR:
 		snprintf(tempstr, sizeof(tempstr), "(lvl: %d)", is->_ivalue);
 		PrintItemString(x, y);
@@ -3281,7 +3270,6 @@ static int LinesOfMiscInfo(const ItemStruct* is)
 	int result = 0;
 	switch (is->_iMiscId) {
 	case IMISC_NONE:
-	case IMISC_UNIQUE:
 		break;
 	case IMISC_HEAL:
 	case IMISC_FULLHEAL:

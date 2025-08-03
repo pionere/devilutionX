@@ -1123,10 +1123,8 @@ void ValidateData()
 		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != 0)
 			minHeavyArmor = ids.iMinMLvl;
 		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD
-		 && (ids.iMiscId != IMISC_UNIQUE || ids.itype == ITYPE_STAFF /* required by DoWhittle */)) // required by DoClean
+		 && (i >= IDI_RNDDROP_FIRST || ids.iUniqType == UITYPE_NONE || ids.itype == ITYPE_STAFF /* required by DoWhittle */)) // required by DoClean
 			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
-		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != 0)
-			app_fatal("Fix unique item %s (%d) should not be part of the loot.", ids.iName, i);
 		if (ids.iClass == ICLASS_ARMOR) {
 			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
