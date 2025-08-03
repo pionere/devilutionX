@@ -340,64 +340,6 @@ static BYTE StoreItemColor(const ItemStruct* is)
 	return ItemColor(is);
 }
 
-static void PrintStoreItem(const ItemStruct* is, int l, bool sel)
-{
-	int cursor;
-	BYTE iclr = StoreItemColor(is);
-	char sstr[128];
-
-	AddSText(20, l, false, ItemName(is), iclr, sel);
-
-	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified)
-		return;
-	l++;
-	cursor = 0;
-	if (is->_iMagical == ITEM_QUALITY_MAGIC) {
-		for (unsigned i = 0; i < is->_iNumAffixes; i++) {
-			PrintItemPower(i, is);
-			if (cursor != 0)
-				cat_cstr(sstr, cursor, ",  ");
-			cat_str(sstr, cursor, "%s", tempstr);
-		}
-	}
-	if (is->_iMaxCharges != 0) {
-		if (cursor != 0)
-			cat_cstr(sstr, cursor, ",  ");
-		cat_str(sstr, cursor, "Charges: %d/%d", is->_iCharges, is->_iMaxCharges);
-	}
-	if (cursor != 0) {
-		AddSText(40, l++, false, sstr, iclr, false);
-		cursor = 0;
-	}
-	if (is->_iClass == ICLASS_WEAPON || is->_iClass == ICLASS_ARMOR) {
-		if (is->_iClass == ICLASS_WEAPON) {
-			if (is->_iMinDam == is->_iMaxDam)
-				cat_str(sstr, cursor, "Damage: %d", is->_iMinDam);
-			else
-				cat_str(sstr, cursor, "Damage: %d-%d", is->_iMinDam, is->_iMaxDam);
-		} else {
-			cat_str(sstr, cursor, "Armor: %d", is->_iAC);
-		}
-		if (is->_iMaxDur != DUR_INDESTRUCTIBLE)
-			cat_str(sstr, cursor, "  Dur: %d/%d", is->_iDurability, is->_iMaxDur);
-		else
-			cat_str(sstr, cursor, "  indestructible");
-	}
-	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
-		if (cursor != 0)
-			cat_cstr(sstr, cursor, ",  ");
-		cat_cstr(sstr, cursor, "Req.:");
-		if (is->_iMinStr != 0)
-			cat_str(sstr, cursor, " %d Str", is->_iMinStr);
-		if (is->_iMinMag != 0)
-			cat_str(sstr, cursor, " %d Mag", is->_iMinMag);
-		if (is->_iMinDex != 0)
-			cat_str(sstr, cursor, " %d Dex", is->_iMinDex);
-	}
-	if (cursor != 0)
-		AddSText(40, l++, false, sstr, iclr, false);
-}
-
 static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
 {
 	ItemStruct* itm;
@@ -427,8 +369,9 @@ static void AddStoreItem(const ItemStruct* is, unsigned l)
 	stextdown = line;
 	AddSItem(line, l % STORE_LINE_ITEMS, is);
 	if (stextsel == line && stextselx == (int)(l % STORE_LINE_ITEMS)) {
-		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
-		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
+		char text[32];
+		snprintf(text, sizeof(text), "price: %d", is->_iIvalue);
+		AddSText(0, STORE_LIST_FOOTER - 2, true, text, myplr._pGold >= is->_iIvalue ? COL_WHITE : COL_RED, false);
 	}
 }
 
