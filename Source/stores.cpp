@@ -225,13 +225,13 @@ void InitLvlStores()
 	SpawnPremium(l);
 }
 
-static void PrintSString(int px, int py, int x, int y, bool cjustflag, const char* str, BYTE col, int val)
+static void PrintSString(int px, int py, int x, bool cjustflag, const char* str, BYTE col, int val, bool selected)
 {
 	int sx, sy, tx;
 	int width, limit;
 
 	sx = px + x;
-	sy = py + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
+	sy = py + STORE_LINE_HEIGHT;
 	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= 2 * x;
 	if (cjustflag) {
@@ -242,7 +242,7 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	}
 	tx = sx;
 	sx = PrintLimitedString(sx, sy, str, limit, col, FONT_KERN_SMALL);
-	if (stextsel == y) {
+	if (selected) {
 		DEBUG_ASSERT(cjustflag || !gbHasScroll);
 		DEBUG_ASSERT(cjustflag || gbWidePanel);
 		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
@@ -1251,10 +1251,11 @@ void DrawStore()
 	y += STORE_PNL_Y_OFFSET;
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
+		const bool lineSelected = i == stextsel;
 		// if (sts->_sline)
 		//	DrawColorTextBoxSLine(x - STORE_PNL_X_OFFSET, y - STORE_PNL_Y_OFFSET, i * STORE_LINE_HEIGHT + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0') {
-			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
+			PrintSString(x, y + i * STORE_LINE_HEIGHT + sts->_syoff, sts->_sx, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval, lineSelected);
 		} else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siItems); n++) {
 				const ItemStruct* is = sts->_siItems[n];
@@ -1273,7 +1274,7 @@ void DrawStore()
 					sx += (2 * INV_SLOT_SIZE_PX - frame_width) >> 1;
 					sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
 
-					if (stextsel == i && stextselx == n) {
+					if (lineSelected && stextselx == n) {
 						// assert(gbWidePanel);
 						// DrawColorTextBoxSLine(px, py, 20 + i * STORE_LINE_HEIGHT, false);
 						/*
