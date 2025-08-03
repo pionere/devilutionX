@@ -1560,20 +1560,12 @@ static bool StoreAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 	return /*WeaponAutoPlace(pnum, is, saveflag) ||*/ AutoPlaceBelt(pnum, is, saveflag) || AutoPlaceInv(pnum, is, saveflag);
 }
 
-static void StoreShiftItems(ItemStruct *is)
-{
-	do {
-		copy_pod(is[0], is[1]);
-		is++;
-	} while (is->_itype != ITYPE_NONE);
-}
-
 /**
  * @brief Purchases an item from the smith.
  */
 static void SmithBuyItem(int idx)
 {
-	StoreShiftItems(&smithitem[idx]);
+	smithitem[idx]._itype = ITYPE_NONE;
 
 	SendStoreCmd2(STORE_SBUY);
 }
@@ -1934,7 +1926,7 @@ static void WitchBuyItem(int idx)
 	if (idx < 3)
 		storeitem._iSeed = NextRndSeed();
 	else
-		StoreShiftItems(&witchitem[idx]);
+		witchitem[idx]._itype = ITYPE_NONE;
 
 	SendStoreCmd2(STORE_WBUY);
 }
@@ -2020,7 +2012,7 @@ static void HealerBuyItem(int idx)
 	if (idx < (IsMultiGame ? 3 : 2))
 		storeitem._iSeed = NextRndSeed();
 	else
-		StoreShiftItems(&healitem[idx]);
+		healitem[idx]._itype = ITYPE_NONE;
 
 	SendStoreCmd2(STORE_HBUY);
 }
