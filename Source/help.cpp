@@ -135,16 +135,27 @@ void StopHelp()
 	MemFreeTxtFile(gbHelpLines);
 }
 
-void HelpScrollUp()
+static void HelpUp()
 {
 	if (helpFirstLine > 0)
 		helpFirstLine--;
 }
 
-void HelpScrollDown()
+static void HelpDown()
 {
 	if (helpFirstLine < (HELP_LINE_COUNT - gnVisibleHelpLines))
 		helpFirstLine++;
+}
+
+void HelpMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    HelpUp();   break;
+	case MDIR_DOWN:  HelpDown(); break;
+	case MDIR_LEFT:
+	case MDIR_RIGHT: StopHelp(); break;
+	default: ASSUME_UNREACHABLE; break;
+	}
 }
 
 DEVILUTION_END_NAMESPACE

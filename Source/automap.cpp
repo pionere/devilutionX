@@ -120,7 +120,7 @@ void ToggleAutomap()
 /**
  * @brief Scrolls the automap upwards.
  */
-void AutomapUp()
+static void AutomapUp()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 0, -2);
 }
@@ -128,7 +128,7 @@ void AutomapUp()
 /**
  * @brief Scrolls the automap downwards.
  */
-void AutomapDown()
+static void AutomapDown()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 0, 2);
 }
@@ -136,7 +136,7 @@ void AutomapDown()
 /**
  * @brief Scrolls the automap leftwards.
  */
-void AutomapLeft()
+static void AutomapLeft()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, -2, 0);
 }
@@ -144,9 +144,20 @@ void AutomapLeft()
 /**
  * @brief Scrolls the automap rightwards.
  */
-void AutomapRight()
+static void AutomapRight()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 2, 0);
+}
+
+void AutomapMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    AutomapUp();    break;
+	case MDIR_DOWN:  AutomapDown();  break;
+	case MDIR_LEFT:  AutomapLeft();  break;
+	case MDIR_RIGHT: AutomapRight(); break;
+	default: ASSUME_UNREACHABLE;     break;
+	}
 }
 
 /**

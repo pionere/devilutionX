@@ -980,49 +980,23 @@ void InputBtnDown(int transKey)
 		ClearUI();
 		break;
 	case ACT_UP:
-		if (stextflag != STORE_NONE) {
-			STextUp();
-		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
-			QuestlogUp();
-		} else if (gnVisibleHelpLines != 0) {
-			HelpScrollUp();
-		} else if (gbAutomapflag != AMM_NONE) {
-			AutomapUp();
-		}
-		break;
 	case ACT_DOWN:
-		if (stextflag != STORE_NONE) {
-			STextDown();
-		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
-			QuestlogDown();
-		} else if (gnVisibleHelpLines != 0) {
-			HelpScrollDown();
-		} else if (gbAutomapflag != AMM_NONE) {
-			AutomapDown();
-		}
-		break;
 	case ACT_LEFT:
+	case ACT_RIGHT: {
+		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_DOWN - (int)ACT_DOWN, "PressKey expects a parallel assignment of ACT_*dir* and MDIR_x I.");
+		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_LEFT - (int)ACT_LEFT, "PressKey expects a parallel assignment of ACT_*dir* and MDIR_x II.");
+		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_RIGHT - (int)ACT_RIGHT, "PressKey expects a parallel assignment of ACT_*dir* and MDIR_x III.");
+		int dir = MDIR_UP + transKey - ACT_UP;
 		if (stextflag != STORE_NONE) {
-			STextLeft();
+			STextMove(dir);
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
-			ToggleWindow(WND_QUEST);
+			QuestlogMove(dir);
 		} else if (gnVisibleHelpLines != 0) {
-			StopHelp();
+			HelpMove(dir);
 		} else if (gbAutomapflag != AMM_NONE) {
-			AutomapLeft();
+			AutomapMove(dir);
 		}
-		break;
-	case ACT_RIGHT:
-		if (stextflag != STORE_NONE) {
-			STextRight();
-		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
-			QuestlogEnter();
-		} else if (gnVisibleHelpLines != 0) {
-			StopHelp();
-		} else if (gbAutomapflag != AMM_NONE) {
-			AutomapRight();
-		}
-		break;
+	} break;
 	case ACT_RETURN:
 		if (stextflag != STORE_NONE) {
 			STextEnter();

@@ -3791,6 +3791,13 @@ typedef enum _path_direction {
 	PDIR_SW
 } _path_direction;
 
+typedef enum _menu_direction {
+	MDIR_UP,
+	MDIR_DOWN,
+	MDIR_LEFT,
+	MDIR_RIGHT,
+} _menu_direction;
+
 typedef enum lvl_entry {
 	ENTRY_MAIN,
 	ENTRY_PREV,

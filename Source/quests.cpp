@@ -388,7 +388,7 @@ void StartQuestlog()
 	qline = qtopline = numqlines != 0 ? (QPNL_MAXENTRIES / 2) - (numqlines >> 1) : QPNL_MAXENTRIES;
 }
 
-void QuestlogUp()
+static void QuestlogUp()
 {
 	if (numqlines != 0) {
 		if (qline == qtopline) {
@@ -402,7 +402,7 @@ void QuestlogUp()
 	}
 }
 
-void QuestlogDown()
+static void QuestlogDown()
 {
 	if (numqlines != 0) {
 		if (qline == QPNL_MAXENTRIES) {
@@ -423,6 +423,17 @@ void QuestlogEnter()
 		StartQTextMsg(quests[qlist[qline - qtopline]]._qmsg);
 	else
 		ToggleWindow(WND_QUEST);
+}
+
+void QuestlogMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    QuestlogUp();    break;
+	case MDIR_DOWN:  QuestlogDown();  break;
+	case MDIR_LEFT:  ToggleWindow(WND_QUEST);  break;
+	case MDIR_RIGHT: QuestlogEnter(); break;
+	default: ASSUME_UNREACHABLE;   break;
+	}
 }
 
 void CheckQuestlogClick()

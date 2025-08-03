@@ -1385,7 +1385,7 @@ void STextESC()
 	}
 }
 
-void STextUp()
+static void STextUp()
 {
 	PlaySfx(IS_TITLEMOV);
 	DEBUG_ASSERT(stextsel != -1);
@@ -1405,7 +1405,7 @@ void STextUp()
 	} while (!stextlines[stextsel]._ssel);
 }
 
-void STextDown()
+static void STextDown()
 {
 	PlaySfx(IS_TITLEMOV);
 	DEBUG_ASSERT(stextsel != -1);
@@ -1425,7 +1425,7 @@ void STextDown()
 	} while (!stextlines[stextsel]._ssel);
 }
 
-void STextRight()
+static void STextRight()
 {
 	DEBUG_ASSERT(stextsel != -1);
 	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
@@ -1440,7 +1440,7 @@ void STextRight()
 	} while (stextlines[stextsel]._siItems[stextselx] == NULL);
 }
 
-void STextLeft()
+static void STextLeft()
 {
 	DEBUG_ASSERT(stextsel != -1);
 	if (/*stextsel == -1 || */!stextlines[stextsel]._sitemlist) {
@@ -2419,6 +2419,17 @@ void TryStoreBtnClick()
 				STextEnter();
 			}
 		}
+	}
+}
+
+void STextMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    STextUp();    break;
+	case MDIR_DOWN:  STextDown();  break;
+	case MDIR_LEFT:  STextLeft();  break;
+	case MDIR_RIGHT: STextRight(); break;
+	default: ASSUME_UNREACHABLE;   break;
 	}
 }
 
