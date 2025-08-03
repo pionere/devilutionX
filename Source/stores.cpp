@@ -1619,7 +1619,6 @@ static void SmithBuyPItem(int idx)
 {
 	SendStoreCmd2(STORE_SPBUY);
 
-	idx = storehidx[idx];
 	premiumitems[idx]._itype = ITYPE_NONE;
 	numpremium--;
 	//SpawnPremium(StoresLimitedItemLvl());
@@ -1818,11 +1817,8 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 /**
  * @brief Sells an item from the player's inventory or belt.
  */
-static void StoreSellItem(int idx)
+static void StoreSellItem(int i)
 {
-	int i;
-
-	i = storehidx[idx];
 	if (i >= 0) {
 		i += INVITEM_INV_FIRST;
 	} else {
@@ -1862,11 +1858,8 @@ static void S_SSellEnter()
 /**
  * @brief Repairs an item in the player's inventory or body in the smith.
  */
-static void SmithRepairItem(int idx)
+static void SmithRepairItem(int i)
 {
-	int i;
-
-	i = storehidx[idx];
 	if (i < 0) {
 		i = INVITEM_BODY_FIRST - (i + 1);
 	} else {
@@ -1960,11 +1953,8 @@ static void S_WSellEnter()
 /**
  * @brief Recharges an item in the player's inventory or body in the witch.
  */
-static void WitchRechargeItem(int idx)
+static void WitchRechargeItem(int i)
 {
-	int i;
-
-	i = storehidx[idx];
 	if (i < 0) {
 		i = INVITEM_BODY_FIRST - (i + 1);
 	} else {
@@ -2048,7 +2038,6 @@ static void S_BBuyEnter()
 
 static void StoryIdItem(int idx)
 {
-	idx = storehidx[idx];
 	if (idx < 0)
 		idx = INVITEM_BODY_FIRST - (idx + 1);
 	else
@@ -2063,6 +2052,7 @@ static void S_ConfirmEnter()
 
 	if (stextsel == STORE_CONFIRM_YES) {
 		int idx = stextvhold + ((stextlhold - STORE_LIST_FIRST) / STORE_ITEM_LINES) * STORE_LINE_ITEMS + stextxhold;
+		idx = storehidx[idx];
 		void (*func)(int);
 		switch (lastshold) {
 		case STORE_SBUY:
