@@ -230,8 +230,8 @@ static void PrintSString(int px, int py, int x, int y, bool cjustflag, const cha
 	int sx, sy, tx;
 	int width, limit;
 
-	sx = px + STORE_PNL_X_OFFSET + x;
-	sy = py + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
+	sx = px + x;
+	sy = py + STORE_LINE_HEIGHT + y * STORE_LINE_HEIGHT + stextlines[y]._syoff;
 	limit = gbWidePanel ? LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2 : STPANEL_WIDTH - STORE_PNL_X_OFFSET * 2;
 	limit -= 2 * x;
 	if (cjustflag) {
@@ -262,9 +262,9 @@ static void DrawSSlider(int px, int py)
 
 	//x = px + (gbWidePanel ? LTPANEL_WIDTH : STPANEL_WIDTH) - (SMALL_SCROLL_WIDTH + 2);
 	DEBUG_ASSERT(gbWidePanel);
-	x = px + LTPANEL_WIDTH - (SMALL_SCROLL_WIDTH + 2);
-	yd1 = y1 * STORE_LINE_HEIGHT + py + STORE_PNL_Y_OFFSET + SMALL_SCROLL_HEIGHT; // top position of the scrollbar
-	yd2 = y2 * STORE_LINE_HEIGHT + py + STORE_PNL_Y_OFFSET + SMALL_SCROLL_HEIGHT; // bottom position of the scrollbar
+	x = px + LTPANEL_WIDTH - STORE_PNL_X_OFFSET - (SMALL_SCROLL_WIDTH + 2);
+	yd1 = y1 * STORE_LINE_HEIGHT + py + SMALL_SCROLL_HEIGHT; // top position of the scrollbar
+	yd2 = y2 * STORE_LINE_HEIGHT + py + SMALL_SCROLL_HEIGHT; // bottom position of the scrollbar
 	yd3 = (y2 - y1) * STORE_LINE_HEIGHT - 2 * SMALL_SCROLL_HEIGHT;                // height of the scrollbar
 	// draw the up arrow
 	CelDraw(x, yd1, pSTextSlidCels, stextscrlubtn != -1 ? 12 : 10);
@@ -1247,10 +1247,12 @@ void DrawStore()
 	}
 
 	int csi = current_store_line(x, y);
+	x += STORE_PNL_X_OFFSET;
+	y += STORE_PNL_Y_OFFSET;
 	for (i = 0; i < STORE_LINES; i++) {
 		sts = &stextlines[i];
 		// if (sts->_sline)
-		//	DrawColorTextBoxSLine(x, y, i * STORE_LINE_HEIGHT + 14, gbWidePanel);
+		//	DrawColorTextBoxSLine(x - STORE_PNL_X_OFFSET, y - STORE_PNL_Y_OFFSET, i * STORE_LINE_HEIGHT + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0') {
 			PrintSString(x, y, sts->_sx, i, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval);
 		} else if (sts->_sitemlist) {
@@ -1260,8 +1262,8 @@ void DrawStore()
 					int frame = is->_iCurs + CURSOR_FIRSTITEM;
 					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
 					int px = x, py = y + 1;
-					int sx = px + STORE_PNL_X_OFFSET + sts->_sx;
-					int sy = py + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT - 1 + i * STORE_LINE_HEIGHT + sts->_syoff;
+					int sx = px + sts->_sx;
+					int sy = py + STORE_LINE_HEIGHT - 1 + i * STORE_LINE_HEIGHT + sts->_syoff;
 					int frame_width = InvItemWidth[frame];
 					int frame_height = InvItemHeight[frame];
 
@@ -1307,8 +1309,8 @@ void DrawStore()
 		snprintf(valstr, sizeof(valstr), "%d", myplr._pGold);
 		const int cursor = (int)CURSOR_FIRSTITEM + ICURS_GOLD_SMALL;
 		const int cw = InvItemWidth[cursor];
-		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + 1 * STORE_LINE_HEIGHT - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw + 3), 0);
-		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (STORE_PNL_X_OFFSET + cw), y + STORE_PNL_Y_OFFSET + STORE_LINE_HEIGHT + (InvItemHeight[cursor] + STORE_LINE_HEIGHT) / 2, pCursCels, cursor, cw, 0);
+		PrintString(AFF_SMALL | AFF_RIGHT | (COL_GOLD << AFF_COLOR_SHL), valstr, x, y + STORE_LINE_HEIGHT + 1 * STORE_LINE_HEIGHT - SMALL_FONT_HEIGHT, LTPANEL_WIDTH - (2 * STORE_PNL_X_OFFSET + cw + 3), 0);
+		CelClippedDrawLightTbl(x + LTPANEL_WIDTH - (2 * STORE_PNL_X_OFFSET + cw), y + STORE_LINE_HEIGHT + (InvItemHeight[cursor] + STORE_LINE_HEIGHT) / 2, pCursCels, cursor, cw, 0);
 	}
 	if (gbHasScroll)
 		DrawSSlider(x, y);
