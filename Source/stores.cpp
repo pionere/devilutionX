@@ -1213,11 +1213,11 @@ void DrawStore()
 	for (i = 0; i < STORE_LINES; i++) {
 		const STextStruct* sts = &stextlines[i];
 		const bool lineSelected = i == stextsel;
-		const int ly = i * STORE_LINE_HEIGHT + sts->_syoff;
+		const int ly = y + i * STORE_LINE_HEIGHT + sts->_syoff;
 		// if (sts->_sline)
 		//	DrawColorTextBoxSLine(x - STORE_PNL_X_OFFSET, y - STORE_PNL_Y_OFFSET, i * STORE_LINE_HEIGHT + 14, gbWidePanel);
 		if (sts->_sstr[0] != '\0') {
-			PrintSString(x, y + ly, sts->_sx, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval, lineSelected);
+			PrintSString(x, ly, sts->_sx, sts->_sjust, sts->_sstr, (csi == i && sts->_ssel) ? COL_GOLD + 1 + 4 : sts->_sclr, sts->_sval, lineSelected);
 		} else if (sts->_sitemlist) {
 			for (int n = 0; n < lengthof(sts->_siItems); n++) {
 				const ItemStruct* is = sts->_siItems[n];
@@ -1225,7 +1225,7 @@ void DrawStore()
 					int frame = is->_iCurs + CURSOR_FIRSTITEM;
 					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
 					int sx = x + sts->_sx;
-					int sy = y + STORE_LINE_HEIGHT + ly;
+					int sy = ly + STORE_LINE_HEIGHT;
 					int frame_width = InvItemWidth[frame];
 					int frame_height = InvItemHeight[frame];
 
