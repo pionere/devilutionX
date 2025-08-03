@@ -51,16 +51,23 @@ void OutputToLogical(T* x, T* y)
 #ifndef USE_SDL1
 	if (!renderer)
 		return;
+#if !SDL_VERSION_ATLEAST(2, 0, 18)
+	// TODO: dpi_scale?
 	float scaleX, scaleY;
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 	*x = (T)(*x / scaleX);
 	*y = (T)(*y / scaleY);
 
-	//SDL_Rect view;
-	//SDL_RenderGetViewport(renderer, &view);
-	//assert(view.x == 0 && view.y == 0);
-	//*x -= view.x;
-	//*y -= view.y;
+	SDL_Rect view;
+	SDL_RenderGetViewport(renderer, &view);
+	*x -= view.x;
+	*y -= view.y;
+#else
+	float wx, wy;
+	SDL_RenderWindowToLogical(renderer, x, y, &wx, &wy);
+	*x = (T)wx;
+	*y = (T)wy;
+#endif
 #else
 	const SDL_Surface* surface = OutputSurfaceToScale();
 	if (surface == NULL) return;
@@ -77,26 +84,24 @@ void LogicalToOutput(T* x, T* y)
 #ifndef USE_SDL1
 	if (renderer == NULL)
 		return;
-	//SDL_Rect view;
-	//SDL_RenderGetViewport(renderer, &view);
-	//assert(view.x == 0 && view.y == 0);
-	//*x += view.x;
-	//*y += view.y;
-
+#if !SDL_VERSION_ATLEAST(2, 0, 18)
+	SDL_Rect view;
+	SDL_RenderGetViewport(renderer, &view);
+	*x += view.x;
+	*y += view.y;
 	float scaleX, scaleY;
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 #if 0
-	T xx = (T)SDL_ceilf(*x * scaleX);
+	*x = (T)SDL_ceilf(*x * scaleX);
+	*y = (T)SDL_ceilf(*y * scaleY);
 #else
-	T xx = (T)(*x * scaleX);
+	*x = (T)(*x * scaleX);
+	*y = (T)(*y * scaleY);
 #endif
-	*x = xx;
-#if 0
-	T yy = (T)SDL_ceilf(*y * scaleY);
+	// TODO: dpi_scale?
 #else
-	T yy = (T)(*y * scaleY);
+	SDL_RenderLogicalToWindow(renderer, (float)*x, (float)*y, x, y);
 #endif
-	*y = yy;
 #else
 	const SDL_Surface* surface = OutputSurfaceToScale();
 	if (surface == NULL) return;
