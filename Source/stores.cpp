@@ -313,16 +313,15 @@ static void AddSText(int x, int y, bool j, const char* str, BYTE clr, bool sel)
 	ss->_ssel = sel;
 }
 
-static void AddSItem(int x, int y, int idx, const ItemStruct* is, bool selectable)
+static void AddSItem(int y, int idx, const ItemStruct* is)
 {
 	STextStruct* ss;
 
 	ss = &stextlines[y];
-	ss->_sx = x;
 	ss->_sitemlist = true;
 	ss->_siItems[idx] = is;
 	// ss->_sclr = 0;
-	ss->_ssel = selectable;
+	ss->_ssel = true;
 }
 
 static void AddSSItem(int y, const ItemStruct* is)
@@ -426,7 +425,7 @@ static void AddStoreItem(const ItemStruct* is, unsigned l)
 {
 	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 	stextdown = line;
-	AddSItem(STORE_ITEM_OFFSET, line, l % STORE_LINE_ITEMS, is, TRUE);
+	AddSItem(line, l % STORE_LINE_ITEMS, is);
 	if (stextsel == line && stextselx == (int)(l % STORE_LINE_ITEMS)) {
 		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
 		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
@@ -1233,8 +1232,7 @@ void DrawStore()
 				const ItemStruct* is = sts->_siItems[n];
 				if (is != NULL) {
 					int frame = is->_iCurs + CURSOR_FIRSTITEM;
-					// int sx = x + STORE_PNL_X_OFFSET + sts->_sx;
-					int sx = x + sts->_sx;
+					int sx = x + STORE_ITEM_OFFSET; // sts->_sx;
 					int sy = ly + STORE_LINE_HEIGHT;
 					int frame_width = InvItemWidth[frame];
 					int frame_height = InvItemHeight[frame];
