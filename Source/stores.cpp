@@ -325,6 +325,15 @@ static void AddSItem(int x, int y, int idx, const ItemStruct* is, bool selectabl
 	ss->_ssel = selectable;
 }
 
+static void AddSSItem(int y, const ItemStruct* is)
+{
+	STextStruct* ss;
+
+	ss = &stextlines[y];
+	ss->_siItems[0] = is;
+	// ss->_sclr = 0;
+}
+
 static BYTE StoreItemColor(const ItemStruct* is)
 {
 	if (!is->_iStatFlag)
@@ -726,8 +735,7 @@ static void S_StartConfirm()
 	gbWidePanel = true;
 	// gbRenderGold = true;
 	// gbHasScroll = false;
-	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
-	PrintStoreItem(&storeitem, STORE_CONFIRM_ITEM, false);
+	AddSSItem(STORE_LIST_FIRST, &storeitem);
 	// AddSLine(3);
 	// AddSLine(21);
 
@@ -868,8 +876,7 @@ static void S_StartIdShow()
 	// gbRenderGold = true;
 	// gbHasScroll = false;
 
-	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
-	PrintStoreItem(&storeitem, STORE_STORY_ITEM, false);
+	AddSSItem(STORE_LIST_FIRST, &storeitem);
 
 	AddStoreFrame("This item is:");
 }
@@ -1248,6 +1255,95 @@ void DrawStore()
 					}
 					CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, is->_iStatFlag ? 0 : COLOR_TRN_RED);
 				}
+			}
+		} else {
+			const ItemStruct* is = sts->_siItems[0];
+			if (is != NULL) {
+				int frame = is->_iCurs + CURSOR_FIRSTITEM;
+				int sx = x; // + sts->_sx;
+				int sy = ly;
+				int frame_width = InvItemWidth[frame];
+				int frame_height = InvItemHeight[frame];
+
+				sx += 2 * 2 * INV_SLOT_SIZE_PX;
+				sy += 3 * INV_SLOT_SIZE_PX;
+				{
+					int dx, dy = STORE_LINE_HEIGHT - 3 * INV_SLOT_SIZE_PX;
+					int linesOfItemDetails = 0;
+					if (is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified) {
+						if (is->_iClass == ICLASS_WEAPON || is->_iClass == ICLASS_ARMOR) {
+							linesOfItemDetails++;
+							if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
+								linesOfItemDetails++;
+							}
+						}
+						if (is->_iMaxCharges != 0) {
+							linesOfItemDetails++;
+						}
+						linesOfItemDetails += is->_iNumAffixes;
+						if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+							linesOfItemDetails++;
+						}
+					}
+					const int SHIFT2CENTERITEM = (LTPANEL_WIDTH - STORE_PNL_X_OFFSET * 2) / 2 - (2 * INV_SLOT_SIZE_PX) / 2 - (2 * 2 * INV_SLOT_SIZE_PX);
+					dx = sx + SHIFT2CENTERITEM + (2 * INV_SLOT_SIZE_PX - ITEMDETAILS_PNL_WIDTH) / 2;
+					if (linesOfItemDetails == 0) {
+						sx += SHIFT2CENTERITEM;
+						dy = STORE_LINE_HEIGHT + STORE_LINE_HEIGHT;
+					} else if (linesOfItemDetails < lengthof(is->_iAffixes)) {
+						dy += ((lengthof(is->_iAffixes) - linesOfItemDetails) / 2) * STORE_LINE_HEIGHT;
+					}
+					dy += sy;
+					PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, ItemName(is), ItemColor(is), FONT_KERN_SMALL);
+					dy += STORE_LINE_HEIGHT;
+
+					if (linesOfItemDetails != 0) {
+						if (is->_iClass == ICLASS_WEAPON || is->_iClass == ICLASS_ARMOR) {
+							if (is->_iClass == ICLASS_WEAPON) {
+								if (is->_iMinDam == is->_iMaxDam)
+									snprintf(tempstr, lengthof(tempstr), "Damage: %d", is->_iMinDam);
+								else
+									snprintf(tempstr, lengthof(tempstr), "Damage: %d-%d", is->_iMinDam, is->_iMaxDam);
+							} else {
+								snprintf(tempstr, lengthof(tempstr), "Armor: %d", is->_iAC);
+							}
+							PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
+							dy += STORE_LINE_HEIGHT;
+							if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
+								snprintf(tempstr, sizeof(tempstr), "Durability: %d/%d", is->_iDurability, is->_iMaxDur);
+								PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
+								dy += STORE_LINE_HEIGHT;
+							}
+						}
+						if (is->_iMaxCharges != 0) {
+							snprintf(tempstr, sizeof(tempstr), "Charges: %d/%d", is->_iCharges, is->_iMaxCharges);
+							PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
+							dy += STORE_LINE_HEIGHT;
+						}
+						for (unsigned n = 0; n < is->_iNumAffixes; n++) {
+							PrintItemPower(n, is);
+							PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
+							dy += STORE_LINE_HEIGHT;
+						}
+						if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+							int cursor = 0;
+							cat_cstr(tempstr, cursor, "Req.:");
+							if (is->_iMinStr != 0)
+								cat_str(tempstr, cursor, " %d Str", is->_iMinStr);
+							if (is->_iMinMag != 0)
+								cat_str(tempstr, cursor, " %d Mag", is->_iMinMag);
+							if (is->_iMinDex != 0)
+								cat_str(tempstr, cursor, " %d Dex", is->_iMinDex);
+							PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
+							dy += STORE_LINE_HEIGHT;
+						}
+					}
+				}
+
+				sx += (2 * INV_SLOT_SIZE_PX - frame_width) >> 1;
+				sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
+
+				CelClippedDrawLightTbl(sx, sy, pCursCels, frame, frame_width, is->_iStatFlag ? 0 : COLOR_TRN_RED);
 			}
 		}
 	}
