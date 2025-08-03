@@ -728,39 +728,40 @@ static void S_StartConfirm()
 	// gbHasScroll = false;
 	AddSItem(260, STORE_LIST_FIRST, 0, &storeitem, FALSE);
 	PrintStoreItem(&storeitem, STORE_CONFIRM_ITEM, false);
-	AddSTextVal(STORE_CONFIRM_ITEM, storeitem._iIvalue);
 	// AddSLine(3);
 	// AddSLine(21);
 
 	const char* msg;
 	switch (stextshold) {
 	case STORE_PBUY:
-		msg = "Do we have a deal?";
+		msg = "%d gold. Do we have a deal?";
 		break;
 	case STORE_SIDENTIFY:
-		msg = "Are you sure you want to identify this item?";
+		msg = "Are you sure you want to identify this item for %d gold?";
 		break;
 	case STORE_HBUY:
 	case STORE_SPBUY:
 	case STORE_WBUY:
 	case STORE_SBUY:
-		msg = "Are you sure you want to buy this item?";
+		msg = "You want to buy this item for %d gold?";
 		break;
 	case STORE_WRECHARGE:
-		msg = "Are you sure you want to recharge this item?";
+		msg = "You want me to recharge this item for %d gold?";
 		break;
 	case STORE_SSELL:
 	case STORE_WSELL:
-		msg = "Are you sure you want to sell this item?";
+		msg = "Are you sure you want to sell this item for %d gold?";
 		break;
 	case STORE_SREPAIR:
-		msg = "Are you sure you want to repair this item?";
+		msg = "You want this item be repaired for %d gold?";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	AddSText(0, 15, true, msg, COL_WHITE, false);
+	char text[128];
+	snprintf(text, lengthof(text), msg, storeitem._iIvalue);
+	AddSText(0, 15, true, text, COL_WHITE, false);
 	AddSText(0, STORE_CONFIRM_YES, true, "Yes", COL_WHITE, true);
 	AddSText(0, STORE_CONFIRM_NO, true, "No", COL_WHITE, true);
 }
