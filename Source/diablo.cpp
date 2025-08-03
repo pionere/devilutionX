@@ -1006,6 +1006,8 @@ void InputBtnDown(int transKey)
 			STextLeft();
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			ToggleWindow(WND_QUEST);
+		} else if (gnVisibleHelpLines != 0) {
+			StopHelp();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapLeft();
 		}
@@ -1015,6 +1017,8 @@ void InputBtnDown(int transKey)
 			STextRight();
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogEnter();
+		} else if (gnVisibleHelpLines != 0) {
+			StopHelp();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
 		}
