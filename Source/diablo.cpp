@@ -1004,6 +1004,8 @@ void InputBtnDown(int transKey)
 	case ACT_LEFT:
 		if (stextflag != STORE_NONE) {
 			STextLeft();
+		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
+			ToggleWindow(WND_QUEST);
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapLeft();
 		}
@@ -1011,6 +1013,8 @@ void InputBtnDown(int transKey)
 	case ACT_RIGHT:
 		if (stextflag != STORE_NONE) {
 			STextRight();
+		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
+			QuestlogEnter();
 		} else if (gbAutomapflag != AMM_NONE) {
 			AutomapRight();
 		}
