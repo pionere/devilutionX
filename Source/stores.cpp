@@ -81,6 +81,7 @@ constexpr int STORAGE_LIMIT = maxv(maxv(maxv(maxv(NUM_INV_GRID_ELEM + maxv(MAXBE
 #define STORE_ID_PRICE     100
 #define STORE_PEGBOY_PRICE 50
 
+#define STORE_ITEM_OFFSET  60
 #define STORE_ITEM_LINES   ((3 * INV_SLOT_SIZE_PX + 11) / 12)
 #define STORE_LINE_ITEMS   8
 #define STORE_PAGE_ITEMS   (STORE_LINE_ITEMS * 2)
@@ -415,7 +416,7 @@ static void AddStoreItem(const ItemStruct* is, unsigned l)
 {
 	int line = STORE_LIST_FIRST + (l / STORE_LINE_ITEMS) * STORE_ITEM_LINES;
 	stextdown = line;
-	AddSItem(60, line, l % STORE_LINE_ITEMS, is, TRUE);
+	AddSItem(STORE_ITEM_OFFSET, line, l % STORE_LINE_ITEMS, is, TRUE);
 	if (stextsel == line && stextselx == (int)(l % STORE_LINE_ITEMS)) {
 		PrintStoreItem(is, STORE_LIST_FOOTER - 3, false);
 		AddSTextVal(STORE_LIST_FOOTER - 3, is->_iIvalue);
@@ -1127,7 +1128,7 @@ static int current_store_line(int px, int py)
 static int current_store_item(int y, int px)
 {
 	// assert(stextlines[y]._sitemlist);
-	int x = MousePos.x - (px + STORE_PNL_X_OFFSET + 60 - SCREEN_X);
+	int x = MousePos.x - (px + STORE_PNL_X_OFFSET + STORE_ITEM_OFFSET - SCREEN_X);
 	if (x >= 0) {
 		x /= (2 * INV_SLOT_SIZE_PX);
 		if (x < lengthof(stextlines[y]._siItems)) {
