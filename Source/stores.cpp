@@ -1853,12 +1853,11 @@ static void S_SSellEnter()
  */
 static void SmithRepairItem(int i)
 {
-	if (i < 0) {
-		i = INVITEM_BODY_FIRST - (i + 1);
-	} else {
+	if (i >= 0) {
 		i += INVITEM_INV_FIRST;
+	} else {
+		i = INVITEM_BODY_FIRST - (i + 1);
 	}
-
 	SendStoreCmd1(i, STORE_SREPAIR, storeitem._iIvalue);
 }
 
@@ -1946,10 +1945,10 @@ static void S_WSellEnter()
  */
 static void WitchRechargeItem(int i)
 {
-	if (i < 0) {
-		i = INVITEM_BODY_FIRST - (i + 1);
-	} else {
+	if (i >= 0) {
 		i += INVITEM_INV_FIRST;
+	} else {
+		i = INVITEM_BODY_FIRST - (i + 1);
 	}
 	SendStoreCmd1(i, STORE_WRECHARGE, storeitem._iIvalue);
 }
@@ -2022,14 +2021,15 @@ static void S_BBuyEnter()
 	StoreStartBuy(STORE_PBUY);
 }
 
-static void StoryIdItem(int idx)
+static void StoryIdItem(int i)
 {
-	if (idx < 0)
-		idx = INVITEM_BODY_FIRST - (idx + 1);
-	else
-		idx += INVITEM_INV_FIRST;
+	if (i >= 0) {
+		i += INVITEM_INV_FIRST;
+	} else {
+		i = INVITEM_BODY_FIRST - (i + 1);
+	}
 	storeitem._iIdentified = TRUE;
-	SendStoreCmd1(idx, STORE_SIDENTIFY, STORE_ID_PRICE);
+	SendStoreCmd1(i, STORE_SIDENTIFY, STORE_ID_PRICE);
 }
 
 static void S_ConfirmEnter()
