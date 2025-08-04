@@ -252,13 +252,13 @@ inline static BYTE BaseCastSpeed(unsigned flags)
 static void ValidateActionSkill(PlrSkillStruct &skill, BYTE type, uint64_t mask)
 {
 	if (skill._psAtkType == type && !(mask & SPELL_MASK(skill._psAttack))) {
-		skill._psAttack = SPL_INVALID;
-		skill._psAtkType = RSPLTYPE_INVALID;
+		skill._psAttack = SPL_NULL;
+		skill._psAtkType = 0;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 	if (skill._psMoveType == type && !(mask & SPELL_MASK(skill._psMove))) {
-		skill._psMove = SPL_INVALID;
-		skill._psMoveType = RSPLTYPE_INVALID;
+		skill._psMove = SPL_NULL;
+		skill._psMoveType = 0;
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }

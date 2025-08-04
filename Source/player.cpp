@@ -625,7 +625,7 @@ void SetPlrAnims(int pnum)
 void CreatePlayer(const _uiheroinfo& heroinfo)
 {
 	int val, hp, mana;
-	int i, pnum = 0;
+	int pnum = 0;
 
 	memset(&plr, 0, sizeof(PlayerStruct));
 	SetRndSeed(SDL_GetTicks()); // used by CreatePlrItems / CreateBaseItem
@@ -664,20 +664,15 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
 	//plr._pMainSkill = { SPL_ATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
-	//plr._pAltSkill = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
-	const PlrSkillStruct eps = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
-	for (i = 0; i < lengthof(plr._pSkillHotKey); i++) {
-		plr._pSkillHotKey[i] = eps;
-	}
-	for (i = 0; i < lengthof(plr._pAltSkillHotKey); i++) {
-		plr._pAltSkillHotKey[i] = eps;
-	}
-	for (i = 0; i < lengthof(plr._pSkillSwapKey); i++) {
-		plr._pSkillSwapKey[i] = eps;
-	}
-	for (i = 0; i < lengthof(plr._pAltSkillSwapKey); i++) {
-		plr._pAltSkillSwapKey[i] = eps;
-	}
+	//plr._pAltSkill = { SPL_NULL, 0, SPL_NULL, 0 };
+	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
+	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) == sizeof(plr._pSkillHotKey) + sizeof(plr._pAltSkillHotKey) + sizeof(plr._pSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys II.");
+	static_assert(offsetof(PlayerStruct, _pAltSkillHotKey) > offsetof(PlayerStruct, _pSkillHotKey) && offsetof(PlayerStruct, _pAltSkillHotKey) < offsetof(PlayerStruct, _pAltSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys III.");
+	static_assert(offsetof(PlayerStruct, _pSkillSwapKey) > offsetof(PlayerStruct, _pSkillHotKey) && offsetof(PlayerStruct, _pSkillSwapKey) < offsetof(PlayerStruct, _pAltSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys IV.");
+	memset(plr._pSkillHotKey, 0, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) + sizeof(plr._pAltSkillSwapKey));
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;

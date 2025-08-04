@@ -299,9 +299,8 @@ static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
 	int lvl, y;
 
 	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
-	if (spl == SPL_INVALID) {
+	if (spl == SPL_NULL) {
 		st = RSPLTYPE_INVALID;
-		spl = SPL_NULL;
 	} else if ((spelldata[spl].sUseFlags & plr._pSkillFlags) != spelldata[spl].sUseFlags)
 		st = RSPLTYPE_INVALID;
 	else if (st == RSPLTYPE_SPELL) {
@@ -343,7 +342,7 @@ void DrawSkillIcons()
 	BYTE spl, type;
 
 	pnum = mypnum;
-	if (plr._pMainSkill._psAttack == SPL_INVALID) {
+	if (plr._pMainSkill._psAttack == SPL_NULL) {
 		spl = plr._pMainSkill._psMove;
 		type = plr._pMainSkill._psMoveType;
 	} else {
@@ -352,7 +351,7 @@ void DrawSkillIcons()
 	}
 	DrawSkillIcon(pnum, spl, type, 0);
 
-	if (plr._pAltSkill._psAttack == SPL_INVALID) {
+	if (plr._pAltSkill._psAttack == SPL_NULL) {
 		spl = plr._pAltSkill._psMove;
 		type = plr._pAltSkill._psMoveType;
 	} else {
@@ -404,7 +403,7 @@ void DrawSkillIcons()
 static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const PlrSkillStruct (&hotkey)[4])
 {
 	int i, col;
-
+	if (sn == SPL_NULL) return;
 	for (i = 0; i < 4; i++) {
 		if (hotkey[i]._psAttack == sn && hotkey[i]._psAtkType == st)
 			col = COL_GOLD;
@@ -420,9 +419,9 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static bool CurrentSkill(const PlrSkillStruct* skill, int sn, int st)
 {
-	if (skill->_psAttack != SPL_INVALID)
+	if (skill->_psAttack != SPL_NULL)
 		return sn == skill->_psAttack && st == skill->_psAtkType;
-	if (skill->_psMove != SPL_INVALID)
+	if (skill->_psMove != SPL_NULL)
 		return sn == skill->_psMove && st == skill->_psMoveType;
 	return sn == SPL_NULL || sn == SPL_INVALID;
 }
@@ -510,14 +509,9 @@ void DrawSkillList()
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
 				currSkill = j;
-				if (j == SPL_NULL) {
-					sn = SPL_INVALID;
-					st = RSPLTYPE_INVALID;
-				} else {
-					sn = j;
-					st = i;
-				}
-				currSkillType = st;
+				currSkillType = i;
+				sn = j;
+				st = i;
 
 				DrawSpellIconOverlay(x, y, sn, st);
 
@@ -563,8 +557,6 @@ void SetSkill(bool altSkill)
 		gbSkillListFlag = false;
 		return;
 	}
-	if (sn == SPL_NULL)
-		sn = SPL_INVALID;
 	// TODO: add flag for movement-skills
 	moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
 
@@ -582,13 +574,13 @@ void SetSkill(bool altSkill)
 		if (moveskill) {
 			psSkill->_psMove = sn;
 			psSkill->_psMoveType = currSkillType;
-			psSkill->_psAttack = SPL_INVALID;
-			psSkill->_psAtkType = RSPLTYPE_INVALID;
+			psSkill->_psAttack = SPL_NULL;
+			psSkill->_psAtkType = 0;
 		} else {
 			psSkill->_psAttack = sn;
 			psSkill->_psAtkType = currSkillType;
-			psSkill->_psMove = SPL_INVALID;
-			psSkill->_psMoveType = RSPLTYPE_INVALID;
+			psSkill->_psMove = SPL_NULL;
+			psSkill->_psMoveType = 0;
 		}
 
 		gbSkillListFlag = false;
@@ -611,8 +603,6 @@ static void SetSkillHotKey(int slot, bool altSkill)
 	if (sn != SPL_INVALID) {
 		// TODO: add flag for movement-skills
 		moveskill = sn == SPL_WALK || sn == SPL_CHARGE || sn == SPL_TELEPORT || sn == SPL_RNDTELEPORT;
-		if (sn == SPL_NULL)
-			sn = SPL_INVALID;
 
 		p = &myplr;
 		PlrSkillStruct* ps = altSkill ? p->_pAltSkillHotKey : p->_pSkillHotKey;
@@ -623,8 +613,8 @@ static void SetSkillHotKey(int slot, bool altSkill)
 			for (i = 0; i < lengthof(p->_pSkillHotKey); ++i) {
 				static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(ps[i]._psAttack), "SetSkillHotKey sets the wrong skill");
 				if (ps[i]._psAttack == sn && ps[i]._psAtkType == currSkillType) {
-					ps[i]._psAttack = SPL_INVALID;
-					ps[i]._psAtkType = RSPLTYPE_INVALID;
+					ps[i]._psAttack = SPL_NULL;
+					ps[i]._psAtkType = 0;
 					if (slot == i)
 						return;
 				}

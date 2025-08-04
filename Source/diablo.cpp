@@ -279,7 +279,7 @@ static void ValidateSkill(PlrSkillStruct* skill)
 	int8_t result = SPLFROM_INVALID_TYPE;
 	static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(skill->_psAttack), "ValidateSkill checks the wrong skill");
 	int sn = skill->_psAttack;
-	if (sn == SPL_INVALID) {
+	if (sn == SPL_NULL) {
 		return;
 	}
 
@@ -313,7 +313,7 @@ static void ValidateSkill(PlrSkillStruct* skill)
 		}
 	}
 	if (SPLFROM_INVALID(result)) {
-		skill->_psAttack = SPL_INVALID;
+		skill->_psAttack = SPL_NULL;
 	}
 	skill->_psAtkType = result;
 }
@@ -344,7 +344,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 
 	int dir8 = GetDirection(myplr._pfutx, myplr._pfuty, tpos.x, tpos.y);
 
-	if (skill._psAttack != SPL_INVALID) {
+	if (skill._psAttack != SPL_NULL) {
 		if (skill._psAttack == SPL_BLOCK) {
 			NetSendCmdBParam1(CMD_BLOCK, dir8);
 			return;
@@ -359,11 +359,11 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 			return;
 		}
 
-		if (skill._psMove == SPL_INVALID) {
+		if (skill._psMove == SPL_NULL) {
 			NetSendCmdLocSkill(tpos.x, tpos.y, skillUse);
 			return;
 		}
-	} else if (skill._psMove == SPL_INVALID) {
+	} else if (skill._psMove == SPL_NULL) {
 		if ((int8_t)skill._psAtkType == SPLFROM_INVALID_MANA || (int8_t)skill._psMoveType == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if ((int8_t)skill._psAtkType == RSPLTYPE_INVALID && (int8_t)skill._psMoveType == RSPLTYPE_INVALID)*/ {
@@ -372,7 +372,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 		return;
 	}
 
-	// assert(skill._psMove != SPL_INVALID);
+	// assert(skill._psMove != SPL_NULL);
 	// assert(spelldata[skill._psMove].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (skill._psMove != SPL_WALK) {
@@ -396,7 +396,7 @@ static void ActionBtnCmd(bool altSkill)
 
 	// assert(pcursicon == CURSOR_HAND);
 	if (bShift)
-		skill._psMove = SPL_INVALID;
+		skill._psMove = SPL_NULL;
 	else
 		ValidateSkill((PlrSkillStruct*)&skill._psMove);
 
@@ -411,7 +411,7 @@ static void ActionBtnCmd(bool altSkill)
 		}
 	}
 #endif
-	if (skill._psAttack != SPL_INVALID) {
+	if (skill._psAttack != SPL_NULL) {
 		if (skill._psAttack == SPL_BLOCK) {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
@@ -443,11 +443,11 @@ static void ActionBtnCmd(bool altSkill)
 			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
-		if (skill._psMove == SPL_INVALID) {
+		if (skill._psMove == SPL_NULL) {
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
-	} else if (skill._psMove == SPL_INVALID) {
+	} else if (skill._psMove == SPL_NULL) {
 		if ((int8_t)skill._psAtkType == SPLFROM_INVALID_MANA || (int8_t)skill._psMoveType == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if ((int8_t)skill._psAtkType == 0 && (int8_t)skill._psMoveType == RSPLTYPE_INVALID)*/ {
@@ -457,7 +457,7 @@ static void ActionBtnCmd(bool altSkill)
 		return;
 	}
 
-	// assert(skill._psMove != SPL_INVALID);
+	// assert(skill._psMove != SPL_NULL);
 	// assert(spelldata[skill._psMove].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (MON_VALID(pcursmonst)) {
