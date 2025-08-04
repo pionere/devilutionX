@@ -1470,6 +1470,13 @@ typedef struct LSavePortalStruct {
 typedef struct CmdSkillUse {
 	BYTE skill;
 	int8_t from;
+	bool operator==(const CmdSkillUse & oval) const {
+		//return skill == oval.skill && from == oval.from;
+		return *(uint16_t*)&skill == *(uint16_t*)&oval.skill;
+	};
+	bool operator!=(const CmdSkillUse & oval) const {
+		return !(*this == oval);
+	};
 } CmdSkillUse;
 
 typedef struct TCmd {

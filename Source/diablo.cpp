@@ -989,6 +989,8 @@ void InputBtnDown(int transKey)
 		int dir = MDIR_UP + transKey - ACT_UP;
 		if (stextflag != STORE_NONE) {
 			STextMove(dir);
+		} else if (gbSkillListFlag) {
+			SkillListMove(dir);
 		} else if (gnNumActiveWindows != 0 && gaActiveWindows[gnNumActiveWindows - 1] == WND_QUEST) {
 			QuestlogMove(dir);
 		} else if (gnVisibleHelpLines != 0) {

@@ -97,10 +97,10 @@ static CelImageBuf* pSpellCels;
 static BYTE currSkill;
 /** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
 static BYTE currSkillType;
-/** Specifies whether the cursor should be moved to the active skill in the Skill-List. */
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-static BYTE _gbMoveCursor = 0;
-#endif
+/** Specifies which skill should be selected by the cursor in the Skill-List. */
+static CmdSkillUse targetSkill = { SPL_INVALID, 0 };
+/** Specifies where the cursor should be moved relative to the current skill in the Skill-List. */
+static POS32 deltaSkillPos;
 
 static const int PanBtnPos[NUM_PANBTNS][2] = {
 	// clang-format off
@@ -416,16 +416,10 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const 
 	}
 }
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-static bool CurrentSkill(const PlrSkillStruct* skill, int sn, int st)
+static bool CurrentSkill(const CmdSkillUse& skill, int sn, int st)
 {
-	if (skill->_psAttack != SPL_NULL)
-		return sn == skill->_psAttack && st == skill->_psAtkType;
-	if (skill->_psMove != SPL_NULL)
-		return sn == skill->_psMove && st == skill->_psMoveType;
-	return sn == SPL_NULL || sn == SPL_INVALID;
+	return sn == skill.skill && st == skill.from;
 }
-#endif
 
 void DrawSkillList()
 {
@@ -435,13 +429,7 @@ void DrawSkillList()
 #if SCREEN_READER_INTEGRATION
 	BYTE prevSkill = currSkill;
 #endif
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	PlrSkillStruct* plrSkill = NULL;
-	if (_gbMoveCursor != 0) {
-		plrSkill = _gbMoveCursor == 1 ? &plr._pAltSkill : &plr._pMainSkill;
-		_gbMoveCursor = 0;
-	}
-#endif
+	CmdSkillUse plrSkill = targetSkill;
 	currSkill = SPL_INVALID;
 	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
@@ -451,6 +439,9 @@ void DrawSkillList()
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
 	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
 	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 4.");
+	const CmdSkillUse empty = { SPL_NULL, 1 };
+	CmdSkillUse plrSkills[NUM_SPELLS * 2];
+	unsigned numPlrSkills = 0;
 	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
@@ -484,6 +475,8 @@ void DrawSkillList()
 				}
 				mask >>= 1;
 			}
+			plrSkills[numPlrSkills] = { (BYTE)j, (int8_t)i };
+			numPlrSkills++;
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
 				st = plr._pSkillLvl[j] > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
@@ -496,14 +489,14 @@ void DrawSkillList()
 			lx = x - SCREEN_X;
 			ly = y - SCREEN_Y - SPLICON_HEIGHT;
 			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (plrSkill != NULL) {
+
+			if (plrSkill.skill != SPL_INVALID) {
 				selected = CurrentSkill(plrSkill, j, i);
 				if (selected) {
 					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
 				}
 			}
-#endif
+
 			if (selected) {
 				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
@@ -530,14 +523,109 @@ void DrawSkillList()
 			if (x == sx - SPLICON_WIDTH) {
 				x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 				y -= SPLICON_HEIGHT;
+			} else {
+				plrSkills[numPlrSkills] = empty;
+				numPlrSkills++;
 			}
 		}
+	}
+	if (deltaSkillPos.x != 0 || deltaSkillPos.y != 0) {
+		targetSkill = { SPL_NULL, 0 };
+
+		const CmdSkillUse selSkill = { currSkill, (int8_t)currSkillType };
+		for (unsigned i = 0; i < numPlrSkills; i++) {
+			if (plrSkills[i] == selSkill) {
+				while (deltaSkillPos.x != 0 && deltaSkillPos.y != 0) {
+					int dx = deltaSkillPos.x < 0 ? 1 : -1;
+					int dy = deltaSkillPos.y < 0 ? SPLROWICONLS : -SPLROWICONLS;
+					int dn = i + dx + dy;
+					if ((unsigned)dn < numPlrSkills && plrSkills[dn] != empty) {
+						i = dn;
+					}
+					deltaSkillPos.x += deltaSkillPos.x < 0 ? 1 : -1;
+					deltaSkillPos.y += deltaSkillPos.y < 0 ? 1 : -1;
+				}
+				while (deltaSkillPos.y != 0) {
+					int dy = deltaSkillPos.y < 0 ? SPLROWICONLS : -SPLROWICONLS;
+					int dn = i;
+					while (true) {
+						dn += dy;
+						if ((unsigned)dn < numPlrSkills) {
+							if (plrSkills[dn] == empty) continue;
+							i = dn;
+						}
+						break;
+					}
+					deltaSkillPos.y += deltaSkillPos.y < 0 ? 1 : -1;
+				}
+				while (deltaSkillPos.x != 0) {
+					int dx = deltaSkillPos.x < 0 ? 1 : -1;
+					int dn = i;
+					while (true) {
+						dn += dx;
+						if ((unsigned)dn < numPlrSkills) {
+							if (plrSkills[dn] == empty) continue;
+							if ((i / SPLROWICONLS) != dn / SPLROWICONLS) {
+								i -= i % SPLROWICONLS;
+								if (dx >= 0) {
+									i += SPLROWICONLS - 1;
+									if (plrSkills[i] == empty) {
+										i--;
+									}
+								}
+							} else {
+								i = dn;
+							}
+						}
+						break;
+					}
+					deltaSkillPos.x += deltaSkillPos.x < 0 ? 1 : -1;
+				}
+				targetSkill = plrSkills[i];
+				break;
+			}
+		}
+
+		deltaSkillPos = { 0, 0 };
+	} else {
+		targetSkill = { SPL_INVALID, 0 };
 	}
 #if SCREEN_READER_INTEGRATION
 	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
 		SpeakText(spelldata[currSkill].sNameText);
 	}
 #endif
+}
+
+static void SkillListUp()
+{
+	deltaSkillPos.y--;
+}
+
+static void SkillListDown()
+{
+	deltaSkillPos.y++;
+}
+
+static void SkillListLeft()
+{
+	deltaSkillPos.x--;
+}
+
+static void SkillListRight()
+{
+	deltaSkillPos.x++;
+}
+
+void SkillListMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    SkillListUp();    break;
+	case MDIR_DOWN:  SkillListDown();  break;
+	case MDIR_LEFT:  SkillListLeft();  break;
+	case MDIR_RIGHT: SkillListRight(); break;
+	default: ASSUME_UNREACHABLE;       break;
+	}
 }
 
 /*
@@ -974,11 +1062,13 @@ void HandleSkillBtn(bool altSkill)
 		currSkill = SPL_INVALID;
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		StoreSpellCoords();
-
-		_gbMoveCursor = 0;
-		if (sgbControllerActive)
-			_gbMoveCursor = altSkill ? 1 : 2;
+		if (sgbControllerActive) {
+			PlrSkillStruct* skill = altSkill ? &myplr._pAltSkill : &myplr._pMainSkill;
+			targetSkill = { skill->_psMove, (int8_t)skill->_psMoveType };
+			if (skill->_psAttack != SPL_NULL) {
+				targetSkill = { skill->_psAttack, (int8_t)skill->_psAtkType };
+			}
+		}
 #endif
 	} else {
 		gbSkillListFlag = false;

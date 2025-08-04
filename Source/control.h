@@ -66,6 +66,7 @@ extern bool gbChrbtnactive;
 extern bool gbSkillListFlag;
 
 void DrawSkillList();
+void SkillListMove(int dir);
 void SetSkill(bool altSkill);
 void SkillHotKey(int slot, bool altSkill);
 void DrawLifeFlask();
