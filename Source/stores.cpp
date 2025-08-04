@@ -121,6 +121,8 @@ static bool gbWidePanel;
 // static bool gbRenderGold;
 /** Does the current panel have a scrollbar */
 static bool gbHasScroll;
+/** Specifies whether the cursor should be moved to the current item/menu */
+static bool gbMoveCursor;
 /** The index of the first visible item in the store. */
 static int stextsidx;
 /** The line number of the last visible item in the store */
@@ -247,6 +249,10 @@ static void PrintSString(int px, int py, int x, bool cjustflag, const char* str,
 	if (selected) {
 		DEBUG_ASSERT(cjustflag || !gbHasScroll);
 		DEBUG_ASSERT(cjustflag || gbWidePanel);
+		if (gbMoveCursor) {
+			gbMoveCursor = false;
+			SetCursorPos(((tx + sx) / 2u) - SCREEN_X, sy - SMALL_FONT_HEIGHT / 2u - SCREEN_Y);
+		}
 		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
 	}
 	if (val > 0) {
@@ -1187,6 +1193,10 @@ void DrawStore()
 					sy -= (3 * INV_SLOT_SIZE_PX - frame_height) >> 1;
 
 					if (lineSelected && stextselx == n) {
+						if (gbMoveCursor) {
+							gbMoveCursor = false;
+							SetCursorPos(sx + frame_width / 2u - SCREEN_X, sy - frame_height /2u - SCREEN_Y);
+						}
 						CelClippedDrawOutline(ICOL_YELLOW, sx, sy, pCursCels, frame, frame_width);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 						if (sgbControllerActive) {
@@ -1300,6 +1310,8 @@ void DrawStore()
 	}
 	if (gbHasScroll)
 		DrawSSlider(x, y);
+
+	gbMoveCursor = false;
 }
 
 void STextESC()
@@ -2431,6 +2443,7 @@ void STextMove(int dir)
 	case MDIR_RIGHT: STextRight(); break;
 	default: ASSUME_UNREACHABLE;   break;
 	}
+	gbMoveCursor = true;
 }
 
 void ReleaseStoreBtn()
