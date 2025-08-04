@@ -98,7 +98,7 @@ static BYTE currSkill;
 /** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
 static BYTE currSkillType;
 /** Specifies which skill should be selected by the cursor in the Skill-List. */
-static CmdSkillUse targetSkill = { SPL_INVALID, 0 };
+static CmdSkillUse targetSkill;
 /** Specifies where the cursor should be moved relative to the current skill in the Skill-List. */
 static POS32 deltaSkillPos;
 
@@ -1060,7 +1060,7 @@ void HandleSkillBtn(bool altSkill)
 		// gamemenu_off();
 		gbSkillListFlag = true;
 		currSkill = SPL_INVALID;
-
+		targetSkill.skill = SPL_INVALID;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		if (sgbControllerActive) {
 			PlrSkillStruct* skill = altSkill ? &myplr._pAltSkill : &myplr._pMainSkill;
