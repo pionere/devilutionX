@@ -274,17 +274,15 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static void ValidateSkill(PlrSkillStruct* skill)
+static void ValidateSkill(PlrSkillUse* skill)
 {
 	int8_t result = SPLFROM_INVALID_TYPE;
-	static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(skill->_psAttack), "ValidateSkill checks the wrong skill");
-	int sn = skill->_psAttack;
+	int sn = skill->_suSkill;
 	if (sn == SPL_NULL) {
 		return;
 	}
-
 	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		switch (skill->_psAtkType) {
+		switch (skill->_suType) {
 		case RSPLTYPE_ABILITY:
 			// assert(spelldata[sn].sManaCost == 0);
 			result = SPLFROM_ABILITY;
@@ -313,11 +311,10 @@ static void ValidateSkill(PlrSkillStruct* skill)
 		}
 	}
 	if (SPLFROM_INVALID(result)) {
-		skill->_psAttack = SPL_NULL;
+		skill->_suSkill = SPL_NULL;
 	}
-	skill->_psAtkType = result;
+	skill->_suType = (BYTE)result;
 }
-
 #if HAS_TOUCHPAD
 static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionVector)
 {
@@ -344,42 +341,40 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 
 	int dir8 = GetDirection(myplr._pfutx, myplr._pfuty, tpos.x, tpos.y);
 
-	if (skill._psAttack != SPL_NULL) {
-		if (skill._psAttack == SPL_BLOCK) {
+	if (skill._psAttack._suSkill != SPL_NULL) {
+		if (skill._psAttack._suSkill == SPL_BLOCK) {
 			NetSendCmdBParam1(CMD_BLOCK, dir8);
 			return;
 		}
-		static_assert(offsetof(PlrSkillStruct, _psAtkType) > offsetof(PlrSkillStruct, _psAttack) &&
-			offsetof(CmdSkillUse, from) - offsetof(CmdSkillUse, skill) == offsetof(PlrSkillStruct, _psAtkType) - offsetof(PlrSkillStruct, _psAttack) &&
-			sizeof(CmdSkillUse) == sizeof(skill._psAttack) + sizeof(skill._psAtkType), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
 		const CmdSkillUse skillUse = *((CmdSkillUse*)&skill._psAttack);
-		if (spelldata[skill._psAttack].spCurs != CURSOR_NONE) {
+		if (spelldata[skill._psAttack._suSkill].spCurs != CURSOR_NONE) {
 			gbTSkillUse = skillUse;
-			NewCursor(spelldata[skill._psAttack].spCurs);
+			NewCursor(spelldata[skill._psAttack._suSkill].spCurs);
 			return;
 		}
 
-		if (skill._psMove == SPL_NULL) {
+		if (skill._psMove._suSkill == SPL_NULL) {
 			NetSendCmdLocSkill(tpos.x, tpos.y, skillUse);
 			return;
 		}
-	} else if (skill._psMove == SPL_NULL) {
-		if ((int8_t)skill._psAtkType == SPLFROM_INVALID_MANA || (int8_t)skill._psMoveType == SPLFROM_INVALID_MANA) {
+	} else if (skill._psMove._suSkill == SPL_NULL) {
+		if ((int8_t)skill._psAttack._suType == SPLFROM_INVALID_MANA || (int8_t)skill._psMove._suType == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
-		} else /*if ((int8_t)skill._psAtkType == RSPLTYPE_INVALID && (int8_t)skill._psMoveType == RSPLTYPE_INVALID)*/ {
+		} else /*if ((int8_t)skill._psAttack._suType == RSPLTYPE_INVALID && (int8_t)skill._psMove._suType == RSPLTYPE_INVALID)*/ {
 			NetSendCmdBParam1(CMD_TURN, dir8);
 		}
 		return;
 	}
 
-	// assert(skill._psMove != SPL_NULL);
-	// assert(spelldata[skill._psMove].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
+	// assert(skill._psMove._suSkill != SPL_NULL);
+	// assert(spelldata[skill._psMove._suSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
-	if (skill._psMove != SPL_WALK) {
+	if (skill._psMove._suSkill != SPL_WALK) {
 		// TODO: check if tpos.x/y == _pfutx/y ?
-		static_assert(offsetof(PlrSkillStruct, _psMoveType) > offsetof(PlrSkillStruct, _psMove) &&
-			offsetof(CmdSkillUse, from) - offsetof(CmdSkillUse, skill) == offsetof(PlrSkillStruct, _psMoveType) - offsetof(PlrSkillStruct, _psMove) &&
-			sizeof(CmdSkillUse) == sizeof(skill._psMove) + sizeof(skill._psMoveType), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(tpos.x, tpos.y, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
@@ -396,12 +391,11 @@ static void ActionBtnCmd(bool altSkill)
 
 	// assert(pcursicon == CURSOR_HAND);
 	if (bShift)
-		skill._psMove = SPL_NULL;
+		skill._psMove._suSkill = SPL_NULL;
 	else
-		ValidateSkill((PlrSkillStruct*)&skill._psMove);
+		ValidateSkill(&skill._psMove);
 
-	ValidateSkill((PlrSkillStruct*)&skill._psAttack);
-
+	ValidateSkill(&skill._psAttack);
 #if HAS_TOUCHPAD
 	{
 		RECT_AREA32 actionVector;
@@ -411,19 +405,18 @@ static void ActionBtnCmd(bool altSkill)
 		}
 	}
 #endif
-	if (skill._psAttack != SPL_NULL) {
-		if (skill._psAttack == SPL_BLOCK) {
+	if (skill._psAttack._suSkill != SPL_NULL) {
+		if (skill._psAttack._suSkill == SPL_BLOCK) {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
-		static_assert(offsetof(PlrSkillStruct, _psAtkType) > offsetof(PlrSkillStruct, _psAttack) &&
-			offsetof(CmdSkillUse, from) - offsetof(CmdSkillUse, skill) == offsetof(PlrSkillStruct, _psAtkType) - offsetof(PlrSkillStruct, _psAttack) &&
-			sizeof(CmdSkillUse) == sizeof(skill._psAttack) + sizeof(skill._psAtkType), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
 		const CmdSkillUse skillUse = *((CmdSkillUse*)&skill._psAttack);
-		if (spelldata[skill._psAttack].spCurs != CURSOR_NONE) {
+		if (spelldata[skill._psAttack._suSkill].spCurs != CURSOR_NONE) {
 			gbTSkillUse = skillUse;
-			NewCursor(spelldata[skill._psAttack].spCurs);
+			NewCursor(spelldata[skill._psAttack._suSkill].spCurs);
 			return;
 		}
 
@@ -443,22 +436,22 @@ static void ActionBtnCmd(bool altSkill)
 			NetSendCmdPlrSkill(pcursplr, skillUse);
 			return;
 		}
-		if (skill._psMove == SPL_NULL) {
+		if (skill._psMove._suSkill == SPL_NULL) {
 			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
 			return;
 		}
-	} else if (skill._psMove == SPL_NULL) {
-		if ((int8_t)skill._psAtkType == SPLFROM_INVALID_MANA || (int8_t)skill._psMoveType == SPLFROM_INVALID_MANA) {
+	} else if (skill._psMove._suSkill == SPL_NULL) {
+		if ((int8_t)skill._psAttack._suType == SPLFROM_INVALID_MANA || (int8_t)skill._psMove._suType == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
-		} else /*if ((int8_t)skill._psAtkType == 0 && (int8_t)skill._psMoveType == RSPLTYPE_INVALID)*/ {
+		} else /*if ((int8_t)skill._psAttack._suType == 0 && (int8_t)skill._psMove._suType == RSPLTYPE_INVALID)*/ {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}
 		return;
 	}
 
-	// assert(skill._psMove != SPL_NULL);
-	// assert(spelldata[skill._psMove].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
+	// assert(skill._psMove._suSkill != SPL_NULL);
+	// assert(spelldata[skill._psMove._suSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (MON_VALID(pcursmonst)) {
 		if (CanTalkToMonst(pcursmonst)) {
@@ -477,17 +470,16 @@ static void ActionBtnCmd(bool altSkill)
 
 	if (OBJ_VALID(pcursobj)) {
 		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
-		if (skill._psMove == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
+		if (skill._psMove._suSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
 			return;
 		}
 		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
 	}
-	if (skill._psMove != SPL_WALK) {
+	if (skill._psMove._suSkill != SPL_WALK) {
 		// TODO: check if pcurspos.x/y == _pfutx/y ?
-		static_assert(offsetof(PlrSkillStruct, _psMoveType) > offsetof(PlrSkillStruct, _psMove) &&
-			offsetof(CmdSkillUse, from) - offsetof(CmdSkillUse, skill) == offsetof(PlrSkillStruct, _psMoveType) - offsetof(PlrSkillStruct, _psMove) &&
-			sizeof(CmdSkillUse) == sizeof(skill._psMove) + sizeof(skill._psMoveType), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}

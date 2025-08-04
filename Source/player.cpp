@@ -663,8 +663,8 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
 	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
-	//plr._pMainSkill = { SPL_ATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
-	//plr._pAltSkill = { SPL_NULL, 0, SPL_NULL, 0 };
+	//plr._pMainSkill = { { SPL_ATTACK, RSPLTYPE_ABILITY } , { SPL_WALK, RSPLTYPE_ABILITY } };
+	//plr._pAltSkill = { { SPL_NULL, 0 } , SPL_NULL, 0 } };
 	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
 	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) == sizeof(plr._pSkillHotKey) + sizeof(plr._pAltSkillHotKey) + sizeof(plr._pSkillSwapKey),
 		"CreatePlayer fails to initialize the skillhotkeys II.");

@@ -251,14 +251,12 @@ inline static BYTE BaseCastSpeed(unsigned flags)
 
 static void ValidateActionSkill(PlrSkillStruct &skill, BYTE type, uint64_t mask)
 {
-	if (skill._psAtkType == type && !(mask & SPELL_MASK(skill._psAttack))) {
-		skill._psAttack = SPL_NULL;
-		skill._psAtkType = 0;
+	if (skill._psAttack._suType == type && !(mask & SPELL_MASK(skill._psAttack._suSkill))) {
+		skill._psAttack = { SPL_NULL, 0 };
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
-	if (skill._psMoveType == type && !(mask & SPELL_MASK(skill._psMove))) {
-		skill._psMove = SPL_NULL;
-		skill._psMoveType = 0;
+	if (skill._psMove._suType == type && !(mask & SPELL_MASK(skill._psMove._suSkill))) {
+		skill._psMove = { SPL_NULL, 0 };
 		//gbRedrawFlags |= REDRAW_SPELL_ICON;
 	}
 }
@@ -825,15 +823,15 @@ void CalcPlrSpells(int pnum)
 	p = &plr;
 	// switch between normal attacks
 	if (p->_pSkillFlags & SFLAG_MELEE) {
-		if (p->_pMainSkill._psAttack == SPL_RATTACK)
-			p->_pMainSkill._psAttack = SPL_ATTACK;
-		if (p->_pAltSkill._psAttack == SPL_RATTACK)
-			p->_pAltSkill._psAttack = SPL_ATTACK;
+		if (p->_pMainSkill._psAttack._suSkill == SPL_RATTACK)
+			p->_pMainSkill._psAttack._suSkill = SPL_ATTACK;
+		if (p->_pAltSkill._psAttack._suSkill == SPL_RATTACK)
+			p->_pAltSkill._psAttack._suSkill = SPL_ATTACK;
 	} else {
-		if (p->_pMainSkill._psAttack == SPL_ATTACK)
-			p->_pMainSkill._psAttack = SPL_RATTACK;
-		if (p->_pAltSkill._psAttack == SPL_ATTACK)
-			p->_pAltSkill._psAttack = SPL_RATTACK;
+		if (p->_pMainSkill._psAttack._suSkill == SPL_ATTACK)
+			p->_pMainSkill._psAttack._suSkill = SPL_RATTACK;
+		if (p->_pAltSkill._psAttack._suSkill == SPL_ATTACK)
+			p->_pAltSkill._psAttack._suSkill = SPL_RATTACK;
 	}
 }
 
