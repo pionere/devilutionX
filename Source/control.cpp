@@ -2061,8 +2061,7 @@ void DrawSpellBook()
 				st = RSPLTYPE_INVALID;
 			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
-			if ((sn == plr._pAltSkill._psAttack._suSkill && st == plr._pAltSkill._psAttack._suType)
-			 || (sn == plr._pAltSkill._psMove._suSkill && st == plr._pAltSkill._psMove._suType)) {
+			if (bookSkill == plr._pAltSkill._psAttack || bookSkill == plr._pAltSkill._psMove) {
 				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
 			}
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
