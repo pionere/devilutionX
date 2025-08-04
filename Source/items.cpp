@@ -3132,7 +3132,7 @@ BYTE ItemColor(const ItemStruct* is)
 	return COL_GOLD;
 }
 
-static void PrintItemMiscInfo(const ItemStruct* is, int x, int& y)
+static void DrawItemMiscInfo(const ItemStruct* is, int x, int& y)
 {
 	const char* desc;
 
@@ -3426,7 +3426,7 @@ void DrawItemDetails(const ItemStruct* is)
 		}
 	}
 	DrawBonusInfo(is, x, y);
-	PrintItemMiscInfo(is, x, y);
+	DrawItemMiscInfo(is, x, y);
 	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
 		int cursor = 0;
 		cat_cstr(tempstr, cursor, "Req.:");
