@@ -162,10 +162,10 @@ static bool HasRangedSkill()
 		return true;
 
 	int spl = myplr._pAltSkill._psAttack._suSkill;
-	if (spl == SPL_INVALID)
+	if (spl == SPL_NULL)
 		spl = myplr._pAltSkill._psMove._suSkill;
 
-	return spl != SPL_INVALID
+	return spl != SPL_NULL
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
 	    && (spelldata[spl].sSkillFlags & SDFLAG_TARGETED)
@@ -915,9 +915,9 @@ void UseBeltItem(bool manaItem)
 static bool SpellHasActorTarget()
 {
 	int spl = myplr._pAltSkill._psAttack._suSkill;
-	if (spl == SPL_INVALID)
+	if (spl == SPL_NULL)
 		spl = myplr._pAltSkill._psMove._suSkill;
-	if (spl != SPL_INVALID && spelldata[spl].spCurs != CURSOR_NONE)
+	if (spl != SPL_NULL && spelldata[spl].spCurs != CURSOR_NONE)
 		return true;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
