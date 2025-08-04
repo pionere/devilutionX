@@ -591,7 +591,7 @@ void DrawSkillList()
 		targetSkill = { SPL_INVALID, 0 };
 	}
 #if SCREEN_READER_INTEGRATION
-	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+	if (prevSkill != currSkill && currSkill < NUM_SPELLS && currSkill != SPL_NULL) {
 		SpeakText(spelldata[currSkill].sNameText);
 	}
 #endif
@@ -2082,7 +2082,7 @@ void DrawSpellBook()
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
 #if SCREEN_READER_INTEGRATION
-	if (prevSkill != currSkill && currSkill != SPL_INVALID) {
+	if (prevSkill != currSkill && currSkill < NUM_SPELLS && currSkill != SPL_NULL) {
 		SpeakText(spelldata[currSkill].sNameText);
 	}
 #endif
