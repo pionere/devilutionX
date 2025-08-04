@@ -401,14 +401,40 @@ static void DrawSkillIconHotKey(int x, int y, PlrSkillUse skill, int offset, con
 		PrintGameStr(x + offset, y - SPLICON_HEIGHT + SMALL_FONT_HEIGHT + SPLICON_OVERY, tempstr, col);
 	}
 }
-
+#if SCREEN_READER_INTEGRATION
+void SpeakSpellText(PlrSkillUse skill)
+{
+	if (skill._suSkill < NUM_SPELLS && skill._suSkill != SPL_NULL) {
+		const char* msg;
+		switch (skill._suType) {
+		case RSPLTYPE_ABILITY:
+			msg = " ability";
+			break;
+		case RSPLTYPE_SPELL:
+			msg = " skill";
+			break;
+		case RSPLTYPE_INV:
+			msg = " from inventory";
+			break;
+		case RSPLTYPE_CHARGES:
+			msg = " from equipment";
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+		char text[128];
+		snprintf(text, lengthof(text), "%s%s", spelldata[skill._suSkill].sNameText, msg);
+		SpeakText(text);
+	}
+}
+#endif
 void DrawSkillList()
 {
 	int pnum = mypnum, i, j, x, y, sx, /*c,*/ st, lx, ly;
 	uint64_t mask;
 	bool selected;
 #if SCREEN_READER_INTEGRATION
-	BYTE prevSkill = currSkill._suSkill;
+	PlrSkillUse prevSkill = currSkill;
 #endif
 	PlrSkillUse plrSkill = targetSkill;
 	currSkill._suSkill = SPL_INVALID;
@@ -569,8 +595,8 @@ void DrawSkillList()
 		targetSkill = { SPL_INVALID, 0 };
 	}
 #if SCREEN_READER_INTEGRATION
-	if (prevSkill != currSkill._suSkill && currSkill._suSkill < NUM_SPELLS && currSkill._suSkill != SPL_NULL) {
-		SpeakText(spelldata[currSkill._suSkill].sNameText);
+	if (prevSkill != currSkill) {
+		SpeakSpellText(currSkill);
 	}
 #endif
 }
@@ -1966,7 +1992,7 @@ void DrawSpellBook()
 	PrintJustifiedString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, COL_WHITE, 0);
 
 #if SCREEN_READER_INTEGRATION
-	BYTE prevSkill = currSkill._suSkill;
+	PlrSkillUse prevSkill = currSkill;
 #endif
 	currSkill._suSkill = SPL_INVALID;
 
@@ -2048,8 +2074,8 @@ void DrawSpellBook()
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
 #if SCREEN_READER_INTEGRATION
-	if (prevSkill != currSkill._suSkill && currSkill._suSkill < NUM_SPELLS && currSkill._suSkill != SPL_NULL) {
-		SpeakText(spelldata[currSkill._suSkill].sNameText);
+	if (prevSkill != currSkill) {
+		SpeakSpellText(currSkill);
 	}
 #endif
 }
