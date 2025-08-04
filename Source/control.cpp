@@ -386,14 +386,14 @@ void DrawSkillIcons()
 	}
 }
 
-static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const PlrSkillStruct (&hotkey)[4])
+static void DrawSkillIconHotKey(int x, int y, PlrSkillUse skill, int offset, const PlrSkillStruct (&hotkey)[4])
 {
 	int i, col;
-	if (sn == SPL_NULL) return;
+	if (skill._suSkill == SPL_NULL) return;
 	for (i = 0; i < 4; i++) {
-		if (hotkey[i]._psAttack._suSkill == sn && hotkey[i]._psAttack._suType == st)
+		if (hotkey[i]._psAttack == skill)
 			col = COL_GOLD;
-		else if (hotkey[i]._psMove._suSkill == sn && hotkey[i]._psMove._suType == st)
+		else if (hotkey[i]._psMove == skill)
 			col = COL_BLUE;
 		else
 			continue;
@@ -402,14 +402,9 @@ static void DrawSkillIconHotKey(int x, int y, int sn, int st, int offset, const 
 	}
 }
 
-static bool CurrentSkill(const PlrSkillUse& skill, int sn, int st)
-{
-	return sn == skill._suSkill && st == skill._suType;
-}
-
 void DrawSkillList()
 {
-	int pnum = mypnum, i, j, x, y, sx, /*c,*/ sn, st, lx, ly;
+	int pnum = mypnum, i, j, x, y, sx, /*c,*/ st, lx, ly;
 	uint64_t mask;
 	bool selected;
 #if SCREEN_READER_INTEGRATION
@@ -461,7 +456,8 @@ void DrawSkillList()
 				}
 				mask >>= 1;
 			}
-			plrSkills[numPlrSkills] = { (BYTE)j, (BYTE)i };
+			const PlrSkillUse listSkill = { (BYTE)j, (BYTE)i };
+			plrSkills[numPlrSkills] = listSkill;
 			numPlrSkills++;
 			st = i;
 			if (i == RSPLTYPE_SPELL) {
@@ -475,9 +471,8 @@ void DrawSkillList()
 			lx = x - SCREEN_X;
 			ly = y - SCREEN_Y - SPLICON_HEIGHT;
 			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
-
 			if (plrSkill._suSkill != SPL_INVALID) {
-				selected = CurrentSkill(plrSkill, j, i);
+				selected = plrSkill == listSkill;
 				if (selected) {
 					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
 				}
@@ -487,15 +482,13 @@ void DrawSkillList()
 				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
-				currSkill = { (BYTE)j, (BYTE)i };
-				sn = j;
-				st = i;
+				currSkill = listSkill;
 
-				DrawSpellIconOverlay(x, y, sn, st);
+				DrawSpellIconOverlay(x, y, listSkill._suSkill, listSkill._suType);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_OVERX, plr._pSkillHotKey);
+				DrawSkillIconHotKey(x, y, listSkill, SPLICON_OVERX, plr._pSkillHotKey);
 
-				DrawSkillIconHotKey(x, y, sn, st, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), plr._pAltSkillHotKey);
+				DrawSkillIconHotKey(x, y, listSkill, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), plr._pAltSkillHotKey);
 			}
 			x -= SPLICON_WIDTH;
 			if (x == sx - SPLICON_WIDTH) {
@@ -1986,11 +1979,6 @@ void DrawSpellBook()
 		sn = SpellPages[guBooktab][i];
 		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
 			st = GetSBookTrans(sn);
-			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
-				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
-				currSkill = { (BYTE)sn, (BYTE)st };
-			}
 			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
 			// assert(lvl >= 0 || lvl == -1);
 			mana = 0;
@@ -2042,7 +2030,7 @@ void DrawSpellBook()
 					cat_str(tempstr, offset, "Dam: %d-%d", min, max);
 				PrintGameStr(sx + SBOOK_LINE_TAB, yp - 1, tempstr, COL_WHITE);
 			}
-
+			const PlrSkillUse bookSkill = { (BYTE)sn, (BYTE)st };
 			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
 				st = RSPLTYPE_INVALID;
 			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
@@ -2050,6 +2038,11 @@ void DrawSpellBook()
 			if ((sn == plr._pAltSkill._psAttack._suSkill && st == plr._pAltSkill._psAttack._suType)
 			 || (sn == plr._pAltSkill._psMove._suSkill && st == plr._pAltSkill._psMove._suType)) {
 				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
+			}
+			if (POS_IN_RECT(MousePos.x, MousePos.y,
+				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
+				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
+				currSkill = bookSkill;
 			}
 		}
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
