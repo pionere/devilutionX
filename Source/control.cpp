@@ -94,9 +94,7 @@ bool gbSkillListFlag;
 /** Skill-List images CEL */
 static CelImageBuf* pSpellCels;
 /** The 'highlighted' skill in the Skill-List or in the Spell-Book. */
-static BYTE currSkill;
-/** The type of the 'highlighted' skill in the Skill-List or in the Spell-Book. */
-static BYTE currSkillType;
+static CmdSkillUse currSkill;
 /** Specifies which skill should be selected by the cursor in the Skill-List. */
 static CmdSkillUse targetSkill;
 /** Specifies where the cursor should be moved relative to the current skill in the Skill-List. */
@@ -427,10 +425,10 @@ void DrawSkillList()
 	uint64_t mask;
 	bool selected;
 #if SCREEN_READER_INTEGRATION
-	BYTE prevSkill = currSkill;
+	BYTE prevSkill.skill = currSkill.skill;
 #endif
 	CmdSkillUse plrSkill = targetSkill;
-	currSkill = SPL_INVALID;
+	currSkill.skill = SPL_INVALID;
 	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
@@ -501,8 +499,7 @@ void DrawSkillList()
 				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
 				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
 
-				currSkill = j;
-				currSkillType = i;
+				currSkill = { (BYTE)j, (int8_t)i };
 				sn = j;
 				st = i;
 
@@ -532,7 +529,7 @@ void DrawSkillList()
 	if (deltaSkillPos.x != 0 || deltaSkillPos.y != 0) {
 		targetSkill = { SPL_NULL, 0 };
 
-		const CmdSkillUse selSkill = { currSkill, (int8_t)currSkillType };
+		const CmdSkillUse selSkill = currSkill;
 		for (unsigned i = 0; i < numPlrSkills; i++) {
 			if (plrSkills[i] == selSkill) {
 				while (deltaSkillPos.x != 0 && deltaSkillPos.y != 0) {
@@ -591,8 +588,8 @@ void DrawSkillList()
 		targetSkill = { SPL_INVALID, 0 };
 	}
 #if SCREEN_READER_INTEGRATION
-	if (prevSkill != currSkill && currSkill < NUM_SPELLS && currSkill != SPL_NULL) {
-		SpeakText(spelldata[currSkill].sNameText);
+	if (prevSkill.skill != currSkill.skill && currSkill.skill < NUM_SPELLS && currSkill.skill != SPL_NULL) {
+		SpeakText(spelldata[currSkill.skill].sNameText);
 	}
 #endif
 }
@@ -640,7 +637,7 @@ void SetSkill(bool altSkill)
 	BYTE sn;
 	bool moveskill;
 
-	sn = currSkill;
+	sn = currSkill.skill;
 	if (sn == SPL_INVALID) {
 		gbSkillListFlag = false;
 		return;
@@ -653,20 +650,20 @@ void SetSkill(bool altSkill)
 	if (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) {
 		if (moveskill) {
 			psSkill->_psMove = sn;
-			psSkill->_psMoveType = currSkillType;
+			psSkill->_psMoveType = currSkill.from;
 		} else {
 			psSkill->_psAttack = sn;
-			psSkill->_psAtkType = currSkillType;
+			psSkill->_psAtkType = currSkill.from;
 		}
 	} else {
 		if (moveskill) {
 			psSkill->_psMove = sn;
-			psSkill->_psMoveType = currSkillType;
+			psSkill->_psMoveType = currSkill.from;
 			psSkill->_psAttack = SPL_NULL;
 			psSkill->_psAtkType = 0;
 		} else {
 			psSkill->_psAttack = sn;
-			psSkill->_psAtkType = currSkillType;
+			psSkill->_psAtkType = currSkill.from;
 			psSkill->_psMove = SPL_NULL;
 			psSkill->_psMoveType = 0;
 		}
@@ -685,7 +682,7 @@ void SetSkill(bool altSkill)
 static void SetSkillHotKey(int slot, bool altSkill)
 {
 	PlayerStruct* p;
-	int sn = currSkill;
+	int sn = currSkill.skill;
 	bool moveskill;
 
 	if (sn != SPL_INVALID) {
@@ -700,7 +697,7 @@ static void SetSkillHotKey(int slot, bool altSkill)
 
 			for (i = 0; i < lengthof(p->_pSkillHotKey); ++i) {
 				static_assert(offsetof(PlrSkillStruct, _psAttack) == 0 && offsetof(PlrSkillStruct, _psAtkType) == sizeof(ps[i]._psAttack), "SetSkillHotKey sets the wrong skill");
-				if (ps[i]._psAttack == sn && ps[i]._psAtkType == currSkillType) {
+				if (ps[i]._psAttack == sn && ps[i]._psAtkType == currSkill.from) {
 					ps[i]._psAttack = SPL_NULL;
 					ps[i]._psAtkType = 0;
 					if (slot == i)
@@ -708,7 +705,7 @@ static void SetSkillHotKey(int slot, bool altSkill)
 				}
 			}
 			ps[slot]._psAttack = sn;
-			ps[slot]._psAtkType = currSkillType;
+			ps[slot]._psAtkType = currSkill.from;
 		}
 	}
 }
@@ -1059,7 +1056,7 @@ void HandleSkillBtn(bool altSkill)
 		ClearPanels();
 		// gamemenu_off();
 		gbSkillListFlag = true;
-		currSkill = SPL_INVALID;
+		currSkill.skill = SPL_INVALID;
 		targetSkill.skill = SPL_INVALID;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		if (sgbControllerActive) {
@@ -1768,10 +1765,10 @@ void DrawInfoStr()
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, pos.x, pos.y + TOOLTIP2_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (gbSkillListFlag) {
-		if (currSkill == SPL_INVALID || currSkill == SPL_NULL)
+		if (currSkill.skill == SPL_INVALID || currSkill.skill == SPL_NULL)
 			return;
 		const char* src;
-		switch (currSkillType) {
+		switch (currSkill.from) {
 		case RSPLTYPE_ABILITY:
 			src = "Ability";
 			break;
@@ -1779,7 +1776,7 @@ void DrawInfoStr()
 			src = "Spell";
 			break;
 		case RSPLTYPE_INV:
-			src = SPELL_RUNE(currSkill) ? "Rune" : "Scroll";
+			src = SPELL_RUNE(currSkill.skill) ? "Rune" : "Scroll";
 			break;
 		case RSPLTYPE_CHARGES:
 			src = "Equipment";
@@ -1790,7 +1787,7 @@ void DrawInfoStr()
 			ASSUME_UNREACHABLE
 			break;
 		}
-		DrawTooltip2(spelldata[currSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
+		DrawTooltip2(spelldata[currSkill.skill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (gbCampaignMapFlag != CMAP_NONE) {
 		if (currCamEntry.ceIndex == 0)
 			return;
@@ -1999,9 +1996,9 @@ void DrawSpellBook()
 	PrintJustifiedString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, COL_WHITE, 0);
 
 #if SCREEN_READER_INTEGRATION
-	BYTE prevSkill = currSkill;
+	BYTE prevSkill = currSkill.skill;
 #endif
-	currSkill = SPL_INVALID;
+	currSkill.skill = SPL_INVALID;
 
 	pnum = mypnum;
 	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pInvSkills;
@@ -2015,8 +2012,7 @@ void DrawSpellBook()
 			if (POS_IN_RECT(MousePos.x, MousePos.y,
 				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
 				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
-				currSkill = sn;
-				currSkillType = st;
+				currSkill = { (BYTE)sn, (int8_t)st };
 			}
 			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
 			// assert(lvl >= 0 || lvl == -1);
@@ -2082,8 +2078,8 @@ void DrawSpellBook()
 		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
 	}
 #if SCREEN_READER_INTEGRATION
-	if (prevSkill != currSkill && currSkill < NUM_SPELLS && currSkill != SPL_NULL) {
-		SpeakText(spelldata[currSkill].sNameText);
+	if (prevSkill.skill != currSkill.skill && currSkill.skill < NUM_SPELLS && currSkill.skill != SPL_NULL) {
+		SpeakText(spelldata[currSkill.skill].sNameText);
 	}
 #endif
 }
@@ -2092,7 +2088,7 @@ void CheckBookClick(bool altSkill)
 {
 	int dx, dy;
 
-	if (currSkill != SPL_INVALID) {
+	if (currSkill.skill != SPL_INVALID) {
 		SetSkill(altSkill);
 		return;
 	}
