@@ -149,14 +149,19 @@ static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #endif
 };
 
-static BYTE GetSpellTrans(BYTE st, BYTE sn)
+static BYTE GetSpellTrans(PlrSkillUse skill)
 {
+	int pnum = mypnum;
+	if (skill._suSkill == SPL_NULL || (spelldata[skill._suSkill].sUseFlags & plr._pSkillFlags) != spelldata[skill._suSkill].sUseFlags)
+		return RSPLTYPE_INVALID;
+	if (skill._suType == RSPLTYPE_SPELL)
+		return CheckSpell(pnum, skill._suSkill) ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 #ifdef HELLFIRE
-	if (st != RSPLTYPE_INV)
-		return st;
-	return SPELL_RUNE(sn) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
+	if (skill._suType != RSPLTYPE_INV)
+		return skill._suType;
+	return SPELL_RUNE(skill._suSkill) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
 #else
-	return st;
+	return skill._suType;
 #endif
 }
 
@@ -228,12 +233,12 @@ static BYTE GetSpellTrans(BYTE st, BYTE sn)
 	}
 }*/
 
-static void DrawSpellIconOverlay(int x, int y, int sn, int st)
+static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 {
 	ItemStruct* pi;
 	int t = COL_WHITE, v, mv;
 
-	switch (st) {
+	switch (skill._suType) {
 	case RSPLTYPE_ABILITY:
 		return;
 	case RSPLTYPE_SPELL:
@@ -241,7 +246,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 			copy_cstr(tempstr, "?");
 			break;
 		}
-		v = myplr._pSkillLvl[sn];
+		v = myplr._pSkillLvl[skill._suSkill];
 		if (v > 0) {
 			snprintf(tempstr, sizeof(tempstr), "l%02d", v);
 		} else {
@@ -253,14 +258,14 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		v = 0;
 		pi = myplr._pInvList;
 		for (t = NUM_INV_GRID_ELEM; t > 0; t--, pi++) {
-			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn) {
+			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == skill._suSkill) {
 				// assert(pi->_iUsable);
 				v += pi->_iDurability; // STACK
 			}
 		}
 		pi = myplr._pSpdList;
 		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
-			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn) {
+			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == skill._suSkill) {
 				// assert(pi->_iUsable);
 				v += pi->_iDurability; // STACK
 			}
@@ -276,7 +281,7 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 		mv = 0;
 		pi = myplr._pInvBody;
 		for (t = NUM_INVLOC; t > 0; t--, pi++) {
-			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iStatFlag) {
+			if (pi->_itype != ITYPE_NONE && pi->_iSpell == skill._suSkill && pi->_iStatFlag) {
 				v += pi->_iCharges;
 				mv += pi->_iMaxCharges;
 			}
@@ -292,24 +297,14 @@ static void DrawSpellIconOverlay(int x, int y, int sn, int st)
 	PrintJustifiedString(x, y, x + SPLICON_WIDTH, tempstr, t, FONT_KERN_SMALL);
 }
 
-static void DrawSkillIcon(int pnum, BYTE spl, BYTE st, BYTE offset)
+static void DrawSkillIcon(int pnum, PlrSkillUse skill, BYTE offset)
 {
-	int lvl, y;
-
-	// BUGFIX: Move the next line into the if statement to avoid OOB (SPL_INVALID is -1) (fixed)
-	if (spl == SPL_NULL) {
-		st = RSPLTYPE_INVALID;
-	} else if ((spelldata[spl].sUseFlags & plr._pSkillFlags) != spelldata[spl].sUseFlags)
-		st = RSPLTYPE_INVALID;
-	else if (st == RSPLTYPE_SPELL) {
-		lvl = plr._pSkillLvl[spl];
-		if (lvl <= 0 || plr._pMana < GetManaAmount(pnum, spl))
-			st = RSPLTYPE_INVALID;
-	}
+	int y;
+	int st = GetSpellTrans(skill);
 	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
 	CelDrawTrnTbl(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, pSpellCels,
-		spelldata[spl].sIcon, SkillTrns[GetSpellTrans(st, spl)]);
-	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, spl, st);
+		spelldata[skill._suSkill].sIcon, SkillTrns[st]);
+	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, skill);
 }
 
 bool ToggleWindow(BYTE wnd)
@@ -341,10 +336,10 @@ void DrawSkillIcons()
 
 	pnum = mypnum;
 	skill = plr._pMainSkill._psAttack._suSkill == SPL_NULL ? plr._pMainSkill._psMove : plr._pMainSkill._psAttack;
-	DrawSkillIcon(pnum, skill._suSkill, skill._suType, 0);
+	DrawSkillIcon(pnum, skill, 0);
 
 	skill = plr._pAltSkill._psAttack._suSkill == SPL_NULL ? plr._pAltSkill._psMove : plr._pAltSkill._psAttack;
-	DrawSkillIcon(pnum, skill._suSkill, skill._suType, SPLICON_WIDTH);
+	DrawSkillIcon(pnum, skill, SPLICON_WIDTH);
 
 	const char* str;
 	unsigned numchar;
@@ -485,15 +480,10 @@ void DrawSkillList()
 			const PlrSkillUse listSkill = { (BYTE)j, (BYTE)i };
 			plrSkills[numPlrSkills] = listSkill;
 			numPlrSkills++;
-			st = i;
-			if (i == RSPLTYPE_SPELL) {
-				st = plr._pSkillLvl[j] > 0 ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
-			}
-			if ((spelldata[j].sUseFlags & plr._pSkillFlags) != spelldata[j].sUseFlags)
-				st = RSPLTYPE_INVALID;
-			else
-				st = GetSpellTrans(st, j);
+
+			st = GetSpellTrans(listSkill);
 			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
+
 			lx = x - SCREEN_X;
 			ly = y - SCREEN_Y - SPLICON_HEIGHT;
 			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
@@ -510,7 +500,7 @@ void DrawSkillList()
 
 				currSkill = listSkill;
 
-				DrawSpellIconOverlay(x, y, listSkill._suSkill, listSkill._suType);
+				DrawSpellIconOverlay(x, y, listSkill);
 
 				DrawSkillIconHotKey(x, y, listSkill, SPLICON_OVERX, plr._pSkillHotKey);
 
@@ -1969,10 +1959,8 @@ static BYTE GetSBookTrans(int sn)
 		st = RSPLTYPE_CHARGES;
 	} else if (p->_pInvSkills & SPELL_MASK(sn)) {
 		st = RSPLTYPE_INV;
-	} else if (CheckSpell(mypnum, sn)) {
-		st = RSPLTYPE_SPELL;
 	} else {
-		st = RSPLTYPE_INVALID;
+		st = RSPLTYPE_SPELL;
 	}
 	return st;
 }
@@ -2024,7 +2012,6 @@ void DrawSpellBook()
 				copy_cstr(tempstr, "Equipment");
 				break;
 			case RSPLTYPE_SPELL:
-			case RSPLTYPE_INVALID:
 				if (lvl < 0) {
 					copy_cstr(tempstr, "Spell");
 					break;
@@ -2057,9 +2044,8 @@ void DrawSpellBook()
 				PrintGameStr(sx + SBOOK_LINE_TAB, yp - 1, tempstr, COL_WHITE);
 			}
 			const PlrSkillUse bookSkill = { (BYTE)sn, (BYTE)st };
-			if ((spelldata[sn].sUseFlags & plr._pSkillFlags) != spelldata[sn].sUseFlags)
-				st = RSPLTYPE_INVALID;
-			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[GetSpellTrans(st, sn)]);
+			st = GetSpellTrans(bookSkill);
+			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[st]);
 			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
 			if (bookSkill == plr._pAltSkill._psAttack || bookSkill == plr._pAltSkill._psMove) {
 				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
