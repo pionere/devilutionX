@@ -2705,7 +2705,7 @@ static unsigned On_NEWLVL(const TCmd* pCmd, int pnum)
 	bPlayers = cmd->bPlayers;
 
 	net_assert(bLevel < NUM_LEVELS);
-	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
+	net_assert(bPlayers > 0 && bPlayers <= MAX_PLRS);
 	if (gsDeltaData.ddLevelPlrs[bLevel] == 0) {
 		gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
 	}
