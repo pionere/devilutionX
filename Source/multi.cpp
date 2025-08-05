@@ -826,7 +826,7 @@ bool NetInit(bool bSinglePlayer)
 		//gameData.aeTickRate = SPEED_NORMAL;
 		//gameData.aeNetUpdateRate = 1;
 		//gameData.aeMaxPlayers = MAX_PLRS;
-		gbJoinGame = false;
+		//gbJoinGame = false;
 		memset(players, 0, sizeof(players));
 		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
