@@ -20,7 +20,7 @@ static bool sgbPackPlrTbl[MAX_PLRS];
 /** Specifies whether a game should be loaded. */
 bool gbLoadGame;
 /* Specifies whether the player joins an existing game. */
-bool gbJoinGame;
+NONETCONST bool gbJoinGame = false;
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -784,8 +784,10 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			continue;
 		}
 		gbLoadGame = dlgresult == SELGAME_LOAD;
+#ifndef NONET
 		gbJoinGame = dlgresult == SELGAME_JOIN;
 		mypnum = gameData.aePlayerId;
+#endif
 		if (!IsGameSrv) {
 			pfile_read_hero();
 		}
@@ -853,9 +855,7 @@ bool NetInit(bool bSinglePlayer)
 		}
 		nthread_run();
 		SetupLocalPlr();
-#ifndef NONET
 		if (!gbJoinGame)
-#endif
 			break;
 		multi_broadcast_plrinfo_msg();
 		if (DownloadDeltaInfo()) {

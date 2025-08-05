@@ -52,8 +52,10 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #ifndef NONET
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS                 4
+#define NONETCONST
 #else
 #define MAX_PLRS                 1
+#define NONETCONST               const
 #endif
 #define MAX_MINIONS              MAX_PLRS
 #define PLR_NONE                 0xFF

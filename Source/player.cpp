@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int mypnum;
+NONETCONST int mypnum = 0;
 PlayerStruct players[MAX_PLRS];
 /* Whether the current player is changing the level. */
 bool gbLvlLoad;
