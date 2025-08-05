@@ -1506,8 +1506,8 @@ static POS32 GetMousePos(int x, int y)
 {
 	POS32 pos;
 
-	x -= ViewX;
-	y -= ViewY;
+	x -= myview.x;
+	y -= myview.y;
 
 	pos = { 0, 0 };
 	SHIFT_GRID(pos.x, pos.y, -y, x);

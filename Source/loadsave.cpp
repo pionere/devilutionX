@@ -683,7 +683,7 @@ void LoadGame()
 	LSaveGameHeaderStruct* ghs;
 	LSaveGameMetaStruct* gms;
 	BYTE *fileBuff, *tbuff;
-	int _ViewX, _ViewY;
+	POS32 _View;
 	int32_t _CurrSeed;
 
 	// TODO: UIDisconnectGame() ?
@@ -710,8 +710,8 @@ void LoadGame()
 		gDynLevels[i]._dnType = ghs->vhDynLvls[i].vdType;
 	}
 	// load player-data
-	_ViewX = ghs->vhViewX;
-	_ViewY = ghs->vhViewY;
+	_View.x = ghs->vhViewX;
+	_View.y = ghs->vhViewY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ScrollInfo._sxoff = ghs->vhScrollXOff;
@@ -750,8 +750,7 @@ void LoadGame()
 	// assert(mypnum == 0);
 	EnterLevel(plx(0)._pDunLevel);
 	LoadGameLevel(ENTRY_LOAD);
-	ViewX = _ViewX;
-	ViewY = _ViewY;
+	myview = _View;
 	ResyncQuests();
 	// load level-data
 	tbuff = LoadLevelData(tbuff, true);
@@ -1493,8 +1492,8 @@ void SaveGame()
 	}
 	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data
-	ghs->vhViewX = ViewX;
-	ghs->vhViewY = ViewY;
+	ghs->vhViewX = myview.x;
+	ghs->vhViewY = myview.y;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ghs->vhScrollXOff = ScrollInfo._sxoff;

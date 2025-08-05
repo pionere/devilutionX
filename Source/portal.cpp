@@ -95,11 +95,11 @@ void UseCurrentPortal(int pidx)
 void GetPortalLvlPos()
 {
 	if (currLvl._dLevelIdx == DLV_TOWN) {
-		ViewX = WARPDROPX(portalindex);
-		ViewY = WARPDROPY(portalindex);
+		myview.x = WARPDROPX(portalindex);
+		myview.y = WARPDROPY(portalindex);
 	} else {
-		ViewX = portals[portalindex]._rx;
-		ViewY = portals[portalindex]._ry;
+		myview.x = portals[portalindex]._rx;
+		myview.y = portals[portalindex]._ry;
 	}
 }
 

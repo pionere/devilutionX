@@ -1057,8 +1057,8 @@ void FixPlayerLocation(int pnum)
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px; // - ScrollInfo._sdx;
-		ViewY = plr._py; // - ScrollInfo._sdy;
+		myview.x = plr._px; // - ScrollInfo._sdx;
+		myview.y = plr._py; // - ScrollInfo._sdy;
 	}
 }
 
@@ -1074,8 +1074,8 @@ static void AssertFixPlayerLocation(int pnum)
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
-		assert(ViewX == plr._px); // - ScrollInfo._sdx;
-		assert(ViewY == plr._py); // - ScrollInfo._sdy;
+		assert(myview.x == plr._px); // - ScrollInfo._sdx;
+		assert(myview.y == plr._py); // - ScrollInfo._sdy;
 	}
 }
 
@@ -1195,8 +1195,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
 	if (pnum == mypnum) {
-		ViewX = plr._px;
-		ViewY = plr._py;
+		myview.x = plr._px;
+		myview.y = plr._py;
 		ScrollInfo._sxoff = -plr._pxoff;
 		ScrollInfo._syoff = -plr._pyoff;
 	}
@@ -1255,10 +1255,10 @@ static bool StartWalk(int pnum, int dir)
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
-		// assert(plr._poldx == ViewX);
-		// assert(plr._poldy == ViewY);
-		// ScrollInfo._sdx = plr._poldx - ViewX;
-		// ScrollInfo._sdy = plr._poldy - ViewY;
+		// assert(plr._poldx == myview.x);
+		// assert(plr._poldy == myview.y);
+		// ScrollInfo._sdx = plr._poldx - myview.x;
+		// ScrollInfo._sdy = plr._poldy - myview.y;
 
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)
