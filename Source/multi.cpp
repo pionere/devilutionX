@@ -389,6 +389,10 @@ void multi_process_turn(SNetTurnPkt* turn)
 	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
+#ifdef NONET
+		assert(pnum == 0);
+		pnum = 0;
+#endif
 		data++;
 		dwMsgSize = *(unsigned*)data;
 		data += sizeof(unsigned);
@@ -438,6 +442,10 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
+#ifdef NONET
+		assert(pnum == 0);
+		pnum = 0;
+#endif
 		data++;
 		dwMsgSize = *(unsigned*)data;
 		data += sizeof(unsigned);
