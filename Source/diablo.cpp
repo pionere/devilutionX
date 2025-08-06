@@ -178,48 +178,48 @@ static void diablo_init()
 	dx_init(); // inititalize SDL + create the window
 //LogErrorF("diablo_init 3");
 	InitArchives();
-LogErrorF("diablo_init 4");
+//LogErrorF("diablo_init 4");
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
-LogErrorF("diablo_init 5");
+//LogErrorF("diablo_init 5");
 	InitLighting();
-LogErrorF("diablo_init 6");
+//LogErrorF("diablo_init 6");
 	InitText();
-LogErrorF("diablo_init 7");
+//LogErrorF("diablo_init 7");
 #if HAS_TOUCHPAD
 	InitGamepadGFX();
 #endif
-LogErrorF("diablo_init 8");
+//LogErrorF("diablo_init 8");
 	InitCursorGFX();
-LogErrorF("diablo_init 9");
+//LogErrorF("diablo_init 9");
 	UiInitialize();
-LogErrorF("diablo_init 10");
+//LogErrorF("diablo_init 10");
 	gbWasUiInit = true;
 
 	diablo_init_screen();
-LogErrorF("diablo_init 11");
+//LogErrorF("diablo_init 11");
 #ifdef SCREEN_READER_INTEGRATION
 	InitScreenReader();
 #endif
-LogErrorF("diablo_init 12");
+//LogErrorF("diablo_init 12");
 	InitSound();
-LogErrorF("diablo_init 13");
+//LogErrorF("diablo_init 13");
 	gbSndInited = true;
 
 	InitUiSFX(); // sfx
-LogErrorF("diablo_init 14");
+//LogErrorF("diablo_init 14");
 	InitGameUI();
-LogErrorF("diablo_init 15");
+//LogErrorF("diablo_init 15");
 	InitControls();
 }
 
 static bool diablo_splash()
 {
-LogErrorF("diablo_splash 0");
+//LogErrorF("diablo_splash 0");
 	if (play_movie("gendata\\logo.smk", MOV_SKIP) == MPR_QUIT)
 		return false;
-LogErrorF("diablo_splash 1");
+//LogErrorF("diablo_splash 1");
 	if (getIniBool("Diablo", "Intro", true)) {
 		setIniInt("Diablo", "Intro", false);
 		if (play_movie(INTRO_ARCHIVE, MOV_SKIP) == MPR_QUIT)
@@ -263,7 +263,7 @@ int DiabloMain(int argc, char** argv)
 		return res - 1;
 //	LogErrorF("DiabloMain 0");
 	diablo_init();
-	LogErrorF("DiabloMain 1");
+//	LogErrorF("DiabloMain 1");
 #ifndef HOSTONLY
 	if (_gbSkipIntro || diablo_splash())
 #endif
@@ -416,10 +416,10 @@ static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
 		return true;
 	}
 
-	POS32 tpos = { 0, 0 };
+	/*POS32 tpos = { 0, 0 };
 	SHIFT_GRID(tpos.x, tpos.y, dx, dy);
 	int dir = GetDirection(0, 0, tpos.x, tpos.y);
-LogErrorF("TryActionMenuDirCmd dir: %d, %d -> %d", dx, dy, dir);
+//LogErrorF("TryActionMenuDirCmd dir: %d, %d -> %d", dx, dy, dir);
 	switch (dir) {
 	case DIR_S:
 		func(MDIR_DOWN);
@@ -452,7 +452,15 @@ LogErrorF("TryActionMenuDirCmd dir: %d, %d -> %d", dx, dy, dir);
 	default:
 		ASSUME_UNREACHABLE
 		break;
+	}*/
+	int dir;
+	if (adx > ady) {
+		dir = dx >= 0 ? MDIR_RIGHT : MDIR_LEFT;
+	} else {
+		dir = dy >= 0 ? MDIR_DOWN : MDIR_UP;
 	}
+	func(dir);
+
 	return true;
 }
 static void GmenuMove(int dir)
