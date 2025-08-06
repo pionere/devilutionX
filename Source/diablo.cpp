@@ -170,42 +170,56 @@ static void InitControls()
 
 static void diablo_init()
 {
+LogErrorF("diablo_init 0");
 	InitPaths();
+LogErrorF("diablo_init 1");
 	InitConfig();
-
+LogErrorF("diablo_init 2");
 	dx_init(); // inititalize SDL + create the window
-
+LogErrorF("diablo_init 3");
 	InitArchives();
+LogErrorF("diablo_init 4");
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
 #endif
+LogErrorF("diablo_init 5");
 	InitLighting();
+LogErrorF("diablo_init 6");
 	InitText();
+LogErrorF("diablo_init 7");
 #if HAS_TOUCHPAD
 	InitGamepadGFX();
 #endif
+LogErrorF("diablo_init 8");
 	InitCursorGFX();
+LogErrorF("diablo_init 9");
 	UiInitialize();
+LogErrorF("diablo_init 10");
 	gbWasUiInit = true;
 
 	diablo_init_screen();
+LogErrorF("diablo_init 11");
 #ifdef SCREEN_READER_INTEGRATION
 	InitScreenReader();
 #endif
+LogErrorF("diablo_init 12");
 	InitSound();
+LogErrorF("diablo_init 13");
 	gbSndInited = true;
 
 	InitUiSFX(); // sfx
-
+LogErrorF("diablo_init 14");
 	InitGameUI();
-
+LogErrorF("diablo_init 15");
 	InitControls();
 }
 
 static bool diablo_splash()
 {
+LogErrorF("diablo_splash 0");
 	if (play_movie("gendata\\logo.smk", MOV_SKIP) == MPR_QUIT)
 		return false;
+LogErrorF("diablo_splash 1");
 	if (getIniBool("Diablo", "Intro", true)) {
 		setIniInt("Diablo", "Intro", false);
 		if (play_movie(INTRO_ARCHIVE, MOV_SKIP) == MPR_QUIT)
@@ -247,8 +261,9 @@ int DiabloMain(int argc, char** argv)
 	int res = diablo_parse_flags(argc, argv);
 	if (res != EX_OK)
 		return res - 1;
-
+	LogErrorF("DiabloMain 0");
 	diablo_init();
+	LogErrorF("DiabloMain 1");
 #ifndef HOSTONLY
 	if (_gbSkipIntro || diablo_splash())
 #endif
@@ -382,6 +397,71 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	pos8.x += offset_x[dir8];
 	pos8.y += offset_y[dir8];
 	NetSendCmdLoc(CMD_WALKXY, pos8.x, pos8.y);
+}
+static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
+{
+	RECT_AREA32 actionVector;
+	if (!TryActionDirCmd(altAction, actionVector))
+		return false;
+
+	int dx = actionVector.x1;
+	int dy = actionVector.y1;
+	int md = actionVector.x2;
+	int adx = abs(dx);
+	int ady = abs(dy);
+
+	if ((unsigned)adx < md / 4u && (unsigned)ady < md / 4u) {
+		return true;
+	}
+
+	int dir = GetDirection(0, 0, dx, dy);
+	switch (dir) {
+	case DIR_S:
+		func(MDIR_DOWN);
+		break;
+	case DIR_SW:
+		func(MDIR_DOWN);
+		func(MDIR_LEFT);
+		break;
+	case DIR_W:
+		func(MDIR_LEFT);
+		break;
+	case DIR_NW:
+		func(MDIR_UP);
+		func(MDIR_LEFT);
+		break;
+	case DIR_N:
+		func(MDIR_UP);
+		break;
+	case DIR_NE:
+		func(MDIR_UP);
+		func(MDIR_RIGHT);
+		break;
+	case DIR_E:
+		func(MDIR_RIGHT);
+		break;
+	case DIR_SE:
+		func(MDIR_DOWN);
+		func(MDIR_RIGHT);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	return true;
+}
+static void GmenuMove(int dir)
+{
+	int vkey;
+	case DVL_VK_DOWN:
+	switch (dir) {
+	case MDIR_UP:    vkey = DVL_VK_UP;    break;
+	case MDIR_DOWN:  vkey = DVL_VK_DOWN;  break;
+	case MDIR_LEFT:  vkey = DVL_VK_LEFT;  break;
+	case MDIR_RIGHT: vkey = DVL_VK_RIGHT; break;
+	default: ASSUME_UNREACHABLE;          break;
+	}
+	gmenu_presskey(vkey);
 }
 #endif
 static void ActionBtnCmd(bool altSkill)
@@ -558,11 +638,21 @@ static void ActionBtnDown(bool altAction)
 	}
 
 	if (gbSkillListFlag) {
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, SkillListMove))
+			return;
+		}
+#endif
 		SetSkill(altAction);
 		return;
 	}
 
 	if (stextflag != STORE_NONE) {
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, STextMove))
+			return;
+		}
+#endif
 		TryStoreBtnClick(altAction);
 		return;
 	}
@@ -584,6 +674,11 @@ static void ActionBtnDown(bool altAction)
 		CheckChrBtnClick(altAction);
 		break;
 	case WND_QUEST:
+#if HAS_TOUCHPAD
+		if (TryActionDirCmd(altAction, QuestlogMove))
+			break;
+		}
+#endif
 		CheckQuestlogClick(altAction);
 		break;
 	case WND_TEAM:
@@ -1019,6 +1114,12 @@ void InputBtnDown(int transKey)
 static void PressKey(int vkey)
 {
 	if (gmenu_is_active()) {
+#if HAS_TOUCHPAD
+		int transKey = WMButtonInputTransTbl[vkey];
+		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuMove))
+			return;
+		}
+#endif
 		gmenu_presskey(vkey);
 		return;
 	}
