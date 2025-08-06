@@ -580,12 +580,10 @@ static void ActionBtnDown()
 		return;
 
 	switch (pcurswnd) {
+	case WND_INV:
 	case WND_BELT:
 		// assert(!TryPanBtnClick());
-		CheckBeltClick(false);
-		break;
-	case WND_INV:
-		CheckInvClick(false);
+		CheckInvBeltClick(false, pcurswnd);
 		break;
 	case WND_CHAR:
 		CheckChrBtnClick();
@@ -644,11 +642,9 @@ static void AltActionBtnDown()
 		return;
 
 	switch (pcurswnd) {
-	case WND_BELT:
-		CheckBeltClick(true);
-		break;
 	case WND_INV:
-		CheckInvClick(true);
+	case WND_BELT:
+		CheckInvBeltClick(true, pcurswnd);
 		break;
 	case WND_CHAR:
 	case WND_QUEST:

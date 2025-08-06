@@ -1268,33 +1268,22 @@ void SyncPlrStorageRemove(int pnum, int iv)
 	CalcPlrScrolls(pnum);
 }
 
-void CheckInvClick(bool altAction)
-{
-	if (altAction) {
-		if (INVIDX_VALID(pcursinvitem))
-			InvUseItem(pcursinvitem);
-	} else if (pcursicon >= CURSOR_FIRSTITEM) {
-		CheckInvPaste();
-	} else {
-		if (!CheckInvCut()) {
-			StartWndDrag(WND_INV);
-		}
-	}
-}
-
 /**
- * Check for interactions with belt
+ * Check for interactions with inventory or belt
  */
-void CheckBeltClick(bool altAction)
+void CheckInvBeltClick(bool altAction, BYTE wnd)
 {
 	if (altAction) {
 		if (INVIDX_VALID(pcursinvitem))
 			InvUseItem(pcursinvitem);
 	} else if (pcursicon >= CURSOR_FIRSTITEM) {
-		/*return*/ CheckBeltPaste();
+		if (wnd == WND_INV)
+			CheckInvPaste();
+		else
+			CheckBeltPaste();
 	} else {
 		if (!CheckInvCut()) {
-			StartWndDrag(WND_BELT);
+			StartWndDrag(wnd);
 		}
 	}
 }
