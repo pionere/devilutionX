@@ -1268,9 +1268,12 @@ void SyncPlrStorageRemove(int pnum, int iv)
 	CalcPlrScrolls(pnum);
 }
 
-void CheckInvClick()
+void CheckInvClick(bool altAction)
 {
-	if (pcursicon >= CURSOR_FIRSTITEM) {
+	if (altAction) {
+		if (INVIDX_VALID(pcursinvitem))
+			InvUseItem(pcursinvitem);
+	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		CheckInvPaste();
 	} else {
 		if (!CheckInvCut()) {
@@ -1282,9 +1285,12 @@ void CheckInvClick()
 /**
  * Check for interactions with belt
  */
-void CheckBeltClick()
+void CheckBeltClick(bool altAction)
 {
-	if (pcursicon >= CURSOR_FIRSTITEM) {
+	if (altAction) {
+		if (INVIDX_VALID(pcursinvitem))
+			InvUseItem(pcursinvitem);
+	} else if (pcursicon >= CURSOR_FIRSTITEM) {
 		/*return*/ CheckBeltPaste();
 	} else {
 		if (!CheckInvCut()) {
