@@ -170,13 +170,13 @@ static void InitControls()
 
 static void diablo_init()
 {
-LogErrorF("diablo_init 0");
+//LogErrorF("diablo_init 0");
 	InitPaths();
-LogErrorF("diablo_init 1");
+//LogErrorF("diablo_init 1");
 	InitConfig();
-LogErrorF("diablo_init 2");
+//LogErrorF("diablo_init 2");
 	dx_init(); // inititalize SDL + create the window
-LogErrorF("diablo_init 3");
+//LogErrorF("diablo_init 3");
 	InitArchives();
 LogErrorF("diablo_init 4");
 #if DEBUG_MODE || DEV_MODE
@@ -261,7 +261,7 @@ int DiabloMain(int argc, char** argv)
 	int res = diablo_parse_flags(argc, argv);
 	if (res != EX_OK)
 		return res - 1;
-	LogErrorF("DiabloMain 0");
+//	LogErrorF("DiabloMain 0");
 	diablo_init();
 	LogErrorF("DiabloMain 1");
 #ifndef HOSTONLY
@@ -415,6 +415,7 @@ static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
 	}
 
 	int dir = GetDirection(0, 0, dx, dy);
+LogErrorF("TryActionMenuDirCmd dir: %d, %d -> %d", dx, dy, dir);
 	switch (dir) {
 	case DIR_S:
 		func(MDIR_DOWN);
