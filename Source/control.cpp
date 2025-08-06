@@ -1835,10 +1835,14 @@ static bool CheckInChrBtnRect(int i)
 			CHRBTN_WIDTH, CHRBTN_HEIGHT);
 }
 
-void CheckChrBtnClick()
+void CheckChrBtnClick(bool altAction)
 {
 	int i;
 
+	if (altAction) {
+		ToggleWindow(WND_CHAR);
+		return;
+	}
 	if (myplr._pStatPts != 0) {
 		if (gbChrbtnactive)
 			return; // true;

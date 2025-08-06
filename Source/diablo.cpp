@@ -586,7 +586,7 @@ static void ActionBtnDown()
 		CheckInvBeltClick(false, pcurswnd);
 		break;
 	case WND_CHAR:
-		CheckChrBtnClick();
+		CheckChrBtnClick(false);
 		break;
 	case WND_QUEST:
 		CheckQuestlogClick();
@@ -647,6 +647,8 @@ static void AltActionBtnDown()
 		CheckInvBeltClick(true, pcurswnd);
 		break;
 	case WND_CHAR:
+		CheckChrBtnClick(true);
+		break;
 	case WND_QUEST:
 	case WND_TEAM:
 		break;

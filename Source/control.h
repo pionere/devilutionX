@@ -87,7 +87,7 @@ void DrawChr();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
 void DrawInfoStr();
-void CheckChrBtnClick();
+void CheckChrBtnClick(bool altAction);
 void ReleaseChrBtn();
 void DrawSTextBox(int x, int y);
 void DrawDurIcon();
