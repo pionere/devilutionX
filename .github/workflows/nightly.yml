@@ -8,6 +8,8 @@ on:
 
 env:
   buildDir: '${{ github.workspace }}/build'
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
   # Check if there was a commit in 24hours
@@ -106,8 +108,8 @@ jobs:
             artifact: 'hellfire-nightly-scr-x64.zip'
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
@@ -126,13 +128,13 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
     # Execute the build (-j 2 : with two cores).
-      run: cmake --build . -j 2 --target package --config Release
+      run: cmake --build . -j 2 --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
@@ -160,8 +162,8 @@ jobs:
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
@@ -173,12 +175,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cmake --build build -j $(nproc) --target package
+      run: cmake --build build -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
@@ -206,8 +208,8 @@ jobs:
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
@@ -219,12 +221,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cmake --build build -j $(nproc) --target package
+      run: cmake --build build -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
@@ -253,8 +255,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
@@ -266,12 +268,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
-      run: cmake --build . -j $(nproc) --target package
+      run: cmake --build . -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
@@ -300,8 +302,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
@@ -313,12 +315,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
-      run: cmake --build . -j $(nproc) --target package
+      run: cmake --build . -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
@@ -348,8 +350,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: Packaging/nix/debian-host-prep.sh
@@ -364,11 +366,9 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      env:
-        CMAKE_BUILD_TYPE: ${{github.event_name == 'release' && 'Release' || 'RelWithDebInfo'}}
       run: |
-        cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.CMAKE_BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
-        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
+        cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
+        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package --config ${{env.BUILD_TYPE}}
 
     - name: Package
       run: Packaging/nix/LinuxReleasePackaging.sh && mv devilutionx.tar.xz devilutionx-x86_64-linux-gnu.tar.xz
@@ -409,8 +409,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -419,12 +419,10 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      env:
-        CMAKE_BUILD_TYPE: ${{github.event_name == 'release' && 'Release' || 'RelWithDebInfo'}}
       run: |
         cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/aarch64-linux-gnu.toolchain.cmake \
-          ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.CMAKE_BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
-        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
+          ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
+        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package --config ${{env.BUILD_TYPE}}
 
     - name: Package
       run: Packaging/nix/LinuxReleasePackaging.sh && mv devilutionx.tar.xz devilutionx-aarch64.tar.xz
@@ -457,8 +455,8 @@ jobs:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: brew bundle install
@@ -466,13 +464,13 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
       # Execute the build (-j 2 : with two cores).
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
@@ -498,21 +496,21 @@ jobs:
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
       run: >
-        cmake --build build -j $(sysctl -n hw.physicalcpu) --config Release &&
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}} &&
         cd build &&
         rm -rf Payload devilutionx.ipa &&
         mkdir Payload &&
@@ -545,8 +543,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -580,6 +578,8 @@ jobs:
 
     - name: Build
       working-directory: ${{github.workspace}}
+      #env:
+      #  GRADLE_ASSEMBLE: ${{env.BUILD_TYPE == 'Release' && 'assembleRelease' || 'assembleDebug'}}
       shell: bash
       run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
@@ -627,8 +627,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-10-22.tar.xz -o gcw0-toolchain.tar.xz &&
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-03-10.tar.xz -o gcw0-toolchain.tar.xz &&
@@ -673,8 +673,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-10-22.tar.xz -o lepus-toolchain.tar.xz &&
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-03-11.tar.xz -o lepus-toolchain.tar.xz &&
@@ -719,8 +719,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
      #sudo apt-get install -y curl git smpq &&
      #curl -L https://github.com/retrofw/buildroot/releases/download/2018.02.11/mipsel-linux-uclibc_x64.tar.gz -o retrofw-toolchain.tar.xz &&
@@ -768,8 +768,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -816,8 +816,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -859,8 +859,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: apk add cmake ninja
@@ -872,7 +872,7 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
     - name: Build
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu)
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}}
 
     - name: Upload Package
       uses: actions/upload-artifact@v4
@@ -903,8 +903,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     #- name: Install dependencies
     #  run: |
@@ -933,7 +933,7 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
 
     - name: Build DevilutionX
-      run: cmake --build build -j$(nproc)
+      run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
     - name: Upload
       uses: actions/upload-artifact@v4
@@ -967,8 +967,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     #- name: Install dependencies
     #  shell: bash
@@ -988,11 +988,11 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -S . -B build \
-          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
-          -D CMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
+          -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
 
     - name: Build DevilutionX
-      run: cmake --build build -j$(nproc)
+      run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
     - name: Upload Package
       uses: actions/upload-artifact@v4
@@ -1020,8 +1020,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      #with:
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -1038,7 +1038,7 @@ jobs:
           -DM68K_FPU=hard
 
     - name: Build DevilutionX
-      run: cmake --build build
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Upload Package
       uses: actions/upload-artifact@v4

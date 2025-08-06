@@ -13,10 +13,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Specifies the player viewpoint X-coordinate of the map. */
-int ViewX;
-/** Specifies the player viewpoint Y-coordinate of the map. */
-int ViewY;
+/** Specifies the player viewpoint of the map. */
+POS32 myview;
 ScrollStruct ScrollInfo;
 
 /**
@@ -26,8 +24,8 @@ ScrollStruct ScrollInfo;
   * _vRows: the number of rows to draw to ensure the screen is covered.
   * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
   * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to ViewX.
-  * _vShiftY: the base offset to ViewY.
+  * _vShiftX: the base offset to myview.x.
+  * _vShiftY: the base offset to myview.y.
 */
 ViewportStruct gsTileVp;
 
@@ -1420,8 +1418,8 @@ static void DrawGame()
 	columns = gsTileVp._vColumns;
 	rows = gsTileVp._vRows;
 
-	x = ViewX + gsTileVp._vShiftX;
-	y = ViewY + gsTileVp._vShiftY;
+	x = myview.x + gsTileVp._vShiftX;
+	y = myview.y + gsTileVp._vShiftY;
 
 	// Draw areas moving in and out of the screen
 	switch (ScrollInfo._sdir) {
@@ -1572,66 +1570,66 @@ void ScrollView()
 	scroll = false;
 
 	if (MousePos.x < 20) {
-		if (DSIZEY + DBORDERY - 1 <= ViewY || DBORDERX >= ViewX) {
-			if (DSIZEY + DBORDERY - 1 > ViewY) {
-				ViewY++;
+		if (DSIZEY + DBORDERY - 1 <= myview.y || DBORDERX >= myview.x) {
+			if (DSIZEY + DBORDERY - 1 > myview.y) {
+				myview.y++;
 				scroll = true;
 			}
-			if (DBORDERX < ViewX) {
-				ViewX--;
+			if (DBORDERX < myview.x) {
+				myview.x--;
 				scroll = true;
 			}
 		} else {
-			ViewY++;
-			ViewX--;
+			myview.y++;
+			myview.x--;
 			scroll = true;
 		}
 	}
 	if (MousePos.x > SCREEN_WIDTH - 20) {
-		if (DSIZEX + DBORDERX - 1 <= ViewX || DBORDERY >= ViewY) {
-			if (DSIZEX + DBORDERX - 1 > ViewX) {
-				ViewX++;
+		if (DSIZEX + DBORDERX - 1 <= myview.x || DBORDERY >= myview.y) {
+			if (DSIZEX + DBORDERX - 1 > myview.x) {
+				myview.x++;
 				scroll = true;
 			}
-			if (DBORDERY < ViewY) {
-				ViewY--;
+			if (DBORDERY < myview.y) {
+				myview.y--;
 				scroll = true;
 			}
 		} else {
-			ViewY--;
-			ViewX++;
+			myview.y--;
+			myview.x++;
 			scroll = true;
 		}
 	}
 	if (MousePos.y < 20) {
-		if (DBORDERY >= ViewY || DBORDERX >= ViewX) {
-			if (DBORDERY < ViewY) {
-				ViewY--;
+		if (DBORDERY >= myview.y || DBORDERX >= myview.x) {
+			if (DBORDERY < myview.y) {
+				myview.y--;
 				scroll = true;
 			}
-			if (DBORDERX < ViewX) {
-				ViewX--;
+			if (DBORDERX < myview.x) {
+				myview.x--;
 				scroll = true;
 			}
 		} else {
-			ViewX--;
-			ViewY--;
+			myview.x--;
+			myview.y--;
 			scroll = true;
 		}
 	}
 	if (MousePos.y > SCREEN_HEIGHT - 20) {
-		if (DSIZEY + DBORDERY - 1 <= ViewY || DSIZEX + DBORDERX - 1 <= ViewX) {
-			if (DSIZEY + DBORDERY - 1 > ViewY) {
-				ViewY++;
+		if (DSIZEY + DBORDERY - 1 <= myview.y || DSIZEX + DBORDERX - 1 <= myview.x) {
+			if (DSIZEY + DBORDERY - 1 > myview.y) {
+				myview.y++;
 				scroll = true;
 			}
-			if (DSIZEX + DBORDERX - 1 > ViewX) {
-				ViewX++;
+			if (DSIZEX + DBORDERX - 1 > myview.x) {
+				myview.x++;
 				scroll = true;
 			}
 		} else {
-			ViewX++;
-			ViewY++;
+			myview.x++;
+			myview.y++;
 			scroll = true;
 		}
 	}

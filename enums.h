@@ -233,7 +233,6 @@ typedef enum item_misc_id {
 	IMISC_FULLREJUV,
 	IMISC_SCROLL,
 	IMISC_BOOK,
-	IMISC_UNIQUE,
 	IMISC_EAR,
 	IMISC_SPECELIX,
 	IMISC_OILQLTY,
@@ -3791,6 +3790,13 @@ typedef enum _path_direction {
 	PDIR_SE,
 	PDIR_SW
 } _path_direction;
+
+typedef enum _menu_direction {
+	MDIR_UP,
+	MDIR_DOWN,
+	MDIR_LEFT,
+	MDIR_RIGHT,
+} _menu_direction;
 
 typedef enum lvl_entry {
 	ENTRY_MAIN,

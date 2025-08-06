@@ -2642,10 +2642,10 @@ static bool MonDoDeath(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mType == MT_DIABLO) {
-		if (mon->_mx != ViewX)
-			ViewX += mon->_mx > ViewX ? 1 : -1;
-		if (mon->_my != ViewY)
-			ViewY += mon->_my > ViewY ? 1 : -1;
+		if (mon->_mx != myview.x)
+			myview.x += mon->_mx > myview.x ? 1 : -1;
+		if (mon->_my != myview.y)
+			myview.y += mon->_my > myview.y ? 1 : -1;
 
 		if (--mon->_mVar1 == 0) // DIABLO_TICK
 			PrepDoEnding();
