@@ -541,7 +541,7 @@ static bool TryIconCurs()
 	return true;
 }
 
-static void ActionBtnDown()
+static void ActionBtnDown(bool altAction)
 {
 	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
 	assert(!gmenu_is_active());
@@ -553,24 +553,19 @@ static void ActionBtnDown()
 	assert(!gbQtextflag);
 
 	if (gbCampaignMapFlag != CMAP_NONE) {
-		TryCampaignMapClick(false);
+		TryCampaignMapClick(altAction);
 		return;
 	}
 
 	if (gbSkillListFlag) {
-		SetSkill(false);
+		SetSkill(altAction);
 		return;
 	}
 
 	if (stextflag != STORE_NONE) {
-		TryStoreBtnClick(false);
+		TryStoreBtnClick(altAction);
 		return;
 	}
-
-	//if (gmenu_is_active()) {
-	//	TryLimitedPanBtnClick();
-	//	return;
-	//}
 
 	if (TryPanBtnClick()) {
 		return;
@@ -583,19 +578,19 @@ static void ActionBtnDown()
 	case WND_INV:
 	case WND_BELT:
 		// assert(!TryPanBtnClick());
-		CheckInvBeltClick(false, pcurswnd);
+		CheckInvBeltClick(altAction, pcurswnd);
 		break;
 	case WND_CHAR:
-		CheckChrBtnClick(false);
+		CheckChrBtnClick(altAction);
 		break;
 	case WND_QUEST:
-		CheckQuestlogClick(false);
+		CheckQuestlogClick(altAction);
 		break;
 	case WND_TEAM:
-		CheckTeamClick(false);
+		CheckTeamClick(altAction);
 		break;
 	case WND_BOOK:
-		CheckBookClick(false);
+		CheckBookClick(altAction);
 		break;
 	default:
 		if (pcursicon >= CURSOR_FIRSTITEM) {
@@ -603,68 +598,7 @@ static void ActionBtnDown()
 			break;
 		}
 
-		ActionBtnCmd(false);
-		break;
-	}
-}
-
-static void AltActionBtnDown()
-{
-//	// assert(!INVIDX_VALID(gbDropGoldIndex) || repeat-action);
-	assert(!gmenu_is_active());
-	assert(gnTimeoutCurs == CURSOR_NONE);
-//	// assert(!gbTalkflag || !plrmsg_presskey());
-	assert(gbDeathflag == MDM_ALIVE);
-	assert(gnGamePaused == 0);
-	//assert(!gbDoomflag);
-	assert(!gbQtextflag);
-
-	if (gbCampaignMapFlag != CMAP_NONE) {
-		TryCampaignMapClick(true);
-		return;
-	}
-
-	if (gbSkillListFlag) {
-		SetSkill(true);
-		return;
-	}
-
-	if (stextflag != STORE_NONE) {
-		TryStoreBtnClick(true);
-		return;
-	}
-
-	if (TryPanBtnClick()) {
-		return;
-	}
-
-	if (TryIconCurs())
-		return;
-
-	switch (pcurswnd) {
-	case WND_INV:
-	case WND_BELT:
-		CheckInvBeltClick(true, pcurswnd);
-		break;
-	case WND_CHAR:
-		CheckChrBtnClick(true);
-		break;
-	case WND_QUEST:
-		CheckQuestlogClick(true);
-		break;
-	case WND_TEAM:
-		CheckTeamClick(true);
-		break;
-	case WND_BOOK:
-		CheckBookClick(true);
-		break;
-	default:
-		if (pcursicon >= CURSOR_FIRSTITEM) {
-			DropItem();
-			break;
-		}
-
-		ActionBtnCmd(true);
+		ActionBtnCmd(altAction);
 		break;
 	}
 }
@@ -864,10 +798,9 @@ void InputBtnDown(int transKey)
 	case ACT_NONE:
 		break;
 	case ACT_ACT:
-		ActionBtnDown();
-		break;
 	case ACT_ALTACT:
-		AltActionBtnDown();
+		static_assert((int)ACT_ACT + 1 == (int)ACT_ALTACT, "PressKey expects a continuous assignment of ACT_(ALT)ACT.");
+		ActionBtnDown(transKey - ACT_ACT);
 		break;
 	case ACT_W_S: // walk actions
 	case ACT_W_SW:
