@@ -674,7 +674,7 @@ static void ActionBtnDown(bool altAction)
 		break;
 	case WND_QUEST:
 #if HAS_TOUCHPAD
-		if (TryActionDirCmd(altAction, QuestlogMove))
+		if (TryActionMenuDirCmd(altAction, QuestlogMove))
 			break;
 		}
 #endif
