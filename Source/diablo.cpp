@@ -638,7 +638,7 @@ static void ActionBtnDown(bool altAction)
 
 	if (gbSkillListFlag) {
 #if HAS_TOUCHPAD
-		if (TryActionMenuDirCmd(altAction, SkillListMove))
+		if (TryActionMenuDirCmd(altAction, SkillListMove)) {
 			return;
 		}
 #endif
@@ -648,7 +648,7 @@ static void ActionBtnDown(bool altAction)
 
 	if (stextflag != STORE_NONE) {
 #if HAS_TOUCHPAD
-		if (TryActionMenuDirCmd(altAction, STextMove))
+		if (TryActionMenuDirCmd(altAction, STextMove)) {
 			return;
 		}
 #endif
@@ -1115,7 +1115,7 @@ static void PressKey(int vkey)
 	if (gmenu_is_active()) {
 #if HAS_TOUCHPAD
 		int transKey = WMButtonInputTransTbl[vkey];
-		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuMove))
+		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuMove)) {
 			return;
 		}
 #endif
