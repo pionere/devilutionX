@@ -98,6 +98,10 @@ jobs:
       shell: bash
       run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/app-release.apk
 
+    #- name: Show content of workspace
+    #  run: find $RUNNER_WORKSPACE
+    #  shell: bash
+
     # Upload the signed file
     - uses: actions/upload-artifact@v4
       with:
