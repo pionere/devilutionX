@@ -636,6 +636,10 @@ static void AltActionBtnDown()
 		return;
 	}
 
+	if (TryPanBtnClick()) {
+		return;
+	}
+
 	if (TryIconCurs())
 		return;
 
