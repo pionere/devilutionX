@@ -1391,6 +1391,8 @@ void STextESC()
 	case STORE_ERRAND:
 		StartStore(STORE_PRIEST);
 		break;
+	case STORE_WAIT:
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
