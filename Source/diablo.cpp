@@ -799,7 +799,7 @@ void InputBtnDown(int transKey)
 		break;
 	case ACT_ACT:
 	case ACT_ALTACT:
-		static_assert((int)ACT_ACT + 1 == (int)ACT_ALTACT, "PressKey expects a continuous assignment of ACT_(ALT)ACT.");
+		static_assert((int)ACT_ACT + 1 == (int)ACT_ALTACT, "InputBtnDown expects a continuous assignment of ACT_(ALT)ACT.");
 		ActionBtnDown(transKey - ACT_ACT);
 		break;
 	case ACT_W_S: // walk actions
@@ -811,13 +811,13 @@ void InputBtnDown(int transKey)
 	case ACT_W_E:
 	case ACT_W_SE:
 		if (stextflag == STORE_NONE) {
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_SW - (int)ACT_W_SW, "PressKey expects a parallel assignment of ACT_W_x and DIR_x I.");
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_W - (int)ACT_W_W, "PressKey expects a parallel assignment of ACT_W_x and DIR_x II.");
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_NW - (int)ACT_W_NW, "PressKey expects a parallel assignment of ACT_W_x and DIR_x III.");
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_N - (int)ACT_W_N, "PressKey expects a parallel assignment of ACT_W_x and DIR_x IV.");
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_NE - (int)ACT_W_NE, "PressKey expects a parallel assignment of ACT_W_x and DIR_x V.");
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_E - (int)ACT_W_E, "PressKey expects a parallel assignment of ACT_W_x and DIR_x VI.");
-			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_SE - (int)ACT_W_SE, "PressKey expects a parallel assignment of ACT_W_x and DIR_x VII.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_SW - (int)ACT_W_SW, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x I.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_W - (int)ACT_W_W, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x II.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_NW - (int)ACT_W_NW, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x III.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_N - (int)ACT_W_N, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x IV.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_NE - (int)ACT_W_NE, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x V.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_E - (int)ACT_W_E, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x VI.");
+			static_assert((int)DIR_S - (int)ACT_W_S == (int)DIR_SE - (int)ACT_W_SE, "InputBtnDown expects a parallel assignment of ACT_W_x and DIR_x VII.");
 			const int dir = DIR_S + transKey - ACT_W_S;
 			NetSendCmdBParam1(CMD_WALKDIR, dir);
 		}
@@ -847,18 +847,18 @@ void InputBtnDown(int transKey)
 	case ACT_SKL1:
 	case ACT_SKL2:
 	case ACT_SKL3:
-		static_assert(ACT_SKL0 + 1 == ACT_SKL1, "PressKey expects a continuous assignment of ACT_SKLx 1.");
-		static_assert(ACT_SKL1 + 1 == ACT_SKL2, "PressKey expects a continuous assignment of ACT_SKLx 2.");
-		static_assert(ACT_SKL2 + 1 == ACT_SKL3, "PressKey expects a continuous assignment of ACT_SKLx 3.");
+		static_assert(ACT_SKL0 + 1 == ACT_SKL1, "InputBtnDown expects a continuous assignment of ACT_SKLx 1.");
+		static_assert(ACT_SKL1 + 1 == ACT_SKL2, "InputBtnDown expects a continuous assignment of ACT_SKLx 2.");
+		static_assert(ACT_SKL2 + 1 == ACT_SKL3, "InputBtnDown expects a continuous assignment of ACT_SKLx 3.");
 		SkillHotKey(transKey - ACT_SKL0, false);
 		break;
 	case ACT_SKL4:
 	case ACT_SKL5:
 	case ACT_SKL6:
 	case ACT_SKL7:
-		static_assert(ACT_SKL4 + 1 == ACT_SKL5, "PressKey expects a continuous assignment of ACT_SKLx 4.");
-		static_assert(ACT_SKL5 + 1 == ACT_SKL6, "PressKey expects a continuous assignment of ACT_SKLx 5.");
-		static_assert(ACT_SKL6 + 1 == ACT_SKL7, "PressKey expects a continuous assignment of ACT_SKLx 6.");
+		static_assert(ACT_SKL4 + 1 == ACT_SKL5, "InputBtnDown expects a continuous assignment of ACT_SKLx 4.");
+		static_assert(ACT_SKL5 + 1 == ACT_SKL6, "InputBtnDown expects a continuous assignment of ACT_SKLx 5.");
+		static_assert(ACT_SKL6 + 1 == ACT_SKL7, "InputBtnDown expects a continuous assignment of ACT_SKLx 6.");
 		SkillHotKey(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
@@ -884,13 +884,13 @@ void InputBtnDown(int transKey)
 	case ACT_ITEM6:
 	case ACT_ITEM7:
 		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "PressKey expects a continuous assignment of ACT_ITEMx 1.");
-			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "PressKey expects a continuous assignment of ACT_ITEMx 2.");
-			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "PressKey expects a continuous assignment of ACT_ITEMx 3.");
-			static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "PressKey expects a continuous assignment of ACT_ITEMx 4.");
-			static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "PressKey expects a continuous assignment of ACT_ITEMx 5.");
-			static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "PressKey expects a continuous assignment of ACT_ITEMx 6.");
-			static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "PressKey expects a continuous assignment of ACT_ITEMx 7.");
+			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "InputBtnDown expects a continuous assignment of ACT_ITEMx 1.");
+			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "InputBtnDown expects a continuous assignment of ACT_ITEMx 2.");
+			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "InputBtnDown expects a continuous assignment of ACT_ITEMx 3.");
+			static_assert(ACT_ITEM3 + 1 == ACT_ITEM4, "InputBtnDown expects a continuous assignment of ACT_ITEMx 4.");
+			static_assert(ACT_ITEM4 + 1 == ACT_ITEM5, "InputBtnDown expects a continuous assignment of ACT_ITEMx 5.");
+			static_assert(ACT_ITEM5 + 1 == ACT_ITEM6, "InputBtnDown expects a continuous assignment of ACT_ITEMx 6.");
+			static_assert(ACT_ITEM6 + 1 == ACT_ITEM7, "InputBtnDown expects a continuous assignment of ACT_ITEMx 7.");
 			InvUseItem(INVITEM_BELT_FIRST + transKey - ACT_ITEM0);
 		}
 		break;
@@ -914,9 +914,9 @@ void InputBtnDown(int transKey)
 	case ACT_DOWN:
 	case ACT_LEFT:
 	case ACT_RIGHT: {
-		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_DOWN - (int)ACT_DOWN, "PressKey expects a parallel assignment of ACT_*dir* and MDIR_x I.");
-		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_LEFT - (int)ACT_LEFT, "PressKey expects a parallel assignment of ACT_*dir* and MDIR_x II.");
-		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_RIGHT - (int)ACT_RIGHT, "PressKey expects a parallel assignment of ACT_*dir* and MDIR_x III.");
+		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_DOWN - (int)ACT_DOWN, "InputBtnDown expects a parallel assignment of ACT_*dir* and MDIR_x I.");
+		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_LEFT - (int)ACT_LEFT, "InputBtnDown expects a parallel assignment of ACT_*dir* and MDIR_x II.");
+		static_assert((int)MDIR_UP - (int)ACT_UP == (int)MDIR_RIGHT - (int)ACT_RIGHT, "InputBtnDown expects a parallel assignment of ACT_*dir* and MDIR_x III.");
 		int dir = MDIR_UP + transKey - ACT_UP;
 		if (stextflag != STORE_NONE) {
 			STextMove(dir);
