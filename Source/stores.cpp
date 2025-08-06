@@ -1316,7 +1316,7 @@ void DrawStore()
 
 void STextESC()
 {
-	assert(!gbQtextflag);
+	DEBUG_ASSERT(!gbQtextflag);
 	switch (stextflag) {
 	case STORE_SMITH:
 	case STORE_WITCH:
@@ -2287,7 +2287,7 @@ static void S_ErrandEnter()
 
 void STextEnter()
 {
-	assert(!gbQtextflag);
+	DEBUG_ASSERT(!gbQtextflag);
 	switch (stextflag) {
 	case STORE_SMITH:
 		S_SmithEnter();
@@ -2381,7 +2381,7 @@ void TryStoreBtnClick(bool altAction)
 {
 	int y, ly;
 
-	assert(!gbQtextflag);
+	DEBUG_ASSERT(!gbQtextflag);
 	if (altAction) {
 		STextESC();
 	} else if (stextsel != -1 && stextflag != STORE_WAIT) {
