@@ -453,7 +453,6 @@ static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
 static void GmenuMove(int dir)
 {
 	int vkey;
-	case DVL_VK_DOWN:
 	switch (dir) {
 	case MDIR_UP:    vkey = DVL_VK_UP;    break;
 	case MDIR_DOWN:  vkey = DVL_VK_DOWN;  break;
