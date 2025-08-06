@@ -2285,10 +2285,14 @@ void DrawTeamBook()
 	}
 }
 
-void CheckTeamClick()
+void CheckTeamClick(bool altAction)
 {
 	int dx, dy;
 
+	if (altAction) {
+		ToggleWindow(WND_TEAM);
+		return;
+	}
 	dx = MousePos.x - (gnWndTeamX + SBOOK_LEFT_BORDER);
 	dy = MousePos.y - (gnWndTeamY + SBOOK_TOP_BORDER);
 	if (dx < 0 || dy < 0) {

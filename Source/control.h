@@ -97,7 +97,7 @@ const char* get_pieces_str(int nGold);
 void DrawGoldSplit();
 void control_drop_gold(int vkey);
 void DrawTeamBook();
-void CheckTeamClick();
+void CheckTeamClick(bool altAction);
 void DrawGolemBar();
 void InitCampaignMap(int cii);
 void DrawCampaignMap();

@@ -592,7 +592,7 @@ static void ActionBtnDown()
 		CheckQuestlogClick(false);
 		break;
 	case WND_TEAM:
-		CheckTeamClick();
+		CheckTeamClick(false);
 		break;
 	case WND_BOOK:
 		CheckBookClick(false);
@@ -653,6 +653,7 @@ static void AltActionBtnDown()
 		CheckQuestlogClick(true);
 		break;
 	case WND_TEAM:
+		CheckTeamClick(true);
 		break;
 	case WND_BOOK:
 		CheckBookClick(true);
