@@ -436,10 +436,14 @@ void QuestlogMove(int dir)
 	}
 }
 
-void CheckQuestlogClick()
+void CheckQuestlogClick(bool altAction)
 {
 	int y;
 
+	if (altAction) {
+		ToggleWindow(WND_QUEST);
+		return;
+	}
 	y = (MousePos.y - (gnWndQuestY + QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1;
 	if (y != QPNL_MAXENTRIES) {
 		if ((unsigned)(y - qtopline) >= numqlines) {
