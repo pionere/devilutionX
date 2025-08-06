@@ -563,7 +563,7 @@ static void ActionBtnDown()
 	}
 
 	if (stextflag != STORE_NONE) {
-		TryStoreBtnClick();
+		TryStoreBtnClick(false);
 		return;
 	}
 
@@ -632,7 +632,7 @@ static void AltActionBtnDown()
 	}
 
 	if (stextflag != STORE_NONE) {
-		STextESC();
+		TryStoreBtnClick(true);
 		return;
 	}
 
