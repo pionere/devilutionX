@@ -339,13 +339,6 @@ static void AddSSItem(int y, const ItemStruct* is)
 	// ss->_sclr = 0;
 }
 
-static BYTE StoreItemColor(const ItemStruct* is)
-{
-	if (!is->_iStatFlag)
-		return COL_RED;
-	return ItemColor(is);
-}
-
 static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
 {
 	ItemStruct* itm;
