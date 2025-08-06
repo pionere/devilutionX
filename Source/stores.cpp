@@ -2382,9 +2382,10 @@ void TryStoreBtnClick(bool altAction)
 	int y, ly;
 
 	DEBUG_ASSERT(!gbQtextflag);
+	DEBUG_ASSERT(stextsel != -1);
 	if (altAction) {
 		STextESC();
-	} else if (stextsel != -1 && stextflag != STORE_WAIT) {
+	} else if (stextflag != STORE_WAIT) {
 		int px = gbWidePanel ? LTPANEL_X : STORE_PNL_X;
 		int py = LTPANEL_Y;
 		y = current_store_line(px, py);
