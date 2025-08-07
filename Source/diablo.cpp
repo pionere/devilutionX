@@ -400,7 +400,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	pos8.y += offset_y[dir8];
 	NetSendCmdLoc(CMD_WALKXY, pos8.x, pos8.y);
 }
-static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
+static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*moveFunc)(int))
 {
 	RECT_AREA32 actionVector;
 	if (!TryActionDirCmd(altAction, actionVector))
@@ -413,6 +413,7 @@ static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
 	int ady = abs(dy);
 
 	if ((unsigned)adx < md / 4u && (unsigned)ady < md / 4u) {
+		clickFunc(altAction);
 		return true;
 	}
 
@@ -422,32 +423,32 @@ static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
 //LogErrorF("TryActionMenuDirCmd dir: %d, %d -> %d", dx, dy, dir);
 	switch (dir) {
 	case DIR_S:
-		func(MDIR_DOWN);
+		moveFunc(MDIR_DOWN);
 		break;
 	case DIR_SW:
-		func(MDIR_DOWN);
-		func(MDIR_LEFT);
+		moveFunc(MDIR_DOWN);
+		moveFunc(MDIR_LEFT);
 		break;
 	case DIR_W:
-		func(MDIR_LEFT);
+		moveFunc(MDIR_LEFT);
 		break;
 	case DIR_NW:
-		func(MDIR_UP);
-		func(MDIR_LEFT);
+		moveFunc(MDIR_UP);
+		moveFunc(MDIR_LEFT);
 		break;
 	case DIR_N:
-		func(MDIR_UP);
+		moveFunc(MDIR_UP);
 		break;
 	case DIR_NE:
-		func(MDIR_UP);
-		func(MDIR_RIGHT);
+		moveFunc(MDIR_UP);
+		moveFunc(MDIR_RIGHT);
 		break;
 	case DIR_E:
-		func(MDIR_RIGHT);
+		moveFunc(MDIR_RIGHT);
 		break;
 	case DIR_SE:
-		func(MDIR_DOWN);
-		func(MDIR_RIGHT);
+		moveFunc(MDIR_DOWN);
+		moveFunc(MDIR_RIGHT);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -459,9 +460,13 @@ static bool TryActionMenuDirCmd(bool altAction, void (*func)(int))
 	} else {
 		dir = dy >= 0 ? MDIR_DOWN : MDIR_UP;
 	}
-	func(dir);
+	moveFunc(dir);
 
 	return true;
+}
+static void GmenuClick(bool altAction)
+{
+	gmenu_presskey(DVL_VK_LBUTTON);
 }
 static void GmenuMove(int dir)
 {
@@ -651,7 +656,7 @@ static void ActionBtnDown(bool altAction)
 
 	if (gbSkillListFlag) {
 #if HAS_TOUCHPAD
-		if (TryActionMenuDirCmd(altAction, SkillListMove)) {
+		if (TryActionMenuDirCmd(altAction, SetSkill, SkillListMove)) {
 			return;
 		}
 #endif
@@ -661,7 +666,7 @@ static void ActionBtnDown(bool altAction)
 
 	if (stextflag != STORE_NONE) {
 #if HAS_TOUCHPAD
-		if (TryActionMenuDirCmd(altAction, STextMove)) {
+		if (TryActionMenuDirCmd(altAction, TryStoreBtnClick, STextMove)) {
 			return;
 		}
 #endif
@@ -687,7 +692,7 @@ static void ActionBtnDown(bool altAction)
 		break;
 	case WND_QUEST:
 #if HAS_TOUCHPAD
-		if (TryActionMenuDirCmd(altAction, QuestlogMove)) {
+		if (TryActionMenuDirCmd(altAction, CheckQuestlogClick, QuestlogMove)) {
 			break;
 		}
 #endif
@@ -1128,7 +1133,7 @@ static void PressKey(int vkey)
 	if (gmenu_is_active()) {
 #if HAS_TOUCHPAD
 		int transKey = WMButtonInputTransTbl[vkey];
-		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuMove)) {
+		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuClick, GmenuMove)) {
 			return;
 		}
 #endif
