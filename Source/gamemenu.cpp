@@ -76,7 +76,7 @@ static void gamemenu_update_multi()
 	// disable new game in case the player is dying or dead
 	gmenu_enable(&sgMultiMenu[1], gbDeathflag == MDM_ALIVE);
 	// disable restart in town in case the player is not dead
-	gmenu_enable(&sgMultiMenu[2], gbDeathflag == MDM_DEAD);
+	gmenu_enable(&sgMultiMenu[3], gbDeathflag == MDM_DEAD);
 }
 
 static void gamemenu_update_settings()
