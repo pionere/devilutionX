@@ -347,6 +347,7 @@ static void gamemenu_speed(bool bActivate)
 	PlaySfx(IS_TITLEMOV);
 }
 
+#undef GAMEMENU_HEIGHT
 #define GAMEMENU_WIDTH 300
 #define GAMEMENU_HEIGHT 300
 #define GAMEMENU_LINE_HEIGHT 20
@@ -389,8 +390,8 @@ void gamemenu_draw()
 		col = COL_WHITE;
 		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
 		PrintString(flags, label, x, y, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
-		if (i == gnCurrSubmenu) {
-			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, sy + 1);
+		if ((unsigned)i == gnCurrSubmenu) {
+			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, y + 1);
 			if (gbMoveCursor) {
 				gbMoveCursor = false;
 				SetCursorPos(x - SCREEN_X + (GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX) / 2, y - SCREEN_Y - GAMEMENU_LINE_HEIGHT / 2);
