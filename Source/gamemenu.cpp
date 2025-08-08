@@ -352,10 +352,10 @@ static void gamemenu_speed(bool bActivate)
 }
 
 #undef GAMEMENU_HEIGHT
-#define GAMEMENU_OFFSETX 30
-#define GAMEMENU_OFFSETY 30
-#define GAMEMENU_LINE_HEIGHT 24
-#define GAMEMENU_WIDTH 240
+#define GAMEMENU_OFFSETX (FOCUS_SMALL + 10)
+#define GAMEMENU_OFFSETY 10
+#define GAMEMENU_LINE_HEIGHT 26
+#define GAMEMENU_WIDTH 230
 #define GAMEMENU_HEIGHT (GAMEMENU_LINE_HEIGHT * NUM_GMMS + 2 * GAMEMENU_OFFSETY)
 #define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
 #define GAMEMENU_Y SCREEN_CENTERY(GAMEMENU_HEIGHT)
@@ -396,9 +396,9 @@ void gamemenu_draw()
 		}
 		col = COL_WHITE;
 		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
-		PrintString(flags, label, x, y, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
+		PrintString(flags, label, x, y - (BIG_FONT_HEIGHT - (5 - 2)), GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
 		if ((unsigned)i == gnCurrSubmenu) {
-			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, y + 1);
+			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, y + 1 - (GAMEMENU_LINE_HEIGHT - SMALL_FONT_HEIGHT) / 2);
 			if (gbMoveCursor) {
 				gbMoveCursor = false;
 				SetCursorPos(x - SCREEN_X + (GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX) / 2, y - SCREEN_Y - GAMEMENU_LINE_HEIGHT / 2);
