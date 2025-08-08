@@ -974,17 +974,17 @@ void InputBtnDown(int transKey)
 		SkillHotKey(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
-		HandlePanBtn(PANBTN_INVENTORY);
+		gamemenu_enter(GMM_INVENTORY);
 		break;
 	case ACT_CHAR:
-		HandlePanBtn(PANBTN_CHARINFO);
+		gamemenu_enter(GMM_CHARINFO);
 		break;
 	case ACT_SKLBOOK:
-		HandlePanBtn(PANBTN_SPELLBOOK);
+		gamemenu_enter(GMM_SPELLBOOK);
 		break;
 	case ACT_SKLLIST:
 		if (stextflag == STORE_NONE) {
-			HandleSkillBtn(false);
+			gamemenu_enter(GMM_SKILLLIST);
 		}
 		break;
 	case ACT_ITEM0:
@@ -1010,14 +1010,10 @@ void InputBtnDown(int transKey)
 		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
-		if (gbAutomapflag != AMM_NONE) {
-			AutomapZoomIn();
-		}
+		AutomapZoomIn();
 		break;
 	case ACT_MAPZ_OUT:
-		if (gbAutomapflag != AMM_NONE) {
-			AutomapZoomOut();
-		}
+		AutomapZoomOut();
 		break;
 	case ACT_CLEARUI:
 		ClearUI();
@@ -1052,10 +1048,10 @@ void InputBtnDown(int transKey)
 		}
 		break;
 	case ACT_TEAM:
-		HandlePanBtn(PANBTN_TEAMBOOK);
+		gamemenu_enter(GMM_TEAMBOOK);
 		break;
 	case ACT_QUESTS:
-		HandlePanBtn(PANBTN_QLOG);
+		gamemenu_enter(GMM_QLOG);
 		break;
 	case ACT_SNEXT:
 		gbCurrActiveSkill = (gbCurrActiveSkill + 1) % 4;

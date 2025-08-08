@@ -4664,6 +4664,20 @@ typedef enum _gmenu_flags {
 	GMF_ENABLED = 1 << 1,
 } _gmenu_flags;
 
+typedef enum gamemenu_id {
+	GMM_EXITGAME,
+	GMM_MAINMENU,
+	GMM_QLOG,
+	GMM_INVENTORY,
+	GMM_CHARINFO,
+	GMM_SKILLLIST,
+	GMM_SPELLBOOK,
+	GMM_AUTOMAP,
+	GMM_SENDMSG,
+	GMM_TEAMBOOK,
+	NUM_GMMS
+} gamemenu_id;
+
 typedef enum mpq_files {
 #if ASSET_MPL != 1
 	MPQ_DEVILHD,

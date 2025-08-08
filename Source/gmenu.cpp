@@ -50,14 +50,14 @@ void InitGMenu()
 
 static void gmenu_up_down(bool isDown)
 {
-	int i, n;
+	int n;
 
 	assert(gmenu_is_active());
 
 	_gbMouseNavigation = false;
 #if 0
 	n = guCurrItemIdx;
-	for (i = 0; i < guCurrentMenuSize; i++) {
+	for (int i = 0; i < guCurrentMenuSize; i++) {
 		if (isDown) {
 			if (++n >= guCurrentMenuSize)
 				n = 0;
@@ -73,7 +73,7 @@ static void gmenu_up_down(bool isDown)
 		PlaySfx(IS_TITLEMOV);
 	}
 #else
-	int n = guCurrItemIdx;
+	n = guCurrItemIdx;
 	int dn = isDown ? 1 : guCurrentMenuSize - 1;
 	do {
 		n += dn;

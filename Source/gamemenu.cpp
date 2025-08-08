@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "engine/render/text_render.h"
+#include "plrctrls.h"
 #include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -102,8 +103,9 @@ static void gamemenu_main()
 void gamemenu_on()
 {
 	if (gbDeathflag == MDM_ALIVE) {
-		gnNumSubmenus = IsMultiGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
+		gnNumSubmenus = IsMultiGame ? NUM_GMMS - 2 : NUM_GMMS;
 		gpCurrentMenu = (TMenuItem*)-1;
+		gnCurrSubmenu = GMM_INVENTORY;
 	} else {
 		gamemenu_main();
 	}
@@ -355,8 +357,9 @@ static void gamemenu_speed(bool bActivate)
 void gamemenu_draw()
 {
 	int x, y, flags;
-	unsigned i;
+	int i;
 	BYTE col;
+	const char* label;
 	if (gnNumSubmenus == 0) {
 		gmenu_draw();
 		return;
@@ -368,24 +371,25 @@ void gamemenu_draw()
 
 	x += GAMEMENU_OFFSETX;
 	y += GAMEMENU_OFFSETY;
-	for (i = 0; i < gnNumSubmenus; i++) {
+	for (i = gnNumSubmenus - 1; i >= 0; i--) {
 		y += GAMEMENU_LINE_HEIGHT;
 		switch (i) {
-		case PANBTN_MAINMENU: label = "main menu"; break;
-		case PANBTN_OPTIONS: label = "main menu"; break;
-		case PANBTN_CHARINFO: label = "profile"; break;
-		case PANBTN_INVENTORY: label = "inventory"; break;
-		case PANBTN_SPELLBOOK: label = "character"; break;
-		case PANBTN_QLOG: label = "quests"; break;
-		case PANBTN_AUTOMAP: label = "automap"; break;
-		case PANBTN_SENDMSG: label = "start chat"; break;
-		case PANBTN_TEAMBOOK: label = "teams"; break;
+		case GMM_EXITGAME:  label = "exit game";  break;
+		case GMM_MAINMENU:  label = "main menu";  break;
+		case GMM_QLOG:      label = "quests";     break;
+		case GMM_INVENTORY: label = "inventory";  break;
+		case GMM_CHARINFO:  label = "profile";    break;
+		case GMM_SKILLLIST: label = "skill list"; break;
+		case GMM_SPELLBOOK: label = "skill book"; break;
+		case GMM_AUTOMAP:   label = "automap";    break;
+		case GMM_SENDMSG:   label = "start chat"; break;
+		case GMM_TEAMBOOK:  label = "teams";      break;
 		default: ASSUME_UNREACHABLE; break;
 		}
 		col = COL_WHITE;
 		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
-		PrintString(flags, lable, x, y, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
-		if (i == gnNumSubmenus) {
+		PrintString(flags, label, x, y, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
+		if (i == gnCurrSubmenu) {
 			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, sy + 1);
 			if (gbMoveCursor) {
 				gbMoveCursor = false;
@@ -424,11 +428,10 @@ static void gamemenu_up_down(bool isDown)
 void gamemenu_enter(int submenu)
 {
 	switch (submenu) {
-	case PANBTN_MAINMENU:
-	case PANBTN_OPTIONS:
+	case GMM_MAINMENU:
 		gamemenu_main();
 		return;
-	case PANBTN_CHARINFO:
+	case GMM_CHARINFO:
 		// gbSkillListFlag = false;
 		gbLvlUp = false;
 		if (ToggleWindow(WND_CHAR)) {
@@ -438,7 +441,7 @@ void gamemenu_enter(int submenu)
 #endif
 		}
 		break;
-	case PANBTN_INVENTORY:
+	case GMM_INVENTORY:
 		// gbSkillListFlag = false;
 		gbInvflag = ToggleWindow(WND_INV);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
@@ -446,25 +449,28 @@ void gamemenu_enter(int submenu)
 			FocusOnInventory();
 #endif
 		break;
-	case PANBTN_SPELLBOOK:
+	case GMM_SPELLBOOK:
 		// gbSkillListFlag = false;
 		ToggleWindow(WND_BOOK);
 		break;
-	case PANBTN_QLOG:
+	case GMM_SKILLLIST:
+		HandleSkillBtn(false);
+		break;
+	case GMM_QLOG:
 		// gbSkillListFlag = false;
 		if (ToggleWindow(WND_QUEST))
 			StartQuestlog();
 		break;
-	case PANBTN_AUTOMAP:
+	case GMM_AUTOMAP:
 		ToggleAutomap();
 		return;
-	case PANBTN_SENDMSG:
+	case GMM_SENDMSG:
 		if (gbTalkflag)
 			StopPlrMsg();
 		else
 			StartPlrMsg();
 		break;
-	case PANBTN_TEAMBOOK:
+	case GMM_TEAMBOOK:
 		// gbSkillListFlag = false;
 		ToggleWindow(WND_TEAM);
 		break;
@@ -477,7 +483,7 @@ void gamemenu_enter(int submenu)
 
 static void gamemenu_left_right(bool isRight)
 {
-	if (gnCurrSubmenu == PANBTN_AUTOMAP) {
+	if (gnCurrSubmenu == GMM_AUTOMAP) {
 		if (isRight) {
 			AutomapZoomIn();
 		} else {
@@ -485,15 +491,13 @@ static void gamemenu_left_right(bool isRight)
 		}
 		return;
 	}
-	gamemenu__enter();
+	gamemenu_enter(gnCurrSubmenu);
 }
 
 static void gamemenu_left_mouse()
 {
 	int px = GAMEMENU_X + GAMEMENU_OFFSETX;
 	int py = GAMEMENU_Y + GAMEMENU_OFFSETY;
-	int mx = MousePos.x;
-	int my = MousePos.y;
 	int sx = MousePos.x - px;
 	int sy = MousePos.y - py;
 	if (sx < 0 || sx >= GAMEMENU_WIDTH - GAMEMENU_OFFSETX) {
