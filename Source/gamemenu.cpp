@@ -385,8 +385,8 @@ void gamemenu_draw()
 		case GMM_EXITGAME:  label = "exit game";  break;
 		case GMM_MAINMENU:  label = "main menu";  break;
 		case GMM_QLOG:      label = "quests";     break;
-		case GMM_INVENTORY: label = "inventory";  break;
 		case GMM_CHARINFO:  label = "profile";    break;
+		case GMM_INVENTORY: label = "inventory";  break;
 		case GMM_SKILLLIST: label = "skill list"; break;
 		case GMM_SPELLBOOK: label = "skill book"; break;
 		case GMM_AUTOMAP:   label = "automap";    break;
@@ -436,9 +436,17 @@ static void gamemenu_up_down(bool isDown)
 void gamemenu_enter(int submenu)
 {
 	switch (submenu) {
+	case GMM_EXITGAME:
+		gamemenu_exit_game(false);
+		return;
 	case GMM_MAINMENU:
 		gamemenu_main();
 		return;
+	case GMM_QLOG:
+		// gbSkillListFlag = false;
+		if (ToggleWindow(WND_QUEST))
+			StartQuestlog();
+		break;
 	case GMM_CHARINFO:
 		// gbSkillListFlag = false;
 		gbLvlUp = false;
@@ -457,17 +465,12 @@ void gamemenu_enter(int submenu)
 			FocusOnInventory();
 #endif
 		break;
-	case GMM_SPELLBOOK:
-		// gbSkillListFlag = false;
-		ToggleWindow(WND_BOOK);
-		break;
 	case GMM_SKILLLIST:
 		HandleSkillBtn(false);
 		break;
-	case GMM_QLOG:
+	case GMM_SPELLBOOK:
 		// gbSkillListFlag = false;
-		if (ToggleWindow(WND_QUEST))
-			StartQuestlog();
+		ToggleWindow(WND_BOOK);
 		break;
 	case GMM_AUTOMAP:
 		ToggleAutomap();
