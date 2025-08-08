@@ -398,7 +398,7 @@ void gamemenu_draw()
 		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
 		PrintString(flags, label, x, y - BIG_FONT_HEIGHT, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
 		if ((unsigned)i == gnCurrSubmenu) {
-			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, y + 1 - (GAMEMENU_LINE_HEIGHT - SMALL_FONT_HEIGHT) / 2);
+			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, y + 1 - (GAMEMENU_LINE_HEIGHT - SMALL_FONT_HEIGHT) / 2);
 			if (gbMoveCursor) {
 				gbMoveCursor = false;
 				SetCursorPos(x - SCREEN_X + (GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX) / 2, y - SCREEN_Y - GAMEMENU_LINE_HEIGHT / 2);
@@ -426,8 +426,6 @@ static void gamemenu_up_down(bool isDown)
 	n = gnCurrSubmenu + (isDown ? gnNumSubmenus - 1 : 1);
 	n %= gnNumSubmenus;
 #endif
-	LogErrorF("gamemenu_up_down %d", n);
-	EventPlrMsg("gamemenu_up_down %d", n);
 	// if (n != gnCurrSubmenu) {
 		gnCurrSubmenu = n;
 		// PlaySfx(IS_TITLEMOV);
@@ -437,8 +435,6 @@ static void gamemenu_up_down(bool isDown)
 
 void gamemenu_enter(int submenu)
 {
-	LogErrorF("gamemenu_enter %d", submenu);
-	EventPlrMsg("gamemenu_enter %d", submenu);
 	switch (submenu) {
 	case GMM_EXITGAME:
 		gamemenu_exit_game(false);
@@ -498,8 +494,6 @@ void gamemenu_enter(int submenu)
 
 static void gamemenu_left_right(bool isRight)
 {
-	LogErrorF("gamemenu_left_right %d", gnCurrSubmenu);
-	EventPlrMsg("gamemenu_left_right %d", gnCurrSubmenu);
 	if (gnCurrSubmenu == GMM_AUTOMAP) {
 		if (isRight) {
 			AutomapZoomIn();
@@ -535,8 +529,6 @@ static void gamemenu_left_mouse_down()
 		y = gnNumSubmenus - y;
 		y--;
 		gnCurrSubmenu = y;
-		LogErrorF("gamemenu_left_mouse_down %d", y);
-		EventPlrMsg("gamemenu_left_mouse_down %d", y);
 		gamemenu_enter(y);
 	}
 }
@@ -554,8 +546,6 @@ void gamemenu_presskey(int vkey)
 		gmenu_presskey(vkey);
 		return;
 	}
-	LogErrorF("gamemenu_presskey %d", vkey);
-	EventPlrMsg("gamemenu_presskey %d", vkey);
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
 		gamemenu_left_mouse_down();
