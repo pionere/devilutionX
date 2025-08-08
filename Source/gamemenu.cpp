@@ -7,6 +7,10 @@
 #include "engine/render/text_render.h"
 #include "plrctrls.h"
 #include "storm/storm_cfg.h"
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+#include "controls/axis_direction.h"
+#include "controls/controller_motion.h"
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
