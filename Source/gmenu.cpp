@@ -55,6 +55,7 @@ static void gmenu_up_down(bool isDown)
 	assert(gmenu_is_active());
 
 	_gbMouseNavigation = false;
+#if 0
 	n = guCurrItemIdx;
 	for (i = 0; i < guCurrentMenuSize; i++) {
 		if (isDown) {
@@ -71,6 +72,18 @@ static void gmenu_up_down(bool isDown)
 		guCurrItemIdx = n;
 		PlaySfx(IS_TITLEMOV);
 	}
+#else
+	int n = guCurrItemIdx;
+	int dn = isDown ? 1 : guCurrentMenuSize - 1;
+	do {
+		n += dn;
+		n %= guCurrentMenuSize;
+	} while (!(gpCurrentMenu[n].dwFlags & GMF_ENABLED));
+	/*if (n != guCurrItemIdx) */{
+		guCurrItemIdx = n;
+		PlaySfx(IS_TITLEMOV);
+	}
+#endif
 }
 
 static void gmenu_enter()

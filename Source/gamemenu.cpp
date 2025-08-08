@@ -4,6 +4,7 @@
  * Implementation of the in-game menu functions.
  */
 #include "all.h"
+#include "engine/render/text_render.h"
 #include "storm/storm_cfg.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -61,6 +62,10 @@ static TMenuItem sgSettingsMenu[] = {
 	// clang-format on
 };
 
+static unsigned gnNumSubmenus;
+static unsigned gnCurrSubmenu;
+static bool gbMoveCursor;
+
 static void gamemenu_update_single()
 {
 	bool enable;
@@ -85,12 +90,22 @@ static void gamemenu_update_settings()
 {
 }
 
-void gamemenu_on()
+static void gamemenu_main()
 {
+	gnNumSubmenus = 0;
 	if (IsMultiGame) {
 		gmenu_set_items(sgMultiMenu, lengthof(sgMultiMenu), gamemenu_update_multi);
 	} else {
 		gmenu_set_items(sgSingleMenu, lengthof(sgSingleMenu), gamemenu_update_single);
+	}
+}
+void gamemenu_on()
+{
+	if (gbDeathflag == MDM_ALIVE) {
+		gnNumSubmenus = IsMultiGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
+		gpCurrentMenu = (TMenuItem*)-1;
+	} else {
+		gamemenu_main();
 	}
 	PressEscKey();
 }
@@ -328,6 +343,204 @@ static void gamemenu_speed(bool bActivate)
 	setIniInt("Diablo", "Game Speed", speed);
 	gamemenu_get_speed();
 	PlaySfx(IS_TITLEMOV);
+}
+
+#define GAMEMENU_WIDTH 300
+#define GAMEMENU_HEIGHT 300
+#define GAMEMENU_LINE_HEIGHT 20
+#define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
+#define GAMEMENU_Y SCREEN_CENTERY(GAMEMENU_HEIGHT)
+#define GAMEMENU_OFFSETX 30
+#define GAMEMENU_OFFSETY 30
+void gamemenu_draw()
+{
+	int x, y, flags;
+	unsigned i;
+	BYTE col;
+	if (gnNumSubmenus == 0) {
+		gmenu_draw();
+		return;
+	}
+
+	y = GAMEMENU_Y;
+	x = GAMEMENU_X;
+	DrawColorTextBox(x, y, GAMEMENU_WIDTH, GAMEMENU_HEIGHT, COL_WHITE);
+
+	x += GAMEMENU_OFFSETX;
+	y += GAMEMENU_OFFSETY;
+	for (i = 0; i < gnNumSubmenus; i++) {
+		y += GAMEMENU_LINE_HEIGHT;
+		switch (i) {
+		case PANBTN_MAINMENU: label = "main menu"; break;
+		case PANBTN_OPTIONS: label = "main menu"; break;
+		case PANBTN_CHARINFO: label = "profile"; break;
+		case PANBTN_INVENTORY: label = "inventory"; break;
+		case PANBTN_SPELLBOOK: label = "character"; break;
+		case PANBTN_QLOG: label = "quests"; break;
+		case PANBTN_AUTOMAP: label = "automap"; break;
+		case PANBTN_SENDMSG: label = "start chat"; break;
+		case PANBTN_TEAMBOOK: label = "teams"; break;
+		default: ASSUME_UNREACHABLE; break;
+		}
+		col = COL_WHITE;
+		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
+		PrintString(flags, lable, x, y, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
+		if (i == gnNumSubmenus) {
+			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, sy + 1);
+			if (gbMoveCursor) {
+				gbMoveCursor = false;
+				SetCursorPos(x - SCREEN_X + (GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX) / 2, y - SCREEN_Y - GAMEMENU_LINE_HEIGHT / 2);
+			}
+		}
+	}
+}
+
+static void gamemenu_up_down(bool isDown)
+{
+	// assert(gmenu_is_active());
+	// assert(gnNumSubmenus != 0);
+#if 0
+	int i, n;
+	n = gnCurrSubmenu;
+	if (isDown) {
+		if (++n >= (int)gnNumSubmenus)
+			n = 0;
+	} else {
+		if (--n < 0)
+			n = gnNumSubmenus - 1;
+	}
+#else
+	unsigned n;
+	n = gnCurrSubmenu + (!isDown ? gnNumSubmenus - 1 : 1);
+	n %= gnNumSubmenus;
+#endif
+	// if (n != gnCurrSubmenu) {
+		gnCurrSubmenu = n;
+		// PlaySfx(IS_TITLEMOV);
+		gbMoveCursor = true;
+	// }
+}
+
+void gamemenu_enter(int submenu)
+{
+	switch (submenu) {
+	case PANBTN_MAINMENU:
+	case PANBTN_OPTIONS:
+		gamemenu_main();
+		return;
+	case PANBTN_CHARINFO:
+		// gbSkillListFlag = false;
+		gbLvlUp = false;
+		if (ToggleWindow(WND_CHAR)) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+			if (sgbControllerActive)
+				FocusOnCharInfo();
+#endif
+		}
+		break;
+	case PANBTN_INVENTORY:
+		// gbSkillListFlag = false;
+		gbInvflag = ToggleWindow(WND_INV);
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		if (gbInvflag && sgbControllerActive)
+			FocusOnInventory();
+#endif
+		break;
+	case PANBTN_SPELLBOOK:
+		// gbSkillListFlag = false;
+		ToggleWindow(WND_BOOK);
+		break;
+	case PANBTN_QLOG:
+		// gbSkillListFlag = false;
+		if (ToggleWindow(WND_QUEST))
+			StartQuestlog();
+		break;
+	case PANBTN_AUTOMAP:
+		ToggleAutomap();
+		return;
+	case PANBTN_SENDMSG:
+		if (gbTalkflag)
+			StopPlrMsg();
+		else
+			StartPlrMsg();
+		break;
+	case PANBTN_TEAMBOOK:
+		// gbSkillListFlag = false;
+		ToggleWindow(WND_TEAM);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	gamemenu_off();
+}
+
+static void gamemenu_left_right(bool isRight)
+{
+	if (gnCurrSubmenu == PANBTN_AUTOMAP) {
+		if (isRight) {
+			AutomapZoomIn();
+		} else {
+			AutomapZoomOut();
+		}
+		return;
+	}
+	gamemenu__enter();
+}
+
+static void gamemenu_left_mouse()
+{
+	int px = GAMEMENU_X + GAMEMENU_OFFSETX;
+	int py = GAMEMENU_Y + GAMEMENU_OFFSETY;
+	int mx = MousePos.x;
+	int my = MousePos.y;
+	int sx = MousePos.x - px;
+	int sy = MousePos.y - py;
+	if (sx < 0 || sx >= GAMEMENU_WIDTH - GAMEMENU_OFFSETX) {
+		return;
+	}
+	if (sy < 0) {
+		return;
+	}
+	unsigned y = ((unsigned)sy) / GAMEMENU_LINE_HEIGHT;
+	if (y < gnNumSubmenus) {
+		gnCurrSubmenu = y;
+		gamemenu_enter(y);
+	}
+}
+
+void gamemenu_presskey(int vkey)
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_presskey(vkey);
+		return;
+	}
+
+	switch (vkey) {
+	case DVL_VK_LBUTTON:
+		gamemenu_left_mouse();
+		break;
+	case DVL_VK_RETURN:
+		gamemenu_enter(gnCurrSubmenu);
+		break;
+	case DVL_VK_XBUTTON1:
+	case DVL_VK_ESCAPE:
+	case DVL_VK_SPACE:
+		gamemenu_off();
+		break;
+	case DVL_VK_LEFT:
+		gamemenu_left_right(false);
+		break;
+	case DVL_VK_RIGHT:
+		gamemenu_left_right(true);
+		break;
+	case DVL_VK_UP:
+		gamemenu_up_down(false);
+		break;
+	case DVL_VK_DOWN:
+		gamemenu_up_down(true);
+		break;
+	}
 }
 
 DEVILUTION_END_NAMESPACE

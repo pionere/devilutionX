@@ -296,9 +296,9 @@ void DrawPlrMsg(bool onTop)
 
 void StartPlrMsg()
 {
-	if (IsLocalGame) {
-		return;
-	}
+	//if (IsLocalGame) {
+	//	return;
+	//}
 
 	gbTalkflag = true;
 	SDL_StartTextInput();

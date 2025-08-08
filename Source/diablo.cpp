@@ -466,7 +466,7 @@ static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*
 }
 static void GmenuClick(bool altAction)
 {
-	gmenu_presskey(DVL_VK_LBUTTON);
+	gamemenu_presskey(DVL_VK_LBUTTON);
 }
 static void GmenuMove(int dir)
 {
@@ -478,7 +478,7 @@ static void GmenuMove(int dir)
 	case MDIR_RIGHT: vkey = DVL_VK_RIGHT; break;
 	default: ASSUME_UNREACHABLE;          break;
 	}
-	gmenu_presskey(vkey);
+	gamemenu_presskey(vkey);
 }
 #endif
 static void ActionBtnCmd(bool altSkill)
@@ -1137,7 +1137,7 @@ static void PressKey(int vkey)
 			return;
 		}
 #endif
-		gmenu_presskey(vkey);
+		gamemenu_presskey(vkey);
 		return;
 	}
 	if (gbTalkflag) {

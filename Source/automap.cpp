@@ -165,7 +165,7 @@ void AutomapMove(int dir)
  */
 void AutomapZoomIn()
 {
-	if (AutoMapScale < MAP_SCALE_MAX) {
+	if (gbAutomapflag != AMM_NONE && AutoMapScale < MAP_SCALE_MAX) {
 		AutoMapScale += 16;
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
@@ -184,7 +184,7 @@ void AutomapZoomIn()
  */
 void AutomapZoomOut()
 {
-	if (AutoMapScale > MAP_SCALE_MIN) {
+	if (gbAutomapflag != AMM_NONE && AutoMapScale > MAP_SCALE_MIN) {
 		AutoMapScale -= 16;
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;

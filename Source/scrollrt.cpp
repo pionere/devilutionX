@@ -1553,7 +1553,7 @@ static void DrawView()
 #endif
 	DrawPlrMsg(true);
 	if (gmenu_is_active())
-		gmenu_draw();
+		gamemenu_draw();
 }
 
 #if DEBUG_MODE

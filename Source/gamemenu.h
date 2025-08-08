@@ -14,6 +14,8 @@ extern "C" {
 
 void gamemenu_on();
 void gamemenu_off();
+void gamemenu_draw();
+void gamemenu_presskey(int vkey);
 void gamemenu_settings(bool bActivate);
 
 #ifdef __cplusplus
