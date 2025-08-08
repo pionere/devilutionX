@@ -207,18 +207,6 @@ static void gmenu_draw_menu_item(int i, int y)
 	}
 }
 
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-void CheckMenuMove()
-{
-	// assert(gmenu_is_active());
-	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
-	if (move_dir.x != AxisDirectionX_NONE)
-		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
-	if (move_dir.y != AxisDirectionY_NONE)
-		gmenu_up_down(move_dir.y == AxisDirectionY_DOWN);
-}
-#endif
-
 void gmenu_update()
 {
 	// assert(gmenu_is_active());

@@ -495,7 +495,7 @@ static void gamemenu_left_right(bool isRight)
 	gamemenu_enter(gnCurrSubmenu);
 }
 
-static void gamemenu_left_mouse()
+static void gamemenu_left_mouse_down()
 {
 	int px = GAMEMENU_X + GAMEMENU_OFFSETX;
 	int py = GAMEMENU_Y + GAMEMENU_OFFSETY;
@@ -514,6 +514,13 @@ static void gamemenu_left_mouse()
 	}
 }
 
+void gamemenu_on_mouse_move()
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_on_mouse_move();
+	}
+}
+
 void gamemenu_presskey(int vkey)
 {
 	if (gnNumSubmenus == 0) {
@@ -523,7 +530,7 @@ void gamemenu_presskey(int vkey)
 
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
-		gamemenu_left_mouse();
+		gamemenu_left_mouse_down();
 		break;
 	case DVL_VK_RETURN:
 		gamemenu_enter(gnCurrSubmenu);
@@ -545,6 +552,39 @@ void gamemenu_presskey(int vkey)
 	case DVL_VK_DOWN:
 		gamemenu_up_down(true);
 		break;
+	}
+}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+void CheckMenuMove()
+{
+	// assert(gmenu_is_active());
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
+	if (move_dir.x != AxisDirectionX_NONE) {
+		if (gnNumSubmenus == 0)
+			gmenu_presskey(move_dir.x == AxisDirectionX_RIGHT ? DVL_VK_RIGHT : DVL_VK_LEFT);
+		else
+			gamemenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
+	}
+	if (move_dir.y != AxisDirectionY_NONE) {
+		if (gnNumSubmenus == 0)
+			gmenu_presskey(move_dir.y == AxisDirectionY_DOWN ? DVL_VK_DOWN : DVL_VK_UP);
+		else
+			gamemenu_up_down(move_dir.y == AxisDirectionY_DOWN);
+	}
+}
+#endif
+
+void gamemenu_left_mouse(bool isDown)
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_left_mouse(isDown);
+	}
+}
+
+void gamemenu_update()
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_update();
 	}
 }
 

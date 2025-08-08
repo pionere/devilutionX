@@ -764,7 +764,7 @@ static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
 		if (gmenu_is_active())
-			gmenu_left_mouse(false);
+			gamemenu_left_mouse(false);
 		if (gabPanbtn[PANBTN_MAINMENU])
 			ReleasePanBtn();
 		if (gbChrbtnactive)
@@ -1306,7 +1306,7 @@ void GameWndProc(const Dvl_Event* e)
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
-			gmenu_on_mouse_move();
+			gamemenu_on_mouse_move();
 		else if (WND_VALID(gbDragWnd))
 			DoWndDrag();
 		else if (gbTalkflag)
@@ -1464,7 +1464,7 @@ void game_logic()
 	CheckQuests();
 	pfile_update(false);
 	if (gmenu_is_active())
-		gmenu_update();
+		gamemenu_update();
 	gbGameLogicProgress = GLP_NONE;
 }
 
