@@ -301,7 +301,7 @@ void StartPlrMsg()
 	//}
 
 	gbTalkflag = true;
-	SDL_StartTextInput();
+	// SDL_StartTextInput();
 	plr_msgs[PLRMSG_COUNT].str[0] = '\0';
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	sgbTalkSavePos = sgbNextTalkSave;
@@ -366,7 +366,7 @@ void VersionPlrMsg()
 void StopPlrMsg()
 {
 	gbTalkflag = false;
-	SDL_StopTextInput();
+	// SDL_StopTextInput();
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	// sguCursPos = 0;
 	// sguSelPos = 0;
@@ -379,6 +379,8 @@ static void SendPlrMsg()
 	int i, team, pmask;
 	BYTE talk_save;
 	char* msg;
+
+	SDL_StopTextInput();
 
 	pmask = SNPLAYER_ALL;
 	msg = &plr_msgs[PLRMSG_COUNT].str[0];
@@ -639,7 +641,7 @@ static bool plrmsg_HandleMouseEvent(SDL_Keymod mod)
 	if (tMsg == NULL) {
 		return false;
 	}
-
+	SDL_StartTextInput();
 	sgpCurMsg = tMsg;
 	sguCursPos = plrmsg_CursPos(x, y);
 	if (!(mod & KMOD_SHIFT)) {
