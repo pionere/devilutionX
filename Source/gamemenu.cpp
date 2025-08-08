@@ -354,7 +354,7 @@ static void gamemenu_speed(bool bActivate)
 #undef GAMEMENU_HEIGHT
 #define GAMEMENU_OFFSETX (FOCUS_SMALL + 10)
 #define GAMEMENU_OFFSETY 10
-#define GAMEMENU_LINE_HEIGHT 26
+#define GAMEMENU_LINE_HEIGHT (BIG_FONT_HEIGHT + 4)
 #define GAMEMENU_WIDTH 220
 #define GAMEMENU_HEIGHT (GAMEMENU_LINE_HEIGHT * NUM_GMMS + 2 * GAMEMENU_OFFSETY)
 #define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
@@ -533,6 +533,7 @@ static void gamemenu_left_mouse_down()
 	unsigned y = ((unsigned)sy) / GAMEMENU_LINE_HEIGHT;
 	if (y < gnNumSubmenus) {
 		y = gnNumSubmenus - y;
+		y--;
 		gnCurrSubmenu = y;
 		LogErrorF("gamemenu_left_mouse_down %d", y);
 		EventPlrMsg("gamemenu_left_mouse_down %d", y);

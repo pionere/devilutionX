@@ -365,6 +365,8 @@ void VersionPlrMsg()
 
 void StopPlrMsg()
 {
+	LogErrorF("StopPlrMsg");
+	EventPlrMsg("StopPlrMsg");
 	gbTalkflag = false;
 	// SDL_StopTextInput();
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
@@ -419,7 +421,8 @@ static void SendPlrMsg()
 			}
 		}
 	}
-
+	LogErrorF("SendPlrMsg %s", msg);
+	EventPlrMsg("SendPlrMsg %s", msg);
 	if (*msg != '\0') {
 		TMsgString msgStr;
 		int len = SStrCopy(msgStr.str, msg, sizeof(msgStr.str));
@@ -655,7 +658,8 @@ bool plrmsg_presskey(int vkey)
 {
 	// assert(gbTalkflag);
 	// assert(!IsLocalGame);
-
+	LogErrorF("plrmsg_presskey %d", vkey);
+	EventPlrMsg("plrmsg_presskey %d", vkey);
 	SDL_Keymod mod = SDL_GetModState();
 	switch (vkey) {
 #ifndef USE_SDL1
