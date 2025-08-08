@@ -426,6 +426,8 @@ static void gamemenu_up_down(bool isDown)
 	n = gnCurrSubmenu + (isDown ? gnNumSubmenus - 1 : 1);
 	n %= gnNumSubmenus;
 #endif
+	LogErrorF("gamemenu_up_down %d", n);
+	EventPlrMsg("gamemenu_up_down %d", n);
 	// if (n != gnCurrSubmenu) {
 		gnCurrSubmenu = n;
 		// PlaySfx(IS_TITLEMOV);
@@ -435,6 +437,8 @@ static void gamemenu_up_down(bool isDown)
 
 void gamemenu_enter(int submenu)
 {
+	LogErrorF("gamemenu_enter %d", submenu);
+	EventPlrMsg("gamemenu_enter %d", submenu);
 	switch (submenu) {
 	case GMM_EXITGAME:
 		gamemenu_exit_game(false);
@@ -494,6 +498,8 @@ void gamemenu_enter(int submenu)
 
 static void gamemenu_left_right(bool isRight)
 {
+	LogErrorF("gamemenu_left_right %d", gnCurrSubmenu);
+	EventPlrMsg("gamemenu_left_right %d", gnCurrSubmenu);
 	if (gnCurrSubmenu == GMM_AUTOMAP) {
 		if (isRight) {
 			AutomapZoomIn();
@@ -502,7 +508,11 @@ static void gamemenu_left_right(bool isRight)
 		}
 		return;
 	}
-	gamemenu_enter(gnCurrSubmenu);
+	if (isRight) {
+		gamemenu_enter(gnCurrSubmenu);
+	} else {
+		gamemenu_off();
+	}
 }
 
 static void gamemenu_left_mouse_down()
@@ -524,6 +534,8 @@ static void gamemenu_left_mouse_down()
 	if (y < gnNumSubmenus) {
 		y = gnNumSubmenus - y;
 		gnCurrSubmenu = y;
+		LogErrorF("gamemenu_left_mouse_down %d", y);
+		EventPlrMsg("gamemenu_left_mouse_down %d", y);
 		gamemenu_enter(y);
 	}
 }
@@ -541,7 +553,8 @@ void gamemenu_presskey(int vkey)
 		gmenu_presskey(vkey);
 		return;
 	}
-
+	LogErrorF("gamemenu_presskey %d", vkey);
+	EventPlrMsg("gamemenu_presskey %d", vkey);
 	switch (vkey) {
 	case DVL_VK_LBUTTON:
 		gamemenu_left_mouse_down();
