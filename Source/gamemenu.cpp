@@ -107,7 +107,7 @@ static void gamemenu_main()
 void gamemenu_on()
 {
 	if (gbDeathflag == MDM_ALIVE) {
-		gnNumSubmenus = IsMultiGame ? NUM_GMMS - 2 : NUM_GMMS;
+		gnNumSubmenus = /*IsLocalGame*/!IsMultiGame ? NUM_GMMS - 2 : NUM_GMMS;
 		gpCurrentMenu = (TMenuItem*)-1;
 		gnCurrSubmenu = GMM_INVENTORY;
 	} else {
@@ -352,13 +352,13 @@ static void gamemenu_speed(bool bActivate)
 }
 
 #undef GAMEMENU_HEIGHT
-#define GAMEMENU_WIDTH 300
-#define GAMEMENU_HEIGHT 300
-#define GAMEMENU_LINE_HEIGHT 20
-#define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
-#define GAMEMENU_Y SCREEN_CENTERY(GAMEMENU_HEIGHT)
 #define GAMEMENU_OFFSETX 30
 #define GAMEMENU_OFFSETY 30
+#define GAMEMENU_LINE_HEIGHT 24
+#define GAMEMENU_WIDTH 240
+#define GAMEMENU_HEIGHT (GAMEMENU_LINE_HEIGHT * NUM_GMMS + 2 * GAMEMENU_OFFSETY)
+#define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
+#define GAMEMENU_Y SCREEN_CENTERY(GAMEMENU_HEIGHT)
 void gamemenu_draw()
 {
 	int x, y, flags;
@@ -374,6 +374,9 @@ void gamemenu_draw()
 	x = GAMEMENU_X;
 	DrawColorTextBox(x, y, GAMEMENU_WIDTH, GAMEMENU_HEIGHT, COL_WHITE);
 
+	if (/*IsLocalGame*/!IsMultiGame) {
+		y += GAMEMENU_LINE_HEIGHT;
+	}
 	x += GAMEMENU_OFFSETX;
 	y += GAMEMENU_OFFSETY;
 	for (i = gnNumSubmenus - 1; i >= 0; i--) {
@@ -420,7 +423,7 @@ static void gamemenu_up_down(bool isDown)
 	}
 #else
 	unsigned n;
-	n = gnCurrSubmenu + (!isDown ? gnNumSubmenus - 1 : 1);
+	n = gnCurrSubmenu + (isDown ? gnNumSubmenus - 1 : 1);
 	n %= gnNumSubmenus;
 #endif
 	// if (n != gnCurrSubmenu) {
@@ -503,6 +506,9 @@ static void gamemenu_left_mouse_down()
 {
 	int px = GAMEMENU_X + GAMEMENU_OFFSETX;
 	int py = GAMEMENU_Y + GAMEMENU_OFFSETY;
+	if (/*IsLocalGame*/!IsMultiGame) {
+		py += GAMEMENU_LINE_HEIGHT;
+	}
 	int sx = MousePos.x - px;
 	int sy = MousePos.y - py;
 	if (sx < 0 || sx >= GAMEMENU_WIDTH - GAMEMENU_OFFSETX) {
@@ -513,6 +519,7 @@ static void gamemenu_left_mouse_down()
 	}
 	unsigned y = ((unsigned)sy) / GAMEMENU_LINE_HEIGHT;
 	if (y < gnNumSubmenus) {
+		y = gnNumSubmenus - y;
 		gnCurrSubmenu = y;
 		gamemenu_enter(y);
 	}
