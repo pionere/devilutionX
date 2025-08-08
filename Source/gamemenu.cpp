@@ -355,7 +355,7 @@ static void gamemenu_speed(bool bActivate)
 #define GAMEMENU_OFFSETX (FOCUS_SMALL + 10)
 #define GAMEMENU_OFFSETY 10
 #define GAMEMENU_LINE_HEIGHT 26
-#define GAMEMENU_WIDTH 230
+#define GAMEMENU_WIDTH 220
 #define GAMEMENU_HEIGHT (GAMEMENU_LINE_HEIGHT * NUM_GMMS + 2 * GAMEMENU_OFFSETY)
 #define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
 #define GAMEMENU_Y SCREEN_CENTERY(GAMEMENU_HEIGHT)
@@ -396,7 +396,7 @@ void gamemenu_draw()
 		}
 		col = COL_WHITE;
 		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
-		PrintString(flags, label, x, y - (BIG_FONT_HEIGHT - (5 - 2)), GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
+		PrintString(flags, label, x, y - BIG_FONT_HEIGHT, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
 		if ((unsigned)i == gnCurrSubmenu) {
 			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - GAMEMENU_OFFSETX - FOCUS_SMALL, y + 1 - (GAMEMENU_LINE_HEIGHT - SMALL_FONT_HEIGHT) / 2);
 			if (gbMoveCursor) {
@@ -507,8 +507,8 @@ static void gamemenu_left_right(bool isRight)
 
 static void gamemenu_left_mouse_down()
 {
-	int px = GAMEMENU_X + GAMEMENU_OFFSETX;
-	int py = GAMEMENU_Y + GAMEMENU_OFFSETY;
+	int px = GAMEMENU_X - SCREEN_X + GAMEMENU_OFFSETX;
+	int py = GAMEMENU_Y - SCREEN_Y + GAMEMENU_OFFSETY;
 	if (/*IsLocalGame*/!IsMultiGame) {
 		py += GAMEMENU_LINE_HEIGHT;
 	}
