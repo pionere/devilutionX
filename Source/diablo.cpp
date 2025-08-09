@@ -1043,8 +1043,6 @@ static void PressKey(int vkey)
 	if (gbDeathflag != MDM_ALIVE) {
 		if (vkey == DVL_VK_RETURN) {
 			StartPlrMsg();
-		} else if (vkey == DVL_VK_LBUTTON) {
-			TryLimitedPanBtnClick();
 		} else {
 			if (transKey >= ACT_MSG0 && transKey <= ACT_MSG3)
 				diablo_hotkey_msg(transKey);

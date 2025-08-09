@@ -79,7 +79,6 @@ void DoWndDrag();
 void DrawCtrlBtns();
 bool ToggleWindow(BYTE wnd);
 bool TryPanBtnClick();
-void TryLimitedPanBtnClick();
 void ReleasePanBtn();
 void HandlePanBtn(int i);
 void HandleSkillBtn(bool altSkill);

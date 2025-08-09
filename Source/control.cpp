@@ -1111,21 +1111,6 @@ bool TryPanBtnClick()
 	return gbLvlbtndown;
 }
 
-void TryLimitedPanBtnClick()
-{
-	if (POS_IN_RECT(MousePos.x, MousePos.y,
-		PANEL_LEFT + PanBtnPos[PANBTN_MAINMENU][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1],
-		MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
-		control_set_button_down(PANBTN_MAINMENU);
-	} else if (gabPanbtn[PANBTN_MAINMENU] && !IsLocalGame) {
-		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			PANEL_LEFT + PanBtnPos[PANBTN_SENDMSG][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1],
-			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
-			control_set_button_down(PANBTN_SENDMSG);
-		}
-	}
-}
-
 void HandlePanBtn(int i)
 {
 	if (stextflag != STORE_NONE)

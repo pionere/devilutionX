@@ -14,6 +14,7 @@ static void gamemenu_new_game(bool bActivate);
 static void gamemenu_exit_game(bool bActivate);
 //static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
+static void gamemenu_open_chat(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
 //void gamemenu_settings(bool bActivate);
 static void gamemenu_music_volume(bool bActivate);
@@ -38,6 +39,7 @@ static TMenuItem sgMultiMenu[] = {
 	// pszStr,           fnMenu,                 dwFlags, wMenuParam*
 	{ "Settings",        &gamemenu_settings,     GMF_ENABLED, 0, 0 },
 	{ "New Game",        &gamemenu_new_game,     GMF_ENABLED, 0, 0 },
+	{ "Open Chat",       &gamemenu_open_chat,    GMF_ENABLED, 0, 0 },
 	{ "Restart In Town", &gamemenu_restart_town, GMF_ENABLED, 0, 0 },
 	{ "Exit Game",       &gamemenu_exit_game,    GMF_ENABLED, 0, 0 },
 	// clang-format on
@@ -73,8 +75,10 @@ static void gamemenu_update_multi()
 {
 	// disable new game in case the player is dying or dead
 	gmenu_enable(&sgMultiMenu[1], gbDeathflag == MDM_ALIVE);
+	// disable start chat in case of local games
+	gmenu_enable(&sgMultiMenu[2], !IsLocalGame);
 	// disable restart in town in case the player is not dead
-	gmenu_enable(&sgMultiMenu[2], gbDeathflag == MDM_DEAD);
+	gmenu_enable(&sgMultiMenu[3], gbDeathflag == MDM_DEAD);
 }
 
 static void gamemenu_update_settings()
@@ -151,6 +155,12 @@ static void gamemenu_save_game(bool bActivate)
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	interface_msg_pump();
 	SetWindowProc(GameWndProc); // saveProc);
+}
+
+static void gamemenu_open_chat(bool bActivate)
+{
+	gamemenu_off();
+	StartPlrMsg();
 }
 
 static void gamemenu_restart_town(bool bActivate)
