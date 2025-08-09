@@ -253,7 +253,7 @@ static void PrintSString(int px, int py, int x, bool cjustflag, const char* str,
 			gbMoveCursor = false;
 			SetCursorPos(((tx + sx) / 2u) - SCREEN_X, sy - SMALL_FONT_HEIGHT / 2u - SCREEN_Y);
 		}
-		DrawSmallPentSpn(tx - FOCUS_SMALL, cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
+		DrawSmallPentSpn(tx - (FOCUS_MINI + 8), cjustflag ? sx + 6 : (px + LTPANEL_WIDTH - 20/*(x + (STORE_PNL_X_OFFSET + gbHasScroll ? SMALL_SCROLL_WIDTH : 0))*/), sy + 1);
 	}
 	if (val > 0) {
 		DEBUG_ASSERT(!cjustflag && gbWidePanel);

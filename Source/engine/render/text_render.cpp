@@ -448,7 +448,7 @@ void PrintString(int flags, const char* text, int x, int y, int w, int h)
 		break;
 	case AFT_BIG:
 		sw = GetBigStringWidth(text);
-		dy = 5 - 2;
+		dy = 6 - 2;
 		lh = BIG_FONT_HEIGHT - dy;
 		//lh = BIG_FONT_HEIGHT;
 		pChar = PrintBigChar;

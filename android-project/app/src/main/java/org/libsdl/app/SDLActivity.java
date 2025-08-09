@@ -1945,7 +1945,7 @@ class DummyEdit extends View implements View.OnKeyListener {
 
         outAttrs.inputType = InputType.TYPE_CLASS_TEXT |
                              InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-        outAttrs.imeOptions = /*EditorInfo.IME_FLAG_NO_EXTRACT_UI |*/
+        outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI |
                               EditorInfo.IME_FLAG_NO_FULLSCREEN /* API 11 */;
 
         return ic;

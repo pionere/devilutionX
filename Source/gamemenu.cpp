@@ -351,14 +351,13 @@ static void gamemenu_speed(bool bActivate)
 	PlaySfx(IS_TITLEMOV);
 }
 
-#undef GAMEMENU_HEIGHT
-#define GAMEMENU_OFFSETX (FOCUS_SMALL + 10)
-#define GAMEMENU_OFFSETY 10
-#define GAMEMENU_LINE_HEIGHT (BIG_FONT_HEIGHT + 4)
-#define GAMEMENU_WIDTH 220
-#define GAMEMENU_HEIGHT (GAMEMENU_LINE_HEIGHT * NUM_GMMS + 2 * GAMEMENU_OFFSETY)
-#define GAMEMENU_X SCREEN_CENTERX(GAMEMENU_WIDTH)
-#define GAMEMENU_Y SCREEN_CENTERY(GAMEMENU_HEIGHT)
+#define SMALLMENU_OFFSETX (FOCUS_MINI + 10)
+#define SMALLMENU_OFFSETY 10
+#define SMALLMENU_LINE_HEIGHT 26
+#define SMALLMENU_WIDTH (130 + 2 * SMALLMENU_OFFSETX + 10 * 2)
+#define SMALLMENU_HEIGHT (SMALLMENU_LINE_HEIGHT * gnNumSubmenus + 2 * SMALLMENU_OFFSETY)
+#define SMALLMENU_X SCREEN_CENTERX(SMALLMENU_WIDTH)
+#define SMALLMENU_Y SCREEN_CENTERY(SMALLMENU_HEIGHT)
 void gamemenu_draw()
 {
 	int x, y, flags;
@@ -370,38 +369,38 @@ void gamemenu_draw()
 		return;
 	}
 
-	y = GAMEMENU_Y;
-	x = GAMEMENU_X;
-	DrawColorTextBox(x, y, GAMEMENU_WIDTH, GAMEMENU_HEIGHT, COL_WHITE);
+	y = SMALLMENU_Y;
+	x = SMALLMENU_X;
+	DrawColorTextBox(x, y, SMALLMENU_WIDTH, SMALLMENU_HEIGHT, COL_WHITE);
 
-	if (/*IsLocalGame*/!IsMultiGame) {
-		y += GAMEMENU_LINE_HEIGHT;
-	}
-	x += GAMEMENU_OFFSETX;
-	y += GAMEMENU_OFFSETY;
+	x += SMALLMENU_OFFSETX;
+	y += SMALLMENU_OFFSETY;
 	for (i = gnNumSubmenus - 1; i >= 0; i--) {
-		y += GAMEMENU_LINE_HEIGHT;
 		switch (i) {
 		case GMM_EXITGAME:  label = "exit game";  break;
-		case GMM_MAINMENU:  label = "main menu";  break;
+		case GMM_MAINMENU:  label = "options";    break;
 		case GMM_QLOG:      label = "quests";     break;
 		case GMM_CHARINFO:  label = "profile";    break;
 		case GMM_INVENTORY: label = "inventory";  break;
 		case GMM_SKILLLIST: label = "skill list"; break;
 		case GMM_SPELLBOOK: label = "skill book"; break;
 		case GMM_AUTOMAP:   label = "automap";    break;
-		case GMM_SENDMSG:   label = "start chat"; break;
+		case GMM_SENDMSG:   label = "open chat";  break;
 		case GMM_TEAMBOOK:  label = "teams";      break;
-		default: ASSUME_UNREACHABLE; break;
+		default: ASSUME_UNREACHABLE;              break;
 		}
-		col = COL_WHITE;
+		col = COL_GOLD;
+		if (POS_IN_RECT(MousePos.x, MousePos.y, x - SCREEN_X, y - SCREEN_Y, SMALLMENU_WIDTH, SMALLMENU_LINE_HEIGHT)) {
+			col = COL_GOLD + 1 + 2;
+		}
+		y += SMALLMENU_LINE_HEIGHT;
 		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
-		PrintString(flags, label, x, y - BIG_FONT_HEIGHT, GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, 0);
+		PrintString(flags, label, x, y - (BIG_FONT_HEIGHT - 2 + SMALLMENU_LINE_HEIGHT) / 2, SMALLMENU_WIDTH - 2 * SMALLMENU_OFFSETX, 0);
 		if ((unsigned)i == gnCurrSubmenu) {
-			DrawSmallPentSpn(x - FOCUS_SMALL, x + GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX, y + 1 - (GAMEMENU_LINE_HEIGHT - SMALL_FONT_HEIGHT) / 2);
+			DrawSmallPentSpn(x - FOCUS_MINI, x + SMALLMENU_WIDTH - 2 * SMALLMENU_OFFSETX, y - (SMALLMENU_LINE_HEIGHT - FOCUS_MINI) / 2);
 			if (gbMoveCursor) {
 				gbMoveCursor = false;
-				SetCursorPos(x - SCREEN_X + (GAMEMENU_WIDTH - 2 * GAMEMENU_OFFSETX) / 2, y - SCREEN_Y - GAMEMENU_LINE_HEIGHT / 2);
+				SetCursorPos(x - SCREEN_X + (SMALLMENU_WIDTH - 2 * SMALLMENU_OFFSETX) / 2, y - SCREEN_Y - SMALLMENU_LINE_HEIGHT / 2);
 			}
 		}
 	}
@@ -511,20 +510,17 @@ static void gamemenu_left_right(bool isRight)
 
 static void gamemenu_left_mouse_down()
 {
-	int px = GAMEMENU_X - SCREEN_X + GAMEMENU_OFFSETX;
-	int py = GAMEMENU_Y - SCREEN_Y + GAMEMENU_OFFSETY;
-	if (/*IsLocalGame*/!IsMultiGame) {
-		py += GAMEMENU_LINE_HEIGHT;
-	}
+	int px = SMALLMENU_X - SCREEN_X + SMALLMENU_OFFSETX;
+	int py = SMALLMENU_Y - SCREEN_Y + SMALLMENU_OFFSETY;
 	int sx = MousePos.x - px;
 	int sy = MousePos.y - py;
-	if (sx < 0 || sx >= GAMEMENU_WIDTH - GAMEMENU_OFFSETX) {
+	if (sx < 0 || sx >= SMALLMENU_WIDTH - SMALLMENU_OFFSETX) {
 		return;
 	}
 	if (sy < 0) {
 		return;
 	}
-	unsigned y = ((unsigned)sy) / GAMEMENU_LINE_HEIGHT;
+	unsigned y = ((unsigned)sy) / SMALLMENU_LINE_HEIGHT;
 	if (y < gnNumSubmenus) {
 		y = gnNumSubmenus - y;
 		y--;

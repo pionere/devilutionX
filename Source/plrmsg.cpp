@@ -641,12 +641,12 @@ static bool plrmsg_HandleMouseEvent(SDL_Keymod mod)
 	if (tMsg == NULL) {
 		return false;
 	}
+	sgpCurMsg = tMsg;
 	if (tMsg == &plr_msgs[PLRMSG_COUNT]) {
 		SDL_Rect rect = { PLRMSG_TEXT_X - SCREEN_X, PLRMSG_TEXT_BOTTOM - SCREEN_Y - PLRMSG_TEXT_HEIGHT, PLRMSG_WIDTH, PLRMSG_TEXT_HEIGHT };
 		SDL_SetTextInputRect(&rect);
 		SDL_StartTextInput();
 	}
-	sgpCurMsg = tMsg;
 	sguCursPos = plrmsg_CursPos(x, y);
 	if (!(mod & KMOD_SHIFT)) {
 		sguSelPos = sguCursPos;
