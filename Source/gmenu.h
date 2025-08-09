@@ -16,7 +16,6 @@ extern TMenuItem* gpCurrentMenu;
 
 void FreeGMenu();
 void InitGMenu();
-bool gmenu_is_active();
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)());
 void gmenu_draw();
 void gmenu_presskey(int vkey);
