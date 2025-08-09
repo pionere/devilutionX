@@ -898,14 +898,10 @@ void InputBtnDown(int transKey)
 		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
-		if (gbAutomapflag != AMM_NONE) {
-			AutomapZoomIn();
-		}
+		AutomapZoomIn();
 		break;
 	case ACT_MAPZ_OUT:
-		if (gbAutomapflag != AMM_NONE) {
-			AutomapZoomOut();
-		}
+		AutomapZoomOut();
 		break;
 	case ACT_CLEARUI:
 		ClearUI();
