@@ -6,10 +6,8 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
-
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-#include "controls/axis_direction.h"
-#include "controls/controller_motion.h"
+#include "plrctrls.h"
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -187,18 +185,6 @@ static void gmenu_draw_menu_item(int i, int y)
 		CelDraw(x + pos, y - 10 - SLIDER_BORDER, gpOptionCel, 1);
 	}
 }
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-void CheckMenuMove()
-{
-	// assert(gmenu_is_active());
-	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
-	if (move_dir.x != AxisDirectionX_NONE)
-		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
-	if (move_dir.y != AxisDirectionY_NONE)
-		gmenu_up_down(move_dir.y == AxisDirectionY_DOWN);
-}
-#endif
 
 void gmenu_update()
 {

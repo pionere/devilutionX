@@ -4128,19 +4128,6 @@ typedef enum server_type {
 	SRV_DIRECT,
 } server_type;
 
-typedef enum panel_button_id {
-	PANBTN_MAINMENU,
-	PANBTN_OPTIONS,
-	PANBTN_CHARINFO,
-	PANBTN_INVENTORY,
-	PANBTN_SPELLBOOK,
-	PANBTN_QLOG,
-	PANBTN_AUTOMAP,
-	PANBTN_SENDMSG,
-	PANBTN_TEAMBOOK,
-	NUM_PANBTNS
-} panel_button_id;
-
 typedef enum attribute_id {
 	ATTRIB_STR,
 	ATTRIB_MAG,
@@ -4663,6 +4650,20 @@ typedef enum _gmenu_flags {
 	GMF_SLIDER  = 1 << 0,
 	GMF_ENABLED = 1 << 1,
 } _gmenu_flags;
+
+typedef enum gamemenu_id {
+	GMM_EXITGAME,
+	GMM_MAINMENU,
+	GMM_QLOG,
+	GMM_CHARINFO,
+	GMM_INVENTORY,
+	GMM_SKILLLIST,
+	GMM_SPELLBOOK,
+	GMM_AUTOMAP,
+	GMM_SENDMSG,
+	GMM_TEAMBOOK,
+	NUM_GMMS
+} gamemenu_id;
 
 typedef enum mpq_files {
 #if ASSET_MPL != 1

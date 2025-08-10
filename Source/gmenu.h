@@ -22,9 +22,6 @@ void gmenu_presskey(int vkey);
 void gmenu_on_mouse_move();
 void gmenu_left_mouse(bool isDown);
 void gmenu_enable(TMenuItem* pMenuItem, bool enable);
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-void CheckMenuMove();
-#endif
 void gmenu_update();
 
 /**

@@ -416,7 +416,7 @@ static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*
 
 static void GmenuClick(bool altAction)
 {
-	gmenu_presskey(DVL_VK_LBUTTON);
+	gamemenu_presskey(DVL_VK_LBUTTON);
 }
 
 static void GmenuMove(int dir)
@@ -429,7 +429,7 @@ static void GmenuMove(int dir)
 	case MDIR_RIGHT: vkey = DVL_VK_RIGHT; break;
 	default: ASSUME_UNREACHABLE;          break;
 	}
-	gmenu_presskey(vkey);
+	gamemenu_presskey(vkey);
 }
 #endif
 static void ActionBtnCmd(bool altSkill)
@@ -715,9 +715,7 @@ static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
 		if (gmenu_is_active())
-			gmenu_left_mouse(false);
-		if (gabPanbtn[PANBTN_MAINMENU])
-			ReleasePanBtn();
+			gamemenu_left_mouse(false);
 		if (gbChrbtnactive)
 			ReleaseChrBtn();
 		if (gbLvlbtndown)
@@ -782,10 +780,6 @@ bool PressEscKey()
 		gbCampaignMapFlag = CMAP_NONE;
 		rv = true;
 	}
-	if (gabPanbtn[PANBTN_MAINMENU]) {
-		gabPanbtn[PANBTN_MAINMENU] = false;
-		rv = true;
-	}
 	if (pcursicon != CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 		NewCursor(CURSOR_HAND);
 		rv = true;
@@ -799,7 +793,6 @@ void ClearPanels()
 	StopHelp();
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
-	gabPanbtn[PANBTN_MAINMENU] = false;
 	gbSkillListFlag = false;
 	gbCampaignMapFlag = CMAP_NONE;
 	gbDropGoldIndex = INVITEM_NONE;
@@ -925,18 +918,16 @@ void InputBtnDown(int transKey)
 		SkillHotKey(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
-		HandlePanBtn(PANBTN_INVENTORY);
+		gamemenu_enter(GMM_INVENTORY);
 		break;
 	case ACT_CHAR:
-		HandlePanBtn(PANBTN_CHARINFO);
+		gamemenu_enter(GMM_CHARINFO);
 		break;
 	case ACT_SKLBOOK:
-		HandlePanBtn(PANBTN_SPELLBOOK);
+		gamemenu_enter(GMM_SPELLBOOK);
 		break;
 	case ACT_SKLLIST:
-		if (stextflag == STORE_NONE) {
-			HandleSkillBtn(false);
-		}
+		gamemenu_enter(GMM_SKILLLIST);
 		break;
 	case ACT_ITEM0:
 	case ACT_ITEM1:
@@ -999,10 +990,10 @@ void InputBtnDown(int transKey)
 		}
 		break;
 	case ACT_TEAM:
-		HandlePanBtn(PANBTN_TEAMBOOK);
+		gamemenu_enter(GMM_TEAMBOOK);
 		break;
 	case ACT_QUESTS:
-		HandlePanBtn(PANBTN_QLOG);
+		gamemenu_enter(GMM_QLOG);
 		break;
 	case ACT_SNEXT:
 		gbCurrActiveSkill = (gbCurrActiveSkill + 1) % 4;
@@ -1090,7 +1081,7 @@ static void PressKey(int vkey)
 			return;
 		}
 #endif
-		gmenu_presskey(vkey);
+		gamemenu_presskey(vkey);
 		return;
 	}
 	if (gbTalkflag) {
@@ -1256,7 +1247,7 @@ void GameWndProc(const Dvl_Event* e)
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
-			gmenu_on_mouse_move();
+			gamemenu_on_mouse_move();
 		else if (WND_VALID(gbDragWnd))
 			DoWndDrag();
 		else if (gbTalkflag)
@@ -1414,7 +1405,7 @@ void game_logic()
 	CheckQuests();
 	pfile_update(false);
 	if (gmenu_is_active())
-		gmenu_update();
+		gamemenu_update();
 	gbGameLogicProgress = GLP_NONE;
 }
 
