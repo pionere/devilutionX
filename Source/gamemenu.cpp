@@ -569,16 +569,10 @@ void gamemenu_checkmove()
 	// assert(gmenu_is_active());
 	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
 	if (move_dir.x != AxisDirectionX_NONE) {
-		if (gnNumSubmenus == 0)
-			gmenu_presskey(move_dir.x == AxisDirectionX_RIGHT ? DVL_VK_RIGHT : DVL_VK_LEFT);
-		else
-			gamemenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
+		gamemenu_presskey(move_dir.x == AxisDirectionX_RIGHT ? DVL_VK_RIGHT : DVL_VK_LEFT);
 	}
 	if (move_dir.y != AxisDirectionY_NONE) {
-		if (gnNumSubmenus == 0)
-			gmenu_presskey(move_dir.y == AxisDirectionY_DOWN ? DVL_VK_DOWN : DVL_VK_UP);
-		else
-			gamemenu_up_down(move_dir.y == AxisDirectionY_DOWN);
+		gamemenu_presskey(move_dir.y == AxisDirectionY_DOWN ? DVL_VK_DOWN : DVL_VK_UP);
 	}
 }
 #endif
