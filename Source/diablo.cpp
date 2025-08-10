@@ -385,6 +385,52 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	pos8.y += offset_y[dir8];
 	NetSendCmdLoc(CMD_WALKXY, pos8.x, pos8.y);
 }
+
+static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*moveFunc)(int))
+{
+	RECT_AREA32 actionVector;
+	if (!TryActionDirCmd(altAction, actionVector))
+		return false;
+
+	int dx = actionVector.x1;
+	int dy = actionVector.y1;
+	int md = actionVector.x2;
+	int adx = abs(dx);
+	int ady = abs(dy);
+
+	if ((unsigned)adx < md / 4u && (unsigned)ady < md / 4u) {
+		clickFunc(altAction);
+		return true;
+	}
+
+	int dir;
+	if (adx > ady) {
+		dir = dx >= 0 ? MDIR_RIGHT : MDIR_LEFT;
+	} else {
+		dir = dy >= 0 ? MDIR_DOWN : MDIR_UP;
+	}
+	moveFunc(dir);
+
+	return true;
+}
+
+static void GmenuClick(bool altAction)
+{
+	gmenu_presskey(DVL_VK_LBUTTON);
+}
+
+static void GmenuMove(int dir)
+{
+	int vkey;
+	switch (dir) {
+	case MDIR_UP:    vkey = DVL_VK_UP;    break;
+	case MDIR_DOWN:  vkey = DVL_VK_DOWN;  break;
+	case MDIR_LEFT:  vkey = DVL_VK_LEFT;  break;
+	case MDIR_RIGHT: vkey = DVL_VK_RIGHT; break;
+	default: ASSUME_UNREACHABLE;          break;
+	}
+	gmenu_presskey(vkey);
+}
 #endif
 static void ActionBtnCmd(bool altSkill)
 {
@@ -560,11 +606,21 @@ static void ActionBtnDown(bool altAction)
 	}
 
 	if (gbSkillListFlag) {
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, SetSkill, SkillListMove)) {
+			return;
+		}
+#endif
 		SetSkill(altAction);
 		return;
 	}
 
 	if (stextflag != STORE_NONE) {
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, TryStoreBtnClick, STextMove)) {
+			return;
+		}
+#endif
 		TryStoreBtnClick(altAction);
 		return;
 	}
@@ -586,6 +642,11 @@ static void ActionBtnDown(bool altAction)
 		CheckChrBtnClick(altAction);
 		break;
 	case WND_QUEST:
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, CheckQuestlogClick, QuestlogMove)) {
+			break;
+		}
+#endif
 		CheckQuestlogClick(altAction);
 		break;
 	case WND_TEAM:
@@ -1023,6 +1084,12 @@ static void PressKey(int vkey)
 	}
 #endif
 	if (gmenu_is_active()) {
+#if HAS_TOUCHPAD
+		int transKey = WMButtonInputTransTbl[vkey];
+		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuClick, GmenuMove)) {
+			return;
+		}
+#endif
 		gmenu_presskey(vkey);
 		return;
 	}
