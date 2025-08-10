@@ -564,7 +564,7 @@ void gamemenu_presskey(int vkey)
 	}
 }
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-void CheckMenuMove()
+void gamemenu_checkmove()
 {
 	// assert(gmenu_is_active());
 	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));

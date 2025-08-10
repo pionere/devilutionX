@@ -52,7 +52,7 @@ void UiSettingsDialog()
 			}
 		}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
+		gamemenu_checkmove();
 #endif
 	}
 	PlaySfx(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)

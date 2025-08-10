@@ -1326,7 +1326,7 @@ static bool ProcessInput()
 {
 	if (gmenu_is_active()) {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
+		gamemenu_checkmove();
 #endif
 		// assert(!(IsMultiGame && gnGamePaused != 0));
 		return IsMultiGame;
