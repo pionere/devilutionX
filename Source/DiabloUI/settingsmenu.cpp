@@ -28,8 +28,7 @@ void UiSettingsDialog()
 	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
 	UiInitScreen(0, NULL, NULL, NULL);
 	// initialize gamemenu
-	InitGMenu();
-	gamemenu_settings(true);
+	gamemenu_main();
 	settingsMenu = gpCurrentMenu;
 
 	Dvl_Event event;

@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+void gamemenu_main();
 void gamemenu_on();
 void gamemenu_off();
 void gamemenu_draw();
@@ -22,7 +23,6 @@ void gamemenu_presskey(int vkey);
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 void gamemenu_checkmove();
 #endif
-void gamemenu_settings(bool bActivate);
 void gamemenu_update();
 
 #ifdef __cplusplus

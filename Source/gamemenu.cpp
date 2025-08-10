@@ -22,7 +22,7 @@ static void gamemenu_exit_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
 static void gamemenu_open_chat(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
-//void gamemenu_settings(bool bActivate);
+static void gamemenu_settings(bool bActivate);
 static void gamemenu_music_volume(bool bActivate);
 static void gamemenu_sound_volume(bool bActivate);
 static void gamemenu_gamma(bool bActivate);
@@ -98,7 +98,15 @@ static void gamemenu_update_settings()
 {
 }
 
-static void gamemenu_main()
+/* Initalize the settings-menu in the main menu */
+void gamemenu_main()
+{
+	InitGMenu();
+	gnNumSubmenus = 0;
+	gamemenu_settings(true);
+}
+
+static void gamemenu_large()
 {
 	gnNumSubmenus = 0;
 	if (IsMultiGame) {
@@ -108,6 +116,7 @@ static void gamemenu_main()
 	}
 }
 
+/* Open the menu in the game */
 void gamemenu_on()
 {
 	if (gbDeathflag == MDM_ALIVE) {
@@ -115,7 +124,7 @@ void gamemenu_on()
 		gpCurrentMenu = (TMenuItem*)-1;
 		gnCurrSubmenu = GMM_INVENTORY;
 	} else {
-		gamemenu_main();
+		gamemenu_large();
 	}
 	PressEscKey();
 }
@@ -253,7 +262,7 @@ static void gamemenu_get_speed()
 	gmenu_slider_set(pItem, SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
 }
 
-void gamemenu_settings(bool bActivate)
+static void gamemenu_settings(bool bActivate)
 {
 	gamemenu_get_music();
 	gamemenu_get_sound();
@@ -434,7 +443,7 @@ void gamemenu_enter(int submenu)
 		gamemenu_exit_game(false);
 		return;
 	case GMM_MAINMENU:
-		gamemenu_main();
+		gamemenu_large();
 		return;
 	case GMM_QLOG:
 		gbSkillListFlag = false;
