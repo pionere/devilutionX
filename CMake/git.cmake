@@ -1,14 +1,22 @@
 function(get_git_tag output_var)
   #COMMAND git describe --abbrev=0 --tags
   execute_process(
-    COMMAND git tag --sort -creatordate
-    COMMAND head -n 1
+    COMMAND git fetch --depth=1 --tags origin +refs/heads/master:refs/remotes/origin/master
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     RESULT_VARIABLE _EXIT_CODE
     OUTPUT_VARIABLE GIT_TAG
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   if(_EXIT_CODE EQUAL 0)
-    set(${output_var} ${GIT_TAG} PARENT_SCOPE)
+    execute_process(
+      COMMAND git tag --sort -creatordate
+      COMMAND head -n 1
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      RESULT_VARIABLE _EXIT_CODE
+      OUTPUT_VARIABLE GIT_TAG
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(_EXIT_CODE EQUAL 0)
+      set(${output_var} ${GIT_TAG} PARENT_SCOPE)
+    endif()
   endif()
 endfunction(get_git_tag)
 
