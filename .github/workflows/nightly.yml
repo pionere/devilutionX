@@ -111,7 +111,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
@@ -166,7 +167,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -213,7 +215,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -260,7 +263,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -307,7 +311,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -356,7 +361,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -415,7 +421,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -462,7 +469,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -504,7 +512,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Configure CMake
@@ -551,7 +560,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -635,7 +645,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-10-22.tar.xz -o gcw0-toolchain.tar.xz &&
@@ -681,7 +692,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-10-22.tar.xz -o lepus-toolchain.tar.xz &&
@@ -727,7 +739,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
      #sudo apt-get install -y curl git smpq &&
@@ -776,7 +789,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -824,7 +838,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -867,7 +882,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
@@ -911,7 +927,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     #- name: Install dependencies
@@ -975,7 +992,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     #- name: Install dependencies
@@ -1028,7 +1046,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      #with:
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment
