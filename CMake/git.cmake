@@ -1,6 +1,8 @@
 function(get_git_tag output_var)
+  #COMMAND git describe --abbrev=0 --tags
   execute_process(
-    COMMAND git describe --abbrev=0 --tags
+    COMMAND git tag --sort -creatordate
+    COMMAND head -n 1
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     RESULT_VARIABLE _EXIT_CODE
     OUTPUT_VARIABLE GIT_TAG
