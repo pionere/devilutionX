@@ -26,7 +26,8 @@ jobs:
             artifact: 'hellfire-push-macp.dmg'
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 

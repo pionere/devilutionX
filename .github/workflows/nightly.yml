@@ -19,7 +19,9 @@ jobs:
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
@@ -107,7 +109,8 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DSCREEN_READER_INTEGRATION=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-scr-x64.zip'
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 
@@ -161,7 +164,8 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 
@@ -207,7 +211,8 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 
@@ -349,7 +354,8 @@ jobs:
             appimage: 'hellfire-nightly-x86_64-linux-gnu.appimage'
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 
@@ -454,7 +460,8 @@ jobs:
             artifact: 'hellfire-nightly-mac.dmg'
     runs-on: macos-13
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 
@@ -495,7 +502,8 @@ jobs:
             artifact: 'hellfire-nightly-ios.ipa'
     runs-on: macos-13
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
       #with:
       #  fetch-depth: 0
 
