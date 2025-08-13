@@ -49,8 +49,14 @@ static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even height.");
 #define L4BLOCKY (DMAXY / 2)
 
+#ifndef NONET
 // must be unsigned to generate unsigned comparisons with pnum
 #define MAX_PLRS                 4
+#define NONETCONST
+#else
+#define MAX_PLRS                 1
+#define NONETCONST               const
+#endif
 #define MAX_MINIONS              MAX_PLRS
 #define PLR_NONE                 0xFF
 #define PLR_VALID(x) ((int8_t)x >= 0)
@@ -303,7 +309,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define DVL_RESTRICT __restrict__
 #endif
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(NXDK)
 #define DIAG_PRAGMA(x)                                            __pragma(warning(x))
 #define DISABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode) DIAG_PRAGMA(push) DIAG_PRAGMA(disable:##msvc_errorcode)
 #define ENABLE_WARNING(gcc_unused, clang_unused, msvc_errorcode)  DIAG_PRAGMA(pop)
@@ -335,7 +341,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define DISABLE_SPEED_OPTIMIZATION
 #define ENABLE_SPEED_OPTIMIZATION
 #else
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(NXDK)
 #define DISABLE_SPEED_OPTIMIZATION \
 __pragma (optimize( "", off )) \
 __pragma (optimize( "gsy", on ))

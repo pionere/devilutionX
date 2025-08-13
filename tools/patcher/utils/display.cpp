@@ -42,6 +42,8 @@ bool gbFullscreen = true;
  */
 #ifdef USE_SDL1
 int gbFrameRateControl = FRC_CPUSLEEP; // use the FPS limiter
+#elif defined(NXDK)
+int gbFrameRateControl = FRC_NONE;     // turn off vsync
 #else
 int gbFrameRateControl = FRC_VSYNC;    // use vsync
 #endif
@@ -234,7 +236,11 @@ void SpawnWindow()
 	height = current->current_h;
 #else
 	bool integerScalingEnabled = getIniBool("Graphics", "Integer Scaling", false);
+#ifdef NXDK
+	bool upscale = getIniBool("Graphics", "Upscale", false);
+#else
 	bool upscale = getIniBool("Graphics", "Upscale", true);
+#endif
 	bool fitToScreen = getIniBool("Graphics", "Fit to Screen", true);
 
 	if (upscale && fitToScreen) {

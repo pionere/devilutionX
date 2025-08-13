@@ -360,8 +360,8 @@ static void DoTeleport(int pnum, int dx, int dy)
 	ChangeLightXY(plr._plid, px, py);
 	ChangeVisionXY(plr._pvid, px, py);
 	if (pnum == mypnum) {
-		ViewX = px; // - ScrollInfo._sdx;
-		ViewY = py; // - ScrollInfo._sdy;
+		myview.x = px; // - ScrollInfo._sdx;
+		myview.y = py; // - ScrollInfo._sdy;
 	}
 }
 
@@ -4660,9 +4660,9 @@ void MI_Charge(int mi)
 		assert(ScrollInfo._sdir != SDIR_NONE);
 		ScrollInfo._sxoff = -mis->_mixoff;
 		ScrollInfo._syoff = -mis->_miyoff;
-		//if (ViewX != bx || ViewY != by) {
-			ViewX = bx; // - ScrollInfo._sdx;
-			ViewY = by; // - ScrollInfo._sdy;
+		//if (myview.x != bx || myview.y != by) {
+			myview.x = bx; // - ScrollInfo._sdx;
+			myview.y = by; // - ScrollInfo._sdy;
 		//}
 	}
 	//ShiftMissilePos(mi);

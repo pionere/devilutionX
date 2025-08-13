@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int mypnum;
+NONETCONST int mypnum = 0;
 PlayerStruct players[MAX_PLRS];
 /* Whether the current player is changing the level. */
 bool gbLvlLoad;
@@ -625,7 +625,7 @@ void SetPlrAnims(int pnum)
 void CreatePlayer(const _uiheroinfo& heroinfo)
 {
 	int val, hp, mana;
-	int i, pnum = 0;
+	int pnum = 0;
 
 	memset(&plr, 0, sizeof(PlayerStruct));
 	SetRndSeed(SDL_GetTicks()); // used by CreatePlrItems / CreateBaseItem
@@ -663,21 +663,16 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
 	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
-	//plr._pMainSkill = { SPL_ATTACK, RSPLTYPE_ABILITY, SPL_WALK, RSPLTYPE_ABILITY };
-	//plr._pAltSkill = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
-	const PlrSkillStruct eps = { SPL_INVALID, RSPLTYPE_INVALID, SPL_INVALID, RSPLTYPE_INVALID };
-	for (i = 0; i < lengthof(plr._pSkillHotKey); i++) {
-		plr._pSkillHotKey[i] = eps;
-	}
-	for (i = 0; i < lengthof(plr._pAltSkillHotKey); i++) {
-		plr._pAltSkillHotKey[i] = eps;
-	}
-	for (i = 0; i < lengthof(plr._pSkillSwapKey); i++) {
-		plr._pSkillSwapKey[i] = eps;
-	}
-	for (i = 0; i < lengthof(plr._pAltSkillSwapKey); i++) {
-		plr._pAltSkillSwapKey[i] = eps;
-	}
+	//plr._pMainSkill = { { SPL_ATTACK, RSPLTYPE_ABILITY } , { SPL_WALK, RSPLTYPE_ABILITY } };
+	//plr._pAltSkill = { { SPL_NULL, 0 } , SPL_NULL, 0 } };
+	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
+	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) == sizeof(plr._pSkillHotKey) + sizeof(plr._pAltSkillHotKey) + sizeof(plr._pSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys II.");
+	static_assert(offsetof(PlayerStruct, _pAltSkillHotKey) > offsetof(PlayerStruct, _pSkillHotKey) && offsetof(PlayerStruct, _pAltSkillHotKey) < offsetof(PlayerStruct, _pAltSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys III.");
+	static_assert(offsetof(PlayerStruct, _pSkillSwapKey) > offsetof(PlayerStruct, _pSkillHotKey) && offsetof(PlayerStruct, _pSkillSwapKey) < offsetof(PlayerStruct, _pAltSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys IV.");
+	memset(plr._pSkillHotKey, 0, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) + sizeof(plr._pAltSkillSwapKey));
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;
@@ -1062,8 +1057,8 @@ void FixPlayerLocation(int pnum)
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px; // - ScrollInfo._sdx;
-		ViewY = plr._py; // - ScrollInfo._sdy;
+		myview.x = plr._px; // - ScrollInfo._sdx;
+		myview.y = plr._py; // - ScrollInfo._sdy;
 	}
 }
 
@@ -1079,8 +1074,8 @@ static void AssertFixPlayerLocation(int pnum)
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
-		assert(ViewX == plr._px); // - ScrollInfo._sdx;
-		assert(ViewY == plr._py); // - ScrollInfo._sdy;
+		assert(myview.x == plr._px); // - ScrollInfo._sdx;
+		assert(myview.y == plr._py); // - ScrollInfo._sdy;
 	}
 }
 
@@ -1200,8 +1195,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
 	if (pnum == mypnum) {
-		ViewX = plr._px;
-		ViewY = plr._py;
+		myview.x = plr._px;
+		myview.y = plr._py;
 		ScrollInfo._sxoff = -plr._pxoff;
 		ScrollInfo._syoff = -plr._pyoff;
 	}
@@ -1260,10 +1255,10 @@ static bool StartWalk(int pnum, int dir)
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
-		// assert(plr._poldx == ViewX);
-		// assert(plr._poldy == ViewY);
-		// ScrollInfo._sdx = plr._poldx - ViewX;
-		// ScrollInfo._sdy = plr._poldy - ViewY;
+		// assert(plr._poldx == myview.x);
+		// assert(plr._poldy == myview.y);
+		// ScrollInfo._sdx = plr._poldx - myview.x;
+		// ScrollInfo._sdy = plr._poldy - myview.y;
 
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)

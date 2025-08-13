@@ -6,9 +6,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-static POS32 speedspellscoords[2 * NUM_SPELLS];
-static int speedspellcount = 0;
-
 /**
  * Native game menu, controlled by simulating a keyboard.
  */
@@ -164,11 +161,11 @@ static bool HasRangedSkill()
 	if (myplr._pSkillFlags & SFLAG_RANGED)
 		return true;
 
-	int spl = myplr._pAltSkill._psAttack;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltSkill._psMove;
+	int spl = myplr._pAltSkill._psAttack._suSkill;
+	if (spl == SPL_NULL)
+		spl = myplr._pAltSkill._psMove._suSkill;
 
-	return spl != SPL_INVALID
+	return spl != SPL_NULL
 	    && spl != SPL_TOWN
 	    && spl != SPL_TELEPORT
 	    && (spelldata[spl].sSkillFlags & SDFLAG_TARGETED)
@@ -613,64 +610,6 @@ static void InvMove(AxisDirection dir)
 	SetCursorPos(x, y);
 }
 
-/**
- * check if a skill list icon is at X Y
- */
-static int SkillListEntryAt(int x, int y)
-{
-	for (int r = 0; r < speedspellcount; r++) {
-		if (POS_IN_RECT(x, y,
-			speedspellscoords[r].x - SPLICON_WIDTH / 2, speedspellscoords[r].y - SPLICON_HEIGHT / 2,
-			SPLICON_WIDTH, SPLICON_HEIGHT)) {
-			return r;
-		}
-	}
-	return -1;
-}
-
-static void HotSpellMove(AxisDirection dir)
-{
-	static AxisDirectionRepeater repeater;
-	dir = repeater.Get(dir);
-	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
-		return;
-
-	int spbslot = 0;
-	assert(speedspellcount != 0);
-	int mpslot = SkillListEntryAt(MousePos.x, MousePos.y);
-	if (mpslot >= 0)
-		spbslot = mpslot;
-
-	int x = speedspellscoords[spbslot].x;
-	int y = speedspellscoords[spbslot].y;
-
-	if (dir.x == AxisDirectionX_LEFT) {
-		if (spbslot < speedspellcount - 1) {
-			x = speedspellscoords[spbslot + 1].x;
-			y = speedspellscoords[spbslot + 1].y;
-		}
-	} else if (dir.x == AxisDirectionX_RIGHT) {
-		if (spbslot > 0) {
-			x = speedspellscoords[spbslot - 1].x;
-			y = speedspellscoords[spbslot - 1].y;
-		}
-	}
-
-	if (dir.y == AxisDirectionY_UP) {
-		if (SkillListEntryAt(x, y - SPLICON_HEIGHT) >= 0) {
-			y -= SPLICON_HEIGHT;
-		}
-	} else if (dir.y == AxisDirectionY_DOWN) {
-		if (SkillListEntryAt(x, y + SPLICON_HEIGHT) >= 0) {
-			y += SPLICON_HEIGHT;
-		}
-	}
-
-	if (x != MousePos.x || y != MousePos.y) {
-		SetCursorPos(x, y);
-	}
-}
-
 static void SpellBookMove(AxisDirection dir)
 {
 	static AxisDirectionRepeater repeater;
@@ -710,6 +649,12 @@ static void HandleRepeaterMove(AxisDirectionRepeater &repeater, AxisDirection mo
 		InputBtnDown(moveDir.y == AxisDirectionY_UP ? ACT_UP : ACT_DOWN);
 	if (moveDir.x != AxisDirectionX_NONE)
 		InputBtnDown(moveDir.x == AxisDirectionX_LEFT ? ACT_LEFT : ACT_RIGHT);
+}
+
+static void HotSpellMove(AxisDirection moveDir)
+{
+	static AxisDirectionRepeater repeater;
+	HandleRepeaterMove(repeater, moveDir);
 }
 
 static void QuestLogMove(AxisDirection moveDir)
@@ -768,67 +713,6 @@ static void Movement()
 
 	if (GetLeftStickOrDPadGameUIHandler() == NULL) {
 		WalkInDir(moveDir);
-	}
-}
-
-void StoreSpellCoords()
-{
-	int pnum, i, j;
-	uint64_t mask;
-	const int START_X = SCREEN_MIDX(SPLICON_WIDTH * SPLROWICONLS) + SPLICON_WIDTH / 2;
-	const int END_X = START_X + SPLICON_WIDTH * SPLROWICONLS;
-	const int END_Y = SCREEN_HEIGHT - (128 + 17) - SPLICON_HEIGHT / 2;
-	speedspellcount = 0;
-	int xo = END_X;
-	int yo = END_Y;
-	pnum = mypnum;
-	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 1.");
-	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 2.");
-	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 3.");
-	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in StoreSpellCoords relies on ordered, indexed enum values 4.");
-	for (i = 0; i < 4; i++) {
-		switch (i) {
-		case RSPLTYPE_ABILITY:
-			mask = plr._pAblSkills;
-			break;
-		case RSPLTYPE_SPELL:
-			mask = plr._pMemSkills;
-			break;
-		case RSPLTYPE_INV:
-			mask = plr._pInvSkills;
-			break;
-		case RSPLTYPE_CHARGES:
-			mask = plr._pISpells;
-			break;
-		default:
-			continue;
-		}
-		for (j = 0; mask != 0 && j < NUM_SPELLS; j++) {
-			if (j == SPL_NULL) {
-				if (i != 0)
-					continue;
-			} else {
-				if (!(mask & 1)) {
-					mask >>= 1;
-					continue;
-				}
-				mask >>= 1;
-			}
-			speedspellscoords[speedspellcount] = { xo, yo };
-			++speedspellcount;
-			xo -= SPLICON_WIDTH;
-			if (xo < START_X) {
-				xo = END_X;
-				yo -= SPLICON_HEIGHT;
-			}
-		}
-		if (j != 0 && xo != END_X) {
-			xo -= SPLICON_WIDTH;
-			if (xo < START_X) {
-				xo = END_X;
-				yo -= SPLICON_HEIGHT;
-			}
-		}
 	}
 }
 
@@ -1030,10 +914,10 @@ void UseBeltItem(bool manaItem)
 
 static bool SpellHasActorTarget()
 {
-	int spl = myplr._pAltSkill._psAttack;
-	if (spl == SPL_INVALID)
-		spl = myplr._pAltSkill._psMove;
-	if (spl != SPL_INVALID && spelldata[spl].spCurs != CURSOR_NONE)
+	int spl = myplr._pAltSkill._psAttack._suSkill;
+	if (spl == SPL_NULL)
+		spl = myplr._pAltSkill._psMove._suSkill;
+	if (spl != SPL_NULL && spelldata[spl].spCurs != CURSOR_NONE)
 		return true;
 	if (spl == SPL_TOWN || spl == SPL_TELEPORT)
 		return false;
@@ -1057,7 +941,7 @@ static void UpdateSpellTarget()
 	const PlayerStruct& player = myplr;
 
 	int range = 1;
-	if (player._pAltSkill._psMove == SPL_TELEPORT)
+	if (player._pAltSkill._psMove._suSkill == SPL_TELEPORT)
 		range = 4;
 
 	pcurspos.x = player._pfutx + offset_x[player._pdir] * range;
@@ -1155,7 +1039,7 @@ void PerformSecondaryAction()
 	}
 
 	if (pcurswnd == WND_TEAM) {
-		CheckTeamClick();
+		CheckTeamClick(true);
 		return;
 	}
 
