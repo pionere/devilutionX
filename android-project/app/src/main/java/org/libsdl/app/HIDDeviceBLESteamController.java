@@ -93,11 +93,19 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                 case CHR_WRITE:
                     chr = getCharacteristic(mUuid);
                     //Log.v(TAG, "Writing characteristic " + chr.getUuid() + " value=" + HexDump.toHexString(value));
-                    chr.setValue(mValue);
-                    if (!mGatt.writeCharacteristic(chr)) {
-                        Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
-                        mResult = false;
-                        break;
+                    if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+                        if (mGatt.writeCharacteristic(chr, mValue, GattCharacteristic.WRITE_TYPE_NO_RESPONSE)) {
+                            Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
+                            mResult = false;
+                            break;
+                        }
+                    } else {
+                        chr.setValue(mValue);
+                        if (!mGatt.writeCharacteristic(chr)) {
+                            Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
+                            mResult = false;
+                            break;
+                        }
                     }
                     mResult = true;
                     break;
@@ -120,12 +128,19 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                             }
 
                             mGatt.setCharacteristicNotification(chr, true);
-                            cccd.setValue(value);
-                            if (!mGatt.writeDescriptor(cccd)) {
-                                Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
-                                mResult = false;
-                                return;
-                            }
+                            if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+                                if (mGatt.writeDescriptor(cccd, value)) {
+                                    Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
+                                    mResult = false;
+                                    return;
+                                }
+                            } else {
+                                cccd.setValue(value);
+                                if (!mGatt.writeDescriptor(cccd)) {
+                                    Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
+                                    mResult = false;
+                                    return;
+                                }
                             mResult = true;
                         }
                     }

@@ -490,14 +490,14 @@ class SDLHapticHandler_API26 extends SDLHapticHandler {
                 stop(device_id);
                 return;
             }
-            try {
+            //try {
                 haptic.vib.vibrate(VibrationEffect.createOneShot(length, vibeValue));
-            }
+            /*}
             catch (Exception e) {
                 // Fall back to the generic method, which uses DEFAULT_AMPLITUDE, but works even if
                 // something went horribly wrong with the Android 8.0 APIs.
                 haptic.vib.vibrate(length);
-            }
+            }*/
         }
     }
 }
@@ -517,6 +517,9 @@ class SDLHapticHandler {
     }
 
     public void run(int device_id, float intensity, int length) {
+        if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
+            return;
+        }
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
             haptic.vib.vibrate(length);
@@ -531,7 +534,9 @@ class SDLHapticHandler {
     }
 
     public void pollHapticDevices() {
-
+        if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
+            return;
+        }
         final int deviceId_VIBRATOR_SERVICE = 999999;
         boolean hasVibratorService = false;
 
