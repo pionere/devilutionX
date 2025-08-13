@@ -9,24 +9,31 @@ env:
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            artifact: 'diablo-release.apk'
+          #- name: hellfire
+          #  cmakearg0: '-DHELLFIRE=ON'
+          #  artifact: 'hellfire-release.apk'
     runs-on: ubuntu-24.04
     environment: android
     steps:
-    - name: Install gettext
-      run: sudo apt-get update && sudo apt-get install -y gettext
-
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-tags: true
       #  fetch-depth: 0
 
+    - name: Create Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gettext
+
     - name: set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -57,8 +64,10 @@ jobs:
 
     - name: Build
       working-directory: ${{github.workspace}}
+      #env:
+      #  GRADLE_ASSEMBLE: ${{env.BUILD_TYPE == 'Release' && 'assembleRelease' || 'assembleDebug'}}
       shell: bash
-      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="-DHELLFIRE=OFF" -Pcmakearg1="-DCREATE_PATCHER=ON" -Pcmakearg2="-DNONET=OFF"
+      run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
     #- name: Upload-Package
     #  uses: actions/upload-artifact@v4
@@ -97,14 +106,21 @@ jobs:
     - name: Rename
       working-directory: ${{github.workspace}}
       shell: bash
-      run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/app-release.apk
+      run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/devilutionx.apk
 
     #- name: Show content of workspace
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
 
-    # Upload the signed file
-    - uses: actions/upload-artifact@v4
+    - name: Print text
+      shell: bash
+      run: cat /home/runner/work/devilutionX/devilutionX/android-project/build/reports/problems/problems-report.html
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v4
       with:
-        name: hellfire-nightly-android.apk
-        path: android-project/app/build/outputs/apk/release/app-release.apk
+        #name: devilutionx-debug.apk
+        #path: android-project/app/build/outputs/apk/debug/app-debug.apk
+        name: ${{ matrix.artifact }}
+        #path: android-project/app/build/outputs/apk/release/app-release-signed.apk
+        path: android-project/app/build/outputs/apk/release/devilutionx.apk
