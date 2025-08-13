@@ -13,12 +13,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/** Menu button images CEL */
-static CelImageBuf* pPanelButtonCels;
-/** The number of buttons in the menu. */
-int numpanbtns;
-/** Specifies whether the menu-button is pressed. */
-bool gabPanbtn[NUM_PANBTNS];
 /** Flask images CEL */
 static BYTE* pFlaskCels;
 /** Specifies how much the life flask is filled (percentage). */
@@ -100,32 +94,6 @@ static PlrSkillUse targetSkill;
 /** Specifies where the cursor should be moved relative to the current skill in the Skill-List. */
 static POS32 deltaSkillPos;
 
-static const int PanBtnPos[NUM_PANBTNS][2] = {
-	// clang-format off
-	{   0, (1 + 0) * MENUBTN_HEIGHT }, // menu button
-	{   0, (1 + 1) * MENUBTN_HEIGHT }, // options button
-	{   0, (1 + 2) * MENUBTN_HEIGHT }, // char button
-	{   0, (1 + 3) * MENUBTN_HEIGHT }, // inv button
-	{   0, (1 + 4) * MENUBTN_HEIGHT }, // spells button
-	{   0, (1 + 5) * MENUBTN_HEIGHT }, // quests button
-	{   0, (1 + 6) * MENUBTN_HEIGHT }, // map button
-	{   0, (1 + 7) * MENUBTN_HEIGHT }, // chat button
-	{   0, (1 + 8) * MENUBTN_HEIGHT }, // teams button
-	// clang-format on
-};
-static const char* PanBtnTxt[NUM_PANBTNS] = {
-	// clang-format off
-	"Menu",
-	"Options",
-	"Char",
-	"Inv",
-	"Spells",
-	"Quests",
-	"Map",
-	"Chat",
-	"Teams"
-	// clang-format on
-};
 /** The number of spells/skills on a single spellbook page. */
 #define NUM_BOOK_ENTRIES 7
 /** Maps from spellbook page number and position to spell_id. */
@@ -929,11 +897,6 @@ void InitControlPan()
 	guTeamInviteSent = 0;
 	guTeamMute = 0;
 	gbLvlbtndown = false;
-	assert(pPanelButtonCels == NULL);
-	pPanelButtonCels = CelLoadImage("CtrlPan\\Menu.CEL", MENUBTN_WIDTH);
-	for (i = 0; i < lengthof(gabPanbtn); i++)
-		gabPanbtn[i] = false;
-	numpanbtns = IsLocalGame ? NUM_PANBTNS - 2 : NUM_PANBTNS;
 	assert(pChrButtonCels == NULL);
 	pChrButtonCels = CelLoadImage("Data\\CharBut.CEL", CHRBTN_WIDTH);
 	for (i = 0; i < lengthof(gabChrbtn); i++)
@@ -1011,30 +974,6 @@ void DoWndDrag()
 }
 
 /**
- * Draws the control panel buttons in their current state. If the button is in the default
- * state draw it from the panel cel(extract its sub-rect). Else draw it from the buttons cel.
- */
-void DrawCtrlBtns()
-{
-	int i, x, y;
-	bool pb;
-
-	i = 0;
-	x = PANEL_X + PanBtnPos[i][0];
-	pb = gabPanbtn[PANBTN_MAINMENU];
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1] + MENUBTN_HEIGHT - 1, pPanelButtonCels, pb ? 4 : 3);
-	if (!pb)
-		return;
-	for (i = 1; i < numpanbtns; i++) {
-		y = SCREEN_Y + SCREEN_HEIGHT - PanBtnPos[i][1];
-		pb = gabPanbtn[i];
-		CelDraw(x, y + MENUBTN_HEIGHT - 1, pPanelButtonCels, 2);
-		// print the text of the button
-		PrintJustifiedString(x + 3, y + (MENUBTN_HEIGHT + SMALL_FONT_HEIGHT) / 2, x + MENUBTN_WIDTH - 1, PanBtnTxt[i], pb ? COL_GOLD : COL_WHITE, FONT_KERN_SMALL);
-	}
-}
-
-/**
  * Toggles the "Skill List": the rows of known spells for quick-setting a spell that
  * show up when you click the spell slot at the control panel.
  * @param altSkill whether the cursor is moved to the active skill or altSkill (controllers-only)
@@ -1058,17 +997,6 @@ void HandleSkillBtn(bool altSkill)
 	}
 }
 
-static void control_set_button_down(int btn_id)
-{
-	if (btn_id == PANBTN_MAINMENU) {
-		gabPanbtn[PANBTN_MAINMENU] = !gabPanbtn[PANBTN_MAINMENU];
-	} else {
-		assert(gabPanbtn[PANBTN_MAINMENU]);
-		gabPanbtn[btn_id] = true;
-	}
-	// gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
-}
-
 static bool InLvlUpRect()
 {
 	return POS_IN_RECT(MousePos.x, MousePos.y,
@@ -1079,7 +1007,7 @@ static bool InLvlUpRect()
 void ReleaseLvlBtn()
 {
 	if (InLvlUpRect()) {
-		HandlePanBtn(PANBTN_CHARINFO);
+		gamemenu_enter(GMM_CHARINFO);
 	}
 	gbLvlbtndown = false;
 }
@@ -1092,14 +1020,6 @@ bool TryPanBtnClick()
 
 	mx = MousePos.x;
 	my = MousePos.y;
-	for (i = gabPanbtn[PANBTN_MAINMENU] ? numpanbtns - 1 : 0; i >= 0; i--) {
-		if (POS_IN_RECT(mx, my,
-			PANEL_LEFT + PanBtnPos[i][0],  SCREEN_HEIGHT - PanBtnPos[i][1],
-			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
-			control_set_button_down(i);
-			return true;
-		}
-	}
 	if (POS_IN_RECT(mx, my,
 		PANEL_LEFT + PANEL_WIDTH - SPLICON_WIDTH,  SCREEN_HEIGHT - 2 * SPLICON_HEIGHT,
 		SPLICON_WIDTH + 1, 2 * SPLICON_HEIGHT + 1)) {
@@ -1111,116 +1031,10 @@ bool TryPanBtnClick()
 	return gbLvlbtndown;
 }
 
-void TryLimitedPanBtnClick()
-{
-	if (POS_IN_RECT(MousePos.x, MousePos.y,
-		PANEL_LEFT + PanBtnPos[PANBTN_MAINMENU][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_MAINMENU][1],
-		MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
-		control_set_button_down(PANBTN_MAINMENU);
-	} else if (gabPanbtn[PANBTN_MAINMENU] && !IsLocalGame) {
-		if (POS_IN_RECT(MousePos.x, MousePos.y,
-			PANEL_LEFT + PanBtnPos[PANBTN_SENDMSG][0],  SCREEN_HEIGHT - PanBtnPos[PANBTN_SENDMSG][1],
-			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
-			control_set_button_down(PANBTN_SENDMSG);
-		}
-	}
-}
-
-void HandlePanBtn(int i)
-{
-	if (stextflag != STORE_NONE)
-		return;
-
-	switch (i) {
-	case PANBTN_MAINMENU:
-		break;
-	case PANBTN_OPTIONS:
-		gamemenu_on();
-		return;
-	case PANBTN_CHARINFO:
-		gbSkillListFlag = false;
-		gbLvlUp = false;
-		if (ToggleWindow(WND_CHAR)) {
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-			if (sgbControllerActive)
-				FocusOnCharInfo();
-#endif
-		}
-		break;
-	case PANBTN_INVENTORY:
-		gbSkillListFlag = false;
-		gbInvflag = ToggleWindow(WND_INV);
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		if (gbInvflag && sgbControllerActive)
-			FocusOnInventory();
-#endif
-		break;
-	case PANBTN_SPELLBOOK:
-		gbSkillListFlag = false;
-		ToggleWindow(WND_BOOK);
-		break;
-	case PANBTN_QLOG:
-		gbSkillListFlag = false;
-		if (ToggleWindow(WND_QUEST))
-			StartQuestlog();
-		break;
-	case PANBTN_AUTOMAP:
-		ToggleAutomap();
-		break;
-	case PANBTN_SENDMSG:
-		if (gbTalkflag)
-			StopPlrMsg();
-		else
-			StartPlrMsg();
-		break;
-	case PANBTN_TEAMBOOK:
-		gbSkillListFlag = false;
-		ToggleWindow(WND_TEAM);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	if (gbQtextflag)
-		StopQTextMsg();
-	StopHelp();
-	gamemenu_off();
-}
-
-/**
- * Check if the mouse is within a control panel button that's flagged.
- * Takes apropiate action if so.
- */
-void ReleasePanBtn()
-{
-	int i;
-
-	static_assert(lengthof(gabPanbtn) == lengthof(PanBtnPos), "Mismatching gabPanbtn and panbtnpos tables.");
-	static_assert(PANBTN_MAINMENU == 0, "CheckBtnUp needs to skip the mainmenu-button.");
-	for (i = 1; i < lengthof(gabPanbtn); i++) {
-		if (!gabPanbtn[i]) {
-			continue;
-		}
-
-		gabPanbtn[i] = false;
-		if (!POS_IN_RECT(MousePos.x, MousePos.y,
-			PANEL_LEFT + PanBtnPos[i][0],  SCREEN_HEIGHT - PanBtnPos[i][1],
-			MENUBTN_WIDTH + 1, MENUBTN_HEIGHT + 1)) {
-			continue;
-		}
-
-		HandlePanBtn(i);
-
-		gabPanbtn[PANBTN_MAINMENU] = false;
-		// gbRedrawFlags |= REDRAW_CTRL_BUTTONS;
-	}
-}
-
 void FreeControlPan()
 {
 	MemFreeDbg(pFlaskCels);
 	MemFreeDbg(pChrPanelCel);
-	MemFreeDbg(pPanelButtonCels);
 	MemFreeDbg(pChrButtonCels);
 	MemFreeDbg(pSTextSlidCels);
 	MemFreeDbg(pDurIconCels);

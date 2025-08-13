@@ -1542,9 +1542,6 @@ static void DrawView()
 
 	//if (gbDoomflag)
 	//	doom_draw();
-	//if (gbRedrawFlags & REDRAW_CTRL_BUTTONS) {
-		DrawCtrlBtns();
-	//}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	DrawControllerModifierHints();
 #endif
@@ -1553,7 +1550,7 @@ static void DrawView()
 #endif
 	DrawPlrMsg(true);
 	if (gmenu_is_active())
-		gmenu_draw();
+		gamemenu_draw();
 }
 
 #if DEBUG_MODE

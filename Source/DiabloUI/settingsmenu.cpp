@@ -28,8 +28,7 @@ void UiSettingsDialog()
 	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
 	UiInitScreen(0, NULL, NULL, NULL);
 	// initialize gamemenu
-	InitGMenu();
-	gamemenu_settings(true);
+	gamemenu_main();
 	settingsMenu = gpCurrentMenu;
 
 	Dvl_Event event;
@@ -52,7 +51,7 @@ void UiSettingsDialog()
 			}
 		}
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
+		gamemenu_checkmove();
 #endif
 	}
 	PlaySfx(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)

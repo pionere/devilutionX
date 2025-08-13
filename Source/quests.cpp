@@ -351,7 +351,7 @@ static void PrintQLString(int px, int py, unsigned y, const char* str)
 	tx = sx;
 	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE, FONT_KERN_SMALL);
 	if (qline == y) {
-		DrawSmallPentSpn(tx - FOCUS_SMALL, sx + 6, sy + 1);
+		DrawSmallPentSpn(tx - (FOCUS_MINI + 8), sx + 6, sy + 1);
 	}
 }
 

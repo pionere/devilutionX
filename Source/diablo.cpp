@@ -335,11 +335,13 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	dy = (MAX_DIST * dy) / adm;
 	dx = (MAX_DIST * dx) / adm;
 
-	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
-	POS32 tpos = { myplr._pfutx, myplr._pfuty };
+	POS32 tpos = { 0, 0 };
 	SHIFT_GRID(tpos.x, tpos.y, dx, dy);
 
-	int dir8 = GetDirection(myplr._pfutx, myplr._pfuty, tpos.x, tpos.y);
+	int dir8 = GetDirection(0, 0, tpos.x, tpos.y);
+	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
+	tpos.x += pos8.x;
+	tpos.y += pos8.y;
 
 	if (skill._psAttack._suSkill != SPL_NULL) {
 		if (skill._psAttack._suSkill == SPL_BLOCK) {
@@ -382,6 +384,52 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	pos8.x += offset_x[dir8];
 	pos8.y += offset_y[dir8];
 	NetSendCmdLoc(CMD_WALKXY, pos8.x, pos8.y);
+}
+
+static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*moveFunc)(int))
+{
+	RECT_AREA32 actionVector;
+	if (!TryActionDirCmd(altAction, actionVector))
+		return false;
+
+	int dx = actionVector.x1;
+	int dy = actionVector.y1;
+	int md = actionVector.x2;
+	int adx = abs(dx);
+	int ady = abs(dy);
+
+	if ((unsigned)adx < md / 4u && (unsigned)ady < md / 4u) {
+		clickFunc(altAction);
+		return true;
+	}
+
+	int dir;
+	if (adx > ady) {
+		dir = dx >= 0 ? MDIR_RIGHT : MDIR_LEFT;
+	} else {
+		dir = dy >= 0 ? MDIR_DOWN : MDIR_UP;
+	}
+	moveFunc(dir);
+
+	return true;
+}
+
+static void GmenuClick(bool altAction)
+{
+	gamemenu_presskey(DVL_VK_LBUTTON);
+}
+
+static void GmenuMove(int dir)
+{
+	int vkey;
+	switch (dir) {
+	case MDIR_UP:    vkey = DVL_VK_UP;    break;
+	case MDIR_DOWN:  vkey = DVL_VK_DOWN;  break;
+	case MDIR_LEFT:  vkey = DVL_VK_LEFT;  break;
+	case MDIR_RIGHT: vkey = DVL_VK_RIGHT; break;
+	default: ASSUME_UNREACHABLE;          break;
+	}
+	gamemenu_presskey(vkey);
 }
 #endif
 static void ActionBtnCmd(bool altSkill)
@@ -558,11 +606,21 @@ static void ActionBtnDown(bool altAction)
 	}
 
 	if (gbSkillListFlag) {
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, SetSkill, SkillListMove)) {
+			return;
+		}
+#endif
 		SetSkill(altAction);
 		return;
 	}
 
 	if (stextflag != STORE_NONE) {
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, TryStoreBtnClick, STextMove)) {
+			return;
+		}
+#endif
 		TryStoreBtnClick(altAction);
 		return;
 	}
@@ -584,6 +642,11 @@ static void ActionBtnDown(bool altAction)
 		CheckChrBtnClick(altAction);
 		break;
 	case WND_QUEST:
+#if HAS_TOUCHPAD
+		if (TryActionMenuDirCmd(altAction, CheckQuestlogClick, QuestlogMove)) {
+			break;
+		}
+#endif
 		CheckQuestlogClick(altAction);
 		break;
 	case WND_TEAM:
@@ -652,9 +715,7 @@ static void ReleaseKey(int vkey)
 {
 	if (vkey == DVL_VK_LBUTTON) {
 		if (gmenu_is_active())
-			gmenu_left_mouse(false);
-		if (gabPanbtn[PANBTN_MAINMENU])
-			ReleasePanBtn();
+			gamemenu_left_mouse(false);
 		if (gbChrbtnactive)
 			ReleaseChrBtn();
 		if (gbLvlbtndown)
@@ -719,10 +780,6 @@ bool PressEscKey()
 		gbCampaignMapFlag = CMAP_NONE;
 		rv = true;
 	}
-	if (gabPanbtn[PANBTN_MAINMENU]) {
-		gabPanbtn[PANBTN_MAINMENU] = false;
-		rv = true;
-	}
 	if (pcursicon != CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 		NewCursor(CURSOR_HAND);
 		rv = true;
@@ -736,7 +793,6 @@ void ClearPanels()
 	StopHelp();
 	gbInvflag = false;
 	gnNumActiveWindows = 0;
-	gabPanbtn[PANBTN_MAINMENU] = false;
 	gbSkillListFlag = false;
 	gbCampaignMapFlag = CMAP_NONE;
 	gbDropGoldIndex = INVITEM_NONE;
@@ -862,18 +918,16 @@ void InputBtnDown(int transKey)
 		SkillHotKey(transKey - ACT_SKL4, true);
 		break;
 	case ACT_INV:
-		HandlePanBtn(PANBTN_INVENTORY);
+		gamemenu_enter(GMM_INVENTORY);
 		break;
 	case ACT_CHAR:
-		HandlePanBtn(PANBTN_CHARINFO);
+		gamemenu_enter(GMM_CHARINFO);
 		break;
 	case ACT_SKLBOOK:
-		HandlePanBtn(PANBTN_SPELLBOOK);
+		gamemenu_enter(GMM_SPELLBOOK);
 		break;
 	case ACT_SKLLIST:
-		if (stextflag == STORE_NONE) {
-			HandleSkillBtn(false);
-		}
+		gamemenu_enter(GMM_SKILLLIST);
 		break;
 	case ACT_ITEM0:
 	case ACT_ITEM1:
@@ -898,14 +952,10 @@ void InputBtnDown(int transKey)
 		ToggleAutomap();
 		break;
 	case ACT_MAPZ_IN:
-		if (gbAutomapflag != AMM_NONE) {
-			AutomapZoomIn();
-		}
+		AutomapZoomIn();
 		break;
 	case ACT_MAPZ_OUT:
-		if (gbAutomapflag != AMM_NONE) {
-			AutomapZoomOut();
-		}
+		AutomapZoomOut();
 		break;
 	case ACT_CLEARUI:
 		ClearUI();
@@ -940,10 +990,10 @@ void InputBtnDown(int transKey)
 		}
 		break;
 	case ACT_TEAM:
-		HandlePanBtn(PANBTN_TEAMBOOK);
+		gamemenu_enter(GMM_TEAMBOOK);
 		break;
 	case ACT_QUESTS:
-		HandlePanBtn(PANBTN_QLOG);
+		gamemenu_enter(GMM_QLOG);
 		break;
 	case ACT_SNEXT:
 		gbCurrActiveSkill = (gbCurrActiveSkill + 1) % 4;
@@ -1018,8 +1068,20 @@ void InputBtnDown(int transKey)
 
 static void PressKey(int vkey)
 {
+#if !FULLSCREEN_ONLY
+	if (vkey == DVL_VK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
+		ToggleFullscreen();
+		return;
+	}
+#endif
 	if (gmenu_is_active()) {
-		gmenu_presskey(vkey);
+#if HAS_TOUCHPAD
+		int transKey = WMButtonInputTransTbl[vkey];
+		if ((transKey == ACT_ACT || transKey == ACT_ALTACT) && TryActionMenuDirCmd(transKey == ACT_ALTACT, GmenuClick, GmenuMove)) {
+			return;
+		}
+#endif
+		gamemenu_presskey(vkey);
 		return;
 	}
 	if (gbTalkflag) {
@@ -1037,18 +1099,11 @@ static void PressKey(int vkey)
 	if (gnTimeoutCurs != CURSOR_NONE) {
 		return;
 	}
-#if !FULLSCREEN_ONLY
-	if (vkey == DVL_VK_RETURN && (SDL_GetModState() & KMOD_ALT)) {
-		ToggleFullscreen();
-		return;
-	}
-#endif
+
 	int transKey = WMButtonInputTransTbl[vkey];
 	if (gbDeathflag != MDM_ALIVE) {
 		if (vkey == DVL_VK_RETURN) {
 			StartPlrMsg();
-		} else if (vkey == DVL_VK_LBUTTON) {
-			TryLimitedPanBtnClick();
 		} else {
 			if (transKey >= ACT_MSG0 && transKey <= ACT_MSG3)
 				diablo_hotkey_msg(transKey);
@@ -1192,7 +1247,7 @@ void GameWndProc(const Dvl_Event* e)
 		break; //  return;
 	case DVL_WM_MOUSEMOVE:
 		if (gmenu_is_active())
-			gmenu_on_mouse_move();
+			gamemenu_on_mouse_move();
 		else if (WND_VALID(gbDragWnd))
 			DoWndDrag();
 		else if (gbTalkflag)
@@ -1271,7 +1326,7 @@ static bool ProcessInput()
 {
 	if (gmenu_is_active()) {
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
+		gamemenu_checkmove();
 #endif
 		// assert(!(IsMultiGame && gnGamePaused != 0));
 		return IsMultiGame;
@@ -1350,7 +1405,7 @@ void game_logic()
 	CheckQuests();
 	pfile_update(false);
 	if (gmenu_is_active())
-		gmenu_update();
+		gamemenu_update();
 	gbGameLogicProgress = GLP_NONE;
 }
 

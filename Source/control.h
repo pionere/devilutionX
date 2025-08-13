@@ -16,10 +16,6 @@ static_assert((int8_t)WND_NONE < 0, "WND_VALID checks only the sign of the WND_-
 extern "C" {
 #endif
 
-/** The number of buttons in the menu. */
-extern int numpanbtns;
-/** Specifies whether the menu-button is pressed. */
-extern bool gabPanbtn[NUM_PANBTNS];
 /** Specifies how much the life flask is filled (percentage). */
 extern int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
@@ -76,12 +72,8 @@ void InitControlPan();
 void FreeControlPan();
 void StartWndDrag(BYTE wnd);
 void DoWndDrag();
-void DrawCtrlBtns();
 bool ToggleWindow(BYTE wnd);
 bool TryPanBtnClick();
-void TryLimitedPanBtnClick();
-void ReleasePanBtn();
-void HandlePanBtn(int i);
 void HandleSkillBtn(bool altSkill);
 void DrawChr();
 void ReleaseLvlBtn();
