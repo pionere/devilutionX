@@ -10,12 +10,13 @@ DEVILUTION_BEGIN_NAMESPACE
 /** In-game state of portals. */
 PortalStruct portals[MAXPORTAL];
 /** Current portal number (a portal array index). */
-int portalindex;
+static int portalindex;
 
 /** X-coordinate of each players portal in town. */
-const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
+static_assert(MAX_PLRS <= 7, "portal in water...");
+#define WARPDROPX(i) ((i * 2) + 47 + DBORDERX)
 /** Y-coordinate of each players portal in town. */
-const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
+#define WARPDROPY(i) (30 + DBORDERY)
 
 void InitPortals()
 {
@@ -33,8 +34,9 @@ void InitPortals()
 	portals[pidx]._rlevel = lvl;
 }*/
 
-void AddWarpMissile(int pidx, int x, int y)
+static void AddWarpMissile(int pidx, int x, int y)
 {
+	static_assert(MAXPORTAL == MAX_PLRS, "AddWarpMissile adds portal-missiles by portal-id.");
 	AddMissile(0, 0, x, y, 0, MIS_TOWN, MST_NA, pidx, -1);
 }
 
@@ -47,7 +49,7 @@ void SyncPortals()
 			continue;
 		lvl = currLvl._dLevelIdx;
 		if (lvl == DLV_TOWN)
-			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
+			AddWarpMissile(i, WARPDROPX(i), WARPDROPY(i));
 		else {
 			if (portals[i]._rlevel == lvl)
 				AddWarpMissile(i, portals[i]._rx, portals[i]._ry);
@@ -57,7 +59,7 @@ void SyncPortals()
 
 void AddInTownPortal(int pidx)
 {
-	AddWarpMissile(pidx, WarpDropX[pidx], WarpDropY[pidx]);
+	AddWarpMissile(pidx, WARPDROPX(pidx), WARPDROPY(pidx));
 }
 
 void ActivatePortal(int pidx, int x, int y, int bLevel)
@@ -69,31 +71,18 @@ void ActivatePortal(int pidx, int x, int y, int bLevel)
 	portals[pidx]._rlevel = bLevel;
 }
 
-static bool PortalOnLevel(int pidx)
-{
-	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
-}
-
-void RemovePortalMissile(int pidx)
-{
-	MissileStruct* mis;
-	int i;
-
-	if (!PortalOnLevel(pidx))
-		return;
-
-	static_assert(MAXPORTAL == MAX_PLRS, "RemovePortalMissile finds portal-missiles by portal-id.");
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN && mis->_miSource == pidx) {
-			mis->_miDelFlag = TRUE; // + AddUnLight
-		}
-	}
-}
+//static bool PortalOnLevel(int pidx)
+//{
+//	return portals[pidx]._rlevel == currLvl._dLevelIdx || currLvl._dLevelIdx == DLV_TOWN;
+//}
 
 void DeactivatePortal(int pidx)
 {
-	RemovePortalMissile(pidx);
+	//if (PortalOnLevel(pidx)) - skip test because portals and missiles might be out of sync temporary
+	{
+		static_assert(MAXPORTAL == MAX_PLRS, "DeactivatePortal removes portal-missiles by portal-id.");
+		RemovePortalMissile(pidx);
+	}
 
 	portals[pidx]._rlevel = DLV_TOWN;
 }
@@ -106,11 +95,11 @@ void UseCurrentPortal(int pidx)
 void GetPortalLvlPos()
 {
 	if (currLvl._dLevelIdx == DLV_TOWN) {
-		ViewX = WarpDropX[portalindex];
-		ViewY = WarpDropY[portalindex];
+		myview.x = WARPDROPX(portalindex);
+		myview.y = WARPDROPY(portalindex);
 	} else {
-		ViewX = portals[portalindex]._rx;
-		ViewY = portals[portalindex]._ry;
+		myview.x = portals[portalindex]._rx;
+		myview.y = portals[portalindex]._ry;
 	}
 }
 
@@ -122,7 +111,7 @@ bool PosOkPortal(int x, int y)
 		if (portals[i]._rlevel == DLV_TOWN)
 			continue;
 		if (lvl == DLV_TOWN) {
-			if (WarpDropX[i] == x && WarpDropY[i] == y)
+			if (WARPDROPX(i) == x && WARPDROPY(i) == y)
 				return false;
 		} else {
 			if (portals[i]._rx == x && portals[i]._ry == y)

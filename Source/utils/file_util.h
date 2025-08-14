@@ -5,10 +5,7 @@
 #include <cstdint>
 
 #include <SDL.h>
-
-#ifdef USE_SDL1
 #include "utils/sdl2_to_1_2_backports.h"
-#endif
 
 #include "log.h"
 
@@ -19,7 +16,7 @@
 #include <windows.h>
 #endif
 
-#if _POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)
+#if (_POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)) && !defined(NXDK)
 #include <unistd.h>
 #include <sys/stat.h>
 #else
@@ -33,17 +30,19 @@ DEVILUTION_BEGIN_NAMESPACE
 inline FILE* FileOpen(const char* path, const char* mode)
 {
 	FILE* file;
-#if (defined(_MSC_VER) && (_MSC_VER >= 1400))
-	fopen_s(&file, path, mode);
-#else
+// #if (defined(_MSC_VER) && (_MSC_VER >= 1400))
+//	fopen_s(&file, path, mode);
+// #else
+	DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 	file = std::fopen(path, mode);
-#endif
+	ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
+// #endif
 	return file;
 }
 
 inline bool FileExists(const char* path)
 {
-#if (_POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)) && !defined(__ANDROID__)
+#if (_POSIX_C_SOURCE >= 200112L || defined(_BSD_SOURCE) || defined(__APPLE__)) && !defined(__ANDROID__) && !defined(NXDK)
 	return ::access(path, F_OK) == 0;
 #else
 	FILE* file = FileOpen(path, "rb");
@@ -56,7 +55,7 @@ inline bool FileExists(const char* path)
 
 inline bool GetFileSize(const char* path, std::uintmax_t* size)
 {
-#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500)
+#if defined(_WIN32) && (!defined(_WIN32_WINNT) || _WIN32_WINNT <= 0x0500) && !defined(NXDK)
 	HANDLE handle = ::CreateFileA(path, GENERIC_READ,
 	    FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
 	    FILE_ATTRIBUTE_NORMAL, NULL);

@@ -5,7 +5,12 @@ using namespace dvl;
 
 TEST(Diablo, diablo_pause_game_unpause)
 {
-	gbGamePaused = true;
-	diablo_pause_game();
-	EXPECT_EQ(gbGamePaused, false);
+	diablo_pause_game(true);
+	EXPECT_EQ(gnGamePaused != 0u, true);
+	diablo_pause_game(true);
+	EXPECT_EQ(gnGamePaused != 0u, true);
+	diablo_pause_game(false);
+	EXPECT_EQ(gnGamePaused, 0u);
+	diablo_pause_game(false);
+	EXPECT_EQ(gnGamePaused, 0u);
 }

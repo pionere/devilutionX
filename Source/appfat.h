@@ -76,6 +76,19 @@ void dev_fatal(const char* pszFmt, MsgArgs... args) {
 	}
 #endif // DEBUG_MODE
 
+#define app_issue(ec)                                                             \
+	if (ec == ec) {                                                               \
+		DoLog("ERROR(app.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
+#define sdl_issue(ec)                                                             \
+	if (ec == ec) {                                                               \
+		DoLog("ERROR(sdl.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
+#define asio_issue(ec, msg)                                                        \
+	if (ec == ec) {                                                                \
+		DoLog("ERROR(asio.%d): %s @ %s:%d", ec, __FUNCTION__, __FILE__, __LINE__); \
+	}
+
 #ifdef __cplusplus
 }
 #endif

@@ -16,7 +16,7 @@ void ClearCursor();
 #if DEBUG_MODE
 void ScrollView();
 #endif
-void scrollrt_draw_screen(bool draw_cursor);
+void scrollrt_render_screen(bool draw_cursor);
 
 #ifdef __cplusplus
 }

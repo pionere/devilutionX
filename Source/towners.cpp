@@ -7,10 +7,10 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int _guCowMsg;
+static int _guCowMsg;
 int numtowners;
-unsigned _guCowClicks;
-BYTE* pCowCels;
+static unsigned _guCowClicks;
+static BYTE* pCowCels;
 
 /**
  * Maps from active cow sound effect index and player class to sound
@@ -19,7 +19,7 @@ BYTE* pCowCels;
  * ref: enum _sfx_id
  * ref: enum plr_class
  */
-const int snSFX[3][NUM_CLASSES] = {
+static const int snSFX[3][NUM_CLASSES] = {
 	// clang-format off
 #ifdef HELLFIRE
 	{ PS_WARR52, PS_ROGUE52, PS_MAGE52, PS_MONK52, PS_ROGUE52, PS_WARR52 },
@@ -34,7 +34,7 @@ const int snSFX[3][NUM_CLASSES] = {
 };
 
 /** Specifies the animation frame sequence of a given NPC. */
-const int8_t AnimOrder[6][144] = {
+static const int8_t AnimOrder[6][144] = {
 	// clang-format off
 	{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
@@ -129,7 +129,7 @@ static int CowPlaying = SFX_NONE;
 
 static void CowSFX(MonsterStruct* cow, int pnum)
 {
-	if (CowPlaying != SFX_NONE && IsSFXPlaying(CowPlaying))
+	if (SFX_VALID(CowPlaying) && IsSfxStreaming(CowPlaying))
 		return;
 
 	_guCowClicks++;
@@ -207,9 +207,12 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	// set dMonster for CheckCursMove
 	dMonster[x][y] = tnum + 1;
 	tw->_mType = type; // TNR_TYPE
-	// set position for DrawInfoStr, On_TALKXY and CheckTownersNearby
+	// set position for DrawInfoStr and FindTowner
 	tw->_mx = x;
 	tw->_my = y;
+	// set future position for CheckNewPath
+	tw->_mfutx = x;
+	tw->_mfuty = y;
 	tw->_mgoal = MGOAL_TALKING;  // for CanTalkToMonst
 	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE for TalkToTowner
 #if DEBUG_MODE || DEV_MODE
@@ -535,7 +538,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_BANNER]._qlog = FALSE;
 		quests[Q_BANNER]._qvar1 = QV_BANNER_GIVEN;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_HARCREST, TPOS_TAVERN, ICM_SEND_FLIP);
 		break;
 	case IDI_ROCK:
 		if (quests[Q_ROCK]._qactive != QUEST_ACTIVE)
@@ -543,7 +546,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_ROCK]._qactive = QUEST_DONE;
 		//quests[Q_ROCK]._qlog = FALSE;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_INFRARING, TPOS_SMITH + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_INFRARING, TPOS_SMITH, ICM_SEND_FLIP);
 		break;
 	case IDI_ANVIL:
 		if (quests[Q_ANVIL]._qactive != QUEST_ACTIVE)
@@ -551,7 +554,7 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_ANVIL]._qactive = QUEST_DONE;
 		//quests[Q_ANVIL]._qlog = FALSE;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_GRISWOLD, TPOS_SMITH, ICM_SEND_FLIP);
 		break;
 	case IDI_FUNGALTM:
 		if (quests[Q_MUSHROOM]._qactive != QUEST_INIT)
@@ -567,12 +570,12 @@ void SyncTownerQ(int pnum, int idx)
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH10;
 		break;
 	case IDI_BRAIN:
-		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_MUSHGIVEN)
+		if (quests[Q_MUSHROOM]._qactive != QUEST_ACTIVE || quests[Q_MUSHROOM]._qvar1 >= QV_MUSHROOM_BRAINGIVEN)
 			return;
 		quests[Q_MUSHROOM]._qvar1 = QV_MUSHROOM_BRAINGIVEN;
 		quests[Q_MUSHROOM]._qmsg = TEXT_MUSH4;
 		if (pnum == mypnum)
-			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER + 1, ICM_SEND_FLIP);
+			SpawnQuestItemAt(IDI_SPECELIX, TPOS_HEALER, ICM_SEND_FLIP);
 		break;
 	case IDI_LAZSTAFF:
 		if (quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_STAFFGIVEN /*|| quests[Q_BETRAYER]._qactive != QUEST_ACTIVE*/)
@@ -616,12 +619,15 @@ void SyncTownerQ(int pnum, int idx)
 	SyncPlrStorageRemove(pnum, i);
 }
 
-void TalkToTowner(int tnum)
+void TalkToTowner(int tnum, int pnum)
 {
 	MonsterStruct* tw;
-	int i, qt, qn, pnum = mypnum;
+	int i, qt, qn;
 
 	tw = &monsters[tnum];
+	if (pnum != mypnum) {
+		return;
+	}
 	if (gbQtextflag) {
 		return;
 	}
@@ -672,7 +678,7 @@ void TalkToTowner(int tnum)
 		} else if ((quests[Q_PWATER]._qactive == QUEST_INIT || quests[Q_PWATER]._qactive == QUEST_ACTIVE)
 		 && quests[Q_PWATER]._qvar1 == QV_PWATER_CLEAN) {
 			quests[Q_PWATER]._qactive = QUEST_DONE;
-			SpawnUnique(UITEM_TRING, TPOS_HEALER + 1, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_TRING, TPOS_HEALER, ICM_SEND_FLIP);
 			qn = Q_PWATER;
 			qt = TEXT_POISON5;
 		} else if (quests[Q_MUSHROOM]._qactive == QUEST_ACTIVE
@@ -800,16 +806,16 @@ void TalkToTowner(int tnum)
 			break;
 		case QUEST_ACTIVE:
 			i = sgSFXSets[SFXS_PLR_08][plr._pClass];
-			if (!IsSFXPlaying(i)) {
+			if (!IsSfxStreaming(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+				PlaySfx(i);
 			}
 			break;
 		case QUEST_DONE:
 			i = sgSFXSets[SFXS_PLR_09][plr._pClass];
-			if (!IsSFXPlaying(i)) {
+			if (!IsSfxStreaming(i)) {
 				// tw->_mListener = pnum;  // TNR_LISTENER
-				PlaySFX(i);
+				PlaySfx(i);
 			}
 			break;
 		}
@@ -967,7 +973,7 @@ void TalkToTowner(int tnum)
 	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
 		// assert(!gbQtextflag);
 		ClearPanels();
-		// gamemenu_off();
+		gamemenu_off();
 		StartQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
 		StartStore(tw->_mgoalvar1);    // TNR_STORE
 	}

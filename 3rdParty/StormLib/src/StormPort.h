@@ -52,8 +52,12 @@
   // Suppress definitions of `min` and `max` macros by <windows.h>:
   #define NOMINMAX 1
   #include <windows.h>
-
+#ifdef NXDK
+  #include <stdlib.h>
+#endif
+#ifdef FULL
   #include <wininet.h>
+#endif
   #define STORMLIB_LITTLE_ENDIAN
 
   #ifdef _WIN64
@@ -397,6 +401,30 @@
   #define O_LARGEFILE 0
 #endif
 
+#if defined(NXDK)
+  // Typedefs for ANSI C
+  typedef unsigned char  BYTE;
+  typedef unsigned short USHORT;
+  //typedef int            LONG;
+  //typedef unsigned int   DWORD;
+  typedef unsigned long  DWORD_PTR;
+  typedef long           LONG_PTR;
+  typedef long           INT_PTR;
+  //typedef long long      LONGLONG;
+  //typedef unsigned long long ULONGLONG;
+  //typedef void         * HANDLE;
+  //typedef void         * LPOVERLAPPED; // Unsupported on Linux and Mac
+  typedef char           TCHAR;
+  typedef unsigned int   LCID;
+  typedef LONG         * PLONG;
+  typedef DWORD        * LPDWORD;
+  typedef BYTE         * LPBYTE;
+  typedef const char   * LPCTSTR;
+  typedef const char   * LPCSTR;
+  typedef char         * LPTSTR;
+  typedef char         * LPSTR;
+#endif
+
 // Platform-specific error codes for non-Windows platforms
 #ifndef ERROR_SUCCESS
   #define ERROR_SUCCESS                  0
@@ -426,48 +454,34 @@
 
 #ifdef STORMLIB_LITTLE_ENDIAN
     #define    BSWAP_INT16_UNSIGNED(a)          (a)
-    #define    BSWAP_INT16_SIGNED(a)            (a)
     #define    BSWAP_INT32_UNSIGNED(a)          (a)
-    #define    BSWAP_INT32_SIGNED(a)            (a)
-    #define    BSWAP_INT64_SIGNED(a)            (a)
     #define    BSWAP_INT64_UNSIGNED(a)          (a)
     #define    BSWAP_ARRAY16_UNSIGNED(a,b)      {}
     #define    BSWAP_ARRAY32_UNSIGNED(a,b)      {}
-    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      {}
-    #define    BSWAP_PART_HEADER(a)             {}
+//    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      {}
     #define    BSWAP_TMPQHEADER(a,b)            {}
-    #define    BSWAP_TMPKHEADER(a)              {}
 #else
 
 #ifdef __cplusplus
   extern "C" {
 #endif
-    int16_t  SwapInt16(uint16_t);
     uint16_t SwapUInt16(uint16_t);
-    int32_t  SwapInt32(uint32_t);
     uint32_t SwapUInt32(uint32_t);
-    int64_t  SwapInt64(uint64_t);
     uint64_t SwapUInt64(uint64_t);
     void ConvertUInt16Buffer(void * ptr, size_t length);
     void ConvertUInt32Buffer(void * ptr, size_t length);
-    void ConvertUInt64Buffer(void * ptr, size_t length);
-    void ConvertTMPQUserData(void *userData);
+//    void ConvertUInt64Buffer(void * ptr, size_t length);
     void ConvertTMPQHeader(void *header, uint16_t wPart);
-    void ConvertTMPKHeader(void *header);
 #ifdef __cplusplus
   }
 #endif
-    #define    BSWAP_INT16_SIGNED(a)            SwapInt16((a))
     #define    BSWAP_INT16_UNSIGNED(a)          SwapUInt16((a))
-    #define    BSWAP_INT32_SIGNED(a)            SwapInt32((a))
     #define    BSWAP_INT32_UNSIGNED(a)          SwapUInt32((a))
-    #define    BSWAP_INT64_SIGNED(a)            SwapInt64((a))
     #define    BSWAP_INT64_UNSIGNED(a)          SwapUInt64((a))
     #define    BSWAP_ARRAY16_UNSIGNED(a,b)      ConvertUInt16Buffer((a),(b))
     #define    BSWAP_ARRAY32_UNSIGNED(a,b)      ConvertUInt32Buffer((a),(b))
-    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      ConvertUInt64Buffer((a),(b))
+//    #define    BSWAP_ARRAY64_UNSIGNED(a,b)      ConvertUInt64Buffer((a),(b))
     #define    BSWAP_TMPQHEADER(a,b)            ConvertTMPQHeader((a),(b))
-    #define    BSWAP_TMPKHEADER(a)              ConvertTMPKHeader((a))
 #endif
 
 #endif // __STORMPORT_H__

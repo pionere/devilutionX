@@ -5,7 +5,10 @@ set(ASAN OFF)
 set(UBSAN OFF)
 
 # General build options.
-#set(VIRTUAL_GAMEPAD ON)
+if(__IPHONEOS__)
+  set(FULLSCREEN_ONLY ON)
+endif()
+set(VIRTUAL_GAMEPAD ON)
 #set(ZEROTIER OFF)
 #set(NOSOUND ON)
 

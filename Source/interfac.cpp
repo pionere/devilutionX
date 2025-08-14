@@ -4,6 +4,8 @@
  * Implementation of load screens.
  */
 #include "all.h"
+#include "plrctrls.h"
+#include "utils/display.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
 
@@ -11,13 +13,16 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /** Cutscene image CEL */
 CelImageBuf* sgpBackCel;
-
+/** Counter to maintain the status of the level-change. */
 unsigned sgdwProgress;
-
+/** Specifies the next tick-count to draw the cutscene and progress bar. */
+static Uint32 sgdwNextCut;
 /** Specifies whether the progress bar is drawn on top or at the bottom of the image. */
 static BOOLEAN sgbLoadBarOnTop;
 /** Color of the progress bar. */
 static BYTE sgbLoadBarCol;
+
+#define BAR_STEP ((BAR_WIDTH + 16) / 17)
 
 static void FreeCutscene()
 {
@@ -28,7 +33,7 @@ static void InitLvlCutscene(BYTE lvl)
 {
 	sgbLoadBarOnTop = AllLevels[lvl].dLoadBarOnTop;
 	sgbLoadBarCol = AllLevels[lvl].dLoadBarColor;
-	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, PANEL_WIDTH);
+	sgpBackCel = CelLoadImage(AllLevels[lvl].dLoadCels, BACKGROUND_ART_WIDTH);
 	LoadPalette(AllLevels[lvl].dLoadPal);
 }
 
@@ -58,15 +63,17 @@ static void InitCutscene(unsigned int uMsg)
 		lvl = currLvl._dLevelIdx;
 		InitLvlCutscene(lvl);
 		break;
-	case DVL_DWM_WARPLVL:
-		sgpBackCel = CelLoadImage("Gendata\\Cutportl.CEL", PANEL_WIDTH);
-		LoadPalette("Gendata\\Cutportl.pal");
+	case DVL_DWM_DYNLVL:
+	case DVL_DWM_PORTLVL:
+		sgpBackCel = CelLoadImage("gendata\\Cutportl.CEL", BACKGROUND_ART_WIDTH);
+		LoadPalette("gendata\\Cutportl.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
 	case DVL_DWM_NEWGAME:
-		sgpBackCel = CelLoadImage("Gendata\\Cutstart.CEL", PANEL_WIDTH);
-		LoadPalette("Gendata\\Cutstart.pal");
+	case DVL_DWM_LOADGAME:
+		sgpBackCel = CelLoadImage("gendata\\Cutstart.CEL", BACKGROUND_ART_WIDTH);
+		LoadPalette("gendata\\Cutstart.pal");
 		sgbLoadBarOnTop = FALSE;
 		sgbLoadBarCol = 43;
 		break;
@@ -94,9 +101,12 @@ static void DrawProgress()
 	int screen_x, screen_y;
 	unsigned w, i, j;
 
-	screen_x = PANEL_CENTERX(BAR_WIDTH);
-	screen_y = PANEL_Y + (sgbLoadBarOnTop ? TOP_BAR_Y : BOTTOM_BAR_Y);
-	dst = &gpBuffer[screen_x + BUFFER_WIDTH * screen_y];
+	screen_x = SCREEN_CENTERX(BAR_WIDTH);
+	screen_y = BACKGROUND_ART_TOP + (sgbLoadBarOnTop ? SCREEN_Y + TOP_BAR_Y : SCREEN_Y + BOTTOM_BAR_Y);
+	dst = &gpBuffer[BUFFERXY(screen_x, screen_y)];
+	if (dst >= gpBufEnd)
+		return;
+	static_assert(BORDER_BOTTOM >= BAR_HEIGHT, "DrawProgress needs larger border.");
 	col = sgbLoadBarCol;
 	w = sgdwProgress;
 	for (j = 0; j < BAR_HEIGHT; j++) {
@@ -107,40 +117,62 @@ static void DrawProgress()
 	}
 #if DEBUG_MODE || DEV_MODE
 	const char* progession[] {
-		"Startup", // 0
-		"Save", // 1
-		"Memfree", // 2
-		"Music stop", // 3
-		"Init Dungeon", // 4
-		"Init Level", // 5
-		"Create Dungeon", // 6
-		"MonsterFX", // 7
-		"Monsters", // 8
-		"ObjectsGFX", // 9
-		"Objects/Items", // 10
-		"Missiles/Light", // 11
-		"Music start", // 12
-		"Network - Pending Turns", // 13
-		"Network - Msg Queue", // 14
-		"Network - Join Level", // 15
-		"Network - Sync delta", // 16
-		"Fadeout", // 17
+/*  0 */"Startup",
+/*  1 */"Memfree",
+/*  2 */"Music stop",
+/*  3 */"Init Dungeon",
+/*  4 */"Init Level",
+/*  5 */"Create Dungeon",
+/*  6 */"MonsterFX",
+/*  7 */"Monsters",
+/*  8 */"ObjectsGFX",
+/*  9 */"Objects/Items",
+/* 10 */"Missiles/Light",
+/* 11 */"Music start",
+/* 12 */"Network - Pending Turns",
+/* 13 */"Network - Msg Queue",
+/* 14 */"Network - Join Level",
+/* 15 */"Network - Sync delta",
+/* 16 */"Fadeout",
 	};
-	unsigned progress = sgdwProgress / ((BAR_WIDTH + 17) / 18);
-	PrintString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, screen_x + BAR_WIDTH - 20, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", false, COL_WHITE, 1);
+	static_assert(((BAR_WIDTH + lengthof(progession) - 1) / lengthof(progession)) == BAR_STEP, "Progression steps and labels are not in sync.");
+	unsigned progress = sgdwProgress / BAR_STEP;
+	PrintLimitedString(screen_x + 10, screen_y + (BAR_HEIGHT - SMALL_FONT_HEIGHT) / 2 + SMALL_FONT_HEIGHT, progress < (unsigned)lengthof(progession) ? progession[progress] : "Unknown", BAR_WIDTH - 20, COL_WHITE, FONT_KERN_SMALL);
 #endif
 }
 
-static void DrawCutscene()
+static void DrawCutsceneBack()
 {
 	lock_buf(1);
-	if (sgdwProgress == 0)
-		CelDraw(PANEL_X, PANEL_Y + PANEL_HEIGHT - 1, sgpBackCel, 1);
+
+	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
+
+	unlock_buf(1);
+}
+
+static void RenderCutscene()
+{
+	Uint32 now = SDL_GetTicks();
+	bool skipRender = false;
+	// assert(sgdwProgress != 0);
+	if (/*sgdwProgress > 0 &&*/ !SDL_TICKS_PASSED(now, sgdwNextCut)) {
+		if (sgdwProgress < BAR_WIDTH)
+			return; // skip drawing if the progression is too fast
+		skipRender = true; // update the progress bar for fade-out
+	} else {
+		sgdwNextCut = now + gnRefreshDelay; // calculate the next tick to draw the cutscene
+	}
+
+	lock_buf(1);
+	// if (sgdwProgress == 0)
+	//	CelDraw(SCREEN_X + BACKGROUND_ART_LEFT, SCREEN_Y + BACKGROUND_ART_TOP + BACKGROUND_ART_HEIGHT - 1, sgpBackCel, 1);
 
 	DrawProgress();
 
 	unlock_buf(1);
-	scrollrt_draw_screen(false);
+
+	if (!skipRender)
+		scrollrt_render_screen(false);
 }
 
 void interface_msg_pump()
@@ -157,12 +189,11 @@ void interface_msg_pump()
 void IncProgress()
 {
 	interface_msg_pump();
-	sgdwProgress += (BAR_WIDTH + 17) / 18;
-	if (sgdwProgress > BAR_WIDTH)
-		sgdwProgress = BAR_WIDTH;
+	sgdwProgress += BAR_STEP;
+	assert(sgdwProgress <= BAR_WIDTH); // || sgpBackCel == NULL
 	// do not draw in case of quick-load
-	if (sgpBackCel != NULL)
-		DrawCutscene();
+	// if (sgpBackCel != NULL)
+		RenderCutscene();
 	//return sgdwProgress >= BAR_WIDTH;
 }
 
@@ -192,14 +223,17 @@ static void CreateDungeon()
 
 void LoadGameLevel(int lvldir)
 {
+	extern int32_t sglGameSeed;
+	assert(sglGameSeed == glSeedTbl[currLvl._dLevelIdx] || currLvl._dDynLvl);
+
 	music_stop();
 	//if (pcursicon > CURSOR_HAND && pcursicon < CURSOR_FIRSTITEM) {
 	//	NewCursor(CURSOR_HAND);
 	//}
 	//SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-	IncProgress(); // "Init Dungeon" (4)
+	IncProgress(); // "Init Dungeon" (3)
 	InitLvlDungeon();
-	IncProgress(); // "Init Level" (5)
+	IncProgress(); // "Init Level" (4)
 
 	InitLvlAutomap();
 
@@ -212,9 +246,9 @@ void LoadGameLevel(int lvldir)
 	InitLvlObjects();  // reset objects
 	InitLvlThemes();   // reset themes
 	InitLvlItems();    // reset items
-	IncProgress(); // "Create Dungeon" (6)
+	IncProgress(); // "Create Dungeon" (5)
 
-	SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
+	// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
 	// fill pre: pSetPieces
 	// fill in loop: dungeon, pWarps, uses drlgFlags, dungBlock
 	// fill post: themeLoc, pdungeon, dPiece, dTransVal
@@ -222,63 +256,84 @@ void LoadGameLevel(int lvldir)
 	LoadLvlPalette();
 	// reset: dMonster, dObject, dPlayer, dItem, dMissile, dFlags+, dLight+
 	InitLvlMap();
-	IncProgress(); // "MonsterFX" (7)
+	IncProgress(); // "MonsterFX" (6)
 	if (currLvl._dType != DTYPE_TOWN) {
 		GetLevelMTypes(); // select monster types and load their fx
-		InitThemes();     // select theme types
-		IncProgress(); // "Monsters" (8)
-		HoldThemeRooms(); // protect themes with dFlags
+		InitThemes();     // protect themes with dFlags and select theme types
+		IncProgress(); // "Monsters" (7)
 		InitMonsters();   // place monsters
 	} else {
 		InitLvlStores();
 		// TODO: might want to reset RndSeed, since InitLvlStores is player dependent, but it does not matter at the moment
 		// SetRndSeed(glSeedTbl[currLvl._dLevelIdx]);
-		IncProgress(); // "Monsters" (8)
+		IncProgress(); // "Monsters" (7)
 		InitTowners();
 	}
-	IncProgress(); // "ObjectsGFX" (9)
+	IncProgress(); // "ObjectsGFX" (8)
 	InitObjectGFX();    // load object graphics
-	IncProgress(); // "Objects/Items" (10)
+	IncProgress(); // "Objects/Items" (9)
 	InitObjects();      // place objects
 	InitItems();        // place items
 	CreateThemeRooms(); // populate theme rooms
 	FreeSetPieces();
-	IncProgress(); // "Missiles/Light" (11)
+	IncProgress(); // "Missiles/Light" (10)
 	InitMissiles();
 	SavePreLighting();
 	InitView(lvldir);
 
-	IncProgress(); // "Music start" (12)
+	IncProgress(); // "Music start" (11)
 
-	music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+	music_start(AllLevels[currLvl._dLevelNum].dMusic);
 }
 
 void EnterLevel(BYTE lvl)
 {
-	currLvl._dLevelIdx = lvl;
-	currLvl._dLevel = AllLevels[lvl].dLevel;
-	currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
-	currLvl._dType = AllLevels[lvl].dType;
-	currLvl._dDunType = AllLevels[lvl].dDunType;
-	if (gnDifficulty == DIFF_NIGHTMARE)
-		currLvl._dLevel += NIGHTMARE_LEVEL_BONUS;
-	else if (gnDifficulty == DIFF_HELL)
-		currLvl._dLevel += HELL_LEVEL_BONUS;
-	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
-}
+	int lvlBonus;
 
-static void SwitchGameLevel(int lvldir)
-{
-	if (IsMultiGame) {
-		DeltaSaveLevel();
+	SetRndSeed(glSeedTbl[lvl]);
+	currLvl._dLevelPlyrs = IsMultiGame ? gsDeltaData.ddLevelPlrs[lvl] : 1;
+	currLvl._dLevelIdx = lvl;
+	currLvl._dDynLvl = lvl >= NUM_FIXLVLS;
+	if (currLvl._dDynLvl) {
+		// select level
+		unsigned baseLevel = gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
+		unsigned leveltype = gDynLevels[lvl - NUM_FIXLVLS]._dnType;
+		// assert(baseLevel + HELL_LEVEL_BONUS < CF_LEVEL);
+		int availableLvls[NUM_FIXLVLS];
+		int numLvls = 0;
+		for (int i = DLV_CATHEDRAL1; i < NUM_STDLVLS; i++) {
+			if (AllLevels[i].dLevel <= baseLevel && (leveltype == DLV_TOWN || leveltype == AllLevels[i].dType) /*&& AllLevels[i].dMonTypes[0] != MT_INVALID*/) {
+				availableLvls[numLvls] = i;
+				numLvls++;
+			}
+		}
+		lvl = DLV_CATHEDRAL1;
+		if (numLvls != 0) {
+			lvl = availableLvls[random_low(141, numLvls)];
+		} else {
+			baseLevel = AllLevels[DLV_CATHEDRAL1].dLevel;
+		}
+		currLvl._dLevelNum = lvl;
+		currLvl._dLevel = AllLevels[lvl].dLevel;
+		currLvl._dSetLvl = false; // AllLevels[lvl].dSetLvl;
+		currLvl._dType = AllLevels[lvl].dType;
+		currLvl._dDunType = AllLevels[lvl].dDunType;
+		lvlBonus = baseLevel - AllLevels[lvl].dLevel;
 	} else {
-		SaveLevel();
+		currLvl._dLevelNum = lvl;
+		currLvl._dLevel = AllLevels[lvl].dLevel;
+		currLvl._dSetLvl = AllLevels[lvl].dSetLvl;
+		currLvl._dType = AllLevels[lvl].dType;
+		currLvl._dDunType = AllLevels[lvl].dDunType;
+		lvlBonus = 0;
 	}
-	IncProgress();
-	FreeLevelMem();
-	EnterLevel(myplr._pDunLevel);
-	IncProgress();
-	LoadGameLevel(lvldir);
+	if (gnDifficulty == DIFF_NIGHTMARE) {
+		lvlBonus += NIGHTMARE_LEVEL_BONUS;
+	} else if (gnDifficulty == DIFF_HELL) {
+		lvlBonus += HELL_LEVEL_BONUS;
+	}
+	currLvl._dLevelBonus = lvlBonus;
+	currLvl._dLevel += lvlBonus;
 }
 
 /*
@@ -299,9 +354,14 @@ void ShowCutscene(unsigned uMsg)
 	WNDPROC saveProc;
 
 	nthread_run();
-	if (uMsg != DVL_DWM_NEWGAME) {
-		if (IsMultiGame)
-			pfile_write_hero(false);
+	static_assert((unsigned)DVL_DWM_LOADGAME == (unsigned)DVL_DWM_NEWGAME + 1 && (unsigned)NUM_WNDMSGS == (unsigned)DVL_DWM_LOADGAME + 1, "Check to save hero/level in ShowCutscene must be adjusted.");
+	if (uMsg < DVL_DWM_NEWGAME) {
+		pfile_update(true);
+		if (IsMultiGame) {
+			DeltaSaveLevel();
+		} else {
+			SaveLevel();
+		}
 		// turned off to have a consistent fade in/out logic + reduces de-sync by
 		// eliminating the need for special handling in InitLevelChange (player.cpp)
 		//PaletteFadeOut();
@@ -309,71 +369,58 @@ void ShowCutscene(unsigned uMsg)
 
 	assert(ghMainWnd != NULL);
 	saveProc = SetWindowProc(DisableInputWndProc);
-
+	assert(saveProc == GameWndProc);
 	interface_msg_pump();
-	ClearScreenBuffer();
-	scrollrt_draw_screen(false);
+	// scrollrt_render_screen(false); -- unnecessary, because it is going to be updated/presented by DrawCutsceneBack/PaletteFadeIn
 	InitCutscene(uMsg);
-	SetFadeLevel(0); // TODO: set _gbFadedIn to false?
-	DrawCutscene();
+	ClearScreenBuffer(); // must be after InitCutscene in case gbCineflag is set to clear after video-playback
+	// SetFadeLevel(0); // -- unnecessary, PaletteFadeIn starts with fade-level 0 anyway
+	DrawCutsceneBack();
 	PaletteFadeIn(false);
-	IncProgress();
+	sgdwNextCut = SDL_GetTicks() + gnRefreshDelay; // calculate the next tick to draw the cutscene
+	IncProgress(); // "Memfree" (1)
+	FreeLevelMem();
+	IncProgress(); // "Music stop" (2)
 
-	switch (uMsg) {
-	case DVL_DWM_NEWGAME:
-		IncProgress();
-		IncProgress();
-		if (gbLoadGame /*&& gbValidSaveFile*/) {
-			LoadGame();
-		} else {
-			//FreeLevelMem();
-			pfile_delete_save_file(false);
-			LoadGameLevel(ENTRY_MAIN);
+	if (uMsg != DVL_DWM_LOADGAME) {
+		int lvldir = ENTRY_MAIN;
+		if (uMsg != DVL_DWM_NEWGAME) {
+			lvldir += (uMsg - DVL_DWM_NEXTLVL);
+			if (uMsg == DVL_DWM_NEXTLVL)
+				assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
+			if (uMsg == DVL_DWM_PREVLVL)
+				assert(myplr._pDunLevel == currLvl._dLevelIdx - 1);
+			static_assert((int)DVL_DWM_NEXTLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_MAIN    - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted I.");
+			static_assert((int)DVL_DWM_PREVLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PREV    - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted II.");
+			static_assert((int)DVL_DWM_SETLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_SETLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted III.");
+			static_assert((int)DVL_DWM_RTNLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RTNLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted IV.");
+			static_assert((int)DVL_DWM_DYNLVL  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_DYNLVL  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted V.");
+			static_assert((int)DVL_DWM_PORTLVL - (int)DVL_DWM_NEXTLVL == (int)ENTRY_PORTLVL - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VI.");
+			static_assert((int)DVL_DWM_TWARPDN - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPDN - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VII.");
+			static_assert((int)DVL_DWM_TWARPUP - (int)DVL_DWM_NEXTLVL == (int)ENTRY_TWARPUP - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted VIII.");
+			static_assert((int)DVL_DWM_RETOWN  - (int)DVL_DWM_NEXTLVL == (int)ENTRY_RETOWN  - (int)ENTRY_MAIN, "Conversion from DVL_DWM_* to ENTRY_* in ShowCutscene must be adjusted IX.");
 		}
-		break;
-	case DVL_DWM_NEXTLVL:
-		assert(myplr._pDunLevel == currLvl._dLevelIdx + 1);
-		SwitchGameLevel(ENTRY_MAIN);
-		break;
-	case DVL_DWM_PREVLVL:
-		assert(myplr._pDunLevel == currLvl._dLevelIdx - 1);
-		SwitchGameLevel(ENTRY_PREV);
-		break;
-	case DVL_DWM_SETLVL:
-		SwitchGameLevel(ENTRY_SETLVL);
-		break;
-	case DVL_DWM_RTNLVL:
-		SwitchGameLevel(ENTRY_RTNLVL);
-		break;
-	case DVL_DWM_WARPLVL:
-		SwitchGameLevel(ENTRY_WARPLVL);
-		break;
-	case DVL_DWM_TWARPDN:
-		SwitchGameLevel(ENTRY_TWARPDN);
-		break;
-	case DVL_DWM_TWARPUP:
-		SwitchGameLevel(ENTRY_TWARPUP);
-		break;
-	case DVL_DWM_RETOWN:
-		SwitchGameLevel(ENTRY_RETOWN);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+		EnterLevel(myplr._pDunLevel);
+		LoadGameLevel(lvldir);
+	} else {
+		LoadGame();
 	}
-	IncProgress();
+	IncProgress(); // "Network" (13..15)
 	// process packets arrived during LoadLevel / delta-load and disable nthread
 	nthread_finish(uMsg);
 
 	if (IsLocalGame) { // do not block other players
-		sgdwProgress = BAR_WIDTH;
-		IncProgress();
+		sgdwProgress = BAR_WIDTH - BAR_STEP;
+		IncProgress(); // "Fadeout" (16)
 		PaletteFadeOut();
+		// skip time due to fadein/out
+		extern Uint32 guNextTick;
+		guNextTick = SDL_GetTicks() + gnTickDelay; // += (uMsg < DVL_DWM_NEWGAME ? 2 : 1) * FADE_LEVELS;
 	}
 	FreeCutscene();
 
 	assert(ghMainWnd != NULL);
-	saveProc = SetWindowProc(saveProc);
+	saveProc = SetWindowProc(GameWndProc); // saveProc);
 	assert(saveProc == DisableInputWndProc);
 }
 

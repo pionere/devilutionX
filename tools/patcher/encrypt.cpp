@@ -82,6 +82,8 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 	unsigned int destSize; // , type, dsize;
 
 	work_buf = (char*)DiabloAllocPtr(CMP_BUFFER_SIZE);
+	// zfill the work-buffer to make the result consistent (see Warning in WriteCmpData(TCmpStruct * pWork) / (implode.cpp)
+	memset(work_buf, 0, CMP_BUFFER_SIZE);
 
 	destSize = 2 * size;
 	if (destSize < 2 * CMP_IMPLODE_DICT_SIZE3)
@@ -93,9 +95,12 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 
 	// type = CMP_BINARY;
 	// dsize = CMP_IMPLODE_DICT_SIZE3;
-	if (implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info) == CMP_NO_ERROR) {
-		size = info.pbOutBuff - destData;
+	implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+	// ignore the result if the compression was unsuccessful
+	destSize = (size_t)info.pbOutBuff - (size_t)destData;
+	if (destSize < size) {
 		memcpy(srcData, destData, size);
+		size = destSize;
 	}
 	mem_free_dbg(work_buf);
 	mem_free_dbg(destData);
@@ -113,10 +118,11 @@ void PkwareDecompress(BYTE* srcData, unsigned size, unsigned dwMaxBytes)
 
 	TDataInfo info = TDataInfo(srcData, size, destData, dwMaxBytes);
 
-	if (explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info) == CMP_NO_ERROR) {
-		size = info.pbOutBuff - destData;
-		memcpy(srcData, destData, size);
-	}
+	explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+
+	size = (size_t)info.pbOutBuff - (size_t)destData;
+	memcpy(srcData, destData, size);
+
 	mem_free_dbg(work_buf);
 	mem_free_dbg(destData);
 }

@@ -3,16 +3,13 @@
 #include "controls/controller_motion.h"
 
 #include "DiabloUI/diablo.h"
-#include "DiabloUI/scrollbar.h"
-#include "DiabloUI/text_draw.h"
-#include "DiabloUI/dialogs.h"
 //#include "controls/plrctrls.h"
 #include "controls/touch.h"
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/text_render.h"
 #include "utils/screen_reader.hpp"
 #if FULL_UI
-#include "engine/render/text_render.h"
 #include "engine/render/raw_render.h"
 #include "utils/utf8.h"
 #ifdef __SWITCH__
@@ -33,12 +30,16 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FOCUS_FRAME_COUNT   8
 #define EDIT_SELECTOR_WIDTH 43
 
-CelImageBuf* gbBackCel;
+static CelImageBuf* gbBackCel;
 static CelImageBuf* gbLogoCelSmall;
 static CelImageBuf* gbFocusCelSmall;
 static CelImageBuf* gbFocusCelMed;
 static CelImageBuf* gbFocusCelBig;
-CelImageBuf* gbSmlButtonCel;
+#if FULL_UI
+static CelImageBuf* scrollBarBackCel;
+static CelImageBuf* scrollBarThumbCel;
+static CelImageBuf* scrollBarArrowCel;
+#endif
 
 static void (*gfnListFocus)(unsigned index);
 static void (*gfnListSelect)(unsigned index);
@@ -58,7 +59,31 @@ UiEdit* gUiEditField;
 bool gUiDrawCursor;
 
 static Uint32 _gdwFadeTc;
-static int _gnFadeValue = 0;
+
+UiProgressBar::UiProgressBar(const SDL_Rect& rect)
+	: UiItemBase(UI_PROGRESSBAR, rect, 0)//, m_Progress(0)
+{
+	int i;
+	CelImageBuf* progFillCel;
+
+	m_ProgBackCel = CelLoadImage("ui_art\\spopup.CEL", SMALL_POPUP_WIDTH);
+	m_ProgEmptyCel = CelLoadImage("ui_art\\prog_bg.CEL", PRBAR_WIDTH);
+
+	m_ProgFillBmp = DiabloAllocPtr(PRBAR_HEIGHT * PRBAR_WIDTH);
+	progFillCel = CelLoadImage("ui_art\\prog_fil.CEL", PRBAR_WIDTH);
+	CelDraw(SCREEN_X, SCREEN_Y + PRBAR_HEIGHT - 1, progFillCel, 1);
+	for (i = 0; i < PRBAR_HEIGHT; i++) {
+		memcpy(&m_ProgFillBmp[0 + i * PRBAR_WIDTH], &gpBuffer[SCREENXY(0, i)], PRBAR_WIDTH);
+	}
+	mem_free_dbg(progFillCel);
+}
+
+UiProgressBar::~UiProgressBar()
+{
+	MemFreeDbg(m_ProgBackCel);
+	MemFreeDbg(m_ProgEmptyCel);
+	MemFreeDbg(m_ProgFillBmp);
+}
 
 void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnSelect)(unsigned index), void (*fnEsc)())
 {
@@ -71,13 +96,13 @@ void UiInitScreen(unsigned listSize, void (*fnFocus)(unsigned index), void (*fnS
 	gfnListSelect = fnSelect;
 	gfnListEsc = fnEsc;
 	gfnListDelete = NULL;
-	if (fnFocus != NULL)
+	if (fnFocus != NULL) {
 		fnFocus(SelectedItem);
 #if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > SelectedItem) {
-		SpeakText(gUIListItems[SelectedItem]->m_text);
-	}
+		unsigned idx = SelectedItem - ListOffset;
+		SpeakText(gUIListItems[idx]->m_text);
 #endif
+	}
 
 #if FULL_UI
 	gUiEditField = NULL;
@@ -93,8 +118,8 @@ void UiInitScrollBar(UiScrollBar* uiSb, unsigned viewportSize, void (*fnDelete)(
 	ListViewportSize = viewportSize;
 	if (ListViewportSize > SelectedItemMax) {
 		uiSb->m_iFlags |= UIS_HIDDEN;
-	} else {
-		uiSb->m_iFlags &= ~UIS_HIDDEN;
+	//} else {
+	//	uiSb->m_iFlags &= ~UIS_HIDDEN;
 	}
 }
 
@@ -115,12 +140,12 @@ void UiInitEdit(UiEdit* uiEdit)
 #endif // FULL_UI
 static void UiPlayMoveSound()
 {
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 static void UiPlaySelectSound()
 {
-	PlaySFX(IS_TITLSLCT);
+	PlaySfx(IS_TITLSLCT);
 }
 
 static void UiScrollIntoView()
@@ -146,13 +171,13 @@ void UiFocus(unsigned itemIndex)
 	UiScrollIntoView();
 	UiPlayMoveSound();
 
-	if (gfnListFocus != NULL)
+	if (gfnListFocus != NULL) {
 		gfnListFocus(itemIndex);
 #if SCREEN_READER_INTEGRATION
-	if (gUIListItems.size() > itemIndex) {
-		SpeakText(gUIListItems[itemIndex]->m_text);
-	}
+		unsigned idx = itemIndex - ListOffset;
+		SpeakText(gUIListItems[idx]->m_text);
 #endif
+	}
 }
 
 static void UiFocusUp()
@@ -232,14 +257,15 @@ static void UiCatToText(const char* inBuf)
 	}
 	char* text = gUiEditField->m_value;
 	unsigned maxlen = gUiEditField->m_max_length;
-	// assert(maxLen - cp < sizeof(tempstr));
-	SStrCopy(tempstr, &text[cp], std::min((unsigned)sizeof(tempstr) - 1, maxlen - cp));
-	SStrCopy(&text[sp], output, maxlen - sp);
+	char tmpstr[UIEDIT_MAXLENGTH];
+	SStrCopy(tmpstr, &text[cp], std::min((unsigned)sizeof(tmpstr) - 1, maxlen - cp));
+	int len = SStrCopy(&text[sp], output, maxlen - sp);
 	SDL_free(output);
-	sp = strlen(text);
+	// assert(strlen(text) == len + sp);
+	sp += len;
 	gUiEditField->m_curpos = sp;
 	gUiEditField->m_selpos = sp;
-	SStrCopy(&text[sp], tempstr, maxlen - sp);
+	SStrCopy(&text[sp], tmpstr, maxlen - sp);
 }
 
 #ifdef __vita__
@@ -247,9 +273,10 @@ static void UiSetText(const char* inBuf)
 {
 	char* output = utf8_to_latin1(inBuf);
 	char* text = gUiEditField->m_value;
-	SStrCopy(text, output, gUiEditField->m_max_length);
+	int len = SStrCopy(text, output, gUiEditField->m_max_length);
 	SDL_free(output);
-	unsigned pos = strlen(text);
+	// assert(strlen(text) == len);
+	unsigned pos = (unsigned)len;
 	gUiEditField->m_curpos = pos;
 	gUiEditField->m_selpos = pos;
 }
@@ -320,7 +347,14 @@ static void LoadUiGFX()
 	gbFocusCelMed = CelLoadImage("ui_art\\focus.CEL", FOCUS_MEDIUM);
 	assert(gbFocusCelBig == NULL);
 	gbFocusCelBig = CelLoadImage("ui_art\\focus42.CEL", FOCUS_BIG);
-
+#if FULL_UI
+	assert(scrollBarBackCel == NULL);
+	scrollBarBackCel = CelLoadImage("ui_art\\sb_bg.CEL", SCROLLBAR_BG_WIDTH);
+	assert(scrollBarThumbCel == NULL);
+	scrollBarThumbCel = CelLoadImage("ui_art\\sb_thumb.CEL", SCROLLBAR_THUMB_WIDTH);
+	assert(scrollBarArrowCel == NULL);
+	scrollBarArrowCel = CelLoadImage("ui_art\\sb_arrow.CEL", SCROLLBAR_ARROW_WIDTH);
+#endif
 	NewCursor(CURSOR_HAND);
 }
 
@@ -330,16 +364,16 @@ static void UnloadUiGFX()
 	MemFreeDbg(gbFocusCelSmall);
 	MemFreeDbg(gbFocusCelMed);
 	MemFreeDbg(gbFocusCelBig);
+#if FULL_UI
+	MemFreeDbg(scrollBarBackCel);
+	MemFreeDbg(scrollBarThumbCel);
+	MemFreeDbg(scrollBarArrowCel);
+#endif
 }
 
 void UiInitialize()
 {
 	LoadUiGFX();
-	//if (pCursCels != NULL) {
-		if (SDL_ShowCursor(SDL_DISABLE) < 0) {
-			sdl_error(ERR_SDL_UI_CURSOR_DISABLE);
-		}
-	//}
 }
 
 void UiDestroy()
@@ -350,23 +384,14 @@ void UiDestroy()
 void LoadBackgroundArt(const char* pszFile, const char* palette)
 {
 	assert(gbBackCel == NULL);
-	//FreeBackgroundArt();
-	gbBackCel = CelLoadImage(pszFile, PANEL_WIDTH);
-
+	// FreeBackgroundArt();
+	if (pszFile != NULL)
+		gbBackCel = CelLoadImage(pszFile, BACKGROUND_ART_WIDTH);
+	// assert(palette != NULL);
 	LoadPalette(palette);
-	PaletteFadeIn(true);
 
-	// help the render loops by setting up an initial fade level
-	_gdwFadeTc = 0;
-	_gnFadeValue = 0;
-	SetFadeLevel(0);
-	/* unnecessary, because the render loops are supposed to start with this.
-	UiClearScreen();
-//#ifdef USE_SDL1
-//	if (DiabloUiSurface() == back_surface)
-		BltFast();
-//#endif
-	RenderPresent();*/
+	// initiate fading
+	gnFadeValue = -1;
 }
 
 void FreeBackgroundArt()
@@ -377,49 +402,60 @@ void FreeBackgroundArt()
 void UiAddBackground()
 {
 	assert(gbBackCel != NULL);
-	SDL_Rect rect = { PANEL_LEFT, PANEL_TOP, PANEL_WIDTH, PANEL_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(BACKGROUND_ART_WIDTH), BACKGROUND_ART_TOP, BACKGROUND_ART_WIDTH, BACKGROUND_ART_HEIGHT };
 	gUiItems.push_back(new UiImage(gbBackCel, 0, rect, false));
 }
 
 void UiAddLogo()
 {
 	assert(gbLogoCelSmall != NULL);
-	SDL_Rect rect = { PANEL_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
+	SDL_Rect rect = { SCREEN_MIDX(SMALL_LOGO_WIDTH), SMALL_LOGO_TOP, SMALL_LOGO_WIDTH, SMALL_LOGO_HEIGHT };
 	gUiItems.push_back(new UiImage(gbLogoCelSmall, 15, rect, true));
 }
 
-void UiFadeIn()
+static void UiClearScreen()
 {
-	Uint32 currTc;
+	// if (SCREEN_WIDTH > BACKGROUND_ART_WIDTH || SCREEN_HEIGHT > BACKGROUND_ART_HEIGHT) { // Background size
+		ClearScreenBuffer();
+	// }
+}
 
-	if (_gnFadeValue < FADE_LEVELS) {
+static void UiFadeIn()
+{
+	int fv;
+	Uint32 currTc;
+	bool draw_cursor;
+
+	fv = gnFadeValue;
+	if (fv < FADE_LEVELS) {
 		currTc = SDL_GetTicks();
-		if (_gnFadeValue == 0 && _gdwFadeTc == 0)
+		if (fv < 0) {
 			_gdwFadeTc = currTc;
-		_gnFadeValue = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
-		if (_gnFadeValue > FADE_LEVELS) {
-			_gnFadeValue = FADE_LEVELS;
+			PaletteFadeIn(true);
+		}
+		fv = (currTc - _gdwFadeTc) >> 0; // instead of >> 0 it was / 2.083 ... 32 frames @ 60hz
+		if ((unsigned)fv > FADE_LEVELS) {
+			fv = FADE_LEVELS;
 			//_gdwFadeTc = 0;
 		}
-		SetFadeLevel(_gnFadeValue);
+		SetFadeLevel(fv);
 	}
-	scrollrt_draw_screen(gUiDrawCursor);
+
+	draw_cursor = gUiDrawCursor;
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	if (sgbControllerActive)
+		draw_cursor = false;
+#endif
+	scrollrt_render_screen(draw_cursor);
 }
 
-void UiRender()
-{
-	UiClearScreen();
-	UiRenderItems();
-	UiFadeIn();
-}
-
-int GetAnimationFrame(int frames, int animFrameLenMs)
+static int GetAnimationFrame(int frames, int animFrameLenMs)
 {
 	//assert(frames > 0 && fps > 0);
 	return (SDL_GetTicks() / animFrameLenMs) % frames;
 }
 
-static void DrawSelector(const SDL_Rect& rect)
+static void UiDrawSelector(const SDL_Rect& rect)
 {
 	int size, frame, x, y;
 	CelImageBuf* selCel;
@@ -434,7 +470,7 @@ static void DrawSelector(const SDL_Rect& rect)
 		selCel = gbFocusCelMed;
 	}
 	size = selCel->ciWidth;
-	frame = GetAnimationFrame(FOCUS_FRAME_COUNT) + 1;
+	frame = GetAnimationFrame(FOCUS_FRAME_COUNT, 64) + 1;
 	x = SCREEN_X + rect.x;
 	y = SCREEN_Y + rect.y + (unsigned)(rect.h + size) / 2 - 1; // TODO FOCUS_MED appears higher than the box
 
@@ -443,58 +479,63 @@ static void DrawSelector(const SDL_Rect& rect)
 	CelDraw(x, y, selCel, frame);
 }
 
-void UiClearScreen()
+static void DrawArtStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	if (SCREEN_WIDTH > PANEL_WIDTH) { // Background size
-		// SDL_FillRect(DiabloUiSurface(), NULL, 0x000000);
-		ClearScreenBuffer();
-	}
+	flags &= ~(UIS_OPTIONAL | UIS_DISABLED | UIS_HIDDEN),
+	PrintString(flags, text, SCREEN_X + rect.x, SCREEN_Y + rect.y, rect.w, rect.h);
 }
 
-void UiRenderAndPoll()
-{
-	UiRender();
-
-	Dvl_Event event;
-	while (UiPeekAndHandleEvents(&event)) {
-		;
-	}
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-	HandleMenuMove();
-#endif
-#ifdef __3DS__
-	// Keyboard blocks until input is finished
-	// so defer until after render and fade-in
-	ctr_vkbdFlush();
-#endif
-}
-
-static void Render(const UiText* uiArtText)
+static void UiDraw(const UiText* uiArtText)
 {
 	DrawArtStr(uiArtText->m_text, uiArtText->m_rect, uiArtText->m_iFlags);
 }
-
-static void Render(const UiImage* uiImage)
+#if FULL_UI
+static void UiDraw(const UiTextBox* uiTextBox)
 {
-	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame) : uiImage->m_frame;
+	DrawColorTextBox(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, uiTextBox->m_rect.h, (uiTextBox->m_iFlags >> UIS_COLOR_SHL) & UIS_COLORS);
+
+	if (uiTextBox->m_iFlags & UIS_HCENTER)
+		DrawColorTextBoxSLine(SCREEN_X + uiTextBox->m_rect.x, SCREEN_Y + uiTextBox->m_rect.y, uiTextBox->m_rect.w, SELGAME_HEADER_HEIGHT);
+}
+#endif
+static void UiDraw(const UiImage* uiImage)
+{
+	int frame = uiImage->m_animated ? GetAnimationFrame(uiImage->m_frame, 64) : uiImage->m_frame;
 	int x = SCREEN_X + uiImage->m_rect.x;
 	int y = SCREEN_Y + uiImage->m_rect.y + uiImage->m_rect.h - 1;
 
 	CelDraw(x, y, uiImage->m_cel_data, frame + 1);
 }
-#if FULL_UI
-static void Render(const UiTxtButton* uiButton)
+
+static void UiDrawStr(const char* text, const SDL_Rect& rect, int flags)
 {
-	DrawArtStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
+	const SDL_Point point = { MousePos.x, MousePos.y };
+	if (SDL_PointInRect(&point, &rect)) {
+		flags |= UIS_LIGHT;
+#if SCREEN_READER_INTEGRATION
+		SpeakText(text);
+#endif
+	}
+	DrawArtStr(text, rect, flags);
+}
+#if FULL_UI
+static void UiDraw(const UiTxtButton* uiButton)
+{
+	UiDrawStr(uiButton->m_text, uiButton->m_rect, uiButton->m_iFlags);
+}
+
+static void UiDraw(const UiTextScroll* uiTxtScroll)
+{
+	uiTxtScroll->m_draw(uiTxtScroll);
 }
 #endif
-static void Render(const UiButton* button)
+static void UiDraw(const UiButton* button)
 {
 	int frame = button->m_pressed ? 2 : 1;
 	int x = SCREEN_X + button->m_rect.x;
 	int y = SCREEN_Y + button->m_rect.y + 28 - 1;
 
-	CelDraw(x, y, gbSmlButtonCel, frame);
+	CelDraw(x, y, button->m_image, frame);
 
 	SDL_Rect textRect = button->m_rect;
 	if (button->m_pressed)
@@ -502,18 +543,40 @@ static void Render(const UiButton* button)
 	DrawArtStr(button->m_text, textRect, UIS_HCENTER | UIS_VCENTER | UIS_SMALL | UIS_GOLD);
 }
 
-static void Render(const UiList* uiList)
+static void UiDraw(const UiList* uiList)
 {
 	for (unsigned i = 0; i < uiList->m_vecItems->size(); i++) {
 		SDL_Rect rect = uiList->itemRect(i);
 		if (i + ListOffset == SelectedItem)
-			DrawSelector(rect);
+			UiDrawSelector(rect);
 		UiListItem* item = (*uiList->m_vecItems)[i];
-		DrawArtStr(item->m_text, rect, uiList->m_iFlags);
+		UiDrawStr(item->m_text, rect, uiList->m_iFlags);
+	}
+}
+
+static void UiDraw(const UiProgressBar* uiPb)
+{
+	int x, y, i, dx;
+
+	x = uiPb->m_rect.x + SCREEN_X;
+	y = uiPb->m_rect.y + SCREEN_Y;
+	// draw the popup window
+	CelDraw(x, y + SMALL_POPUP_HEIGHT, uiPb->m_ProgBackCel, 1);
+	x += (SMALL_POPUP_WIDTH - PRBAR_WIDTH) / 2;
+	y += 46 + PRBAR_HEIGHT;
+	// draw the frame of the progress bar
+	CelDraw(x, y - 1, uiPb->m_ProgEmptyCel, 1);
+	// draw the progress bar
+	dx = uiPb->m_Progress;
+	if (dx > 100)
+		dx = 100;
+	dx = PRBAR_WIDTH * dx / 100;
+	for (i = 0; i < PRBAR_HEIGHT && dx != 0; i++) {
+		memcpy(&gpBuffer[BUFFERXY(x, y + i - PRBAR_HEIGHT)], &uiPb->m_ProgFillBmp[0 + i * PRBAR_WIDTH], dx);
 	}
 }
 #if FULL_UI
-static void Render(const UiScrollBar* uiSb)
+static void UiDraw(const UiScrollBar* uiSb)
 {
 	const int sx = SCREEN_X + uiSb->m_rect.x;
 	int sy = SCREEN_Y + uiSb->m_rect.y - 1;
@@ -556,9 +619,9 @@ static void Render(const UiScrollBar* uiSb)
 	}
 }
 
-static void Render(const UiEdit* uiEdit)
+static void UiDraw(const UiEdit* uiEdit)
 {
-	// DrawSelector(uiEdit->m_rect);
+	// UiDrawSelector(uiEdit->m_rect);
 	SDL_Rect rect = uiEdit->m_rect;
 	// rect.x += EDIT_SELECTOR_WIDTH;
 	rect.y += 1;
@@ -598,44 +661,95 @@ static void Render(const UiEdit* uiEdit)
 	}
 }
 #endif
-static void RenderItem(const UiItemBase* item)
+static void UiDrawItem(const UiItemBase* item)
 {
 	if (item->m_iFlags & UIS_HIDDEN)
 		return;
 
 	switch (item->m_type) {
 	case UI_TEXT:
-		Render(static_cast<const UiText*>(item));
+		UiDraw(static_cast<const UiText*>(item));
 		break;
+#if FULL_UI
+	case UI_TEXTBOX:
+		UiDraw(static_cast<const UiTextBox*>(item));
+		break;
+#endif
 	case UI_IMAGE:
-		Render(static_cast<const UiImage*>(item));
+		UiDraw(static_cast<const UiImage*>(item));
 		break;
 #if FULL_UI
 	case UI_TXT_BUTTON:
-		Render(static_cast<const UiTxtButton*>(item));
+		UiDraw(static_cast<const UiTxtButton*>(item));
+		break;
+	case UI_TXT_SCROLL:
+		UiDraw(static_cast<const UiTextScroll*>(item));
 		break;
 #endif
 	case UI_BUTTON:
-		Render(static_cast<const UiButton*>(item));
+		UiDraw(static_cast<const UiButton*>(item));
 		break;
 	case UI_LIST:
-		Render(static_cast<const UiList*>(item));
+		UiDraw(static_cast<const UiList*>(item));
+		break;
+	case UI_PROGRESSBAR:
+		UiDraw(static_cast<const UiProgressBar*>(item));
 		break;
 #if FULL_UI
 	case UI_SCROLLBAR:
-		Render(static_cast<const UiScrollBar*>(item));
+		UiDraw(static_cast<const UiScrollBar*>(item));
 		break;
 	case UI_EDIT:
-		Render(static_cast<const UiEdit*>(item));
+		UiDraw(static_cast<const UiEdit*>(item));
 		break;
 #endif
 	case UI_CUSTOM:
-		static_cast<const UiCustom*>(item)->m_render();
+		static_cast<const UiCustom*>(item)->m_draw();
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
+}
+
+static void UiDrawItems()
+{
+	for (const UiItemBase* uiItem : gUiItems) {
+		UiDrawItem(uiItem);
+	}
+}
+
+void UiRender()
+{
+	if (gbWndActive) {
+		UiClearScreen();
+		UiDrawItems();
+
+#if HAS_TOUCHPAD
+		DrawGamepad();
+#endif
+	}
+	UiFadeIn();
+}
+
+void UiRenderAndPoll()
+{
+	UiRender();
+
+	Dvl_Event event;
+	while (UiPeekAndHandleEvents(&event)) {
+		;
+	}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+	HandleMenuMove();
+#endif
+#if FULL_UI
+#ifdef __3DS__
+	// Keyboard blocks until input is finished
+	// so defer until after render and fade-in
+	ctr_vkbdFlush();
+#endif
+#endif // FULL_UI
 }
 #if FULL_UI
 static bool HandleMouseEventArtTextButton(const Dvl_Event& event, const UiTxtButton* uiButton)
@@ -875,24 +989,28 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 			UiFocusNavigationEsc();
 			break;
 		}
+#if !FULLSCREEN_ONLY
 		if (event->vkcode == DVL_VK_RETURN && (event->key.keysym.mod & KMOD_ALT)) {
 			ToggleFullscreen();
 			break;
 		}
+#endif
 #if FULL_UI
 		if (gUiEditField != NULL) {
 			switch (event->vkcode) {
 #ifndef USE_SDL1
-			case DVL_VK_MBUTTON:
 			case DVL_VK_V:
-				if (event->key.keysym.mod & KMOD_CTRL) {
-					char* clipboard = SDL_GetClipboardText();
-					if (clipboard != NULL) {
-						UiCatToText(clipboard);
-						SDL_free(clipboard);
-					}
+				if (!(event->key.keysym.mod & KMOD_CTRL)) {
+					break;
 				}
-				break;
+				// fall-through
+			case DVL_VK_MBUTTON: {
+				char* clipboard = SDL_GetClipboardText();
+				if (clipboard != NULL) {
+					UiCatToText(clipboard);
+					SDL_free(clipboard);
+				}
+			} break;
 			case DVL_VK_C:
 			case DVL_VK_X:
 				if (!(event->key.keysym.mod & KMOD_CTRL)) {
@@ -937,7 +1055,7 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 				}
 			} break;
 			case DVL_VK_END: {
-				unsigned pos = strlen(gUiEditField->m_value);
+				unsigned pos = (unsigned)strlen(gUiEditField->m_value);
 				gUiEditField->m_curpos = pos;
 				if (!(event->key.keysym.mod & KMOD_SHIFT)) {
 					gUiEditField->m_selpos = pos;
@@ -1022,13 +1140,6 @@ bool UiPeekAndHandleEvents(Dvl_Event* event)
 #endif // FULL_UI
 	}
 	return true;
-}
-
-void UiRenderItems()
-{
-	for (const UiItemBase* uiItem : gUiItems) {
-		RenderItem(uiItem);
-	}
 }
 
 void UiClearItems()

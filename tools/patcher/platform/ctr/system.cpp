@@ -1,7 +1,7 @@
 #include <3ds.h>
 #include <cstdlib>
 #include <cstdio>
-#include "platform/ctr/cfgu_service.hpp
+#include "platform/ctr/cfgu_service.hpp"
 #include "platform/ctr/system.h"
 
 bool shouldDisableBacklight;
@@ -76,7 +76,7 @@ bool ctr_is_n3ds()
 
 bool ctr_should_disable_backlight()
 {
-	n3ds::CFGUService cfguService;
+	dvl::n3ds::CFGUService cfguService;
 	if (!cfguService.IsInitialized())
 		return false;
 
@@ -109,8 +109,8 @@ void ctr_sys_init()
 	acInit();
 	atexit([]() { acExit(); });
 
-	n3ds_socInit();
-	atexit([]() { n3ds_socExit(); });
+	// n3ds_socInit();
+	// atexit([]() { n3ds_socExit(); });
 
 	// randombytes_ctrrandom_init();
 	atexit([]() {

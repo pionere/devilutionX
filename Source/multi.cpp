@@ -6,7 +6,7 @@
 #include "all.h"
 #include "diabloui.h"
 #include "storm/storm_net.h"
-#include <time.h>
+#include <ctime>
 #include "DiabloUI/diablo.h"
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -15,14 +15,12 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /* Buffer to hold turn-chunks. */
 static TBuffer sgTurnChunkBuf;
-/* Buffer to hold the received player-info. */
-static PkPlayerStruct netplr[MAX_PLRS];
 /* Specifies whether the player-info is received. */
 static bool sgbPackPlrTbl[MAX_PLRS];
 /** Specifies whether a game should be loaded. */
 bool gbLoadGame;
 /* Specifies whether the player joins an existing game. */
-bool gbJoinGame;
+NONETCONST bool gbJoinGame = false;
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -91,11 +89,11 @@ void NetSendChunk(const BYTE* pbMsg, BYTE bLen)
 static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 {
 	BYTE* src_ptr;
-	size_t chunk_size;
+	unsigned chunk_size;
 
 	if (sgTurnChunkBuf.dwDataSize != 0) {
 		src_ptr = &sgTurnChunkBuf.bData[0];
-		while (TRUE) {
+		while (true) {
 			chunk_size = *src_ptr;
 			if (chunk_size == 0 || chunk_size > *size)
 				break;
@@ -105,7 +103,7 @@ static BYTE* multi_add_chunks(BYTE* dest, unsigned* size)
 			src_ptr += chunk_size;
 			*size -= chunk_size;
 		}
-		sgTurnChunkBuf.dwDataSize -= (src_ptr - &sgTurnChunkBuf.bData[0]);
+		sgTurnChunkBuf.dwDataSize -= (unsigned)(src_ptr - &sgTurnChunkBuf.bData[0]);
 		memcpy(&sgTurnChunkBuf.bData[0], src_ptr, sgTurnChunkBuf.dwDataSize + 1);
 	}
 	return dest;
@@ -135,7 +133,7 @@ void multi_send_turn_packet()
 	remsize = NET_TURN_MSG_SIZE - sizeof(TurnPktHdr);
 	dstEnd = multi_add_chunks(&pkt.body[0], &remsize);
 	dstEnd = sync_all_monsters(dstEnd, remsize);
-	len = (size_t)dstEnd - (size_t)&pkt;
+	len = (unsigned)((size_t)dstEnd - (size_t)&pkt);
 	multi_init_pkt_header(pkt.hdr, len);
 	nthread_send_turn((BYTE*)&pkt, len);
 }
@@ -145,11 +143,11 @@ void multi_send_turn_packet()
  *
  * @param pmask: The mask of the player indices to receive the data. Or SNPLAYER_ALL to send to everyone.
  * @param pbSrc: the content of the message
- * @param bLen: the length of the message
+ * @param wLen: the length of the message
  */
-void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, unsigned wLen)
 {
-	unsigned i, len = bLen;
+	unsigned i, len = wLen;
 	NormalMsgPkt pkt;
 
 	memcpy(&pkt.body[0], pbSrc, len);
@@ -172,7 +170,7 @@ void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE bLen)
 void multi_rnd_seeds()
 {
 	int i;
-	uint32_t seed;
+	int32_t seed;
 
 	gdwGameLogicTurn++;
 	if (!IsMultiGame)
@@ -234,15 +232,14 @@ void multi_disband_team(int team)
 
 void multi_deactivate_player(int pnum)
 {
-	const char* pszFmt;
-
 	if (plr._pActive) {
 		DeactivatePortal(pnum);
 		multi_disband_team(pnum);
 		// ClearPlrMsg(pnum);
 		RemoveLvlPlayer(pnum);
 		// if (reason != LEAVE_NONE) {
-			pszFmt = "Player '%s' left the game";
+		if (pnum != mypnum) {
+			const char* pszFmt = "Player '%s' left the game";
 			//switch (reason) {
 			//case LEAVE_NORMAL:
 			//	break;
@@ -251,7 +248,9 @@ void multi_deactivate_player(int pnum)
 			//	break;
 			//}
 			EventPlrMsg(pszFmt, plr._pName);
-		// }
+		} else {
+			gbRunGame = false;
+		}
 		sgbPackPlrTbl[pnum] = false;
 		plr._pActive = FALSE;
 		guTeamInviteRec &= ~(1 << pnum);
@@ -279,7 +278,8 @@ bool multi_check_timeout()
 {
 	// int i, nState, nLowestActive, nLowestPlayer;
 	//BYTE activePlrs, inActivePlrs;
-	Uint32 nTicks, now = SDL_GetTicks();
+	Uint32 now = SDL_GetTicks();
+	Sint32 dTicks;
 
 	if (!_gbTimeout) {
 		_gbTimeout = true;
@@ -287,15 +287,15 @@ bool multi_check_timeout()
 		return false;
 	}
 
-	nTicks = now - sglTimeoutStart;
-	if (nTicks > 10000) {
+	dTicks = now - sglTimeoutStart;
+	if (dTicks > 10000) {
 		SNetDisconnect();
 		// gbRunGame = false;
 		return true;
 	}
 	// commented out because a client should not be authorized to drop players
-	//if (nTicks < 5000) {
-		return nTicks >= 1000;
+	//if (dTicks < 5000) {
+		return dTicks >= 1000;
 	/*}
 
 	nLowestActive = -1;
@@ -389,6 +389,10 @@ void multi_process_turn(SNetTurnPkt* turn)
 	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
+#ifdef NONET
+		assert(pnum == 0);
+		pnum = 0;
+#endif
 		data++;
 		dwMsgSize = *(unsigned*)data;
 		data += sizeof(unsigned);
@@ -438,6 +442,10 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
+#ifdef NONET
+		assert(pnum == 0);
+		pnum = 0;
+#endif
 		data++;
 		dwMsgSize = *(unsigned*)data;
 		data += sizeof(unsigned);
@@ -497,7 +505,8 @@ static unsigned gameProgress;
 extern Uint32 guNextTick;
 int multi_ui_handle_turn()
 {
-	int delta, i;
+	int i;
+	Sint32 delta;
 
 	switch (nthread_recv_turns()) {
 	case TS_DESYNC:
@@ -662,35 +671,26 @@ static void SetupLocalPlr()
 {
 	PlayerStruct* p;
 
-	EnterLevel(DLV_TOWN);
-
 	p = &myplr;
-	assert(currLvl._dLevelIdx == DLV_TOWN);
+	p->_pmode = PM_NEWLVL;
+	p->_pDestAction = ACTION_NONE;
+	//p->_pInvincible = TRUE; - does not matter in town
+	p->_pLvlChanging = TRUE;
 	p->_pDunLevel = DLV_TOWN;
 	p->_pTeam = mypnum;
 	p->_pManaShield = 0;
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;
 	// reset skills
-	p->_pAtkSkill = SPL_ATTACK;
-	p->_pAtkSkillType = RSPLTYPE_ABILITY;
-	p->_pMoveSkill = SPL_WALK;
-	p->_pMoveSkillType = RSPLTYPE_ABILITY;
-	p->_pAltAtkSkill = SPL_INVALID;
-	p->_pAltAtkSkillType = RSPLTYPE_INVALID;
-	p->_pAltMoveSkill = SPL_INVALID;
-	p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-	//if (!(p->_pSkillFlags & SFLAG_MELEE))
-	//	p->_pAtkSkill = SPL_RATTACK;
+	const PlrSkillStruct psm = { { SPL_ATTACK, RSPLTYPE_ABILITY }, { SPL_WALK, RSPLTYPE_ABILITY } };
+	const PlrSkillStruct psr = { { SPL_RATTACK, RSPLTYPE_ABILITY }, { SPL_WALK, RSPLTYPE_ABILITY } };
+	p->_pMainSkill = (p->_pSkillFlags & SFLAG_MELEE) ? psm : psr;
+	p->_pAltSkill = { { SPL_NULL, 0 }, { SPL_NULL, 0 } };
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
-	CalcPlrInv(mypnum, false);
-	if (p->_pHitPoints < (1 << 6))
+	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
+	if (p->_pHitPoints == 0)
 		PlrSetHp(mypnum, (1 << 6));
 
-	assert(p->_pDestAction == ACTION_NONE);
-	p->_pLvlChanging = TRUE;
-	//p->_pInvincible = TRUE; - does not matter in town
-	assert(p->_pmode == PM_NEWLVL);
 	assert(p->_pGFXLoad == 0);
 
 	gbActivePlayers = 1;
@@ -744,10 +744,10 @@ void NetClose()
 
 static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 {
-	int i, dlgresult, pnum;
-	uint32_t seed;
+	int i, dlgresult;
+	int32_t seed;
 
-	while (TRUE) {
+	while (true) {
 		// mypnum = 0;
 
 		// select provider
@@ -775,26 +775,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 				gbSelectProvider = true;
 				continue;
 			}
-		} else {
-			dlgresult = SELHERO_NEW_DUNGEON;
 		}
 		gbSelectHero = bSinglePlayer;
-		gbLoadGame = dlgresult == SELHERO_CONTINUE;
-		if (IsGameSrv) {
-			gameData.aePlayerId = SNPLAYER_MASTER;
-			mypnum = SNPLAYER_MASTER;
-		} else {
-			gameData.aePlayerId = 0;
-			pfile_read_hero_from_save();
-		}
-
-		if (gbLoadGame) {
-			// mypnum = 0;
-			gameData.aeMaxPlayers = 1;
-			gameData.aeTickRate = gnTicksRate;
-			gameData.aeNetUpdateRate = 1;
-			break;
-		}
+		gameData.aePlayerId = IsGameSrv ? SNPLAYER_MASTER : 0;
 
 		// select game
 		//  sets gameData except for aePlayerId, aeSeed (if not joining a game) and aeVersionId
@@ -808,15 +791,13 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			gbSelectHero = true;
 			continue;
 		}
-
-		if (dlgresult == SELGAME_JOIN) {
-			pnum = gameData.aePlayerId;
-			if (mypnum != pnum) {
-				copy_pod(plr, myplr);
-				mypnum = pnum;
-				//pfile_read_player_from_save();
-			}
-			gbJoinGame = true;
+		gbLoadGame = dlgresult == SELGAME_LOAD;
+#ifndef NONET
+		gbJoinGame = dlgresult == SELGAME_JOIN;
+		mypnum = gameData.aePlayerId;
+#endif
+		if (!IsGameSrv) {
+			pfile_read_hero();
 		}
 		break;
 	}
@@ -829,9 +810,9 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 	SetRndSeed(gameData.aeSeed);
 	sgbSentThisCycle = gameData.aeTurn;
 
-	for (i = 0; i < NUM_LEVELS; i++) {
+	for (i = 0; i < NUM_FIXLVLS; i++) {
 		seed = NextRndSeed();
-		seed = (seed >> 8) | (seed << 24); // _rotr(seed, 8)
+		seed = ((uint32_t)seed >> 8) | ((uint32_t)seed << 24); // _rotr(seed, 8)
 		glSeedTbl[i] = seed;
 		SetRndSeed(seed);
 	}
@@ -845,7 +826,7 @@ bool NetInit(bool bSinglePlayer)
 {
 	_uigamedata gameData;
 
-	while (TRUE) {
+	while (true) {
 		SetRndSeed(0);
 		gameData.aeSeed = time(NULL);
 		gameData.aeVersionId = GAME_VERSION;
@@ -855,7 +836,7 @@ bool NetInit(bool bSinglePlayer)
 		//gameData.aeTickRate = SPEED_NORMAL;
 		//gameData.aeNetUpdateRate = 1;
 		//gameData.aeMaxPlayers = MAX_PLRS;
-		gbJoinGame = false;
+		//gbJoinGame = false;
 		memset(players, 0, sizeof(players));
 		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
@@ -863,6 +844,7 @@ bool NetInit(bool bSinglePlayer)
 		memset(player_state, 0, sizeof(player_state));
 		guSendGameDelta = 0;
 		guSendLevelData = 0;
+		// guOweLevelDelta = 0;
 		assert(!_gbNetInited);
 		_gbNetInited = true;
 		_gbTimeout = false;
@@ -881,9 +863,7 @@ bool NetInit(bool bSinglePlayer)
 		}
 		nthread_run();
 		SetupLocalPlr();
-#ifndef NONET
 		if (!gbJoinGame)
-#endif
 			break;
 		multi_broadcast_plrinfo_msg();
 		if (DownloadDeltaInfo()) {
@@ -900,12 +880,12 @@ bool NetInit(bool bSinglePlayer)
 	return true;
 }
 
-void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
+void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg)
 {
 	// assert((unsigned)pnum < MAX_PLRS);
 	// assert(pnum != mypnum);
 	if (sgbPackPlrTbl[pnum]) {
-		// invalid data -> drop
+		// player info received already -> drop
 		return;
 	}
 	if (plr._pActive) {
@@ -918,11 +898,11 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 		// invalid data -> drop
 		return;
 	}
-
-	memcpy(&netplr[pnum], piMsg->tpData.content, size);
+	PkPlayerStruct netplr;
+	memcpy(&netplr, piMsg->tpData.content, size);
 	// DeltaDecompressData
 	if (piMsg->tpData.compressed) {
-		PkwareDecompress((BYTE*)&netplr[pnum], size, sizeof(PkPlayerStruct));
+		PkwareDecompress((BYTE*)&netplr, size, sizeof(PkPlayerStruct));
 	}
 	// TODO: check (decompressed) size ?
 	//if (size != sizeof(PkPlayerStruct)) {
@@ -931,19 +911,18 @@ void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg)
 	//}
 #if INET_MODE
 	// TODO: extend validation of PkPlayerStruct?
-	if (netplr[pnum].pName[0] == '\0'
-	 || netplr[pnum].pTeam != pnum
-	 || netplr[pnum].pDunLevel != DLV_TOWN
-	 //|| !netplr[pnum].pLvlChanging
-	 || netplr[pnum].pLevel > MAXCHARLEVEL
-	 || netplr[pnum].pClass >= NUM_CLASSES) {
+	if (netplr.pName[0] == '\0'
+	 || netplr.pTeam != pnum
+	 || netplr.pDunLevel != DLV_TOWN
+	 //|| !netplr.pLvlChanging
+	 || netplr.pLevel > MAXCHARLEVEL
+	 || netplr.pClass >= NUM_CLASSES) {
 		// invalid data -> drop
 		return;
 	}
-	netplr[pnum].pName[lengthof(netplr[pnum].pName) - 1] = '\0'; // ensure the name is null terminated
 #endif
 	sgbPackPlrTbl[pnum] = true; // register data to prevent reactivation of a player
-	UnPackPlayer(&netplr[pnum], pnum);
+	UnPackPlayer(&netplr, pnum);
 }
 
 bool multi_plrinfo_received(int pnum)

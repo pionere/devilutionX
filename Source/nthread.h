@@ -30,10 +30,10 @@ void nthread_cleanup();
 void nthread_run();
 void nthread_finish(UINT uMsg);
 /**
- * @brief Checks if it's time for the logic to advance
- * @return True if the engine should tick
+ * @brief return the remaining time (ticks) to the next game-turn
+ * @return tick-count till the next game-turn should happen
  */
-bool nthread_has_50ms_passed();
+Sint32 nthread_ticks2gameturn();
 
 #ifdef __cplusplus
 }

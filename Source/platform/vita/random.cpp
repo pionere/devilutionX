@@ -1,3 +1,6 @@
+#include "random.hpp"
+
+#ifndef NONET
 #include <sys/types.h>
 #include <sodium.h>
 #include <psp2/kernel/rng.h>
@@ -32,3 +35,8 @@ void randombytes_vitarandom_init()
 {
 	randombytes_set_implementation(&randombytes_vitarandom_implementation);
 }
+#else
+void randombytes_vitarandom_init()
+{
+}
+#endif // !NONET

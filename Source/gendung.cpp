@@ -141,7 +141,7 @@ void InitLvlDungeon()
 #if ASSET_MPL == 1
 	uint16_t blocks, *minFile, *pSubtile, *pPTmp;
 #endif
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 	const LevelFileData* lfd = &levelfiledata[lds->dfindex];
 
 	static_assert((int)WRPT_NONE == 0, "InitLvlDungeon fills pWarps with 0 instead of WRPT_NONE values.");
@@ -269,6 +269,18 @@ void InitLvlDungeon()
 		// patch dSolidTable - L1.SOL
 		/*nMissileTable[28] = true; // fix inconsistent corners
 		nMissileTable[29] = true; // fix inconsistent corners
+		// make the downstairs missile-blocker
+		nMissileTable[106] = true;
+		nMissileTable[107] = true;
+		nMissileTable[108] = true;
+		// nMissileTable[109] = true;
+		nMissileTable[110] = true;
+		nMissileTable[112] = true;
+		nMissileTable[114] = true;
+		nMissileTable[118] = true;
+		//nMissileTable[336] = true;
+		//nMissileTable[337] = true;
+		//nMissileTable[338] = true;
 		// adjust SOL after fixCathedralShadows
 		nSolidTable[298] = true;
 		nSolidTable[304] = true;
@@ -276,11 +288,11 @@ void InitLvlDungeon()
 		nMissileTable[334] = false;
 		// - special subtiles for the banner setpiece
 		nBlockTable[336] = false;
-		nMissileTable[336] = false;
+		//nMissileTable[336] = false;
 		nBlockTable[337] = false;
-		nMissileTable[337] = false;
+		//nMissileTable[337] = false;
 		nBlockTable[338] = false;
-		nMissileTable[338] = false;
+		//nMissileTable[338] = false;
 		// - special subtile for the vile setmap
 		nMissileTable[335] = false;
 		// - with subtile-based automap
@@ -937,7 +949,7 @@ POS32 DRLG_PlaceMiniSet(const BYTE* miniset)
 	sh = miniset[1];
 	// assert(sw < DMAXX && sh < DMAXY);
 	tries = (DMAXX * DMAXY) & ~0xFF;
-	while (TRUE) {
+	while (true) {
 		if ((tries & 0xFF) == 0) {
 			sx = random_low(0, DMAXX - sw);
 			sy = random_low(0, DMAXY - sh);
@@ -1397,21 +1409,22 @@ void InitLvlMap()
  * @param y the y-coordinate of the starting position
  * @param minSize the minimum size of the room (must be less than 20)
  * @param maxSize the maximum size of the room (must be less than 20)
- * @return the size of the room
+ * @param room the w/h of the room if found
+ * @return whether a fitting room was found
  */
-static POS32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize)
+static bool DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize, AREA32 &room)
 {
 	int xmax, ymax, i, j, smallest;
-	int xArray[20], yArray[20];
+	int xArray[16], yArray[16];
 	int size, bestSize, w, h;
 
-	// assert(maxSize < 20);
+	// assert(maxSize < 16);
 
 	xmax = std::min(maxSize, DMAXX - x);
 	ymax = std::min(maxSize, DMAXY - y);
 	// BUGFIX: change '&&' to '||' (fixed)
 	if (xmax < minSize || ymax < minSize)
-		return { 0, 0 };
+		return false;
 
 	memset(xArray, 0, sizeof(xArray));
 	memset(yArray, 0, sizeof(yArray));
@@ -1430,7 +1443,7 @@ static POS32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSiz
 		xArray[++i] = smallest;
 	}
 	if (i < minSize)
-		return { 0, 0 };
+		return false;
 
 	// find vertical(y) limits
 	smallest = ymax;
@@ -1446,7 +1459,7 @@ static POS32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSiz
 		yArray[++i] = smallest;
 	}
 	if (i < minSize)
-		return { 0, 0 };
+		return false;
 
 	// select the best option
 	xmax = std::max(xmax, ymax);
@@ -1466,7 +1479,9 @@ static POS32 DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSiz
 		}
 	}
 	assert(bestSize != 0);
-	return { w - 2, h - 2 };
+	room.w = w - 2;
+	room.h = h - 2;
+	return true;
 }
 
 static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DRT_TYPES])
@@ -1505,17 +1520,17 @@ static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DR
 
 	// exits
 	if (random_(0, 2) == 0) {
-		dungeon[x2][(y1 + y2 + 1) / 2] = themeTiles[DRT_DOOR_VERT];
+		dungeon[x2][(y1 + y2 + 1) / 2u] = themeTiles[DRT_DOOR_VERT];
 	} else {
-		dungeon[(x1 + x2 + 1) / 2][y2] = themeTiles[DRT_DOOR_HORIZ];
+		dungeon[(x1 + x2 + 1) / 2u][y2] = themeTiles[DRT_DOOR_HORIZ];
 	}
 }
 
-void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM_DRT_TYPES], int rndSkip, bool rndSize)
+void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM_DRT_TYPES], int rndSkip)
 {
 	int i, j;
 	int min;
-
+	// assert((maxSize - 2) * (maxSize - 2) <= lengthof(drlg.thLocs));
 	for (i = 0; i < DMAXX; i++) {
 		for (j = 0; j < DMAXY; j++) {
 			// always start from a floor tile
@@ -1526,33 +1541,33 @@ void DRLG_PlaceThemeRooms(int minSize, int maxSize, const BYTE (&themeTiles)[NUM
 				continue;
 			}
 			// check if there is enough space
-			POS32 tArea = DRLG_FitThemeRoom(themeTiles[DRT_FLOOR], i, j, minSize, maxSize);
-			if (tArea.x <= 0) {
+			AREA32 tArea;
+			if (!DRLG_FitThemeRoom(themeTiles[DRT_FLOOR], i, j, minSize, maxSize, tArea)) {
 				continue;
 			}
 			// randomize the size
-			if (rndSize) {
+			if (rndSkip) {
 				// assert(minSize > 2);
 				min = minSize - 2;
 				static_assert(DMAXX /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeW.");
 				static_assert(DMAXY /* - minSize */ + 2 < 0x7FFF, "DRLG_PlaceThemeRooms uses RandRangeLow to set themeH.");
-				tArea.x = RandRangeLow(min, tArea.x);
-				tArea.y = RandRangeLow(min, tArea.y);
+				tArea.w = RandRangeLow(min, tArea.w);
+				tArea.h = RandRangeLow(min, tArea.h);
 			}
 			// ensure there is no overlapping with previous themes
 			if (!InThemeRoom(i + 1, j + 1)) {
 				// create the room
 				themes[numthemes]._tsx1 = i + 1;
 				themes[numthemes]._tsy1 = j + 1;
-				themes[numthemes]._tsx2 = i + 1 + tArea.x - 1;
-				themes[numthemes]._tsy2 = j + 1 + tArea.y - 1;
+				themes[numthemes]._tsx2 = i + 1 + tArea.w - 1;
+				themes[numthemes]._tsy2 = j + 1 + tArea.h - 1;
 				DRLG_CreateThemeRoom(numthemes, themeTiles);
 				numthemes++;
 				if (numthemes == lengthof(themes))
-					return;
+					return; // should not happen (too often), otherwise the theme-placement is biased
 			}
 
-			j += tArea.x + 2;
+			j += tArea.h;
 		}
 	}
 }
@@ -1608,16 +1623,17 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y1 = 2 * y1 + DBORDERY;
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
-	// TODO: LoadPreLighting, DRLG_LightSubtiles? (see SyncPedestal)
+	// TODO: DRLG_LightSubtiles?
+	LoadPreLighting();
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
+	SavePreLighting();
+	// RedoLightAndVision();
 	// activate monsters
 	MonChangeMap();
 	gbDoTransVals = true;
 	if (!deltaload) {
 		DRLG_RedoTrans();
 	}
-	// RedoLightAndVision();
-	// TODO: SavePreLighting?
 }
 
 void DRLG_RedoTrans()

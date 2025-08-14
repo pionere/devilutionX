@@ -93,9 +93,12 @@ DWORD PkwareCompress(BYTE* srcData, DWORD size)
 
 	// type = CMP_BINARY;
 	// dsize = CMP_IMPLODE_DICT_SIZE3;
-	if (implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info) == CMP_NO_ERROR) {
-		size = info.pbOutBuff - destData;
+	implode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+	// copy the result only if the compression reduces the size of the data
+	destSize = (size_t)info.pbOutBuff - (size_t)destData;
+	if (destSize < size) {
 		memcpy(srcData, destData, size);
+		size = destSize;
 	}
 	mem_free_dbg(work_buf);
 	mem_free_dbg(destData);
@@ -113,10 +116,11 @@ void PkwareDecompress(BYTE* srcData, unsigned size, unsigned dwMaxBytes)
 
 	TDataInfo info = TDataInfo(srcData, size, destData, dwMaxBytes);
 
-	if (explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info) == CMP_NO_ERROR) {
-		size = info.pbOutBuff - destData;
-		memcpy(srcData, destData, size);
-	}
+	explode(PkwareBufferRead, PkwareBufferWrite, work_buf, &info);
+
+	size = (size_t)info.pbOutBuff - (size_t)destData;
+	memcpy(srcData, destData, size);
+
 	mem_free_dbg(work_buf);
 	mem_free_dbg(destData);
 }

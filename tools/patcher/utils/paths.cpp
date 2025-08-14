@@ -1,13 +1,10 @@
 #include "paths.h"
 
 #include <SDL.h>
+#include "utils/sdl2_to_1_2_backports.h"
 
 #ifdef __IPHONEOS__
 #include "platform/ios/ios_paths.h"
-#endif
-
-#ifdef USE_SDL1
-#include "utils/sdl2_to_1_2_backports.h"
 #endif
 
 #include "log.h"

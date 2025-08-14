@@ -1,6 +1,6 @@
 name: CMake
 
-# When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
+# When creating a new workflow in GitHubâ€™s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
 
 env:
@@ -14,11 +14,23 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-DUSE_PATCH=OFF'
+            artifact: 'diablo-push-ios.zip'
+          - name: hellfire+patch
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-push-iosp.zip'
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v5
       with:
-        fetch-depth: 0
+        fetch-tags: true
+        #fetch-depth: 0
 
     #- name: Cache CMake build folder
     #  uses: actions/cache@v2
@@ -35,7 +47,7 @@ jobs:
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64
 
     - name: Build
       working-directory: ${{github.workspace}}
@@ -47,3 +59,11 @@ jobs:
         mkdir Payload &&
         mv devilutionx.app Payload &&
         zip -r devilutionx.ipa Payload
+
+    # Upload the created artifact
+    - name: Upload
+      if: ${{ !env.ACT }}
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{github.workspace}}/build/devilutionx.zip
+        name: ${{ matrix.artifact }}

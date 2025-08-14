@@ -57,6 +57,9 @@ static void InitTownTriggers()
 static void InitDunTriggers()
 {
 	numtrigs = 0;
+	if (currLvl._dDynLvl) {
+		return;
+	}
 	for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0) {
 			continue;
@@ -146,7 +149,7 @@ void InitView(int entry)
 {
 	int type;
 
-	if (entry == ENTRY_WARPLVL) {
+	if (entry == ENTRY_PORTLVL) {
 		GetPortalLvlPos();
 		return;
 	}
@@ -154,37 +157,29 @@ void InitView(int entry)
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		if (entry == ENTRY_MAIN) {
 			// New game
-			ViewX = 65 + DBORDERX;
-			ViewY = 58 + DBORDERY;
+			myview = { 65 + DBORDERX, 58 + DBORDERY };
 		//} else if (entry == ENTRY_PREV) { // Cathedral
-		//	ViewX = 15 + DBORDERX;
-		//	ViewY = 21 + DBORDERY;
+		//	myview = { 15 + DBORDERX, 21 + DBORDERY };
 		} else if (entry == ENTRY_TWARPUP) {
 			switch (gbTWarpFrom) {
 			case TWARP_CATHEDRAL:
-				ViewX = 15 + DBORDERX;
-				ViewY = 21 + DBORDERY;
+				myview = { 15 + DBORDERX, 21 + DBORDERY };
 				break;
 			case TWARP_CATACOMB:
-				ViewX = 39 + DBORDERX;
-				ViewY = 12 + DBORDERY;
+				myview = { 39 + DBORDERX, 12 + DBORDERY };
 				break;
 			case TWARP_CAVES:
-				ViewX = 8 + DBORDERX;
-				ViewY = 59 + DBORDERY;
+				myview = { 8 + DBORDERX, 59 + DBORDERY };
 				break;
 			case TWARP_HELL:
-				ViewX = 30 + DBORDERX;
-				ViewY = 70 + DBORDERY;
+				myview = { 30 + DBORDERX, 70 + DBORDERY };
 				break;
 #ifdef HELLFIRE
 			case TWARP_CRYPT:
-				ViewX = 26 + DBORDERX;
-				ViewY = 15 + DBORDERY;
+				myview = { 26 + DBORDERX, 15 + DBORDERY };
 				break;
 			case TWARP_NEST:
-				ViewX = 69 + DBORDERX;
-				ViewY = 52 + DBORDERY;
+				myview = { 69 + DBORDERX, 52 + DBORDERY };
 				break;
 #endif
 			default:
@@ -193,8 +188,7 @@ void InitView(int entry)
 			}
 		} else if (entry == ENTRY_RETOWN) {
 			// Restart in Town
-			ViewX = 63 + DBORDERX;
-			ViewY = 70 + DBORDERY;
+			myview = { 63 + DBORDERX, 70 + DBORDERY };
 		}
 		return;
 	}
@@ -207,6 +201,7 @@ void InitView(int entry)
 		type = DWARP_EXIT;
 		break;
 	case ENTRY_SETLVL:
+	case ENTRY_DYNLVL:
 		type = DWARP_ENTRY;
 		break;
 	case ENTRY_RTNLVL:
@@ -215,16 +210,16 @@ void InitView(int entry)
 			// return from the betrayer side-map - TODO: better solution?
 			assert(currLvl._dLevelIdx == DLV_HELL3);
 			type = DWARP_EXIT;
-			ViewX = pWarps[type]._wx;
-			ViewY = pWarps[type]._wy;
+			myview.x = pWarps[type]._wx;
+			myview.y = pWarps[type]._wy;
 			assert(pWarps[type]._wtype == WRPT_L4_PENTA);
-			ViewX += -2;
-			ViewY += -2;
+			myview.x += -2;
+			myview.y += -2;
 			return;
 		}
 		break;
 	case ENTRY_LOAD:    // set from the save file
-	case ENTRY_WARPLVL: // should not happen
+	case ENTRY_PORTLVL: // should not happen
 		return;
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;
@@ -236,55 +231,55 @@ void InitView(int entry)
 		return;
 	}
 
-	ViewX = pWarps[type]._wx;
-	ViewY = pWarps[type]._wy;
+	myview.x = pWarps[type]._wx;
+	myview.y = pWarps[type]._wy;
 	type = pWarps[type]._wtype;
 	switch (type) {
 	case WRPT_NONE:
 		break; // should not happen
 	case WRPT_L1_UP:
-		ViewX += 1;
-		ViewY += 2;
+		myview.x += 1;
+		myview.y += 2;
 		break;
 	case WRPT_L1_DOWN:
-		ViewX += 0;
-		ViewY += 1;
+		myview.x += 0;
+		myview.y += 1;
 		break;
 	case WRPT_L1_SKING:
-		ViewX += 1;
-		ViewY += 0;
+		myview.x += 1;
+		myview.y += 0;
 		break;
 	case WRPT_L1_PWATER:
-		ViewX += 0;
-		ViewY += 1;
+		myview.x += 0;
+		myview.y += 1;
 		break;
 	case WRPT_L2_UP:
-		ViewX += 1;
-		ViewY += 0;
+		myview.x += 1;
+		myview.y += 0;
 		break;
 	case WRPT_L2_DOWN:
-		ViewX += -1;
-		ViewY += 0;
+		myview.x += -1;
+		myview.y += 0;
 		break;
 	case WRPT_L3_UP:
-		ViewX += 0;
-		ViewY += 1;
+		myview.x += 0;
+		myview.y += 1;
 		break;
 	case WRPT_L3_DOWN:
-		ViewX += 1;
-		ViewY += 0;
+		myview.x += 1;
+		myview.y += 0;
 		break;
 	case WRPT_L4_UP:
-		ViewX += 0;
-		ViewY += 1;
+		myview.x += 0;
+		myview.y += 1;
 		break;
 	case WRPT_L4_DOWN:
-		ViewX += 1;
-		ViewY += 0;
+		myview.x += 1;
+		myview.y += 0;
 		break;
 	case WRPT_L4_PENTA:
-		ViewX += 0;
-		ViewY += 1;
+		myview.x += 0;
+		myview.y += 1;
 		break;
 	case WRPT_CIRCLE:
 		break;
@@ -464,7 +459,7 @@ static int ForceTrig()
 		return i;
 	}
 
-	return -1;
+	return TRIG_NONE;
 }
 
 void InitTriggers()
@@ -482,7 +477,7 @@ void InitTriggers()
 void CheckTrigForce()
 {
 	pcurstrig = ForceTrig();
-	if (pcurstrig != -1) {
+	if (TRIG_VALID(pcurstrig)) {
 		pcurspos.x = trigs[pcurstrig]._tx;
 		pcurspos.y = trigs[pcurstrig]._ty;
 	}

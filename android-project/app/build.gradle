@@ -7,12 +7,13 @@ if (buildAsApplication) {
 }
 
 android {
-	// ndkVersion '26.0.10792818' - asio is not ready for this
-	ndkVersion '25.2.9519653'
-	compileSdk 34
-	aaptOptions { // probably does not matter...
-		noCompress 'mpq'
-	}
+	ndkVersion '28.0.13004108'
+	// ndkVersion '25.2.9519653'
+	compileSdk 35
+	// does not matter...
+	//androidResources { 
+	//	noCompress 'mpq'
+	//}
 	// if (buildAsApplication) {
 	namespace 'org.diasurgical.devilutionx'
 	// }
@@ -21,21 +22,27 @@ android {
 			applicationId "org.diasurgical.devilx"
 		}
 		minSdkVersion 21
-		targetSdkVersion 34
+		targetSdkVersion 35
 		versionCode 666
 		versionName "1.0.0"
 		externalNativeBuild {
 			cmake {
-				arguments "-DANDROID_STL=c++_static", project.findProperty("cmakearg0"), project.findProperty("cmakearg1"), project.findProperty("cmakearg2")
+				arguments "-DANDROID_STL=c++_static", project.findProperty('cmakearg0'), project.findProperty('cmakearg1'), project.findProperty('cmakearg2')
 				abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
 			}
 		}
 	}
 	buildTypes {
+		debug {
+			applicationIdSuffix "dev"
+		}
 		release {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
+	}
+	buildFeatures {
+		buildConfig true
 	}
 	applicationVariants.all { variant ->
 		tasks["merge${variant.name.capitalize()}Assets"]
@@ -48,7 +55,7 @@ android {
 		externalNativeBuild {
 			cmake {
 				path '../../CMakeLists.txt'
-				version "3.13.0+"
+				version "3.31.0+"
 				buildStagingDirectory System.env.DevilutionX_Android_StagingDirectory
 			}
 		}
@@ -70,5 +77,4 @@ android {
 
 dependencies {
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
-	implementation 'com.android.support.constraint:constraint-layout:2.0.4'
 }

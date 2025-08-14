@@ -27,15 +27,6 @@ plr_t zt_client::next_free_conn()
 	return i < game_init_info.ngMaxPlayers ? i : MAX_PLRS;
 }
 
-void zt_client::disconnect_peer(const endpoint& peer)
-{
-	for (plr_t i = 0; i < MAX_PLRS; i++) {
-		if (proto.active_connections[i].peer == peer) {
-			proto.disconnect(i);
-		}
-	}
-}
-
 bool zt_client::wait_network()
 {
 	// wait for ZeroTier for 5 seconds
@@ -215,13 +206,21 @@ void zt_client::poll()
 	}
 }
 
-void zt_client::handle_recv(endpoint& sender, buffer_t& data)
+void zt_client::handle_recv_oob(buffer_t& data, const endpoint& sender)
 {
 	packet* pkt = pktfty.make_in_packet(data);
 	if (pkt != NULL)
-		handle_recv_packet(*pkt, sender);
+		recv_ctrl(*pkt, sender);
+	delete pkt;
+}
+
+void zt_client::handle_recv(buffer_t& data, int pnum)
+{
+	packet* pkt = pktfty.make_in_packet(data);
+	if (pkt != NULL)
+		handle_recv_packet(*pkt, pnum);
 	else
-		disconnect_peer(sender);
+		proto.disconnect(pnum);
 	delete pkt;
 }
 
@@ -292,31 +291,25 @@ void zt_client::recv_ctrl(packet& pkt, const endpoint& sender)
 			proto.send_oob(sender, reply->encrypted_data());
 			delete reply;
 		}
+	} else if (pkt_type == PT_JOIN_ACCEPT) {
+		if (plr_self == PLR_BROADCAST && game_list[gamename].master == sender) {
+			recv_local(pkt);
+		}
 	}
 }
 
-void zt_client::handle_recv_packet(packet& pkt, const endpoint& sender)
+void zt_client::handle_recv_packet(packet& pkt, int pnum)
 {
 	plr_t src = pkt.pktSrc();
 
-	if (src == PLR_BROADCAST) {
-		recv_ctrl(pkt, sender);
-		return;
+	// assert(plr_self != PLR_BROADCAST);
+	if (src == PLR_MASTER) {
+		src = get_master();
+	} else if (src >= MAX_PLRS) {
+		return; // packet with invalid source -> drop
 	}
-	if (plr_self == PLR_BROADCAST) {
-		if (pkt.pktType() != PT_JOIN_ACCEPT)
-			return; // non-global packet and we are not in game -> drop
-		if (game_list[gamename].master != sender)
-			return; // join accept, but from an unknown sender -> drop
-	} else {
-		if (src == PLR_MASTER) {
-			src = get_master();
-		} else if (src >= MAX_PLRS) {
-			return; // packet with invalid source -> drop
-		}
-		if (sender != proto.active_connections[src].peer) {
-			return; // packet with mismatching source -> drop
-		}
+	if (pnum != src) {
+		return; // packet with mismatching source -> drop
 	}
 	recv_local(pkt);
 }
@@ -334,7 +327,7 @@ void zt_client::get_gamelist(std::vector<SNetZtGame>& games)
 	games.clear();
 	Uint32 now = SDL_GetTicks();
 	for (auto it = game_list.begin(); it != game_list.end(); ) {
-		if (it->second.timeout < now) {
+		if (SDL_TICKS_PASSED(now, it->second.timeout)) {
 			it = game_list.erase(it);
 		} else {
 			games.push_back(it->second.ztGamedata);

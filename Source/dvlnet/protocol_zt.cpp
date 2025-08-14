@@ -144,12 +144,13 @@ void protocol_zt::send_queued_all()
 
 void protocol_zt::recv_from_peers(zt_client* client)
 {
-	for (peer_connection& ap : active_connections) {
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		peer_connection& ap = active_connections[pnum];
 		if (ap.sock != -1) {
 			recv_peer(ap);
 			while (ap.recv_queue.packet_ready()) {
 				buffer_t pkt_buf = ap.recv_queue.read_packet();
-				client->handle_recv(ap.peer, pkt_buf);
+				client->handle_recv(pkt_buf, pnum);
 			}
 		}
 	}
@@ -167,7 +168,7 @@ void protocol_zt::recv_from_udp(zt_client* client)
 		endpoint ep;
 		ep.from_addr(in6.sin6_addr.un.u8_addr);
 		buffer_t pkt_buf = buffer_t(recv_buffer.begin(), recv_buffer.begin() + len);
-		client->handle_recv(ep, pkt_buf);
+		client->handle_recv_oob(pkt_buf, ep);
 	}
 }
 
@@ -210,7 +211,7 @@ void protocol_zt::accept_all()
 				break;
 			}
 		}
-		if (pc.sock != 0 && pc.timeout < SDL_GetTicks()) {
+		if (pc.sock != 0 && SDL_TICKS_PASSED(SDL_GetTicks(), pc.timeout)) {
 			lwip_close(pc.sock);
 			pc.sock = 0;
 		}

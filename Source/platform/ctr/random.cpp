@@ -1,3 +1,5 @@
+#include "random.hpp"
+#ifndef NONET
 #include <sys/types.h>
 #include <sodium.h>
 #include <3ds.h>
@@ -46,3 +48,8 @@ void randombytes_ctrrandom_init()
 {
 	randombytes_set_implementation(&randombytes_ctrrandom_implementation);
 }
+#else
+void randombytes_ctrrandom_init()
+{
+}
+#endif // !NONET

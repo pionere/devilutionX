@@ -2,4 +2,4 @@
 
 #include <cstdint>
 
-uint32_t Get3DSScalingFlag(bool fitToScreen, int width, int height);
+uint32_t Get3DSScalingFlag(int width, int height);

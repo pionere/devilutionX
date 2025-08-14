@@ -4,6 +4,7 @@
  * Implementation of video playback.
  */
 #include "all.h"
+#include "plrctrls.h"
 #include "storm/storm_svid.h"
 #include "utils/display.h"
 
@@ -34,6 +35,13 @@ int play_movie(const char* pszMovie, int movieFlags)
 					result = MPR_CANCEL;
 					break;
 				}
+#if !FULLSCREEN_ONLY
+				if (SDL_GetModState() & KMOD_ALT) {
+					if (e.vkcode == DVL_VK_RETURN)
+						ToggleFullscreen();
+					continue;
+				}
+#endif
 			case DVL_WM_LBUTTONDOWN:
 			case DVL_WM_RBUTTONDOWN:
 				if (movieFlags & MOV_SKIP) {
