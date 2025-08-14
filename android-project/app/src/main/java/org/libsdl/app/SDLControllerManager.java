@@ -332,7 +332,7 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
 }
 
 @Singleton
-class SDLJoystickHandler_API19 @Inject extends SDLJoystickHandler_API16 {
+class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 @Inject {
 
     @Override
     public int getProductId(InputDevice joystickDevice) {
@@ -478,7 +478,7 @@ class SDLJoystickHandler_API19 @Inject extends SDLJoystickHandler_API16 {
 }
 
 @Singleton
-class SDLHapticHandler_API26 @Inject extends SDLHapticHandler {
+class SDLHapticHandler_API26 extends SDLHapticHandler @Inject {
     @Override
     public void run(int device_id, float intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
