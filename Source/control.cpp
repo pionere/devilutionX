@@ -1016,7 +1016,7 @@ void ReleaseLvlBtn()
  */
 bool TryPanBtnClick()
 {
-	int i, mx, my;
+	int mx, my;
 
 	mx = MousePos.x;
 	my = MousePos.y;
