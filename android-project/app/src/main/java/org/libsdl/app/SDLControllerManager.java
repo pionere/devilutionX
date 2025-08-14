@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import android.content.Context;
 import android.os.Build;
 import android.os.VibrationEffect;
@@ -35,13 +37,17 @@ public class SDLControllerManager
     public static native void onNativeHat(int device_id, int hat_id,
                                           int x, int y);
 
-    protected static SDLJoystickHandler mJoystickHandler;
-    protected static SDLHapticHandler mHapticHandler;
+    @Inject
+    protected static SDLJoystickHandler_API19 mJoystickHandler;
+    //protected static SDLJoystickHandler mJoystickHandler;
+    @Inject
+    protected static SDLHapticHandler_API26 mHapticHandler;
+    //protected static SDLHapticHandler mHapticHandler;
 
     private static final String TAG = "SDLControllerManager";
 
     public static void initialize() {
-        if (mJoystickHandler == null) {
+        /*if (mJoystickHandler == null) {
             if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
                 mJoystickHandler = new SDLJoystickHandler_API19();
             } else {
@@ -55,7 +61,7 @@ public class SDLControllerManager
             } else {
                 mHapticHandler = new SDLHapticHandler();
             }
-        }
+        }*/
     }
 
     // Joystick glue code, just a series of stubs that redirect to the SDLJoystickHandler instance
@@ -325,7 +331,8 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
     }
 }
 
-class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
+@Singleton
+class SDLJoystickHandler_API19 @Inject extends SDLJoystickHandler_API16 {
 
     @Override
     public int getProductId(InputDevice joystickDevice) {
@@ -470,7 +477,8 @@ class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
     }
 }
 
-class SDLHapticHandler_API26 extends SDLHapticHandler {
+@Singleton
+class SDLHapticHandler_API26 @Inject extends SDLHapticHandler {
     @Override
     public void run(int device_id, float intensity, int length) {
         SDLHaptic haptic = getHaptic(device_id);
