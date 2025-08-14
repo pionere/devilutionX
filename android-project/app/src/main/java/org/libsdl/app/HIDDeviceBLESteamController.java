@@ -94,7 +94,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                     chr = getCharacteristic(mUuid);
                     //Log.v(TAG, "Writing characteristic " + chr.getUuid() + " value=" + HexDump.toHexString(value));
                     if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                        if (mGatt.writeCharacteristic(chr, mValue, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)) {
+                        if (mGatt.writeCharacteristic(chr, mValue, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) != 0) {
                             Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
                             mResult = false;
                             break;
@@ -129,7 +129,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
                             mGatt.setCharacteristicNotification(chr, true);
                             if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                                if (mGatt.writeDescriptor(cccd, value)) {
+                                if (mGatt.writeDescriptor(cccd, value) != 0) {
                                     Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
                                     mResult = false;
                                     return;
