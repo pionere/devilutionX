@@ -49,19 +49,19 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     static public final UUID reportCharacteristic = UUID.fromString("100F6C34-1735-4313-B402-38567131E5F3");
     static private final byte[] enterValveMode = new byte[] { (byte)0xC0, (byte)0x87, 0x03, 0x08, 0x07, 0x00 };
 
-    static inline boolean writeCharacteristic(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
+    static private final boolean writeCharacteristic(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
         return mGatt.writeCharacteristic(chr, mValue, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) == 0;
     }
     @TargetApi(32)
-    static inline boolean writeCharacteristic_32(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
+    static private final boolean writeCharacteristic_32(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
         chr.setValue(mValue);
         return mGatt.writeCharacteristic(chr);
     }
-    static inline boolean writeDescriptor(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
+    static private final boolean writeDescriptor(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
         return mGatt.writeDescriptor(cccd, value) == 0;
     }
     @TargetApi(32)
-    static inline boolean writeDescriptor_32(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
+    static private final boolean writeDescriptor_32(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
         cccd.setValue(value);
         return mGatt.writeDescriptor(cccd);
     }
