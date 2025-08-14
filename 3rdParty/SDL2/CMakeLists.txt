@@ -22,9 +22,9 @@ else()
   set(SDL_STATIC OFF)
 endif()
 # Temporary workaround for MSVC builds
-if(MSVC AND NOT NXDK)
-  set(SDL_LIBC ON)
-endif()
+#if(MSVC AND NOT NXDK)
+#  set(SDL_LIBC ON)
+#endif()
 set(SDL_DYNAPI OFF)
 # Turn off unused subsystems
 set(SDL_LOCALE OFF)
