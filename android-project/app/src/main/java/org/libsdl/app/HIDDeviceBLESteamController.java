@@ -1,6 +1,7 @@
 package org.libsdl.app;
 
 import android.content.Context;
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;

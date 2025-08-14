@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.VibrationEffect;
