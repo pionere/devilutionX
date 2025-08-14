@@ -22,7 +22,7 @@ else()
   set(SDL_STATIC OFF)
 endif()
 # Temporary workaround for MSVC builds
-if(MSVC)
+if(MSVC AND NOT NXDK)
   set(SDL_LIBC ON)
 endif()
 set(SDL_DYNAPI OFF)
@@ -75,6 +75,6 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 40e6229dc4203f184c096e556cb8754429e90b52
+    GIT_TAG b0855d413d9c77427819729222bc65c2abc4b545
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
