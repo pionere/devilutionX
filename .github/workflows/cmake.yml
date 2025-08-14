@@ -47,13 +47,13 @@ jobs:
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake  -DENABLE_BITCODE=0 -DPLATFORM=OS64 -DCMAKE_SYSTEM_NAME=iOS -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
       run: >
-        cmake --build build -j $(sysctl -n hw.physicalcpu) --config Release &&
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}} &&
         cd build &&
         rm -rf Payload devilutionx.ipa &&
         mkdir Payload &&
