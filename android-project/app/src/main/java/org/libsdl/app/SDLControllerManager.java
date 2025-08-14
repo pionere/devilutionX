@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import android.content.Context;
 import android.os.Build;
 import android.os.VibrationEffect;
@@ -37,18 +35,14 @@ public class SDLControllerManager
     public static native void onNativeHat(int device_id, int hat_id,
                                           int x, int y);
 
-    @Inject
-    protected static SDLJoystickHandler_API19 mJoystickHandler;
-    //protected static SDLJoystickHandler mJoystickHandler;
-    @Inject
-    protected static SDLHapticHandler_API26 mHapticHandler;
-    //protected static SDLHapticHandler mHapticHandler;
+    protected static SDLJoystickHandler mJoystickHandler;
+    protected static SDLHapticHandler mHapticHandler;
 
     private static final String TAG = "SDLControllerManager";
 
     public static void initialize() {
-        /*if (mJoystickHandler == null) {
-            if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) * /) {
+        if (mJoystickHandler == null) {
+            if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
                 mJoystickHandler = new SDLJoystickHandler_API19();
             } else {
                 mJoystickHandler = new SDLJoystickHandler_API16();
@@ -56,12 +50,12 @@ public class SDLControllerManager
         }
 
         if (mHapticHandler == null) {
-            if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) * /) {
+            if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
                 mHapticHandler = new SDLHapticHandler_API26();
             } else {
                 mHapticHandler = new SDLHapticHandler();
             }
-        }*/
+        }
     }
 
     // Joystick glue code, just a series of stubs that redirect to the SDLJoystickHandler instance
@@ -148,6 +142,7 @@ class SDLJoystickHandler {
 }
 
 /* Actual joystick functionality available for API >= 12 devices */
+@TargetApi(18)
 class SDLJoystickHandler_API16 extends SDLJoystickHandler {
 
     static class SDLJoystick {
@@ -331,8 +326,6 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
     }
 }
 
-@Singleton
-@Inject
 class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
 
     @Override
@@ -478,8 +471,6 @@ class SDLJoystickHandler_API19 extends SDLJoystickHandler_API16 {
     }
 }
 
-@Singleton
-@Inject
 class SDLHapticHandler_API26 extends SDLHapticHandler {
     @Override
     public void run(int device_id, float intensity, int length) {
@@ -511,7 +502,7 @@ class SDLHapticHandler_API26 extends SDLHapticHandler {
         }
     }
 }
-
+@TargetApi(25)
 class SDLHapticHandler {
 
     static class SDLHaptic {
@@ -527,9 +518,6 @@ class SDLHapticHandler {
     }
 
     public void run(int device_id, float intensity, int length) {
-        if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
-            return;
-        }
         SDLHaptic haptic = getHaptic(device_id);
         if (haptic != null) {
             haptic.vib.vibrate(length);
@@ -544,9 +532,7 @@ class SDLHapticHandler {
     }
 
     public void pollHapticDevices() {
-        if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
-            return;
-        }
+
         final int deviceId_VIBRATOR_SERVICE = 999999;
         boolean hasVibratorService = false;
 

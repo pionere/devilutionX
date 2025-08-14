@@ -77,6 +77,4 @@ android {
 
 dependencies {
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
-	implementation 'com.google.dagger:hilt-android:2.57'
-	annotationProcessor 'com.google.dagger:hilt-compiler:2.57'
 }

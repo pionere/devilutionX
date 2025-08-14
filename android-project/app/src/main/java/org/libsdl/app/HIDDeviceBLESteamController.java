@@ -49,6 +49,23 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     static public final UUID reportCharacteristic = UUID.fromString("100F6C34-1735-4313-B402-38567131E5F3");
     static private final byte[] enterValveMode = new byte[] { (byte)0xC0, (byte)0x87, 0x03, 0x08, 0x07, 0x00 };
 
+    static inline bool writeCharacteristic(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
+        return mGatt.writeCharacteristic(chr, mValue, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) == 0;
+    }
+    @TargetApi(32)
+    static inline bool writeCharacteristic_32(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
+        chr.setValue(mValue);
+        return mGatt.writeCharacteristic(chr);
+    }
+    static inline bool writeDescriptor(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
+        return mGatt.writeDescriptor(cccd, value) == 0;
+    }
+    @TargetApi(32)
+    static inline bool writeDescriptor_32(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
+        cccd.setValue(value);
+        return mGatt.writeDescriptor(cccd);
+    }
+
     static class GattOperation {
         private enum Operation {
             CHR_READ,
@@ -94,20 +111,13 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                     chr = getCharacteristic(mUuid);
                     //Log.v(TAG, "Writing characteristic " + chr.getUuid() + " value=" + HexDump.toHexString(value));
                     if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                        if (mGatt.writeCharacteristic(chr, mValue, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) != 0) {
-                            Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
-                            mResult = false;
-                            break;
-                        }
+                        mResult = writeCharacteristic(mGatt, chr, mValue);
                     } else {
-                        chr.setValue(mValue);
-                        if (!mGatt.writeCharacteristic(chr)) {
-                            Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
-                            mResult = false;
-                            break;
-                        }
+                        mResult = writeCharacteristic_32(mGatt, chr, mValue);
                     }
-                    mResult = true;
+                    if (!mResult) {
+                        Log.e(TAG, "Unable to write characteristic " + mUuid.toString());
+                    }
                     break;
                 case ENABLE_NOTIFICATION:
                     chr = getCharacteristic(mUuid);
@@ -129,20 +139,15 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
                             mGatt.setCharacteristicNotification(chr, true);
                             if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                                if (mGatt.writeDescriptor(cccd, value) != 0) {
-                                    Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
-                                    mResult = false;
-                                    return;
-                                }
+                                mResult = writeDescriptor(mGatt, cccd, value);
                             } else {
-                                cccd.setValue(value);
-                                if (!mGatt.writeDescriptor(cccd)) {
-                                    Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
-                                    mResult = false;
-                                    return;
-                                }
+                                mResult = writeDescriptor_32(mGatt, cccd, value);
                             }
-                            mResult = true;
+                            if (!mResult) {
+                                Log.e(TAG, "Unable to write descriptor " + mUuid.toString());
+                                mResult = false;
+                                return;
+                            }
                         }
                     }
             }
