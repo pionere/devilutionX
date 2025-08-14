@@ -50,7 +50,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
     static public final UUID reportCharacteristic = UUID.fromString("100F6C34-1735-4313-B402-38567131E5F3");
     static private final byte[] enterValveMode = new byte[] { (byte)0xC0, (byte)0x87, 0x03, 0x08, 0x07, 0x00 };
 
-    static private final boolean writeCharacteristic(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
+    static private final boolean writeCharacteristic_33(BluetoothGatt mGatt, BluetoothGattCharacteristic chr, byte[] mValue) {
         return mGatt.writeCharacteristic(chr, mValue, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) == 0;
     }
     @TargetApi(32)
@@ -58,7 +58,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
         chr.setValue(mValue);
         return mGatt.writeCharacteristic(chr);
     }
-    static private final boolean writeDescriptor(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
+    static private final boolean writeDescriptor_33(BluetoothGatt mGatt, BluetoothGattDescriptor cccd, byte[] value) {
         return mGatt.writeDescriptor(cccd, value) == 0;
     }
     @TargetApi(32)
@@ -112,7 +112,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                     chr = getCharacteristic(mUuid);
                     //Log.v(TAG, "Writing characteristic " + chr.getUuid() + " value=" + HexDump.toHexString(value));
                     if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                        mResult = writeCharacteristic(mGatt, chr, mValue);
+                        mResult = writeCharacteristic_33(mGatt, chr, mValue);
                     } else {
                         mResult = writeCharacteristic_32(mGatt, chr, mValue);
                     }
@@ -140,7 +140,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
 
                             mGatt.setCharacteristicNotification(chr, true);
                             if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                                mResult = writeDescriptor(mGatt, cccd, value);
+                                mResult = writeDescriptor_33(mGatt, cccd, value);
                             } else {
                                 mResult = writeDescriptor_32(mGatt, cccd, value);
                             }
