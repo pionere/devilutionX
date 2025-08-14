@@ -141,6 +141,7 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
                                     mResult = false;
                                     return;
                                 }
+                            }
                             mResult = true;
                         }
                     }
