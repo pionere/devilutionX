@@ -250,7 +250,9 @@ else()
   set(MPQONE \"diablone.mpq\")
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+if(NOT UWP)
+  set(CMAKE_CXX_STANDARD 20)
+endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
@@ -803,6 +805,9 @@ if(CREATE_PATCHER)
   if(USE_SDL1)
     target_link_libraries(${DEVIL_PATCHER} PRIVATE
       ${SDL_LIBRARY})
+  elseif(UWP)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      SDL2::SDL2)
   else()
     target_link_libraries(${DEVIL_PATCHER} PRIVATE
       ${SDL2_MAIN}
@@ -1047,6 +1052,9 @@ endif()
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL_LIBRARY})
+elseif(UWP)
+  target_link_libraries(${BIN_TARGET} PRIVATE
+    SDL2::SDL2)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL2_MAIN}
