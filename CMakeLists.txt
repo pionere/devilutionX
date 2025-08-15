@@ -670,7 +670,7 @@ endif()
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 elseif(UWP_LIB)
-  add_custom_target(${BIN_TARGET})  # we only need libdevilutionx
+  add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 else()
   set(BIN_SOURCES ${devilutionx_SRCS})
   if(APPLE)

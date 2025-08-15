@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -73,7 +73,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>libdevilutionx.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>devilutionx.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Debug;..\build\_deps\libzt-build\lib\Debug;..\build\Source\libdevilutionx.dir\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
@@ -92,7 +92,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>libdevilutionx.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>devilutionx.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Release\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Release;..\build\_deps\libzt-build\lib\Release;..\build\Source\libdevilutionx.dir\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
