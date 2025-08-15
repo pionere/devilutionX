@@ -55,7 +55,7 @@ jobs:
       shell: cmd
       working-directory: ${{github.workspace}}
       run: |
-        build.bat ${{ matrix.cmakeargs }}
+        Packaging\xbox-one\build.bat ${{ matrix.cmakeargs }}
 
     - name: Copy artifacts to package directory
       run: >
