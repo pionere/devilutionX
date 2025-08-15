@@ -1,13 +1,15 @@
-call VsDevCmd.bat
+rem call VsDevCmd.bat
+call C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat
 
 mkdir build
 cd build
 
-rem git clone https://github.com/pionere/SDL.git
-rem git -C SDL checkout 8b86e0ac1dd48f5c35a2b789845e248a701088b9
+git clone https://github.com/pionere/SDL.git
+git -C SDL checkout 8b86e0ac1dd48f5c35a2b789845e248a701088b9
 msbuild /p:PlatformToolset=v143;TargetPlatformVersion=10.0.22000.0;TargetPlatformMinVersion=10.0.14393.0;ConfigurationType=StaticLibrary;Configuration=Release;Platform=x64 SDL\VisualC-WinRT\SDL-UWP.vcxproj
 
 cmake -DUWP_LIB=1 -DUWP_SDL2_DIR="%CD%/SDL" -DCMAKE_BUILD_TYPE=x64-Release .. %*
+rem cmake -DUWP_LIB=1 -DCMAKE_BUILD_TYPE=x64-Release .. %*
 
 msbuild /p:Configuration=Release;Platform=x64 DevilutionX.sln
 
