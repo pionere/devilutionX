@@ -50,10 +50,11 @@ jobs:
     #    Remove-Item tools-gettext.zip &&
     #    Add-Content $env:GITHUB_PATH "$((Get-Item tools-gettext).FullName)\bin"
 
+    #cd ${{ github.workspace }}\Packaging\xbox-one
     - name: Build
       shell: cmd
+      working-directory: ${{github.workspace}}
       run: |
-        cd ${{ github.workspace }}\Packaging\xbox-one
         build.bat ${{ matrix.cmakeargs }}
 
     - name: Copy artifacts to package directory
