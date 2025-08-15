@@ -10,6 +10,10 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define ACTBTN_MASK(btn)     (1 << (btn))
 
+#include "../defs.h"
+#include "../enums.h"
+#include "../structs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
