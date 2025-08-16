@@ -38,9 +38,7 @@ jobs:
       #run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
       run:
         #git clone --recursive --depth 1 https://github.com/pionere/nxdk.git "$NXDK_DIR"
-        mkdir "$NXDK_DIR" &&
-        cd "$NXDK_DIR" &&
-        git clone --recursive --depth 1 --branch mkopts https://github.com/pionere/SDL.git
+        git clone --recursive --depth 1 --branch mkopts https://github.com/pionere/nxdk.git "$NXDK_DIR"
         #git checkout a7d529e8c2fd4d71ea6bcadc3bb4eba11e5b7ff9
     #- name: Clone NXDK Repo
     #  uses: actions/checkout@v4
