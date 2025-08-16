@@ -44,7 +44,7 @@ jobs:
 
     - name: Build NXDK
       shell: bash
-      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" all cxbe
+      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=1 LTO=y all cxbe
 
     #- name: Print text
     #  shell: bash
