@@ -30,7 +30,7 @@ jobs:
         #fetch-depth: 0
 
     - name: Create Build Environment
-      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git gettext smpq
+      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git
 
     - name: Clone NXDK Repo
       shell: bash
@@ -48,7 +48,7 @@ jobs:
 
     - name: Build NXDK
       shell: bash
-      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=0 LTO=y all cxbe
+      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=ON LTO=1 DEBUG= all cxbe
 
     #- name: Print text
     #  shell: bash
