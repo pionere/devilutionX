@@ -1052,11 +1052,10 @@ jobs:
         #fetch-depth: 0
 
     - name: Create Build Environment
-      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git gettext
+      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git
 
     - name: Clone NXDK Repo
       shell: bash
-    #  #run: git clone --recursive --depth 1 --branch devilutionx https://github.com/glebm/nxdk.git "$NXDK_DIR"
       run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
     #- name: Clone NXDK Repo
     #  uses: actions/checkout@v5
@@ -1066,11 +1065,11 @@ jobs:
 
     - name: Build NXDK
       shell: bash
-      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=1 all cxbe
+      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=1 LTO=1 all cxbe
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DNXDK=ON -DDEVILUTIONX_SYSTEM_SDL2=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
+      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DNXDK=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
