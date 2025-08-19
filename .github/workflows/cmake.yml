@@ -19,7 +19,7 @@ jobs:
             artifact: 'diablo-push-ps5'
             #artifact1: 'diablo-push'
           - name: hellfire+patch
-            cmakeargs: '-DHELLFIRE=ON'
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-push-ps5p'
             #artifact1: 'hellfire-push'
 
@@ -45,6 +45,7 @@ jobs:
       run: Packaging/ps5/build.sh ${{ matrix.cmakeargs }}
 
     #- name: Show content of workspace
+    #  if: always()
     #  run: find $RUNNER_WORKSPACE
     #  shell: bash
 
