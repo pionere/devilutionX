@@ -63,7 +63,7 @@ void switch_start_text_input(const char* guide_text, char* initial_text, int max
 		text[max_length] = { '\0' };
 	}
 	char* cursor = text;
-	for (int i = 0; /*i < 599 &&*/ *cursor; ) {
+	for (/*int i = 0*/; /*i < 599 &&*/ *cursor; ) {
 		int bytes_in_char = get_utf8_character_bytes((uint8_t*)cursor);
 		SDL_Event textinput_event;
 		textinput_event.type = SDL_TEXTINPUT;
