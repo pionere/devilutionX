@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-int mypnum;
+NONETCONST int mypnum = 0;
 PlayerStruct players[MAX_PLRS];
 /* Whether the current player is changing the level. */
 bool gbLvlLoad;
@@ -625,7 +625,7 @@ void SetPlrAnims(int pnum)
 void CreatePlayer(const _uiheroinfo& heroinfo)
 {
 	int val, hp, mana;
-	int i, pnum = 0;
+	int pnum = 0;
 
 	memset(&plr, 0, sizeof(PlayerStruct));
 	SetRndSeed(SDL_GetTicks()); // used by CreatePlrItems / CreateBaseItem
@@ -663,47 +663,16 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
 	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
 
-	//plr._pAtkSkill = SPL_ATTACK;
-	//plr._pAtkSkillType = RSPLTYPE_ABILITY;
-	//plr._pMoveSkill = SPL_WALK;
-	//plr._pMoveSkillType = RSPLTYPE_ABILITY;
-	//plr._pAltAtkSkill = SPL_INVALID;
-	//plr._pAltAtkSkillType = RSPLTYPE_INVALID;
-	//plr._pAltMoveSkill = SPL_INVALID;
-	//plr._pAltMoveSkillType = RSPLTYPE_INVALID;
-
-	for (i = 0; i < lengthof(plr._pAtkSkillHotKey); i++)
-		plr._pAtkSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillTypeHotKey); i++)
-		plr._pAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillHotKey); i++)
-		plr._pMoveSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillTypeHotKey); i++)
-		plr._pMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillHotKey); i++)
-		plr._pAltAtkSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeHotKey); i++)
-		plr._pAltAtkSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillHotKey); i++)
-		plr._pAltMoveSkillHotKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeHotKey); i++)
-		plr._pAltMoveSkillTypeHotKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillSwapKey); i++)
-		plr._pAtkSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAtkSkillTypeSwapKey); i++)
-		plr._pAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillSwapKey); i++)
-		plr._pMoveSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pMoveSkillTypeSwapKey); i++)
-		plr._pMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillSwapKey); i++)
-		plr._pAltAtkSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltAtkSkillTypeSwapKey); i++)
-		plr._pAltAtkSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillSwapKey); i++)
-		plr._pAltMoveSkillSwapKey[i] = SPL_INVALID;
-	for (i = 0; i < lengthof(plr._pAltMoveSkillTypeSwapKey); i++)
-		plr._pAltMoveSkillTypeSwapKey[i] = RSPLTYPE_INVALID;
+	//plr._pMainSkill = { { SPL_ATTACK, RSPLTYPE_ABILITY } , { SPL_WALK, RSPLTYPE_ABILITY } };
+	//plr._pAltSkill = { { SPL_NULL, 0 } , SPL_NULL, 0 } };
+	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
+	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) == sizeof(plr._pSkillHotKey) + sizeof(plr._pAltSkillHotKey) + sizeof(plr._pSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys II.");
+	static_assert(offsetof(PlayerStruct, _pAltSkillHotKey) > offsetof(PlayerStruct, _pSkillHotKey) && offsetof(PlayerStruct, _pAltSkillHotKey) < offsetof(PlayerStruct, _pAltSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys III.");
+	static_assert(offsetof(PlayerStruct, _pSkillSwapKey) > offsetof(PlayerStruct, _pSkillHotKey) && offsetof(PlayerStruct, _pSkillSwapKey) < offsetof(PlayerStruct, _pAltSkillSwapKey),
+		"CreatePlayer fails to initialize the skillhotkeys IV.");
+	memset(plr._pSkillHotKey, 0, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) + sizeof(plr._pAltSkillSwapKey));
 
 	if (plr._pClass == PC_SORCERER) {
 		plr._pSkillLvlBase[SPL_FIREBOLT] = 2;
@@ -1088,8 +1057,8 @@ void FixPlayerLocation(int pnum)
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
 		ScrollInfo._sdir = SDIR_NONE;
-		ViewX = plr._px; // - ScrollInfo._sdx;
-		ViewY = plr._py; // - ScrollInfo._sdy;
+		myview.x = plr._px; // - ScrollInfo._sdx;
+		myview.y = plr._py; // - ScrollInfo._sdy;
 	}
 }
 
@@ -1105,8 +1074,8 @@ static void AssertFixPlayerLocation(int pnum)
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
-		assert(ViewX == plr._px); // - ScrollInfo._sdx;
-		assert(ViewY == plr._py); // - ScrollInfo._sdy;
+		assert(myview.x == plr._px); // - ScrollInfo._sdx;
+		assert(myview.y == plr._py); // - ScrollInfo._sdy;
 	}
 }
 
@@ -1226,8 +1195,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
 	if (pnum == mypnum) {
-		ViewX = plr._px;
-		ViewY = plr._py;
+		myview.x = plr._px;
+		myview.y = plr._py;
 		ScrollInfo._sxoff = -plr._pxoff;
 		ScrollInfo._syoff = -plr._pyoff;
 	}
@@ -1286,16 +1255,16 @@ static bool StartWalk(int pnum, int dir)
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
-		// assert(plr._poldx == ViewX);
-		// assert(plr._poldy == ViewY);
-		// ScrollInfo._sdx = plr._poldx - ViewX;
-		// ScrollInfo._sdy = plr._poldy - ViewY;
+		// assert(plr._poldx == myview.x);
+		// assert(plr._poldy == myview.y);
+		// ScrollInfo._sdx = plr._poldx - myview.x;
+		// ScrollInfo._sdy = plr._poldy - myview.y;
 
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)
-			assert(dir2sdir[i] == 1 + OPPOSITE(i));
+			assert(dir2sdir[i] == 1 + i);
 #endif
-		dir = 1 + OPPOSITE(dir); // == dir2sdir[dir];
+		dir = 1 + dir; // == dir2sdir[dir];
 		/*if (!gbZoomInFlag) {
 			if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
 				ScrollInfo._sdir = SDIR_NONE;
@@ -1993,7 +1962,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		break;
 	}
 
-	if (plx(offp)._pILifeSteal != 0) {
+	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
+	if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 	}
 
@@ -2016,10 +1986,8 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	if ((fdam | ldam | mdam | adam) != 0) {
 		dam += AddElementalExplosion(fdam, ldam, mdam, adam, false, pnum);
 	}
-
-	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
-	if (dam < 64) {
-		dam = 64;
+	if (dam <= 0) {
+		dam = 1;
 	}
 
 	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
@@ -2116,17 +2084,21 @@ static void PlrDoAttack(int pnum)
 	}
 	if (plr._pVar7 == 1) {
 		plr._pVar7 = 2;
-		hitcnt = PlrTryHit(pnum, plr._pdir);
+		dir = plr._pdir;
+		hitcnt = PlrTryHit(pnum, dir);
 		if (plr._pVar5 == SPL_SWIPE) {
-			dir = plr._pdir;
 			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
 			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
-			plr._pdir = dir;
 		}
 
 		if (hitcnt != 0) {
 			WeaponDur(pnum, 40 - hitcnt * 8);
 		}
+		// return early if the weapon is lost or triggered a got-hit/death animation
+		if (plr._pmode != PM_ATTACK) {
+			return;
+		}
+		plr._pdir = dir;
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);
@@ -3100,7 +3072,8 @@ void PlrSetMana(int pnum, int val)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrSetMana: illegal player %d", pnum);
 	}
-	if (plr._pIFlags & ISPL_NOMANA)
+	// assert(val == 0);
+	// if (plr._pIFlags & ISPL_NOMANA)
 		val = 0;
 	plr._pMana = val;
 	plr._pManaBase = val - (plr._pMaxMana - plr._pMaxManaBase);
@@ -3114,6 +3087,7 @@ void PlrFillHp(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrFillHp: illegal player %d", pnum);
 	}
+	// assert(plr._pHitPoints != 0);
 	plr._pHitPoints = plr._pMaxHP;
 	plr._pHPBase = plr._pMaxHPBase;
 	if (pnum == mypnum)
@@ -3123,8 +3097,9 @@ void PlrFillHp(int pnum)
 void PlrFillMana(int pnum)
 {
 	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("PlrSetMana: illegal player %d", pnum);
+		dev_fatal("PlrFillMana: illegal player %d", pnum);
 	}
+	// assert(plr._pHitPoints != 0);
 	if (plr._pIFlags & ISPL_NOMANA)
 		return;
 	plr._pMana = plr._pMaxMana;
@@ -3136,6 +3111,8 @@ void PlrFillMana(int pnum)
 void PlrIncHp(int pnum, int hp)
 {
 	assert(hp >= 0);
+	if (plr._pHitPoints == 0)
+		return;
 	plr._pHitPoints += hp;
 	if (plr._pHitPoints > plr._pMaxHP)
 		plr._pHitPoints = plr._pMaxHP;
@@ -3149,7 +3126,7 @@ void PlrIncHp(int pnum, int hp)
 void PlrIncMana(int pnum, int mana)
 {
 	assert(mana >= 0);
-	if (plr._pIFlags & ISPL_NOMANA)
+	if (plr._pHitPoints == 0 || plr._pIFlags & ISPL_NOMANA)
 		return;
 
 	plr._pMana += mana;

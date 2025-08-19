@@ -1401,7 +1401,7 @@ static void Obj_Light(int oi)
 	turnon = false;
 
 	tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
-	turnon = abs(ViewX - ox) < tr && abs(ViewY - oy) < tr;
+	turnon = abs(myview.x - ox) < tr && abs(myview.y - oy) < tr;
 
 	if (turnon) {
 		assert(objectdata[OBJ_L1LIGHT].ofindex == OFILE_L1BRAZ);

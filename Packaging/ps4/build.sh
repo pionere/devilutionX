@@ -14,5 +14,5 @@ cmake -S. -B"$BUILD_DIR" \
       ${CMAKE_ARGS} \
       "$@"
 
-cmake --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN)
+cmake --build "$BUILD_DIR" -j $(getconf _NPROCESSORS_ONLN) --config Release
 mv "$BUILD_DIR"/IV0001-DVLX00001_00-*.pkg "$BUILD_DIR"/devilutionx-ps4.pkg

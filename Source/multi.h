@@ -16,7 +16,7 @@ extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern bool gbLoadGame;
-extern bool gbJoinGame;
+extern NONETCONST bool gbJoinGame;
 extern BYTE gbGameMode;
 extern turn_t guDeltaTurn;
 extern unsigned guSendGameDelta;

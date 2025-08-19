@@ -233,7 +233,6 @@ typedef enum item_misc_id {
 	IMISC_FULLREJUV,
 	IMISC_SCROLL,
 	IMISC_BOOK,
-	IMISC_UNIQUE,
 	IMISC_EAR,
 	IMISC_SPECELIX,
 	IMISC_OILQLTY,
@@ -423,6 +422,11 @@ typedef enum item_effect_type {
 	IPL_FASTCAST,
 	IPL_FASTWALK,
 	IPL_INVALID          = 0xFF,
+
+	IMP_LVLMOD  = 0,
+	IMP_LVLGAIN = 1,
+	IMP_SETLVL  = 2,
+	IMP_AREAMOD = 3,
 } item_effect_type;
 
 typedef enum item_affix_range {
@@ -3766,14 +3770,14 @@ typedef enum direction {
 
 typedef enum _scroll_direction {
 	SDIR_NONE,
-	SDIR_N,
-	SDIR_NE,
-	SDIR_E,
-	SDIR_SE,
 	SDIR_S,
 	SDIR_SW,
 	SDIR_W,
 	SDIR_NW,
+	SDIR_N,
+	SDIR_NE,
+	SDIR_E,
+	SDIR_SE,
 } _scroll_direction;
 
 typedef enum _path_direction {
@@ -3786,6 +3790,13 @@ typedef enum _path_direction {
 	PDIR_SE,
 	PDIR_SW
 } _path_direction;
+
+typedef enum _menu_direction {
+	MDIR_UP,
+	MDIR_DOWN,
+	MDIR_LEFT,
+	MDIR_RIGHT,
+} _menu_direction;
 
 typedef enum lvl_entry {
 	ENTRY_MAIN,
@@ -4116,19 +4127,6 @@ typedef enum server_type {
 	SRV_BASIC,
 	SRV_DIRECT,
 } server_type;
-
-typedef enum panel_button_id {
-	PANBTN_MAINMENU,
-	PANBTN_OPTIONS,
-	PANBTN_CHARINFO,
-	PANBTN_INVENTORY,
-	PANBTN_SPELLBOOK,
-	PANBTN_QLOG,
-	PANBTN_AUTOMAP,
-	PANBTN_SENDMSG,
-	PANBTN_TEAMBOOK,
-	NUM_PANBTNS
-} panel_button_id;
 
 typedef enum attribute_id {
 	ATTRIB_STR,
@@ -4653,6 +4651,20 @@ typedef enum _gmenu_flags {
 	GMF_ENABLED = 1 << 1,
 } _gmenu_flags;
 
+typedef enum gamemenu_id {
+	GMM_EXITGAME,
+	GMM_MAINMENU,
+	GMM_QLOG,
+	GMM_CHARINFO,
+	GMM_INVENTORY,
+	GMM_SKILLLIST,
+	GMM_SPELLBOOK,
+	GMM_AUTOMAP,
+	GMM_SENDMSG,
+	GMM_TEAMBOOK,
+	NUM_GMMS
+} gamemenu_id;
+
 typedef enum mpq_files {
 #if ASSET_MPL != 1
 	MPQ_DEVILHD,
@@ -4718,7 +4730,7 @@ typedef enum input_key {
 	ACT_SKL6,
 	ACT_SKL7,
 	ACT_SWAP,    // skill-set swap
-	ACT_TGT,     // change target mode
+	ACT_TGT,     // change targeting mode
 	ACT_INV,     // toggle inventory
 	ACT_CHAR,    // toggle character sheet
 	ACT_SKLBOOK, // toggle skill book
@@ -4739,11 +4751,13 @@ typedef enum input_key {
 	ACT_DOWN,
 	ACT_LEFT,
 	ACT_RIGHT,
-	ACT_PGUP,
-	ACT_PGDOWN,
 	ACT_RETURN,
 	ACT_TEAM,   // toggle team book
 	ACT_QUESTS, // toggle quest book
+	ACT_SPREV,  // prev skill selection
+	ACT_SNEXT,  // next skill selection
+	ACT_SAPREV, // prev alt-skill selection
+	ACT_SANEXT, // next alt-skill selection
 	ACT_MSG0, // send quick message
 	ACT_MSG1,
 	ACT_MSG2,

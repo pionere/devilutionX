@@ -1,5 +1,4 @@
 CtrlPan\Flasks.CEL
-CtrlPan\Menu.CEL
 CtrlPan\SmalText.CEL
 Data\BigTGold.CEL
 Data\Char.CEL

@@ -111,10 +111,9 @@ static void pfile_archive_write_hero()
 
 static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo)
 {
-	static_assert(sizeof(heroinfo->hiName) <= sizeof(p->_pName), "pfile_player2hero uses memcpy to store the name of the player.");
+	static_assert(sizeof(heroinfo->hiName) == sizeof(p->_pName), "pfile_player2hero uses memcpy to store the name of the player.");
 	memcpy(heroinfo->hiName, p->_pName, sizeof(heroinfo->hiName));
-	heroinfo->hiName[sizeof(heroinfo->hiName) - 1] = '\0';
-	// heroinfo->hiIdx;
+	// heroinfo->hiIdx
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
 	// heroinfo->hiSaveFile

@@ -1123,10 +1123,8 @@ void ValidateData()
 		if (ids.itype == ITYPE_HARMOR && ids.iMinMLvl < minHeavyArmor && ids.iRnd != 0)
 			minHeavyArmor = ids.iMinMLvl;
 		if (ids.iMinMLvl == 0 && ids.itype != ITYPE_MISC && ids.itype != ITYPE_GOLD
-		 && (ids.iMiscId != IMISC_UNIQUE || ids.itype == ITYPE_STAFF /* required by DoWhittle */)) // required by DoClean
+		 && (i >= IDI_RNDDROP_FIRST || ids.iUniqType == UITYPE_NONE || ids.itype == ITYPE_STAFF /* required by DoWhittle */)) // required by DoClean
 			app_fatal("iMinMLvl field is not set for %s (%d).", ids.iName, i);
-		if (ids.iMiscId == IMISC_UNIQUE && ids.iRnd != 0)
-			app_fatal("Fix unique item %s (%d) should not be part of the loot.", ids.iName, i);
 		if (ids.iClass == ICLASS_ARMOR) {
 			if (ids.itype != ITYPE_LARMOR && ids.itype != ITYPE_MARMOR
 			 && ids.itype != ITYPE_HARMOR && ids.itype != ITYPE_SHIELD
@@ -1775,6 +1773,7 @@ void ValidateData()
 	assert(SPEC_TARGETING_CURSOR(spelldata[SPL_TELEKINESIS].spCurs)); // required by TryIconCurs
 #ifdef DEBUG_DATA
 	bool hasBookSpell = false, hasStaffSpell = false, hasScrollSpell = false, hasRuneSpell = false;
+	int bookSpells = 0, staffSpells = 0, scrollSpells = 0, runeSpells = 0;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		int mind, maxd;
@@ -1804,9 +1803,7 @@ void ValidateData()
 				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Rune of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetRuneSpell
-			hasRuneSpell = true;
+			runeSpells++;
 			continue;
 		}
 		if (sd.sBookLvl != SPELL_NA) {
@@ -1816,9 +1813,7 @@ void ValidateData()
 				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sBookCost <= 0)
 				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Book of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetBookSpell
-			hasBookSpell = true;
+			bookSpells++;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {
 			if (sd.sStaffLvl < STAFF_MIN)
@@ -1829,21 +1824,16 @@ void ValidateData()
 				app_fatal("Too high sStaffMax %d for %s (%d)", sd.sStaffMin, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			//if (strlen(sd.sNameText) > sizeof(is->_iName) - (maxStaff + 4 + 1))
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Staff of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetStaffSpell
-			hasStaffSpell = true;
+			staffSpells++;
 		}
 		if (sd.sScrollLvl != SPELL_NA) {
 			if (sd.sScrollLvl < SCRL_MIN)
 				app_fatal("Invalid sScrollLvl %d for %s (%d)", sd.sScrollLvl, sd.sNameText, i);
 			if (sd.sStaffCost <= 0)
 				app_fatal("Invalid sStaffCost %d for %s (%d)", sd.sStaffCost, sd.sNameText, i);
-			if (strlen(sd.sNameText) > sizeof(is->_iName) - (strlen("Scroll of ") + 1))
-				app_fatal("Too long name for %s (%d)", sd.sNameText, i); // required by GetScrollSpell
 			if ((sd.sSkillFlags & SDFLAG_TARGETED) && sd.scCurs == CURSOR_NONE)
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
-			hasScrollSpell = true;
+			scrollSpells++;
 		}
 		if (sd.sMissile != 0 && sd.sType == STYPE_NONE && !(sd.sUseFlags & SFLAG_RANGED)) // required by On_SKILLXY, On_SKILLMON, On_SKILLPLR
 			app_fatal("Skill %s (%d) supposed to use a missile, but neither sType nor the SFLAG_RANGED-flag is set.", sd.sNameText, i);
@@ -1854,16 +1844,20 @@ void ValidateData()
 		if ((sd.sMissile == MIS_OPITEM || sd.sMissile == MIS_REPAIR) && !SFX_VALID(sd.sSFX))
 			app_fatal("Item-Skill %s (%d) does not have a valid sfx-id.", sd.sNameText, i); // required by On_OPERATEITEM
 	}
-	if (!hasBookSpell)
+	if (!bookSpells)
 		app_fatal("No book spell for GetBookSpell.");
-	if (!hasStaffSpell)
+	if (!staffSpells)
 		app_fatal("No staff spell for GetStaffSpell.");
-	if (!hasScrollSpell)
+	if (!scrollSpells)
 		app_fatal("No scroll spell for GetScrollSpell.");
 #ifdef HELLFIRE
-	if (!hasRuneSpell)
+	if (!runeSpells)
 		app_fatal("No rune spell for GetRuneSpell.");
 #endif
+	const int abilitySpells = 5;
+	if (bookSpells + staffSpells + scrollSpells + runeSpells + abilitySpells > 2 * NUM_SPELLS) {
+		app_fatal("Too many spells for DrawSkillList (%d, %d, %d, %d, %d vs %d).", bookSpells, staffSpells, scrollSpells, runeSpells, abilitySpells, 2 * NUM_SPELLS);
+	}
 
 	// missiles
 	for (i = 0; i < NUM_MISTYPES; i++) {

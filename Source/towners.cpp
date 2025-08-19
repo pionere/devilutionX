@@ -973,7 +973,7 @@ void TalkToTowner(int tnum, int pnum)
 	} else if (tw->_mgoalvar1 != STORE_NONE) { // TNR_STORE
 		// assert(!gbQtextflag);
 		ClearPanels();
-		// gamemenu_off();
+		gamemenu_off();
 		StartQTextMsg(tw->_mgoalvar2); // TNR_TALK, TALK_MESSAGE
 		StartStore(tw->_mgoalvar1);    // TNR_STORE
 	}

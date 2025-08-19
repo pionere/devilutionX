@@ -13,10 +13,10 @@ PortalStruct portals[MAXPORTAL];
 static int portalindex;
 
 /** X-coordinate of each players portal in town. */
-static_assert(MAXPORTAL <= 4, "Portal coordinates in town must be set.");
-static const int WarpDropX[MAXPORTAL] = { 47 + DBORDERX, 49 + DBORDERX, 51 + DBORDERX, 53 + DBORDERX };
+static_assert(MAX_PLRS <= 7, "portal in water...");
+#define WARPDROPX(i) ((i * 2) + 47 + DBORDERX)
 /** Y-coordinate of each players portal in town. */
-static const int WarpDropY[MAXPORTAL] = { 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY, 30 + DBORDERY };
+#define WARPDROPY(i) (30 + DBORDERY)
 
 void InitPortals()
 {
@@ -49,7 +49,7 @@ void SyncPortals()
 			continue;
 		lvl = currLvl._dLevelIdx;
 		if (lvl == DLV_TOWN)
-			AddWarpMissile(i, WarpDropX[i], WarpDropY[i]);
+			AddWarpMissile(i, WARPDROPX(i), WARPDROPY(i));
 		else {
 			if (portals[i]._rlevel == lvl)
 				AddWarpMissile(i, portals[i]._rx, portals[i]._ry);
@@ -59,7 +59,7 @@ void SyncPortals()
 
 void AddInTownPortal(int pidx)
 {
-	AddWarpMissile(pidx, WarpDropX[pidx], WarpDropY[pidx]);
+	AddWarpMissile(pidx, WARPDROPX(pidx), WARPDROPY(pidx));
 }
 
 void ActivatePortal(int pidx, int x, int y, int bLevel)
@@ -95,11 +95,11 @@ void UseCurrentPortal(int pidx)
 void GetPortalLvlPos()
 {
 	if (currLvl._dLevelIdx == DLV_TOWN) {
-		ViewX = WarpDropX[portalindex];
-		ViewY = WarpDropY[portalindex];
+		myview.x = WARPDROPX(portalindex);
+		myview.y = WARPDROPY(portalindex);
 	} else {
-		ViewX = portals[portalindex]._rx;
-		ViewY = portals[portalindex]._ry;
+		myview.x = portals[portalindex]._rx;
+		myview.y = portals[portalindex]._ry;
 	}
 }
 
@@ -111,7 +111,7 @@ bool PosOkPortal(int x, int y)
 		if (portals[i]._rlevel == DLV_TOWN)
 			continue;
 		if (lvl == DLV_TOWN) {
-			if (WarpDropX[i] == x && WarpDropY[i] == y)
+			if (WARPDROPX(i) == x && WARPDROPY(i) == y)
 				return false;
 		} else {
 			if (portals[i]._rx == x && portals[i]._ry == y)
