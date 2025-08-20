@@ -30,13 +30,13 @@ jobs:
         fetch-tags: true
       #  fetch-depth: 0
 
+    # sudo apt-get install smpq curl doxygen gperf po4a yasm nasm autopoint libarchive-tools libtool autoconf build-essential pkg-config clang-15 lld-15
     - name: Create Build Environment
       run: |
         sudo apt-get update
-        sudo apt-get install cmake pkg-config clang-15 lld-15
-        sudo apt-get install build-essential autoconf libtool yasm nasm
-        sudo apt-get install smpq gperf pkgconf libarchive-tools autopoint po4a git curl doxygen wget
-        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.18/ps5-payload-dev.tar.gz
+        sudo apt-get install cmake clang lld
+        sudo apt-get install pkgconf git wget
+        wget https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.27/ps5-payload-dev.tar.gz
         sudo tar -xf ps5-payload-dev.tar.gz -C /
 
     - name: Build
