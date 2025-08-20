@@ -22,7 +22,7 @@ else()
   set(SDL_STATIC OFF)
 endif()
 # Temporary workaround for MSVC builds
-if(MSVC)
+if(MSVC AND NOT NXDK)
   set(SDL_LIBC ON)
 endif()
 set(SDL_DYNAPI OFF)
@@ -66,6 +66,7 @@ if(NOT DEBUG_MODE)
   set(SDL_VERBOSE_ERROR OFF) # requires fork of SDL2
   set(SDL_SANITIZE_ACCESS OFF) # requires fork of SDL2
 endif()
+set(SDL_ANALYZE_MACROS OFF) # requires fork of SDL2
 
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
@@ -75,6 +76,6 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 8b86e0ac1dd48f5c35a2b789845e248a701088b9
+    GIT_TAG ede1535a4be9aa4f0d28160e4d3bb9c3d685523c
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
