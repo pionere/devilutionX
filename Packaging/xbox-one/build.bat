@@ -26,6 +26,14 @@ rem - build the game
 msbuild /p:PlatformToolset=v143;TargetPlatformVersion=10.0.26100.0;TargetPlatformMinVersion=10.0.14393.0;Configuration=Release;Platform=x64;AppxBundle=Always;AppxBundlePlatforms=x64 ..\uwp-project\devilutionx.sln
 if errorlevel 1 goto error
 
+rem build the patcher
+IF EXIST devil_patcher.dir (
+  powershell "(Get-Content ..\uwp-project\Patcher.appxmanifest.template ) -replace '__PROJECT_VERSION__','1.0.0.0' | Set-Content -encoding ASCII ..\uwp-project\Patcher.appxmanifest"
+
+  msbuild /p:PlatformToolset=v143;TargetPlatformVersion=10.0.26100.0;TargetPlatformMinVersion=10.0.14393.0;Configuration=Release;Platform=x64;AppxBundle=Always;AppxBundlePlatforms=x64 ..\uwp-project\devil_patcher.sln
+  if errorlevel 1 goto error
+)
+
 rem create package
 powershell "New-Item -Path uwp-project\pkg -ItemType Directory -Force; Get-Childitem -Path uwp-project\AppxPackages, uwp-project\Release, uwp-patcher\Release -Include Microsoft.VCLibs.x64.*.appx, devil*_x64.appx -File -Recurse | Copy-Item -Destination uwp-project\pkg\\"
 rem powershell "Get-Childitem -Path uwp-project\AppxPackages, uwp-project\Release -Include Microsoft.VCLibs.x64.*.appx, devil*_x64.appx -File -Recurse | Get-Unique -AsString | Compress-Archive -DestinationPath devilutionx.zip"
