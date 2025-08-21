@@ -15,7 +15,7 @@ if errorlevel 1 goto error
 
 rem prepare devilutionx
 rem - configure
-cmake -DUWP_LIB=1 -DUWP_SDL2_DIR="%CD%/SDL" -DCMAKE_BUILD_TYPE=x64-Release ..
+cmake .. -DUWP_LIB=1 -DUWP_SDL2_DIR="%CD%/SDL" -DCMAKE_BUILD_TYPE=x64-Release %*
 if errorlevel 1 goto error
 rem - build
 msbuild /p:PlatformToolset=v143;TargetPlatformVersion=10.0.26100.0;TargetPlatformMinVersion=10.0.14393.0;Configuration=Release;Platform=x64 DevilutionX.sln
