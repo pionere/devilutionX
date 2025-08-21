@@ -1151,6 +1151,20 @@ if(HAIKU)
   target_link_libraries(${BIN_TARGET} PRIVATE network)
 endif()
 
+if(UWP_LIB)
+  list(APPEND EXTRA_LIBS
+      vccorlib
+      msvcrt
+      dxgi
+      d3d11
+      mmdevapi
+  )
+  target_link_libraries(${BIN_TARGET} PRIVATE ${EXTRA_LIBS})
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${EXTRA_LIBS})
+  endif()
+endif()
+
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   # Change __FILE__ to only show the path relative to the project folder
   if((CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)

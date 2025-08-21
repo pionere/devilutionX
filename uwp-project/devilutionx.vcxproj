@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3183a558-46f4-4fef-8684-0a79b793599f}</ProjectGuid>
     <Keyword>DirectXApp</Keyword>
-    <RootNamespace>devilutionX</RootNamespace>
+    <RootNamespace>devilX</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
@@ -23,7 +23,7 @@
     <TargetPlatformMinVersion>10.0.10069.0</TargetPlatformMinVersion>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.14393.0</WindowsTargetPlatformMinVersion>
-    <ProjectName>devilutionX</ProjectName>
+    <ProjectName>devilX</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -73,13 +73,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>sdl_image.lib;libpng16_staticd.lib;pkware.lib;fmtd.lib;zlib.lib;bzip2.lib;libsmackerdec.lib;libmpq.lib;libdevilutionx.lib;sdl2.lib;sdl_audiolib.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\3rdParty\SDL_image\Debug;..\build\3rdParty\zlib\Debug;..\build\3rdParty\PKWare\Debug;..\build\3rdParty\bzip2\Debug;..\build\3rdParty\libsmackerdec\Debug;..\build\3rdParty\libmpq\Debug;..\build\_deps\sdl_audiolib-build\Debug;..\build\_deps\libsodium-build\Debug;..\build\_deps\libzt-build\lib\Debug;..\build\_deps\libfmt-build\Debug;..\build\_deps\libpng-build\Debug;..\build\Source\libdevilutionx.dir\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>devilutionx.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Debug;..\build\_deps\libzt-build\lib\Debug;..\build\Source\devilutionx.dir\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>..\Source;..\build\SDL\include;..\build\_deps\sdl_audiolib-src\include;..\build\_deps\sdl_audiolib-build;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Source;..\build\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>_DEBUG;__UWP__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -92,8 +92,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <AdditionalDependencies>sdl_image.lib;libpng16_static.lib;pkware.lib;fmt.lib;zlib.lib;bzip2.lib;libsmackerdec.lib;libmpq.lib;libdevilutionx.lib;sdl2.lib;sdl_audiolib.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Release\SDL-UWP;..\build\3rdParty\SDL_image\Release;..\build\3rdParty\zlib\Release;..\build\3rdParty\PKWare\Release;..\build\3rdParty\bzip2\Release;..\build\3rdParty\libsmackerdec\Release;..\build\3rdParty\libmpq\Release;..\build\_deps\sdl_audiolib-build\Release;..\build\_deps\libsodium-build\Release;..\build\_deps\libzt-build\lib\Release;..\build\_deps\libfmt-build\Release;..\build\_deps\libpng-build\Release;..\build\Source\libdevilutionx.dir\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>devilutionx.lib;sdl2.lib;SDL2_mixer.lib;PKWare.lib;smacker.lib;StormLib.lib;sodium.lib;zt.lib;lwip_obj.lib;miniupnpc_obj.lib;libnatpmp_obj.lib;zto_obj.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Release\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Release;..\build\_deps\libzt-build\lib\Release;..\build\_deps\libzt-build\lwip_obj.dir\Release;..\build\_deps\libzt-build\miniupnpc_obj.dir\Release;..\build\_deps\libzt-build\libnatpmp_obj.dir\Release;..\build\_deps\libzt-build\zto_obj.dir\Release;..\build\Source\devilutionx.dir\Release;..\build\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -102,7 +102,7 @@
       <DisableSpecificWarnings>4453;28204</DisableSpecificWarnings>
       <PreprocessorDefinitions>NDEBUG;__UWP__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\Source;..\build\SDL\include;..\build\_deps\sdl_audiolib-src\include;..\build\_deps\sdl_audiolib-build;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Source;..\build\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -123,10 +123,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="..\build\assets\*\*.*">
-      <DeploymentContent>true</DeploymentContent>
-      <Link>Assets\%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </None>
     <None Include="devilutionX_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

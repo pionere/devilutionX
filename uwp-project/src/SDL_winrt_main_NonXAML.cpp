@@ -3,7 +3,7 @@
 */
 
 #include <SDL.h>
-#include <diablo.h>
+#include <all.h>
 #include <wrl.h>
 
 /* At least one file in any SDL/WinRT app appears to require compilation
@@ -62,6 +62,6 @@ void onInitialized()
 
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	devilution::setOnInitialized(&onInitialized);
-    return SDL_WinRTRunApp(devilution::DiabloMain, NULL);
+	dvl::setOnInitialized(&onInitialized);
+	return SDL_WinRTRunApp(dvl::DiabloMain, NULL);
 }

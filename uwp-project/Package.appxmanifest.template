@@ -8,19 +8,19 @@
 
   <Identity
     Name="b6830ff4-1ef5-4907-9d9e-1ba808edf70f"
-    Publisher="CN=devilutionX"
-    Version="__PROJECT_VERSION__.0" />
+    Publisher="CN=pionere"
+    Version="__PROJECT_VERSION__" />
 
   <mp:PhoneIdentity PhoneProductId="b6830ff4-1ef5-4907-9d9e-1ba808edf70f" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>devilutionX</DisplayName>
-    <PublisherDisplayName>devilution Team</PublisherDisplayName>
+    <DisplayName>$targetnametoken$</DisplayName>
+    <PublisherDisplayName>pionere</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.10069.0" />
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.10069.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
   <Resources>
@@ -30,12 +30,12 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="devilutionX.App">
+      EntryPoint="$targetnametoken$.App">
       <uap:VisualElements
-        DisplayName="DevilutionX"
+        DisplayName="$targetnametoken$"
         Square150x150Logo="Assets\Logo.png"
         Square44x44Logo="Assets\SmallLogo.png"
-        Description="DevilutionX"
+        Description="Diablo port"
         BackgroundColor="#000000">
         <uap:SplashScreen Image="Assets\SplashScreen.png"  BackgroundColor="#000000"/>
         <uap:DefaultTile Square71x71Logo="Assets\SmallTile.png" Wide310x150Logo="Assets\WideTile.png" Square310x310Logo="Assets\LargeTile.png"/>
