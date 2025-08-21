@@ -1436,6 +1436,9 @@ if(NXDK)
   )
   add_custom_target(nxdk_xbe ALL DEPENDS "${_xbe_path}")
   if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE "${NXDK_DIR}/lib/libnxdk_automount_d.lib")
+    target_link_options(${DEVIL_PATCHER} PRIVATE "-include:_automount_d_drive")
+
     set(patcher_xbe_path "${NXDK_PKG_DIR}/patcher.xbe")
     add_custom_command(
       OUTPUT "${patcher_xbe_path}"
