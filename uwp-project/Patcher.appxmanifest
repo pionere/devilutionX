@@ -30,7 +30,7 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="$targetnametoken$.App">
+      EntryPoint="Patcher.App">
       <uap:VisualElements
         DisplayName="DevilX Patcher"
         Square150x150Logo="Assets\Logo.png"
@@ -43,9 +43,4 @@
       </uap:VisualElements>
     </Application>
   </Applications>
-
-  <!--Capabilities>
-    <Capability Name="internetClient" />
-    <Capability Name="internetClientServer"/>
-  </Capabilities-->
 </Package>
