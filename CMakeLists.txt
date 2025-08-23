@@ -26,6 +26,9 @@ endif()
 if(NXDK)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xbox_nxdk")
 endif()
+if(UWP_LIB)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xboxone")
+endif()
 
 if(NOT VERSION_NUM)
   include(git)
@@ -41,7 +44,8 @@ endif()
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 endif()
 
 string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_VERSION_NUM ${VERSION_NUM} )
@@ -117,7 +121,6 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
-  set(USE_PATCH ON)
   if(WINDOWS_STORE)
     if(NTDDI_VERSION < NTDDI_WIN10)
       set(FULLSCREEN_ONLY ON)
@@ -156,6 +159,10 @@ endif()
 
 if(NXDK)
   include(xbox_nxdk_defs)
+endif()
+
+if(UWP_LIB)
+  include(xboxone_defs)
 endif()
 
 include(CMakeDependentOption)
@@ -365,6 +372,8 @@ elseif(DEVILUTIONX_SYSTEM_SDL2)
     # Can't define an INTERFACE target with ::, so alias instead
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
+elseif(UWP_LIB)
+  find_package(SDL2 REQUIRED)
 else()
   add_subdirectory(3rdParty/SDL2)
   set(SDL2_MAIN SDL2::SDL2main)
@@ -662,6 +671,8 @@ endif()
 
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
+elseif(UWP_LIB)
+  add_library(${BIN_TARGET} STATIC ${devilutionx_SRCS})
 else()
   set(BIN_SOURCES ${devilutionx_SRCS})
   if(APPLE)
@@ -765,6 +776,8 @@ if(CREATE_PATCHER)
 
   if(ANDROID)
     add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
+  elseif(UWP_LIB)
+    add_library(${DEVIL_PATCHER} STATIC ${devil_patcher_SRCS})
   else()
     set(PATCHER_SOURCES ${devil_patcher_SRCS})
     if(APPLE)
@@ -792,6 +805,9 @@ if(CREATE_PATCHER)
   if(USE_SDL1)
     target_link_libraries(${DEVIL_PATCHER} PRIVATE
       ${SDL_LIBRARY})
+  elseif(UWP_LIB)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      SDL2::SDL2)
   else()
     target_link_libraries(${DEVIL_PATCHER} PRIVATE
       ${SDL2_MAIN}
@@ -1034,6 +1050,9 @@ endif()
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL_LIBRARY})
+elseif(UWP_LIB)
+  target_link_libraries(${BIN_TARGET} PRIVATE
+    SDL2::SDL2)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL2_MAIN}
@@ -1130,6 +1149,20 @@ endif()
 
 if(HAIKU)
   target_link_libraries(${BIN_TARGET} PRIVATE network)
+endif()
+
+if(UWP_LIB)
+  list(APPEND EXTRA_LIBS
+      vccorlib
+      msvcrt
+      dxgi
+      d3d11
+      mmdevapi
+  )
+  target_link_libraries(${BIN_TARGET} PRIVATE ${EXTRA_LIBS})
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${EXTRA_LIBS})
+  endif()
 endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -1403,6 +1436,9 @@ if(NXDK)
   )
   add_custom_target(nxdk_xbe ALL DEPENDS "${_xbe_path}")
   if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE "${NXDK_DIR}/lib/libnxdk_automount_d.lib")
+    target_link_options(${DEVIL_PATCHER} PRIVATE "-include:_automount_d_drive")
+
     set(patcher_xbe_path "${NXDK_PKG_DIR}/patcher.xbe")
     add_custom_command(
       OUTPUT "${patcher_xbe_path}"
@@ -1411,6 +1447,13 @@ if(NXDK)
       DEPENDS "${DEVIL_PATCHER}"
     )
     add_custom_target(nxdk_xbe_patcher ALL DEPENDS "${patcher_xbe_path}")
+  endif()
+endif()
+
+if(UWP_LIB)
+  target_compile_definitions(${BIN_TARGET} PRIVATE __UWP__=1)
+  if(DEVIL_PATCHER)
+    target_compile_definitions(${DEVIL_PATCHER} PRIVATE __UWP__=1)
   endif()
 endif()
 
