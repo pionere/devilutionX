@@ -1178,7 +1178,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_amiga]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_xbox, build_xboxone, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
@@ -1510,6 +1510,32 @@ jobs:
         name: hellfire-nightly-switch.nro
     - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
 
+    # xbox-builds
+    - name: Download a diablo xbox artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: diablo-nightly-xbox.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-xbox.zip
+
+    - name: Download a hellfire xbox artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: hellfire-nightly-xbox.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-xbox.zip
+
+    # xboxone-builds
+    - name: Download a diablo xboxone artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: diablo-nightly-xboxone.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-xboxone.zip
+
+    - name: Download a hellfire xboxone artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: hellfire-nightly-xboxone.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-xboxone.zip
+
     # amiga-builds
     - name: Download a diablo amiga artifact
       uses: actions/download-artifact@v5
@@ -1586,6 +1612,14 @@ jobs:
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-switch.nro">switch.nro</a></td>'             >> RELEASE_NOTE.md
         echo '<td align=center><code>Nintendo Switch</code></td>'                                                                          >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-switch.nro">switch.nro</a></td>'           >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-xbox.zip">xbox.zip</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td align=center><code>XBOX</code></td>'                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-xbox.zip">xbox.zip</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-xboxone.zip">xboxone.zip</a></td>'           >> RELEASE_NOTE.md
+        echo '<td align=center><code>XBOXONE/SERIES</code></td>'                                                                           >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-xboxone.zip">xboxone.zip</a></td>'         >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-amiga">amiga</a></td>'                       >> RELEASE_NOTE.md
         echo '<td align=center><code>Amiga</code></td>'                                                                                    >> RELEASE_NOTE.md
@@ -1683,6 +1717,8 @@ jobs:
           ${{github.workspace}}/diablo-nightly-3ds.3dsx
           ${{github.workspace}}/diablo-nightly-3ds.cia
           ${{github.workspace}}/diablo-nightly-switch.nro
+          ${{github.workspace}}/diablo-nightly-xbox.zip
+          ${{github.workspace}}/diablo-nightly-xboxone.zip
           ${{github.workspace}}/diablo-nightly-amiga
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
@@ -1708,6 +1744,8 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-3ds.3dsx
           ${{github.workspace}}/hellfire-nightly-3ds.cia
           ${{github.workspace}}/hellfire-nightly-switch.nro
+          ${{github.workspace}}/hellfire-nightly-xbox.zip
+          ${{github.workspace}}/hellfire-nightly-xboxone.zip
           ${{github.workspace}}/hellfire-nightly-amiga
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
