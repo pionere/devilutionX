@@ -73,8 +73,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalDependencies>devil_patcher.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Debug;..\build\_deps\libzt-build\lib\Debug;..\build\Source\devilutionx.dir\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>devil_patcher.lib;sdl2.lib;SDL2_mixer.lib;PKWare.lib;smacker.lib;StormLib.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -93,7 +93,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalDependencies>devil_patcher.lib;sdl2.lib;SDL2_mixer.lib;PKWare.lib;smacker.lib;StormLib.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Release\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Release;..\build\_deps\libzt-build\lib\Release;..\build\_deps\libzt-build\lwip_obj.dir\Release;..\build\_deps\libzt-build\miniupnpc_obj.dir\Release;..\build\_deps\libzt-build\libnatpmp_obj.dir\Release;..\build\_deps\libzt-build\zto_obj.dir\Release;..\build\Source\devilutionx.dir\Release;..\build\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Release\SDL-UWP;..\build\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
