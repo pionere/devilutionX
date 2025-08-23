@@ -74,7 +74,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <AdditionalDependencies>devilutionx.lib;sdl2.lib;asio.lib;sodium.lib;zt.lib;lwip_pic.lib;miniupnpc_pic.lib;natpmp_pic.lib;zt_pic.lib;zto_pic.lib;shlwapi.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\3rdParty\asio\Release;..\build\_deps\libsodium-build\Debug;..\build\_deps\libzt-build\lib\Debug;..\build\Source\devilutionx.dir\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\build\SDL\VisualC-WinRT\x64\Debug\SDL-UWP;..\build\3rdParty\asio\Debug;..\build\_deps\libsodium-build\Debug;..\build\_deps\libzt-build\lib\Debug;..\build\_deps\libzt-build\lwip_obj.dir\Debug;..\build\_deps\libzt-build\miniupnpc_obj.dir\Debug;..\build\_deps\libzt-build\libnatpmp_obj.dir\Debug;..\build\_deps\libzt-build\zto_obj.dir\Debug;..\build\Source\devilutionx.dir\Debug;..\build\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
