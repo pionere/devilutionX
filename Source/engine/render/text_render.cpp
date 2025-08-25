@@ -7,6 +7,7 @@
 
 #include "all.h"
 #include "engine/render/cel_render.h"
+#include "engine/render/raw_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -123,36 +124,29 @@ static CelImageBuf* pHugeGoldTextCels;
 static CelImageBuf* pSmallPentSpinCels;
 static CelImageBuf* pHugePentSpinCels;
 
+static BYTE pBoxBorderBmp[2 * BOXBORDER_WIDTH * BORDERBMP_HEIGHT + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH];
+
 /**
- * Merged color translations for fonts. The shades of one color are used in one font.CEL
+ * 'One-line' color translations for fonts. The shades of one color are used in one font.CEL
  * SmalText.CEL uses PAL16_GRAY values, while MedTextS and BigTGold.CEL are using PAL16_YELLOWs
  */
-static BYTE fontColorTrns[16 + 2][16] = {
+static BYTE fontColorTrns[3][16] = {
 	// clang-format off
-	// skip non-generic colors
-	{ 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, },
-	// skip unused colors
-	{ 0, },
-	{ 0, },
-	{ 0, },
-	{ 0, },
 	// TRN for AFT_SILVER (MedTextS)
 	{ PAL16_GRAY, PAL16_GRAY + 1, PAL16_GRAY + 2, PAL16_GRAY + 3, PAL16_GRAY + 4, PAL16_GRAY + 5, PAL16_GRAY + 6, PAL16_GRAY + 7, PAL16_GRAY + 8, PAL16_GRAY + 9, PAL16_GRAY + 10, PAL16_GRAY + 11, PAL16_GRAY + 12, PAL16_GRAY + 13, PAL16_GRAY + 14, PAL16_YELLOW + 15 },
-	// skip unused colors
-	{ 0, },
-	{ 0, },
 	// TRN for COL_BLUE (SmalText)
 	{ PAL16_BLUE + 2, PAL16_BLUE + 3, PAL16_BLUE + 4, PAL16_BLUE + 5, PAL16_BLUE + 6, PAL16_BLUE + 7, PAL16_BLUE + 8, PAL16_BLUE + 9, PAL16_BLUE + 10, PAL16_BLUE + 11, PAL16_BLUE + 12, PAL16_BLUE + 13, PAL16_BLUE + 14, PAL16_BLUE + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_GOLD (SmalText)
 	{ PAL16_YELLOW + 2, PAL16_YELLOW + 3, PAL16_YELLOW + 4, PAL16_YELLOW + 5, PAL16_YELLOW + 6, PAL16_YELLOW + 7, PAL16_YELLOW + 8, PAL16_YELLOW + 9, PAL16_YELLOW + 10, PAL16_YELLOW + 11, PAL16_YELLOW + 12, PAL16_YELLOW + 13, PAL16_YELLOW + 14, PAL16_YELLOW + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_RED (SmalText)
-	{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
+	//{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
 	// clang-format on
 };
-#define FONT_TRN_SILVER (&fontColorTrns[0][0])
-#define FONT_TRN_BLUE   (&fontColorTrns[0][0])
-#define FONT_TRN_GOLD   (&fontColorTrns[1][0])
-#define FONT_TRN_RED    (&fontColorTrns[2][0])
+#define YLW_FONT_TRN_SILVER (&fontColorTrns[0][0] - PAL16_YELLOW)
+#define YLW_FONT_TRN_BLUE   (&fontColorTrns[1][0] - PAL16_YELLOW)
+#define GRY_FONT_TRN_BLUE   (&fontColorTrns[1][0] - PAL16_GRAY)
+#define GRY_FONT_TRN_GOLD   (&fontColorTrns[2][0] - PAL16_GRAY)
+//#define GRY_FONT_TRN_RED    (&fontColorTrns[3][0] - PAL16_GRAY)
 
 void InitText()
 {
@@ -166,6 +160,29 @@ void InitText()
 	pHugePentSpinCels = CelLoadImage("Data\\PentSpin.CEL", FOCUS_HUGE);
 	assert(pSmallPentSpinCels == NULL);
 	pSmallPentSpinCels = CelLoadImage("Data\\PentSpn2.CEL", FOCUS_MINI);
+
+	CelImageBuf* progFillCel;
+
+	progFillCel = CelLoadImage("Data\\TextBox.CEL", BORDERBMP_WIDTH); //  LTPANEL_WIDTH);
+	CelDraw(SCREEN_X, SCREEN_Y + BORDERBMP_HEIGHT /*TPANEL_HEIGHT*/ - 1, progFillCel, 1);
+	mem_free_dbg(progFillCel);
+	// copy upper lines to the bitmap
+	for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+		memcpy(&pBoxBorderBmp[0 + i * BORDERBMP_WIDTH], &gpBuffer[SCREENXY(0, i)], BORDERBMP_WIDTH);
+	}
+	// copy lower lines to the bitmap
+	for (int i = BOXBORDER_WIDTH; i < 2 * BOXBORDER_WIDTH; i++) {
+		memcpy(&pBoxBorderBmp[0 + i * BORDERBMP_WIDTH], &gpBuffer[SCREENXY(0, BORDERBMP_HEIGHT - BOXBORDER_WIDTH + (i - BOXBORDER_WIDTH))], BORDERBMP_WIDTH);
+	}
+	// copy left side to the bitmap
+	for (int i = 0; i < BOXTEMPLATE_WIDTH; i++) {
+		memcpy(&pBoxBorderBmp[i * BOXBORDER_WIDTH + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH], &gpBuffer[SCREENXY(0, BOXBORDER_WIDTH + i)], BOXBORDER_WIDTH);
+	}
+	// copy right side to the bitmap
+	for (int i = 0; i < BOXTEMPLATE_WIDTH; i++) {
+		memcpy(&pBoxBorderBmp[i * BOXBORDER_WIDTH + BOXBORDER_WIDTH * BOXTEMPLATE_WIDTH + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH],
+			   &gpBuffer[SCREENXY(BORDERBMP_WIDTH - BOXBORDER_WIDTH, BOXBORDER_WIDTH + i)], BOXBORDER_WIDTH);
+	}
 }
 
 void FreeText()
@@ -193,16 +210,16 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 		CelDraw(sx, sy, pSmallTextCels, nCel);
 		return;
 	case COL_BLUE:
-		tbl = FONT_TRN_BLUE;
+		tbl = GRY_FONT_TRN_BLUE;
 		break;
 	case COL_RED:
-		tbl = FONT_TRN_RED;
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // GRY_FONT_TRN_RED;
 		break;
 	case COL_GOLD:
-		tbl = FONT_TRN_GOLD;
+		tbl = GRY_FONT_TRN_GOLD;
 		break;
 	default:
-		ASSUME_UNREACHABLE
+		tbl = ColorTrns[col - COL_GOLD];
 		break;
 	}
 	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
@@ -210,23 +227,61 @@ void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 
 static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
 {
-	if (col == COL_GOLD) {
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE:
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // YLW_FONT_TRN_RED;
+		break;
+	case COL_GOLD:
 		CelDraw(sx, sy, pBigTextCels, nCel);
-	} else {
-		// assert(col == COL_WHITE);
-		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
 	}
+	CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
 }
 
-int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
+static void PrintHugeColorChar(int sx, int sy, int nCel, BYTE col)
 {
-	BYTE nCel = gbStdFontFrame[text];
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE: // -- unused
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // YLW_FONT_TRN_RED;
+		break;
+	case COL_GOLD:
+		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
+	}
+	CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);
+}
+
+int PrintBigChar(int sx, int sy, BYTE chr, BYTE col)
+{
+	BYTE nCel = gbStdFontFrame[chr];
 
 	if (nCel != 0) {
 		PrintBigColorChar(sx, sy, nCel, col);
 		// draw optional diacritic
-		if (text >= 128) {
-			BYTE dCel = gbStdDiacFrame[text - 128];
+		if (chr >= 128) {
+			BYTE dCel = gbStdDiacFrame[chr - 128];
 			if (dCel != 0) {
 				PrintBigColorChar(sx, sy, dCel, col);
 			}
@@ -236,15 +291,15 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 	return bigFontWidth[nCel] + FONT_KERN_BIG;
 }
 
-int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
+int PrintSmallChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbStdFontFrame[text];
+	BYTE nCel = gbStdFontFrame[chr];
 
 	if (nCel != 0) {
 		PrintSmallColorChar(sx, sy, nCel, col);
 		// draw optional diacritic
-		if (text >= 128) {
-			BYTE dCel = gbStdDiacFrame[text - 128];
+		if (chr >= 128) {
+			BYTE dCel = gbStdDiacFrame[chr - 128];
 			if (dCel != 0) {
 				PrintSmallColorChar(sx, sy, dCel, col);
 			}
@@ -254,13 +309,12 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
 }
 
-int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
+int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbHugeFontFrame[text];
+	BYTE nCel = gbHugeFontFrame[chr];
 
 	if (nCel != 0) {
-		// PrintHugeColorChar(sx, sy, nCel, col);
-		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		PrintHugeColorChar(sx, sy, nCel, col);
 	}
 
 	return hugeFontWidth[nCel] + FONT_KERN_HUGE;
@@ -306,82 +360,127 @@ int GetSmallStringWidth(const char* text)
 	return i - FONT_KERN_SMALL;
 }
 
-void PrintGameStr(int x, int y, const char* text, BYTE color)
+void PrintGameStr(int x, int y, const char* text, BYTE col)
 {
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
-		x += PrintSmallChar(x, y, (BYTE)*text++, color);
+		x += PrintSmallChar(x, y, (BYTE)*text++, col);
 	}
 }
 
 /**
- * @brief Render text string to back buffer
+ * @brief Render text string justified to the back buffer
  * @param x Screen coordinate
  * @param y Screen coordinate
  * @param endX End of line in screen coordinate
- * @param pszStr String to print, in Windows-1252 encoding
- * @param center 
+ * @param text String to print, in Windows-1252 encoding
  * @param col text_color color value
  * @param kern Letter spacing
  */
-void PrintString(int x, int y, int endX, const char* text, bool cjustflag, BYTE col, int kern)
+void PrintJustifiedString(int x, int y, int endX, const char* text, BYTE col, int kern)
 {
 	BYTE c;
 	const char* tmp;
 	int strEnd;
-	int k;
+restart:
+	strEnd = x;
+	tmp = text;
+	while (*tmp != '\0') {
+		c = gbStdFontFrame[(BYTE)*tmp++];
+		strEnd += smallFontWidth[c] + kern;
+	}
+	if (strEnd <= endX) {
+		x += (endX - strEnd) >> 1;
+	} else if (kern > 0) {
+		--kern;
+		goto restart;
+	}
 
-	if (cjustflag) {
-		strEnd = x;
-		tmp = text;
-		while (*tmp != '\0') {
-			c = gbStdFontFrame[(BYTE)*tmp++];
-			strEnd += smallFontWidth[c] + kern;
-		}
-		if (strEnd < endX) {
-			x += (endX - strEnd) >> 1;
-		}
-	}
-	while (*text != '\0') {
-		c = gbStdFontFrame[(BYTE)*text++];
-		k = smallFontWidth[c] + kern;
-		if (x + k < endX && c != 0) {
-			PrintSmallColorChar(x, y, c, col);
-		}
-		x += k;
-	}
+	PrintLimitedString(x, y, text, endX - x, col, kern);
 }
 
-int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col)
+int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col, int kern)
 {
 	BYTE c;
-
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
 		c = gbStdFontFrame[(BYTE)*text++];
-		limit -= smallFontWidth[c] + FONT_KERN_SMALL;
+		limit -= smallFontWidth[c] + kern;
 		if (limit >= 0 && c != 0) {
 			PrintSmallColorChar(x, y, c, col);
 		}
-		x += smallFontWidth[c] + FONT_KERN_SMALL;
+		x += smallFontWidth[c] + kern;
 	}
 	return x;
 }
 
-void PrintHugeString(int x, int y, const char* text, int light)
+void PrintHugeString(int x, int y, const char* text, BYTE col)
 {
-	BYTE c, *tbl;
-
-	// TODO: uncomment if performance is required
-	//tbl = light == 0 ? NULL : ColorTrns[light];
-	tbl = ColorTrns[light];
+	// TODO: preselect color-trn if performance is required
 	while (*text != '\0') {
-		c = gbHugeFontFrame[(BYTE)*text++];
-		if (c != 0) {
-			// if (tbl == NULL)
-			//	CelDraw(x, y, pHugeGoldTextCels, c);
-			// else
-			CelDrawTrnTbl(x, y, pHugeGoldTextCels, c, tbl);
+		x += PrintHugeChar(x, y, (BYTE)*text++, col);
+	}
+}
+
+static int AlignXOffset(int flags, int rw, int sw)
+{
+	if (flags & AFF_HCENTER)
+		return (rw - sw) >> 1;
+	if (flags & AFF_RIGHT)
+		return rw - sw;
+	return 0;
+}
+
+void PrintString(int flags, const char* text, int x, int y, int w, int h)
+{
+	unsigned size = (flags >> AFF_SIZE_SHL) & AFF_SIZES;
+	unsigned color;
+	int sw, lh, dy, sx, sy, cx, cy;
+	int (*pChar)(int sx, int sy, BYTE text, BYTE col);
+
+	switch (size) {
+	case AFT_SMALL:
+		sw = GetSmallStringWidth(text);
+		dy = 1;
+		lh = SMALL_FONT_HEIGHT - dy;
+		//lh = SMALL_FONT_HEIGHT;
+		pChar = PrintSmallChar;
+		break;
+	case AFT_BIG:
+		sw = GetBigStringWidth(text);
+		dy = 5 - 2;
+		lh = BIG_FONT_HEIGHT - dy;
+		//lh = BIG_FONT_HEIGHT;
+		pChar = PrintBigChar;
+		break;
+	case AFT_HUGE:
+		sw = GetHugeStringWidth(text);
+		dy = 10 - 4;
+		lh = HUGE_FONT_HEIGHT - dy;
+		//lh = HUGE_FONT_HEIGHT;
+		pChar = PrintHugeChar;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
+	sx = x + AlignXOffset(flags, w, sw);
+	sy = y + ((flags & AFF_VCENTER) ? ((h - lh) >> 1) : 0) + lh;
+
+	sy += dy;
+	lh += dy;
+	color = (flags >> AFF_COLOR_SHL) & AFF_COLORS;
+
+	cx = sx;
+	cy = sy;
+	for ( ; *text != '\0'; text++) {
+		if (*text == '\n') {
+			cx = sx;
+			cy += lh;
+			continue;
 		}
-		x += hugeFontWidth[c] + FONT_KERN_HUGE;
+		cx += pChar(cx, cy, (BYTE)*text, color);
 	}
 }
 
@@ -405,6 +504,184 @@ void DrawSmallPentSpn(int x1, int x2, int y)
 void DrawSingleSmallPentSpn(int x, int y)
 {
 	CelDraw(x, y, pSmallPentSpinCels, PentSpn2Spin());
+}
+
+void DrawColorTextBoxSLine(int x, int y, int w, int dy)
+{
+	int sxy, dxy, width, length;
+
+	width = BUFFER_WIDTH;
+	sxy = x + BOXBORDER_WIDTH + width * (y + 1);
+	dxy = x + BOXBORDER_WIDTH + width * (y + dy);
+	length = w - 2 * BOXBORDER_WIDTH;
+
+	/// ASSERT: assert(gpBuffer != NULL);
+
+	int i;
+	BYTE *src, *dst;
+
+	src = &gpBuffer[sxy];
+	dst = &gpBuffer[dxy];
+
+	for (i = 0; i < BOXBORDER_WIDTH; i++, src += width, dst += width)
+		memcpy(dst, src, length);
+}
+
+void DrawColorTextBox(int x, int y, int w, int h, BYTE col)
+{
+	int v, sx, sy, n;
+	BYTE* tbl;
+
+	// prevent OOB
+	static_assert(BORDER_TOP >= BOXBORDER_WIDTH, "DrawColorTextBox needs larger top-border");
+	static_assert(BORDER_LEFT >= BOXBORDER_WIDTH, "DrawColorTextBox needs larger side-border.");
+	if (h > BORDER_TOP + SCREEN_HEIGHT + BOXBORDER_WIDTH - y)
+		h = BORDER_TOP + SCREEN_HEIGHT + BOXBORDER_WIDTH - y;
+	if (w > BORDER_LEFT + SCREEN_WIDTH + BOXBORDER_WIDTH - x)
+		w = BORDER_LEFT + SCREEN_WIDTH + BOXBORDER_WIDTH - x;
+
+	// draw the background
+	DrawRectTrans(x + BOXBORDER_WIDTH, y + BOXBORDER_WIDTH, w - 2 * BOXBORDER_WIDTH, h - 2 * BOXBORDER_WIDTH, PAL_BLACK);
+
+	switch (col) {
+	case COL_WHITE:
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // YLW_FONT_TRN_RED;
+		break;
+	case COL_GOLD:
+#if 0
+		// draw the top left corner
+		for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+			memcpy(&gpBuffer[BUFFERXY(x, y + j)], &pBoxBorderBmp[(0 + j) * BORDERBMP_WIDTH], BOXBORDER_WIDTH);
+		}
+		// draw the bottom left corner
+		for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+			memcpy(&gpBuffer[BUFFERXY(x, y + h - BOXBORDER_WIDTH + j)], &pBoxBorderBmp[(BOXBORDER_WIDTH + j) * BORDERBMP_WIDTH], BOXBORDER_WIDTH);
+		}
+		// draw the top right corner
+		for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+			memcpy(&gpBuffer[BUFFERXY(x + w - BOXBORDER_WIDTH, y + j)], &pBoxBorderBmp[(0 + j) * BORDERBMP_WIDTH + BORDERBMP_WIDTH - BOXBORDER_WIDTH], BOXBORDER_WIDTH);
+		}
+		// draw the bottom right corner
+		for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+			memcpy(&gpBuffer[BUFFERXY(x + w - BOXBORDER_WIDTH, y + h - BOXBORDER_WIDTH)], &pBoxBorderBmp[BOXBORDER_WIDTH * BORDERBMP_WIDTH + BORDERBMP_WIDTH - BOXBORDER_WIDTH], BOXBORDER_WIDTH);
+		}
+		// draw the top and bottom lines
+		v = w - 2 * BOXBORDER_WIDTH;
+		sx = x + BOXBORDER_WIDTH;
+		n = BOXTEMPLATE_WIDTH;
+		while (n > 0) {
+			while (v >= n) {
+				v -= n;
+				// extend the top line
+				for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+					memcpy(&gpBuffer[BUFFERXY(sx, y + j)], &pBoxBorderBmp[(0 + j) * BORDERBMP_WIDTH + BOXBORDER_WIDTH], n);
+				}
+				// extend the bottom line
+				for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+					memcpy(&gpBuffer[BUFFERXY(sx, y + h - BOXBORDER_WIDTH + j)], &pBoxBorderBmp[(BOXBORDER_WIDTH + j) * BORDERBMP_WIDTH + BOXBORDER_WIDTH], n);
+				}
+				sx += n;
+			}
+			n >>= 1;
+		}
+		// draw the left and right lines
+		v = h - 2 * BOXBORDER_WIDTH;
+		n = BOXTEMPLATE_WIDTH;
+		sy = y + BOXBORDER_WIDTH;
+		while (n > 0) {
+			while (v >= n) {
+				v -= n;
+				for (int m = 0; m < n; m++) {
+					// extend the left line
+					memcpy(&gpBuffer[BUFFERXY(x, sy)], &pBoxBorderBmp[m * BOXBORDER_WIDTH + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH], BOXBORDER_WIDTH);
+					// extend the right line
+					memcpy(&gpBuffer[BUFFERXY(x + w - BOXBORDER_WIDTH, sy)], &pBoxBorderBmp[m * BOXBORDER_WIDTH + BOXBORDER_WIDTH * BOXTEMPLATE_WIDTH + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH], BOXBORDER_WIDTH);
+					sy++;
+				}
+			}
+			n >>= 1;
+		}
+		return;
+#endif
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
+	}
+
+	// draw the top left corner
+	for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+		for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+			gpBuffer[BUFFERXY(x + i, y + j)] = tbl[pBoxBorderBmp[i + (0 + j) * BORDERBMP_WIDTH]];
+		}
+	}
+	// draw the bottom left corner
+	for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+		for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+			gpBuffer[BUFFERXY(x + i, y + h - BOXBORDER_WIDTH + j)] = tbl[pBoxBorderBmp[i + (BOXBORDER_WIDTH + j) * BORDERBMP_WIDTH]];
+		}
+	}
+	// draw the top right corner
+	for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+		for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+			gpBuffer[BUFFERXY(x + i + w - BOXBORDER_WIDTH, y + j)] = tbl[pBoxBorderBmp[i + (0 + j) * BORDERBMP_WIDTH + BORDERBMP_WIDTH - BOXBORDER_WIDTH]];
+		}
+	}
+	// draw the bottom right corner
+	for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+		for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+			gpBuffer[BUFFERXY(x + i + w - BOXBORDER_WIDTH, y + h - BOXBORDER_WIDTH + j)] = tbl[pBoxBorderBmp[i + (BOXBORDER_WIDTH + j) * BORDERBMP_WIDTH + BORDERBMP_WIDTH - BOXBORDER_WIDTH]];
+		}
+	}
+	// draw the top and bottom lines
+	v = w - 2 * BOXBORDER_WIDTH;
+	sx = x + BOXBORDER_WIDTH;
+	n = BOXTEMPLATE_WIDTH;
+	while (n > 0) {
+		while (v >= n) {
+			v -= n;
+			// extend the top line
+			for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+				for (int i = 0; i < n; i++) {
+					gpBuffer[BUFFERXY(sx + i, y + j)] = tbl[pBoxBorderBmp[i + (0 + j) * BORDERBMP_WIDTH + BOXBORDER_WIDTH]];
+				}
+			}
+			// extend the bottom line
+			for (int j = 0; j < BOXBORDER_WIDTH; j++) {
+				for (int i = 0; i < n; i++) {
+					gpBuffer[BUFFERXY(sx + i, y + h - BOXBORDER_WIDTH + j)] = tbl[pBoxBorderBmp[i + (BOXBORDER_WIDTH + j) * BORDERBMP_WIDTH + BOXBORDER_WIDTH]];
+				}
+			}
+			sx += n;
+		}
+		n >>= 1;
+	}
+	// draw the left and right lines
+	v = h - 2 * BOXBORDER_WIDTH;
+	n = BOXTEMPLATE_WIDTH;
+	sy = y + BOXBORDER_WIDTH;
+	while (n > 0) {
+		while (v >= n) {
+			v -= n;
+			for (int m = 0; m < n; m++) {
+				// extend the left line
+				for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+					gpBuffer[BUFFERXY(x + i, sy)] = tbl[pBoxBorderBmp[i + m * BOXBORDER_WIDTH + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH]];
+				}
+				// extend the right line
+				for (int i = 0; i < BOXBORDER_WIDTH; i++) {
+					gpBuffer[BUFFERXY(x + i + w - BOXBORDER_WIDTH, sy)] = tbl[pBoxBorderBmp[i + m * BOXBORDER_WIDTH + BOXBORDER_WIDTH * BOXTEMPLATE_WIDTH + 2 * BOXBORDER_WIDTH * BORDERBMP_WIDTH]];
+				}
+				sy++;
+			}
+		}
+		n >>= 1;
+	}
 }
 
 DEVILUTION_END_NAMESPACE

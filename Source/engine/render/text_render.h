@@ -32,17 +32,26 @@ int GetBigStringWidth(const char* text);
 int GetSmallStringWidth(const char* text);
 
 void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col);
-int PrintSmallChar(int sx, int sy, BYTE text, BYTE col);
-int PrintBigChar(int sx, int sy, BYTE text, BYTE col);
-int PrintHugeChar(int sx, int sy, BYTE text, BYTE col);
-void PrintString(int x, int y, int endX, const char* pszStr, bool center, BYTE col, int kern);
-void PrintGameStr(int x, int y, const char* str, BYTE color);
-int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col);
-void PrintHugeString(int x, int y, const char* pszStr, int light);
+int PrintSmallChar(int sx, int sy, BYTE chr, BYTE col);
+int PrintBigChar(int sx, int sy, BYTE chr, BYTE col);
+int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col);
+void PrintJustifiedString(int x, int y, int endX, const char* text, BYTE col, int kern);
+void PrintGameStr(int x, int y, const char* text, BYTE col);
+int PrintLimitedString(int x, int y, const char* text, int limit, BYTE col, int kern);
+void PrintHugeString(int x, int y, const char* text, BYTE col);
+/** print the given text to the rectangle using the flags.
+ * @param flags: _artFontFlags
+ * @param text: the string to be printed
+ * @param x, y, w, h: the containing rectangle for the text (screen coordinates)
+ */
+void PrintString(int flags, const char* text, int x, int y, int w, int h);
 
 void DrawHugePentSpn(int x1, int x2, int y);
 void DrawSmallPentSpn(int x1, int x2, int y);
 void DrawSingleSmallPentSpn(int x, int y);
+
+void DrawColorTextBox(int x, int y, int w, int h, BYTE col);
+void DrawColorTextBoxSLine(int x, int y, int w, int dy);
 
 #ifdef __cplusplus
 }

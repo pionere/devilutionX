@@ -1,4 +1,4 @@
-﻿name: CMake
+name: CMake
 
 # When creating a new workflow in GitHub’s action builder the default trigger is the push event. We want to extend this to push and pull request events.
 on: [push, pull_request]
@@ -13,9 +13,10 @@ jobs:
     container: devkitpro/devkita64:latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Install dependencies
       shell: bash

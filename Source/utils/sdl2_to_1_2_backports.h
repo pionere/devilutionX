@@ -34,6 +34,8 @@
 #endif
 typedef int(SDLCALL* SDL_ThreadFunction)(void* data);
 
+#define SDL_TICKS_PASSED(A, B)  ((Sint32)((B) - (A)) <= 0)
+
 #define SDL_Keysym  SDL_keysym
 #define SDL_Keycode SDLKey
 #define SDL_Keymod  SDLMod
@@ -332,5 +334,10 @@ int SDL_BlitScaled(SDL_Surface* src, SDL_Rect* srcrect,
 
 char* SDL_GetBasePath();
 char* SDL_GetPrefPath(const char* org, const char* app);
+
+//== Audio
+
+// Audio flags are not supported in SDL1.
+#define SDL_AUDIO_ALLOW_SAMPLES_CHANGE 0
 
 #endif // USE_SDL1

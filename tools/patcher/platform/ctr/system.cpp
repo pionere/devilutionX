@@ -109,8 +109,8 @@ void ctr_sys_init()
 	acInit();
 	atexit([]() { acExit(); });
 
-	n3ds_socInit();
-	atexit([]() { n3ds_socExit(); });
+	// n3ds_socInit();
+	// atexit([]() { n3ds_socExit(); });
 
 	// randombytes_ctrrandom_init();
 	atexit([]() {

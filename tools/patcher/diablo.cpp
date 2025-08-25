@@ -4,6 +4,7 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
+#include "controls/touch.h"
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -33,8 +34,10 @@ static int diablo_parse_flags(int argc, char** argv)
 			i++;
 			if (i < argc)
 				SetPrefPath(argv[i]);
+#if !FULLSCREEN_ONLY
 		} else if (SDL_strcasecmp("-x", argv[i]) == 0) {
 			gbFullscreen = false;
+#endif
 		}
 	}
 	return EX_OK;
@@ -42,8 +45,8 @@ static int diablo_parse_flags(int argc, char** argv)
 
 static void diablo_init_screen()
 {
-	MousePos.x = SCREEN_WIDTH / 2;
-	MousePos.y = SCREEN_HEIGHT / 2;
+	MousePos.x = SCREEN_WIDTH / 2u;
+	MousePos.y = MAINMENU_TOP + MAINMENU_ITEM_HEIGHT / 2;
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	if (!sgbControllerActive)
 #endif
@@ -67,6 +70,9 @@ static void diablo_init()
 
 	InitLighting();
 	InitText();
+#if HAS_TOUCHPAD
+	InitGamepadGFX();
+#endif
 	InitCursorGFX();
 	UiInitialize();
 	gbWasUiInit = true;
@@ -94,14 +100,26 @@ static void diablo_deinit()
 #endif
 	//if (gbWasUiInit)
 		UiDestroy();
-		FreeText();
 		FreeCursorGFX();
+#if HAS_TOUCHPAD
+		FreeGamepadGFX();
+#endif
+		FreeText();
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {
 		dx_cleanup(); // close the window + SDL
 	FreeConfig();
 }
+
+#ifdef __UWP__
+void (*onInitialized)() = NULL;
+
+void setOnInitialized(void (*callback)())
+{
+	onInitialized = callback;
+}
+#endif
 
 int DiabloMain(int argc, char** argv)
 {
@@ -110,6 +128,11 @@ int DiabloMain(int argc, char** argv)
 		return res - 1;
 
 	diablo_init();
+
+#ifdef __UWP__
+	onInitialized();
+#endif
+
 	mainmenu_loop();
 	diablo_deinit();
 	return 0;

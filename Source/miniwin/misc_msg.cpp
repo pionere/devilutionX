@@ -627,6 +627,16 @@ static int TranslateSdlKey(SDL_Keysym key)
 		return DVL_VK_MEDIA_PREV_TRACK;
 	case SDL_SCANCODE_AUDIOFASTFORWARD:
 		return DVL_VK_MEDIA_NEXT_TRACK;
+#if !SDL_VERSION_ATLEAST(2, 24, 0) && (/* __IPHONEOS__ ||*/ __ANDROID__ || __NGAGE__)
+	case SDL_SCANCODE_SOFTLEFT:
+		return DVL_VK_LEFT;
+	case SDL_SCANCODE_SOFTRIGHT:
+		return DVL_VK_RIGHT;
+	case SDL_SCANCODE_CALL:
+		return DVL_VK_RETURN;
+	case SDL_SCANCODE_ENDCALL:
+		return DVL_VK_ESCAPE;
+#endif
 	default:
 		if (ksc <= SDL_SCANCODE_Z && ksc >= SDL_SCANCODE_A)
 			return DVL_VK_A + (ksc - SDL_SCANCODE_A);
@@ -638,7 +648,7 @@ static int TranslateSdlKey(SDL_Keysym key)
 		ASSUME_UNREACHABLE
 		return DVL_VK_NONAME;
 	}
-#endif
+#endif // USE_SDL1
 	/*
 	SDL_Keycode sym = key.sym;
 	switch (sym) {
@@ -1165,7 +1175,7 @@ void PostMessage(UINT type /*, WPARAM wParam*/)
 {
 	switch (Msg) {
 	case DVL_WM_PAINT:
-		gbRedrawFlags = REDRAW_ALL;
+		// gbRedrawFlags |= REDRAW_DRAW_ALL;
 		break;
 	//case DVL_WM_QUERYENDSESSION:
 	//	diablo_quit(EX_OK);

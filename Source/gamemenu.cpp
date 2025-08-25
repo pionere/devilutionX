@@ -4,7 +4,13 @@
  * Implementation of the in-game menu functions.
  */
 #include "all.h"
+#include "engine/render/text_render.h"
+#include "plrctrls.h"
 #include "storm/storm_cfg.h"
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+#include "controls/axis_direction.h"
+#include "controls/controller_motion.h"
+#endif
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -12,10 +18,11 @@ DEVILUTION_BEGIN_NAMESPACE
 static void gamemenu_previous(bool bActivate);
 static void gamemenu_new_game(bool bActivate);
 static void gamemenu_exit_game(bool bActivate);
-static void gamemenu_load_game(bool bActivate);
+//static void gamemenu_load_game(bool bActivate);
 static void gamemenu_save_game(bool bActivate);
+static void gamemenu_open_chat(bool bActivate);
 static void gamemenu_restart_town(bool bActivate);
-//void gamemenu_settings(bool bActivate);
+static void gamemenu_settings(bool bActivate);
 static void gamemenu_music_volume(bool bActivate);
 static void gamemenu_sound_volume(bool bActivate);
 static void gamemenu_gamma(bool bActivate);
@@ -38,6 +45,7 @@ static TMenuItem sgMultiMenu[] = {
 	// pszStr,           fnMenu,                 dwFlags, wMenuParam*
 	{ "Settings",        &gamemenu_settings,     GMF_ENABLED, 0, 0 },
 	{ "New Game",        &gamemenu_new_game,     GMF_ENABLED, 0, 0 },
+	{ "Open Chat",       &gamemenu_open_chat,    GMF_ENABLED, 0, 0 },
 	{ "Restart In Town", &gamemenu_restart_town, GMF_ENABLED, 0, 0 },
 	{ "Exit Game",       &gamemenu_exit_game,    GMF_ENABLED, 0, 0 },
 	// clang-format on
@@ -59,6 +67,13 @@ static TMenuItem sgSettingsMenu[] = {
 	// clang-format on
 };
 
+/** The number of options in the small-menu. */
+static unsigned gnNumSubmenus;
+/** Currently selected entry in the small-menu */
+static unsigned gnCurrSubmenu;
+/** Specifies whether the cursor should be moved to the current small-menu */
+static bool gbMoveCursor;
+
 static void gamemenu_update_single()
 {
 	bool enable;
@@ -73,20 +88,43 @@ static void gamemenu_update_multi()
 {
 	// disable new game in case the player is dying or dead
 	gmenu_enable(&sgMultiMenu[1], gbDeathflag == MDM_ALIVE);
+	// disable start chat in case of local games
+	gmenu_enable(&sgMultiMenu[2], !IsLocalGame);
 	// disable restart in town in case the player is not dead
-	gmenu_enable(&sgMultiMenu[2], gbDeathflag == MDM_DEAD);
+	gmenu_enable(&sgMultiMenu[3], gbDeathflag == MDM_DEAD);
 }
 
 static void gamemenu_update_settings()
 {
 }
 
-void gamemenu_on()
+/* Initalize the settings-menu in the main menu */
+void gamemenu_main()
 {
+	InitGMenu();
+	gnNumSubmenus = 0;
+	gamemenu_settings(true);
+}
+
+static void gamemenu_large()
+{
+	gnNumSubmenus = 0;
 	if (IsMultiGame) {
 		gmenu_set_items(sgMultiMenu, lengthof(sgMultiMenu), gamemenu_update_multi);
 	} else {
 		gmenu_set_items(sgSingleMenu, lengthof(sgSingleMenu), gamemenu_update_single);
+	}
+}
+
+/* Open the menu in the game */
+void gamemenu_on()
+{
+	if (gbDeathflag == MDM_ALIVE) {
+		gnNumSubmenus = IsLocalGame ? NUM_GMMS - 2 : NUM_GMMS;
+		gpCurrentMenu = (TMenuItem*)-1;
+		gnCurrSubmenu = GMM_INVENTORY;
+	} else {
+		gamemenu_large();
 	}
 	PressEscKey();
 }
@@ -113,14 +151,14 @@ static void gamemenu_exit_game(bool bActivate)
 	gbRunGameResult = false;
 }
 
-static void gamemenu_load_game(bool bActivate)
+/*static void gamemenu_load_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
 	gamemenu_off();
 	NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_LOADING);
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	gbDeathflag = MDM_ALIVE;
 	// gbZoomInFlag = false;
 	FreeLevelMem();
@@ -128,28 +166,35 @@ static void gamemenu_load_game(bool bActivate)
 	ClrDiabloMsg();
 	PaletteFadeOut();
 	InitLevelCursor();
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	gbRedrawFlags = REDRAW_RECALC_FLASKS; // | REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	LoadPWaterPalette();
 	PaletteFadeIn(false);
 	interface_msg_pump();
 	SetWindowProc(saveProc);
-}
+}*/
 
 static void gamemenu_save_game(bool bActivate)
 {
 	WNDPROC saveProc = SetWindowProc(DisableInputWndProc);
+	assert(saveProc == GameWndProc);
 	gamemenu_off();
 	// NewCursor(CURSOR_NONE);
 	InitDiabloMsg(EMSG_SAVING);
-	gbRedrawFlags = REDRAW_ALL;
-	scrollrt_draw_game();
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+	scrollrt_render_game();
 	SaveGame();
 	ClrDiabloMsg();
 	// InitLevelCursor();
-	gbRedrawFlags = REDRAW_ALL;
+	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	interface_msg_pump();
-	SetWindowProc(saveProc);
+	SetWindowProc(GameWndProc); // saveProc);
+}
+
+static void gamemenu_open_chat(bool bActivate)
+{
+	gamemenu_off();
+	StartPlrMsg();
 }
 
 static void gamemenu_restart_town(bool bActivate)
@@ -187,7 +232,7 @@ static void gamemenu_get_sound()
 static void gamemenu_get_gamma()
 {
 	gmenu_slider_steps(&sgSettingsMenu[2], 14 /*(100 - 30) / 5*/);
-	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, GetGamma());
+	gmenu_slider_set(&sgSettingsMenu[2], 30, 100, 130 - GetGamma());
 }
 
 static void gamemenu_get_speed()
@@ -217,7 +262,7 @@ static void gamemenu_get_speed()
 	gmenu_slider_set(pItem, SPEED_NORMAL, SPEED_FASTEST, gnTicksRate);
 }
 
-void gamemenu_settings(bool bActivate)
+static void gamemenu_settings(bool bActivate)
 {
 	gamemenu_get_music();
 	gamemenu_get_sound();
@@ -248,10 +293,10 @@ static void gamemenu_music_volume(bool bActivate)
 	} else {
 		// assert(gbMusicOn);
 		if (!musicOn)
-			music_start(AllLevels[currLvl._dLevelIdx].dMusic);
+			music_start(AllLevels[currLvl._dLevelNum].dMusic);
 	}
 	gamemenu_get_music();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -278,7 +323,7 @@ static void gamemenu_sound_volume(bool bActivate)
 		; // assert(gbSoundOn);
 	}
 	gamemenu_get_sound();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 #endif
 }
 
@@ -288,32 +333,271 @@ static void gamemenu_gamma(bool bActivate)
 
 	if (bActivate) {
 		gamma = GetGamma();
-		if (gamma == 30)
-			gamma = 100;
-		else
+		if (gamma == 100)
 			gamma = 30;
+		else
+			gamma = 100;
 	} else {
-		gamma = gmenu_slider_get(&sgSettingsMenu[2], 30, 100);
+		gamma = gmenu_slider_get(&sgSettingsMenu[2], 100, 30);
 	}
-	UpdateGamma(gamma);
+	SetGamma(gamma);
 	gamemenu_get_gamma();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
 }
 
 static void gamemenu_speed(bool bActivate)
 {
+	int speed;
+
 	if (bActivate) {
 		if (gnTicksRate == SPEED_NORMAL)
-			gnTicksRate = SPEED_FASTEST;
+			speed = SPEED_FASTEST;
 		else
-			gnTicksRate = SPEED_NORMAL;
+			speed = SPEED_NORMAL;
 	} else {
-		gnTicksRate = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
+		speed = gmenu_slider_get(&sgSettingsMenu[3], SPEED_NORMAL, SPEED_FASTEST);
 	}
-	setIniInt("Diablo", "Game Speed", gnTicksRate);
-	gnTickDelay = 1000 / gnTicksRate;
+	gnTicksRate = speed;
+	gnTickDelay = 1000 / speed;
+	setIniInt("Diablo", "Game Speed", speed);
 	gamemenu_get_speed();
-	PlaySFX(IS_TITLEMOV);
+	PlaySfx(IS_TITLEMOV);
+}
+
+#define SMALLMENU_OFFSETX (FOCUS_MINI + 10)
+#define SMALLMENU_OFFSETY 10
+#define SMALLMENU_LINE_HEIGHT 26
+#define SMALLMENU_WIDTH (130 + 2 * SMALLMENU_OFFSETX + 10 * 2)
+#define SMALLMENU_HEIGHT (SMALLMENU_LINE_HEIGHT * gnNumSubmenus + 2 * SMALLMENU_OFFSETY)
+#define SMALLMENU_X SCREEN_CENTERX(SMALLMENU_WIDTH)
+#define SMALLMENU_Y SCREEN_CENTERY(SMALLMENU_HEIGHT)
+void gamemenu_draw()
+{
+	int x, y, flags;
+	int i;
+	BYTE col;
+	const char* label;
+	if (gnNumSubmenus == 0) {
+		gmenu_draw();
+		return;
+	}
+
+	y = SMALLMENU_Y;
+	x = SMALLMENU_X;
+	DrawColorTextBox(x, y, SMALLMENU_WIDTH, SMALLMENU_HEIGHT, COL_WHITE);
+
+	x += SMALLMENU_OFFSETX;
+	y += SMALLMENU_OFFSETY;
+	for (i = gnNumSubmenus - 1; i >= 0; i--) {
+		switch (i) {
+		case GMM_EXITGAME:  label = "exit game";  break;
+		case GMM_MAINMENU:  label = "options";    break;
+		case GMM_QLOG:      label = "quests";     break;
+		case GMM_CHARINFO:  label = "profile";    break;
+		case GMM_INVENTORY: label = "inventory";  break;
+		case GMM_SKILLLIST: label = "skill list"; break;
+		case GMM_SPELLBOOK: label = "skill book"; break;
+		case GMM_AUTOMAP:   label = "automap";    break;
+		case GMM_SENDMSG:   label = "open chat";  break;
+		case GMM_TEAMBOOK:  label = "teams";      break;
+		default: ASSUME_UNREACHABLE;              break;
+		}
+		col = COL_GOLD;
+		if (POS_IN_RECT(MousePos.x, MousePos.y, x - SCREEN_X, y - SCREEN_Y, SMALLMENU_WIDTH, SMALLMENU_LINE_HEIGHT)) {
+			col = COL_GOLD + 1 + 2;
+		}
+		y += SMALLMENU_LINE_HEIGHT;
+		flags = AFF_HCENTER | AFF_BIG | (col << AFF_COLOR_SHL);
+		PrintString(flags, label, x, y - (BIG_FONT_HEIGHT - 2 + SMALLMENU_LINE_HEIGHT) / 2, SMALLMENU_WIDTH - 2 * SMALLMENU_OFFSETX, 0);
+		if ((unsigned)i == gnCurrSubmenu) {
+			DrawSmallPentSpn(x - FOCUS_MINI, x + SMALLMENU_WIDTH - 2 * SMALLMENU_OFFSETX, y - (SMALLMENU_LINE_HEIGHT - FOCUS_MINI) / 2);
+			if (gbMoveCursor) {
+				gbMoveCursor = false;
+				SetCursorPos(x - SCREEN_X + (SMALLMENU_WIDTH - 2 * SMALLMENU_OFFSETX) / 2, y - SCREEN_Y - SMALLMENU_LINE_HEIGHT / 2);
+			}
+		}
+	}
+}
+
+static void gamemenu_up_down(bool isDown)
+{
+	// assert(gmenu_is_active());
+	// assert(gnNumSubmenus != 0);
+	unsigned n;
+	n = gnCurrSubmenu + (isDown ? gnNumSubmenus - 1 : 1);
+	n %= gnNumSubmenus;
+	// if (n != gnCurrSubmenu) {
+		gnCurrSubmenu = n;
+		// PlaySfx(IS_TITLEMOV);
+		gbMoveCursor = true;
+	// }
+}
+
+void gamemenu_enter(int submenu)
+{
+	if (stextflag != STORE_NONE)
+		return;
+
+	switch (submenu) {
+	case GMM_EXITGAME:
+		gamemenu_exit_game(false);
+		return;
+	case GMM_MAINMENU:
+		gamemenu_large();
+		return;
+	case GMM_QLOG:
+		gbSkillListFlag = false;
+		if (ToggleWindow(WND_QUEST))
+			StartQuestlog();
+		break;
+	case GMM_CHARINFO:
+		gbSkillListFlag = false;
+		gbLvlUp = false;
+		if (ToggleWindow(WND_CHAR)) {
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+			if (sgbControllerActive)
+				FocusOnCharInfo();
+#endif
+		}
+		break;
+	case GMM_INVENTORY:
+		gbSkillListFlag = false;
+		gbInvflag = ToggleWindow(WND_INV);
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+		if (gbInvflag && sgbControllerActive)
+			FocusOnInventory();
+#endif
+		break;
+	case GMM_SKILLLIST:
+		HandleSkillBtn(false);
+		break;
+	case GMM_SPELLBOOK:
+		gbSkillListFlag = false;
+		ToggleWindow(WND_BOOK);
+		break;
+	case GMM_AUTOMAP:
+		ToggleAutomap();
+		return;
+	case GMM_SENDMSG:
+		if (gbTalkflag)
+			StopPlrMsg();
+		else
+			StartPlrMsg();
+		break;
+	case GMM_TEAMBOOK:
+		gbSkillListFlag = false;
+		ToggleWindow(WND_TEAM);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	gamemenu_off();
+}
+
+static void gamemenu_left_right(bool isRight)
+{
+	if (gnCurrSubmenu == GMM_AUTOMAP) {
+		if (isRight) {
+			AutomapZoomIn();
+		} else {
+			AutomapZoomOut();
+		}
+		return;
+	}
+	if (isRight) {
+		gamemenu_enter(gnCurrSubmenu);
+	} else {
+		gamemenu_off();
+	}
+}
+
+static void gamemenu_left_mouse_down()
+{
+	int px = SMALLMENU_X - SCREEN_X + SMALLMENU_OFFSETX;
+	int py = SMALLMENU_Y - SCREEN_Y + SMALLMENU_OFFSETY;
+	int sx = MousePos.x - px;
+	int sy = MousePos.y - py;
+	if (sx < 0 || sx >= SMALLMENU_WIDTH - SMALLMENU_OFFSETX) {
+		return;
+	}
+	if (sy < 0) {
+		return;
+	}
+	unsigned y = ((unsigned)sy) / SMALLMENU_LINE_HEIGHT;
+	if (y < gnNumSubmenus) {
+		y = gnNumSubmenus - y;
+		y--;
+		gnCurrSubmenu = y;
+		gamemenu_enter(y);
+	}
+}
+
+void gamemenu_on_mouse_move()
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_on_mouse_move();
+	}
+}
+
+void gamemenu_presskey(int vkey)
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_presskey(vkey);
+		return;
+	}
+	switch (vkey) {
+	case DVL_VK_LBUTTON:
+		gamemenu_left_mouse_down();
+		break;
+	case DVL_VK_RETURN:
+		gamemenu_enter(gnCurrSubmenu);
+		break;
+	case DVL_VK_XBUTTON1:
+	case DVL_VK_ESCAPE:
+	case DVL_VK_SPACE:
+		gamemenu_off();
+		break;
+	case DVL_VK_LEFT:
+		gamemenu_left_right(false);
+		break;
+	case DVL_VK_RIGHT:
+		gamemenu_left_right(true);
+		break;
+	case DVL_VK_UP:
+		gamemenu_up_down(false);
+		break;
+	case DVL_VK_DOWN:
+		gamemenu_up_down(true);
+		break;
+	}
+}
+#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
+void gamemenu_checkmove()
+{
+	// assert(gmenu_is_active());
+	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
+	if (move_dir.x != AxisDirectionX_NONE) {
+		gamemenu_presskey(move_dir.x == AxisDirectionX_RIGHT ? DVL_VK_RIGHT : DVL_VK_LEFT);
+	}
+	if (move_dir.y != AxisDirectionY_NONE) {
+		gamemenu_presskey(move_dir.y == AxisDirectionY_DOWN ? DVL_VK_DOWN : DVL_VK_UP);
+	}
+}
+#endif
+
+void gamemenu_left_mouse(bool isDown)
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_left_mouse(isDown);
+	}
+}
+
+void gamemenu_update()
+{
+	if (gnNumSubmenus == 0) {
+		gmenu_update();
+	}
 }
 
 DEVILUTION_END_NAMESPACE

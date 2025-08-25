@@ -124,35 +124,25 @@ static CelImageBuf* pSmallPentSpinCels;
 static CelImageBuf* pHugePentSpinCels;
 
 /**
- * Merged color translations for fonts. The shades of one color are used in one font.CEL
+ * 'One-line' color translations for fonts. The shades of one color are used in one font.CEL
  * SmalText.CEL uses PAL16_GRAY values, while MedTextS and BigTGold.CEL are using PAL16_YELLOWs
  */
-static BYTE fontColorTrns[16 + 2][16] = {
+static BYTE fontColorTrns[3][16] = {
 	// clang-format off
-	// skip non-generic colors
-	{ 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, }, { 0, },
-	// skip unused colors
-	{ 0, },
-	{ 0, },
-	{ 0, },
-	{ 0, },
 	// TRN for AFT_SILVER (MedTextS)
 	{ PAL16_GRAY, PAL16_GRAY + 1, PAL16_GRAY + 2, PAL16_GRAY + 3, PAL16_GRAY + 4, PAL16_GRAY + 5, PAL16_GRAY + 6, PAL16_GRAY + 7, PAL16_GRAY + 8, PAL16_GRAY + 9, PAL16_GRAY + 10, PAL16_GRAY + 11, PAL16_GRAY + 12, PAL16_GRAY + 13, PAL16_GRAY + 14, PAL16_YELLOW + 15 },
-	// skip unused colors
-	{ 0, },
-	{ 0, },
 	// TRN for COL_BLUE (SmalText)
 	{ PAL16_BLUE + 2, PAL16_BLUE + 3, PAL16_BLUE + 4, PAL16_BLUE + 5, PAL16_BLUE + 6, PAL16_BLUE + 7, PAL16_BLUE + 8, PAL16_BLUE + 9, PAL16_BLUE + 10, PAL16_BLUE + 11, PAL16_BLUE + 12, PAL16_BLUE + 13, PAL16_BLUE + 14, PAL16_BLUE + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_GOLD (SmalText)
 	{ PAL16_YELLOW + 2, PAL16_YELLOW + 3, PAL16_YELLOW + 4, PAL16_YELLOW + 5, PAL16_YELLOW + 6, PAL16_YELLOW + 7, PAL16_YELLOW + 8, PAL16_YELLOW + 9, PAL16_YELLOW + 10, PAL16_YELLOW + 11, PAL16_YELLOW + 12, PAL16_YELLOW + 13, PAL16_YELLOW + 14, PAL16_YELLOW + 15, PAL16_ORANGE + 15, 0 },
 	// TRN for COL_RED (SmalText)
-	{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
+	//{ PAL16_RED, PAL16_RED + 1, PAL16_RED + 2, PAL16_RED + 3, PAL16_RED + 4, PAL16_RED + 5, PAL16_RED + 6, PAL16_RED + 7, PAL16_RED + 8, PAL16_RED + 9, PAL16_RED + 10, PAL16_RED + 11, PAL16_RED + 12, PAL16_RED + 13, PAL16_RED + 14, PAL16_RED + 15 },
 	// clang-format on
 };
-#define FONT_TRN_SILVER (&fontColorTrns[0][0])
-#define FONT_TRN_BLUE   (&fontColorTrns[0][0])
-#define FONT_TRN_GOLD   (&fontColorTrns[1][0])
-#define FONT_TRN_RED    (&fontColorTrns[2][0])
+#define YLW_FONT_TRN_SILVER (&fontColorTrns[0][0] - PAL16_YELLOW)
+#define YLW_FONT_TRN_BLUE   (&fontColorTrns[1][0] - PAL16_YELLOW)
+#define GRY_FONT_TRN_BLUE   (&fontColorTrns[1][0] - PAL16_GRAY)
+#define GRY_FONT_TRN_GOLD   (&fontColorTrns[2][0] - PAL16_GRAY)
 
 void InitText()
 {
@@ -193,16 +183,16 @@ static void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 		CelDraw(sx, sy, pSmallTextCels, nCel);
 		return;
 	case COL_BLUE:
-		tbl = FONT_TRN_BLUE;
+		tbl = GRY_FONT_TRN_BLUE;
 		break;
 	case COL_RED:
-		tbl = FONT_TRN_RED;
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
 		break;
 	case COL_GOLD:
-		tbl = FONT_TRN_GOLD;
+		tbl = GRY_FONT_TRN_GOLD;
 		break;
 	default:
-		ASSUME_UNREACHABLE
+		tbl = ColorTrns[col - COL_GOLD];
 		break;
 	}
 	CelDrawTrnTbl(sx, sy, pSmallTextCels, nCel, tbl);
@@ -210,23 +200,61 @@ static void PrintSmallColorChar(int sx, int sy, int nCel, BYTE col)
 
 static void PrintBigColorChar(int sx, int sy, int nCel, BYTE col)
 {
-	if (col == COL_GOLD) {
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE:
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
+		break;
+	case COL_GOLD:
 		CelDraw(sx, sy, pBigTextCels, nCel);
-	} else {
-		// assert(col == COL_WHITE);
-		CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, FONT_TRN_SILVER);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
 	}
+	CelDrawTrnTbl(sx, sy, pBigTextCels, nCel, tbl);
 }
 
-int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
+static void PrintHugeColorChar(int sx, int sy, int nCel, BYTE col)
 {
-	BYTE nCel = gbStdFontFrame[text];
+	BYTE* tbl;
+
+	switch (col) {
+	case COL_WHITE: // -- unused
+		tbl = YLW_FONT_TRN_SILVER;
+		break;
+	case COL_BLUE:  // -- unused
+		tbl = YLW_FONT_TRN_BLUE;
+		break;
+	case COL_RED:   // -- unused
+		tbl = ColorTrns[COLOR_TRN_CORAL]; // FONT_TRN_RED;
+		break;
+	case COL_GOLD:
+		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		return;
+	default:
+		tbl = ColorTrns[col - COL_GOLD];
+		break;
+	}
+	CelDrawTrnTbl(sx, sy, pHugeGoldTextCels, nCel, tbl);
+}
+
+int PrintBigChar(int sx, int sy, BYTE chr, BYTE col)
+{
+	BYTE nCel = gbStdFontFrame[chr];
 
 	if (nCel != 0) {
 		PrintBigColorChar(sx, sy, nCel, col);
 		// draw optional diacritic
-		if (text >= 128) {
-			BYTE dCel = gbStdDiacFrame[text - 128];
+		if (chr >= 128) {
+			BYTE dCel = gbStdDiacFrame[chr - 128];
 			if (dCel != 0) {
 				PrintBigColorChar(sx, sy, dCel, col);
 			}
@@ -236,15 +264,15 @@ int PrintBigChar(int sx, int sy, BYTE text, BYTE col)
 	return bigFontWidth[nCel] + FONT_KERN_BIG;
 }
 
-int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
+int PrintSmallChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbStdFontFrame[text];
+	BYTE nCel = gbStdFontFrame[chr];
 
 	if (nCel != 0) {
 		PrintSmallColorChar(sx, sy, nCel, col);
 		// draw optional diacritic
-		if (text >= 128) {
-			BYTE dCel = gbStdDiacFrame[text - 128];
+		if (chr >= 128) {
+			BYTE dCel = gbStdDiacFrame[chr - 128];
 			if (dCel != 0) {
 				PrintSmallColorChar(sx, sy, dCel, col);
 			}
@@ -254,13 +282,12 @@ int PrintSmallChar(int sx, int sy, BYTE text, BYTE col)
 	return smallFontWidth[nCel] + FONT_KERN_SMALL;
 }
 
-int PrintHugeChar(int sx, int sy, BYTE text, BYTE col)
+int PrintHugeChar(int sx, int sy, BYTE chr, BYTE col)
 {
-	BYTE nCel = gbHugeFontFrame[text];
+	BYTE nCel = gbHugeFontFrame[chr];
 
 	if (nCel != 0) {
-		// PrintHugeColorChar(sx, sy, nCel, col);
-		CelDraw(sx, sy, pHugeGoldTextCels, nCel);
+		PrintHugeColorChar(sx, sy, nCel, col);
 	}
 
 	return hugeFontWidth[nCel] + FONT_KERN_HUGE;
@@ -304,6 +331,68 @@ int GetSmallStringWidth(const char* text)
 	}
 
 	return i - FONT_KERN_SMALL;
+}
+
+static int AlignXOffset(int flags, int rw, int sw)
+{
+	if (flags & AFF_HCENTER)
+		return (rw - sw) >> 1;
+	if (flags & AFF_RIGHT)
+		return rw - sw;
+	return 0;
+}
+
+void PrintString(int flags, const char* text, int x, int y, int w, int h)
+{
+	unsigned size = (flags >> AFF_SIZE_SHL) & AFF_SIZES;
+	unsigned color;
+	int sw, lh, dy, sx, sy, cx, cy;
+	int (*pChar)(int sx, int sy, BYTE text, BYTE col);
+
+	switch (size) {
+	case AFT_SMALL:
+		sw = GetSmallStringWidth(text);
+		dy = 1;
+		lh = SMALL_FONT_HEIGHT - dy;
+		//lh = SMALL_FONT_HEIGHT;
+		pChar = PrintSmallChar;
+		break;
+	case AFT_BIG:
+		sw = GetBigStringWidth(text);
+		dy = 5 - 2;
+		lh = BIG_FONT_HEIGHT - dy;
+		//lh = BIG_FONT_HEIGHT;
+		pChar = PrintBigChar;
+		break;
+	case AFT_HUGE:
+		sw = GetHugeStringWidth(text);
+		dy = 10 - 4;
+		lh = HUGE_FONT_HEIGHT - dy;
+		//lh = HUGE_FONT_HEIGHT;
+		pChar = PrintHugeChar;
+		break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
+	sx = x + AlignXOffset(flags, w, sw);
+	sy = y + ((flags & AFF_VCENTER) ? ((h - lh) >> 1) : 0) + lh;
+
+	sy += dy;
+	lh += dy;
+	color = (flags >> AFF_COLOR_SHL) & AFF_COLORS;
+
+	cx = sx;
+	cy = sy;
+	for ( ; *text != '\0'; text++) {
+		if (*text == '\n') {
+			cx = sx;
+			cy += lh;
+			continue;
+		}
+		cx += pChar(cx, cy, (BYTE)*text, color);
+	}
 }
 
 DEVILUTION_END_NAMESPACE

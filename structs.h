@@ -53,8 +53,8 @@ typedef uint16_t WORD;
 
 typedef unsigned int UINT;
 
-typedef int32_t WPARAM;
-typedef int32_t LPARAM;
+// typedef int32_t WPARAM;
+// typedef int32_t LPARAM;
 
 //
 // Handles
@@ -66,10 +66,10 @@ typedef HANDLE HMODULE, HDC, HINSTANCE;
 typedef SDL_Event Dvl_Event;
 typedef void (*WNDPROC)(const Dvl_Event*);
 
-typedef struct tagMSG {
-	UINT message;
-	WPARAM wParam;
-} MSG, *LPMSG;
+// typedef struct tagMSG {
+// 	UINT message;
+// 	WPARAM wParam;
+// } MSG, *LPMSG;
 
 //////////////////////////////////////////////////
 // control
@@ -80,12 +80,24 @@ typedef struct POS32 {
 	int y;
 } POS32;
 
+typedef struct AREA32 {
+	int w;
+	int h;
+} AREA32;
+
 typedef struct RECT32 {
 	int x;
 	int y;
 	int w;
 	int h;
 } RECT32;
+
+typedef struct RECT_AREA32 {
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+} RECT_AREA32;
 
 typedef struct CelImageBuf {
 #if DEBUG_MODE
@@ -97,15 +109,27 @@ typedef struct CelImageBuf {
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelImageBuf;
 
+typedef struct CampaignMapEntry {
+	BYTE ceDunType;
+	BYTE ceIndex;
+	BYTE ceLevel;
+	BOOLEAN ceAvailable;
+} CampaignMapEntry;
+
 //////////////////////////////////////////////////
 // items
 //////////////////////////////////////////////////
+
+typedef struct RANGE {
+	BYTE from;
+	BYTE to;
+} RANGE;
 
 typedef struct AffixData {
 	BYTE PLPower; // item_effect_type
 	int PLParam1;
 	int PLParam2;
-	BYTE PLMinLvl;
+	RANGE PLRanges[NUM_IARS];
 	int PLIType; // affix_item_type
 	BOOLEAN PLDouble;
 	BOOLEAN PLOk;
@@ -118,6 +142,7 @@ typedef struct UniqItemData {
 	const char* UIName;
 	BYTE UIUniqType; // unique_item_type
 	BYTE UIMinLvl;
+	uint16_t UICurs;
 	int UIValue;
 	BYTE UIPower1; // item_effect_type
 	int UIParam1a;
@@ -149,7 +174,7 @@ typedef struct ItemFileData {
 	int idSFX;          // sounds effect of dropping the item on ground (_sfx_id).
 	int iiSFX;          // sounds effect of placing the item in the inventory (_sfx_id).
 	int iAnimLen;       // item drop animation length
-	ALIGNMENT64(2)
+	ALIGNMENT64(3)
 } ItemFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -179,15 +204,29 @@ typedef struct ItemData {
 	BYTE iMaxAC;
 	BYTE iDurability;
 	int iValue;
-	ALIGNMENT(5, 3)
+	ALIGNMENT(5, 4)
 } ItemData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(ItemData) & (sizeof(ItemData) - 1)) == 0, "Align ItemData to power of 2 for better performance.");
 #endif
 
+typedef struct ItemAffixStruct {
+	BYTE asPower;
+	union {
+		struct {
+			int asValue0;
+			int asValue1;
+		};
+		struct {
+			int asFrom;
+			int asTo;
+		};
+	};
+} ItemAffixStruct;
+
 typedef struct ItemStruct {
-	int _iSeed;
+	int32_t _iSeed;
 	uint16_t _iIdx;        // item_indexes
 	uint16_t _iCreateInfo; // icreateinfo_flag
 	union {
@@ -209,8 +248,8 @@ typedef struct ItemStruct {
 	BYTE _iMinMag;
 	BYTE _iMinDex;
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
-	BYTE _iPrePower; // item_effect_type
-	BYTE _iSufPower; // item_effect_type
+	BYTE _iPrePower; // item_effect_type -- unused
+	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
@@ -222,52 +261,29 @@ typedef struct ItemStruct {
 	unsigned _iAnimFrame;    // Current frame of animation.
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
-	BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand)
-	BOOL _iIdentified;
-	char _iName[32];
+	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
+	BOOLEAN _iStatFlag;
+	BOOLEAN _iIdentified;
+	BYTE _iNumAffixes;
+	BYTE _iUid; // unique_item_indexes
 	int _ivalue;
 	int _iIvalue;
 	int _iAC;
-	int _iFlags;	// item_special_effect
 	int _iCharges;
 	int _iMaxCharges;
 	int _iDurability;
 	int _iMaxDur;
 	int _iPLDam;
 	int _iPLToHit;
-	int _iPLAC;
 	int _iPLStr;
 	int _iPLMag;
 	int _iPLDex;
 	int _iPLVit;
-	int _iPLFR;
-	int _iPLLR;
-	int _iPLMR;
-	int _iPLAR;
-	int _iPLMana;
-	int _iPLHP;
-	int _iPLDamMod;
-	int _iPLGetHit;
-	int8_t _iPLLight;
-	int8_t _iPLSkillLevels;
-	BYTE _iPLSkill;
-	int8_t _iPLSkillLvl;
-	BYTE _iPLManaSteal;
-	BYTE _iPLLifeSteal;
-	BYTE _iPLCrit;
-	BOOLEAN _iStatFlag;
-	int _iUid; // unique_item_indexes
-	BYTE _iPLFMinDam;
-	BYTE _iPLFMaxDam;
-	BYTE _iPLLMinDam;
-	BYTE _iPLLMaxDam;
-	BYTE _iPLMMinDam;
-	BYTE _iPLMMaxDam;
-	BYTE _iPLAMinDam;
-	BYTE _iPLAMaxDam;
-	int _iVAdd;
-	int _iVMult;
-	ALIGNMENT(7, 6)
+	union {
+		ItemAffixStruct _iAffixes[6];
+		char _iPlrName[PLR_NAME_LEN];
+	};
+	ALIGNMENT(15, 13)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -298,9 +314,26 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Ali
 static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #endif
 
+typedef struct PlrSkillUse {
+	BYTE _suSkill; // spell_id
+	BYTE _suType;  // spell_type
+	bool operator==(const PlrSkillUse & oval) const {
+		//return _suSkill == oval._suSkill && _suType == oval._suType;
+		return *(uint16_t*)&_suSkill == *(uint16_t*)&oval._suSkill;
+	};
+	bool operator!=(const PlrSkillUse & oval) const {
+		return !(*this == oval);
+	};
+} PlrSkillUse;
+
+typedef struct PlrSkillStruct {
+	PlrSkillUse _psAttack; // attack skill
+	PlrSkillUse _psMove;   // the movement skill
+} PlrSkillStruct;
+static_assert(sizeof(PlrSkillStruct) == 4 * sizeof(BYTE), "PlrSkillStruct is not packed tightly");
+
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
-	int8_t _pWalkpath[MAX_PATH_LENGTH + 1];
 	int _pDestAction;
 	int _pDestParam1;
 	int _pDestParam2;
@@ -338,30 +371,12 @@ typedef struct PlayerStruct {
 	int _pAnimXOffset;
 	unsigned _plid; // light id of the player
 	unsigned _pvid; // vision id of the player
-	BYTE _pAtkSkill;         // the selected attack skill for the primary action
-	BYTE _pAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
-	BYTE _pMoveSkill;        // the selected movement skill for the primary action
-	BYTE _pMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
-	BYTE _pAltAtkSkill;      // the selected attack skill for the secondary action
-	BYTE _pAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
-	BYTE _pAltMoveSkill;     // the selected movement skill for the secondary action
-	BYTE _pAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE _pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE _pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE _pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE _pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE _pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE _pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE _pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE _pAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE _pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE _pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE _pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE _pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE _pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE _pAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct _pMainSkill; // the selected attack/movement skill for the primary action
+	PlrSkillStruct _pAltSkill;  // the selected attack/movement skill for the secondary action
+	PlrSkillStruct _pSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct _pAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct _pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct _pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE _pSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
@@ -403,10 +418,11 @@ typedef struct PlayerStruct {
 	int _pMana;      // the current mana of the player
 	int _pMaxMana;   // the maximum mana of the player
 	BYTE _pSkillLvl[64]; // the skill levels of the player
-	BOOLEAN _pInfraFlag;
+	uint64_t _pISpells;  // Bitmask of skills available via equipped items (staff)
+	BYTE _pSkillFlags;   // Bitmask of allowed skill-types (SFLAG_*)
+	BOOLEAN _pInfraFlag; // unused
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
 	BOOLEAN _pHasUnidItem; // whether the player has an unidentified (magic) item equipped
-	BYTE _pAlign_B0;
 	int _pISlMinDam; // min slash-damage (swords, axes)
 	int _pISlMaxDam; // max slash-damage (swords, axes)
 	int _pIBlMinDam; // min blunt-damage (maces, axes)
@@ -422,19 +438,18 @@ typedef struct PlayerStruct {
 	int8_t _pLghtResist;
 	int8_t _pAcidResist;
 	int _pIHitChance;
-	BYTE _pSkillFlags;    // Bitmask of allowed skill-types (SFLAG_*)
 	BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 	BYTE _pICritChance; // 200 == 100%
-	BYTE _pIBlockChance;
-	uint64_t _pISpells; // Bitmask of skills available via equipped items (staff)
-	unsigned _pIFlags;
+	uint16_t _pIBlockChance;
+	unsigned _pIFlags; // item_special_effect
 	BYTE _pIWalkSpeed;
 	BYTE _pIRecoverySpeed;
 	BYTE _pIBaseCastSpeed;
 	BYTE _pAlign_B1;
-	int _pIGetHit;
-	BYTE _pIBaseAttackSpeed;
-	int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
+	int _pIAbsAnyHit; // absorbed hit damage
+	int _pIAbsPhyHit; // absorbed physical hit damage
+	int8_t _pIBaseAttackSpeed;
+	BYTE _pAlign_B2;
 	BYTE _pILifeSteal;
 	BYTE _pIManaSteal;
 	int _pIFMinDam; // min fire damage (item's added fire damage)
@@ -446,7 +461,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(179, 94)
+	ALIGNMENT(188, 102)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -459,9 +474,8 @@ static_warning((sizeof(PlayerStruct) & (sizeof(PlayerStruct) - 1)) == 0, "Align 
 
 typedef struct TextData {
 	const char* txtstr;
-	BOOLEAN scrlltxt;
 	BOOLEAN txtsfxset;
-	int txtspd;
+	BYTE txtdelay;
 	int sfxnr;  // _sfx_id or sfx_set if txtsfxset is true
 } TextData;
 
@@ -475,12 +489,13 @@ typedef struct MissileData {
 	BYTE mdFlags; // missile_flags
 	BYTE mResist; // missile_resistance
 	BYTE mFileNum; // missile_gfx_id
-	BOOLEAN mDrawFlag;
 	int mlSFX; // sound effect when a missile is launched (_sfx_id)
 	int miSFX; // sound effect on impact (_sfx_id)
 	BYTE mlSFXCnt; // number of launch sound effects to choose from
 	BYTE miSFXCnt; // number of impact sound effects to choose from
-	ALIGNMENT(2, 7)
+	BYTE mdPrSpeed; // speed of the projectile
+	BYTE mdRange; // default range of the missile
+	ALIGNMENT32(2)
 } MissileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -488,15 +503,18 @@ static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mi
 #endif
 
 typedef struct MisFileData {
-	int mfAnimFAmt;
 	const char* mfName;
 	const char* mfAnimTrans;
-	int mfFlags; // missile_anim_flags
+	int mfAnimFAmt;
+	BOOLEAN mfDrawFlag;
+	BOOLEAN mfAnimFlag;
+	BOOLEAN mfLightFlag;
+	BOOLEAN mfPreFlag;
 	BYTE mfAnimFrameLen[16];
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset; // could be calculated
-	ALIGNMENT(2, 14)
+	ALIGNMENT32(2)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
@@ -507,12 +525,12 @@ typedef struct MissileStruct {
 	BYTE _miFlags; // missile_flags
 	BYTE _miResist; // missile_resistance
 	BYTE _miFileNum; // missile_gfx_id
-	BOOLEAN _miDrawFlag; // should be drawn
-	int _miUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN _miDelFlag; // should be deleted
+	int _miUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN _miDrawFlag; // should be drawn
+	BOOLEAN _miAnimFlag;
 	BOOLEAN _miLightFlag; // use light-transformation when drawing
 	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
-	BOOLEAN _miAnimFlag;
 	BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
@@ -538,7 +556,7 @@ typedef struct MissileStruct {
 	int _miMinDam;
 	int _miMaxDam;
 	// int _miRndSeed;
-	int _miRange;
+	int _miRange;    // Time to live for the missile in game ticks, when negative the missile will be deleted
 	unsigned _miLid; // light id of the missile
 	int _miVar1;
 	int _miVar2;
@@ -564,12 +582,12 @@ static_warning((sizeof(MissileStruct) & (sizeof(MissileStruct) - 1)) == 0, "Alig
 typedef struct _Mix_Audio Mix_Audio;
 
 typedef struct SoundSample final {
-	Uint32 nextTc;
+	Uint32 lastTc;
 	Mix_Audio* soundData;
 
 	void Release();
-	bool IsPlaying();
-	bool IsLoaded() {
+	bool IsPlaying() const;
+	bool IsLoaded() const {
 		return soundData != NULL;
 	}
 	void Play(int lVolume, int lPan, int channel);
@@ -577,11 +595,13 @@ typedef struct SoundSample final {
 	//int TrackLength();
 } SoundSample;
 
-typedef struct SFXStruct {
+typedef struct SFXData {
 	BYTE bFlags; // sfx_flag
+} SFXData;
+
+typedef struct SFXFileData {
 	const char* pszName;
-	SoundSample pSnd;
-} SFXStruct;
+} SFXFileData;
 
 //////////////////////////////////////////////////
 // monster
@@ -708,7 +728,7 @@ typedef struct MonsterStruct {
 	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
 	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
 	int _mdir;         // Direction faced by monster (direction enum)
-	int _menemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
+	int _menemy;       // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
 	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
@@ -730,8 +750,8 @@ typedef struct MonsterStruct {
 	int _mhitpoints;
 	int _mlastx; // the last known (future) tile X-coordinate of the enemy
 	int _mlasty; // the last known (future) tile Y-coordinate of the enemy
-	int _mRndSeed;
-	int _mAISeed;
+	int32_t _mRndSeed;
+	int32_t _mAISeed;
 	BYTE _muniqtype;
 	BYTE _muniqtrans;
 	BYTE _mNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
@@ -764,7 +784,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
-	ALIGNMENT(6, 1)
+	ALIGNMENT(6, 2)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -884,7 +904,7 @@ typedef struct ObjectStruct {
 	BYTE _oSelFlag;
 	BOOLEAN _oPreFlag;
 	unsigned _olid; // light id of the object
-	int _oRndSeed;
+	int32_t _oRndSeed;
 	int _oVar1;
 	int _oVar2;
 	int _oVar3;
@@ -893,7 +913,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(8, 5)
+	ALIGNMENT(8, 6)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1094,22 +1114,10 @@ typedef struct PkPlayerStruct {
 	LE_INT32 pMaxHPBase;
 	LE_INT32 pManaBase;
 	LE_INT32 pMaxManaBase;
-	BYTE pAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE pAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE pMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE pMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE pAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE pAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE pAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE pAltMoveSkillTypeHotKey[4]; // the movement skill selected by the alt-hotkey
-	BYTE pAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE pAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE pMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE pMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE pAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE pAltMoveSkillTypeSwapKey[4]; // the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct pSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct pAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct pSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct pAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE pSkillLvlBase[64];
 	BYTE pSkillActivity[64];
 	LE_UINT32 pSkillExp[64];
@@ -1128,11 +1136,17 @@ typedef struct PkPlayerStruct {
 //////////////////////////////////////////////////
 
 #pragma pack(push, 1)
+typedef struct LSaveGameDynLvlStruct {
+	BYTE vdLevel;
+	BYTE vdType;
+} LSaveGameDynLvlStruct;
+
 typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhInitial;
 	LE_UINT32 vhLogicTurn;
 	LE_UINT32 vhSentCycle;
-	LE_UINT32 vhSeeds[NUM_LEVELS];
+	LE_INT32 vhSeeds[NUM_LEVELS];
+	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
 	LE_INT32 vhViewY;
@@ -1153,8 +1167,6 @@ typedef struct LSaveGameHeaderStruct {
 	BYTE vhAutoMapScale;
 	BYTE vhMiniMapScale;
 	BYTE vhNormalMapScale;
-	LE_INT32 vhAutoMapXOfs;
-	LE_INT32 vhAutoMapYOfs;
 	LE_UINT32 vhLvlVisited;
 } LSaveGameHeaderStruct;
 
@@ -1162,6 +1174,8 @@ typedef struct LSaveGameMetaStruct {
 	LE_UINT32 vaboylevel;
 	LE_INT32 vanumpremium;
 	LE_INT32 vapremiumlevel;
+	LE_INT32 vaAutoMapXOfs;
+	LE_INT32 vaAutoMapYOfs;
 	LE_INT32 vanumlights;
 	LE_INT32 vanumvision;
 } LSaveGameMetaStruct;
@@ -1174,86 +1188,23 @@ typedef struct LSaveGameLvlMetaStruct {
 } LSaveGameLvlMetaStruct;
 
 typedef struct LSaveItemStruct {
-	LE_INT32 viSeed;
-	LE_UINT16 viIdx;
-	LE_UINT16 viCreateInfo;
+	PkItemStruct viPkItem;
 	LE_INT32 vix;
 	LE_INT32 viy;
-	LE_INT32 viCurs;   // item_cursor_graphic
-	LE_INT32 vitype;   // item_type
-	LE_INT32 viMiscId; // item_misc_id
-	LE_INT32 viSpell;  // spell_id
-	BYTE viClass; // item_class enum
-	BYTE viLoc;   // item_equip_type
-	BYTE viDamType; // item_damage_type
-	BYTE viMinDam;
-	BYTE viMaxDam;
-	BYTE viBaseCrit;
-	BYTE viMinStr;
-	BYTE viMinMag;
-	BYTE viMinDex;
-	BOOLEAN viUsable;
-	BYTE viPrePower; // item_effect_type
-	BYTE viSufPower; // item_effect_type
-	BYTE viMagical;	// item_quality
+	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BOOLEAN viFloorFlag;
 	BOOLEAN viAnimFlag;
-	int32_t viAnimDataAlign;        // PSX name -> ItemFrame
+	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
 	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
-	LE_INT32 viPostDraw;
-	LE_INT32 viIdentified;
-	char viName[32];
-	LE_INT32 vivalue;
-	LE_INT32 viIvalue;
-	LE_INT32 viAC;
-	LE_INT32 viFlags;	// item_special_effect
-	LE_INT32 viCharges;
-	LE_INT32 viMaxCharges;
-	LE_INT32 viDurability;
-	LE_INT32 viMaxDur;
-	LE_INT32 viPLDam;
-	LE_INT32 viPLToHit;
-	LE_INT32 viPLAC;
-	LE_INT32 viPLStr;
-	LE_INT32 viPLMag;
-	LE_INT32 viPLDex;
-	LE_INT32 viPLVit;
-	LE_INT32 viPLFR;
-	LE_INT32 viPLLR;
-	LE_INT32 viPLMR;
-	LE_INT32 viPLAR;
-	LE_INT32 viPLMana;
-	LE_INT32 viPLHP;
-	LE_INT32 viPLDamMod;
-	LE_INT32 viPLGetHit;
-	int8_t viPLLight;
-	int8_t viPLSkillLevels;
-	BYTE viPLSkill;
-	int8_t viPLSkillLvl;
-	BYTE viPLManaSteal;
-	BYTE viPLLifeSteal;
-	BYTE viPLCrit;
-	BOOLEAN viStatFlag;
-	LE_INT32 viUid;
-	BYTE viPLFMinDam;
-	BYTE viPLFMaxDam;
-	BYTE viPLLMinDam;
-	BYTE viPLLMaxDam;
-	BYTE viPLMMinDam;
-	BYTE viPLMMaxDam;
-	BYTE viPLAMinDam;
-	BYTE viPLAMaxDam;
-	LE_INT32 viVAdd;
-	LE_INT32 viVMult;
+	// LE_INT32 viPostDraw;
 } LSaveItemStruct;
 
 typedef struct LSavePlayerStruct {
 	LE_INT32 vpmode; // PLR_MODE
-	int8_t vpWalkpath[MAX_PATH_LENGTH + 1];
 	LE_INT32 vpDestAction;
 	LE_INT32 vpDestParam1;
 	LE_INT32 vpDestParam2;
@@ -1291,30 +1242,12 @@ typedef struct LSavePlayerStruct {
 	INT vpAnimXOffsetAlign;
 	LE_UINT32 vplid; // light id of the player
 	LE_UINT32 vpvid; // vision id of the player
-	BYTE vpAtkSkill;         // the selected attack skill for the primary action
-	BYTE vpAtkSkillType;     // the (RSPLTYPE_)type of the attack skill for the primary action
-	BYTE vpMoveSkill;        // the selected movement skill for the primary action
-	BYTE vpMoveSkillType;    // the (RSPLTYPE_)type of the movement skill for the primary action
-	BYTE vpAltAtkSkill;      // the selected attack skill for the secondary action
-	BYTE vpAltAtkSkillType;  // the (RSPLTYPE_)type of the attack skill for the secondary action
-	BYTE vpAltMoveSkill;     // the selected movement skill for the secondary action
-	BYTE vpAltMoveSkillType; // the (RSPLTYPE_)type of the movement skill for the secondary action
-	BYTE vpAtkSkillHotKey[4];         // the attack skill selected by the hotkey
-	BYTE vpAtkSkillTypeHotKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey
-	BYTE vpMoveSkillHotKey[4];        // the movement skill selected by the hotkey
-	BYTE vpMoveSkillTypeHotKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey
-	BYTE vpAltAtkSkillHotKey[4];      // the attack skill selected by the alt-hotkey
-	BYTE vpAltAtkSkillTypeHotKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey
-	BYTE vpAltMoveSkillHotKey[4];     // the movement skill selected by the alt-hotkey
-	BYTE vpAltMoveSkillTypeHotKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey
-	BYTE vpAtkSkillSwapKey[4];         // the attack skill selected by the hotkey after skill-set swap
-	BYTE vpAtkSkillTypeSwapKey[4];     // the (RSPLTYPE_)type of the attack skill selected by the hotkey after skill-set swap
-	BYTE vpMoveSkillSwapKey[4];        // the movement skill selected by the hotkey after skill-set swap
-	BYTE vpMoveSkillTypeSwapKey[4];    // the (RSPLTYPE_)type of the movement skill selected by the hotkey after skill-set swap
-	BYTE vpAltAtkSkillSwapKey[4];      // the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltAtkSkillTypeSwapKey[4];  // the (RSPLTYPE_)type of the attack skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltMoveSkillSwapKey[4];     // the movement skill selected by the alt-hotkey after skill-set swap
-	BYTE vpAltMoveSkillTypeSwapKey[4]; // the (RSPLTYPE_)type of the movement skill selected by the alt-hotkey after skill-set swap
+	PlrSkillStruct vpMainSkill; // the selected attack/movement skill for the primary action
+	PlrSkillStruct vpAltSkill;  // the selected attack/movement skill for the secondary action
+	PlrSkillStruct vpSkillHotKey[4];     // the skill selected by the hotkey
+	PlrSkillStruct vpAltSkillHotKey[4];  // the skill selected by the alt-hotkey
+	PlrSkillStruct vpSkillSwapKey[4];    // the skill selected by the hotkey after skill-set swap
+	PlrSkillStruct vpAltSkillSwapKey[4]; // the skill selected by the alt-hotkey after skill-set swap
 	BYTE vpSkillLvlBase[64]; // the skill levels of the player if they would not wear an item
 	BYTE vpSkillActivity[64];
 	LE_UINT32 vpSkillExp[64];
@@ -1427,12 +1360,12 @@ typedef struct LSaveMissileStruct {
 	BYTE vmiFlags; // missile_flags
 	BYTE vmiResist; // missile_resistance
 	BYTE vmiFileNum; // missile_gfx_id
-	BOOLEAN vmiDrawFlag; // should be drawn
-	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
 	BOOLEAN vmiDelFlag; // should be deleted
-	BOOLEAN vmiLightFlag; // use light-transformation when drawing
-	BOOLEAN vmiPreFlag; // should be drawn in the pre-phase
-	BOOLEAN vmiAnimFlag;
+	LE_INT32 vmiUniqTrans; // use unique color-transformation when drawing
+	BOOLEAN vmiDrawFlagAlign; // should be drawn
+	BOOLEAN vmiAnimFlagAlign;
+	BOOLEAN vmiLightFlagAlign; // use light-transformation when drawing
+	BOOLEAN vmiPreFlagAlign; // should be drawn in the pre-phase
 	INT vmiAnimDataAlign;
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation
@@ -1457,8 +1390,8 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiCaster;
 	LE_INT32 vmiMinDam;
 	LE_INT32 vmiMaxDam;
-	LE_INT32 vmiRange;
-	LE_UINT32 vmiLid; // light id of the missile
+	LE_INT32 vmiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
+	LE_UINT32 vmiLid;  // light id of the missile
 	LE_INT32 vmiVar1;
 	LE_INT32 vmiVar2;
 	LE_INT32 vmiVar3;
@@ -1547,6 +1480,13 @@ typedef struct LSavePortalStruct {
 typedef struct CmdSkillUse {
 	BYTE skill;
 	int8_t from;
+	bool operator==(const CmdSkillUse & oval) const {
+		//return skill == oval.skill && from == oval.from;
+		return *(uint16_t*)&skill == *(uint16_t*)&oval.skill;
+	};
+	bool operator!=(const CmdSkillUse & oval) const {
+		return !(*this == oval);
+	};
 } CmdSkillUse;
 
 typedef struct TCmd {
@@ -1616,6 +1556,14 @@ typedef struct TCmdNewLvl {
 	BYTE bFom;
 	BYTE bLevel;
 } TCmdNewLvl;
+
+typedef struct TCmdCreateLvl {
+	BYTE bCmd;
+	BYTE clPlayers;
+	LE_INT32 clSeed;
+	BYTE clLevel;
+	BYTE clType;
+} TCmdCreateLvl;
 
 typedef struct TCmdItemOp {
 	BYTE bCmd;
@@ -1755,6 +1703,7 @@ typedef struct TMsgLargeHdr {
 
 typedef struct TMsgString {
 	BYTE bCmd;
+	BYTE bsLen;
 	char str[MAX_SEND_STR_LEN];
 } TMsgString;
 
@@ -1809,7 +1758,6 @@ typedef struct TSyncMonster {
 
 typedef struct TSyncLvlPlayer {
 	BYTE spMode;
-	BYTE spWalkpath[MAX_PATH_LENGTH];
 	BYTE spManaShield;
 	BYTE spInvincible;
 	BYTE spDestAction;
@@ -1820,10 +1768,10 @@ typedef struct TSyncLvlPlayer {
 	LE_INT16 spTimer[NUM_PLRTIMERS];
 	BYTE spx;      // Tile X-position where the player should be drawn
 	BYTE spy;      // Tile Y-position where the player should be drawn
-	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
-	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
-	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
-	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
+//	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
+//	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
+//	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
+//	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
 //	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
 //	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)
@@ -1855,20 +1803,20 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar3;
 	BYTE smx;          // Tile X-position where the monster should be drawn
 	BYTE smy;          // Tile Y-position where the monster should be drawn
-	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
-	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
-	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
-	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
+//	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
+//	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
+//	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
+//	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
 //	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
 //	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)
-	LE_INT32 smEnemy;  // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
-	BYTE smEnemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE smEnemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
+	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
+	BYTE smenemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE smListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN smDelFlag; // unused
-	BYTE smAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
-	BYTE smAnimFrame; // Current frame of animation.
+	BYTE smAnimCnt;    // Increases by one each game tick, counting how close we are to _mAnimFrameLen
+	BYTE smAnimFrame;  // Current frame of animation.
 	LE_INT32 smVar1;
 	LE_INT32 smVar2;
 	LE_INT32 smVar3;
@@ -1878,8 +1826,8 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smVar7;
 	LE_INT32 smVar8;
 	LE_INT32 smHitpoints;
-	BYTE smLastx; // the last known (future) tile X-coordinate of the enemy
-	BYTE smLasty; // the last known (future) tile Y-coordinate of the enemy
+	BYTE smlastx; // the last known (future) tile X-coordinate of the enemy
+	BYTE smlasty; // the last known (future) tile Y-coordinate of the enemy
 	//BYTE smLeader; // the leader of the monster
 	BYTE smLeaderflag; // the status of the monster's leader
 	//BYTE smPacksize; // the number of 'pack'-monsters close to their leader
@@ -1891,10 +1839,6 @@ typedef struct TSyncLvlMissile {
 	LE_UINT16 smiMi;
 	BYTE smiType;   // missile_id
 	BYTE smiFileNum; // missile_gfx_id
-	BOOLEAN smiDrawFlag;
-	BYTE smiUniqTrans;
-	BOOLEAN smiLightFlag;
-	BOOLEAN smiPreFlag;
 	BYTE smiAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int8_t smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
@@ -1915,7 +1859,7 @@ typedef struct TSyncLvlMissile {
 	LE_INT32 smiMinDam;
 	LE_INT32 smiMaxDam;
 	// LE_INT32 smiRndSeed;
-	LE_INT32 smiRange; // Time to live for the missile in game ticks, when 0 the missile will be marked for deletion via _miDelFlag
+	LE_INT32 smiRange; // Time to live for the missile in game ticks, when negative the missile will be deleted
 	LE_INT32 smiVar1;
 	LE_INT32 smiVar2;
 	LE_INT32 smiVar3;
@@ -1982,6 +1926,12 @@ typedef struct DDLevel {
 	DDMonster monster[MAXMONSTERS];
 } DDLevel;
 
+typedef struct DDDynLevel {
+	LE_INT32 dlSeed; // the seed of the dynamic level
+	BYTE dlLevel;    // the difficulty level of the dynamic level
+	BYTE dlType;     // dungeon_type (random in case of DTYPE_TOWN)
+} DDDynLevel;
+
 typedef struct LocalLevel {
 	BYTE automapsv[MAXDUNX][MAXDUNY]; // TODO: compress the data?
 } LocalLevel;
@@ -2001,6 +1951,7 @@ typedef struct DDQuest {
 typedef struct DDJunk {
 	// DDPortal jPortals[MAXPORTAL];
 	// DDQuest jQuests[NUM_QUESTS];
+	// DDDynLevel[NUM_DYNLVLS]
 	BYTE jGolems[MAX_MINIONS];
 } DDJunk;
 
@@ -2079,8 +2030,10 @@ typedef struct TBuffer {
 //////////////////////////////////////////////////
 
 typedef struct LevelStruct {
-	int _dLevelIdx;   // index in AllLevels (dungeon_level)
+	int _dLevelIdx;   // dungeon_level / NUM_LEVELS
+	int _dLevelNum;   // index in AllLevels (dungeon_level / NUM_FIXLVLS)
 	bool _dSetLvl;    // cached flag if the level is a set-level
+	bool _dDynLvl;    // cached flag if the level is a dynamic-level
 	int _dLevel;      // cached difficulty value of the level
 	int _dType;       // cached type of the level (dungeon_type)
 	int _dDunType;    // cached type of the dungeon (dungeon_gen_type)
@@ -2150,6 +2103,13 @@ typedef struct SetPieceData {
 //////////////////////////////////////////////////
 // quests
 //////////////////////////////////////////////////
+
+typedef struct DynLevelStruct {
+	// int32_t _dnSeed; -- stored in glSeedTbl
+	// BYTE _dnPlayers; -- stored in gsDeltaData.ddLevelPlrs
+	BYTE _dnLevel;
+	BYTE _dnType;
+} DynLevelStruct;
 
 typedef struct QuestStruct {
 	BYTE _qactive; // quest_state
@@ -2278,26 +2238,40 @@ typedef struct ROOMHALLNODE {
 	int nHallx2;
 	int nHally2;
 	int nHalldir;
+	ALIGNMENT(6, 6)
 } ROOMHALLNODE;
 
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(ROOMHALLNODE) & (sizeof(ROOMHALLNODE) - 1)) == 0, "Align ROOMHALLNODE to power of 2 for better performance.");
+#endif
+
 typedef struct L1ROOM {
-	BYTE lrx;
-	BYTE lry;
-	BYTE lrw;
-	BYTE lrh;
+	int lrx;
+	int lry;
+	int lrw;
+	int lrh;
 } L1ROOM;
 
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(L1ROOM) & (sizeof(L1ROOM) - 1)) == 0, "Align L1ROOM to power of 2 for better performance.");
+#endif
+
 typedef struct ThemePosDir {
-	BYTE tpdx;
-	BYTE tpdy;
-	BYTE tpdvar1;
-	BYTE tpdvar2; // unused
+	int tpdx;
+	int tpdy;
+	int tpdvar1;
+	int tpdvar2; // unused
 } ThemePosDir;
+
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
+static_warning((sizeof(ThemePosDir) & (sizeof(ThemePosDir) - 1)) == 0, "Align ThemePosDir to power of 2 for better performance.");
+#endif
 
 /** The number of generated rooms in cathedral. */
 #define L1_MAXROOMS ((DSIZEX * DSIZEY) / sizeof(L1ROOM))
 /** The number of generated rooms in catacombs. */
 #define L2_MAXROOMS 32
+static_assert(L2_MAXROOMS * sizeof(ROOMHALLNODE) <= (DSIZEX * DSIZEY), "RoomList is too large for DrlgMem.");
 /** Possible matching locations in a theme room. */
 #define THEME_LOCS ((DSIZEX * DSIZEY) / sizeof(ThemePosDir))
 
@@ -2385,6 +2359,15 @@ typedef struct SNetGameData {
 	BYTE ngTickRate;
 	BYTE ngNetUpdateRate; // (was defaultturnssec in vanilla)
 	BYTE ngMaxPlayers;
+	SNetGameData() {
+		memset(&ngVersionId, 0, sizeof(SNetGameData));
+	}
+	SNetGameData(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	}
+	void operator=(const SNetGameData &other) {
+		memcpy(&ngVersionId, &other, sizeof(SNetGameData));
+	};
 } SNetGameData;
 
 /*typedef struct _SNETCAPS {
@@ -2461,8 +2444,8 @@ typedef struct _uiheroinfo {
 	BYTE hiIdx;
 	BYTE hiLevel;
 	BYTE hiClass;
-	BYTE hiRank;
-	char hiName[16];
+	BOOLEAN hiSaveFile;
+	char hiName[PLR_NAME_LEN];
 	int16_t hiStrength;
 	int16_t hiMagic;
 	int16_t hiDexterity;
@@ -2485,15 +2468,16 @@ typedef struct _uigamedata {
 //////////////////////////////////////////////////
 
 typedef struct PATHNODE {
-	BYTE totalCost;
-	BYTE remainingCost;
-	BYTE walkCost;
+	int totalCost;
+	int remainingCost;
+	int lastStepCost;
+	int walkCost;
 	int x;
 	int y;
 	struct PATHNODE* Parent;
 	struct PATHNODE* Child[NUM_DIRS];
 	struct PATHNODE* NextNode;
-	ALIGNMENT(3, 8)
+	ALIGNMENT64(6)
 } PATHNODE;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -2576,14 +2560,21 @@ typedef struct TriggerStruct {
 //////////////////////////////////////////////////
 
 typedef struct STextStruct {
-	int _sx;
-	int _syoff;
-	char _sstr[112];
-	bool _sjust;
-	BYTE _sclr;
-	bool _sline;
-	bool _ssel;
-	int _sval;
+	int _sx;         // starting position
+	int _syoff;      // y-offset where the text should be printed
+	union {
+		char _sstr[112]; // the text
+		struct {
+			char _schr;     // placeholder to differentiate from a normal text
+			const ItemStruct* _siItems[8];
+		};
+	};
+	bool _sitemlist; // whether items should be drawn 
+	bool _sjust;     // whether the string should be justified
+	BYTE _sclr;      // the color of the string
+	// bool _sline;
+	bool _ssel;      // whether the line is selectable
+	int _sval;       // integer value to be printed on the right side of the line
 } STextStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -2595,7 +2586,7 @@ static_warning((sizeof(STextStruct) & (sizeof(STextStruct) - 1)) == 0, "Align ST
 //////////////////////////////////////////////////
 
 typedef struct _plrmsg {
-	Uint32 time;
+	uint32_t time;
 	BYTE player;
 	BYTE lineBreak;
 	char str[122];

@@ -24,8 +24,7 @@ extern "C" {
 		y += (vertical) - (horizontal);        \
 	}
 
-extern int ViewX;
-extern int ViewY;
+extern POS32 myview;
 extern ScrollStruct ScrollInfo;
 extern ViewportStruct gsTileVp;
 extern int light_trn_index;
@@ -37,8 +36,8 @@ void CalcViewportGeometry();
 void ScrollView();
 #endif
 void scrollrt_draw_item(const ItemStruct* is, bool outline, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
-void scrollrt_draw_screen(bool draw_cursor);
-void scrollrt_draw_game();
+void scrollrt_render_screen(bool draw_cursor);
+void scrollrt_render_game();
 
 #ifdef __cplusplus
 }

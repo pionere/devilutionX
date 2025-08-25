@@ -11,15 +11,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int frameIndex;
-		int frameWidth;
-		int frameHeight;
-	} CelFrame;
-	const CelFrame frames[] = {
-		{ 0, 64, 128 },
-		{ 1, 64, 128 },
-	};
+	const int frames[] = { 0, 1 };
+	constexpr int FRAME_WIDTH = 64;
+	constexpr int FRAME_HEIGHT = 128;
 
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SUB_HEADER_SIZE = 10;
@@ -40,11 +34,11 @@ BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 
 	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
 	for (int i = 0; i < srcCelEntries; i++) {
-		const CelFrame &frame = frames[idx];
-		if (i == frame.frameIndex) {
+		const int frameIndex = frames[idx];
+		if (i == frameIndex) {
 			// draw the frame to the back-buffer
-			memset(&gpBuffer[0], TRANS_COLOR, frame.frameHeight * BUFFER_WIDTH);
-			CelClippedDraw(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+			CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, frameIndex + 1, FRAME_WIDTH);
 
 			if (idx == 0) {
 				for (int y = 44; y < 55; y++) {
@@ -60,17 +54,17 @@ BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 				}
 			}
 
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 
-			dstDataCursor = EncodeFrame(dstDataCursor, frame.frameWidth, frame.frameHeight, SUB_HEADER_SIZE, TRANS_COLOR);
+			dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
 
 			// skip the original frame
 			srcHeaderCursor++;
 
 			idx++;
 		} else {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -80,23 +74,16 @@ BYTE* DRLP_L2_PatchDoors(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
 
 BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 {
-	typedef struct {
-		int frameIndex;
-		int frameWidth;
-		int frameHeight;
-	} CelFrame;
-	const CelFrame frames[] = {
-		{ 0, 64, 160 },
-		{ 1, 64, 160 },
-		{ 4, 64, 160 },
-	};
+	const int frames[] = { 0, 1, 4 };
+	constexpr int FRAME_WIDTH = 64;
+	constexpr int FRAME_HEIGHT = 160;
 
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr BYTE SUB_HEADER_SIZE = 10;
@@ -117,11 +104,11 @@ BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 
 	BYTE* dstDataCursor = resCelBuf + 4 * (srcCelEntries + 2);
 	for (int i = 0; i < srcCelEntries; i++) {
-		const CelFrame &frame = frames[idx];
-		if (i == frame.frameIndex) {
+		const int frameIndex = frames[idx];
+		if (i == frameIndex) {
 			// draw the frame to the back-buffer
-			memset(&gpBuffer[0], TRANS_COLOR, frame.frameHeight * BUFFER_WIDTH);
-			CelClippedDraw(0, frame.frameHeight - 1, celBuf, frame.frameIndex + 1, frame.frameWidth);
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+			CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, frameIndex + 1, FRAME_WIDTH);
 
 			if (idx == 0) {
 				gpBuffer[10 + 52 * BUFFER_WIDTH] = 55;
@@ -149,17 +136,17 @@ BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 				gpBuffer[11 + 149 * BUFFER_WIDTH] = 36;
 			}
 
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 
-			dstDataCursor = EncodeFrame(dstDataCursor, frame.frameWidth, frame.frameHeight, SUB_HEADER_SIZE, TRANS_COLOR);
+			dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
 
 			// skip the original frame
 			srcHeaderCursor++;
 
 			idx++;
 		} else {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -169,7 +156,7 @@ BYTE* DRLP_L2_PatchSpec(BYTE* celBuf, size_t* celLen)
 	}
 	// add file-size
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
-	dstHeaderCursor[0] = SwapLE32(*celLen);
+	dstHeaderCursor[0] = SwapLE32((DWORD)(*celLen));
 
 	return resCelBuf;
 }
@@ -259,7 +246,8 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 	// draw the micros to the back-buffer
 	pMicrosCel = celBuf;
 	constexpr BYTE TRANS_COLOR = 128;
-	memset(&gpBuffer[0], TRANS_COLOR, 5 * BUFFER_WIDTH * MICRO_HEIGHT);
+	constexpr int DRAW_HEIGHT = 5;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
 
 	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[back0_FrameIndex0], DMT_NONE); // 716
 	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 4 - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back2_FrameIndex1], DMT_NONE); // 251[1]
@@ -427,9 +415,9 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 			break;
 
 		// copy entries till the next frame
-		int numEntries = entries[next].frameRef - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+		int numEntries = entries[next].frameRef - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 		for (int i = 0; i < numEntries; i++) {
-			dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+			dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 			dstHeaderCursor++;
 			DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 			memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -437,7 +425,7 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 			srcHeaderCursor++;
 		}
 		// add the next frame
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		
 		BYTE* frameSrc;
@@ -481,9 +469,9 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 		entries[next].frameRef = 0;
 	}
 	// add remaining entries
-	int numEntries = celEntries + 1 - ((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
+	int numEntries = celEntries + 1 - (unsigned)((size_t)srcHeaderCursor - (size_t)celBuf) / 4;
 	for (int i = 0; i < numEntries; i++) {
-		dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
 		DWORD len = srcHeaderCursor[1] - srcHeaderCursor[0];
 		memcpy(dstDataCursor, celBuf + srcHeaderCursor[0], len);
@@ -491,7 +479,7 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 		srcHeaderCursor++;
 	}
 	// add file-size
-	dstHeaderCursor[0] = SwapLE32((size_t)dstDataCursor - (size_t)resCelBuf);
+	dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 
 	*celLen = SwapLE32(dstHeaderCursor[0]);
 
@@ -680,14 +668,15 @@ static BYTE* fixCatacombsShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
@@ -719,17 +708,17 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /*  3 */{ 482 - 1, 1, MET_RTRIANGLE },  // change type
 
 /*  4 */{ 17 - 1, 1, MET_TRANSPARENT }, // mask door
-/*  5 */{ 17 - 1, 0, MET_TRANSPARENT }, // unused
-/*  6 */{ 17 - 1, 2, MET_TRANSPARENT }, // unused
-/*  7 */{ 17 - 1, 4, MET_TRANSPARENT }, // unused
+/*  5 */{ 17 - 1, 0, -1 /* MET_TRANSPARENT */ }, // unused
+/*  6 */{ 17 - 1, 2, -1 /* MET_TRANSPARENT */ }, // unused
+/*  7 */{ 17 - 1, 4, -1 /* MET_TRANSPARENT */ }, // unused
 /*  8 */{ 551 - 1, 0, MET_TRANSPARENT },
 /*  9 */{ 551 - 1, 2, MET_TRANSPARENT },
 /* 10 */{ 551 - 1, 4, MET_TRANSPARENT },
 /* 11 */{ 551 - 1, 5, MET_TRANSPARENT },
 /* 12 */{ 13 - 1, 0, MET_TRANSPARENT },
-/* 13 */{ 13 - 1, 1, MET_TRANSPARENT }, // unused
-/* 14 */{ 13 - 1, 3, MET_TRANSPARENT }, // unused
-/* 15 */{ 13 - 1, 5, MET_TRANSPARENT }, // unused
+/* 13 */{ 13 - 1, 1, -1 /* MET_TRANSPARENT */ }, // unused
+/* 14 */{ 13 - 1, 3, -1 /* MET_TRANSPARENT */ }, // unused
+/* 15 */{ 13 - 1, 5, -1 /* MET_TRANSPARENT */ }, // unused
 /* 16 */{ 553 - 1, 1, MET_TRANSPARENT },
 /* 17 */{ 553 - 1, 3, MET_TRANSPARENT },
 /* 18 */{ 553 - 1, 4, MET_TRANSPARENT },
@@ -749,8 +738,8 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 
 /* 31 */{ 323 - 1, 0, MET_LTRIANGLE }, // redraw floor
 /* 32 */{ 323 - 1, 1, MET_RTRIANGLE },
-/* 33 */{ 324 - 1, 0, MET_LTRIANGLE }, // unused
-/* 34 */{ 324 - 1, 1, MET_RTRIANGLE }, // unused
+/* 33 */{ 324 - 1, 0, -1 /* MET_LTRIANGLE */ }, // unused
+/* 34 */{ 324 - 1, 1, -1 /* MET_RTRIANGLE */ }, // unused
 /* 35 */{ 332 - 1, 0, MET_LTRIANGLE },
 /* 36 */{ 332 - 1, 1, MET_RTRIANGLE },
 /* 37 */{ 331 - 1, 0, MET_LTRIANGLE },
@@ -1398,14 +1387,15 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;

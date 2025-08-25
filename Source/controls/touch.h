@@ -6,7 +6,7 @@ static_assert(false, "Touchpad is not supported in SDL1.");
 #endif
 #include <SDL.h>
 
-#include "../defs.h"
+#include "../all.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -15,8 +15,11 @@ extern "C" {
 #endif
 
 void InitTouch();
+void InitGamepadGFX();
+void FreeGamepadGFX();
 void handle_touch(SDL_Event* event);
-void finish_simulated_mouse_clicks();
+bool TryActionDirCmd(bool altSkill, RECT_AREA32& vec);
+void DrawGamepad();
 
 #ifdef __cplusplus
 }

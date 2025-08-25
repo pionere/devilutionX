@@ -1005,7 +1005,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	smk_malloc(s, sizeof(struct smk_t));
 	smk_header *hdr = (smk_header*)fp.ram;
 	if (size < sizeof(smk_header)) {
-		LogError("libsmacker::smk_open_generic() - ERROR: SMK content is too short. (got: %d, required: %d)\n", size, sizeof(smk_header));
+		LogError("libsmacker::smk_open_generic() - ERROR: SMK content is too short. (got: %lu, required: %d)\n", size, sizeof(smk_header));
 #if DEBUG_MODE
 		goto error;
 #endif
@@ -1148,7 +1148,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	/* clean up */
 	smk_free(hufftree_chunk);
 	/* Go ahead and malloc storage for the video frame */
-	smk_malloc(s->video.frame, s->video.w * s->video.h);
+	smk_malloc(s->video.frame, (size_t)s->video.w * s->video.h);
 #ifdef FULL
 	/* final processing: depending on ProcessMode, handle what to do with rest of file data */
 	s->mode = process_mode;
@@ -1158,6 +1158,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	if (s->mode == SMK_MODE_MEMORY) {
 		smk_malloc(s->source.chunk_data, (s->f + s->ring_frame) * sizeof(unsigned char *));
 #else
+	{
 		smk_malloc(s->source.chunk_data, s->total_frames * sizeof(unsigned char *));
 #endif
 
@@ -1186,8 +1187,8 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 				goto error;
 			}
 		}
-	}
 #endif
+	}
 
 	return s;
 #if DEBUG_MODE
@@ -1204,14 +1205,12 @@ smk smk_open_memory(const unsigned char * buffer, const unsigned long size)
 	smk s = NULL;
 	union smk_read_t fp;
 
-#ifdef FULL
 	if (buffer == NULL) {
+#ifdef FULL
 		LogErrorMsg("libsmacker::smk_open_memory() - ERROR: buffer pointer is NULL\n");
+#endif
 		return NULL;
 	}
-#else
-	assert(buffer);
-#endif
 
 	/* set up the read union for Memory mode */
 	fp.ram = (unsigned char *)buffer;

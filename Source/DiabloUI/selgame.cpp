@@ -1,9 +1,8 @@
 
 #include "DiabloUI/diablo.h"
 #include "DiabloUI/diabloui.h"
-#include "DiabloUI/dialogs.h"
-#include "DiabloUI/scrollbar.h"
 #include "DiabloUI/selconn.h"
+#include "DiabloUI/selhero.h"
 #include "DiabloUI/selok.h"
 #include "DiabloUI/text.h"
 #include "storm/storm_cfg.h"
@@ -16,9 +15,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
+DISABLE_SPEED_OPTIMIZATION
 
-extern int provider;
+#define MAX_VIEWPORT_ITEMS ((unsigned)((SELGAME_RPANEL_HEIGHT - 22) / 26))
 
 typedef struct ConnectionInfo {
 	const char *ci_GameName;
@@ -125,9 +124,7 @@ static void selgame_remove_event_handlers()
 
 static void SelgameInit()
 {
-	LoadScrollBar();
-	gbHerosCel = CelLoadImage("ui_art\\heros.CEL", SELHERO_HEROS_WIDTH);
-	LoadBackgroundArt("ui_art\\selgame.CEL", "ui_art\\menu.pal");
+	LoadBackgroundArt(NULL, "ui_art\\menu.pal");
 }
 
 static void SelgameFreeDlgItems()
@@ -139,9 +136,7 @@ static void SelgameFreeDlgItems()
 
 static void SelgameFree()
 {
-	FreeBackgroundArt();
-	MemFreeDbg(gbHerosCel);
-	UnloadScrollBar();
+	// FreeBackgroundArt();
 	SelgameFreeDlgItems();
 
 	// memset(&selgame_Password, 0, sizeof(selgame_Password)); - pointless because the plain password is stored in storm anyway...
@@ -151,10 +146,14 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 {
 	SelgameFreeDlgItems();
 
-	UiAddBackground();
+	// UiAddBackground();
 	UiAddLogo();
 
-	SDL_Rect rect1 = { PANEL_LEFT + 0, SELGAME_TITLE_TOP, PANEL_WIDTH, 35 };
+	gUiItems.push_back(new UiTextBox({ SELGAME_LPANEL_LEFT - BOXBORDER_WIDTH, SELGAME_PNL_TOP - BOXBORDER_WIDTH, SELGAME_LPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_LPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_SILVER));
+
+	gUiItems.push_back(new UiTextBox({ SELGAME_RPANEL_LEFT - BOXBORDER_WIDTH, SELGAME_PNL_TOP - BOXBORDER_WIDTH, SELGAME_RPANEL_WIDTH + 2 * BOXBORDER_WIDTH, SELGAME_HEADER_HEIGHT + SELGAME_RPANEL_HEIGHT + 2 * BOXBORDER_WIDTH }, UIS_HCENTER | UIS_GOLD));
+
+	SDL_Rect rect1 = { 0, SELGAME_TITLE_TOP, SCREEN_WIDTH, 35 };
 	gUiItems.push_back(new UiText(title, rect1, UIS_HCENTER | UIS_BIG | UIS_SILVER));
 
 	SDL_Rect rect2 = { SELGAME_LPANEL_LEFT + 10, SELGAME_PNL_TOP, DESCRIPTION_WIDTH, SELGAME_HEADER_HEIGHT };
@@ -171,11 +170,10 @@ static void SelgameResetScreen(const char* title, const char* rheader)
 	hosted = provider == SELCONN_TCPS || provider == SELCONN_TCPDS;
 #endif
 	SDL_Rect rect5 = { SELGAME_LPANEL_LEFT + (DESCRIPTION_WIDTH - SELHERO_HEROS_WIDTH) / 2, SELGAME_LPANEL_BOTTOM - 30 - SELHERO_HEROS_HEIGHT, SELHERO_HEROS_WIDTH, SELHERO_HEROS_HEIGHT };
-	// assert(mypnum == 0 || hosted);
-	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : plx(0)._pClass + 1, rect5, false));
+	gUiItems.push_back(new UiImage(gbHerosCel, hosted ? 0 : selhero_heroInfo.hiClass + 1, rect5, false));
 	if (!hosted) {
 		SDL_Rect rect6 = { SELGAME_LPANEL_LEFT + 10, SELGAME_LPANEL_BOTTOM - 30, DESCRIPTION_WIDTH, 30 };
-		gUiItems.push_back(new UiText(plx(0)._pName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
+		gUiItems.push_back(new UiText(selhero_heroInfo.hiName, rect6, UIS_HCENTER | UIS_VCENTER | UIS_MED | UIS_GOLD));
 	}
 #ifdef ZEROTIER
 	ztBlOckBtn = NULL;
@@ -192,85 +190,66 @@ static void SelgameModeEsc()
 static void SelgameModeFocus(unsigned index)
 {
 	selgame_Label[0] = '\0';
+	const char* txt;
 	switch (gUIListItems[index]->m_value) {
 	case SELGAME_CREATE:
-		copy_cstr(selgame_Description, "Create a new game with a difficulty setting of your choice.");
+		txt = "Create a new game with a difficulty setting of your choice";
 		break;
 	case SELGAME_JOIN:
-		copy_cstr(selgame_Description, "Enter an IP or a hostname and join a game already in progress.");
+		txt = "Enter an IP or a hostname and join a game already in progress";
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), txt);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
-static const char* SelgameDiffText(int difficulty)
+static std::pair<const char*, const char*> SelgameDiffText(int difficulty)
 {
-	const char* result = "Normal";
+	std::pair<const char*, const char*> result = { "Normal", "This is where a starting character should begin the quest to defeat Diablo" };
 	if (difficulty == DIFF_NIGHTMARE)
-		result = "Nightmare";
+		result = { "Nightmare", "The denizens of the Labyrinth have been bolstered and will prove to be a greater challenge" };
 	if (difficulty == DIFF_HELL)
-		result = "Hell";
+		result = { "Hell", "The most powerful of the underworld's creatures lurk at the gateway into Hell" };
 	return result;
 }
 
 static void SelgameDiffFocus(unsigned index)
 {
 	int diff = gUIListItems[index]->m_value;
-	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameDiffText(diff));
-	switch (diff) {
-	case DIFF_NORMAL:
-		copy_cstr(selgame_Description, "Normal Difficulty\nThis is where a starting character should begin the quest to defeat Diablo.");
-		break;
-	case DIFF_NIGHTMARE:
-		copy_cstr(selgame_Description, "Nightmare Difficulty\nThe denizens of the Labyrinth have been bolstered and will prove to be a greater challenge.");
-		break;
-	case DIFF_HELL:
-		copy_cstr(selgame_Description, "Hell Difficulty\nThe most powerful of the underworld's creatures lurk at the gateway into Hell.");
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	const std::pair<const char*, const char*> diffTexts = SelgameDiffText(diff);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Label, sizeof(selgame_Label), diffTexts.first);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Difficulty\n%s.", diffTexts.first, diffTexts.second);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
-static const char* SelgameSpeedText(int speed)
+static std::pair<const char*, const char*> SelgameSpeedText(int speed)
 {
-	const char* result = "Normal";
+	std::pair<const char*, const char*> result = { "Normal", "This is where a starting character should begin the quest to defeat Diablo" };
 	if (speed == SPEED_FAST)
-		result = "Fast";
+		result = { "Fast", "The denizens of the Labyrinth have been hastened and will prove to be a greater challenge" };
 	if (speed == SPEED_FASTER)
-		result = "Faster";
+		result = { "Faster", "Most monsters of the dungeon will seek you out quicker than ever before" };
 	if (speed == SPEED_FASTEST)
-		result = "Fastest";
+		result = { "Fastest", "The minions of the underworld will rush to attack without hesitation" };
 	return result;
 }
 
 static void SelgameSpeedFocus(unsigned index)
 {
 	int speed = gUIListItems[index]->m_value;
-	snprintf(selgame_Label, sizeof(selgame_Label), "%s", SelgameSpeedText(speed));
-	switch (speed) {
-	case SPEED_NORMAL:
-		copy_cstr(selgame_Description, "Normal Speed\nThis is where a starting character should begin the quest to defeat Diablo.");
-		break;
-	case SPEED_FAST:
-		copy_cstr(selgame_Description, "Fast Speed\nThe denizens of the Labyrinth have been hastened and will prove to be a greater challenge.");
-		break;
-	case SPEED_FASTER:
-		copy_cstr(selgame_Description, "Faster Speed\nMost monsters of the dungeon will seek you out quicker than ever before.");
-		break;
-	case SPEED_FASTEST:
-		copy_cstr(selgame_Description, "Fastest Speed\nThe minions of the underworld will rush to attack without hesitation.");
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, AFT_SMALL);
+	const std::pair<const char*, const char*> speedTexts = SelgameSpeedText(speed);
+	DISABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Label, sizeof(selgame_Label), speedTexts.first);
+	ENABLE_WARNING(format-security, format-security, 4774)
+	snprintf(selgame_Description, sizeof(selgame_Description), "%s Speed\n%s.", speedTexts.first, speedTexts.second);
+	WordWrapArtStr(selgame_Description, DESCRIPTION_WIDTH, (unsigned)UIS_SMALL >> 0);
 }
 
 static void SelgameNoFocus()
@@ -334,7 +313,7 @@ static void SelgameModeInit()
 	}
 #endif
 	if (provider == SELCONN_LOOPBACK) {
-		if (!gbValidSaveFile) {
+		if (!selhero_heroInfo.hiSaveFile) {
 			SelgameModeSet(SELGAME_CREATE);
 			return;
 		}
@@ -413,6 +392,7 @@ static void SelgamePasswordInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	static_assert(sizeof(selgame_Password) <= UIEDIT_MAXLENGTH, "The edit field of SelgamePasswordInit must fit to UIEdit.");
 	UiEdit* edit = new UiEdit("Enter Password", selgame_Password, sizeof(selgame_Password), rect5);
 	edit->m_iFlags |= UIS_OPTIONAL;
 	gUiItems.push_back(edit);
@@ -433,6 +413,7 @@ static void SelgamePortInit(unsigned index)
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	static_assert(sizeof(selgame_GamePort) <= UIEDIT_MAXLENGTH, "The edit field of SelgamePortInit must fit to UIEdit.");
 	UiEdit* edit = new UiEdit("Enter Port", selgame_GamePort, sizeof(selgame_GamePort), rect5);
 	gUiItems.push_back(edit);
 
@@ -470,8 +451,8 @@ static void SelgameAddressListFocus(unsigned index)
 	} else {
 		if (index != selgame_connum) {
 			const SNetZtGame& ztGame = selgame_ztGames[index];
-			selgame_ztGameLabels.difficultyTxt->m_text = SelgameDiffText(ztGame.ngData.ngDifficulty);
-			selgame_ztGameLabels.speedTxt->m_text = SelgameSpeedText(ztGame.ngData.ngTickRate);
+			selgame_ztGameLabels.difficultyTxt->m_text = SelgameDiffText(ztGame.ngData.ngDifficulty).first;
+			selgame_ztGameLabels.speedTxt->m_text = SelgameSpeedText(ztGame.ngData.ngTickRate).first;
 
 			for (int i = 0; i < MAX_PLRS; i++) {
 				const SNetZtPlr &ztPlr = ztGame.ngPlayers[i];
@@ -538,6 +519,8 @@ static void SelgameAddressInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect7, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	SDL_Rect rect5 = { SELGAME_RPANEL_LEFT + 24, SELGAME_CONTENT_TOP + (SELGAME_RPANEL_HEIGHT - FOCUS_MEDIUM) / 2, SELGAME_RPANEL_WIDTH - 24 * 2, FOCUS_MEDIUM };
+	static_assert(NET_ZT_GAMENAME_LEN <= UIEDIT_MAXLENGTH, "The edit field of SelgameAddressInit must fit to UIEdit I.");
+	static_assert(sizeof(selgame_GameName) - (NET_TCP_PORT_LENGTH + 1) <= UIEDIT_MAXLENGTH, "The edit field of SelgameAddressInit must fit to UIEdit II.");
 	UiEdit* edit = new UiEdit(ztProvider ? "Enter Game ID" : "Enter Address", selgame_GameName, ztProvider ? NET_ZT_GAMENAME_LEN : (sizeof(selgame_GameName) - (NET_TCP_PORT_LENGTH + 1)), rect5);
 	gUiItems.push_back(edit);
 
@@ -753,7 +736,7 @@ static void SelgameDiffEsc()
 		return;
 	}
 #endif
-	if (provider == SELCONN_LOOPBACK && !gbValidSaveFile) {
+	if (provider == SELCONN_LOOPBACK && !selhero_heroInfo.hiSaveFile) {
 		SelgameModeEsc();
 		return;
 	}
@@ -862,7 +845,7 @@ int UiSelectGame(_uigamedata* game_data)
 			ztBlOckBtn->m_iFlags |= UIS_GOLD;
 			ztBlOckBtn = NULL;
 		}
-		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && ztNextRefresh < SDL_GetTicks()) {
+		if (ztRefreshBtn != NULL && ztBlOckBtn == NULL && SDL_TICKS_PASSED(SDL_GetTicks(), ztNextRefresh)) {
 			ztRefreshBtn->m_iFlags &= ~(UIS_SILVER | UIS_DISABLED);
 			ztRefreshBtn->m_iFlags |= UIS_GOLD;
 			ztRefreshBtn = NULL;
@@ -880,5 +863,7 @@ void UIDisconnectGame()
 	selgame_remove_event_handlers();
 	SNetLeaveGame();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

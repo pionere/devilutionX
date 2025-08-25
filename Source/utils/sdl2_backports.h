@@ -25,7 +25,6 @@ SDL_CreateRGBSurfaceWithFormat(Uint32 flags, int width, int height, int depth,
 	return SDL_CreateRGBSurface(0, width, height, bpp, rmask, gmask, bmask, amask);
 }
 
-// From SDL 2.0.9.
 inline SDL_Surface*
 SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
     int width, int height, int depth, int pitch,
@@ -43,6 +42,21 @@ SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
 		SDL_SetClipRect(surface, NULL);
 	}
 	return surface;
+}
+#endif
+
+#if !SDL_VERSION_ATLEAST(2, 0, 10) && !defined(NXDK)
+typedef enum
+{
+	SDL_TOUCH_DEVICE_INVALID = -1,
+	SDL_TOUCH_DEVICE_DIRECT,            /* touch screen with window-relative coordinates */
+	SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE, /* trackpad with absolute device coordinates */
+	SDL_TOUCH_DEVICE_INDIRECT_RELATIVE  /* trackpad with screen cursor-relative coordinates */
+} SDL_TouchDeviceType;
+
+inline SDL_TouchDeviceType SDL_GetTouchDeviceType(SDL_TouchID touchID)
+{
+	return SDL_TOUCH_DEVICE_DIRECT;
 }
 #endif
 #endif // !USE_SDL1
