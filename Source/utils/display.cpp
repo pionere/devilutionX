@@ -187,7 +187,7 @@ void SpawnWindow()
 #if SDL_VERSION_ATLEAST(2, 0, 6)
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
-#if SDL_VERSION_ATLEAST(2, 0, 10)
+#if SDL_VERSION_ATLEAST(2, 0, 10) && (__ANDROID__ || __IPHONEOS__)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
 
