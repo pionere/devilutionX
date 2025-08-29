@@ -38,7 +38,10 @@ android {
 			applicationIdSuffix "dev"
 		}
 		release {
-			minifyEnabled false
+			// Enables code-related app optimization.
+			minifyEnabled true
+			// Enables resource shrinking.
+			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}
