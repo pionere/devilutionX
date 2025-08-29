@@ -17,7 +17,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int mypnum;
+extern NONETCONST int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern bool gbLvlLoad;
 
@@ -37,10 +37,10 @@ void RemoveLvlPlayer(int pnum);
 //void PlrDoTrans(int x, int y);
 void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
-void PlrStartBlock(int pnum, int sx, int sy);
 void RemovePlrFromMap(int pnum);
-void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int sx, int sy);
-void SyncPlrKill(int pnum, int dmgtype);
+bool PlrCheckBlock(int pnum, int bmod, int dir);
+void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir);
+void SyncPlrKill(int pnum);
 void SyncPlrResurrect(int pnum);
 void StartNewLvl(int pnum, int fom, int lvl);
 void RestartTownLvl(int pnum);
@@ -54,16 +54,16 @@ void PlrIncMana(int pnum, int mana);
 bool PlrDecHp(int pnum, int hp, int dmgtype);
 void PlrDecMana(int pnum, int mana);
 void ProcessPlayers();
-void ClrPlrPath(int pnum);
+void PlrHinder(int pnum, int spllvl, unsigned tick);
 void MissToPlr(int mi, bool hit);
 bool PosOkActor(int x, int y);
 bool PosOkPlayer(int pnum, int x, int y);
-bool MakePlrPath(int pnum, int xx, int yy, bool endspace);
 void SyncPlrAnim(int pnum);
 void IncreasePlrStr(int pnum);
 void IncreasePlrMag(int pnum);
 void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
+void DecreasePlrMaxHp(int pnum);
 void RestorePlrHpVit(int pnum);
 
 // Set each location to the input location.

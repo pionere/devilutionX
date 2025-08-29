@@ -140,11 +140,13 @@ cmake --build build -j $(sysctl -n hw.ncpuonline)
 
 <details><summary>Installing Windows Subsystem for Linux</summary>
 
-If you are building on Windows and do not have WSL already setup this will install WSL and Ubuntu by default (Requires Windows 10 2004 or higher or Windows 11)
+Note: We currently recommend using Ubuntu 22.04 for the MinGW build. The following instructions will install the recommended version of Ubuntu on WSL.
+
+If you are building on Windows and do not have WSL already setup this will install WSL and Ubuntu (Requires Windows 10 2004 or higher or Windows 11)
 
 In an Administrator Command Prompt or Powershell
 
-```wsl --install```
+```wsl --install -d Ubuntu-22.04```
 
 Reboot
 
@@ -167,40 +169,58 @@ cd devilutionx
 
 ### 32-bit
 
-Download and place the 32bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/usr/i686-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep.sh`.
+In addition to the 32-bit MinGW build tools, the build process depends on the 32-bit MinGW Development Libraries for [SDL2](https://www.libsdl.org/download-2.0.php) and [libsodium](https://github.com/jedisct1/libsodium/releases). These dependencies will need to be placed in the appropriate subfolders under `/usr/i686-w64-mingw32`. This can be done automatically by running [`Packaging/windows/mingw-prep.sh`](/Packaging/windows/mingw-prep.sh).
 
-```
-sudo apt-get install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686
+```bash
+# Install the 32-bit MinGW build tools
+sudo apt install cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 git wget
+
+# Download the 32-bit development libraries for SDL2 and libsodium
+# and place them in subfolders under /usr/i686-w64-mingw32
+Packaging/windows/mingw-prep.sh
 ```
 
 ### 64-bit
 
-Download and place the 64bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [Libsodium](https://github.com/jedisct1/libsodium/releases) in `/usr/x86_64-w64-mingw32`. This can be done automatically by running `Packaging/windows/mingw-prep.sh`.
+In addition to the 64-bit MinGW build tools, the build process depends on the 64-bit MinGW Development Libraries of [SDL2](https://www.libsdl.org/download-2.0.php) and [libsodium](https://github.com/jedisct1/libsodium/releases). These dependencies will need to be placed in the appropriate subfolders under `/usr/x86_64-w64-mingw32`. This can be done automatically by running [`Packaging/windows/mingw-prep64.sh`](/Packaging/windows/mingw-prep64.sh).
 
-```
-sudo apt-get install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64
+```bash
+# Install the 64-bit MinGW build tools
+sudo apt install cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 git wget
+
+# Download the 64-bit development libraries for SDL2 and libsodium
+# and place them in subfolders under /usr/x86_64-w64-mingw32
+Packaging/windows/mingw-prep64.sh
 ```
 
 ### Compiling
 
-```
-sudo apt-get install wget git
-git clone https://github.com/pionere/devilutionx
-cd devilutionx
-```
+By compiling the `package` target, the build will produce the `devilutionx.zip` archive which should contain all the dlls necessary to run the game. If you encounter any errors suggesting a dll is missing, try extracting the dlls from the zip archive.
 
 ### 32-bit
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+# Configure the project to statically link sdl2 and libsodium
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake \
+    -DCMAKE_BUILD_TYPE=Release -DDEVILUTIONX_SYSTEM_SDL2=OFF \
+    -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF
+
+# Build the "package" target which produces devilutionx.zip
+# containing all the necessary dlls to run the game
+cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
 ```
 
 ### 64-bit
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+# Configure the project to statically link sdl2 and libsodium
+cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake \
+    -DCMAKE_BUILD_TYPE=Release -DDEVILUTIONX_SYSTEM_SDL2=OFF \
+    -DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF
+
+# Build the "package" target which produces devilutionx.zip
+# containing all the necessary dlls to run the game
+cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
 ```
 
 Note: If your `(i686|x86_64)-w64-mingw32` directory is not in `/usr` (e.g. when on Debian), the mingw-prep scripts and the CMake
@@ -324,13 +344,13 @@ https://devkitpro.org/wiki/Getting_Started
 - Install required packages with (dkp-)pacman:
 
 ```
-sudo (dkp-)pacman -S devkitARM general-tools 3dstools devkitpro-pkgbuild-helpers \
-	libctru citro3d 3ds-sdl \
-	3ds-freetype 3ds-libogg 3ds-libvorbisidec 3ds-mikmod 3ds-cmake \
-	3ds-pkg-config picasso 3dslink
+sudo (dkp-)pacman -S \
+    devkitARM general-tools 3dstools libctru \
+    citro3d 3ds-sdl 3ds-libpng 3ds-bzip2 \
+    3ds-cmake 3ds-pkg-config picasso 3dslink
 ```
 
-- Download or compile [bannertool](https://github.com/Steveice10/bannertool/releases) and [makerom](https://github.com/jakcron/Project_CTR/releases)
+- Download or compile [bannertool](https://github.com/diasurgical/bannertool/releases) and [makerom](https://github.com/jakcron/Project_CTR/releases)
   - Copy binaries to: `/opt/devkitpro/tools/bin/`
 
 ### Compiling
@@ -455,7 +475,7 @@ Packaging/cpi-gamesh/build.sh
 
 to install dependencies and build the code.
 
-Or you create a new directory under `/home/cpi/apps/Menu` and copy [the file](Packaging/cpi-gamesh/__init__.py) there. After restarting the UI, you can download and compile the game directly from the device itself. See [the readme](Packaging/cpi-gamesh/readme.md) for more details.
+Or you create a new directory under `/home/cpi/apps/Menu` and copy [the file](../Packaging/cpi-gamesh/__init__.py) there. After restarting the UI, you can download and compile the game directly from the device itself. See [the readme](../Packaging/cpi-gamesh/readme.md) for more details.
 </details>
 
 <details><summary>Amiga via Docker</summary>
@@ -567,6 +587,34 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 </details>
 
 </blockquote></details>
+
+<details><summary>Xbox One/Series</summary>
+
+### Dependencies
+
+* Windows 10
+* CMake
+* Git
+* Visual Studio 2022 with the foloowing packages installed:
+    * C++ (v143) Universal Windows Platform tools
+    * Windows 11 SDK (10.0.26100.0)
+    * MSVC v143 - VS 2022 C++ x64/x86 build tools
+
+_Note: Visual Studio Community Edition can be used._
+
+### Building
+
+Add the following to the PATH:
+* CMake
+* GIT
+
+Run:
+```
+Packaging/xbox-one/build.bat
+```
+
+[Xbox One/Series manual](/docs/manual/platforms/xbox-one.md)
+</details>
 
 <details><summary><b>CMake build options</b></summary>
 

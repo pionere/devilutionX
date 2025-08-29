@@ -22,7 +22,7 @@ else()
   set(SDL_STATIC OFF)
 endif()
 # Temporary workaround for MSVC builds
-if(MSVC)
+if(MSVC AND NOT NXDK)
   set(SDL_LIBC ON)
 endif()
 set(SDL_DYNAPI OFF)
@@ -48,6 +48,10 @@ set(SDL_RLE_ACCEL OFF) # requires fork of SDL2
 set(SDL_BLIT_TRANSFORM OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 #set(SDL_RENDER_SW OFF) # requires fork of SDL2
+set(SDL_GESTURES OFF) # requires fork of SDL2
+if(NOT ANDROID AND NOT IOS AND NOT TVOS)
+  set(SDL_HIDAPI OFF) # requires fork of SDL2
+endif()
 if(NOSOUND)
   set(SDL_AUDIO OFF)
 endif()
@@ -58,7 +62,6 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
  set(SDL_HAPTIC OFF)
- set(SDL_HIDAPI OFF)
 endif()
 if(NOT DEBUG_MODE)
   set(SDL_ASSERTIONS "disabled") # requires fork of SDL2
@@ -66,19 +69,16 @@ if(NOT DEBUG_MODE)
   set(SDL_VERBOSE_ERROR OFF) # requires fork of SDL2
   set(SDL_SANITIZE_ACCESS OFF) # requires fork of SDL2
 endif()
+set(SDL_ANALYZE_MACROS OFF) # requires fork of SDL2
 
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
 FetchContent_Declare(SDL2
-    #URL https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.0.18.tar.gz
-    #URL_HASH MD5=647e2890385e5f13b9aeee2e27fa26e7
+    #URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.8/SDL2-2.32.8.tar.gz
+    #URL_HASH SHA256=0ca83e9c9b31e18288c7ec811108e58bac1f1bb5ec6577ad386830eac51c787e
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG 7262505555e6ecc4bfaae26d7ec2f0a42b3e6dd3
+    GIT_TAG e54ead4cd76bb2539fbf5682007ab22dbf11e02a
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
-
-if(TARGET SDL2::SDL2-static)
-  add_library(SDL2::SDL2 ALIAS SDL2-static)
-endif()

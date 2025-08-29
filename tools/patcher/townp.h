@@ -15,6 +15,7 @@ extern "C" {
 #define BLOCK_SIZE_TOWN 16
 
 BYTE* Town_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen);
+//BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen);
 BYTE* Town_PatchMin(BYTE* minBuf, size_t* minLen, bool isHellfireTown);
 
 #ifdef __cplusplus

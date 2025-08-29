@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define ACTBTN_MASK(btn)     (1 << (btn))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,10 +24,10 @@ extern bool gbZoomInFlag;
 extern bool gbCineflag;
 extern BYTE gbGameLogicProgress;
 extern int gbRedrawFlags;
-extern bool gbGamePaused;
+extern Uint32 gnGamePaused;
 extern BYTE gbDeathflag;
-extern bool gbActionBtnDown;
-extern bool gbAltActionBtnDown;
+extern unsigned gbActionBtnDown;
+extern unsigned gbModBtnDown;
 extern int gnTicksRate;
 extern unsigned gnTickDelay;
 extern int gnTimeoutCurs;
@@ -33,17 +35,21 @@ extern bool gbShowTooltip;
 
 void FreeLevelMem();
 bool StartGame(bool bSinglePlayer);
+void diablo_pause_game(bool pause);
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 #if HAS_GAMECTRL == 1 || HAS_JOYSTICK == 1 || HAS_KBCTRL == 1 || HAS_DPAD == 1
-void ActionBtnCmd(bool bShift);
-void AltActionBtnCmd(bool bShift);
+void InputBtnDown(int transKey);
 #endif
-bool TryIconCurs(bool bShift);
 bool PressEscKey();
 void ClearPanels();
-void DisableInputWndProc(const Dvl_Event *event);
+void GameWndProc(const Dvl_Event* event);
+void DisableInputWndProc(const Dvl_Event* event);
 void game_logic();
+
+#ifdef __UWP__
+void setOnInitialized(void (*)());
+#endif
 
 #ifdef __cplusplus
 }

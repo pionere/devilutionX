@@ -15,38 +15,23 @@ extern "C" {
 #endif
 
 extern bool gbWndActive;
+#if !FULLSCREEN_ONLY
 extern bool gbFullscreen;
-extern bool gbVsyncEnabled;
-extern bool gbFPSLimit;
-extern int gnRefreshDelay;
+#endif
+extern int gbFrameRateControl;
+extern unsigned gnRefreshDelay;
 extern SDL_Window* ghMainWnd;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* renderer_texture;
 extern SDL_Surface* renderer_surface;
 
-extern SDL_Palette* back_palette;
-extern SDL_Surface* back_surface;
-extern unsigned int back_surface_palette_version;
-
 extern int screenWidth;
 extern int screenHeight;
-//extern int viewportHeight;
 
 #ifdef USE_SDL1
 void SetVideoMode(int width, int height, int bpp, uint32_t flags);
-bool IsFullScreen();
-void SetVideoModeToPrimary(bool fullscreen, int width, int height);
-// Whether the output surface requires software scaling.
-// Always returns false on SDL2.
-bool OutputRequiresScaling();
-// Scales rect if necessary.
-void ScaleOutputRect(SDL_Rect* rect);
-// If the output requires software scaling, replaces the given surface with a scaled one.
-void ScaleSurfaceToOutput(SDL_Surface** surface);
-#else // SDL2, scaling handled by renderer.
-void RecreateDisplay(int width, int height);
-inline void ScaleOutputRect(SDL_Rect* rect) { };
-inline void ScaleSurfaceToOutput(SDL_Surface** surface) { };
+void SetVideoModeToPrimary(int width, int height);
+SDL_Surface* OutputSurfaceToScale();
 #endif
 
 // Returns:
@@ -68,19 +53,26 @@ void OutputToLogical(T* x, T* y)
 #ifndef USE_SDL1
 	if (!renderer)
 		return;
-	float scaleX;
-	SDL_RenderGetScale(renderer, &scaleX, NULL);
+#if !SDL_VERSION_ATLEAST(2, 0, 18)
+	// TODO: dpi_scale?
+	float scaleX, scaleY;
+	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
 	*x = (T)(*x / scaleX);
-	*y = (T)(*y / scaleX);
+	*y = (T)(*y / scaleY);
 
 	SDL_Rect view;
 	SDL_RenderGetViewport(renderer, &view);
 	*x -= view.x;
 	*y -= view.y;
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	float wx, wy;
+	SDL_RenderWindowToLogical(renderer, x, y, &wx, &wy);
+	*x = (T)wx;
+	*y = (T)wy;
+#endif
+#else
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * SCREEN_WIDTH / surface->w;
 	*y = *y * SCREEN_HEIGHT / surface->h;
 #endif
@@ -94,33 +86,44 @@ void LogicalToOutput(T* x, T* y)
 #ifndef USE_SDL1
 	if (renderer == NULL)
 		return;
-	//SDL_Rect view;
-	//SDL_RenderGetViewport(renderer, &view);
-	//assert(view.x == 0 && view.y == 0);
-	//*x += view.x;
-	//*y += view.y;
-
+#if !SDL_VERSION_ATLEAST(2, 0, 18)
+	SDL_Rect view;
+	SDL_RenderGetViewport(renderer, &view);
+	*x += view.x;
+	*y += view.y;
 	float scaleX, scaleY;
 	SDL_RenderGetScale(renderer, &scaleX, &scaleY);
-	T xx = (T)(*x * scaleX);
-	if ((T)(xx / scaleX) != *x) {
-		xx++;
-	}
-	*x = xx;
-	T yy = (T)(*y * scaleY);
-	if ((T)(yy / scaleY) != *y) {
-		yy++;
-	}
-	*y = yy;
-	//*x = (T)(*x * scaleX);
-	//*y = (T)(*y * scaleX);
+#if 0
+	*x = (T)SDL_ceilf(*x * scaleX);
+	*y = (T)SDL_ceilf(*y * scaleY);
 #else
-	if (!OutputRequiresScaling())
-		return;
-	const SDL_Surface* surface = GetOutputSurface();
+	*x = (T)(*x * scaleX);
+	*y = (T)(*y * scaleY);
+#endif
+	// TODO: dpi_scale?
+#else
+	SDL_RenderLogicalToWindow(renderer, (float)*x, (float)*y, x, y);
+#endif
+#else
+	const SDL_Surface* surface = OutputSurfaceToScale();
+	if (surface == NULL) return;
 	*x = *x * surface->w / SCREEN_WIDTH;
 	*y = *y * surface->h / SCREEN_HEIGHT;
 #endif
+}
+
+#define SCALE_AREA(sw, sh, dw, dh, rw, rh) \
+{ \
+	unsigned long srcW = sw, srcH = sh, dstW = dw, dstH = dh; \
+	unsigned long mul0 = srcW * dstH; \
+	unsigned long mul1 = srcH * dstW; \
+	if (mul0 > mul1) { \
+		rw = dstW; \
+		rh = mul1 / srcW; \
+	} else { \
+		rw = mul0 / srcH; \
+		rh = dstH; \
+	} \
 }
 
 DEVILUTION_END_NAMESPACE

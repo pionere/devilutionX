@@ -6,23 +6,37 @@ using namespace dvl;
 TEST(Automap, InitAutomap)
 {
 	dvl::InitAutomapOnce();
-	EXPECT_EQ(dvl::automapflag, false);
-	EXPECT_EQ(dvl::AutoMapScale, 64);
-	EXPECT_EQ(dvl::AmLine64, 32);
-	EXPECT_EQ(dvl::AmLine32, 16);
-	EXPECT_EQ(dvl::AmLine16, 8);
+	EXPECT_EQ(dvl::gbAutomapflag, AMM_NONE);
+	EXPECT_EQ(dvl::AutoMapScale, 64u); // MAP_SCALE_NORMAL
+	EXPECT_EQ(dvl::IsAutomapActive(), false);
+	
+	// EXPECT_EQ(dvl::AmLine64, 32);
+	// EXPECT_EQ(dvl::AmLine32, 16);
+	// EXPECT_EQ(dvl::AmLine16, 8);
 }
 
 TEST(Automap, StartAutomap)
 {
+	dvl::InitAutomapOnce();
+
 	dvl::ToggleAutomap();
 	EXPECT_EQ(dvl::AutoMapXOfs, 0);
 	EXPECT_EQ(dvl::AutoMapYOfs, 0);
-	EXPECT_EQ(dvl::automapflag, true);
+	EXPECT_EQ(dvl::gbAutomapflag, AMM_MINI);
+	EXPECT_EQ(dvl::IsAutomapActive(), true);
+	dvl::ToggleAutomap();
+	EXPECT_EQ(dvl::gbAutomapflag, AMM_NORMAL);
+	EXPECT_EQ(dvl::IsAutomapActive(), true);
+	dvl::ToggleAutomap();
+	EXPECT_EQ(dvl::gbAutomapflag, AMM_NONE);
+	EXPECT_EQ(dvl::IsAutomapActive(), false);
 }
 
 TEST(Automap, AutomapUp)
 {
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapUp();
@@ -32,6 +46,9 @@ TEST(Automap, AutomapUp)
 
 TEST(Automap, AutomapDown)
 {
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapDown();
@@ -41,6 +58,9 @@ TEST(Automap, AutomapDown)
 
 TEST(Automap, AutomapLeft)
 {
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapLeft();
@@ -50,6 +70,9 @@ TEST(Automap, AutomapLeft)
 
 TEST(Automap, AutomapRight)
 {
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutoMapXOfs = 1;
 	dvl::AutoMapYOfs = 1;
 	dvl::AutomapRight();
@@ -59,56 +82,51 @@ TEST(Automap, AutomapRight)
 
 TEST(Automap, AutomapZoomIn)
 {
-	dvl::AutoMapScale = 64;
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutomapZoomIn();
-	EXPECT_EQ(dvl::AutoMapScale, 76);
-	EXPECT_EQ(dvl::AmLine64, 38);
-	EXPECT_EQ(dvl::AmLine32, 19);
-	EXPECT_EQ(dvl::AmLine16, 9);
+	EXPECT_EQ(dvl::AutoMapScale, 64u + 16);
+	EXPECT_EQ(dvl::MiniMapScale, 64u + 16);
 }
 
 TEST(Automap, AutomapZoomIn_Max)
 {
-	dvl::AutoMapScale = 244;
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutomapZoomIn();
 	dvl::AutomapZoomIn();
-	EXPECT_EQ(dvl::AutoMapScale, 256);
-	EXPECT_EQ(dvl::AmLine64, 128);
-	EXPECT_EQ(dvl::AmLine32, 64);
-	EXPECT_EQ(dvl::AmLine16, 32);
+	dvl::AutomapZoomIn();
+	dvl::AutomapZoomIn();
+	EXPECT_EQ(dvl::AutoMapScale, 64u + 16 * 4);
+	EXPECT_EQ(dvl::MiniMapScale, 64u + 16 * 4);
+	dvl::AutomapZoomIn();
+	EXPECT_EQ(dvl::AutoMapScale, 64u + 16 * 4);
+	EXPECT_EQ(dvl::MiniMapScale, 64u + 16 * 4);
 }
 
 TEST(Automap, AutomapZoomOut)
 {
-	dvl::AutoMapScale = 256;
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
+
 	dvl::AutomapZoomOut();
-	EXPECT_EQ(dvl::AutoMapScale, 244);
-	EXPECT_EQ(dvl::AmLine64, 122);
-	EXPECT_EQ(dvl::AmLine32, 61);
-	EXPECT_EQ(dvl::AmLine16, 30);
+	EXPECT_EQ(dvl::AutoMapScale, 64u - 16);
+	EXPECT_EQ(dvl::MiniMapScale, 64u - 16);
 }
 
 TEST(Automap, AutomapZoomOut_Min)
 {
-	dvl::AutoMapScale = 76;
-	dvl::AutomapZoomOut();
-	dvl::AutomapZoomOut();
-	EXPECT_EQ(dvl::AutoMapScale, 64);
-	EXPECT_EQ(dvl::AmLine64, 32);
-	EXPECT_EQ(dvl::AmLine32, 16);
-	EXPECT_EQ(dvl::AmLine16, 8);
-}
+	dvl::InitAutomapOnce();
+	dvl::ToggleAutomap();
 
-TEST(Automap, AutomapZoomReset)
-{
-	dvl::AutoMapScale = 64;
-	dvl::AutoMapXOfs = 1;
-	dvl::AutoMapYOfs = 1;
-	dvl::AutomapZoomReset();
-	EXPECT_EQ(dvl::AutoMapXOfs, 0);
-	EXPECT_EQ(dvl::AutoMapYOfs, 0);
-	EXPECT_EQ(dvl::AutoMapScale, 64);
-	EXPECT_EQ(dvl::AmLine64, 32);
-	EXPECT_EQ(dvl::AmLine32, 16);
-	EXPECT_EQ(dvl::AmLine16, 8);
+	dvl::AutomapZoomOut();
+	dvl::AutomapZoomOut();
+	dvl::AutomapZoomOut();
+	EXPECT_EQ(dvl::AutoMapScale, 64u - 16 * 3);
+	EXPECT_EQ(dvl::MiniMapScale, 64u - 16 * 3);
+	dvl::AutomapZoomOut();
+	EXPECT_EQ(dvl::AutoMapScale, 64u - 16 * 3);
+	EXPECT_EQ(dvl::MiniMapScale, 64u - 16 * 3);
 }

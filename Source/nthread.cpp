@@ -153,7 +153,7 @@ static void nthread_process_pending_turns()
 
 static int SDLCALL nthread_handler(void* data)
 {
-	int delta;
+	Sint32 delta;
 
 	while (_gbThreadLive) {
 		sgThreadMutex.Enter();
@@ -295,7 +295,7 @@ bool nthread_level_turn()
 			result = true;
 		} break;
 		case TS_LIVE: {
-			int delta = guNextTick - SDL_GetTicks();
+			Sint32 delta = guNextTick - SDL_GetTicks();
 			if (delta > 0) {
 				SDL_Delay(delta);
 			}
@@ -546,6 +546,8 @@ fail:
 		guDeltaTurn = 0;
 		// reset geBufferMsgs to normal (in case of failure)
 		geBufferMsgs = MSG_NORMAL;
+		// reset pfile timer
+		guLastSaveTurn = gdwGameLogicTurn;
 		// enter the dungeon level
 		PlayDungMsgs();
 		guLvlVisited |= LEVEL_MASK(currLvl._dLevelIdx);
@@ -566,19 +568,21 @@ fail:
 	gbLvlLoad = false;
 }
 
-bool nthread_has_50ms_passed()
+Sint32 nthread_ticks2gameturn()
 {
-	Uint32 currentTickCount;
-	int ticksElapsed;
+	Uint32 now;
+	Sint32 ticksRemaining;
 
-	currentTickCount = SDL_GetTicks();
-	ticksElapsed = currentTickCount - guNextTick;
+	now = SDL_GetTicks();
+	ticksRemaining = guNextTick - now;
+#if 0
 	// catch up if the host is too slow (only in local games)
-	if (IsLocalGame && ticksElapsed > (int)(10 * gnTickDelay)) {
-		guNextTick = currentTickCount;
-		ticksElapsed = 0;
+	if (IsLocalGame && (ticksRemaining + 8 * gnTickDelay) < 0) {
+		guNextTick = now;
+		ticksRemaining = 0;
 	}
-	return ticksElapsed >= 0;
+#endif
+	return ticksRemaining;
 }
 
 DEVILUTION_END_NAMESPACE

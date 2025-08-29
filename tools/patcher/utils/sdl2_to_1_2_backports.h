@@ -34,6 +34,8 @@
 #endif
 typedef int(SDLCALL* SDL_ThreadFunction)(void* data);
 
+#define SDL_TICKS_PASSED(A, B)  ((Sint32)((B) - (A)) <= 0)
+
 #define SDL_Keysym  SDL_keysym
 #define SDL_Keycode SDLKey
 #define SDL_Keymod  SDLMod

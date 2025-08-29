@@ -16,7 +16,7 @@ extern BYTE gbActivePlayers;
 extern bool gbSelectProvider;
 extern bool gbSelectHero;
 extern bool gbLoadGame;
-extern bool gbJoinGame;
+extern NONETCONST bool gbJoinGame;
 extern BYTE gbGameMode;
 extern turn_t guDeltaTurn;
 extern unsigned guSendGameDelta;
@@ -28,8 +28,8 @@ extern turn_t gdwGameLogicTurn;
 extern unsigned player_state[MAX_PLRS];
 
 void NetSendChunk(const BYTE* pbMsg, BYTE bLen);
-void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned bodySize);
-void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, BYTE len);
+void multi_send_large_msg(unsigned pmask, BYTE bCmd, unsigned wBytes);
+void multi_send_direct_msg(unsigned pmask, const BYTE* pbSrc, unsigned wLen);
 void multi_process_msgs();
 bool multi_handle_turn();
 void multi_send_turn_packet();
@@ -41,7 +41,7 @@ bool multi_check_timeout();
 void multi_rnd_seeds();
 void NetClose();
 bool NetInit(bool bSinglePlayer);
-void multi_recv_plrinfo_msg(int pnum, TMsgLarge* piMsg);
+void multi_recv_plrinfo_msg(int pnum, const TMsgLarge* piMsg);
 bool multi_plrinfo_received(int pnum);
 
 #ifdef NONET

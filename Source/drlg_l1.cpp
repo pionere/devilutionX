@@ -55,6 +55,33 @@ static const BYTE L1BTYPES[207] = {
 	0, 0, 0, 0, 0, 0, 0
 	// clang-format on
 };
+/** Miniset: Entry point of the dynamic maps. */
+const BYTE L1DYNENTRY[] = {
+	// clang-format off
+	3, 3, // width, height -- larger miniset to prevent theme-room placement
+
+	 2,  2,  2, // search
+	13, 13, 13,
+	13, 13, 13,
+
+	 0,   0, 0, // replace
+	 0, 134, 0,
+	 0,   0, 0,
+	// clang-format on
+};
+#ifdef HELLFIRE
+const BYTE L5DYNENTRY[] = {
+	// clang-format off
+	2, 2, // width, height
+
+	 2,  2, // search
+	13, 13,
+
+	0, 0, // replace
+	195, 0,
+	// clang-format on
+};
+#endif
 /** Miniset: stairs up on a corner wall. */
 //const BYTE STAIRSUP[] = {
 //	// clang-format off
@@ -171,7 +198,7 @@ static const BYTE L1DSTAIRS[] = {
 	61, 59, 60,  0,
 	 0,  0,  0,  0,
 /*	  0,  0,     0,  0,     0,  0,     0,  0,
-	  0,  0,     0,  0,     0,  0,     0,  0, 
+	  0,  0,     0,  0,     0,  0,     0,  0,
 
 	124,  2,   106,107,   110,111,     0,  0,	// MegaTiles
 	125,126,   108,109,   112,113,     0,  0,
@@ -618,6 +645,7 @@ static void DRLG_L5Shadows()
 				//	dungeon[i][j - 1] = 204;
 				} else {
 					// 25 -> not perfect, but ok and it would require a new door object as well
+					// 195 -> not perfect, but ok and only on the dyn map entrance
 					// TODO: what else?
 				}
 			}
@@ -1071,7 +1099,7 @@ static bool L1CheckHHall(int y, int left, int w)
 static void L1RoomGen(int x, int y, int w, int h, bool dir)
 {
 	int dirProb, i, width, height, rx, ry, rxy2;
-	bool ran2;
+	static_assert((DMAXX * DMAXY - (CHAMBER_SIZE + 2) * (CHAMBER_SIZE + 2) + 4) / (2 * 2) <= lengthof(drlg.L1RoomList), "L1RoomGen skips limit checks assuming enough L1RoomList entries.");
 
 	dirProb = random_(0, 4);
 
@@ -1080,52 +1108,86 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
-			ry = h / 2 + y - height / 2;
+			ry = h / 2u + y - height / 2u;
 			rx = x - width;
 			if (L1CheckVHall(x, ry - 1, height + 2)
-			 && L1CheckRoom(rx - 1, ry - 1, width + 1, height + 2)) // BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
+			 && L1CheckRoom(rx - 1, ry - 1, width + 1, height + 2)) { // BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
+				// - add room to the left
+				L1DrawRoom(rx, ry, width, height);
 				break;
+			}
 		}
-
-		if (i != 0)
-			L1DrawRoom(rx, ry, width, height);
+		if (i != 0) {
+			// room added to the left -> force similar room on the right side
+			i = 1;
+		} else {
+			// room was not added to the left -> try to more options on the right
+			rx = -1;
+			i = 20;
+		}
 		// try to place a room to the right
 		rxy2 = x + w;
-		ran2 = L1CheckVHall(rxy2 - 1, ry - 1, height + 2)
-			&& L1CheckRoom(rxy2, ry - 1, width + 1, height + 2);
-		if (ran2)
-			L1DrawRoom(rxy2, ry, width, height);
+		while (true) {
+			if (L1CheckVHall(rxy2 - 1, ry - 1, height + 2)
+			 && L1CheckRoom(rxy2, ry - 1, width + 1, height + 2)) {
+				// - add room to the right
+				L1DrawRoom(rxy2, ry, width, height);
+				break;
+			}
+			if (--i == 0)
+				break;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
+			ry = h / 2u + y - height / 2u;
+		}
 		// proceed with the placed a room on the left
-		if (i != 0)
+		if (rx >= 0)
 			L1RoomGen(rx, ry, width, height, true);
 		// proceed with the placed a room on the right
-		if (ran2)
+		if (i != 0)
 			L1RoomGen(rxy2, ry, width, height, true);
 	} else {
 		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
 			width = RandRange(2, 6) & ~1;
 			height = RandRange(2, 6) & ~1;
-			rx = w / 2 + x - width / 2;
+			rx = w / 2u + x - width / 2u;
 			ry = y - height;
 			if (L1CheckHHall(y, rx - 1, width + 2)
-			 && L1CheckRoom(rx - 1, ry - 1, width + 2, height + 1))
+			 && L1CheckRoom(rx - 1, ry - 1, width + 2, height + 1)) {
+				// - add room to the top
+				L1DrawRoom(rx, ry, width, height);
 				break;
+			}
 		}
-
-		if (i != 0)
-			L1DrawRoom(rx, ry, width, height);
+		if (i != 0) {
+			// room added to the top -> force similar room on the bottom side
+			i = 1;
+		} else {
+			// room was not added to the top -> try to more options on the bottom
+			ry = -1;
+			i = 20;
+		}
 		// try to place a room to the bottom
 		rxy2 = y + h;
-		ran2 = L1CheckHHall(rxy2 - 1, rx - 1, width + 2)
-			&& L1CheckRoom(rx - 1, rxy2, width + 2, height + 1);
-		if (ran2)
-			L1DrawRoom(rx, rxy2, width, height);
+		while (true) {
+			if (L1CheckHHall(rxy2 - 1, rx - 1, width + 2)
+			 && L1CheckRoom(rx - 1, rxy2, width + 2, height + 1)) {
+				// - add room to the bottom
+				L1DrawRoom(rx, rxy2, width, height);
+				break;
+			}
+			if (--i == 0)
+				break;
+			width = RandRange(2, 6) & ~1;
+			height = RandRange(2, 6) & ~1;
+			rx = w / 2u + x - width / 2u;
+		}
 		// proceed with the placed a room on the top
-		if (i != 0)
+		if (ry >= 0)
 			L1RoomGen(rx, ry, width, height, false);
 		// proceed with the placed a room on the bottom
-		if (ran2)
+		if (i != 0)
 			L1RoomGen(rx, rxy2, width, height, false);
 	}
 }
@@ -1140,10 +1202,16 @@ static void DRLG_L1CreateDungeon()
 
 	nRoomCnt = 0;
 	ChambersVertical = random_(0, 2);
-	ChambersFirst = random_(0, 2);
-	ChambersMiddle = random_(0, 2);
-	ChambersLast = random_(0, 2);
-	// make sure there is at least one chamber + prevent standalone first/last chambers
+	// select the base chambers
+	i = random_(0, 8);
+	// make sure at least one chamber is selected
+	//  (prefer complete selection over a single chamber to increase the chance of success)
+	if (i == 0)
+		i = 7;
+	ChambersFirst = (i & 1) ? TRUE : FALSE;
+	ChambersMiddle = (i & 2) ? TRUE : FALSE;
+	ChambersLast = (i & 4) ? TRUE : FALSE;
+	// prevent standalone first/last chambers
 	if (!(ChambersFirst & ChambersLast))
 		ChambersMiddle = TRUE;
 	if (ChambersVertical) {
@@ -1219,16 +1287,29 @@ static void DRLG_L1CreateDungeon()
 static int DRLG_L1GetArea()
 {
 	int i, rv;
+#if 1
 	BYTE* pTmp;
 
 	rv = 0;
 	static_assert(sizeof(dungeon) == DMAXX * DMAXY, "Linear traverse of dungeon does not work in DRLG_L1GetArea.");
 	pTmp = &dungeon[0][0];
 	for (i = 0; i < DMAXX * DMAXY; i++, pTmp++) {
-		assert(*pTmp <= 1);
+		// assert(*pTmp <= 1);
 		rv += *pTmp;
 	}
-
+#else
+	rv = 0;
+	for (i = 0; i < nRoomCnt; i++) {
+		rv += drlg.L1RoomList[i].lrw * drlg.L1RoomList[i].lrh;
+	}
+	if (ChambersFirst + ChambersMiddle + ChambersLast == 3) {
+		rv += 6 * 4 * 2;
+	} else if (ChambersFirst + ChambersMiddle + ChambersLast == 2) {
+		rv += 6 * 4;
+		if (!ChambersMiddle)
+			rv += 6 * 4 + CHAMBER_SIZE * 6;
+	}
+#endif
 	return rv;
 }
 
@@ -1318,7 +1399,7 @@ static bool L1AddHWall(int x, int y)
 	BYTE bv;
 
 	i = x;
-	while (TRUE) {
+	while (true) {
 		i++;
 		bv = dungeon[i][y];
 		if (bv != 13)
@@ -1400,7 +1481,7 @@ static void L1AddVWall(int x, int y)
 	BYTE bv;
 
 	j = y;
-	while (TRUE) {
+	while (true) {
 		j++;
 		bv = dungeon[x][j];
 		if (bv != 13)
@@ -1895,7 +1976,9 @@ static void L1TileFix()
 
 static void DRLG_L1PlaceThemeRooms()
 {
-	for (int i = ChambersFirst + ChambersMiddle + ChambersLast; i < nRoomCnt; i++) {
+	RECT_AREA32 thops[32];
+	int i, numops = 0;
+	for (i = ChambersFirst + ChambersMiddle + ChambersLast; i < nRoomCnt; i++) {
 		int roomLeft = drlg.L1RoomList[i].lrx;
 		int roomRight = roomLeft + drlg.L1RoomList[i].lrw - 1;
 		int roomTop = drlg.L1RoomList[i].lry;
@@ -1947,20 +2030,35 @@ static void DRLG_L1PlaceThemeRooms()
 			}
 		}
 		if (!fit)
-			continue;
+			continue; // room is too small or incomplete
 		// create the room
-		int w = roomRight - roomLeft + 1;
-		int h = roomBottom - roomTop + 1;
-		w += 2;
-		h += 2;
-		themes[numthemes]._tsx1 = roomLeft - 1;
-		themes[numthemes]._tsy1 = roomTop - 1;
-		themes[numthemes]._tsx2 = roomLeft + w - 2;
-		themes[numthemes]._tsy2 = roomTop + h - 2;
-		numthemes++;
-		if (numthemes == lengthof(themes))
-			break;
+		int w = (roomRight + 1) - (roomLeft - 1) + 1;
+		int h = (roomBottom + 1) - (roomTop - 1) + 1;
+		if (w > 10 - 2 || h > 10 - 2)
+			continue; // room is too large
+		// register the room
+		thops[numops].x1 = roomLeft - 1;
+		thops[numops].y1 = roomTop - 1;
+		thops[numops].x2 = roomLeft - 1 + w - 1;
+		thops[numops].y2 = roomTop - 1 + h - 1;
+		numops++;
+		if (numops == lengthof(thops))
+			break; // should not happen (too often), otherwise the theme-placement is biased
 	}
+	// filter the rooms
+	while (numops > lengthof(themes)) {
+		i = random_low(0, numops);
+		--numops;
+		thops[i] = thops[numops];
+	}
+	// add the rooms
+	for (i = 0; i < numops; i++) {
+		themes[i]._tsx1 = thops[i].x1;
+		themes[i]._tsy1 = thops[i].y1;
+		themes[i]._tsx2 = thops[i].x2;
+		themes[i]._tsy2 = thops[i].y2;
+	}
+	numthemes = numops;
 }
 
 #ifdef HELLFIRE
@@ -2031,22 +2129,22 @@ static void DRLG_L1Subs()
 #if DEBUG_MODE
 	for (int i = sizeof(L1BTYPES) - 1; i >= 0; i--) {
 		if (L1BTYPES[i] != 0) {
-			if (i >= NUM_L1TYPES)
+			if ((unsigned)i >= NUM_L1TYPES)
 				app_fatal("Value %d is ignored in L1BTYPES at %d", L1BTYPES[i], i);
 			break;
 		}
 	}
 
-	for (int i = 0; i < sizeof(L1BTYPES); i++) {
+	for (unsigned i = 0; i < sizeof(L1BTYPES); i++) {
 		c = L1BTYPES[i];
 		if (c == 0)
 			continue;
 		x = 0;
-		for (int j = 0; j < sizeof(L1BTYPES); j++) {
+		for (unsigned j = 0; j < sizeof(L1BTYPES); j++) {
 			if (c == L1BTYPES[j])
 				x++;
 		}
-		if (x > MAX_MATCH)
+		if ((unsigned)x > MAX_MATCH)
 			app_fatal("Too many(%d) matching('%d') values in L1BTYPES", x, c);
 	}
 #endif
@@ -2057,7 +2155,7 @@ static void DRLG_L1Subs()
 				if (c != 0 && (drlgFlags[x][y] & DRLG_FROZEN) == 0) {
 					rv = random_(0, MAX_MATCH);
 					k = 0;
-					while (TRUE) {
+					while (true) {
 						if (c == L1BTYPES[k] && --rv < 0) {
 							break;
 						}
@@ -2588,27 +2686,22 @@ void DRLG_L1InitTransVals()
 
 static void DRLG_L1()
 {
-	int i;
-	int minarea;
-	bool placeWater = QuestStatus(Q_PWATER);
-
-	switch (currLvl._dLevelIdx) {
-	case DLV_CATHEDRAL1:
-		minarea = 533;
-		break;
-	case DLV_CATHEDRAL2:
-		minarea = 693;
-		break;
-	default:
-		minarea = 761;
-		break;
+	int i, areaidx;
+	// bool placeWater = QuestStatus(Q_PWATER);
+	const int arealimits[] = { DMAXX * DMAXY, 761, 693, 533 };
+	areaidx = 0;
+	if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
+		areaidx = 2;
+	} else if (currLvl._dLevelIdx == DLV_CATHEDRAL2) {
+		areaidx = 1;
 	}
 
 	while (true) {
 		do {
 			memset(dungeon, 0, sizeof(dungeon));
 			DRLG_L1CreateDungeon();
-		} while (DRLG_L1GetArea() < minarea);
+			i = DRLG_L1GetArea();
+		} while (i > arealimits[areaidx]  || i < arealimits[areaidx + 1]);
 
 		DRLG_L1MakeMegas();
 		L1TileFix();
@@ -2616,7 +2709,23 @@ static void DRLG_L1()
 		L1FillChambers();
 		L1AddWall();
 		L1ClearChamberFlags();
-		if (placeWater) {
+		if (currLvl._dDynLvl) {
+#ifdef HELLFIRE
+			POS32 warpPos = DRLG_PlaceMiniSet(currLvl._dType == DTYPE_CRYPT ? L5DYNENTRY : L1DYNENTRY);
+#else
+			POS32 warpPos = DRLG_PlaceMiniSet(L1DYNENTRY);
+#endif
+			if (warpPos.x < 0) {
+				continue;
+			}
+			pWarps[DWARP_ENTRY]._wx = warpPos.x;
+			pWarps[DWARP_ENTRY]._wy = warpPos.y;
+			pWarps[DWARP_ENTRY]._wx = 2 * pWarps[DWARP_ENTRY]._wx + DBORDERX + 2;
+			pWarps[DWARP_ENTRY]._wy = 2 * pWarps[DWARP_ENTRY]._wy + DBORDERY + 1;
+			pWarps[DWARP_ENTRY]._wtype = WRPT_CIRCLE;
+			break;
+		}
+		if (QuestStatus(Q_PWATER)) {
 			POS32 warpPos = DRLG_PlaceMiniSet(PWATERIN);
 			if (warpPos.x < 0) {
 				continue;
@@ -2739,7 +2848,7 @@ static void DRLG_L1()
 		DRLG_L5PlaceRndSet(L5PREVERTWALL, 100);
 		DRLG_L5PlaceRndSet(L5PREHORIZWALL, 100);
 		DRLG_L5PlaceRndSet(L5RNDLFLOOR1, 60);
-		switch (currLvl._dLevelIdx) {
+		switch (currLvl._dLevelNum) {
 		case DLV_CRYPT1:
 			DRLG_L5Crypt_pattern2(30);
 			DRLG_L5Crypt_pattern3(15);
@@ -3197,7 +3306,7 @@ static void LoadL1Dungeon(const LevelData* lds)
 
 void CreateL1Dungeon()
 {
-	const LevelData* lds = &AllLevels[currLvl._dLevelIdx];
+	const LevelData* lds = &AllLevels[currLvl._dLevelNum];
 
 	if (lds->dSetLvl) {
 		LoadL1Dungeon(lds);

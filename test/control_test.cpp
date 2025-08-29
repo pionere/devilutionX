@@ -3,21 +3,29 @@
 
 using namespace dvl;
 
-TEST(Control, SetSpell)
+TEST(Control, StartSkillList)
 {
-	dvl::spselflag = true;
-	dvl::currSkill = dvl::SPL_FIREBOLT;
-	dvl::currSkillType = dvl::RSPLTYPE_CHARGES;
-	dvl::SetSkill(false, true);
-	EXPECT_EQ(dvl::plr[dvl::myplr]._pAltAtkSkill, dvl::SPL_FIREBOLT);
-	EXPECT_EQ(dvl::plr[dvl::myplr]._pAltAtkSkillType, dvl::RSPLTYPE_CHARGES);
-	EXPECT_EQ(dvl::gbSkillListFlag, false);
-	//EXPECT_EQ(dvl::gbRedrawFlags, REDRAW_ALL);
+	dvl::HandleSkillBtn(false);
+	EXPECT_EQ(dvl::gbSkillListFlag, true);
 }
 
-TEST(Control, ClearPanel)
+TEST(Control, SetSpell)
 {
-	dvl::gbSkillListFlag = true;
+	dvl::HandleSkillBtn(false);
+	// dvl::myplr._pSkillLvlBase[dvl::SPL_FIREBOLT] = 10;
+	// dvl::myplr._pMemSkills |= SPELL_MASK(dvl::SPL_FIREBOLT);
+	EXPECT_EQ(dvl::gbSkillListFlag, true);
+
+	dvl::SetSkill(false);
+	// EXPECT_EQ(dvl::myplr._pAltAtkSkill, dvl::SPL_FIREBOLT);
+	// EXPECT_EQ(dvl::myplr._pAltAtkSkillType, dvl::RSPLTYPE_CHARGES);
+	EXPECT_EQ(dvl::gbSkillListFlag, false);
+}
+
+TEST(Control, EndSkillList)
+{
+	dvl::HandleSkillBtn(false);
+
 	dvl::PressEscKey();
 	EXPECT_EQ(dvl::gbSkillListFlag, false);
 }

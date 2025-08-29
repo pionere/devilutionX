@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SDLDEV_VERS=2.30.3
+SDLDEV_VERS=2.30.10
 SDLTTF_VERS=2.0.15
 SDLMIXER_VERS=2.0.4
 SODIUM_VERS=1.0.20
@@ -43,7 +43,8 @@ tar -xzf SDL2-devel-${SDLDEV_VERS}-mingw.tar.gz
 #tar -xzf SDL2_ttf-devel-${SDLTTF_VERS}-mingw.tar.gz
 #wget -q https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz -OSDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz
 #tar -xzf SDL2_mixer-devel-${SDLMIXER_VERS}-mingw.tar.gz
-$SUDO cp -r SDL2*/${MINGW_ARCH}/* ${MINGW_PREFIX}
+sed -i '/$(CROSS_PATH)\/cmake/ s/^/#/' SDL2*/Makefile
+CROSS_PATH=/usr ARCHITECTURES=${MINGW_ARCH} $SUDO make -eC SDL2*/ cross
 
 wget -q https://github.com/jedisct1/libsodium/releases/download/${SODIUM_VERS}-RELEASE/libsodium-${SODIUM_VERS}-mingw.tar.gz -Olibsodium-${SODIUM_VERS}-mingw.tar.gz
 tar -xzf libsodium-${SODIUM_VERS}-mingw.tar.gz --no-same-owner

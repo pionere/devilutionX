@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 extern bool selconn_bMulti;
+extern int provider;
 
 #ifdef __cplusplus
 }
