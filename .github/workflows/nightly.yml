@@ -570,7 +570,7 @@ jobs:
         sudo apt-get install -y gettext
 
     - name: set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -1026,6 +1026,109 @@ jobs:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx.nro
 
+  # xbox-builds
+  build_xbox:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-XBOX
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-xbox.zip'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-xbox.zip'
+    runs-on: ubuntu-24.04
+    env:
+      NXDK_DIR: /opt/nxdk
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-tags: true
+        #fetch-depth: 0
+
+    - name: Create Build Environment
+      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git
+
+    - name: Clone NXDK Repo
+      shell: bash
+      run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
+    #- name: Clone NXDK Repo
+    #  uses: actions/checkout@v5
+    #  with:
+    #    repository: XboxDev/nxdk
+    #    path: "$NXDK_DIR"
+
+    - name: Build NXDK
+      shell: bash
+      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=1 LTO=1 all cxbe
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DNXDK=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cmake --build build-xbox -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
+
+    - name: Upload-Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: build-xbox/devilutionx.zip
+
+  build_xboxone:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-XBOXONE
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-xboxone.zip'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-xboxone.zip'
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-tags: true
+        #fetch-depth: 0
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+
+    - name: Configure git
+      shell: cmd
+      run: |
+        git config --global core.filemode false
+        git config --global core.autocrlf false
+
+    - name: Build
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: |
+        Packaging\xbox-one\build.bat ${{ matrix.cmakeargs }}
+
+    - name: Upload-Package
+      if: ${{ !env.ACT }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ${{ env.buildDir }}/devilutionx.zip
+
   # amiga-builds
   build_amiga:
     needs: build_check
@@ -1075,7 +1178,7 @@ jobs:
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_amiga]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_xbox, build_xboxone, build_amiga]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
@@ -1407,6 +1510,32 @@ jobs:
         name: hellfire-nightly-switch.nro
     - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
 
+    # xbox-builds
+    - name: Download a diablo xbox artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: diablo-nightly-xbox.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-xbox.zip
+
+    - name: Download a hellfire xbox artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: hellfire-nightly-xbox.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-xbox.zip
+
+    # xboxone-builds
+    - name: Download a diablo xboxone artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: diablo-nightly-xboxone.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-xboxone.zip
+
+    - name: Download a hellfire xboxone artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: hellfire-nightly-xboxone.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-xboxone.zip
+
     # amiga-builds
     - name: Download a diablo amiga artifact
       uses: actions/download-artifact@v5
@@ -1483,6 +1612,14 @@ jobs:
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-switch.nro">switch.nro</a></td>'             >> RELEASE_NOTE.md
         echo '<td align=center><code>Nintendo Switch</code></td>'                                                                          >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-switch.nro">switch.nro</a></td>'           >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-xbox.zip">xbox.zip</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td align=center><code>XBOX</code></td>'                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-xbox.zip">xbox.zip</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-xboxone.zip">xboxone.zip</a></td>'           >> RELEASE_NOTE.md
+        echo '<td align=center><code>XBOXONE/SERIES</code></td>'                                                                           >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-xboxone.zip">xboxone.zip</a></td>'         >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-amiga">amiga</a></td>'                       >> RELEASE_NOTE.md
         echo '<td align=center><code>Amiga</code></td>'                                                                                    >> RELEASE_NOTE.md
@@ -1580,6 +1717,8 @@ jobs:
           ${{github.workspace}}/diablo-nightly-3ds.3dsx
           ${{github.workspace}}/diablo-nightly-3ds.cia
           ${{github.workspace}}/diablo-nightly-switch.nro
+          ${{github.workspace}}/diablo-nightly-xbox.zip
+          ${{github.workspace}}/diablo-nightly-xboxone.zip
           ${{github.workspace}}/diablo-nightly-amiga
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
@@ -1605,6 +1744,8 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-3ds.3dsx
           ${{github.workspace}}/hellfire-nightly-3ds.cia
           ${{github.workspace}}/hellfire-nightly-switch.nro
+          ${{github.workspace}}/hellfire-nightly-xbox.zip
+          ${{github.workspace}}/hellfire-nightly-xboxone.zip
           ${{github.workspace}}/hellfire-nightly-amiga
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip

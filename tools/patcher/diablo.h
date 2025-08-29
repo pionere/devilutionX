@@ -24,6 +24,10 @@ void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 bool PressEscKey();
 
+#ifdef __UWP__
+void setOnInitialized(void (*)());
+#endif
+
 #ifdef __cplusplus
 }
 #endif
