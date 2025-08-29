@@ -174,8 +174,7 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw-prep.sh
 
     - name: Configure CMake
@@ -222,8 +221,7 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev dpkg-dev wget git sudo &&
-        sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw-prep64.sh
 
     - name: Configure CMake
@@ -270,8 +268,7 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw9x-prep.sh
 
     - name: Configure CMake
@@ -318,8 +315,7 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw-prep.sh
 
     - name: Configure CMake
