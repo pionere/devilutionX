@@ -1,6 +1,6 @@
 CtrlPan\Golddrop.cel
 CtrlPan\Flasks.CEL
-CtrlPan\Menu.CEL
+_CtrlPan\Menu.CEL
 _CtrlPan\P8Bulbs.CEL
 _CtrlPan\P8But2.CEL
 _CtrlPan\Panel8.CEL

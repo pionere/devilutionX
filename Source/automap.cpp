@@ -120,7 +120,7 @@ void ToggleAutomap()
 /**
  * @brief Scrolls the automap upwards.
  */
-void AutomapUp()
+static void AutomapUp()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 0, -2);
 }
@@ -128,7 +128,7 @@ void AutomapUp()
 /**
  * @brief Scrolls the automap downwards.
  */
-void AutomapDown()
+static void AutomapDown()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 0, 2);
 }
@@ -136,7 +136,7 @@ void AutomapDown()
 /**
  * @brief Scrolls the automap leftwards.
  */
-void AutomapLeft()
+static void AutomapLeft()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, -2, 0);
 }
@@ -144,9 +144,20 @@ void AutomapLeft()
 /**
  * @brief Scrolls the automap rightwards.
  */
-void AutomapRight()
+static void AutomapRight()
 {
 	SHIFT_GRID(AutoMapXOfs, AutoMapYOfs, 2, 0);
+}
+
+void AutomapMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    AutomapUp();    break;
+	case MDIR_DOWN:  AutomapDown();  break;
+	case MDIR_LEFT:  AutomapLeft();  break;
+	case MDIR_RIGHT: AutomapRight(); break;
+	default: ASSUME_UNREACHABLE;     break;
+	}
 }
 
 /**
@@ -154,7 +165,7 @@ void AutomapRight()
  */
 void AutomapZoomIn()
 {
-	if (AutoMapScale < MAP_SCALE_MAX) {
+	if (gbAutomapflag != AMM_NONE && AutoMapScale < MAP_SCALE_MAX) {
 		AutoMapScale += 16;
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
@@ -173,7 +184,7 @@ void AutomapZoomIn()
  */
 void AutomapZoomOut()
 {
-	if (AutoMapScale > MAP_SCALE_MIN) {
+	if (gbAutomapflag != AMM_NONE && AutoMapScale > MAP_SCALE_MIN) {
 		AutoMapScale -= 16;
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
@@ -284,8 +295,8 @@ static void SearchAutomapItem()
 	int i, j;
 	unsigned d16 = AmLine16;
 
-	x = AutoMapXOfs + ViewX;
-	y = AutoMapYOfs + ViewY;
+	x = AutoMapXOfs + myview.x;
+	y = AutoMapYOfs + myview.y;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
@@ -436,7 +447,7 @@ static void DrawAutomapContent()
 	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
-	mapx = ViewX & ~1;
+	mapx = myview.x & ~1;
 	mapx += AutoMapXOfs;
 	if (mapx < DBORDERX) {
 		AutoMapXOfs -= mapx - DBORDERX;
@@ -446,7 +457,7 @@ static void DrawAutomapContent()
 		mapx = DBORDERX + (DSIZEX - 2);
 	}
 
-	mapy = ViewY & ~1;
+	mapy = myview.y & ~1;
 	mapy += AutoMapYOfs;
 	if (mapy < DBORDERY) {
 		AutoMapYOfs -= mapy - DBORDERY;
@@ -497,11 +508,11 @@ static void DrawAutomapContent()
 		sx += (d64 >> 1);
 		sy -= (d64 >> 2);
 	}*/
-	if (ViewX & 1) {
+	if (myview.x & 1) {
 		sx -= (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
-	if (ViewY & 1) {
+	if (myview.y & 1) {
 		sx += (d64 >> 2);
 		sy -= (d64 >> 3);
 	}

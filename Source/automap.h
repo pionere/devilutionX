@@ -49,24 +49,9 @@ bool IsAutomapActive();
 void ToggleAutomap();
 
 /**
- * @brief Scrolls the automap upwards.
+ * @brief Scrolls the automap in the desired direction (_menu_direction).
  */
-void AutomapUp();
-
-/**
- * @brief Scrolls the automap downwards.
- */
-void AutomapDown();
-
-/**
- * @brief Scrolls the automap leftwards.
- */
-void AutomapLeft();
-
-/**
- * @brief Scrolls the automap rightwards.
- */
-void AutomapRight();
+void AutomapMove(int dir);
 
 /**
  * @brief Increases the zoom level of the automap.

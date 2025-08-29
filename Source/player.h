@@ -17,7 +17,7 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
-extern int mypnum;
+extern NONETCONST int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern bool gbLvlLoad;
 

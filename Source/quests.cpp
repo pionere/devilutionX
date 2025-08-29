@@ -351,7 +351,7 @@ static void PrintQLString(int px, int py, unsigned y, const char* str)
 	tx = sx;
 	sx = PrintLimitedString(sx, sy, str, QPNL_LINE_WIDTH, COL_WHITE, FONT_KERN_SMALL);
 	if (qline == y) {
-		DrawSmallPentSpn(tx - FOCUS_SMALL, sx + 6, sy + 1);
+		DrawSmallPentSpn(tx - (FOCUS_MINI + 8), sx + 6, sy + 1);
 	}
 }
 
@@ -388,7 +388,7 @@ void StartQuestlog()
 	qline = qtopline = numqlines != 0 ? (QPNL_MAXENTRIES / 2) - (numqlines >> 1) : QPNL_MAXENTRIES;
 }
 
-void QuestlogUp()
+static void QuestlogUp()
 {
 	if (numqlines != 0) {
 		if (qline == qtopline) {
@@ -402,7 +402,7 @@ void QuestlogUp()
 	}
 }
 
-void QuestlogDown()
+static void QuestlogDown()
 {
 	if (numqlines != 0) {
 		if (qline == QPNL_MAXENTRIES) {
@@ -425,11 +425,22 @@ void QuestlogEnter()
 		ToggleWindow(WND_QUEST);
 }
 
-void CheckQuestlogClick()
+void QuestlogMove(int dir)
+{
+	switch (dir) {
+	case MDIR_UP:    QuestlogUp();    break;
+	case MDIR_DOWN:  QuestlogDown();  break;
+	case MDIR_LEFT:  ToggleWindow(WND_QUEST);  break;
+	case MDIR_RIGHT: QuestlogEnter(); break;
+	default: ASSUME_UNREACHABLE;   break;
+	}
+}
+
+void CheckQuestlogClick(bool altAction)
 {
 	int y;
 
-	y = (MousePos.y - (gnWndQuestY + QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1;
+	y = !altAction ? (MousePos.y - (gnWndQuestY + QPNL_BORDER + QPNL_TEXT_HEIGHT / 2) + QPNL_LINE_SPACING / 2 + QPNL_LINE_SPACING) / QPNL_LINE_SPACING - 1 : QPNL_MAXENTRIES;
 	if (y != QPNL_MAXENTRIES) {
 		if ((unsigned)(y - qtopline) >= numqlines) {
 			StartWndDrag(WND_QUEST);

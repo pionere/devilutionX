@@ -47,6 +47,10 @@ void GameWndProc(const Dvl_Event* event);
 void DisableInputWndProc(const Dvl_Event* event);
 void game_logic();
 
+#ifdef __UWP__
+void setOnInitialized(void (*)());
+#endif
+
 #ifdef __cplusplus
 }
 #endif

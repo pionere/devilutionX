@@ -27,8 +27,10 @@ jobs:
             artifact: 'hellfire-push-mingp.zip'
 
     steps:
-    - uses: actions/checkout@v4
-      #with:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-tags: true
       #  fetch-depth: 0
 
     - name: Create Build Environment

@@ -1166,8 +1166,8 @@ void NetSendCmdJoinLevel()
 
 	cmd.bCmd = CMD_JOINLEVEL;
 	cmd.lLevel = myplr._pDunLevel;
-	cmd.px = ViewX;
-	cmd.py = ViewY;
+	cmd.px = myview.x;
+	cmd.py = myview.y;
 	cmd.php = myplr._pHPBase;
 	cmd.pmp = myplr._pManaBase;
 	cmd.lTimer1 = myplr._pTimer[PLTR_INFRAVISION];
@@ -2705,7 +2705,7 @@ static unsigned On_NEWLVL(const TCmd* pCmd, int pnum)
 	bPlayers = cmd->bPlayers;
 
 	net_assert(bLevel < NUM_LEVELS);
-	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
+	net_assert(bPlayers > 0 && bPlayers <= MAX_PLRS);
 	if (gsDeltaData.ddLevelPlrs[bLevel] == 0) {
 		gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
 	}

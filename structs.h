@@ -314,11 +314,21 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Ali
 static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #endif
 
+typedef struct PlrSkillUse {
+	BYTE _suSkill; // spell_id
+	BYTE _suType;  // spell_type
+	bool operator==(const PlrSkillUse & oval) const {
+		//return _suSkill == oval._suSkill && _suType == oval._suType;
+		return *(uint16_t*)&_suSkill == *(uint16_t*)&oval._suSkill;
+	};
+	bool operator!=(const PlrSkillUse & oval) const {
+		return !(*this == oval);
+	};
+} PlrSkillUse;
+
 typedef struct PlrSkillStruct {
-	BYTE _psAttack;   // attack skill (spell_id)
-	BYTE _psAtkType;  // the (RSPLTYPE_)type of the attack skill
-	BYTE _psMove;     // the movement skill (spell_id)
-	BYTE _psMoveType; // the (RSPLTYPE_)type of the movement skill
+	PlrSkillUse _psAttack; // attack skill
+	PlrSkillUse _psMove;   // the movement skill
 } PlrSkillStruct;
 static_assert(sizeof(PlrSkillStruct) == 4 * sizeof(BYTE), "PlrSkillStruct is not packed tightly");
 
@@ -1470,6 +1480,13 @@ typedef struct LSavePortalStruct {
 typedef struct CmdSkillUse {
 	BYTE skill;
 	int8_t from;
+	bool operator==(const CmdSkillUse & oval) const {
+		//return skill == oval.skill && from == oval.from;
+		return *(uint16_t*)&skill == *(uint16_t*)&oval.skill;
+	};
+	bool operator!=(const CmdSkillUse & oval) const {
+		return !(*this == oval);
+	};
 } CmdSkillUse;
 
 typedef struct TCmd {
