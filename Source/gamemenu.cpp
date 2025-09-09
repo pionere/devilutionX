@@ -180,11 +180,12 @@ static void gamemenu_save_game(bool bActivate)
 	assert(saveProc == GameWndProc);
 	gamemenu_off();
 	// NewCursor(CURSOR_NONE);
-	InitDiabloMsg(EMSG_SAVING);
+	// InitDiabloMsg(EMSG_SAVING);
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	scrollrt_render_game();
 	SaveGame();
-	ClrDiabloMsg();
+	// ClrDiabloMsg();
+	EventPlrMsg("Game saved.");
 	// InitLevelCursor();
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	interface_msg_pump();
