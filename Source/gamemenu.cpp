@@ -128,6 +128,10 @@ void gamemenu_on()
 	}
 	// pause game
 	diablo_pause_game(true);
+	// if (gbRunGame) {
+		//  stop repeating the action
+		gbActionBtnDown = 0;
+	// }
 }
 
 void gamemenu_off()
