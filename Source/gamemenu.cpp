@@ -126,12 +126,15 @@ void gamemenu_on()
 	} else {
 		gamemenu_large();
 	}
-	PressEscKey();
+	// pause game
+	diablo_pause_game(true);
 }
 
 void gamemenu_off()
 {
 	gmenu_set_items(NULL, 0, NULL);
+	// resume game
+	diablo_pause_game(false);
 }
 
 static void gamemenu_previous(bool bActivate)
