@@ -682,7 +682,7 @@ static void ActionBtnDown(bool altAction)
 
 void diablo_pause_game(bool pause)
 {
-	if (!IsMultiGame && pause != (gnGamePaused != 0)) {
+	if (!IsMultiGame && gbRunGame && pause != (gnGamePaused != 0)) {
 		Uint32 now = SDL_GetTicks();
 		if (pause) {
 			if (now == 0)

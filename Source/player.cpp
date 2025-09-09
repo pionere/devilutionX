@@ -2427,6 +2427,9 @@ static void PlrDoDeath(int pnum)
 			if (pnum == mypnum) {
 				gbDeathflag = MDM_DEAD;
 				if (!IsMultiGame) {
+					// close temporary windows
+					PressEscKey();
+					// activate the menu
 					gamemenu_on();
 				}
 			}

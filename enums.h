@@ -3515,8 +3515,6 @@ typedef enum dungeon_message2 {
 typedef enum diablo_message {
 	EMSG_NONE,
 	EMSG_DESYNC,
-	EMSG_LOADING,
-	EMSG_SAVING,
 	EMSG_SHRINE_HIDDEN,
 	EMSG_SHRINE_GLOOMY,
 	EMSG_SHRINE_WEIRD,
