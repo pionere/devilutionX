@@ -79,7 +79,7 @@ public class SDLAudioManager {
         Log.v(TAG, "Opening " + (isCapture ? "capture" : "playback") + ", requested " + desiredFrames + " frames of " + desiredChannels + " channel " + getAudioFormatString(audioFormat) + " audio at " + sampleRate + " Hz");
 
         /* On older devices let's use known good settings */
-        if (Build.VERSION.SDK_INT < 21 /* Android 5.0 (LOLLIPOP) */) {
+        if (false /* Build.VERSION.SDK_INT < 21  Android 5.0 (LOLLIPOP) */) {
             if (desiredChannels > 2) {
                 desiredChannels = 2;
             }
@@ -360,7 +360,7 @@ public class SDLAudioManager {
             return;
         }
 
-        if (android.os.Build.VERSION.SDK_INT < 21 /* Android 5.0 (LOLLIPOP) */) {
+        if (false /* Build.VERSION.SDK_INT < 21  Android 5.0 (LOLLIPOP) */) {
             Log.e(TAG, "Attempted to make an incompatible audio call with uninitialized audio! (floating-point output is supported since Android 5.0 Lollipop)");
             return;
         }
