@@ -109,8 +109,7 @@
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLAudioManager {
     # SDL to JNI interface
-    int[] getAudioOutputDevices();
-    int[] getAudioInputDevices();
+    void audioDetectDevices();
     int[] audioOpen(int, int, int, int, int);
     void audioWriteFloatBuffer(float[]);
     void audioWriteShortBuffer(short[]);
