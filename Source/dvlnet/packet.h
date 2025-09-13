@@ -102,7 +102,7 @@ public:
 
 	const buffer_t& encrypted_data() const;
 
-#if DEV_MODE || INET_MODE
+#if DEV_MODE || INET_MODE || DEBUG_MODE
 	bool validate();
 #endif
 

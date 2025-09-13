@@ -195,16 +195,17 @@ void SpawnWindow()
 #ifndef NOSOUND
 	initFlags |= SDL_INIT_AUDIO;
 #endif
-#if HAS_JOYSTICK
+/*#if HAS_JOYSTICK
 	initFlags |= SDL_INIT_JOYSTICK;
 #endif
 #if !defined(USE_SDL1) && (HAS_GAMECTRL || HAS_KBCTRL || HAS_DPAD)
 	initFlags |= SDL_INIT_GAMECONTROLLER;
-#endif
+#endif*/
+	LogErrorF("SpawnWindow 0");
 	if (SDL_Init(initFlags) < 0) {
 		sdl_error(ERR_SDL_INIT);
 	}
-
+	LogErrorF("SpawnWindow 1");
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 	dpad_hotkeys = getIniBool("Controller", "dpad_hotkeys", false);
 	switch_potions_and_clicks = getIniBool("Controller", "switch_potions_and_clicks", false);

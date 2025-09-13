@@ -172,9 +172,9 @@ static void diablo_init()
 {
 	InitPaths();
 	InitConfig();
-
+	LogErrorF("diablo_init 0");
 	dx_init(); // inititalize SDL + create the window
-
+	LogErrorF("diablo_init 1");
 	InitArchives();
 #if DEBUG_MODE || DEV_MODE
 	ValidateData();
@@ -253,10 +253,11 @@ void setOnInitialized(void (*callback)())
 
 int DiabloMain(int argc, char** argv)
 {
+	LogErrorF("DiabloMain 0");
 	int res = diablo_parse_flags(argc, argv);
 	if (res != EX_OK)
 		return res - 1;
-
+	LogErrorF("DiabloMain 1");
 	diablo_init();
 
 #ifdef __UWP__

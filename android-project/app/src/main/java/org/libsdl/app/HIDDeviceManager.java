@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import android.graphics.Color;
+
 public class HIDDeviceManager {
     private static final String TAG = "hidapi";
     private static final String ACTION_USB_PERMISSION = "org.libsdl.app.USB_PERMISSION";
@@ -106,6 +108,23 @@ public class HIDDeviceManager {
         mContext = context;
 
         HIDDeviceRegisterCallback();
+        /*{
+        int flags = 0;
+        String[] buttonTexts = new String[] { "next" };
+        String title = "init";
+        String message = "step initialize 10";
+        int[] buttonIds = new int[] { 0 };
+        int[] buttonFlags = new int[] { 3 };
+        int[] colors = new int[] { Color.RED, Color.BLACK,  Color.YELLOW, Color.WHITE, Color.GREEN };
+        ((SDLActivity)mContext).messageboxShowMessageBox(
+            flags,
+            title,
+            message,
+            buttonFlags,
+            buttonIds,
+            buttonTexts,
+            null);
+        }*/
 
         mSharedPreferences = mContext.getSharedPreferences("hidapi", Context.MODE_PRIVATE);
         mIsChromebook = mContext.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
@@ -685,14 +704,14 @@ public class HIDDeviceManager {
     /////////////// Native methods
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private native void HIDDeviceRegisterCallback();
-    private native void HIDDeviceReleaseCallback();
+    public native void HIDDeviceRegisterCallback();
+    public native void HIDDeviceReleaseCallback();
 
-    native void HIDDeviceConnected(int deviceID, String identifier, int vendorId, int productId, String serial_number, int release_number, String manufacturer_string, String product_string, int interface_number, int interface_class, int interface_subclass, int interface_protocol);
-    native void HIDDeviceOpenPending(int deviceID);
-    native void HIDDeviceOpenResult(int deviceID, boolean opened);
-    native void HIDDeviceDisconnected(int deviceID);
+    public native void HIDDeviceConnected(int deviceID, String identifier, int vendorId, int productId, String serial_number, int release_number, String manufacturer_string, String product_string, int interface_number, int interface_class, int interface_subclass, int interface_protocol);
+    public native void HIDDeviceOpenPending(int deviceID);
+    public native void HIDDeviceOpenResult(int deviceID, boolean opened);
+    public native void HIDDeviceDisconnected(int deviceID);
 
-    native void HIDDeviceInputReport(int deviceID, byte[] report);
-    native void HIDDeviceFeatureReport(int deviceID, byte[] report);
+    public native void HIDDeviceInputReport(int deviceID, byte[] report);
+    public native void HIDDeviceFeatureReport(int deviceID, byte[] report);
 }

@@ -417,6 +417,23 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         setWindowStyle(false);
 
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
+		/*{
+		int flags = 0;
+        String[] buttonTexts = new String[] { "next" };
+        String title = "init";
+        String message = "step initialize 10";
+        int[] buttonIds = new int[] { 0 };
+        int[] buttonFlags = new int[] { 3 };
+        int[] colors = new int[] { Color.RED, Color.BLACK,  Color.YELLOW, Color.WHITE, Color.GREEN };
+        messageboxShowMessageBox(
+            flags,
+            title,
+            message,
+            buttonFlags,
+            buttonIds,
+            buttonTexts,
+            null);
+		}*/
 
         // Get filename from "Open with" of another application
         Intent intent = getIntent();
@@ -903,8 +920,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
     // C functions we call
     public static native String nativeGetVersion();
-    public static native int nativeSetupJNI();
-    public static native int nativeRunMain(String library, String function, Object arguments);
+    public static native void nativeSetupJNI();
+    public static native void nativeRunMain(String library, String function, Object arguments);
     public static native void nativeLowMemory();
     public static native void nativeSendQuit();
     public static native void nativeQuit();

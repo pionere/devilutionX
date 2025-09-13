@@ -25,8 +25,8 @@
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLActivity {
     # JNI to SDL interface
     java.lang.String nativeGetVersion();
-    int nativeSetupJNI();
-    int nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
+    void nativeSetupJNI();
+    void nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
     void nativeLowMemory();
     void nativeSendQuit();
     void nativeQuit();
@@ -109,8 +109,7 @@
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLAudioManager {
     # SDL to JNI interface
-    int[] getAudioOutputDevices();
-    int[] getAudioInputDevices();
+    void audioDetectDevices();
     int[] audioOpen(int, int, int, int, int);
     void audioWriteFloatBuffer(float[]);
     void audioWriteShortBuffer(short[]);
@@ -123,24 +122,25 @@
     void captureClose();
     void audioSetThreadPriority(boolean, int);
     # JNI to SDL interface
-    int nativeSetupJNI();
+    void nativeSetupJNI();
     void removeAudioDevice(boolean, int);
     void addAudioDevice(boolean, int);
 }
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLControllerManager {
     # SDL to JNI interface
-    void pollInputDevices();
+    void joystickSubscribe();
+    void joystickUnsubscribe();
+    void joystickRumble(int, float, float, int);
     void pollHapticDevices();
     void hapticRun(int, float, int);
-    void hapticRumble(int, float, float, int);
     void hapticStop(int);
     # JNI to SDL interface
-    int nativeSetupJNI();
-    int nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
-    int nativeRemoveJoystick(int);
-    int nativeAddHaptic(int, java.lang.String);
-    int nativeRemoveHaptic(int);
+    void nativeSetupJNI();
+    void nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
+    void nativeRemoveJoystick(int);
+    void nativeAddHaptic(int, java.lang.String);
+    void nativeRemoveHaptic(int);
     int onNativePadDown(int, int);
     int onNativePadUp(int, int);
     void onNativeJoy(int, int, float);
