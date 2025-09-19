@@ -49,9 +49,6 @@ set(SDL_BLIT_TRANSFORM OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 #set(SDL_RENDER_SW OFF) # requires fork of SDL2
 set(SDL_GESTURES OFF) # requires fork of SDL2
-if(NOT ANDROID AND NOT IOS AND NOT TVOS)
-  set(SDL_HIDAPI OFF) # requires fork of SDL2
-endif()
 if(NOSOUND)
   set(SDL_AUDIO OFF)
 endif()
