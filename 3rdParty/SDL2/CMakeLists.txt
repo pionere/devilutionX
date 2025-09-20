@@ -50,7 +50,7 @@ set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 #set(SDL_RENDER_SW OFF) # requires fork of SDL2
 set(SDL_HAPTIC OFF)
 #set(SDL_JOYSTICK OFF)
-#set(SDL_HIDAPI_JOYSTICK OFF)
+set(SDL_HIDAPI_JOYSTICK OFF)
 set(SDL_GESTURES OFF) # requires fork of SDL2
 if(NOT ANDROID AND NOT IOS AND NOT TVOS)
   set(SDL_HIDAPI OFF) # requires fork of SDL2
