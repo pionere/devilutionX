@@ -81,6 +81,10 @@ jobs:
     - name: Test lib
       run: /usr/bin/arm-linux-gnueabi-nm android-project/app/.cxx/RelWithDebInfo/4e5n1i70/arm64-v8a/_deps/sdl2-build/libSDL2.a
       shell: bash
+
+    - name: Test lib main
+      run: /usr/bin/arm-linux-gnueabi-nm android-project/app/.cxx/RelWithDebInfo/4e5n1i70/arm64-v8a/_deps/sdl2-build/libSDL2main.a
+      shell: bash
       
     #- name: Upload-Package
     #  uses: actions/upload-artifact@v4
