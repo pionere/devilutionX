@@ -69,6 +69,14 @@ jobs:
       shell: bash
       run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
+    - name: Show content of workspace
+      run: find $RUNNER_WORKSPACE
+      shell: bash
+
+    - name: Test lib
+      run: arm-eabi-nm libSDL2.a
+      shell: bash
+      
     #- name: Upload-Package
     #  uses: actions/upload-artifact@v4
     #  with:
