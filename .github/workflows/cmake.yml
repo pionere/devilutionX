@@ -31,7 +31,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y gettext
-        sudu apt-get install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig gcc-arm-linux-gnueabi
+        sudo apt-get install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig gcc-arm-linux-gnueabi
 
     - name: set up JDK 17
       uses: actions/setup-java@v5
