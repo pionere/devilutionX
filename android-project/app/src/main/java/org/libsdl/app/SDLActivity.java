@@ -1224,28 +1224,28 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static boolean getManifestEnvironmentVariables() {
-        try {
-            ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
-            Bundle bundle = applicationInfo.metaData;
-            if (bundle == null) {
-                return false;
-            }
-            String prefix = "SDL_ENV.";
-            final int trimLength = prefix.length();
-            for (String key : bundle.keySet()) {
-                if (key.startsWith(prefix)) {
-                    String name = key.substring(trimLength);
-                    String value = bundle.get(key).toString();
-                    nativeSetenv(name, value);
+    public static void getManifestEnvironmentVariables() {
+        ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
+        Bundle bundle = applicationInfo.metaData;
+        String prefix = "SDL_ENV.";
+        final int trimLength = prefix.length();
+        for (String key : bundle.keySet()) {
+            if (key.startsWith(prefix)) {
+                String name = key.substring(trimLength);
+                Object entry;
+                if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+                    entry = bundle.getParcelable(key, java.lang.Object);
+                } else {
+                    @Suppress("DEPRECATION")
+                    entry = bundle.getParcelable(key);
+                }
+                if (entry) {
+                    nativeSetenv(name, entry.toString());
+                } else {
+                    Log.d(TAG, "The value of '" + name + "' environmental variable could not be resolved.");
                 }
             }
-            /* environment variables set! */
-            return true;
-        } catch (Exception e) {
-           Log.v(TAG, "exception " + e.toString());
         }
-        return false;
     }
 
     // This method is called by SDLControllerManager's API 26 Generic Motion Handler.

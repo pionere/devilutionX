@@ -66,7 +66,7 @@
     android.content.Context getContext();
     java.lang.String getInternalStoragePath();
     java.lang.String getExternalStoragePath();
-    boolean getManifestEnvironmentVariables();
+    void getManifestEnvironmentVariables();
     android.view.Surface getNativeSurface();
     void initTouch();
     boolean isAndroidTV();
