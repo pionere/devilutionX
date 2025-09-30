@@ -55,11 +55,11 @@ public class HIDDeviceManager {
     private HashMap<BluetoothDevice, HIDDeviceBLESteamController> mBluetoothDevices = new HashMap<BluetoothDevice, HIDDeviceBLESteamController>();
     private int mNextDeviceId = 0;
     private SharedPreferences mSharedPreferences = null;
-    private boolean mIsChromebook = false;
+//    private boolean mIsChromebook = false;
     private UsbManager mUsbManager;
-    private Handler mHandler;
-    private BluetoothManager mBluetoothManager;
-    private List<BluetoothDevice> mLastBluetoothDevices;
+//    private Handler mHandler;
+//    private BluetoothManager mBluetoothManager;
+//    private List<BluetoothDevice> mLastBluetoothDevices;
 
     private final BroadcastReceiver mUsbBroadcast = new BroadcastReceiver() {
         @Override
@@ -87,9 +87,7 @@ public class HIDDeviceManager {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.d(TAG, "Bluetooth device connected: " + device);
 
-                if (isSteamController(device)) {
-                    connectBluetoothDevice(device);
-                }
+                connectBluetoothDevice(device);
             }
 
             // Bluetooth device was disconnected, remove from controller manager (if any)
@@ -108,12 +106,12 @@ public class HIDDeviceManager {
         HIDDeviceRegisterCallback();
 
         mSharedPreferences = mContext.getSharedPreferences("hidapi", Context.MODE_PRIVATE);
-        mIsChromebook = mContext.getPackageManager().hasSystemFeature("org.chromium.arc.device_management");
+//        mIsChromebook = SDLActivity.isChromebook();
 
 //        if (shouldClear) {
 //            SharedPreferences.Editor spedit = mSharedPreferences.edit();
 //            spedit.clear();
-//            spedit.commit();
+//            spedit.apply();
 //        }
 //        else
         {
@@ -135,7 +133,7 @@ public class HIDDeviceManager {
         }
 
         spedit.putInt(identifier, result);
-        spedit.commit();
+        spedit.apply();
         return result;
     }
 
@@ -193,7 +191,11 @@ public class HIDDeviceManager {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         filter.addAction(HIDDeviceManager.ACTION_USB_PERMISSION);
-        mContext.registerReceiver(mUsbBroadcast, filter);
+        if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+            mContext.registerReceiver(mUsbBroadcast, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            mContext.registerReceiver(mUsbBroadcast, filter);
+        }
 
         for (UsbDevice usbDevice : mUsbManager.getDeviceList().values()) {
             handleUsbDeviceAttached(usbDevice);
@@ -284,9 +286,13 @@ public class HIDDeviceManager {
             0x1532, // Razer Wildcat
             0x20d6, // PowerA
             0x24c6, // PowerA
+            0x294b, // Snakebyte
             0x2dc8, // 8BitDo
             0x2e24, // Hyperkin
+            0x2e95, // SCUF
+            0x3285, // Nacon
             0x3537, // GameSir
+            0x366c, // ByoWave
         };
 
         if (usbInterface.getId() == 0 &&
@@ -349,9 +355,8 @@ public class HIDDeviceManager {
                     interface_mask |= (1 << interface_id);
 
                     HIDDeviceUSB device = new HIDDeviceUSB(this, usbDevice, interface_index);
-                    int id = device.getId();
-                    mDevicesById.put(id, device);
-                    HIDDeviceConnected(id, device.getIdentifier(), device.getVendorId(), device.getProductId(), device.getSerialNumber(), device.getVersion(), device.getManufacturerName(), device.getProductName(), usbInterface.getId(), usbInterface.getInterfaceClass(), usbInterface.getInterfaceSubclass(), usbInterface.getInterfaceProtocol());
+                    mDevicesById.put(device.getId(), device);
+                    device.connect();
                 }
             }
         }
@@ -360,15 +365,9 @@ public class HIDDeviceManager {
     private void initializeBluetooth() {
         Log.d(TAG, "Initializing Bluetooth");
 
-        if (Build.VERSION.SDK_INT >= 31 /* Android 12  */ &&
-            mContext.getPackageManager().checkPermission(android.Manifest.permission.BLUETOOTH_CONNECT, mContext.getPackageName()) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Couldn't initialize Bluetooth, missing android.permission.BLUETOOTH_CONNECT");
-            return;
-        }
-
-        if (Build.VERSION.SDK_INT <= 30 /* Android 11.0 (R) */ &&
-            mContext.getPackageManager().checkPermission(android.Manifest.permission.BLUETOOTH, mContext.getPackageName()) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Couldn't initialize Bluetooth, missing android.permission.BLUETOOTH");
+        final String permission = Build.VERSION.SDK_INT < 31 /* Android 12.0 (S) */ ? android.Manifest.permission.BLUETOOTH : android.Manifest.permission.BLUETOOTH_CONNECT;
+        if (mContext.getPackageManager().checkPermission(permission, mContext.getPackageName()) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Couldn't initialize Bluetooth, no permission.");
             return;
         }
 
@@ -378,7 +377,7 @@ public class HIDDeviceManager {
         }
 
         // Find bonded bluetooth controllers and create SteamControllers for them
-        mBluetoothManager = (BluetoothManager)mContext.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager mBluetoothManager = (BluetoothManager)mContext.getSystemService(Context.BLUETOOTH_SERVICE);
         if (mBluetoothManager == null) {
             // This device doesn't support Bluetooth.
             return;
@@ -394,9 +393,7 @@ public class HIDDeviceManager {
         for (BluetoothDevice device : btAdapter.getBondedDevices()) {
 
             Log.d(TAG, "Bluetooth device available: " + device);
-            if (isSteamController(device)) {
-                connectBluetoothDevice(device);
-            }
+            connectBluetoothDevice(device);
 
         }
 
@@ -404,9 +401,13 @@ public class HIDDeviceManager {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        mContext.registerReceiver(mBluetoothBroadcast, filter);
+        if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+            mContext.registerReceiver(mBluetoothBroadcast, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            mContext.registerReceiver(mBluetoothBroadcast, filter);
+        }
 
-        if (mIsChromebook) {
+        /*if (mIsChromebook) {
             mHandler = new Handler(Looper.getMainLooper());
             mLastBluetoothDevices = new ArrayList<BluetoothDevice>();
 
@@ -417,7 +418,7 @@ public class HIDDeviceManager {
             //         finalThis.chromebookConnectionHandler();
             //     }
             // }, 5000);
-        }
+        }*/
     }
 
     private void shutdownBluetooth() {
@@ -431,7 +432,7 @@ public class HIDDeviceManager {
     // Chromebooks do not pass along ACTION_ACL_CONNECTED / ACTION_ACL_DISCONNECTED properly.
     // This function provides a sort of dummy version of that, watching for changes in the
     // connected devices and attempting to add controllers as things change.
-    public void chromebookConnectionHandler() {
+    /*public void chromebookConnectionHandler() {
         if (!mIsChromebook) {
             return;
         }
@@ -468,10 +469,14 @@ public class HIDDeviceManager {
                 finalThis.chromebookConnectionHandler();
             }
         }, 10000);
-    }
+    }*/
 
-    public boolean connectBluetoothDevice(BluetoothDevice bluetoothDevice) {
+    public void connectBluetoothDevice(BluetoothDevice bluetoothDevice) {
         Log.v(TAG, "connectBluetoothDevice device=" + bluetoothDevice);
+        // ignore non-steam controllers
+        if (!isSteamController(bluetoothDevice)) {
+            return;
+        }
         synchronized (this) {
             if (mBluetoothDevices.containsKey(bluetoothDevice)) {
                 Log.v(TAG, "Steam controller with address " + bluetoothDevice + " already exists, attempting reconnect");
@@ -479,16 +484,14 @@ public class HIDDeviceManager {
                 HIDDeviceBLESteamController device = mBluetoothDevices.get(bluetoothDevice);
                 device.reconnect();
 
-                return false;
+                return;
             }
             HIDDeviceBLESteamController device = new HIDDeviceBLESteamController(this, bluetoothDevice);
-            int id = device.getId();
             mBluetoothDevices.put(bluetoothDevice, device);
-            mDevicesById.put(id, device);
+            mDevicesById.put(device.getId(), device);
 
             // The Steam Controller will mark itself connected once initialization is complete
         }
-        return true;
     }
 
     public void disconnectBluetoothDevice(BluetoothDevice bluetoothDevice) {
@@ -559,16 +562,14 @@ public class HIDDeviceManager {
     ////////// JNI interface functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public boolean initialize(boolean usb, boolean bluetooth) {
-        Log.v(TAG, "initialize(" + usb + ", " + bluetooth + ")");
+    public void initialize(boolean bluetooth) {
+        Log.v(TAG, "initialize(" + bluetooth + ")");
 
-        if (usb) {
-            initializeUSB();
-        }
+        initializeUSB();
+
         if (bluetooth) {
             initializeBluetooth();
         }
-        return true;
     }
 
     public boolean openDevice(int deviceID) {
@@ -591,13 +592,10 @@ public class HIDDeviceManager {
                 } else {
                     flags = 0;
                 }
-                if (Build.VERSION.SDK_INT >= 33 /* Android 14.0 (U) */) {
-                   Intent intent = new Intent(HIDDeviceManager.ACTION_USB_PERMISSION);
-                   intent.setPackage(mContext.getPackageName());
-                   mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, intent, flags));
-               } else {
-                   mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, new Intent(HIDDeviceManager.ACTION_USB_PERMISSION), flags));
-               }
+
+                Intent intent = new Intent(HIDDeviceManager.ACTION_USB_PERMISSION);
+                intent.setPackage(mContext.getPackageName());
+                mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, intent, flags));
             } catch (Exception e) {
                 Log.v(TAG, "Couldn't request permission for USB device " + usbDevice);
                 HIDDeviceOpenResult(deviceID, false);
@@ -647,21 +645,21 @@ public class HIDDeviceManager {
         return -1;
     }
 
-    public boolean getFeatureReport(int deviceID, byte[] report) {
+    public int getFeatureReport(int deviceID, byte[] report) {
         try {
             //Log.v(TAG, "getFeatureReport deviceID=" + deviceID);
             HIDDevice device;
             device = getDevice(deviceID);
             if (device == null) {
                 HIDDeviceDisconnected(deviceID);
-                return false;
+                return -1;
             }
 
             return device.getFeatureReport(report);
         } catch (Exception e) {
             Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return false;
+        return -1;
     }
 
     public void closeDevice(int deviceID) {

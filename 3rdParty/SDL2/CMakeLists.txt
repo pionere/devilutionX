@@ -48,10 +48,8 @@ set(SDL_RLE_ACCEL OFF) # requires fork of SDL2
 set(SDL_BLIT_TRANSFORM OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 #set(SDL_RENDER_SW OFF) # requires fork of SDL2
+set(SDL_HAPTIC OFF)
 set(SDL_GESTURES OFF) # requires fork of SDL2
-if(NOT ANDROID AND NOT IOS AND NOT TVOS)
-  set(SDL_HIDAPI OFF) # requires fork of SDL2
-endif()
 if(NOSOUND)
   set(SDL_AUDIO OFF)
 endif()
@@ -61,7 +59,9 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_KBCTRL AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
- set(SDL_HAPTIC OFF)
+endif()
+if(DEFINED SDL_JOYSTICK AND NOT SDL_JOYSTICK)
+ set(SDL_HIDAPI OFF) # requires fork of SDL2
 endif()
 if(NOT DEBUG_MODE)
   set(SDL_ASSERTIONS "disabled") # requires fork of SDL2
@@ -83,6 +83,6 @@ FetchContent_Declare(SDL2
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG e54ead4cd76bb2539fbf5682007ab22dbf11e02a
+    GIT_TAG b87e6bcfe59748148262876a9568da7f4e41385e
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)

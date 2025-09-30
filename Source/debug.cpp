@@ -406,12 +406,12 @@ void ValidateData()
 #ifdef ZEROTIER
 		SNetZtGame ztGameData;
 #endif
-		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
+		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, (unsigned)sizeof(dynData));
 		if (!pkt->validate()) {
 			app_fatal("PT_MESSAGE is invalid");
 		}
 		delete pkt;
-		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
+		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, (unsigned)sizeof(dynData));
 		if (!pkt->validate()) {
 			app_fatal("PT_TURN is invalid");
 		}
@@ -421,12 +421,12 @@ void ValidateData()
 			app_fatal("PT_JOIN_REQUEST is invalid");
 		}
 		delete pkt;
-		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
+		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, (unsigned)sizeof(addrs));
 		if (!pkt->validate()) {
 			app_fatal("PT_JOIN_ACCEPT is invalid");
 		}
 		delete pkt;
-		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
+		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, (unsigned)sizeof(addr));
 		if (!pkt->validate()) {
 			app_fatal("PT_CONNECT is invalid");
 		}
@@ -463,7 +463,7 @@ void ValidateData()
 	}
 
 	if (GetHugeStringWidth("Pause") != 135)
-		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
+		app_fatal("DrawPause expects hardcoded width 135.");
 
 	// cursors
 	for (i = 0; i < lengthof(InvItemWidth); i++) {
@@ -1793,7 +1793,6 @@ void ValidateData()
 			if (sd.spCurs != CURSOR_NONE && sd.spCurs != CURSOR_TELEPORT)
 				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i); // required by TryIconCurs
 		}
-		ItemStruct* is = NULL;
 		if (SPELL_RUNE(i)) {
 			if (sd.sBookLvl != SPELL_NA)
 				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);

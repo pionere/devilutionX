@@ -25,8 +25,8 @@
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLActivity {
     # JNI to SDL interface
     java.lang.String nativeGetVersion();
-    int nativeSetupJNI();
-    int nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
+    void nativeSetupJNI();
+    void nativeRunMain(java.lang.String, java.lang.String, java.lang.Object );
     void nativeLowMemory();
     void nativeSendQuit();
     void nativeQuit();
@@ -58,13 +58,14 @@
     boolean supportsRelativeMouse();
     void setWindowStyle(boolean);
     boolean isScreenKeyboardShown();
-    android.util.DisplayMetrics getDisplayDPI();
+    float[] getDisplayDPI();
     java.lang.String clipboardGetText();
-    boolean clipboardHasText();
     void clipboardSetText(java.lang.String);
     int createCustomCursor(int[], int, int, int, int);
     void destroyCustomCursor(int);
     android.content.Context getContext();
+    java.lang.String getInternalStoragePath();
+    java.lang.String getExternalStoragePath();
     boolean getManifestEnvironmentVariables();
     android.view.Surface getNativeSurface();
     void initTouch();
@@ -79,13 +80,12 @@
     void requestPermission(java.lang.String, int);
     int showToast(java.lang.String, int, int, int, int);
     boolean sendMessage(int, int);
-    boolean setActivityTitle(java.lang.String);
+    void setActivityTitle(java.lang.String);
     boolean setCustomCursor(int);
     void setOrientation(int, int, boolean, java.lang.String);
     boolean setRelativeMouseEnabled(boolean);
     boolean setSystemCursor(int);
-    boolean shouldMinimizeOnFocusLoss();
-    boolean showTextInput(int, int, int, int);
+    void showTextInput(int, int, int, int);
 }
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.HIDDeviceManager {
@@ -99,48 +99,39 @@
     void HIDDeviceInputReport(int, byte[]);
     void HIDDeviceFeatureReport(int, byte[]);
     # SDL to JNI interface
-    boolean initialize(boolean, boolean);
+    void initialize(boolean);
     boolean openDevice(int);
     int sendOutputReport(int, byte[]);
     int sendFeatureReport(int, byte[]);
-    boolean getFeatureReport(int, byte[]);
+    int getFeatureReport(int, byte[]);
     void closeDevice(int);
 }
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLAudioManager {
     # SDL to JNI interface
-    int[] getAudioOutputDevices();
-    int[] getAudioInputDevices();
-    int[] audioOpen(int, int, int, int, int);
-    void audioWriteFloatBuffer(float[]);
-    void audioWriteShortBuffer(short[]);
-    void audioWriteByteBuffer(byte[]);
-    void audioClose();
-    int[] captureOpen(int, int, int, int, int);
-    int captureReadFloatBuffer(float[], boolean);
-    int captureReadShortBuffer(short[], boolean);
-    int captureReadByteBuffer(byte[], boolean);
-    void captureClose();
+    void audioDetectDevices();
     void audioSetThreadPriority(boolean, int);
     # JNI to SDL interface
-    int nativeSetupJNI();
+    void nativeSetupJNI();
     void removeAudioDevice(boolean, int);
     void addAudioDevice(boolean, int);
 }
 
 -keep,includedescriptorclasses,allowoptimization class org.libsdl.app.SDLControllerManager {
     # SDL to JNI interface
-    void pollInputDevices();
-    void pollHapticDevices();
-    void hapticRun(int, float, int);
-    void hapticRumble(int, float, float, int);
+    void joystickSubscribe();
+    void joystickUnsubscribe();
+    void joystickRumble(int, char, char, int);
+    void hapticSubscribe();
+    void hapticUnsubscribe();
+    void hapticRun(int, char, char, int);
     void hapticStop(int);
     # JNI to SDL interface
-    int nativeSetupJNI();
-    int nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
-    int nativeRemoveJoystick(int);
-    int nativeAddHaptic(int, java.lang.String);
-    int nativeRemoveHaptic(int);
+    void nativeSetupJNI();
+    void nativeAddJoystick(int, java.lang.String, java.lang.String, int, int, int, int, int, int, boolean);
+    void nativeRemoveJoystick(int);
+    void nativeAddHaptic(int, java.lang.String);
+    void nativeRemoveHaptic(int);
     int onNativePadDown(int, int);
     int onNativePadUp(int, int);
     void onNativeJoy(int, int, float);

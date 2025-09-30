@@ -57,7 +57,7 @@ const char* const MsgStrings[NUM_EMSGS] = {
 	// obsolete messages
 	// "Loading...",
 	// "Saving...",
-	// "No automap available in town"
+	// "No automap available in town",
 	// "No multiplayer functions in demo",
 	// "Direct Sound Creation Failed",
 	// "Not enough space to save",
