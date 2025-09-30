@@ -384,7 +384,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 errorMsgBrokenLib = "SDL C/Java version mismatch (expected " + expected_version + ", got " + version + ")";
             }
         }
-
+		librariesReady = false;
         if (!librariesReady) {
             AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
             dlgAlert.setMessage("An error occurred while trying to start the application. Please try again and/or reinstall."
