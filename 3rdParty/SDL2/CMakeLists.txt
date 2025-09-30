@@ -48,6 +48,7 @@ set(SDL_RLE_ACCEL OFF) # requires fork of SDL2
 set(SDL_BLIT_TRANSFORM OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 #set(SDL_RENDER_SW OFF) # requires fork of SDL2
+set(SDL_HAPTIC OFF)
 set(SDL_GESTURES OFF) # requires fork of SDL2
 if(NOSOUND)
   set(SDL_AUDIO OFF)
@@ -58,7 +59,6 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_KBCTRL AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
- set(SDL_HAPTIC OFF)
 endif()
 if(NOT DEBUG_MODE)
   set(SDL_ASSERTIONS "disabled") # requires fork of SDL2
