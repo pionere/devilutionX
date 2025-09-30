@@ -67,8 +67,10 @@ public class DevilutionXSDLActivity extends SDLActivity {
 				getWindow().getDecorView().getWindowVisibleDisplayFrame(visibleSpace);
 
 				SurfaceView surface = mSurface;
-				SurfaceHolder holder = surface.getHolder();
-				holder.setFixedSize(visibleSpace.width(), visibleSpace.height());
+				if (surface != null) {
+					SurfaceHolder holder = surface.getHolder();
+					holder.setFixedSize(visibleSpace.width(), visibleSpace.height());
+				}
 			}
 		});
 	}
