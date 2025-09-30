@@ -15,7 +15,7 @@ interface HIDDevice
     public boolean open();
     public int sendFeatureReport(byte[] report);
     public int sendOutputReport(byte[] report);
-    public boolean getFeatureReport(byte[] report);
+    public int getFeatureReport(byte[] report);
     public void setFrozen(boolean frozen);
     public void close();
     public void shutdown();
