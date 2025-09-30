@@ -1234,8 +1234,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 String name = key.substring(trimLength);
                 Object entry;
                 if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                    entry = bundle.getParcelable(key, java.lang.Object);
+                    entry = bundle.getParcelable(key, Object.class);
                 } else {
+                    @SuppressWarnings("deprecation")
                     entry = bundle.getParcelable(key);
                 }
                 if (entry) {
