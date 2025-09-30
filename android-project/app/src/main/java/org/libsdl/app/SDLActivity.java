@@ -1225,25 +1225,29 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static void getManifestEnvironmentVariables() {
-        ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
-        Bundle bundle = applicationInfo.metaData;
-        String prefix = "SDL_ENV.";
-        final int trimLength = prefix.length();
-        for (String key : bundle.keySet()) {
-            if (key.startsWith(prefix)) {
-                String name = key.substring(trimLength);
-                Object entry;
-                if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
-                    entry = bundle.getParcelable(key, Object.class);
-                } else {
-                    entry = bundle.getParcelable(key);
-                }
-                if (entry != null) {
-                    nativeSetenv(name, entry.toString());
-                } else {
-                    Log.d(TAG, "The value of '" + name + "' environmental variable could not be resolved.");
+        try {
+            ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = applicationInfo.metaData;
+            String prefix = "SDL_ENV.";
+            final int trimLength = prefix.length();
+            for (String key : bundle.keySet()) {
+                if (key.startsWith(prefix)) {
+                    String name = key.substring(trimLength);
+                    Object entry;
+                    if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+                        entry = bundle.getParcelable(key, Object.class);
+                    } else {
+                        entry = bundle.getParcelable(key);
+                    }
+                    if (entry != null) {
+                        nativeSetenv(name, entry.toString());
+                    } else {
+                        Log.d(TAG, "The value of '" + name + "' environmental variable could not be resolved.");
+                    }
                 }
             }
+        } catch (PackageManager.NameNotFoundException ex) {
+            // wtf...
         }
     }
 
