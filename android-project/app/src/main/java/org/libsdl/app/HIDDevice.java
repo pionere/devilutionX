@@ -6,11 +6,11 @@ interface HIDDevice
 {
     public int getId();
     public int getVendorId();
-    public int getProductId();
-    public String getSerialNumber();
-    public int getVersion();
-    public String getManufacturerName();
-    public String getProductName();
+    // public int getProductId();
+    // public String getSerialNumber();
+    // public int getVersion();
+    // public String getManufacturerName();
+    // public String getProductName();
     public UsbDevice getDevice();
     public boolean open();
     public int sendFeatureReport(byte[] report);

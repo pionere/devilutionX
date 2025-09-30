@@ -50,13 +50,13 @@ class HIDDeviceUSB implements HIDDevice {
         return mDevice.getVendorId();
     }
 
-    @Override
-    public int getProductId() {
+    // @Override
+    private final int getProductId() {
         return mDevice.getProductId();
     }
 
-    @Override
-    public String getSerialNumber() {
+    // @Override
+    private final String getSerialNumber() {
         String result = null;
         if (Build.VERSION.SDK_INT >= 21 /* Android 5.0 (LOLLIPOP) */) {
             try {
@@ -72,13 +72,13 @@ class HIDDeviceUSB implements HIDDevice {
         return result;
     }
 
-    @Override
-    public int getVersion() {
+    // @Override
+    private final int getVersion() {
         return 0;
     }
 
-    @Override
-    public String getManufacturerName() {
+    // @Override
+    private final String getManufacturerName() {
         String result = null;
         if (Build.VERSION.SDK_INT >= 21 /* Android 5.0 (LOLLIPOP) */) {
             result = mDevice.getManufacturerName();
@@ -89,8 +89,8 @@ class HIDDeviceUSB implements HIDDevice {
         return result;
     }
 
-    @Override
-    public String getProductName() {
+    // @Override
+    private final String getProductName() {
         String result = null;
         if (Build.VERSION.SDK_INT >= 21 /* Android 5.0 (LOLLIPOP) */) {
             result = mDevice.getProductName();

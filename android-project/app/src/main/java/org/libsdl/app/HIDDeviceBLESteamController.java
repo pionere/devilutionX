@@ -528,31 +528,31 @@ class HIDDeviceBLESteamController extends BluetoothGattCallback implements HIDDe
         return VALVE_USB_VID;
     }
 
-    @Override
-    public int getProductId() {
+    // @Override
+    private final int getProductId() {
         // We don't have an easy way to query from the Bluetooth device, but we know what it is
         final int D0G_BLE2_PID = 0x1106;
         return D0G_BLE2_PID;
     }
 
-    @Override
-    public String getSerialNumber() {
+    // @Override
+    private final String getSerialNumber() {
         // This will be read later via feature report by Steam
         return "12345";
     }
 
-    @Override
-    public int getVersion() {
+    // @Override
+    private final int getVersion() {
         return 0;
     }
 
-    @Override
-    public String getManufacturerName() {
+    // @Override
+    private final String getManufacturerName() {
         return "Valve Corporation";
     }
 
-    @Override
-    public String getProductName() {
+    // @Override
+    private final String getProductName() {
         return "Steam Controller";
     }
 
