@@ -1238,7 +1238,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 } else {
                     entry = bundle.getParcelable(key);
                 }
-                if (entry) {
+                if (entry != null) {
                     nativeSetenv(name, entry.toString());
                 } else {
                     Log.d(TAG, "The value of '" + name + "' environmental variable could not be resolved.");
