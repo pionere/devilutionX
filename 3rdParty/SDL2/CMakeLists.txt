@@ -60,6 +60,9 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
 endif()
+if(DEFINED SDL_JOYSTICK AND NOT SDL_JOYSTICK)
+ set(SDL_HIDAPI OFF) # requires fork of SDL2
+endif()
 if(NOT DEBUG_MODE)
   set(SDL_ASSERTIONS "disabled") # requires fork of SDL2
   set(SDL_LOGGING OFF) # requires fork of SDL2
