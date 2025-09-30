@@ -585,8 +585,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return;
         }
 
-        if (mCurrentLocale == null || !mCurrentLocale.equals(newConfig.locale)) {
-            mCurrentLocale = newConfig.locale;
+        Locale newLocale;
+        if (Build.VERSION.SDK_INT < 24 /* Android 7.0 (N) */) {
+            newLocale = newConfig.locale;
+        } else {
+            newLocale = newConfig.getLocales().get(0);
+        }
+        if (mCurrentLocale == null || !mCurrentLocale.equals(newLocale)) {
+            mCurrentLocale = newLocale;
             SDLActivity.onNativeLocaleChanged();
         }
     }
