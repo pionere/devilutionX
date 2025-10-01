@@ -148,10 +148,15 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         // Special Patch for Square Resolution: Black Berry Passport
         if (skip) {
-            double min = Math.min(mWidth, mHeight);
-            double max = Math.max(mWidth, mHeight);
+            float min = mWidth;
+            float max = mHeight;
+            if (min > max) {
+                float tmp = min;
+                min = max;
+                max = tmp;
+            }
 
-            if (max / min < 1.20) {
+            if (max < 1.20 * min) {
                 Log.v("SDL", "Don't skip on such aspect-ratio. Could be a square resolution.");
                 skip = false;
             }
