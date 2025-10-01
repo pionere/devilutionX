@@ -1234,7 +1234,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         try {
             ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = applicationInfo.metaData;
-            String prefix = "SDL_ENV.";
+            if (bundle == null) {
+                return;
+            }
+            final String prefix = "SDL_ENV.";
             final int trimLength = prefix.length();
             for (String key : bundle.keySet()) {
                 if (key.startsWith(prefix)) {
