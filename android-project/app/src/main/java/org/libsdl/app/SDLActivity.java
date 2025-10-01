@@ -422,14 +422,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 			args.putStringArray("buttonTexts", buttonTexts);
 			// args.putIntArray("colors", colors);
 			messageboxCreateAndShow(args);
-			/*synchronized (messageboxSelection) {
+			synchronized (messageboxSelection) {
 				try {
 					messageboxSelection.wait();
 				} catch (InterruptedException ex) {
 					Log.e(TAG, ex.getMessage());
 					return;
 				}
-			}*/
+			}
 			// close current activity
 			SDLActivity.mSingleton.finish();
 			}
