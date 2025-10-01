@@ -911,8 +911,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                             synchronized (context) {
                                 try {
                                     context.wait(500);
-                                } catch (InterruptedException ie) {
-                                    ie.printStackTrace();
+                                } catch (InterruptedException ex) {
+                                    Log.e(TAG, ex.getMessage());
                                 }
                             }
                         }
