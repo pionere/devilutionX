@@ -100,21 +100,14 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         Log.v("SDL", "surfaceChanged()");
 
         SDLActivity activity = SDLActivity.mSingleton;
-        Display display = SDLActivity.getCurrentDisplay();
 
         mWidth = width;
         mHeight = height;
         int nDeviceWidth = width;
         int nDeviceHeight = height;
-        try {
-            if (Build.VERSION.SDK_INT >= 17 /* Android 4.2 (JELLY_BEAN_MR1) */) {
-                DisplayMetrics realMetrics = new DisplayMetrics();
-                display.getRealMetrics(realMetrics);
-                nDeviceWidth = realMetrics.widthPixels;
-                nDeviceHeight = realMetrics.heightPixels;
-            }
-        } catch (Exception ignored) {
-        }
+        DisplayMetrics realMetrics = activity.getResources().getDisplayMetrics();
+        nDeviceWidth = realMetrics.widthPixels;
+        nDeviceHeight = realMetrics.heightPixels;
 
         synchronized (activity) {
             // In case we're waiting on a size change after going fullscreen, send a notification.
@@ -123,6 +116,7 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         Log.v("SDL", "Window size: " + width + "x" + height);
         Log.v("SDL", "Device size: " + nDeviceWidth + "x" + nDeviceHeight);
+        Display display = SDLActivity.getCurrentDisplay();
         SDLActivity.nativeSetScreenResolution(width, height, nDeviceWidth, nDeviceHeight, display.getRefreshRate());
         SDLActivity.onNativeResize();
 
