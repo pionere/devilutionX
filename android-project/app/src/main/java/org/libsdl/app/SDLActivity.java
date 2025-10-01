@@ -384,8 +384,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 errorMsgBrokenLib = "SDL C/Java version mismatch (expected " + expected_version + ", got " + version + ")";
             }
         }
-
+		librariesReady = false;
         if (!librariesReady) {
+			if (false) {
             AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
             dlgAlert.setMessage("An error occurred while trying to start the application. Please try again and/or reinstall."
                   + System.getProperty("line.separator")
@@ -400,10 +401,39 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                         SDLActivity.mSingleton.finish();
                     }
                 });
-           dlgAlert.setCancelable(false);
-           dlgAlert.create().show();
-
-           return;
+            dlgAlert.setCancelable(false);
+            dlgAlert.create().show();
+            } else {
+            int flags = 0;
+            String title = "SDL Error";
+            String message = "An error occurred while trying to start the application. Please try again and/or reinstall."
+                  + System.getProperty("line.separator")
+                  + System.getProperty("line.separator")
+                  + "Error: " + errorMsgBrokenLib;
+            int[] buttonIds = new int[] { 0 };
+            int[] buttonFlags = new int[] { 3 };
+            String[] buttonTexts = new String[] { "Exit" };
+			final Bundle args = new Bundle();
+			args.putInt("flags", flags);
+			args.putString("title", title);
+			args.putString("message", message);
+			args.putIntArray("buttonFlags", buttonFlags);
+			args.putIntArray("buttonIds", buttonIds);
+			args.putStringArray("buttonTexts", buttonTexts);
+			// args.putIntArray("colors", colors);
+			messageboxCreateAndShow(args);
+			/*synchronized (messageboxSelection) {
+				try {
+					messageboxSelection.wait();
+				} catch (InterruptedException ex) {
+					Log.e(TAG, ex.getMessage());
+					return;
+				}
+			}*/
+			// close current activity
+			SDLActivity.mSingleton.finish();
+			}
+            return;
         }
         mLibrariesLoaded = true;
 
