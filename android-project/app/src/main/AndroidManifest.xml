@@ -31,14 +31,14 @@
         android:name="android.software.leanback"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="22" />
+    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="22" /> -->
     <!-- Allow access to Bluetooth devices -->
     <!-- Currently this is just for Steam Controller support and requires setting SDL_HINT_JOYSTICK_HIDAPI_STEAM -->
     <!-- <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" /> -->
     <!-- <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> -->
 
     <!-- Allow access to the vibrator -->
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- <uses-permission android:name="android.permission.VIBRATE" /> -->
     <!-- Allow access to the network for multiplayer and demo download -->
     <uses-permission android:name="android.permission.INTERNET" />
 
