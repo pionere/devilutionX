@@ -78,7 +78,7 @@
     void minimizeWindow();
     int openURL(java.lang.String);
     void requestPermission(java.lang.String, int);
-    int showToast(java.lang.String, int, int, int, int);
+    void showToast(java.lang.String, int, int, int, int);
     boolean sendMessage(int, int);
     void setActivityTitle(java.lang.String);
     boolean setCustomCursor(int);

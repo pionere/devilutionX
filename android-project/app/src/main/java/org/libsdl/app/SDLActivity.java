@@ -1839,45 +1839,22 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static int showToast(String message, int duration, int gravity, int xOffset, int yOffset)
+    public static void showToast(String message, int duration, int gravity, int xOffset, int yOffset)
     {
-        if (null == mSingleton) {
-            return - 1;
-        }
-
-        try {
-            class OneShotTask implements Runnable {
-                private final String mMessage;
-                private final int mDuration;
-                private final int mGravity;
-                private final int mXOffset;
-                private final int mYOffset;
-
-                OneShotTask(String message, int duration, int gravity, int xOffset, int yOffset) {
-                    mMessage  = message;
-                    mDuration = duration;
-                    mGravity  = gravity;
-                    mXOffset  = xOffset;
-                    mYOffset  = yOffset;
-                }
-
-                public void run() {
-                    try {
-                        Toast toast = Toast.makeText(mSingleton, mMessage, mDuration);
-                        if (mGravity >= 0) {
-                            toast.setGravity(mGravity, mXOffset, mYOffset);
-                        }
-                        toast.show();
-                    } catch (Exception ex) {
-                        Log.e(TAG, ex.getMessage());
+        mSingleton.runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    Toast toast = Toast.makeText(mSingleton, message, duration);
+                    if (gravity >= 0 && Build.VERSION.SDK_INT < 30 /* Android 11.0 (R) */) {
+                        toast.setGravity(gravity, xOffset, yOffset);
                     }
+                    toast.show();
+                } catch (Exception ex) {
+                    Log.e(TAG, ex.getMessage());
                 }
             }
-            mSingleton.runOnUiThread(new OneShotTask(message, duration, gravity, xOffset, yOffset));
-        } catch (Exception ex) {
-            return -1;
-        }
-        return 0;
+        });
     }
 }
 
