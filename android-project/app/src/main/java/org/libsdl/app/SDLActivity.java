@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
@@ -306,9 +307,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mHasFocus = true;
         mNextNativeState = NativeState.INIT;
         mCurrentNativeState = NativeState.INIT;
+        mCommandHandler = null;
+        mFullscreenModeActive = false;
     }
 
     protected static void create() {
+        mCommandHandler = new SDLCommandHandler(Looper.getMainLooper());
+
         if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
             mMotionListener = new SDLGenericMotionListener_API26();
         } else if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
@@ -748,10 +753,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Messages from the SDLMain thread
-    static final int COMMAND_CHANGE_TITLE = 1;
-    static final int COMMAND_CHANGE_WINDOW_STYLE = 2;
-    static final int COMMAND_TEXTEDIT_HIDE = 3;
-    static final int COMMAND_SET_KEEP_SCREEN_ON = 5;
+    protected static final int COMMAND_CHANGE_TITLE = 1;
+    protected static final int COMMAND_CHANGE_WINDOW_STYLE = 2;
+    protected static final int COMMAND_TEXTEDIT_HIDE = 3;
+    protected static final int COMMAND_SET_KEEP_SCREEN_ON = 5;
 
     protected static final int COMMAND_USER = 0x8000;
 
@@ -775,6 +780,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * static to prevent implicit references to enclosing object.
      */
     protected static class SDLCommandHandler extends Handler {
+
+        public SDLCommandHandler(Looper looper) {
+            super(looper);
+        }
         @Override
         public void handleMessage(Message msg) {
             SDLActivity activity = SDLActivity.mSingleton;
@@ -853,14 +862,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Handler for the messages
-    protected Handler commandHandler = new SDLCommandHandler();
+    protected static Handler mCommandHandler;
 
     // Send a message from the SDLMain thread
     protected boolean sendCommand(int command, Object data) {
-        Message msg = commandHandler.obtainMessage();
+        Message msg = SDLActivity.mCommandHandler.obtainMessage();
         msg.arg1 = command;
         msg.obj = data;
-        boolean result = commandHandler.sendMessage(msg);
+        boolean result = SDLActivity.mCommandHandler.sendMessage(msg);
 
         if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
             if (command == COMMAND_CHANGE_WINDOW_STYLE) {
@@ -1314,7 +1323,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static void showTextInput(int x, int y, int w, int h) {
         // Transfer the task to the main thread as a Runnable
-        mSingleton.commandHandler.post(new ShowTextInputTask(x, y, w, h));
+        mCommandHandler.post(new ShowTextInputTask(x, y, w, h));
     }
 
     protected static boolean isTextInputEvent(KeyEvent event) {
