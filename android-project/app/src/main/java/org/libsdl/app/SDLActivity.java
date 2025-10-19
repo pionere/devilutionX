@@ -1454,7 +1454,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     // Messagebox
 
     /** Result of current messagebox. Also used for blocking the calling thread. */
-    protected final int[] messageboxSelection = new int[1];
+    protected static final int[] messageboxSelection = new int[1];
 
     /**
      * This method is called by SDL using JNI.
@@ -1466,7 +1466,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * @param colors null for default or array of length 5 containing colors.
      * @return button id or -1.
      */
-    public int messageboxShowMessageBox(
+    public static int messageboxShowMessageBox(
             final int flags,
             final String title,
             final String message,
@@ -1505,10 +1505,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // trigger Dialog creation on UI thread
 
-        runOnUiThread(new Runnable() {
+        mSingleton.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                messageboxCreateAndShow(args);
+                mSingleton.messageboxCreateAndShow(args);
             }
         });
 
