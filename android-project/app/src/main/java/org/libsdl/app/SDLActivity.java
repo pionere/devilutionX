@@ -517,7 +517,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     public static Display getCurrentDisplay() {
-        return mSingleton.getWindowManager().getDefaultDisplay();
+        Display display;
+        if (Build.VERSION.SDK_INT >= 30 /* Android 11.0 (R) */) {
+            display = mSingleton.getDisplay();
+        } else {
+            display = mSingleton.getWindowManager().getDefaultDisplay();
+        }
+        return display;
     }
 
     protected static int getCurrentOrientation() {
@@ -1622,7 +1628,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     button.setBackgroundColor(buttonBackgroundColor);
                 } else {
                     // setting the color this way keeps the style (gradient, padding, etc.)
-                    drawable.setColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                    ColorFilter colorFilter;
+                    if (Build.VERSION.SDK_INT >= 29 /* Android 10.0 (Q) */) {
+                        colorFilter = BlendModeColorFilter(buttonBackgroundColor, BlendMode.MODULATE);
+                    } else {
+                        colorFilter = PorterDuffColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                    }
+                    drawable.setColorFilter(colorFilter);
                 }
             }
             if (buttonSelectedColor != Color.TRANSPARENT) {
