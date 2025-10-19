@@ -201,7 +201,7 @@ void SpawnWindow()
 #if !defined(USE_SDL1) && (HAS_GAMECTRL || HAS_KBCTRL || HAS_DPAD)
 	initFlags |= SDL_INIT_GAMECONTROLLER;
 #endif
-	if (SDL_Init(initFlags) < 0) {
+	if (SDL_Init(initFlags) <= 0) {
 		sdl_error(ERR_SDL_INIT);
 	}
 
