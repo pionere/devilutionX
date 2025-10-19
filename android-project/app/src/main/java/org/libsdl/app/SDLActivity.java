@@ -1634,9 +1634,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     // setting the color this way keeps the style (gradient, padding, etc.)
                     ColorFilter colorFilter;
                     if (Build.VERSION.SDK_INT >= 29 /* Android 10.0 (Q) */) {
-                        colorFilter = BlendModeColorFilter(buttonBackgroundColor, BlendMode.MODULATE);
+                        colorFilter = new BlendModeColorFilter(buttonBackgroundColor, BlendMode.MODULATE);
                     } else {
-                        colorFilter = PorterDuffColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                        colorFilter = new PorterDuffColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
                     }
                     drawable.setColorFilter(colorFilter);
                 }
