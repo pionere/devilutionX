@@ -558,6 +558,14 @@ public class HIDDeviceManager {
         }
     }
 
+    private HIDDevice getDeviceById(int deviceID) {
+        HIDDevice device = getDevice(deviceID);
+        if (device == null) {
+            HIDDeviceDisconnected(deviceID);
+        }
+        return device;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////// JNI interface functions
     //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -574,9 +582,8 @@ public class HIDDeviceManager {
 
     public boolean openDevice(int deviceID) {
         Log.v(TAG, "openDevice deviceID=" + deviceID);
-        HIDDevice device = getDevice(deviceID);
+        HIDDevice device = getDeviceById(deviceID);
         if (device == null) {
-            HIDDeviceDisconnected(deviceID);
             return false;
         }
 
@@ -603,78 +610,56 @@ public class HIDDeviceManager {
             return false;
         }
 
-        try {
+        {
             return device.open();
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return false;
     }
 
     public int sendOutputReport(int deviceID, byte[] report) {
-        try {
+        {
             //Log.v(TAG, "sendOutputReport deviceID=" + deviceID + " length=" + report.length);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return -1;
             }
 
             return device.sendOutputReport(report);
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return -1;
     }
 
     public int sendFeatureReport(int deviceID, byte[] report) {
-        try {
+        {
             //Log.v(TAG, "sendFeatureReport deviceID=" + deviceID + " length=" + report.length);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return -1;
             }
 
             return device.sendFeatureReport(report);
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return -1;
     }
 
     public int getFeatureReport(int deviceID, byte[] report) {
-        try {
+        {
             //Log.v(TAG, "getFeatureReport deviceID=" + deviceID);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return -1;
             }
 
             return device.getFeatureReport(report);
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
-        return -1;
     }
 
     public void closeDevice(int deviceID) {
-        try {
+        {
             Log.v(TAG, "closeDevice deviceID=" + deviceID);
-            HIDDevice device;
-            device = getDevice(deviceID);
+            HIDDevice device = getDeviceById(deviceID);
             if (device == null) {
-                HIDDeviceDisconnected(deviceID);
                 return;
             }
 
             device.close();
-        } catch (Exception e) {
-            Log.e(TAG, "Got exception: " + Log.getStackTraceString(e));
         }
     }
 

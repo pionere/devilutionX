@@ -67,11 +67,6 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
     }
 
     public void handleResume() {
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        requestFocus();
-        setOnKeyListener(this);
-        setOnTouchListener(this);
         enableSensor(Sensor.TYPE_ACCELEROMETER, true);
     }
 
@@ -105,30 +100,23 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         Log.v("SDL", "surfaceChanged()");
 
         SDLActivity activity = SDLActivity.mSingleton;
-        Display display = SDLActivity.getCurrentDisplay();
 
         mWidth = width;
         mHeight = height;
         int nDeviceWidth = width;
         int nDeviceHeight = height;
-        try
-        {
-            if (Build.VERSION.SDK_INT >= 17 /* Android 4.2 (JELLY_BEAN_MR1) */) {
-                DisplayMetrics realMetrics = new DisplayMetrics();
-                display.getRealMetrics(realMetrics);
-                nDeviceWidth = realMetrics.widthPixels;
-                nDeviceHeight = realMetrics.heightPixels;
-            }
-        } catch (Exception ignored) {
-        }
+        DisplayMetrics realMetrics = activity.getResources().getDisplayMetrics();
+        nDeviceWidth = realMetrics.widthPixels;
+        nDeviceHeight = realMetrics.heightPixels;
 
-        synchronized(activity) {
+        synchronized (activity) {
             // In case we're waiting on a size change after going fullscreen, send a notification.
             activity.notifyAll();
         }
 
         Log.v("SDL", "Window size: " + width + "x" + height);
         Log.v("SDL", "Device size: " + nDeviceWidth + "x" + nDeviceHeight);
+        Display display = SDLActivity.getCurrentDisplay();
         SDLActivity.nativeSetScreenResolution(width, height, nDeviceWidth, nDeviceHeight, display.getRefreshRate());
         SDLActivity.onNativeResize();
 
@@ -149,13 +137,18 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
         // Special Patch for Square Resolution: Black Berry Passport
         if (skip) {
-           double min = Math.min(mWidth, mHeight);
-           double max = Math.max(mWidth, mHeight);
+            float min = mWidth;
+            float max = mHeight;
+            if (min > max) {
+                float tmp = min;
+                min = max;
+                max = tmp;
+            }
 
-           if (max / min < 1.20) {
-              Log.v("SDL", "Don't skip on such aspect-ratio. Could be a square resolution.");
-              skip = false;
-           }
+            if (max < 1.20 * min) {
+                Log.v("SDL", "Don't skip on such aspect-ratio. Could be a square resolution.");
+                skip = false;
+            }
         }
 
         // Don't skip if we might be multi-window or have popup dialogs
@@ -164,9 +157,9 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         }
 
         if (skip) {
-           Log.v("SDL", "Skip .. Surface is not ready.");
-           mIsSurfaceReady = false;
-           return;
+            Log.v("SDL", "Skip .. Surface is not ready.");
+            mIsSurfaceReady = false;
+            return;
         }
 
         /* If the surface has been previously destroyed by onNativeSurfaceDestroyed, recreate it here */
