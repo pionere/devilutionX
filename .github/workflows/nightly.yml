@@ -119,7 +119,7 @@ jobs:
     - name: Create Build Environment
       uses: lukka/run-vcpkg@v11.5
       with:
-        vcpkgGitCommitId: 'b91c3336aee7f32412508f7dd351ae2cabdb8819'
+        vcpkgGitCommitId: 'a62ce77d56ee07513b4b67de1ec2daeaebfae51a'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     #- name: Install Required Packages
@@ -384,7 +384,7 @@ jobs:
     - name: Package AppImage
       run: Packaging/nix/AppImage.sh && mv devilutionx.appimage devilutionx-x86_64-linux-gnu.appimage
 
-    - name: Upload Package
+    - name: Upload
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
@@ -440,7 +440,7 @@ jobs:
     # - name: Package AppImage
     #   run: Packaging/nix/AppImage.sh && mv devilutionx.appimage devilutionx-aarch64.appimage
 
-    - name: Upload Package
+    - name: Upload
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
@@ -461,7 +461,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mac.dmg'
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -489,6 +489,55 @@ jobs:
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
+
+  build_mac_arm:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-Mac-Arm
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-mac-arm.dmg'
+          - name: hellfire
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-mac-arm.dmg'
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-tags: true
+      #  fetch-depth: 0
+
+    - name: Create Build Environment
+      run: brew bundle install
+
+    #- name: Cache CMake build folder
+    #  uses: actions/cache@v4
+    #  with:
+    #    path: build
+    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v1-
+
+    #- name: Clean previous DMG
+    #  working-directory: ${{github.workspace}}
+    #  run: rm -f build/*.dmg
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DMACOSX_STANDALONE_APP_BUNDLE=ON ${{ matrix.cmakeargs }} && \
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --target package --config ${{env.BUILD_TYPE}}
+
+    - name: Upload
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ env.buildDir }}/devilutionx.dmg
+        name: ${{ matrix.artifact }}
+
   # iOS-builds
   build_ios:
     needs: build_check
@@ -504,7 +553,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ios.ipa'
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -613,7 +662,7 @@ jobs:
       shell: bash
       run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/devilutionx.apk
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-debug.apk
@@ -663,7 +712,7 @@ jobs:
       env:
         TOOLCHAIN: /opt/gcw0-toolchain
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
@@ -710,7 +759,7 @@ jobs:
       env:
         TOOLCHAIN: /opt/lepus-toolchain
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
@@ -759,7 +808,7 @@ jobs:
       env:
         TOOLCHAIN: /opt/retrofw-toolchain
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         #name: devilutionx-retrofw.opk.zip
@@ -809,7 +858,7 @@ jobs:
       shell: bash
       run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
@@ -852,7 +901,7 @@ jobs:
       shell: bash
       run: Packaging/ps5/build.sh "${{ matrix.cmakeargs }}"
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         path: build-ps5/devilutionx.zip
@@ -894,7 +943,7 @@ jobs:
     - name: Build
       run: cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
@@ -1016,7 +1065,7 @@ jobs:
     - name: Build DevilutionX
       run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
@@ -1072,7 +1121,7 @@ jobs:
       shell: bash
       run: cmake --build build-xbox -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
-    - name: Upload-Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}
@@ -1118,7 +1167,7 @@ jobs:
       run: |
         Packaging\xbox-one\build.bat ${{ matrix.cmakeargs }}
 
-    - name: Upload-Package
+    - name: Upload
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v4
       with:
@@ -1166,7 +1215,7 @@ jobs:
     - name: Build DevilutionX
       run: cmake --build build --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Package
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact }}

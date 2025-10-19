@@ -66,7 +66,7 @@
     android.content.Context getContext();
     java.lang.String getInternalStoragePath();
     java.lang.String getExternalStoragePath();
-    boolean getManifestEnvironmentVariables();
+    void getManifestEnvironmentVariables();
     android.view.Surface getNativeSurface();
     void initTouch();
     boolean isAndroidTV();
@@ -78,7 +78,7 @@
     void minimizeWindow();
     int openURL(java.lang.String);
     void requestPermission(java.lang.String, int);
-    int showToast(java.lang.String, int, int, int, int);
+    void showToast(java.lang.String, int, int, int, int);
     boolean sendMessage(int, int);
     void setActivityTitle(java.lang.String);
     boolean setCustomCursor(int);

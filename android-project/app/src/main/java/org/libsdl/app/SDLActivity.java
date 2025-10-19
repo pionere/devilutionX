@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputType;
@@ -306,9 +307,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mHasFocus = true;
         mNextNativeState = NativeState.INIT;
         mCurrentNativeState = NativeState.INIT;
+        mCommandHandler = null;
+        mFullscreenModeActive = false;
     }
 
     protected static void create() {
+        mCommandHandler = new SDLCommandHandler(Looper.getMainLooper());
+
         if (Build.VERSION.SDK_INT >= 26 /* Android 8.0 (O) */) {
             mMotionListener = new SDLGenericMotionListener_API26();
         } else if (Build.VERSION.SDK_INT >= 24 /* Android 7.0 (N) */) {
@@ -585,8 +590,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             return;
         }
 
-        if (mCurrentLocale == null || !mCurrentLocale.equals(newConfig.locale)) {
-            mCurrentLocale = newConfig.locale;
+        Locale newLocale;
+        if (Build.VERSION.SDK_INT < 24 /* Android 7.0 (N) */) {
+            newLocale = newConfig.locale;
+        } else {
+            newLocale = newConfig.getLocales().get(0);
+        }
+        if (mCurrentLocale == null || !mCurrentLocale.equals(newLocale)) {
+            mCurrentLocale = newLocale;
             SDLActivity.onNativeLocaleChanged();
         }
     }
@@ -721,11 +732,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             if (mSurface.mIsSurfaceReady && (mHasFocus || mHasMultiWindow) && mIsResumedCalled) {
                 if (mSDLThread == null) {
                     // This is the entry point to the C app.
-                    // Start up the C app thread and enable sensor input for the first time
-                    // FIXME: Why aren't we enabling sensor input at start?
-
+                    // Start up the C app thread
                     mSDLThread = new Thread(new SDLMain(), "SDLThread");
-                    mSurface.enableSensor(Sensor.TYPE_ACCELEROMETER, true);
                     mSDLThread.start();
 
                     // No nativeResume(), don't signal Android_ResumeSem
@@ -746,10 +754,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Messages from the SDLMain thread
-    static final int COMMAND_CHANGE_TITLE = 1;
-    static final int COMMAND_CHANGE_WINDOW_STYLE = 2;
-    static final int COMMAND_TEXTEDIT_HIDE = 3;
-    static final int COMMAND_SET_KEEP_SCREEN_ON = 5;
+    protected static final int COMMAND_CHANGE_TITLE = 1;
+    protected static final int COMMAND_CHANGE_WINDOW_STYLE = 2;
+    protected static final int COMMAND_TEXTEDIT_HIDE = 3;
+    protected static final int COMMAND_SET_KEEP_SCREEN_ON = 5;
 
     protected static final int COMMAND_USER = 0x8000;
 
@@ -773,6 +781,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * static to prevent implicit references to enclosing object.
      */
     protected static class SDLCommandHandler extends Handler {
+
+        public SDLCommandHandler(Looper looper) {
+            super(looper);
+        }
         @Override
         public void handleMessage(Message msg) {
             SDLActivity activity = SDLActivity.mSingleton;
@@ -851,14 +863,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     // Handler for the messages
-    protected Handler commandHandler = new SDLCommandHandler();
+    protected static Handler mCommandHandler;
 
     // Send a message from the SDLMain thread
     protected boolean sendCommand(int command, Object data) {
-        Message msg = commandHandler.obtainMessage();
+        Message msg = SDLActivity.mCommandHandler.obtainMessage();
         msg.arg1 = command;
         msg.obj = data;
-        boolean result = commandHandler.sendMessage(msg);
+        boolean result = SDLActivity.mCommandHandler.sendMessage(msg);
 
         if (Build.VERSION.SDK_INT >= 19 /* Android 4.4 (KITKAT) */) {
             if (command == COMMAND_CHANGE_WINDOW_STYLE) {
@@ -868,9 +880,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 // assert(data instanceof Integer);
                 {
                     // Let's figure out if we're already laid out fullscreen or not.
-                    Display display = SDLActivity.getCurrentDisplay();
-                    DisplayMetrics realMetrics = new DisplayMetrics();
-                    display.getRealMetrics(realMetrics);
+                    DisplayMetrics realMetrics = getResources().getDisplayMetrics();
 
                     boolean bFullscreenLayout = ((realMetrics.widthPixels == mSurface.getWidth()) &&
                             (realMetrics.heightPixels == mSurface.getHeight()));
@@ -905,8 +915,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                             synchronized (context) {
                                 try {
                                     context.wait(500);
-                                } catch (InterruptedException ie) {
-                                    ie.printStackTrace();
+                                } catch (InterruptedException ex) {
+                                    Log.e(TAG, ex.getMessage());
                                 }
                             }
                         }
@@ -1224,28 +1234,34 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static boolean getManifestEnvironmentVariables() {
+    public static void getManifestEnvironmentVariables() {
         try {
             ApplicationInfo applicationInfo = mSingleton.getPackageManager().getApplicationInfo(mSingleton.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = applicationInfo.metaData;
             if (bundle == null) {
-                return false;
+                return;
             }
-            String prefix = "SDL_ENV.";
+            final String prefix = "SDL_ENV.";
             final int trimLength = prefix.length();
             for (String key : bundle.keySet()) {
                 if (key.startsWith(prefix)) {
                     String name = key.substring(trimLength);
-                    String value = bundle.get(key).toString();
-                    nativeSetenv(name, value);
+                    Object entry;
+                    if (Build.VERSION.SDK_INT >= 33 /* Android 13.0 (TIRAMISU) */) {
+                        entry = bundle.getParcelable(key, Object.class);
+                    } else {
+                        entry = bundle.getParcelable(key);
+                    }
+                    if (entry != null) {
+                        nativeSetenv(name, entry.toString());
+                    } else {
+                        Log.d(TAG, "The value of '" + name + "' environmental variable could not be resolved.");
+                    }
                 }
             }
-            /* environment variables set! */
-            return true;
-        } catch (Exception e) {
-           Log.v(TAG, "exception " + e.toString());
+        } catch (PackageManager.NameNotFoundException ex) {
+            // wtf...
         }
-        return false;
     }
 
     // This method is called by SDLControllerManager's API 26 Generic Motion Handler.
@@ -1308,7 +1324,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static void showTextInput(int x, int y, int w, int h) {
         // Transfer the task to the main thread as a Runnable
-        mSingleton.commandHandler.post(new ShowTextInputTask(x, y, w, h));
+        mCommandHandler.post(new ShowTextInputTask(x, y, w, h));
     }
 
     protected static boolean isTextInputEvent(KeyEvent event) {
@@ -1502,7 +1518,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             try {
                 messageboxSelection.wait();
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                Log.e(TAG, ex.getMessage());
                 return -1;
             }
         }
@@ -1833,45 +1849,22 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     /**
      * This method is called by SDL using JNI.
      */
-    public static int showToast(String message, int duration, int gravity, int xOffset, int yOffset)
+    public static void showToast(String message, int duration, int gravity, int xOffset, int yOffset)
     {
-        if (null == mSingleton) {
-            return - 1;
-        }
-
-        try {
-            class OneShotTask implements Runnable {
-                private final String mMessage;
-                private final int mDuration;
-                private final int mGravity;
-                private final int mXOffset;
-                private final int mYOffset;
-
-                OneShotTask(String message, int duration, int gravity, int xOffset, int yOffset) {
-                    mMessage  = message;
-                    mDuration = duration;
-                    mGravity  = gravity;
-                    mXOffset  = xOffset;
-                    mYOffset  = yOffset;
-                }
-
-                public void run() {
-                    try {
-                        Toast toast = Toast.makeText(mSingleton, mMessage, mDuration);
-                        if (mGravity >= 0) {
-                            toast.setGravity(mGravity, mXOffset, mYOffset);
-                        }
-                        toast.show();
-                    } catch (Exception ex) {
-                        Log.e(TAG, ex.getMessage());
+        mSingleton.runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    Toast toast = Toast.makeText(mSingleton, message, duration);
+                    if (gravity >= 0 && Build.VERSION.SDK_INT < 30 /* Android 11.0 (R) */) {
+                        toast.setGravity(gravity, xOffset, yOffset);
                     }
+                    toast.show();
+                } catch (Exception ex) {
+                    Log.e(TAG, ex.getMessage());
                 }
             }
-            mSingleton.runOnUiThread(new OneShotTask(message, duration, gravity, xOffset, yOffset));
-        } catch (Exception ex) {
-            return -1;
-        }
-        return 0;
+        });
     }
 }
 
