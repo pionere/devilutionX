@@ -1005,8 +1005,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     protected void setOrientationBis(int w, int h, boolean resizable, String hint)
     {
-        int orientation_landscape = -1;
-        int orientation_portrait = -1;
+        int orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        int orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 
         /* If set, hint "explicitly controls which UI orientations are allowed". */
         boolean landscape_right = hint.contains("LandscapeRight");
@@ -1020,18 +1020,19 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         /* exact match to 'Portrait' to distinguish with PortraitUpsideDown */
-        boolean contains_Portrait = hint.contains("Portrait ") || hint.endsWith("Portrait");
+        boolean portrait = hint.contains("Portrait ") || hint.endsWith("Portrait");
+        boolean portrait_upsidedown = hint.contains("PortraitUpsideDown");
 
-        if (contains_Portrait && hint.contains("PortraitUpsideDown")) {
+        if (portrait && portrait_upsidedown) {
             orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT;
-        } else if (contains_Portrait) {
+        } else if (portrait) {
             orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        } else if (hint.contains("PortraitUpsideDown")) {
+        } else if (portrait_upsidedown) {
             orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
         }
 
-        boolean is_landscape_allowed = (orientation_landscape != -1);
-        boolean is_portrait_allowed = (orientation_portrait != -1);
+        boolean is_landscape_allowed = (orientation_landscape != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        boolean is_portrait_allowed = (orientation_portrait != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         int req; /* Requested orientation */
 
         /* No valid hint, nothing is explicitly allowed */
