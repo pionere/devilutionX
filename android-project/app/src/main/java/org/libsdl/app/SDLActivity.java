@@ -14,8 +14,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.net.Uri;
@@ -517,7 +521,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     }
 
     public static Display getCurrentDisplay() {
-        return mSingleton.getWindowManager().getDefaultDisplay();
+        Display display;
+        if (Build.VERSION.SDK_INT >= 30 /* Android 11.0 (R) */) {
+            display = mSingleton.getDisplay();
+        } else {
+            display = mSingleton.getWindowManager().getDefaultDisplay();
+        }
+        return display;
     }
 
     protected static int getCurrentOrientation() {
@@ -995,8 +1005,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     protected void setOrientationBis(int w, int h, boolean resizable, String hint)
     {
-        int orientation_landscape = -1;
-        int orientation_portrait = -1;
+        int orientation_landscape = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        int orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 
         /* If set, hint "explicitly controls which UI orientations are allowed". */
         boolean landscape_right = hint.contains("LandscapeRight");
@@ -1010,18 +1020,19 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         /* exact match to 'Portrait' to distinguish with PortraitUpsideDown */
-        boolean contains_Portrait = hint.contains("Portrait ") || hint.endsWith("Portrait");
+        boolean portrait = hint.contains("Portrait ") || hint.endsWith("Portrait");
+        boolean portrait_upsidedown = hint.contains("PortraitUpsideDown");
 
-        if (contains_Portrait && hint.contains("PortraitUpsideDown")) {
+        if (portrait && portrait_upsidedown) {
             orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT;
-        } else if (contains_Portrait) {
+        } else if (portrait) {
             orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        } else if (hint.contains("PortraitUpsideDown")) {
+        } else if (portrait_upsidedown) {
             orientation_portrait = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
         }
 
-        boolean is_landscape_allowed = (orientation_landscape != -1);
-        boolean is_portrait_allowed = (orientation_portrait != -1);
+        boolean is_landscape_allowed = (orientation_landscape != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        boolean is_portrait_allowed = (orientation_portrait != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         int req; /* Requested orientation */
 
         /* No valid hint, nothing is explicitly allowed */
@@ -1454,7 +1465,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     // Messagebox
 
     /** Result of current messagebox. Also used for blocking the calling thread. */
-    protected final int[] messageboxSelection = new int[1];
+    protected static final int[] messageboxSelection = new int[1];
 
     /**
      * This method is called by SDL using JNI.
@@ -1466,7 +1477,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * @param colors null for default or array of length 5 containing colors.
      * @return button id or -1.
      */
-    public int messageboxShowMessageBox(
+    public static int messageboxShowMessageBox(
             final int flags,
             final String title,
             final String message,
@@ -1505,10 +1516,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         // trigger Dialog creation on UI thread
 
-        runOnUiThread(new Runnable() {
+        mSingleton.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                messageboxCreateAndShow(args);
+                mSingleton.messageboxCreateAndShow(args);
             }
         });
 
@@ -1622,7 +1633,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                     button.setBackgroundColor(buttonBackgroundColor);
                 } else {
                     // setting the color this way keeps the style (gradient, padding, etc.)
-                    drawable.setColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                    ColorFilter colorFilter;
+                    if (Build.VERSION.SDK_INT >= 29 /* Android 10.0 (Q) */) {
+                        colorFilter = new BlendModeColorFilter(buttonBackgroundColor, BlendMode.MODULATE);
+                    } else {
+                        colorFilter = new PorterDuffColorFilter(buttonBackgroundColor, PorterDuff.Mode.MULTIPLY);
+                    }
+                    drawable.setColorFilter(colorFilter);
                 }
             }
             if (buttonSelectedColor != Color.TRANSPARENT) {
