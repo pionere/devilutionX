@@ -1559,8 +1559,8 @@ static void MonStartStand(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
+	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_STAND, mon->_mdir);
-	//FixMonLocation(mnum);
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
 	mon->_mVar2 = 0;           // STAND_TICK : the time spent on standing
 	mon->_mmode = MM_STAND;
@@ -1581,8 +1581,8 @@ static void MonStartSpStand(int mnum, int md)
 {
 	MonsterStruct* mon;
 
-	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_SPSTAND;
 }
@@ -1593,8 +1593,8 @@ static void MonStartAttack(int mnum)
 	MonsterStruct* mon;
 
 	// assert(md == MonEnemyRealDir(mnum));
-	NewMonsterAnim(mnum, MA_ATTACK, md);
 	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_ATTACK, md);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_ATTACK;
 }
@@ -1605,8 +1605,8 @@ static void MonStartRAttack(int mnum, int mitype)
 	MonsterStruct* mon;
 
 	// assert(md == MonEnemyRealDir(mnum));
-	NewMonsterAnim(mnum, MA_ATTACK, md);
 	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_ATTACK, md);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RATTACK;
 	mon->_mVar1 = mitype; // RATTACK_SKILL
@@ -1624,8 +1624,8 @@ static void MonStartRSpAttack(int mnum, int mitype)
 	MonsterStruct* mon;
 
 	// assert(md == MonEnemyRealDir(mnum));
-	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	AssertFixMonLocation(mnum);
+	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RSPATTACK;
 	mon->_mVar1 = mitype; // SPATTACK_SKILL
@@ -1648,10 +1648,10 @@ static void MonStartSpAttack(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
+	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
 	mon->_mmode = MM_SPATTACK;
-	AssertFixMonLocation(mnum);
 }
 
 /*
@@ -2440,7 +2440,6 @@ static bool MonDoAttack(int mnum)
 		PlayMonSfx(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2459,7 +2458,6 @@ static bool MonDoRAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2488,7 +2486,6 @@ static bool MonDoRSpAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2505,7 +2502,6 @@ static bool MonDoSpAttack(int mnum)
 		MonTryH2HHit(mnum, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2527,7 +2523,6 @@ static bool MonDoFadein(int mnum)
 	//	ChangeLightRadius(mon->_mlid, MON_LIGHTRAD);
 	//	ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
 	//}
-	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	return true;
 }
@@ -2546,7 +2541,6 @@ static bool MonDoFadeout(int mnum)
 		// assert(mon->_mlid == NO_LIGHT);
 		//ChangeLightRadius(mon->_mlid, 0);
 	//}
-	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	return true;
 }
@@ -2582,7 +2576,6 @@ static bool MonDoTalk(int mnum)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	AssertFixMonLocation(mnum);
 	MonStartStand(mnum);
 	// assert(mon->_mgoal == MGOAL_TALKING);
 	mon->_mgoalvar1 = TRUE; // TALK_SPEAKING
@@ -2594,7 +2587,6 @@ static bool MonDoTalk(int mnum)
 static bool MonDoGotHit(int mnum)
 {
 	if (monsters[mnum]._mAnimFrame == monsters[mnum]._mAnimLen) {
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2675,7 +2667,6 @@ static bool MonDoSpStand(int mnum)
 		PlayMonSfx(mnum, MS_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -2718,7 +2709,6 @@ static bool MonDoCharge(int mnum)
 	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
 		//assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
-		AssertFixMonLocation(mnum);
 		MonStartStand(mnum);
 		return true;
 	}
@@ -3374,7 +3364,6 @@ void MAI_Fallen(int mnum)
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mdir = OPPOSITE(mon->_mdir);
-			AssertFixMonLocation(mnum);
 			MonStartStand(mnum);
 		}
 	} else {
@@ -4731,7 +4720,6 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 			mon->_mVar6 -= mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
 			mon->_mVar7 -= mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
 		} else {
-			AssertFixMonLocation(mnum);
 			// assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			// assert(dPlayer[mon->_mx][mon->_my] == 0);
@@ -4756,7 +4744,6 @@ void MissToMonst(int mi)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MissToMonst: Invalid monster %d", mnum);
 	}
-	AssertFixMonLocation(mnum);
 	mon = &monsters[mnum];
 	// assert(dMonster[mon->_mx][mon->_my] == 0);
 	dMonster[mon->_mx][mon->_my] = mnum + 1;
