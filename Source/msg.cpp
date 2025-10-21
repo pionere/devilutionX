@@ -3907,8 +3907,9 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		BYTE _pIRecoverySpeed;
 		BYTE _pIBaseCastSpeed;
 		BYTE _pAlign_B1;
-		int _pIAbsAnyHit;
-		BYTE _pIBaseAttackSpeed;
+		int _pIAbsAnyHit; // absorbed hit damage
+		int _pIAbsPhyHit; // absorbed physical hit damage
+		int8_t _pIBaseAttackSpeed;
 		int8_t _pIArrowVelBonus; // _pISplCost in vanilla code
 		BYTE _pILifeSteal;
 		BYTE _pIManaSteal;

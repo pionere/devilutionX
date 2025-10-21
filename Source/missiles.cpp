@@ -1117,7 +1117,7 @@ static bool MissPlrHitByMon(int pnum, int mi)
 static bool MissPlrHitByPlr(int pnum, int mi)
 {
 	MissileStruct* mis;
-	int offp, dam, dir, hper;
+	int offp, hper, dir, dam;
 	unsigned hitFlags;
 
 	mis = &missile[mi];

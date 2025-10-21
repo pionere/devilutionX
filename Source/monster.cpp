@@ -1557,9 +1557,8 @@ static void AssertFixMonLocation(int mnum)
 
 static void MonStartStand(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	NewMonsterAnim(mnum, MA_STAND, mon->_mdir);
 	//FixMonLocation(mnum);
 	mon->_mVar1 = mon->_mmode; // STAND_PREV_MODE : previous mode of the monster
@@ -1662,6 +1661,7 @@ static void MonStartSpAttack(int mnum)
 static void MonStartFadein(int mnum, bool backwards)
 {
 	MonsterStruct* mon = &monsters[mnum];
+
 	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
@@ -1679,6 +1679,7 @@ static void MonStartFadein(int mnum, bool backwards)
 static void MonStartFadeout(int mnum, bool backwards)
 {
 	MonsterStruct* mon = &monsters[mnum];
+
 	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
@@ -1695,6 +1696,7 @@ static void MonStartFadeout(int mnum, bool backwards)
 static void MonStartHeal(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
+
 	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 

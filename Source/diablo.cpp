@@ -38,7 +38,7 @@ int gbRedrawFlags;
 Uint32 gnGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
 BYTE gbDeathflag = MDM_ALIVE;
-/** The state of the buttons for which might be repeated while held down. */
+/** The state of the buttons which might be repeated while held down. */
 unsigned gbActionBtnDown;
 /** The state of the mod-buttons. */
 unsigned gbModBtnDown;
