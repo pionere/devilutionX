@@ -1206,7 +1206,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	//}
 }
 
-static bool StartWalk(int pnum, int dir)
+static void StartWalk(int pnum, int dir)
 {
 	int mwi;
 
@@ -1277,7 +1277,6 @@ static bool StartWalk(int pnum, int dir)
 			ScrollInfo._sdir = dir;
 		//}
 	}
-	return true;
 }
 
 static void StartAttack(int pnum)
