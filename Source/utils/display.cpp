@@ -190,6 +190,7 @@ void SpawnWindow()
 #if SDL_VERSION_ATLEAST(2, 0, 10) && (__ANDROID__ || __IPHONEOS__)
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 #endif
+	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "vulkan");
 
 	int initFlags = SDL_INIT_VIDEO;
 #ifndef NOSOUND
@@ -289,7 +290,12 @@ void SpawnWindow()
 		if (renderer == NULL) {
 			sdl_error(ERR_SDL_RENDERER_CREATE);
 		}
-
+		{
+			SDL_RendererInfo info;
+			int ri = SDL_GetRendererInfo(renderer,
+				&info);
+			LogErrorF("renderer %d: '%s' flags:%d formats %d (%d) ms %dx%d", ri, info.name, info.flags, info.num_texture_formats, info.texture_formats[0], info.max_texture_width, info.max_texture_height);
+		}
 		RecreateDisplay(width, height);
 	} else {
 		SDL_GetWindowSize(ghMainWnd, &width, &height);
