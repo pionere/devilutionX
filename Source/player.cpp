@@ -660,9 +660,6 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
 
-	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
-	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
-
 	//plr._pMainSkill = { { SPL_ATTACK, RSPLTYPE_ABILITY } , { SPL_WALK, RSPLTYPE_ABILITY } };
 	//plr._pAltSkill = { { SPL_NULL, 0 } , SPL_NULL, 0 } };
 	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
@@ -749,9 +746,6 @@ void InitPlayer(int pnum)
 	CalculateGold(pnum);
 
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
-
-	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
-	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
 }
 
 /*

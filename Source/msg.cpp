@@ -3861,14 +3861,12 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		*(uint64_t*)buf = plx(i)._pMemSkills;
 		buf += sizeof(uint64_t);
-		*(uint64_t*)buf = plx(i)._pAblSkills;
-		buf += sizeof(uint64_t);
 		*(uint64_t*)buf = plx(i)._pInvSkills;
 		buf += sizeof(uint64_t);
 
 		//LogErrorF("Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
-		assert((size_t)buf - (size_t)plrdata == 219);
-		NetSendChunk(plrdata, 219); // (size_t)buf - (size_t)plrdata);
+		assert((size_t)buf - (size_t)plrdata == 211);
+		NetSendChunk(plrdata, 211); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes II.
 		buf = &plrdata[1];
@@ -4180,9 +4178,6 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		if (plx(i)._pMemSkills != *(const uint64_t*)src)
 			PrintPlrMismatch64("MemSkills", plx(i)._pMemSkills, *(const uint64_t*)src, pnum, i);
-		src += sizeof(uint64_t);
-		if (plx(i)._pAblSkills != *(const uint64_t*)src)
-			PrintPlrMismatch64("AblSkills", plx(i)._pAblSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		if (plx(i)._pInvSkills != *(const uint64_t*)src)
 			PrintPlrMismatch64("InvSkills", plx(i)._pInvSkills, *(const uint64_t*)src, pnum, i);

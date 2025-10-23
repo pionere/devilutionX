@@ -381,7 +381,6 @@ typedef struct PlayerStruct {
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
-	uint64_t _pAblSkills;  // Bitmask of abilities
 	uint64_t _pInvSkills;  // Bitmask of skills available via items in inventory (scrolls or runes)
 	char _pName[PLR_NAME_LEN];
 	uint16_t _pBaseStr;
@@ -461,7 +460,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(188, 102)
+	ALIGNMENT(190, 104)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1252,7 +1251,6 @@ typedef struct LSavePlayerStruct {
 	BYTE vpSkillActivity[64];
 	LE_UINT32 vpSkillExp[64];
 	LE_UINT64 vpMemSkills;  // Bitmask of learned skills
-	LE_UINT64 vpAblSkills;  // Bitmask of abilities
 	LE_UINT64 vpInvSkills;  // Bitmask of skills available via items in inventory (scrolls or runes)
 	char vpName[PLR_NAME_LEN];
 	LE_UINT16 vpBaseStr;
