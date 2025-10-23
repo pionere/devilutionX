@@ -2336,6 +2336,45 @@ static unsigned On_TURN(const TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
+{
+	int ma;
+	BYTE sn = su.skill, slvl;
+	int8_t sf = su.from;
+	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
+
+	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
+
+	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
+		slvl = plr._pSkillLvl[sn];
+		if (sf == SPLFROM_MANA) {
+			if (slvl == 0)
+				return false;
+			net_assert(plr._pMemSkills & SPELL_MASK(sn));
+			// always grant skill-activity to prevent de-sync
+			// TODO: add checks to prevent abuse?
+			ma = GetManaAmount(pnum, sn);
+			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
+			if (sameLvl) {
+				if (plr._pMana < ma)
+					return false;
+				PlrDecMana(pnum, ma);
+			}
+		} else if (sf == SPLFROM_ABILITY) {
+			uint64_t mask = plr._pAblSkills & ~SPELL_MASK(SPL_WALK);
+			net_assert(mask & SPELL_MASK(sn));
+		} else {
+			net_assert((BYTE)sf < NUM_INVELEM);
+			if (!SyncUseItem(pnum, sf, sn))
+				return false;
+		}
+		plr._pDestParam3 = sn;
+		plr._pDestParam4 = slvl;
+		return sameLvl;
+	}
+	return false;
+}
+
 static unsigned On_BLOCK(const TCmd* pCmd, int pnum)
 {
 	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
@@ -2508,45 +2547,6 @@ static unsigned On_SPAWNITEM(const TCmd* pCmd, int pnum)
 	}
 
 	return sizeof(*cmd);
-}
-
-static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
-{
-	int ma;
-	BYTE sn = su.skill, slvl;
-	int8_t sf = su.from;
-	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
-
-	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
-
-	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		slvl = plr._pSkillLvl[sn];
-		if (sf == SPLFROM_MANA) {
-			if (slvl == 0)
-				return false;
-			net_assert(plr._pMemSkills & SPELL_MASK(sn));
-			// always grant skill-activity to prevent de-sync
-			// TODO: add checks to prevent abuse?
-			ma = GetManaAmount(pnum, sn);
-			plr._pSkillActivity[sn] = std::min((ma >> (6 + 1)) + plr._pSkillActivity[sn], UCHAR_MAX);
-			if (sameLvl) {
-				if (plr._pMana < ma)
-					return false;
-				PlrDecMana(pnum, ma);
-			}
-		} else if (sf == SPLFROM_ABILITY) {
-			uint64_t mask = plr._pAblSkills & ~SPELL_MASK(SPL_WALK);
-			net_assert(mask & SPELL_MASK(sn));
-		} else {
-			net_assert((BYTE)sf < NUM_INVELEM);
-			if (!SyncUseItem(pnum, sf, sn))
-				return false;
-		}
-		plr._pDestParam3 = sn;
-		plr._pDestParam4 = slvl;
-		return sameLvl;
-	}
-	return false;
 }
 
 static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
