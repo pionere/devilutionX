@@ -415,7 +415,7 @@ void DrawSkillList()
 	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
-			mask = plr._pAblSkills;
+			mask = SPELL_MASK(plrAbility) | SPL_ABI_MASK;
 			//c = SPLICONLAST + 3;
 			break;
 		case RSPLTYPE_SPELL:
