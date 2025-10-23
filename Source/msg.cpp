@@ -2361,7 +2361,7 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 				PlrDecMana(pnum, ma);
 			}
 		} else if (sf == SPLFROM_ABILITY) {
-			uint64_t mask = plr._pAblSkills & ~SPELL_MASK(SPL_WALK);
+			uint64_t mask = SPELL_MASK(plrAbility) | (SPL_ABI_MASK & ~SPELL_MASK(SPL_WALK));
 			net_assert(mask & SPELL_MASK(sn));
 		} else {
 			net_assert((BYTE)sf < NUM_INVELEM);
