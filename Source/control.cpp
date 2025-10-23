@@ -1765,29 +1765,10 @@ void DrawDurIcon()
 	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x);
 }
 
-static BYTE GetSBookTrans(int sn)
-{
-	PlayerStruct* p;
-	BYTE st;
-
-	p = &myplr;
-	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (uint64_t) (fixed)
-		st = RSPLTYPE_ABILITY;
-	} else if (p->_pISpells & SPELL_MASK(sn)) {
-		st = RSPLTYPE_CHARGES;
-	} else if (p->_pInvSkills & SPELL_MASK(sn)) {
-		st = RSPLTYPE_INV;
-	} else {
-		st = RSPLTYPE_SPELL;
-	}
-	return st;
-}
-
 void DrawSpellBook()
 {
 	int pnum, i, sn, mana, lvl, sx, yp, offset;
 	BYTE st;
-	uint64_t spl;
 
 	// back panel
 	sx = SCREEN_X + gnWndBookX;
@@ -1803,14 +1784,26 @@ void DrawSpellBook()
 	currSkill._suSkill = SPL_INVALID;
 
 	pnum = mypnum;
-	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pInvSkills;
 
 	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
 	sx += SBOOK_CELBORDER;
 	for (i = 0; i < lengthof(SpellPages[guBooktab]); i++) {
 		sn = SpellPages[guBooktab][i];
-		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
-			st = GetSBookTrans(sn);
+		if (sn == SPL_INVALID) {
+			continue;
+		}
+		if (plr._pAblSkills & SPELL_MASK(sn)) {
+			st = RSPLTYPE_ABILITY;
+		} else if (plr._pISpells & SPELL_MASK(sn)) {
+			st = RSPLTYPE_CHARGES;
+		} else if (plr._pInvSkills & SPELL_MASK(sn)) {
+			st = RSPLTYPE_INV;
+		} else if (plr._pMemSkills & SPELL_MASK(sn)) {
+			st = RSPLTYPE_SPELL;
+		} else {
+			continue;
+		}
+		{
 			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
 			// assert(lvl >= 0 || lvl == -1);
 			mana = 0;
