@@ -2551,12 +2551,15 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
 {
 	const TCmdLocSkill* cmd = (const TCmdLocSkill*)pCmd;
+	int x, y;
 
 	if (CheckPlrSkillUse(pnum, cmd->lsu)) {
-		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
+		x = cmd->x;
+		y = cmd->y;
+		net_assert(IN_ACTIVE_AREA(x, y));
 		plr._pDestAction = spelldata[cmd->lsu.skill].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[cmd->lsu.skill].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
-		plr._pDestParam1 = cmd->x;
-		plr._pDestParam2 = cmd->y;
+		plr._pDestParam1 = x;
+		plr._pDestParam2 = y;
 		// plr._pDestParam3 = cmd->lsu.skill;      // spell/skill
 		// plr._pDestParam4 = (BYTE)cmd->lsu.from; // spllvl (set in CheckPlrSkillUse)
 	}
@@ -2599,18 +2602,20 @@ static unsigned On_OPERATEITEM(const TCmd* pCmd, int pnum)
 static unsigned On_OPOBJXY(const TCmd* pCmd, int pnum)
 {
 	const TCmdLocParam1* cmd = (const TCmdLocParam1*)pCmd;
-	int oi;
+	int oi, x, y;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		oi = cmd->wParam1;
+		x = cmd->x;
+		y = cmd->y;
 
 		net_assert(oi < MAXOBJECTS);
-		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
-		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
+		net_assert(IN_ACTIVE_AREA(x, y));
+		net_assert(abs(dObject[x][y]) == oi + 1);
 
 		plr._pDestAction = ACTION_OPERATE;
-		plr._pDestParam1 = cmd->x;
-		plr._pDestParam2 = cmd->y;
+		plr._pDestParam1 = x;
+		plr._pDestParam2 = y;
 		plr._pDestParam3 = SPL_ATTACK; // spell
 		plr._pDestParam4 = oi;         // fake spllvl
 	}
@@ -2621,7 +2626,7 @@ static unsigned On_OPOBJXY(const TCmd* pCmd, int pnum)
 static unsigned On_DISARMXY(const TCmd* pCmd, int pnum)
 {
 	const TCmdLocDisarm* cmd = (const TCmdLocDisarm*)pCmd;
-	int oi;
+	int oi, x, y;
 	CmdSkillUse su;
 
 	su.from = cmd->from;
@@ -2629,14 +2634,16 @@ static unsigned On_DISARMXY(const TCmd* pCmd, int pnum)
 
 	if (CheckPlrSkillUse(pnum, su)) {
 		oi = cmd->oi;
+		x = cmd->x;
+		y = cmd->y;
 
 		net_assert(oi < MAXOBJECTS);
-		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
-		net_assert(abs(dObject[cmd->x][cmd->y]) == oi + 1);
+		net_assert(IN_ACTIVE_AREA(x, y));
+		net_assert(abs(dObject[x][y]) == oi + 1);
 
 		plr._pDestAction = ACTION_SPELL;
-		plr._pDestParam1 = cmd->x;
-		plr._pDestParam2 = cmd->y;
+		plr._pDestParam1 = x;
+		plr._pDestParam2 = y;
 		// plr._pDestParam3 = SPL_DISARM; // spell
 		plr._pDestParam4 = oi;         // fake spllvl
 	}
