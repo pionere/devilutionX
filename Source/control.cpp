@@ -97,7 +97,7 @@ static POS32 deltaSkillPos;
 /** The number of spells/skills on a single spellbook page. */
 #define NUM_BOOK_ENTRIES 7
 /** Maps from spellbook page number and position to spell_id. */
-static BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
+static const BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 	// clang-format off
 	{ SPL_NULL, SPL_CBOLT, SPL_LIGHTNING, SPL_CHAIN, SPL_NOVA, SPL_INVALID, SPL_INVALID },
 	{ SPL_FIREBOLT, SPL_FIREBALL, SPL_INFERNO, SPL_FIREWALL, SPL_WAVE, SPL_GUARDIAN, SPL_ELEMENTAL },
@@ -111,7 +111,7 @@ static BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
 	// clang-format on
 };
 /** Maps from player-class to team-icon id in pSBkIconCels. */
-static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
+static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #ifdef HELLFIRE
 	41, 9, 38,
 #endif
@@ -942,7 +942,6 @@ void InitControlPan()
 #ifdef HELLFIRE
 	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[RSPLTYPE_RUNE]);
 #endif
-	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
 	gbDropGoldIndex = INVITEM_NONE;
@@ -1792,7 +1791,8 @@ void DrawSpellBook()
 		if (sn == SPL_INVALID) {
 			continue;
 		}
-		if (plr._pAblSkills & SPELL_MASK(sn)) {
+		if (sn == SPL_NULL) {
+			sn = Abilities[plr._pClass];
 			st = RSPLTYPE_ABILITY;
 		} else if (plr._pISpells & SPELL_MASK(sn)) {
 			st = RSPLTYPE_CHARGES;
