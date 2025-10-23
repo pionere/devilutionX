@@ -2379,8 +2379,12 @@ static unsigned On_BLOCK(const TCmd* pCmd, int pnum)
 {
 	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	int dir;
+	CmdSkillUse su;
 
-	if (currLvl._dLevelIdx == plr._pDunLevel) {
+	su.from = SPLFROM_ABILITY;
+	su.skill = SPL_BLOCK;
+
+	if (CheckPlrSkillUse(pnum, su)) {
 		dir = cmd->bParam1;
 
 		net_assert(dir < NUM_DIRS);
