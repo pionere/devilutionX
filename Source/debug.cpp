@@ -1777,8 +1777,13 @@ void ValidateData()
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		int mind, maxd;
-		if (sd.sNameText != NULL && GetSmallStringWidth(sd.sNameText) > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))
-			app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSkillDetails
+		if (sd.sNameText != NULL) {
+			int w = GetSmallStringWidth(sd.sNameText);
+			if (w > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))
+				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSkillDetails
+			if (w > (SKILLBOOK_PNL_WIDTH - (2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET + 2 * BOXBORDER_WIDTH)))
+				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSpellBook
+		}
 
 		GetDamageAmt(i, 0, &mind, &maxd);
 		if (i == SPL_DISARM

@@ -96,20 +96,6 @@ static POS32 deltaSkillPos;
 
 /** The number of spells/skills on a single spellbook page. */
 #define NUM_BOOK_ENTRIES 7
-/** Maps from spellbook page number and position to spell_id. */
-static const BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
-	// clang-format off
-	{ SPL_NULL, SPL_CBOLT, SPL_LIGHTNING, SPL_CHAIN, SPL_NOVA, SPL_INVALID, SPL_INVALID },
-	{ SPL_FIREBOLT, SPL_FIREBALL, SPL_INFERNO, SPL_FIREWALL, SPL_WAVE, SPL_GUARDIAN, SPL_ELEMENTAL },
-	{ SPL_WHIPLASH, SPL_WALLOP, SPL_SWIPE, SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_MULTI_SHOT, SPL_PIERCE_SHOT },
-	{ SPL_GOLEM, SPL_MANASHIELD, SPL_HEAL, SPL_HEALOTHER, SPL_RNDTELEPORT, SPL_TELEPORT, SPL_TOWN },
-	{ SPL_METEOR, SPL_HBOLT, SPL_FLARE, SPL_FLASH, SPL_POISON, SPL_BLOODBOIL, SPL_WIND },
-	{ SPL_CHARGE, SPL_RAGE, SPL_SWAMP, SPL_SHROUD, SPL_TELEKINESIS, SPL_ATTRACT, SPL_STONE },
-#ifdef HELLFIRE
-	{ SPL_FIRERING, SPL_RUNEFIRE, SPL_RUNEWAVE, SPL_RUNELIGHT, SPL_RUNENOVA, SPL_INVALID, SPL_INVALID },
-#endif
-	// clang-format on
-};
 /** Maps from player-class to team-icon id in pSBkIconCels. */
 static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #ifdef HELLFIRE
@@ -1856,109 +1842,62 @@ void DrawDurIcon()
 
 void DrawSpellBook()
 {
-	int pnum, i, sn, mana, lvl, sx, yp, offset;
-	BYTE st;
-
-	// back panel
-	sx = SCREEN_X + gnWndBookX;
-	yp = SCREEN_Y + gnWndBookY;
-	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
-	// selected page
-	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
-	PrintJustifiedString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, COL_WHITE, 0);
+	int sx, yp;
 
 #if SCREEN_READER_INTEGRATION
 	PlrSkillUse prevSkill = currSkill;
 #endif
 	currSkill._suSkill = SPL_INVALID;
 
-	pnum = mypnum;
+	// back panel
+	sx = SCREEN_X + gnWndBookX;
+	yp = SCREEN_Y + gnWndBookY;
+	int wh = 2 * BOXBORDER_WIDTH + SBOOK_CELHEIGHT * (lengthof(myplr._pSkillHotKey) + lengthof(myplr._pAltSkillHotKey));
+	// draw the box
+	DrawColorTextBox(sx, yp, SBOOK_PNL_WIDTH, wh, COL_GOLD);
+	// add separator
+	DrawColorTextBoxSLine(sx, yp, SBOOK_PNL_WIDTH, BOXBORDER_WIDTH + lengthof(myplr._pSkillHotKey) * SBOOK_CELHEIGHT);
 
-	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
-	sx += SBOOK_CELBORDER;
-	for (i = 0; i < lengthof(SpellPages[guBooktab]); i++) {
-		sn = SpellPages[guBooktab][i];
-		if (sn == SPL_INVALID) {
-			continue;
-		}
-		if (sn == SPL_NULL) {
-			sn = Abilities[plr._pClass];
-			st = RSPLTYPE_ABILITY;
-		} else if (plr._pISpells & SPELL_MASK(sn)) {
-			st = RSPLTYPE_CHARGES;
-		} else if (plr._pInvSkills & SPELL_MASK(sn)) {
-			st = RSPLTYPE_INV;
-		} else if (plr._pMemSkills & SPELL_MASK(sn)) {
-			st = RSPLTYPE_SPELL;
+	sx += BOXBORDER_WIDTH;
+	yp += BOXBORDER_WIDTH - 1;
+
+	for (int i = 0; i < lengthof(myplr._pSkillHotKey) + lengthof(myplr._pAltSkillHotKey); i++) {
+		PlrSkillStruct* skill;
+		
+		yp += SBOOK_CELHEIGHT;
+		if (i < lengthof(myplr._pSkillHotKey)) {
+			skill = &myplr._pSkillHotKey[i];
 		} else {
-			continue;
-		}
-		{
-			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
-			// assert(lvl >= 0 || lvl == -1);
-			mana = 0;
-			switch (st) {
-			case RSPLTYPE_ABILITY:
-				copy_cstr(tempstr, "Ability");
-				// lvl = -1; // SPLLVL_UNDEF
-				break;
-			case RSPLTYPE_INV:
-				if (SPELL_RUNE(sn)) {
-					copy_cstr(tempstr, "Rune");
-				} else {
-					copy_cstr(tempstr, "Scroll");
-				}
-				break;
-			case RSPLTYPE_CHARGES:
-				copy_cstr(tempstr, "Equipment");
-				break;
-			case RSPLTYPE_SPELL:
-				if (lvl < 0) {
-					copy_cstr(tempstr, "Spell");
-					break;
-				}
-				if (lvl != 0) {
-					snprintf(tempstr, sizeof(tempstr), "Spell Level %d", lvl);
-				} else {
-					copy_cstr(tempstr, "Spell Level 0 - Unusable");
-				}
-				mana = GetManaAmount(pnum, sn) >> 6;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
+			if (i == lengthof(myplr._pSkillHotKey)) {
+				yp++;
 			}
-			int min, max;
-			if (lvl != -1) // SPLLVL_UNDEF
-				GetDamageAmt(sn, lvl, &min, &max);
-			else
-				min = -1;
-			offset = mana == 0 && min == -1 ? 5 : 0;
-			PrintGameStr(sx + SBOOK_LINE_TAB, yp - 23 + offset, spelldata[sn].sNameText, COL_WHITE);
-			PrintGameStr(sx + SBOOK_LINE_TAB, yp - 12 + offset, tempstr, COL_WHITE);
+			skill = &myplr._pAltSkillHotKey[i - lengthof(myplr._pSkillHotKey)];
+		}
 
-			if (offset == 0) {
-				if (mana != 0)
-					cat_str(tempstr, offset, "Mana: %d  ", mana);
-				if (min != -1)
-					cat_str(tempstr, offset, "Dam: %d-%d", min, max);
-				PrintGameStr(sx + SBOOK_LINE_TAB, yp - 1, tempstr, COL_WHITE);
-			}
-			const PlrSkillUse bookSkill = { (BYTE)sn, (BYTE)st };
-			st = GetSpellTrans(bookSkill);
-			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[st]);
-			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
-			if (bookSkill == plr._pAltSkill._psAttack || bookSkill == plr._pAltSkill._psMove) {
-				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
-			}
-			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
-				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
-				currSkill = bookSkill;
-			}
+		int sn, st;
+		sn = skill->_psAttack._suType != RSPLTYPE_INVALID ? skill->_psAttack._suSkill : SPL_INVALID;
+		st = GetSpellTrans(skill->_psAttack);
+		CelDrawTrnTbl(sx, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, SkillTrns[st]);
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
+			sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
+			SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
+			currSkill = skill->_psAttack;
 		}
-		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
+		if (sn != SPL_INVALID && spelldata[sn].sNameText != NULL)
+			PrintGameStr(sx + 2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET, yp - ((SBOOK_CELHEIGHT - 2 * SBOOK_LINE_HEIGHT) / 2 + SBOOK_LINE_HEIGHT), spelldata[sn].sNameText, COL_WHITE);
+
+		sn = skill->_psMove._suType != RSPLTYPE_INVALID ? skill->_psMove._suSkill : SPL_INVALID;
+		st = GetSpellTrans(skill->_psMove);
+		CelDrawTrnTbl(sx + SBOOK_CELWIDTH, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, SkillTrns[st]);
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
+			sx + SBOOK_CELWIDTH - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
+			SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
+			currSkill = skill->_psMove;
+		}
+		if (sn != SPL_INVALID && spelldata[sn].sNameText != NULL)
+			PrintGameStr(sx + 2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET, yp - ((SBOOK_CELHEIGHT - 2 * SBOOK_LINE_HEIGHT) / 2), spelldata[sn].sNameText, COL_WHITE);
 	}
+
 #if SCREEN_READER_INTEGRATION
 	if (prevSkill != currSkill) {
 		SpeakSpellText(currSkill);
@@ -1968,37 +1907,10 @@ void DrawSpellBook()
 
 void CheckBookClick(bool altSkill)
 {
-	int dx, dy;
-
-	if (currSkill._suSkill != SPL_INVALID) {
-		SetSkill(altSkill);
-		return;
-	}
-	if (altSkill) {
-		return;
-	}
-
-	dx = MousePos.x - (gnWndBookX + SBOOK_LEFT_BORDER);
-	dy = MousePos.y - (gnWndBookY + SBOOK_TOP_BORDER);
-	if (dx < 0 || dy < 0)
-		return;
-
-	if (dy >= lengthof(SpellPages[guBooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
-		if (dx <= SBOOK_PAGER_WIDTH * 2) {
-			if (dx <= SBOOK_PAGER_WIDTH) {
-				guBooktab = 0;
-			} else {
-				if (guBooktab != 0)
-					guBooktab--;
-			}
-		} else if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH * 2) {
-			if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH) {
-				guBooktab = SPLBOOKTABS - 1;
-			} else {
-				if (guBooktab < SPLBOOKTABS - 1)
-					guBooktab++;
-			}
-		}
+	int dx;
+	dx = MousePos.x - (gnWndBookX + 2 * SBOOK_CELWIDTH);
+	if (dx < 0) {
+		HandleSkillBtn(altSkill);
 	} else {
 		StartWndDrag(WND_BOOK);
 	}
