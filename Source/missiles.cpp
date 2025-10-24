@@ -83,15 +83,6 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_NULL:
 	case SPL_WALK:
 	case SPL_BLOCK:
-	case SPL_ATTACK:
-	case SPL_WHIPLASH:
-	case SPL_WALLOP:
-	case SPL_SWIPE:
-	case SPL_RATTACK:
-	case SPL_POINT_BLANK:
-	case SPL_FAR_SHOT:
-	case SPL_PIERCE_SHOT:
-	case SPL_MULTI_SHOT:
 	case SPL_CHARGE:
 	case SPL_RAGE:
 	case SPL_SHROUD:
@@ -118,6 +109,45 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_RUNESTONE:
 #endif
 		type = SDT_NONE;
+		break;
+	case SPL_ATTACK:
+	case SPL_WHIPLASH:
+	case SPL_WALLOP:
+	case SPL_SWIPE:
+		type = SDT_DAMAGE_MELEE;
+		switch (sn) {
+		case SPL_ATTACK:
+			mind = maxd = 128; break;
+		case SPL_WHIPLASH:
+			mind = maxd = (128 * (24 + sl)) >> 6; break;
+		case SPL_WALLOP:
+			mind = maxd = (128 * (112 + sl)) >> 6; break;
+		case SPL_SWIPE:
+			mind = maxd = (128 * (48 + sl)) >> 6; break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+		break;
+	case SPL_RATTACK:
+	case SPL_POINT_BLANK:
+	case SPL_FAR_SHOT:
+	case SPL_PIERCE_SHOT:
+	case SPL_MULTI_SHOT:
+		type = SDT_DAMAGE_RANGED;
+		switch (sn) {
+		case SPL_RATTACK:
+			mind = maxd = 128; break;
+		case SPL_POINT_BLANK:
+			mind = 0; maxd = (128 * (64 + /*32 +*/ sl)) >> 6; break;
+		case SPL_FAR_SHOT:
+			mind = (128 * (8 * 2 - 16 + sl)) >> 5; maxd = 0; break;
+		case SPL_PIERCE_SHOT:
+			mind = maxd = (128 * (32 + sl)) >> 6; break;
+		case SPL_MULTI_SHOT:
+			mind = maxd = (128 * (16 + sl)) >> 6; break;
+		default:
+			ASSUME_UNREACHABLE
+		}
 		break;
 #ifdef HELLFIRE
 	case SPL_FIRERING:

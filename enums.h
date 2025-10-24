@@ -4469,6 +4469,8 @@ typedef enum player_skill_flags {
 typedef enum skill_details_type {
 	SDT_NONE,
 	SDT_DAMAGE,
+	SDT_DAMAGE_MELEE,
+	SDT_DAMAGE_RANGED,
 } skill_details_type;
 
 typedef enum window_active {

@@ -1525,6 +1525,50 @@ static void PrintSkillString(int x, int& y)
 	y += SKILLDETAILS_LINE_HEIGHT;
 }
 
+static BYTE GetDamageAmt(int* mind, int* maxd)
+{
+	BYTE col = COL_WHITE;
+	int pnum = mypnum;
+	int mindam, maxdam;
+
+	mindam = (plr._pIFMinDam + plr._pILMinDam + plr._pIMMinDam + plr._pIAMinDam) >> 6;
+	maxdam = (plr._pIFMaxDam + plr._pILMaxDam + plr._pIMMaxDam + plr._pIAMaxDam) >> 6;
+	if (maxdam != 0)
+		col = COL_BLUE;
+	mindam += (*mind * (plr._pISlMinDam + plr._pIBlMinDam + plr._pIPcMinDam)) >> (7 + 6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
+	maxdam += (*maxd * (plr._pISlMaxDam + plr._pIBlMaxDam + plr._pIPcMaxDam)) >> (7 + 6 + 1);
+
+	*mind = mindam;
+	*maxd = maxdam;
+	return col;
+}
+
+static BYTE PrintPlrDamage(int mind, int maxd, BYTE skillflag)
+{
+	BYTE col;
+	const char* fmt;
+	char prefix[16];
+	if (mind == maxd)
+		fmt = "%d%%";
+	else if (maxd != 0)
+		fmt = "%d%% - %d%%";
+	else
+		fmt = "%d%% - ...";
+	snprintf(prefix, sizeof(prefix), fmt, 100 * mind / 128u, 100 * maxd / 128u);
+	if (myplr._pSkillFlags & skillflag) {
+		col = GetDamageAmt(&mind, &maxd);
+		if (maxd != 0)
+			fmt = "%s (%d - %d)";
+		else
+			fmt = "%s (%d - ...)";
+	} else {
+		col = COL_WHITE;
+		fmt = "%s";
+	}
+	snprintf(tempstr, sizeof(tempstr), fmt, prefix, mind, maxd);
+	return col;
+}
+
 static void DrawSkillDetails(const PlrSkillUse &skill)
 {
 	const int headerLinesOfSkillDetails = 2;
@@ -1611,16 +1655,31 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 		PrintSkillString(x, y);
 	}
 	if (skd.type != SDT_NONE) {
+		BYTE col = COL_WHITE;
 		if (lvl < 0) { // SPLLVL_UNDEF
 			copy_cstr(tempstr, "\?\?");
 		} else {
-			if (skd.v0 == skd.v1) {
-				snprintf(tempstr, sizeof(tempstr), "Damage: %d", skd.v0);
-			} else {
-				snprintf(tempstr, sizeof(tempstr), "Damage: %d-%d", skd.v0, skd.v1);
+			switch (skd.type) {
+			case SDT_DAMAGE:
+				const char* fmt;
+				if (skd.v0 == skd.v1) {
+					fmt = "Damage: %d";
+				} else {
+					fmt = "Damage: %d-%d";
+				}
+				snprintf(tempstr, sizeof(tempstr), fmt, skd.v0, skd.v1);
+				break;
+			case SDT_DAMAGE_MELEE:
+				col = PrintPlrDamage(skd.v0, skd.v1, SFLAG_MELEE);
+				break;
+			case SDT_DAMAGE_RANGED:
+				col = PrintPlrDamage(skd.v0, skd.v1, SFLAG_RANGED);
+				break;
+			default:
+				ASSUME_UNREACHABLE
 			}
 		}
-		PrintSkillString(x, y);
+		PrintSkillString(x, y, tempstr, col);
 	}
 }
 
