@@ -2044,8 +2044,8 @@ void DrawTeamBook()
 
 	hasTeam = PlrHasTeam();
 
-	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
-	sx += SBOOK_CELBORDER;
+	yp += TBOOK_TOP_BORDER + TBOOK_CELHEIGHT;
+	sx += TBOOK_CELBORDER;
 	for (i = 0; i < NUM_BOOK_ENTRIES; i++) {
 		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS)
@@ -2053,36 +2053,36 @@ void DrawTeamBook()
 		if (!plr._pActive)
 			continue;
 		// name
-		PrintLimitedString(sx + SBOOK_LINE_TAB, yp - 25, plr._pName, SBOOK_LINE_LENGTH, COL_WHITE, 0);
+		PrintLimitedString(sx + TBOOK_LINE_TAB, yp - 25, plr._pName, TBOOK_LINE_LENGTH, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
-		PrintGameStr(sx + SBOOK_LINE_TAB, yp - 13, tempstr, COL_WHITE);
+		PrintGameStr(sx + TBOOK_LINE_TAB, yp - 13, tempstr, COL_WHITE);
 
 		// mute
 		if (pnum != mypnum) {
-			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 24, TBOOK_BTN_WIDTH,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 24, TBOOK_BTN_WIDTH,
 				(guTeamMute & (1 << pnum)) != 0, "mute", 10);
 		}
 
 		// drop/leave
 		if (hasTeam && (pnum == mypnum || plr._pTeam == mypnum)) {
-			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 12, TBOOK_BTN_WIDTH, false,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 12, TBOOK_BTN_WIDTH, false,
 				pnum == mypnum ? "leave" : "drop", pnum == mypnum ? 8 : 12);
 		}
 
 		// accept/reject
 		if (guTeamInviteRec & (1 << pnum)) {
-			DrawTeamButton(sx + SBOOK_LINE_TAB, yp, TBOOK_BTN_WIDTH,
+			DrawTeamButton(sx + TBOOK_LINE_TAB, yp, TBOOK_BTN_WIDTH,
 				false, "accept", 2);
-			DrawTeamButton(sx + SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10, yp, TBOOK_BTN_WIDTH,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10, yp, TBOOK_BTN_WIDTH,
 				false, "reject", 6);
 		}
 
 		// invite/cancel
 		if (pnum != mypnum && plr._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
 			unsigned invited = (guTeamInviteSent & (1 << pnum));
-			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
 				!invited ? "invite" : "cancel", !invited ? 7 : 2);
 		}
 
@@ -2090,7 +2090,7 @@ void DrawTeamBook()
 		st = plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL);
 		CelDrawTrnTbl(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SkillTrns[st]);
 
-		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
+		yp += TBOOK_CELBORDER + TBOOK_CELHEIGHT;
 	}
 }
 
@@ -2102,27 +2102,27 @@ void CheckTeamClick(bool altAction)
 		ToggleWindow(WND_TEAM);
 		return;
 	}
-	dx = MousePos.x - (gnWndTeamX + SBOOK_LEFT_BORDER);
-	dy = MousePos.y - (gnWndTeamY + SBOOK_TOP_BORDER);
+	dx = MousePos.x - (gnWndTeamX + TBOOK_LEFT_BORDER);
+	dy = MousePos.y - (gnWndTeamY + TBOOK_TOP_BORDER);
 	if (dx < 0 || dy < 0) {
 		return;
 	}
 
-	if (dy < NUM_BOOK_ENTRIES * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
-		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
-		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+	if (dy < NUM_BOOK_ENTRIES * (TBOOK_CELBORDER + TBOOK_CELHEIGHT)) {
+		int pnum = dy / (TBOOK_CELBORDER + TBOOK_CELHEIGHT);
+		dy = dy % (TBOOK_CELBORDER + TBOOK_CELHEIGHT);
 		pnum += guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS || !plr._pActive) {
 			StartWndDrag(WND_TEAM);
 			return;
 		}
-		if (dx <= SBOOK_CELWIDTH) {
+		if (dx <= TBOOK_CELWIDTH) {
 			// clicked on the icon
 			SetupPlrMsg(pnum);
-		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
-		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
+		} else if (dx > TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
+		 && dx <= TBOOK_LINE_TAB + TBOOK_LINE_LENGTH + 8) {
 			// clicked on the right column of buttons
-			dy = 3 * dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+			dy = 3 * dy / (TBOOK_CELBORDER + TBOOK_CELHEIGHT);
 			if (dy == 0) {
 				// mute
 				if (pnum != mypnum)
@@ -2142,12 +2142,12 @@ void CheckTeamClick(bool altAction)
 					guTeamInviteSent ^= (1 << pnum);
 				}
 			}
-		} else if (dy >= (2 * (SBOOK_CELBORDER + SBOOK_CELHEIGHT) / 3)) {
+		} else if (dy >= (2 * (TBOOK_CELBORDER + TBOOK_CELHEIGHT) / 3)) {
 			if (guTeamInviteRec & (1 << pnum)) {
-				if (dx > SBOOK_LINE_TAB && dx < SBOOK_LINE_TAB + TBOOK_BTN_WIDTH) {
+				if (dx > TBOOK_LINE_TAB && dx < TBOOK_LINE_TAB + TBOOK_BTN_WIDTH) {
 					// accept (invite)
 					NetSendCmdBParam1(CMD_ACK_INVITE, pnum);
-				} else if (dx > SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10 && dx < SBOOK_LINE_TAB + 2 * TBOOK_BTN_WIDTH + 10) {
+				} else if (dx > TBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10 && dx < TBOOK_LINE_TAB + 2 * TBOOK_BTN_WIDTH + 10) {
 					// reject (invite)
 					NetSendCmdBParam1(CMD_DEC_INVITE, pnum);
 				}
@@ -2155,15 +2155,15 @@ void CheckTeamClick(bool altAction)
 			}
 		}
 	} else {
-		if (dx <= SBOOK_PAGER_WIDTH * 2) {
-			if (dx <= SBOOK_PAGER_WIDTH) {
+		if (dx <= TBOOK_PAGER_WIDTH * 2) {
+			if (dx <= TBOOK_PAGER_WIDTH) {
 				guTeamTab = 0;
 			} else {
 				if (guTeamTab != 0)
 					guTeamTab--;
 			}
-		} else if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH * 2) {
-			if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH) {
+		} else if (dx >= SPANEL_WIDTH - TBOOK_PAGER_WIDTH * 2) {
+			if (dx >= SPANEL_WIDTH - TBOOK_PAGER_WIDTH) {
 				guTeamTab = TBOOKTABS - 1;
 			} else {
 				if (guTeamTab < TBOOKTABS - 1)
