@@ -244,6 +244,10 @@ extern "C" {
 #define ITEMDETAILS_PNL_WIDTH    271
 #define ITEMDETAILS_POPUP_OFFSET INV_SLOT_SIZE_PX
 
+#define SKILLDETAILS_LINE_HEIGHT  12
+#define SKILLDETAILS_PNL_WIDTH    140
+#define SKILLDETAILS_POPUP_OFFSET INV_SLOT_SIZE_PX
+
 //////////////////////////////////////////////////
 // DIABLO UI (MENU)
 //////////////////////////////////////////////////

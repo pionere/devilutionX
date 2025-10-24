@@ -1777,6 +1777,9 @@ void ValidateData()
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		int mind, maxd;
+		if (sd.sNameText != NULL && GetSmallStringWidth(sd.sNameText) > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))
+			app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSkillDetails
+
 		GetDamageAmt(i, 0, &mind, &maxd);
 		if (i == SPL_DISARM
 		 || i == SPL_HEALOTHER || i == SPL_RESURRECT

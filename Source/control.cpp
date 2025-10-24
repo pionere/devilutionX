@@ -1527,6 +1527,116 @@ static void DrawTrigInfo()
 	DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 }
 
+static void PrintSkillString(int x, int& y, const char* str, BYTE col)
+{
+	PrintJustifiedString(x, y, x + (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), str, col, FONT_KERN_SMALL);
+	y += SKILLDETAILS_LINE_HEIGHT;
+}
+
+static void PrintSkillString(int x, int& y)
+{
+	PrintJustifiedString(x, y, x + (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), tempstr, COL_WHITE, FONT_KERN_SMALL);
+	y += SKILLDETAILS_LINE_HEIGHT;
+}
+
+static void DrawSkillDetails(const PlrSkillUse &skill)
+{
+	const int headerLinesOfSkillDetails = 2;
+	int x, y, wh;
+	int linesOfSkillDetails;
+	// prepare the details
+	int pnum, sn, lvl, mana;
+	int min, max;
+	const char* src;
+	pnum = mypnum;
+	sn = skill._suSkill;
+	lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
+	mana = 0;
+	switch (skill._suType) {
+	case RSPLTYPE_ABILITY:
+		src = "Ability";
+		break;
+	case RSPLTYPE_SPELL:
+		if (lvl < 0) {
+			src = "Spell";
+			break;
+		}
+		if (lvl != 0) {
+			src = "Spell Level %d";
+		} else {
+			src = "Spell Level 0 - Unusable";
+		}
+		mana = GetManaAmount(pnum, sn) >> 6;
+		break;
+	case RSPLTYPE_INV:
+		src = SPELL_RUNE(sn) ? "Rune" : "Scroll";
+		break;
+	case RSPLTYPE_CHARGES:
+		src = "Equipment";
+		break;
+	//case RSPLTYPE_INVALID:
+	//	break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+	if (lvl != -1) // SPLLVL_UNDEF
+		GetDamageAmt(sn, lvl, &min, &max);
+	else
+		min = -1;
+
+	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (min != -1 ? 1 : 0);
+
+	wh = BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2 + headerLinesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
+	wh += linesOfSkillDetails ? (SKILLDETAILS_LINE_HEIGHT/2 + linesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH) : 0;
+	x = MousePos.x;
+	y = MousePos.y;
+	if (x > SCREEN_MIDX(0)) {
+		x -= SKILLDETAILS_PNL_WIDTH + SKILLDETAILS_POPUP_OFFSET;
+	} else {
+		x += SKILLDETAILS_POPUP_OFFSET;
+	}
+	if (y > SCREEN_MIDY(0)) {
+		y -= wh + SKILLDETAILS_POPUP_OFFSET;
+	} else {
+		y += SKILLDETAILS_POPUP_OFFSET;
+	}
+	x += SCREEN_X;
+	y += SCREEN_Y;
+
+	// draw the box
+	DrawColorTextBox(x, y, SKILLDETAILS_PNL_WIDTH, wh, COL_GOLD);
+	// add separator
+	if (linesOfSkillDetails)
+		DrawColorTextBoxSLine(x, y, SKILLDETAILS_PNL_WIDTH, BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2 + SKILLDETAILS_LINE_HEIGHT * headerLinesOfSkillDetails + SKILLDETAILS_LINE_HEIGHT/2);
+
+	x += BOXBORDER_WIDTH;
+	y += BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT / 2 + SKILLDETAILS_LINE_HEIGHT - 1;
+
+	// print the name of the skill
+	PrintSkillString(x, y, spelldata[skill._suSkill].sNameText, skill._suType == RSPLTYPE_SPELL ? COL_BLUE : (skill._suType == RSPLTYPE_ABILITY ? COL_GOLD : COL_WHITE));
+
+	// print the source of the skill
+	snprintf(tempstr, sizeof(tempstr), src, lvl);
+	PrintSkillString(x, y);
+
+	y += SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2;
+
+	// print mana cost
+	if (mana != 0) {
+		snprintf(tempstr, sizeof(tempstr), "Mana: %d", mana);
+		PrintSkillString(x, y);
+	}
+	if (min != -1) {
+		if (min == max) {
+			snprintf(tempstr, sizeof(tempstr), "Damage: %d", min);
+		} else {
+			snprintf(tempstr, sizeof(tempstr), "Damage: %d-%d", min, max);
+		}
+		PrintSkillString(x, y);
+	}
+}
+
 void DrawInfoStr()
 {
 	POS32 pos;
@@ -1564,29 +1674,9 @@ void DrawInfoStr()
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, pos.x, pos.y + TOOLTIP2_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (gbSkillListFlag) {
-		if (currSkill._suSkill == SPL_INVALID || currSkill._suSkill == SPL_NULL)
-			return;
-		const char* src;
-		switch (currSkill._suType) {
-		case RSPLTYPE_ABILITY:
-			src = "Ability";
-			break;
-		case RSPLTYPE_SPELL:
-			src = "Spell";
-			break;
-		case RSPLTYPE_INV:
-			src = SPELL_RUNE(currSkill._suSkill) ? "Rune" : "Scroll";
-			break;
-		case RSPLTYPE_CHARGES:
-			src = "Equipment";
-			break;
-		//case RSPLTYPE_INVALID:
-		//	break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
+		if (currSkill._suSkill != SPL_INVALID && currSkill._suSkill != SPL_NULL) {
+			DrawSkillDetails(currSkill);
 		}
-		DrawTooltip2(spelldata[currSkill._suSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (gbCampaignMapFlag != CMAP_NONE) {
 		if (currCamEntry.ceIndex == 0)
 			return;
