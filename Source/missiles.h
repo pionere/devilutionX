@@ -16,7 +16,7 @@ extern int missileactive[MAXMISSILES];
 extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 
-void GetDamageAmt(int sn, int sl, int* mind, int* maxd);
+void GetSkillDetails(int sn, int sl, SkillDetails* skd);
 unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);

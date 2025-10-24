@@ -1776,7 +1776,7 @@ void ValidateData()
 	int bookSpells = 0, staffSpells = 0, scrollSpells = 0, runeSpells = 0;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
-		int mind, maxd;
+		SkillDetails skd;
 		if (sd.sNameText != NULL) {
 			int w = GetSmallStringWidth(sd.sNameText);
 			if (w > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))
@@ -1785,7 +1785,7 @@ void ValidateData()
 				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSpellBook
 		}
 
-		GetDamageAmt(i, 0, &mind, &maxd);
+		GetSkillDetails(i, 0, &skd);
 		if (i == SPL_DISARM
 		 || i == SPL_HEALOTHER || i == SPL_RESURRECT
 		 || i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE

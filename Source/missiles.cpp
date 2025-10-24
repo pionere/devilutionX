@@ -44,12 +44,13 @@ static const BYTE BloodBoilLocs[][2] = {
 	// clang-format on
 };
 
-void GetDamageAmt(int sn, int sl, int* minv, int* maxv)
+void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 {
-	int k, magic, mind, maxd;
+	int k, type, magic, mind, maxd;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
+	type = SDT_DAMAGE;
 	magic = myplr._pMagic;
 #ifdef HELLFIRE
 	if (SPELL_RUNE(sn))
@@ -116,8 +117,7 @@ void GetDamageAmt(int sn, int sl, int* minv, int* maxv)
 	case SPL_WHITTLE:
 	case SPL_RUNESTONE:
 #endif
-		mind = -1;
-		maxd = -1;
+		type = SDT_NONE;
 		break;
 #ifdef HELLFIRE
 	case SPL_FIRERING:
@@ -223,8 +223,11 @@ void GetDamageAmt(int sn, int sl, int* minv, int* maxv)
 		break;
 	}
 
-	*minv = mind;
-	*maxv = maxd;
+	skd->type = type;
+	// if (type != SDT_NONE) {
+		skd->v0 = mind;
+		skd->v1 = maxd;
+	// }
 }
 
 void RemovePortalMissile(int pnum)

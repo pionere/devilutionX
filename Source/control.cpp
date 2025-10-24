@@ -1532,18 +1532,19 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 	int linesOfSkillDetails;
 	// prepare the details
 	int pnum, sn, lvl, mana;
-	int min, max;
+	SkillDetails skd;
 	const char* src;
 	pnum = mypnum;
 	sn = skill._suSkill;
 	lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
+	GetSkillDetails(sn, lvl, &skd);
 	mana = 0;
 	switch (skill._suType) {
 	case RSPLTYPE_ABILITY:
 		src = "Ability";
 		break;
 	case RSPLTYPE_SPELL:
-		if (lvl < 0) {
+		if (lvl < 0) { // SPLLVL_UNDEF
 			src = "Spell";
 			break;
 		}
@@ -1566,12 +1567,8 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	if (lvl != -1) // SPLLVL_UNDEF
-		GetDamageAmt(sn, lvl, &min, &max);
-	else
-		min = -1;
 
-	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (min != -1 ? 1 : 0);
+	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (skd.type != SDT_NONE ? 1 : 0);
 
 	wh = BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2 + headerLinesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
 	wh += linesOfSkillDetails ? (SKILLDETAILS_LINE_HEIGHT/2 + linesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH) : 0;
@@ -1613,11 +1610,15 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 		snprintf(tempstr, sizeof(tempstr), "Mana: %d", mana);
 		PrintSkillString(x, y);
 	}
-	if (min != -1) {
-		if (min == max) {
-			snprintf(tempstr, sizeof(tempstr), "Damage: %d", min);
+	if (skd.type != SDT_NONE) {
+		if (lvl < 0) { // SPLLVL_UNDEF
+			copy_cstr(tempstr, "\?\?");
 		} else {
-			snprintf(tempstr, sizeof(tempstr), "Damage: %d-%d", min, max);
+			if (skd.v0 == skd.v1) {
+				snprintf(tempstr, sizeof(tempstr), "Damage: %d", skd.v0);
+			} else {
+				snprintf(tempstr, sizeof(tempstr), "Damage: %d-%d", skd.v0, skd.v1);
+			}
 		}
 		PrintSkillString(x, y);
 	}

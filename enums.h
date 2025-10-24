@@ -4466,6 +4466,11 @@ typedef enum player_skill_flags {
 	SFLAG_RAGE    = 1 << 4,
 } player_skill_flags;
 
+typedef enum skill_details_type {
+	SDT_NONE,
+	SDT_DAMAGE,
+} skill_details_type;
+
 typedef enum window_active {
 	WND_INV,
 	WND_CHAR,

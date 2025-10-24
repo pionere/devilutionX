@@ -2149,6 +2149,13 @@ typedef struct TMenuItem {
 // spells
 //////////////////////////////////////////////////
 
+typedef struct SkillDetails {
+	int type; // skill_details_type
+	int v0;
+	int v1;
+	int v2;
+} SkillDetails;
+
 typedef struct SpellData {
 	BYTE sManaCost;
 	BYTE sType;
