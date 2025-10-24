@@ -953,18 +953,18 @@ static bool MissMonHitByPlr(int mnum, int mi)
 		switch (mis->_miType) {
 		case MIS_ARROW:
 			break;
-		case MIS_PBARROW:
+		case MIS_PBARROW: // SPL_POINT_BLANK
 			// assert(mis->_miVar7 <= 6); -- guaranteed by _miRange
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 			break;
-		case MIS_ASARROW:
+		case MIS_ASARROW: // SPL_FAR_SHOT
 			// assert(mis->_miVar7 >= 2);
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 			break;
-		case MIS_MLARROW:
+		case MIS_MLARROW: // SPL_MULTI_SHOT
 			dam = (dam * (16 + mis->_miSpllvl)) >> 6;
 			break;
-		case MIS_PCARROW:
+		case MIS_PCARROW: // SPL_PIERCE_SHOT
 			dam = (dam * (32 + mis->_miSpllvl)) >> 6;
 			break;
 		default:
@@ -1208,18 +1208,18 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		switch (mis->_miType) {
 		case MIS_ARROW:
 			break;
-		case MIS_PBARROW:
+		case MIS_PBARROW: // SPL_POINT_BLANK
 			// assert(mis->_miVar7 <= 6); -- guaranteed by _miRange
 			dam = (dam * (64 + 32 - 16 * mis->_miVar7 + mis->_miSpllvl)) >> 6; // MISDIST
 			break;
-		case MIS_ASARROW:
+		case MIS_ASARROW: // SPL_FAR_SHOT
 			// assert(mis->_miVar7 >= 2);
 			dam = (dam * (8 * mis->_miVar7 - 16 + mis->_miSpllvl)) >> 5; // MISDIST
 			break;
-		case MIS_MLARROW:
+		case MIS_MLARROW: // SPL_MULTI_SHOT
 			dam = (dam * (16 + mis->_miSpllvl)) >> 6;
 			break;
-		case MIS_PCARROW:
+		case MIS_PCARROW: // SPL_PIERCE_SHOT
 			dam = (dam * (32 + mis->_miSpllvl)) >> 6;
 			break;
 		default:
