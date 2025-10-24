@@ -1551,7 +1551,7 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 		if (lvl != 0) {
 			src = "Spell Level %d";
 		} else {
-			src = "Spell Level 0 - Unusable";
+			src = "Spell (Unusable)";
 		}
 		mana = GetManaAmount(pnum, sn) >> 6;
 		break;
