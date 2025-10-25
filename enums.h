@@ -2034,6 +2034,7 @@ typedef enum missile_id {
 	MIS_MANASHIELD,
 	MIS_INFRA,
 	MIS_RAGE,
+	MIS_PULSE,
 #ifdef HELLFIRE
 	//MIS_LIGHTWALLC,
 	//MIS_LIGHTWALL,
@@ -3852,6 +3853,7 @@ typedef enum spell_id {
 	SPL_WIND,
 	SPL_SHROUD,
 	SPL_SWAMP,
+	SPL_PULSE,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,

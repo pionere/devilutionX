@@ -107,6 +107,7 @@ const MissileData missiledata[] = {
 /*MIS_MANASHIELD*/   { &AddManashield,  &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     LS_MSHIELD,  SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_INFRA*/        { &AddInfra,       &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     LS_INFRAVIS, SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_RAGE*/         { &AddRage,        &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
+/*MIS_PULSE*/        { &AddPulse,       &MI_Pulse,      0,                                             MISR_LIGHTNING, MFILE_LGHNING,  SFX_NONE,    SFX_NONE,           1,        1,         0,      32, ALIGN32 },
 #ifdef HELLFIRE
 /*MIS_LIGHTWALLC*/// { &AddWallC,       &MI_WallC,      0,                                             MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_LIGHTWALL*///  { &AddLightwall,   &MI_Lightwall,  MIF_AREA | MIF_DOT,                            MISR_LIGHTNING, MFILE_LGHNING,  LS_LMAG,     LS_ELECIMP1,        1,        1,         0,       0, ALIGN32 },

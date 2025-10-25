@@ -79,6 +79,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
+int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 void MI_Dummy(int mi);
 void MI_Arrow(int mi);
 void MI_AsArrow(int mi);
@@ -127,6 +128,7 @@ void MI_InfernoC(int mi);
 //void MI_FireTrap(int mi);
 void MI_Cbolt(int mi);
 void MI_Elemental(int mi);
+void MI_Pulse(int mi);
 
 #ifdef __cplusplus
 }

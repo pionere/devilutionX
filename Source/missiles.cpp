@@ -80,6 +80,11 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		mind >>= 6;
 		maxd >>= 6;
 		break;
+	case SPL_PULSE:
+		k = (magic >> 2) + (sl << 2);
+		mind = k * 3 / 4u;
+		maxd = k * 5 / 2u;
+		break;
 	case SPL_NULL:
 	case SPL_WALK:
 	case SPL_BLOCK:
@@ -3336,6 +3341,51 @@ int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	return MIRES_DELETE;
 }
 
+/**
+ * Var1: min-damage modifier on hit
+ * Var2: max-damage modifier on hit
+ */
+int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	MissileStruct* mis;
+	int mindam, maxdam, i, j, tx, ty;
+	const int8_t* cr;
+	mis = &missile[mi];
+
+	// (micaster & MST_PLAYER);
+	// assert((unsigned)pnum < MAX_PLRS);
+	// if (micaster & MST_PLAYER) {
+		mindam = 1 << 6;
+		maxdam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
+	// }
+	mis->_miVar1 = mindam / 4u;
+	mis->_miVar2 = maxdam / 4u;
+	mis->_miMinDam = mindam - mis->_miVar1;
+	mis->_miMaxDam = maxdam - mis->_miVar2;
+	mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_MINILTNG].mfAnimLen[0]);
+
+	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddPulse expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "AddPulse uses CrawlTable/CrawlNum up to radius 5.");
+	for (i = 0; i <= 5; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				mis->_mix = tx;
+				mis->_miy = ty;
+				//mis->_misx = tx; -- unused
+				//mis->_misy = ty;
+				static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
+				mis->_miLid = AddLight(tx, ty, 4);
+				return MIRES_DONE;
+			}
+		}
+	}
+	return MIRES_FAIL_DELETE;
+}
+
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
@@ -4941,6 +4991,42 @@ void MI_Elemental(int mi)
 	CheckSplashCol(mi, hit);
 
 	ConvertMissile(mi, MIS_EXFBALL);
+}
+
+void MI_Pulse(int mi)
+{
+	MissileStruct* mis;
+	int dir, tmp;
+
+	mis = &missile[mi];
+	mis->_miRange--;
+	if (mis->_miRange < 0) {
+		mis->_miDelFlag = TRUE; // + AddUnLight
+		return;
+	}
+
+	dir = mis->_miRange % 8u; // NUM_DIRS
+	if (dir == 0) {
+		// assert(misfiledata[MFILE_MINILTNG].mfAnimLen[0] == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+		mis->_miAnimFrame = (mis->_miAnimFrame % misfiledata[MFILE_LGHNING].mfAnimLen[0]) + 1;
+		if (CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE) != 0) {
+			// AddMissile(mis->_mix, mis->_miy, -1, 0, 0, MIS_EXLGHT, MST_NA, 0, 0);
+
+			mis->_miMinDam += mis->_miVar1;
+			mis->_miMaxDam += mis->_miVar2;
+
+			mis->_miVar1 *= 2;
+			mis->_miVar2 *= 2;
+		}
+	}
+
+	mis->_miFileNum = dir != 0 ? MFILE_MINILTNG : MFILE_LGHNING;
+	tmp = mis->_miAnimFrame;
+	SetMissAnim(mi, 0);
+	mis->_miAnimFrame = tmp;
+	mis->_miPreFlag = dir != 0;
+	mis->_miyoff = dir != 0 ? TILE_HEIGHT/2 - ((NUM_DIRS - 1) + dir) * ASSET_MPL : 0;
+	PutMissileF(mi, dir != 0 ? BFLAG_MISSILE_PRE : 0);
 }
 
 void ProcessMissiles()
