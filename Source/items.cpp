@@ -1868,14 +1868,13 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 {
 	int i, ui;
 	BYTE uok[NUM_UITEM];
-	BYTE uid;
-
-	if (random_(28, 100) > (quality == CFDQ_UNIQUE ? 15 : 1))
+	const ItemData &item = AllItemList[items[ii]._iIdx];
+	const BYTE uid = item.iUniqType;
+	if (uid == UITYPE_NONE || (item.iRnd != 0 && random_(28, 100) > (quality == CFDQ_UNIQUE ? 15 : 1)))
 		return -1;
 
 	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
 
-	uid = AllItemList[items[ii]._iIdx].iUniqType;
 	ui = 0;
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIUniqType == uid
@@ -1968,7 +1967,8 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
 	do {
 		SetupItem(MAXITEMS, idx, NextRndSeed(), UniqueItemList[uid].UIMinLvl, CFDQ_UNIQUE);
-	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE || items[MAXITEMS]._iUid != uid);
+	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
+	assert(items[MAXITEMS]._iUid == uid);
 
 	GetSuperItemSpace(x, y, MAXITEMS);
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
