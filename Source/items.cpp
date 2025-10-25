@@ -1968,8 +1968,7 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	SetRndSeed(glSeedTbl[DLV_HELL3]);
 	do {
 		SetupItem(MAXITEMS, idx, NextRndSeed(), UniqueItemList[uid].UIMinLvl, CFDQ_UNIQUE);
-	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
-	assert(items[MAXITEMS]._iUid == uid);
+	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE || items[MAXITEMS]._iUid != uid);
 
 	GetSuperItemSpace(x, y, MAXITEMS);
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
