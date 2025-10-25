@@ -3132,7 +3132,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	//mis->_miVar3 = 0;
 	mis->_miVar4 = random_(0, 16);
 	if (micaster & MST_PLAYER) {
-		mindam = 1;
+		mindam = 1 << 6;
 		maxdam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
 	} else {
 		mindam = monsters[misource]._mMinDamage << 6;
