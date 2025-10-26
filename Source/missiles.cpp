@@ -200,8 +200,12 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		maxd = ((magic + (sl << 4)) * 30) >> 6;
 		break;
 	case SPL_GOLEM:
-		mind = 2 * sl + 8;
-		maxd = 2 * sl + 16;
+		sl = sl * 4 + (magic >> 6);
+		sl = sl > 0 ? sl - 1 : 0;
+		k = monsterdata[MT_GOLEM].mLevel;
+		sl = k + sl;
+		mind = sl * monsterdata[MT_GOLEM].mMinDamage / k;
+		maxd = sl * monsterdata[MT_GOLEM].mMaxDamage / k;
 		break;
 	case SPL_ELEMENTAL:
 		mind = (magic >> 3) + 2 * sl + 4;
