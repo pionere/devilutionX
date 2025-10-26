@@ -1917,16 +1917,14 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGolem()
+void NetSendCmdGolem(BYTE x, BYTE y, BYTE lvl)
 {
 	TCmdGolem cmd;
-	MonsterStruct* mon;
 
-	mon = &monsters[mypnum];
 	cmd.bCmd = CMD_AWAKEGOLEM;
-	cmd.goX = mon->_mx;
-	cmd.goY = mon->_my;
-	cmd.goMonLevel = mon->_mLevel;
+	cmd.goX = x;
+	cmd.goY = y;
+	cmd.goMonLevel = lvl;
 	cmd.goDunLevel = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
