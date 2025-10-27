@@ -3356,12 +3356,15 @@ int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	const int8_t* cr;
 	mis = &missile[mi];
 
-	// (micaster & MST_PLAYER);
-	// assert((unsigned)pnum < MAX_PLRS);
-	// if (micaster & MST_PLAYER) {
+	// ((micaster & MST_PLAYER) || micaster == MST_MONSTER);
+	if (micaster == MST_MONSTER) {
+		// assert((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS);
+		mindam = monsters[misource]._mMinDamage << 6;
+		maxdam = monsters[misource]._mMaxDamage << 6;
+	} else {
 		mindam = 1 << 6;
 		maxdam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
-	// }
+	}
 	mis->_miVar1 = mindam / 4u;
 	mis->_miVar2 = maxdam / 4u;
 	mis->_miMinDam = mindam - mis->_miVar1;
