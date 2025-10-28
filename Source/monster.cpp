@@ -3317,6 +3317,7 @@ void MAI_Fallen(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int x, y, mx, my, tx, ty, m, rad, amount;
+	const int MAX_RAD = 5;
 	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
@@ -3330,17 +3331,12 @@ void MAI_Fallen(int mnum)
 				mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
 			//}
 			if (MON_HAS_ENEMY) {
-#if DEBUG
-			assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
-			assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * 5 + 8) < SQUELCH_MAX - SQUELCH_LOW);
-#endif
-			static_assert((2 * 5 + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-			if (rad > 5) {
-				rad = 5;
+			if (rad > MAX_RAD) {
+				rad = MAX_RAD;
 			}
 			amount = 2 * rad + 8;
 			rad = 2 * rad + 4;
-			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * 5 + 4, "MAI_Fallen expects a large enough border.");
+			static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * MAX_RAD + 4, "MAI_Fallen expects a large enough border.");
 			mx = mon->_mx;
 			my = mon->_my;
 			tx = mon->_menemyx;
@@ -3352,6 +3348,12 @@ void MAI_Fallen(int mnum)
 						mon = &monsters[m - 1];
 						if (mon->_mAI.aiType == AI_FALLEN /*&& !MON_RELAXED*/ && (mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
 							mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+#if DEBUG
+							assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+							assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+							assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+							static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
 							mon->_mgoal = MGOAL_ATTACK;
 							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 
