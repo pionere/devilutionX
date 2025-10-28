@@ -3316,7 +3316,8 @@ void MAI_Sneak(int mnum)
 void MonCallToArms(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int x, y, mx, my, tx, ty, m, rad, amount;
+	int i, j, x, y, mx, my, tx, ty, m, rad, amount;
+	const int8_t* cr;
 	const int MAX_RAD = 5;
 	rad = mon->_mAI.aiInt;
 	//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
@@ -3334,9 +3335,14 @@ void MonCallToArms(int mnum)
 		my = mon->_my;
 		tx = mon->_menemyx;
 		ty = mon->_menemyy;
-		for (y = -rad; y <= rad; y++) {
-			for (x = -rad; x <= rad; x++) {
-				m = dMonster[x + mx][y + my];
+		static_assert(lengthof(CrawlNum) > 2 * MAX_RAD + 4, "MonCallToArm uses CrawlTable/CrawlNum up to radius 5.");
+		for (i = 0; i <= rad; i++) {
+			cr = &CrawlTable[CrawlNum[i]];
+			for (j = (BYTE)*cr; j > 0; j--) {
+				x = mx + *++cr;
+				y = my + *++cr;
+				// assert(IN_DUNGEON_AREA(x, y));
+				m = dMonster[x][y];
 				if (m > 0) {
 					mon = &monsters[m - 1];
 					if (mon->_mAI.aiType == AI_FALLEN /*&& !MON_RELAXED*/ && (mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
