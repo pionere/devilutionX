@@ -3412,6 +3412,15 @@ int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	return MIRES_FAIL_DELETE;
 }
 
+int AddCallToArms(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
+{
+	// assert(micaster == MST_MONSTER);
+	// assert((unsigned)misource < MAXMONSTERS);
+	MonCallToArms(misource);
+
+	return MIRES_DELETE;
+}
+
 int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;

@@ -2035,6 +2035,7 @@ typedef enum missile_id {
 	MIS_INFRA,
 	MIS_RAGE,
 	MIS_PULSE,
+	MIS_CTA,
 #ifdef HELLFIRE
 	//MIS_LIGHTWALLC,
 	//MIS_LIGHTWALL,

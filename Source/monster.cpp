@@ -3313,57 +3313,62 @@ void MAI_Sneak(int mnum)
 	}
 }*/
 
-void MAI_Fallen(int mnum)
+void MonCallToArms(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int x, y, mx, my, tx, ty, m, rad, amount;
 	const int MAX_RAD = 5;
+	rad = mon->_mAI.aiInt;
+	//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
+		amount = mon->_mhitpoints + 2 * rad + 2;
+		mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
+	//}
+	if (MON_HAS_ENEMY) {
+		if (rad > MAX_RAD) {
+			rad = MAX_RAD;
+		}
+		amount = 2 * rad + 8;
+		rad = 2 * rad + 4;
+		static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * MAX_RAD + 4, "MonCallToArm expects a large enough border.");
+		mx = mon->_mx;
+		my = mon->_my;
+		tx = mon->_menemyx;
+		ty = mon->_menemyy;
+		for (y = -rad; y <= rad; y++) {
+			for (x = -rad; x <= rad; x++) {
+				m = dMonster[x + mx][y + my];
+				if (m > 0) {
+					mon = &monsters[m - 1];
+					if (mon->_mAI.aiType == AI_FALLEN /*&& !MON_RELAXED*/ && (mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
+						mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+#if DEBUG
+						assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+						assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+						assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
+#endif
+						static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
+						mon->_mgoal = MGOAL_ATTACK;
+						mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
+
+						mon->_mlastx = tx;
+						mon->_mlasty = ty;
+					}
+				}
+			}
+		}
+	}
+}
+
+void MAI_Fallen(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
 	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (random_(113, 48) == 0) {
-			MonStartSpStand(mnum, mon->_mdir);
-			rad = mon->_mAI.aiInt;
-			//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
-				amount = mon->_mhitpoints + 2 * rad + 2;
-				mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
-			//}
-			if (MON_HAS_ENEMY) {
-				if (rad > MAX_RAD) {
-					rad = MAX_RAD;
-				}
-				amount = 2 * rad + 8;
-				rad = 2 * rad + 4;
-				static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * MAX_RAD + 4, "MAI_Fallen expects a large enough border.");
-				mx = mon->_mx;
-				my = mon->_my;
-				tx = mon->_menemyx;
-				ty = mon->_menemyy;
-				for (y = -rad; y <= rad; y++) {
-					for (x = -rad; x <= rad; x++) {
-						m = dMonster[x + mx][y + my];
-						if (m > 0) {
-							mon = &monsters[m - 1];
-							if (mon->_mAI.aiType == AI_FALLEN /*&& !MON_RELAXED*/ && (mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
-								mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-#if DEBUG
-								assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
-								assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
-								assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
-#endif
-								static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-								mon->_mgoal = MGOAL_ATTACK;
-								mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
-
-								mon->_mlastx = tx;
-								mon->_mlasty = ty;
-							}
-						}
-					}
-				}
-			}
+			MonStartRSpAttack(mnum, MIS_CTA);
 		} else {
 			MAI_SkelSd(mnum);
 		}
@@ -3384,7 +3389,7 @@ void MAI_Fallen(int mnum)
 			} else {
 				if (!MonDestWalk(mnum)) {
 					// prevent isolated fallens from burnout
-					m = 12 - 1; // mon->_mAnims[MA_WALK].maFrameLen * mon->_mAnims[MA_WALK].maFrames - 1;
+					int m = 12 - 1; // mon->_mAnims[MA_WALK].maFrameLen * mon->_mAnims[MA_WALK].maFrames - 1;
 					if (mon->_msquelch > (unsigned)m)
 						mon->_msquelch -= m;
 				}

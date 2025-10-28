@@ -80,6 +80,7 @@ int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
+int AddCallToArms(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 void MI_Dummy(int mi);
 void MI_Arrow(int mi);
 void MI_AsArrow(int mi);
