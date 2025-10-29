@@ -1688,7 +1688,7 @@ if(CPACK)
         RENAME "${project_name}-hellfire.png"
       )
     else()
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon_flat.png"
         DESTINATION "share/icons/hicolor/512x512/apps"
         RENAME "${project_name}.png"
       )
