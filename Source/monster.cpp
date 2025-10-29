@@ -3345,17 +3345,18 @@ void MonCallToArms(int mnum)
 				m = dMonster[x][y];
 				if (m > 0) {
 					mon = &monsters[m - 1];
-					if (mon->_mAI.aiType == AI_FALLEN /*&& !MON_RELAXED*/ && (mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
+					if (/*!MON_RELAXED && */(mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
 						mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+						if (mon->_mAI.aiType == AI_FALLEN) {
 #if DEBUG
-						assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
-						assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
-						assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
+							assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+							assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+							assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-						static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-						mon->_mgoal = MGOAL_ATTACK;
-						mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
-
+							static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
+							mon->_mgoal = MGOAL_ATTACK;
+							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
+						}
 						mon->_mlastx = tx;
 						mon->_mlasty = ty;
 					}
