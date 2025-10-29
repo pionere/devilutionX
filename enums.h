@@ -2272,6 +2272,7 @@ typedef enum _monster_id {
 	MT_BSNEAK,
 	MT_YSNEAK,
 	MT_NGOATMC,
+	MT_AGOATMC,
 	MT_BGOATMC,
 	MT_RGOATMC,
 	MT_GGOATMC,
