@@ -20,7 +20,7 @@ jobs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: print latest_commit
         run: echo ${{ github.sha }}
@@ -110,7 +110,7 @@ jobs:
             artifact: 'hellfire-nightly-scr-x64.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -166,7 +166,7 @@ jobs:
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -213,7 +213,7 @@ jobs:
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -260,7 +260,7 @@ jobs:
             artifact: 'hellfire-nightly-mingw-w9x.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -307,7 +307,7 @@ jobs:
             artifact: 'hellfire-nightly-mingw-wx.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -356,7 +356,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -416,7 +416,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -464,7 +464,7 @@ jobs:
     runs-on: macos-15-intel
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -506,7 +506,7 @@ jobs:
             artifact: 'hellfire-nightly-mac-arm.dmg'
     runs-on: macos-14
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -556,7 +556,7 @@ jobs:
     runs-on: macos-15-intel
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -604,7 +604,7 @@ jobs:
     environment: android
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -689,7 +689,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -736,7 +736,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -783,7 +783,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -833,7 +833,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -882,7 +882,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -926,7 +926,7 @@ jobs:
     container: vitasdk/vitasdk:latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -971,7 +971,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -1036,7 +1036,7 @@ jobs:
     container: devkitpro/devkita64:latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
@@ -1091,7 +1091,7 @@ jobs:
       NXDK_DIR: /opt/nxdk
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
         #fetch-depth: 0
@@ -1103,7 +1103,7 @@ jobs:
       shell: bash
       run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
     #- name: Clone NXDK Repo
-    #  uses: actions/checkout@v5
+    #  uses: actions/checkout@v6
     #  with:
     #    repository: XboxDev/nxdk
     #    path: "$NXDK_DIR"
@@ -1145,7 +1145,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
         #fetch-depth: 0
@@ -1193,7 +1193,7 @@ jobs:
     container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         fetch-tags: true
       #  fetch-depth: 0
