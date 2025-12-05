@@ -25,9 +25,8 @@ cd deps
 #tar -xvf SDL-1.2.tar.gz
 #cd libSDL12-master
 wget https://github.com/pionere/SDL-1.2-amiga/archive/refs/heads/main.zip
-#tar -xvf dev.zip
-unzip dev.zip
-cd amigalibSDL12-dev
+unzip main.zip
+cd SDL-1.2-amiga-main
 make PREFX=${SYSROOT} PREF=${SYSROOT} -j"$PARALLELISM"
 mkdir -p ${SYSROOT}/usr/lib
 mkdir -p ${SYSROOT}/usr/include
