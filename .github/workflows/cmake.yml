@@ -10,7 +10,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: amigadev/crosstools:m68k-amigaos-gcc
+    container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
     - name: Checkout
       uses: actions/checkout@v4
