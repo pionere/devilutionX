@@ -27,8 +27,7 @@ jobs:
           -D USE_PATCH=ON \
           -DM68K_COMMON="-s -ffast-math -O3" \
           -DM68K_CPU=68040 \
-          -DM68K_FPU=hard \
-          -D__M68000__=1
+          -DM68K_FPU=hard
 
     - name: Build DevilutionX
       run: cmake --build build
