@@ -230,8 +230,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
-set(CMAKE_THREAD_PREFER_PTHREAD ON)
-set(THREADS_PREFER_PTHREAD_FLAG ON)
+#set(CMAKE_THREAD_PREFER_PTHREAD ON)
+#set(THREADS_PREFER_PTHREAD_FLAG ON)
 if(PIE)
   set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 endif()
@@ -1138,7 +1138,9 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   endif()
 
   # Warnings for devilutionX
-  #target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wno-missing-braces)
+  if(NOT AMIGA)
+    target_compile_options(${BIN_TARGET} PRIVATE -Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wno-missing-braces)
+  endif()
 
   # Disable Run-Time Type Information
   target_compile_options(${BIN_TARGET} PRIVATE -fno-rtti)
