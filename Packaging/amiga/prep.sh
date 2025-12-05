@@ -24,7 +24,7 @@ cd deps
 #wget https://github.com/AmigaPorts/libSDL12/archive/master.tar.gz -O SDL-1.2.tar.gz
 #tar -xvf SDL-1.2.tar.gz
 #cd libSDL12-master
-wget https://github.com/pionere/amigalibSDL12/archive/refs/heads/dev.zip
+wget https://github.com/pionere/SDL-1.2-amiga/archive/refs/heads/main.zip
 #tar -xvf dev.zip
 unzip dev.zip
 cd amigalibSDL12-dev
