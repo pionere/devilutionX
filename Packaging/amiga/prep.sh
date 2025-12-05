@@ -21,13 +21,10 @@ mkdir -p ${SYSROOT}/usr/include
 cd deps
 
 # SDL1.2
-#wget https://github.com/AmigaPorts/libSDL12/archive/master.tar.gz -O SDL-1.2.tar.gz
-#tar -xvf SDL-1.2.tar.gz
-#cd libSDL12-master
-wget https://github.com/AmigaPorts/libSDL12/archive/refs/tags/1.2.15.1.tar.gz -O SDL-1.2.tar.gz
+wget https://github.com/AmigaPorts/libSDL12/archive/master.tar.gz -O SDL-1.2.tar.gz
 tar -xvf SDL-1.2.tar.gz
-cd libSDL12-1.2.15.1
-make PREFX=${SYSROOT} PREF=${SYSROOT} -j"$PARALLELISM"
+cd libSDL12-master
+make PREFX=${SYSROOT} PREF=${SYSROOT} -j"$PARALLELISM" -Wno-error
 mkdir -p ${SYSROOT}/usr/lib
 mkdir -p ${SYSROOT}/usr/include
 cp -fvr libSDL.a ${SYSROOT}/usr/lib/
