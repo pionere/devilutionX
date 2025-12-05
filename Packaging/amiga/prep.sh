@@ -9,7 +9,7 @@ export SYSROOT=/opt/$TARGET
 export M68K_CPU=68040
 export M68K_FPU=hard
 export M68K_CPU_FPU="-m${M68K_CPU} -m${M68K_FPU}-float"
-export M68K_COMMON="-s -ffast-math -fomit-frame-pointer"
+export M68K_COMMON="-s -ffast-math -fomit-frame-pointer -Wno-error"
 export M68K_CFLAGS="${M68K_CPU_FPU} ${M68K_COMMON}"
 export M68K_CXXFLAGS="${M68K_CPU_FPU} ${M68K_COMMON}"
 
@@ -25,9 +25,9 @@ cd deps
 #tar -xvf SDL-1.2.tar.gz
 #cd libSDL12-master
 wget https://github.com/pionere/amigalibSDL12/archive/refs/heads/dev.zip
-tar -xvfdev.zip
+tar -xvf dev.zip
 cd amigalibSDL12-dev
-make PREFX=${SYSROOT} PREF=${SYSROOT} -j"$PARALLELISM" -Wno-error
+make PREFX=${SYSROOT} PREF=${SYSROOT} -j"$PARALLELISM"
 mkdir -p ${SYSROOT}/usr/lib
 mkdir -p ${SYSROOT}/usr/include
 cp -fvr libSDL.a ${SYSROOT}/usr/lib/
