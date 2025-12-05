@@ -9,7 +9,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
     - name: Checkout
