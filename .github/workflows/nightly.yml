@@ -142,7 +142,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -189,7 +189,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -236,7 +236,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -283,7 +283,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -330,7 +330,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -386,14 +386,14 @@ jobs:
 
     - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: devilutionx-x86_64-linux-gnu.tar.xz
         name: ${{ matrix.artifact }}
 
     - name: Upload AppImage
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: devilutionx-x86_64-linux-gnu.appimage
         name: ${{ matrix.appimage }}
@@ -442,7 +442,7 @@ jobs:
 
     - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: devilutionx-aarch64.tar.xz
         name: ${{ matrix.artifact }}
@@ -485,7 +485,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
@@ -533,7 +533,7 @@ jobs:
         cmake --build build -j $(sysctl -n hw.physicalcpu) --target package --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
@@ -581,7 +581,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
@@ -663,7 +663,7 @@ jobs:
       run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/devilutionx.apk
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
@@ -713,7 +713,7 @@ jobs:
         TOOLCHAIN: /opt/gcw0-toolchain
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: build-rg350/devilutionx-rg350.opk
@@ -760,7 +760,7 @@ jobs:
         TOOLCHAIN: /opt/lepus-toolchain
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: build-lepus/devilutionx-lepus.opk
@@ -809,7 +809,7 @@ jobs:
         TOOLCHAIN: /opt/retrofw-toolchain
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         #name: devilutionx-retrofw.opk.zip
         name: ${{ matrix.artifact }}
@@ -859,7 +859,7 @@ jobs:
       run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
@@ -902,7 +902,7 @@ jobs:
       run: Packaging/ps5/build.sh "${{ matrix.cmakeargs }}"
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         path: build-ps5/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -944,7 +944,7 @@ jobs:
       run: cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: build/devilutionx.vpk
@@ -1006,13 +1006,13 @@ jobs:
       run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: build/devilutionx.3dsx
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.cia }}
         path: build/devilutionx.cia
@@ -1066,7 +1066,7 @@ jobs:
       run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx.nro
@@ -1122,7 +1122,7 @@ jobs:
       run: cmake --build build-xbox -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: build-xbox/devilutionx.zip
@@ -1169,7 +1169,7 @@ jobs:
 
     - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: ${{ env.buildDir }}/devilutionx.zip
@@ -1216,7 +1216,7 @@ jobs:
       run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx
