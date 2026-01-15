@@ -350,13 +350,17 @@ static unsigned GetPlrGFXSize(const char* szCel)
 		GetPlrGFXCells(c, &chrClass, &strClass);
 		for (chrArmor = &ArmorChar[0]; *chrArmor != '\0'; chrArmor++) {
 			for (chrWeapon = &WepChar[0]; *chrWeapon != '\0'; chrWeapon++) { // BUGFIX loads non-existing animations; DT is only for N, BL is only for U, D & H (fixed)
-				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && *chrArmor != 'L' && *chrWeapon != 'N') {
+				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && (*chrArmor != 'L' || *chrWeapon != 'N')) {
 					continue; //Death has no weapon or armor
 				}
-				/* BUGFIX monks can block unarmed and without shield (fixed)
-				if (szCel[0] == 'B' && szCel[1] == 'L' && (*chrWeapon != 'U' && *chrWeapon != 'D' && *chrWeapon != 'H')) {
-					continue; //No block without weapon
-				}*/
+				if (szCel[0] == 'B' /*&& szCel[1] == 'L'*/ && (*chrWeapon != 'U' && *chrWeapon != 'D' && *chrWeapon != 'H')) {
+/* BUGFIX monks can block without shield (fixed)
+#ifdef HELLFIRE
+if (c !=  PC_MONK || *chrWeapon == 'A' || *chrWeapon == 'B')
+#endif
+*/
+					continue; //No block without shield
+				}
 				prefix[0] = *chrClass;
 				prefix[1] = *chrArmor;
 				prefix[2] = *chrWeapon;
