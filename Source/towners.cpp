@@ -155,7 +155,7 @@ static void InitCowAnim(int tnum, int dir)
 
 	tw = &monsters[tnum];
 
-	tw->_mAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir)); // TNR_ANIM_DATA
+	tw->_mAnimData = const_cast<BYTE*>(CelGetFrameGroup(pCowCels, dir)); // TNR_ANIM_DATA
 	tw->_mAnimFrameLen = 3;                                              // TNR_ANIM_FRAME_LEN
 	tw->_mAnimLen = 12;                                                  // TNR_ANIM_LEN
 	tw->_mVar1 = -1;                                                     // TNR_ANIM_ORDER

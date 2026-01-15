@@ -209,7 +209,7 @@ static void InitMonsterGFX(int midx)
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
 				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
-					monAnims[anim].maAnimData[i] = const_cast<BYTE*>(CelGetFrameStart(celBuf, i));
+					monAnims[anim].maAnimData[i] = const_cast<BYTE*>(CelGetFrameGroup(celBuf, i));
 				}
 			} else {
 				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {

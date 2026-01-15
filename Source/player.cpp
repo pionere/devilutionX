@@ -258,7 +258,7 @@ static void SetPlayerGPtrs(BYTE* pData, BYTE* (&pAnim)[8])
 	int i;
 
 	for (i = 0; i < lengthof(pAnim); i++) {
-		pAnim[i] = const_cast<BYTE*>(CelGetFrameStart(pData, i));
+		pAnim[i] = const_cast<BYTE*>(CelGetFrameGroup(pData, i));
 	}
 }
 

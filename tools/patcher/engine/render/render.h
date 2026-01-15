@@ -18,13 +18,13 @@ extern "C" {
 
 #define CEL_BLOCK_HEIGHT      32
 
-inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
+inline const BYTE* CelGetFrameGroup(const BYTE* pCelBuff, int nGroup)
 {
 	const uint32_t* pFrameTable;
 
 	pFrameTable = (const uint32_t*)pCelBuff;
 
-	return &pCelBuff[SwapLE32(pFrameTable[nCel])];
+	return &pCelBuff[SwapLE32(pFrameTable[nGroup])];
 }
 
 inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
