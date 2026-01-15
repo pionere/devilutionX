@@ -293,6 +293,7 @@ static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
 
 /**
  * @brief Render a missile sprites for a given tile
+ * @param mi id of the missile or MIS_MULTI if there are more
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
@@ -324,8 +325,8 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
  * @brief Render a monster sprite
  * @param mnum Id of monster
  * @param bFlag flags to draw
- * @param mx Back buffer coordinate
- * @param my Back buffer coordinate
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  */
 static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
@@ -384,9 +385,9 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 /**
  * @brief Render a sprite of a dead monster
- * @param mnum Id of monster
- * @param mx Back buffer coordinate
- * @param my Back buffer coordinate
+ * @param mon Pointer to MonsterStruct struct
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  */
 static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
 {
@@ -440,16 +441,16 @@ static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
  * @brief Render a towner sprite
  * @param mnum Id of towner
  * @param bFlag flags to draw
- * @param mx Back buffer coordinate
- * @param my Back buffer coordinate
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  */
-static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
+static void DrawTowner(int mnum, BYTE bFlag, int sx, int sy)
 {
 	const MonsterStruct* tw;
 	int tx, nCel, nWidth;
 	const BYTE* pCelBuff;
-	// assert(tnum < numtowners);
-	tw = &monsters[tnum];
+	// assert(mnum < numtowners);
+	tw = &monsters[mnum];
 	tx = sx - tw->_mAnimXOffset;
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -457,7 +458,7 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
-	if (tnum == pcursmonst) {
+	if (mnum == pcursmonst) {
 		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
 	}
 	CelClippedDrawLightTbl(tx, sy, pCelBuff, nCel, nWidth, 0);
@@ -466,13 +467,9 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 /**
  * @brief Render a player sprite
  * @param pnum Player id
- * @param x dPiece coordinate
- * @param y dPiece coordinate
- * @param px Back buffer coordinate
- * @param py Back buffer coordinate
- * @param pCelBuff sprite buffer
- * @param nCel frame
- * @param nWidth width
+ * @param bFlag flags
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  */
 static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
@@ -1017,8 +1014,7 @@ static void drawFloor(int pn, int sx, int sy)
 
 /**
  * @brief Draw item for a given tile
- * @param y dPiece coordinate
- * @param x dPiece coordinate
+ * @param ii id of item
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
@@ -1054,6 +1050,7 @@ static void DrawItem(int ii, int sx, int sy)
 
 /**
  * @brief Draw a towner or a monster depending on the level
+ * @param mnum Id of monster
  * @param bFlag flags
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -1296,8 +1293,8 @@ static void CalcTileOffset(int* offsetX, int* offsetY)
 
 /**
  * @brief Calculate the needed diamond tile to cover the view area
- * @param columns Tiles needed per row
- * @param rows Both even and odd rows
+ * @param rcolumns Tiles needed per row
+ * @param rrows Both even and odd rows
  */
 static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 {
