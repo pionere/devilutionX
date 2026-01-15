@@ -264,7 +264,7 @@ static void scrollrt_draw_cursor()
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
+static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
 	BYTE trans;
@@ -301,7 +301,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 static void DrawMissile(int mi, int x, int y, int sx, int sy)
 {
 	int i;
-	MissileStruct* mis;
+	const MissileStruct* mis;
 
 	if (mi != MIS_MULTI) {
 		// assert((unsigned)(mi - 1) < MAXMISSILES);
@@ -329,7 +329,7 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
  */
 static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
-	MonsterStruct* mon;
+	const MonsterStruct* mon;
 	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
@@ -388,7 +388,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
  * @param mx Back buffer coordinate
  * @param my Back buffer coordinate
  */
-static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
+static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
 	BYTE trans;
@@ -416,7 +416,7 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
 {
 	int i;
-	MonsterStruct* mon;
+	const MonsterStruct* mon;
 
 	if (light_trn_index >= MAXDARKNESS)
 		return;
@@ -445,7 +445,7 @@ static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
  */
 static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
-	MonsterStruct* tw;
+	const MonsterStruct* tw;
 	int tx, nCel, nWidth;
 	const BYTE* pCelBuff;
 	// assert(tnum < numtowners);
@@ -569,7 +569,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  */
 static void DrawObject(int oi, int x, int y, int ox, int oy)
 {
-	ObjectStruct* os;
+	const ObjectStruct* os;
 	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
 	const BYTE* pCelBuff;
@@ -1025,7 +1025,7 @@ static void drawFloor(int pn, int sx, int sy)
 static void DrawItem(int ii, int sx, int sy)
 {
 	int nCel;
-	ItemStruct* is;
+	const ItemStruct* is;
 	const BYTE* pCelBuff;
 	// assert(ii > 0);
 	ii--;
