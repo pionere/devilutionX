@@ -208,9 +208,7 @@ static void InitMonsterGFX(int midx)
 			cmon->cmAnimData[anim] = celBuf;
 
 			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
-				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
-					monAnims[anim].maAnimData[i] = const_cast<BYTE*>(CelGetFrameGroup(celBuf, i));
-				}
+				LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(monAnims[anim].maAnimData));
 			} else {
 				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
 					monAnims[anim].maAnimData[i] = celBuf;

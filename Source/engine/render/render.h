@@ -98,6 +98,15 @@ inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int bloc
 	return &pRLEBytes[nDataStart];
 }
 
+inline void LoadFrameGroups(const BYTE* pCelBuff, const BYTE* (&pGroups)[8])
+{
+	int i;
+
+	for (i = 0; i < lengthof(pGroups); i++) {
+		pGroups[i] = CelGetFrameGroup(pCelBuff, i);
+	}
+}
+
 #ifdef __cplusplus
 }
 #endif

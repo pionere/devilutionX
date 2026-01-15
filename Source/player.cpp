@@ -253,15 +253,6 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 #endif
 
-static void SetPlayerGPtrs(BYTE* pData, const BYTE* (&pAnim)[8])
-{
-	int i;
-
-	for (i = 0; i < lengthof(pAnim); i++) {
-		pAnim[i] = CelGetFrameGroup(pData, i);
-	}
-}
-
 static inline void GetPlrGFXCells(int pc, const char** szCel, const char** cs)
 {
 /*#ifdef HELLFIRE
@@ -302,7 +293,7 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
 		LoadFileWithMem(pszName, plr._pAnimFileData[pAnimType->patGfxIdx]);
-		SetPlayerGPtrs(plr._pAnimFileData[pAnimType->patGfxIdx], plr._pAnims[pAnimType->patGfxIdx].paAnimData);
+		LoadFrameGroups(plr._pAnimFileData[pAnimType->patGfxIdx], plr._pAnims[pAnimType->patGfxIdx].paAnimData);
 		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
 }
