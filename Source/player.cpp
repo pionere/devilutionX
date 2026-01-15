@@ -283,6 +283,11 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 		mask &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
 	else
 		mask &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+	if (prefix[2] != 'U' && prefix[2] != 'D' && prefix[2] != 'H')
+/*#ifdef HELLFIRE
+if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
+#endif*/
+		mask &= ~PGF_BLOCK;
 	for (auto pAnimType = &PlrAnimTypes[0]; mask != 0; pAnimType++, mask >>= 1) {
 		if (!(mask & 1))
 			continue;
