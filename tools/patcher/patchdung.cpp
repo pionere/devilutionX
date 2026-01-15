@@ -4,6 +4,7 @@
  * Implementation of the general level patching functionality.
  */
 #include "all.h"
+#include "engine/render/render.h"
 #include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE

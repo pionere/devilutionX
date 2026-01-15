@@ -5,7 +5,7 @@
  */
 #include "cl2_render.h"
 
-#include "all.h"
+#include "render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

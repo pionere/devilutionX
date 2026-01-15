@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
+#include "engine/render/render.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
