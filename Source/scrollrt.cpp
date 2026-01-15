@@ -268,7 +268,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
 	BYTE trans;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 
 	if (mis->_miPreFlag != gbPreFlag)
 		return;
@@ -281,7 +281,7 @@ static void DrawMissilePrivate(MissileStruct* mis, int sx, int sy)
 	}
 	nCel = mis->_miAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t*)pCelBuff);
+	int frames = SwapLE32(*(const uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
@@ -333,7 +333,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 	// assert((unsigned)mnum < MAXMONSTERS);
 	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0 /* && !myplr._pInfraFlag*/)
 		return;
@@ -353,7 +353,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t*)pCelBuff);
+	int frames = SwapLE32(*(const uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char* szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
@@ -392,7 +392,7 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
 	BYTE trans;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 
 	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
 	my = sy /*+ mon->_myoff*/;
@@ -403,7 +403,7 @@ static void DrawDeadMonsterHelper(MonsterStruct* mon, int sx, int sy)
 	}
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(uint32_t*)pCelBuff);
+	int frames = SwapLE32(*(const uint32_t*)pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
 	}
@@ -447,7 +447,7 @@ static void DrawTowner(int tnum, BYTE bFlag, int sx, int sy)
 {
 	MonsterStruct* tw;
 	int tx, nCel, nWidth;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 	// assert(tnum < numtowners);
 	tw = &monsters[tnum];
 	tx = sx - tw->_mAnimXOffset;
@@ -479,7 +479,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 	int px, py, nCel, nWidth;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE trans;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 	// assert(pnum < MAX_PLRS);
 	if (visFlag || myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
@@ -490,7 +490,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		}
 		nCel = plr._pAnimFrame;
 #if DEBUG_MODE
-		int frames = SwapLE32(*(uint32_t*)pCelBuff);
+		int frames = SwapLE32(*(const uint32_t*)pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char* szMode = "unknown action";
 			if (plr._pmode < lengthof(szPlrModeAssert))
@@ -543,12 +543,12 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
 #if DEBUG_MODE
-			BYTE* pCelBuff = plr._pAnimData;
+			const BYTE* pCelBuff = plr._pAnimData;
 			if (pCelBuff == NULL) {
 				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
-			int frames = SwapLE32(*(uint32_t*)pCelBuff);
+			int frames = SwapLE32(*(const uint32_t*)pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
 				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}
@@ -572,7 +572,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	ObjectStruct* os;
 	int sx, sy, xx, yy, nCel, nWidth;
 	bool mainTile;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 	// assert(oi != 0);
 	if (light_trn_index >= MAXDARKNESS)
 		return;
@@ -598,7 +598,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 
 	nCel = os->_oAnimFrame;
 #if DEBUG_MODE
-	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
+	int frames = ((const CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
 	}
@@ -1026,7 +1026,7 @@ static void DrawItem(int ii, int sx, int sy)
 {
 	int nCel;
 	ItemStruct* is;
-	BYTE* pCelBuff;
+	const BYTE* pCelBuff;
 	// assert(ii > 0);
 	ii--;
 
@@ -1040,7 +1040,7 @@ static void DrawItem(int ii, int sx, int sy)
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
-	int frames = ((CelImageBuf*)pCelBuff)->ciFrameCnt;
+	int frames = ((const CelImageBuf*)pCelBuff)->ciFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Item \"%d\": frame %d of %d, type %d, curs %d", is->_iIdx, nCel, frames, is->_itype, is->_iCurs);
 	}
