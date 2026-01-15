@@ -77,7 +77,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
  * @brief Blit CL2 sprite, and apply a given lighting, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */

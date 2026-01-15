@@ -11,22 +11,22 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /**
  * @brief Apply the color swaps to a CL2 sprite
- * @param p CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
  * @param nCel number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel)
+void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nCel)
 {
 	int i, nDataSize;
 	int8_t width;
 	BYTE* dst;
 	const BYTE* end;
 
-	assert(p != NULL);
+	assert(pCelBuff != NULL);
 	assert(ttbl != NULL);
 
 	for (i = 1; i <= nCel; i++) {
-		dst = const_cast<BYTE*>(CelGetFrameClippedAt(p, i, 0, &nDataSize));
+		dst = const_cast<BYTE*>(CelGetFrameClippedAt(pCelBuff, i, 0, &nDataSize));
 		end = &dst[nDataSize];
 		while (dst != end) {
 			width = *dst++;
@@ -260,7 +260,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
  * @param col Color index from current palette
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */
@@ -288,7 +288,7 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
  * @brief Blit CL2 sprite, and apply a given lighting, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  * @param light index of the light shade to use

@@ -102,7 +102,7 @@ typedef struct RECT_AREA32 {
 typedef struct CelImageBuf {
 #if DEBUG_MODE
 	WORD ciWidth; // number of images before loaded, but overwritten with width when loaded
-	WORD ciFrameCnt; // number of images before loaded, but overwritten with width when loaded
+	WORD ciFrameCnt; // number of images
 #else
 	DWORD ciWidth; // number of images before loaded, but overwritten with width when loaded
 #endif
@@ -2693,7 +2693,7 @@ typedef struct FileCl2 {
 } FileCl2;
 
 typedef struct FileCl2Group {
-	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Data
+	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Hdr
 	FileCl2Hdr dlgCl2Hdr[dlgNumGroups];
 	FileCelFrame dlgCelFrames[dlgNumGroups * dlNumFrames];
 } FileCl2Group;
