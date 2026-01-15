@@ -342,7 +342,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	memcpy(&mon->_mFileNum, &savedMon->vmFileNum, (offsetof(MonsterStruct, _mExp) + sizeof(mon->_mExp)) - offsetof(MonsterStruct, _mFileNum));
 #else
 	// preserve AnimData, AnimFrameLen and Name members for towners to prevent the need for SyncTownerAnim
-	BYTE* tmpAnimData = mon->_mAnimData;
+	const BYTE* tmpAnimData = mon->_mAnimData;
 	int tmpAnimFrameLen = mon->_mAnimFrameLen;
 	const char* tmpName = mon->_mName;
 

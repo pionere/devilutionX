@@ -36,6 +36,13 @@ void mem_free_dbg(void* p);
 		p = NULL;           \
 		mem_free_dbg(p__p); \
 	}
+#define MemFreeConst(p)     \
+	{                       \
+		void* p__p;         \
+		p__p = (void*)p;    \
+		p = NULL;           \
+		mem_free_dbg(p__p); \
+	}
 #define MemFreeTxtFile(p)      \
 	{                          \
 		char** p__p;           \

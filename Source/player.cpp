@@ -253,12 +253,12 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 #endif
 
-static void SetPlayerGPtrs(BYTE* pData, BYTE* (&pAnim)[8])
+static void SetPlayerGPtrs(BYTE* pData, const BYTE* (&pAnim)[8])
 {
 	int i;
 
 	for (i = 0; i < lengthof(pAnim); i++) {
-		pAnim[i] = const_cast<BYTE*>(CelGetFrameGroup(pData, i));
+		pAnim[i] = CelGetFrameGroup(pData, i);
 	}
 }
 

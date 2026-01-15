@@ -254,7 +254,7 @@ typedef struct ItemStruct {
 	BYTE _iSelFlag;
 	BOOLEAN _iFloorFlag;
 	BOOLEAN _iAnimFlag;
-	BYTE* _iAnimData;        // PSX name -> ItemFrame
+	const BYTE* _iAnimData;  // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
 	unsigned _iAnimLen;      // Number of frames in current animation
@@ -304,7 +304,7 @@ static_warning((sizeof(PlrAnimType) & (sizeof(PlrAnimType) - 1)) == 0, "Align Pl
 #endif
 
 typedef struct PlrAnimStruct {
-	BYTE* paAnimData[NUM_DIRS];
+	const BYTE* paAnimData[NUM_DIRS];
 	unsigned paFrames;
 	int paAnimWidth;
 } PlrAnimStruct;
@@ -362,7 +362,7 @@ typedef struct PlayerStruct {
 	int _pxoff;   // Pixel X-offset from tile position where the player should be drawn
 	int _pyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	int _pdir;    // Direction faced by player (direction enum)
-	BYTE* _pAnimData;
+	const BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
 	int _pAnimCnt;        // Increases by one each game tick, counting how close we are to _pAnimFrameLen
 	unsigned _pAnimLen;   // Number of frames in current animation
@@ -530,7 +530,7 @@ typedef struct MissileStruct {
 	BOOLEAN _miAnimFlag;
 	BOOLEAN _miLightFlag; // use light-transformation when drawing
 	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
-	BYTE* _miAnimData;
+	const BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
@@ -732,7 +732,7 @@ typedef struct MonsterStruct {
 	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN _mDelFlag; // unused
-	BYTE* _mAnimData;
+	const BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	int _mAnimLen;   // Number of frames in current animation
@@ -886,7 +886,7 @@ typedef struct ObjectStruct {
 	BYTE _oAnimFlag;  // object_anim_mode
 	BYTE _oProc;      // object_proc_func
 	BYTE _oModeFlags; // object_mode_flags
-	BYTE* _oAnimData;
+	const BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
 	int _oAnimLen;   // Number of frames in current animation

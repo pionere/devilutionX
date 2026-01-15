@@ -192,7 +192,7 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 	for (i = MAX_MINIONS; i < numtowners; i++) {
 		if (monsters[i]._mType != ttype) // TNR_TYPE
 			continue;
-		MemFreeDbg(monsters[i]._mAnimData); // TNR_ANIM_DATA
+		MemFreeConst(monsters[i]._mAnimData); // TNR_ANIM_DATA
 		monsters[i]._mAnimData = LoadFileInMem(pAnimFile);
 		break;
 	}
@@ -440,7 +440,7 @@ void FreeTownerGFX()
 		if (monsters[i]._mType == TOWN_COW) { // TNR_TYPE
 			monsters[i]._mAnimData = NULL;    // TNR_ANIM_DATA
 		} else {
-			MemFreeDbg(monsters[i]._mAnimData);
+			MemFreeConst(monsters[i]._mAnimData);
 		}
 	}
 	MemFreeDbg(pCowCels);
