@@ -150,20 +150,28 @@ static void CowSFX(MonsterStruct* cow, int pnum)
 		_guCowMsg = 0;
 }
 
+static void InitMonAnim(MonsterStruct* mon, const BYTE* anim)
+{
+	// commented out, because it might be populated by InitMonster
+	// assert(mon->_mAnimData == NULL);
+	mon->_mAnimData = anim;                                    // TNR_ANIM_DATA
+	mon->_mAnimLen = SwapLE32(*(DWORD*)anim);                  // TNR_ANIM_LEN
+	mon->_mAnimWidth = CelClippedWidth(anim);                  // TNR_ANIM_WIDTH
+	mon->_mAnimXOffset = (mon->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
+	mon->_mAnimCnt = 0;                                        // TNR_ANIM_CNT
+}
+
 static void InitCowAnim(int tnum, const BYTE* anim)
 {
 	MonsterStruct* tw;
 
 	tw = &monsters[tnum];
 
-	tw->_mAnimData = anim;                                   // TNR_ANIM_DATA
+	InitMonAnim(tw, anim);
+
 	tw->_mAnimFrameLen = 3;                                  // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = SwapLE32(*(DWORD*)anim);                 // TNR_ANIM_LEN
 	tw->_mVar1 = -1;                                         // TNR_ANIM_ORDER
-	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
 	tw->_mAnimFrame = RandRange(1, tw->_mAnimLen);           // TNR_ANIM_FRAME
-	tw->_mAnimWidth = CelClippedWidth(anim);                 // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int ao)
@@ -172,18 +180,13 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int ao)
 
 	tw = &monsters[tnum];
 
-	// commented out, because it might be populated by InitMonster
-	// assert(tw->_mAnimData == NULL);
 	const BYTE* anim = LoadFileInMem(pAnimFile);
-	tw->_mAnimData = anim;                                   // TNR_ANIM_DATA
+	InitMonAnim(tw, anim);
+
 	tw->_mAnimFrameLen = Delay;                              // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = SwapLE32(*(DWORD*)anim);                 // TNR_ANIM_LEN
 	tw->_mVar1 = ao;                                         // TNR_ANIM_ORDER
 	tw->_mVar2 = 0;                                          // TNR_ANIM_FRAME_CNT
-	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
 	tw->_mAnimFrame = 1;                                     // TNR_ANIM_FRAME
-	tw->_mAnimWidth = CelClippedWidth(anim);                 // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 #ifdef HELLFIRE
