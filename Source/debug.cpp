@@ -406,12 +406,12 @@ void ValidateData()
 #ifdef ZEROTIER
 		SNetZtGame ztGameData;
 #endif
-		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, sizeof(dynData));
+		pkt = pktfty.make_out_packet<net::PT_MESSAGE>(plr_self, net::PLR_BROADCAST, dynData, (unsigned)sizeof(dynData));
 		if (!pkt->validate()) {
 			app_fatal("PT_MESSAGE is invalid");
 		}
 		delete pkt;
-		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, sizeof(dynData));
+		pkt = pktfty.make_out_packet<net::PT_TURN>(plr_self, net::PLR_BROADCAST, turn, dynData, (unsigned)sizeof(dynData));
 		if (!pkt->validate()) {
 			app_fatal("PT_TURN is invalid");
 		}
@@ -421,12 +421,12 @@ void ValidateData()
 			app_fatal("PT_JOIN_REQUEST is invalid");
 		}
 		delete pkt;
-		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, sizeof(addrs));
+		pkt = pktfty.make_out_packet<net::PT_JOIN_ACCEPT>(net::PLR_MASTER, net::PLR_BROADCAST, cookie, plr_other, (const BYTE*)&gameData, plr_mask, turn, addrs, (unsigned)sizeof(addrs));
 		if (!pkt->validate()) {
 			app_fatal("PT_JOIN_ACCEPT is invalid");
 		}
 		delete pkt;
-		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, sizeof(addr));
+		pkt = pktfty.make_out_packet<net::PT_CONNECT>(plr_self, net::PLR_BROADCAST, net::PLR_MASTER, turn, addr, (unsigned)sizeof(addr));
 		if (!pkt->validate()) {
 			app_fatal("PT_CONNECT is invalid");
 		}
@@ -463,7 +463,7 @@ void ValidateData()
 	}
 
 	if (GetHugeStringWidth("Pause") != 135)
-		app_fatal("gmenu_draw_pause expects hardcoded width 135.");
+		app_fatal("DrawPause expects hardcoded width 135.");
 
 	// cursors
 	for (i = 0; i < lengthof(InvItemWidth); i++) {
@@ -1776,8 +1776,16 @@ void ValidateData()
 	int bookSpells = 0, staffSpells = 0, scrollSpells = 0, runeSpells = 0;
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
-		int mind, maxd;
-		GetDamageAmt(i, 0, &mind, &maxd);
+		SkillDetails skd;
+		if (sd.sNameText != NULL) {
+			int w = GetSmallStringWidth(sd.sNameText);
+			if (w > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))
+				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSkillDetails
+			if (w > (SKILLBOOK_PNL_WIDTH - (2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET + 2 * BOXBORDER_WIDTH)))
+				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSpellBook
+		}
+
+		GetSkillDetails(i, 0, &skd);
 		if (i == SPL_DISARM
 		 || i == SPL_HEALOTHER || i == SPL_RESURRECT
 		 || i == SPL_IDENTIFY || i == SPL_OIL || i == SPL_REPAIR || i == SPL_RECHARGE
@@ -1793,7 +1801,6 @@ void ValidateData()
 			if (sd.spCurs != CURSOR_NONE && sd.spCurs != CURSOR_TELEPORT)
 				app_fatal("Invalid spCurs %d for %s (%d)", sd.spCurs, sd.sNameText, i); // required by TryIconCurs
 		}
-		ItemStruct* is = NULL;
 		if (SPELL_RUNE(i)) {
 			if (sd.sBookLvl != SPELL_NA)
 				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
@@ -2025,6 +2032,7 @@ void ValidateData()
 	assert(missiledata[MIS_SWAMP].mdPrSpeed == 0);               // required by MI_BloodBoilC
 	assert(missiledata[MIS_STONE].mdPrSpeed == 0);               // required by MI_Rune
 	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
+	assert(misfiledata[MFILE_MINILTNG].mfAnimLen[0] == misfiledata[MFILE_LGHNING].mfAnimLen[0]); // required by MI_Pulse
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
 	assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);                                      // required by MI_Firewall
 	assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);                                             // required by MI_Firewall

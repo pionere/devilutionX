@@ -4,6 +4,7 @@
  * Implementation of functionality for loading and spawning towners.
  */
 #include "all.h"
+#include "engine/render/render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -148,20 +149,20 @@ static void CowSFX(MonsterStruct* cow, int pnum)
 		_guCowMsg = 0;
 }
 
-static void InitCowAnim(int tnum, int dir)
+static void InitCowAnim(int tnum, const BYTE* anim)
 {
 	MonsterStruct* tw;
 
 	tw = &monsters[tnum];
 
-	tw->_mAnimData = const_cast<BYTE*>(CelGetFrameStart(pCowCels, dir)); // TNR_ANIM_DATA
-	tw->_mAnimFrameLen = 3;                                              // TNR_ANIM_FRAME_LEN
-	tw->_mAnimLen = 12;                                                  // TNR_ANIM_LEN
-	tw->_mVar1 = -1;                                                     // TNR_ANIM_ORDER
-	tw->_mAnimCnt = 0;                                                   // TNR_ANIM_CNT
-	tw->_mAnimFrame = RandRange(1, 11);                                  // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 128 * ASSET_MPL;                                   // TNR_ANIM_WIDTH
-	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1;             // TNR_ANIM_X_OFFSET
+	tw->_mAnimData = anim;                                   // TNR_ANIM_DATA
+	tw->_mAnimFrameLen = 3;                                  // TNR_ANIM_FRAME_LEN
+	tw->_mAnimLen = 12;                                      // TNR_ANIM_LEN
+	tw->_mVar1 = -1;                                         // TNR_ANIM_ORDER
+	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
+	tw->_mAnimFrame = RandRange(1, 11);                      // TNR_ANIM_FRAME
+	tw->_mAnimWidth = 128 * ASSET_MPL;                       // TNR_ANIM_WIDTH
+	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
 static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int numFrames, int ao)
@@ -191,7 +192,7 @@ static void ReInitTownerAnim(int ttype, const char* pAnimFile)
 	for (i = MAX_MINIONS; i < numtowners; i++) {
 		if (monsters[i]._mType != ttype) // TNR_TYPE
 			continue;
-		MemFreeDbg(monsters[i]._mAnimData); // TNR_ANIM_DATA
+		MemFreeConst(monsters[i]._mAnimData); // TNR_ANIM_DATA
 		monsters[i]._mAnimData = LoadFileInMem(pAnimFile);
 		break;
 	}
@@ -342,11 +343,13 @@ static void InitCows()
 	/** Specifies the offsets from the cows to reserve space on the map. */
 	const int8_t TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]] };
 	const int8_t TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]] };
+	const BYTE* cowAnims[NUM_DIRS];
 	int i, dir;
 	int x, y, xo, yo;
 
 	assert(pCowCels == NULL);
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL");
+	LoadFrameGroups(pCowCels, cowAnims);
 	static_assert(lengthof(TownCowX) == lengthof(TownCowY), "Mismatching TownCow tables I.");
 	static_assert(lengthof(TownCowX) == lengthof(TownCowDir), "Mismatching TownCow tables II.");
 	for (i = 0; i < lengthof(TownCowX); i++) {
@@ -354,7 +357,7 @@ static void InitCows()
 		y = TownCowY[i];
 		dir = TownCowDir[i];
 		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y, 3);
-		InitCowAnim(numtowners, dir);
+		InitCowAnim(numtowners, cowAnims[dir]);
 
 		xo = x + TownCowXOff[i];
 		yo = y + TownCowYOff[i];
@@ -439,7 +442,7 @@ void FreeTownerGFX()
 		if (monsters[i]._mType == TOWN_COW) { // TNR_TYPE
 			monsters[i]._mAnimData = NULL;    // TNR_ANIM_DATA
 		} else {
-			MemFreeDbg(monsters[i]._mAnimData);
+			MemFreeConst(monsters[i]._mAnimData);
 		}
 	}
 	MemFreeDbg(pCowCels);

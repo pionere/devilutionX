@@ -21,8 +21,6 @@ static BYTE msgcnt;
 const char* const MsgStrings[NUM_EMSGS] = {
 	"",                                               // EMSG_NONE
 	"Multiplayer sync problem",                       // < EMSG_DESYNC >
-	"Loading...",                                     // < EMSG_LOADING >
-	"Saving...",                                      // < EMSG_SAVING >
 	"New strength is forged through destruction.",    // EMSG_SHRINE_HIDDEN
 	"Keep your swords sharp but wit sharper.",        // EMSG_SHRINE_GLOOMY
 	"Know your priorities.",                          // EMSG_SHRINE_WEIRD
@@ -57,7 +55,9 @@ const char* const MsgStrings[NUM_EMSGS] = {
 	"Let the sun guide your path.",                   // EMSG_SHRINE_SOLAR
 #endif
 	// obsolete messages
-	// "No automap available in town"
+	// "Loading...",
+	// "Saving...",
+	// "No automap available in town",
 	// "No multiplayer functions in demo",
 	// "Direct Sound Creation Failed",
 	// "Not enough space to save",

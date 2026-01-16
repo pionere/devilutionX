@@ -7,7 +7,7 @@ if (buildAsApplication) {
 }
 
 android {
-	ndkVersion '28.0.13004108'
+	ndkVersion '28.2.13676358'
 	// ndkVersion '25.2.9519653'
 	compileSdk 35
 	// does not matter...
@@ -37,7 +37,10 @@ android {
 			applicationIdSuffix "dev"
 		}
 		release {
-			minifyEnabled false
+			// Enables code-related app optimization.
+			minifyEnabled true
+			// Enables resource shrinking.
+			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}

@@ -126,12 +126,19 @@ void gamemenu_on()
 	} else {
 		gamemenu_large();
 	}
-	PressEscKey();
+	// pause game
+	diablo_pause_game(true);
+	// stop repeating the action
+	// if (gbRunGame) {
+		gbActionBtnDown = 0;
+	// }
 }
 
 void gamemenu_off()
 {
 	gmenu_set_items(NULL, 0, NULL);
+	// resume game
+	diablo_pause_game(false);
 }
 
 static void gamemenu_previous(bool bActivate)
@@ -180,11 +187,12 @@ static void gamemenu_save_game(bool bActivate)
 	assert(saveProc == GameWndProc);
 	gamemenu_off();
 	// NewCursor(CURSOR_NONE);
-	InitDiabloMsg(EMSG_SAVING);
+	// InitDiabloMsg(EMSG_SAVING);
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	scrollrt_render_game();
 	SaveGame();
-	ClrDiabloMsg();
+	// ClrDiabloMsg();
+	EventPlrMsg("Game saved.");
 	// InitLevelCursor();
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
 	interface_msg_pump();

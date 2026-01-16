@@ -18,7 +18,7 @@ extern "C" {
  * @brief Blit CL2 sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Output buffer coordinate
  * @param sy Output buffer coordinate
- * @param pCelBuff CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param nCel CL2 frame number
  * @param nWidth CL2 width of the frame
  */

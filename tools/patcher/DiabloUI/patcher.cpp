@@ -9,6 +9,7 @@
 #include "utils/filestream.h"
 #include "utils/file_util.h"
 #include "utils/paths.h"
+#include "engine/render/render.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/cl2_render.h"
 #include "engine/render/dun_render.h"
@@ -2230,7 +2231,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 
 		const BYTE* frameBuf;
 		if (groupped) {
-			frameBuf = CelGetFrameStart(cl2Buf, ii);
+			frameBuf = CelGetFrameGroup(cl2Buf, ii);
 		} else {
 			frameBuf = cl2Buf;
 		}
@@ -2306,7 +2307,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
@@ -2393,7 +2394,7 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
@@ -2575,20 +2576,20 @@ static BYTE* patchWarriorStand(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, 
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			if (ii == 1) { // DIR_SW
 				// draw the stand frame
-				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+				const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[0 + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				// }
 				Cl2Draw(0, height - 1, stdFrameBuf, n, width);
 				// draw the attack frame
 				constexpr int atkWidth = 128;
-				const BYTE* atkFrameBuf = CelGetFrameStart(atkBuf, ii);
+				const BYTE* atkFrameBuf = CelGetFrameGroup(atkBuf, ii);
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[0 + width + BUFFER_WIDTH * y], TRANS_COLOR, atkWidth);
 				// }
@@ -3008,7 +3009,7 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -3031,7 +3032,7 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 						case 3: si = 7 - 1; break;
 						}
 
-						const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+						const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 						Cl2Draw(width, height - 1, stdFrameBuf, si + 1, width);
 
 						for (int y = 0; y < height; y++) {
@@ -3110,7 +3111,7 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 						// draw leg
 						int si = 1 - 1;
 
-						const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+						const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 						Cl2Draw(width, height - 1, stdFrameBuf, si + 1, width);
 
 						int sx = 0, sy = 0, ex = 0, ey = 0;
@@ -4088,7 +4089,7 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4161,7 +4162,7 @@ static BYTE* patchSklAxDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4396,7 +4397,7 @@ static BYTE* patchSklAxDie(BYTE* cl2Buf, size_t *dwLen)
 							}
 						}
 
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 0, 0, width, 56, 90, 61, 93, TRANS_COLOR);
@@ -4459,7 +4460,7 @@ static BYTE* patchSklBwDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4592,7 +4593,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4861,7 +4862,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 					}
 					// complete the sword
 					if (i + 1 == 15) {
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 2, 0, width, 44, 84, 71, 89, TRANS_COLOR);
@@ -4949,7 +4950,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 					}
 					// complete the left-leg
 					if (i + 1 == 14) {
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 0, 0, width, 44, 86, 48, 87, TRANS_COLOR);
@@ -4957,7 +4958,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 						gpBuffer[45 + BUFFER_WIDTH * 87] = 165;
 					}
 					if (i + 1 == 15) {
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 0, 0, width, 43, 86, 51, 89, TRANS_COLOR);
@@ -5019,7 +5020,7 @@ static BYTE* patchZombieDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -5138,7 +5139,7 @@ static BYTE* patchFallGDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -5239,7 +5240,7 @@ static BYTE* patchFallGDie(BYTE* cl2Buf, size_t *dwLen)
 								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
 							}
 						}
-						const BYTE* baseFrameBuf = CelGetFrameStart(cl2Buf, 8 - 1);
+						const BYTE* baseFrameBuf = CelGetFrameGroup(cl2Buf, 8 - 1);
 						Cl2Draw(width, height - 1, baseFrameBuf, 1, width);
 
 						for (int y = 97 + 2; y < 110 + 2 - 2; y++) {
@@ -5425,7 +5426,7 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -5437,7 +5438,7 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 				// }
 				Cl2Draw(0, height - 1, frameBuf, n, width);
 				// draw the west-walk frame
-				const BYTE* wwFrameBuf = CelGetFrameStart(cl2Buf, 2); // DIR_W
+				const BYTE* wwFrameBuf = CelGetFrameGroup(cl2Buf, 2); // DIR_W
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[width + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				// }
@@ -5558,7 +5559,7 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 				case 6: fn = 8; dx =  -2; dy =  5; break;
 				case 7: fn = 9; dx =  -8; dy =  8; break;
 				}
-				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+				const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 				for (int y = 0; y < height; y++) {
 					memset(&gpBuffer[width + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				}
@@ -6683,7 +6684,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -6922,7 +6923,7 @@ static BYTE* patchUnrav(int index, BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);

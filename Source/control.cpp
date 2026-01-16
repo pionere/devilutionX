@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
+#include "engine/render/render.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
@@ -96,22 +97,8 @@ static POS32 deltaSkillPos;
 
 /** The number of spells/skills on a single spellbook page. */
 #define NUM_BOOK_ENTRIES 7
-/** Maps from spellbook page number and position to spell_id. */
-static BYTE SpellPages[SPLBOOKTABS][NUM_BOOK_ENTRIES] = {
-	// clang-format off
-	{ SPL_NULL, SPL_CBOLT, SPL_LIGHTNING, SPL_CHAIN, SPL_NOVA, SPL_INVALID, SPL_INVALID },
-	{ SPL_FIREBOLT, SPL_FIREBALL, SPL_INFERNO, SPL_FIREWALL, SPL_WAVE, SPL_GUARDIAN, SPL_ELEMENTAL },
-	{ SPL_WHIPLASH, SPL_WALLOP, SPL_SWIPE, SPL_POINT_BLANK, SPL_FAR_SHOT, SPL_MULTI_SHOT, SPL_PIERCE_SHOT },
-	{ SPL_GOLEM, SPL_MANASHIELD, SPL_HEAL, SPL_HEALOTHER, SPL_RNDTELEPORT, SPL_TELEPORT, SPL_TOWN },
-	{ SPL_METEOR, SPL_HBOLT, SPL_FLARE, SPL_FLASH, SPL_POISON, SPL_BLOODBOIL, SPL_WIND },
-	{ SPL_CHARGE, SPL_RAGE, SPL_SWAMP, SPL_SHROUD, SPL_TELEKINESIS, SPL_ATTRACT, SPL_STONE },
-#ifdef HELLFIRE
-	{ SPL_FIRERING, SPL_RUNEFIRE, SPL_RUNEWAVE, SPL_RUNELIGHT, SPL_RUNENOVA, SPL_INVALID, SPL_INVALID },
-#endif
-	// clang-format on
-};
 /** Maps from player-class to team-icon id in pSBkIconCels. */
-static BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
+static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #ifdef HELLFIRE
 	41, 9, 38,
 #endif
@@ -415,7 +402,7 @@ void DrawSkillList()
 	for (i = 0; i < 4; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
-			mask = plr._pAblSkills;
+			mask = SPELL_MASK(plrAbility) | SPL_ABI_MASK;
 			//c = SPLICONLAST + 3;
 			break;
 		case RSPLTYPE_SPELL:
@@ -942,7 +929,6 @@ void InitControlPan()
 #ifdef HELLFIRE
 	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[RSPLTYPE_RUNE]);
 #endif
-	SpellPages[0][0] = Abilities[myplr._pClass];
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
 	gbDropGoldIndex = INVITEM_NONE;
@@ -1528,6 +1514,176 @@ static void DrawTrigInfo()
 	DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 }
 
+static void PrintSkillString(int x, int& y, const char* str, BYTE col)
+{
+	PrintJustifiedString(x, y, x + (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), str, col, FONT_KERN_SMALL);
+	y += SKILLDETAILS_LINE_HEIGHT;
+}
+
+static void PrintSkillString(int x, int& y)
+{
+	PrintJustifiedString(x, y, x + (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH), tempstr, COL_WHITE, FONT_KERN_SMALL);
+	y += SKILLDETAILS_LINE_HEIGHT;
+}
+
+static BYTE GetDamageAmt(int* mind, int* maxd)
+{
+	BYTE col = COL_WHITE;
+	int pnum = mypnum;
+	int mindam, maxdam;
+
+	mindam = (plr._pIFMinDam + plr._pILMinDam + plr._pIMMinDam + plr._pIAMinDam) >> 6;
+	maxdam = (plr._pIFMaxDam + plr._pILMaxDam + plr._pIMMaxDam + plr._pIAMaxDam) >> 6;
+	if (maxdam != 0)
+		col = COL_BLUE;
+	mindam += (*mind * (plr._pISlMinDam + plr._pIBlMinDam + plr._pIPcMinDam)) >> (7 + 6 + 1); // +1 is a temporary(?) adjustment for backwards compatibility
+	maxdam += (*maxd * (plr._pISlMaxDam + plr._pIBlMaxDam + plr._pIPcMaxDam)) >> (7 + 6 + 1);
+
+	*mind = mindam;
+	*maxd = maxdam;
+	return col;
+}
+
+static BYTE PrintPlrDamage(int mind, int maxd, BYTE skillflag)
+{
+	BYTE col;
+	const char* fmt;
+	char prefix[16];
+	if (mind == maxd)
+		fmt = "%d%%";
+	else if (maxd != 0)
+		fmt = "%d%% - %d%%";
+	else
+		fmt = "%d%% - ...";
+	snprintf(prefix, sizeof(prefix), fmt, 100 * mind / 128u, 100 * maxd / 128u);
+	if (myplr._pSkillFlags & skillflag) {
+		col = GetDamageAmt(&mind, &maxd);
+		if (maxd != 0)
+			fmt = "%s (%d - %d)";
+		else
+			fmt = "%s (%d - ...)";
+	} else {
+		col = COL_WHITE;
+		fmt = "%s";
+	}
+	snprintf(tempstr, sizeof(tempstr), fmt, prefix, mind, maxd);
+	return col;
+}
+
+static void DrawSkillDetails(const PlrSkillUse &skill)
+{
+	const int headerLinesOfSkillDetails = 2;
+	int x, y, wh;
+	int linesOfSkillDetails;
+	// prepare the details
+	int pnum, sn, lvl, mana;
+	SkillDetails skd;
+	const char* src;
+	pnum = mypnum;
+	sn = skill._suSkill;
+	lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
+	GetSkillDetails(sn, lvl, &skd);
+	mana = 0;
+	switch (skill._suType) {
+	case RSPLTYPE_ABILITY:
+		src = "Ability";
+		break;
+	case RSPLTYPE_SPELL:
+		if (lvl < 0) { // SPLLVL_UNDEF
+			src = "Spell";
+			break;
+		}
+		if (lvl != 0) {
+			src = "Spell Level %d";
+		} else {
+			src = "Spell (Unusable)";
+		}
+		mana = GetManaAmount(pnum, sn) >> 6;
+		break;
+	case RSPLTYPE_INV:
+		src = SPELL_RUNE(sn) ? "Rune" : "Scroll";
+		break;
+	case RSPLTYPE_CHARGES:
+		src = "Equipment";
+		break;
+	//case RSPLTYPE_INVALID:
+	//	break;
+	default:
+		ASSUME_UNREACHABLE
+		break;
+	}
+
+	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (skd.type != SDT_NONE ? 1 : 0);
+
+	wh = BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2 + headerLinesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
+	wh += linesOfSkillDetails ? (SKILLDETAILS_LINE_HEIGHT/2 + linesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH) : 0;
+	x = MousePos.x;
+	y = MousePos.y;
+	if (x > SCREEN_MIDX(0)) {
+		x -= SKILLDETAILS_PNL_WIDTH + SKILLDETAILS_POPUP_OFFSET;
+	} else {
+		x += SKILLDETAILS_POPUP_OFFSET;
+	}
+	if (y > SCREEN_MIDY(0)) {
+		y -= wh + SKILLDETAILS_POPUP_OFFSET;
+	} else {
+		y += SKILLDETAILS_POPUP_OFFSET;
+	}
+	x += SCREEN_X;
+	y += SCREEN_Y;
+
+	// draw the box
+	DrawColorTextBox(x, y, SKILLDETAILS_PNL_WIDTH, wh, COL_GOLD);
+	// add separator
+	if (linesOfSkillDetails)
+		DrawColorTextBoxSLine(x, y, SKILLDETAILS_PNL_WIDTH, BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2 + SKILLDETAILS_LINE_HEIGHT * headerLinesOfSkillDetails + SKILLDETAILS_LINE_HEIGHT/2);
+
+	x += BOXBORDER_WIDTH;
+	y += BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT / 2 + SKILLDETAILS_LINE_HEIGHT - 1;
+
+	// print the name of the skill
+	PrintSkillString(x, y, spelldata[skill._suSkill].sNameText, skill._suType == RSPLTYPE_SPELL ? COL_BLUE : (skill._suType == RSPLTYPE_ABILITY ? COL_GOLD : COL_WHITE));
+
+	// print the source of the skill
+	snprintf(tempstr, sizeof(tempstr), src, lvl);
+	PrintSkillString(x, y);
+
+	y += SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2;
+
+	// print mana cost
+	if (mana != 0) {
+		snprintf(tempstr, sizeof(tempstr), "Mana: %d", mana);
+		PrintSkillString(x, y);
+	}
+	if (skd.type != SDT_NONE) {
+		BYTE col = COL_WHITE;
+		if (lvl < 0) { // SPLLVL_UNDEF
+			copy_cstr(tempstr, "\?\?");
+		} else {
+			switch (skd.type) {
+			case SDT_DAMAGE:
+				const char* fmt;
+				if (skd.v0 == skd.v1) {
+					fmt = "Damage: %d";
+				} else {
+					fmt = "Damage: %d-%d";
+				}
+				snprintf(tempstr, sizeof(tempstr), fmt, skd.v0, skd.v1);
+				break;
+			case SDT_DAMAGE_MELEE:
+				col = PrintPlrDamage(skd.v0, skd.v1, SFLAG_MELEE);
+				break;
+			case SDT_DAMAGE_RANGED:
+				col = PrintPlrDamage(skd.v0, skd.v1, SFLAG_RANGED);
+				break;
+			default:
+				ASSUME_UNREACHABLE
+			}
+		}
+		PrintSkillString(x, y, tempstr, col);
+	}
+}
+
 void DrawInfoStr()
 {
 	POS32 pos;
@@ -1565,29 +1721,9 @@ void DrawInfoStr()
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, pos.x, pos.y + TOOLTIP2_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (gbSkillListFlag) {
-		if (currSkill._suSkill == SPL_INVALID || currSkill._suSkill == SPL_NULL)
-			return;
-		const char* src;
-		switch (currSkill._suType) {
-		case RSPLTYPE_ABILITY:
-			src = "Ability";
-			break;
-		case RSPLTYPE_SPELL:
-			src = "Spell";
-			break;
-		case RSPLTYPE_INV:
-			src = SPELL_RUNE(currSkill._suSkill) ? "Rune" : "Scroll";
-			break;
-		case RSPLTYPE_CHARGES:
-			src = "Equipment";
-			break;
-		//case RSPLTYPE_INVALID:
-		//	break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
+		if (currSkill._suSkill != SPL_INVALID && currSkill._suSkill != SPL_NULL) {
+			DrawSkillDetails(currSkill);
 		}
-		DrawTooltip2(spelldata[currSkill._suSkill].sNameText, src, MousePos.x, MousePos.y - (SPLICON_HEIGHT / 4 + TOOLTIP_OFFSET), COL_WHITE);
 	} else if (gbCampaignMapFlag != CMAP_NONE) {
 		if (currCamEntry.ceIndex == 0)
 			return;
@@ -1765,117 +1901,64 @@ void DrawDurIcon()
 	DrawDurIcon4Item(&inv[INVLOC_HAND_RIGHT], x);
 }
 
-static BYTE GetSBookTrans(int sn)
-{
-	PlayerStruct* p;
-	BYTE st;
-
-	p = &myplr;
-	if (p->_pAblSkills & SPELL_MASK(sn)) { /// BUGFIX: missing (uint64_t) (fixed)
-		st = RSPLTYPE_ABILITY;
-	} else if (p->_pISpells & SPELL_MASK(sn)) {
-		st = RSPLTYPE_CHARGES;
-	} else if (p->_pInvSkills & SPELL_MASK(sn)) {
-		st = RSPLTYPE_INV;
-	} else {
-		st = RSPLTYPE_SPELL;
-	}
-	return st;
-}
-
 void DrawSpellBook()
 {
-	int pnum, i, sn, mana, lvl, sx, yp, offset;
-	BYTE st;
-	uint64_t spl;
-
-	// back panel
-	sx = SCREEN_X + gnWndBookX;
-	yp = SCREEN_Y + gnWndBookY;
-	CelDraw(sx, yp + SPANEL_HEIGHT - 1, pSpellBkCel, 1);
-	// selected page
-	snprintf(tempstr, sizeof(tempstr), "%d.", guBooktab + 1);
-	PrintJustifiedString(sx + 2, yp + SPANEL_HEIGHT - 7, sx + SPANEL_WIDTH, tempstr, COL_WHITE, 0);
+	int sx, yp;
 
 #if SCREEN_READER_INTEGRATION
 	PlrSkillUse prevSkill = currSkill;
 #endif
 	currSkill._suSkill = SPL_INVALID;
 
-	pnum = mypnum;
-	spl = plr._pMemSkills | plr._pISpells | plr._pAblSkills | plr._pInvSkills;
+	// back panel
+	sx = SCREEN_X + gnWndBookX;
+	yp = SCREEN_Y + gnWndBookY;
+	int wh = 2 * BOXBORDER_WIDTH + SBOOK_CELHEIGHT * (lengthof(myplr._pSkillHotKey) + lengthof(myplr._pAltSkillHotKey));
+	// draw the box
+	DrawColorTextBox(sx, yp, SBOOK_PNL_WIDTH, wh, COL_GOLD);
+	// add separator
+	DrawColorTextBoxSLine(sx, yp, SBOOK_PNL_WIDTH, BOXBORDER_WIDTH + lengthof(myplr._pSkillHotKey) * SBOOK_CELHEIGHT);
 
-	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
-	sx += SBOOK_CELBORDER;
-	for (i = 0; i < lengthof(SpellPages[guBooktab]); i++) {
-		sn = SpellPages[guBooktab][i];
-		if (sn != SPL_INVALID && (spl & SPELL_MASK(sn))) {
-			st = GetSBookTrans(sn);
-			lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
-			// assert(lvl >= 0 || lvl == -1);
-			mana = 0;
-			switch (st) {
-			case RSPLTYPE_ABILITY:
-				copy_cstr(tempstr, "Ability");
-				// lvl = -1; // SPLLVL_UNDEF
-				break;
-			case RSPLTYPE_INV:
-				if (SPELL_RUNE(sn)) {
-					copy_cstr(tempstr, "Rune");
-				} else {
-					copy_cstr(tempstr, "Scroll");
-				}
-				break;
-			case RSPLTYPE_CHARGES:
-				copy_cstr(tempstr, "Equipment");
-				break;
-			case RSPLTYPE_SPELL:
-				if (lvl < 0) {
-					copy_cstr(tempstr, "Spell");
-					break;
-				}
-				if (lvl != 0) {
-					snprintf(tempstr, sizeof(tempstr), "Spell Level %d", lvl);
-				} else {
-					copy_cstr(tempstr, "Spell Level 0 - Unusable");
-				}
-				mana = GetManaAmount(pnum, sn) >> 6;
-				break;
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-			int min, max;
-			if (lvl != -1) // SPLLVL_UNDEF
-				GetDamageAmt(sn, lvl, &min, &max);
-			else
-				min = -1;
-			offset = mana == 0 && min == -1 ? 5 : 0;
-			PrintGameStr(sx + SBOOK_LINE_TAB, yp - 23 + offset, spelldata[sn].sNameText, COL_WHITE);
-			PrintGameStr(sx + SBOOK_LINE_TAB, yp - 12 + offset, tempstr, COL_WHITE);
+	sx += BOXBORDER_WIDTH;
+	yp += BOXBORDER_WIDTH - 1;
 
-			if (offset == 0) {
-				if (mana != 0)
-					cat_str(tempstr, offset, "Mana: %d  ", mana);
-				if (min != -1)
-					cat_str(tempstr, offset, "Dam: %d-%d", min, max);
-				PrintGameStr(sx + SBOOK_LINE_TAB, yp - 1, tempstr, COL_WHITE);
+	for (int i = 0; i < lengthof(myplr._pSkillHotKey) + lengthof(myplr._pAltSkillHotKey); i++) {
+		PlrSkillStruct* skill;
+		
+		yp += SBOOK_CELHEIGHT;
+		if (i < lengthof(myplr._pSkillHotKey)) {
+			skill = &myplr._pSkillHotKey[i];
+		} else {
+			if (i == lengthof(myplr._pSkillHotKey)) {
+				yp++;
 			}
-			const PlrSkillUse bookSkill = { (BYTE)sn, (BYTE)st };
-			st = GetSpellTrans(bookSkill);
-			CelDrawTrnTbl(sx, yp, pSBkIconCels, spelldata[sn].sIcon, SkillTrns[st]);
-			// TODO: differenciate between Atk/Move skill ? Add icon for primary skills?
-			if (bookSkill == plr._pAltSkill._psAttack || bookSkill == plr._pAltSkill._psMove) {
-				CelDrawTrnTbl(sx, yp, pSBkIconCels, SPLICONLAST, SkillTrns[RSPLTYPE_ABILITY]);
-			}
-			if (POS_IN_RECT(MousePos.x, MousePos.y,
-				sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
-				SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
-				currSkill = bookSkill;
-			}
+			skill = &myplr._pAltSkillHotKey[i - lengthof(myplr._pSkillHotKey)];
 		}
-		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
+
+		int sn, st;
+		sn = skill->_psAttack._suType != RSPLTYPE_INVALID ? skill->_psAttack._suSkill : SPL_INVALID;
+		st = GetSpellTrans(skill->_psAttack);
+		CelDrawTrnTbl(sx, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, SkillTrns[st]);
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
+			sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
+			SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
+			currSkill = skill->_psAttack;
+		}
+		if (sn != SPL_INVALID && spelldata[sn].sNameText != NULL)
+			PrintGameStr(sx + 2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET, yp - ((SBOOK_CELHEIGHT - 2 * SBOOK_LINE_HEIGHT) / 2 + SBOOK_LINE_HEIGHT), spelldata[sn].sNameText, COL_WHITE);
+
+		sn = skill->_psMove._suType != RSPLTYPE_INVALID ? skill->_psMove._suSkill : SPL_INVALID;
+		st = GetSpellTrans(skill->_psMove);
+		CelDrawTrnTbl(sx + SBOOK_CELWIDTH, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, SkillTrns[st]);
+		if (POS_IN_RECT(MousePos.x, MousePos.y,
+			sx + SBOOK_CELWIDTH - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
+			SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
+			currSkill = skill->_psMove;
+		}
+		if (sn != SPL_INVALID && spelldata[sn].sNameText != NULL)
+			PrintGameStr(sx + 2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET, yp - ((SBOOK_CELHEIGHT - 2 * SBOOK_LINE_HEIGHT) / 2), spelldata[sn].sNameText, COL_WHITE);
 	}
+
 #if SCREEN_READER_INTEGRATION
 	if (prevSkill != currSkill) {
 		SpeakSpellText(currSkill);
@@ -1885,37 +1968,10 @@ void DrawSpellBook()
 
 void CheckBookClick(bool altSkill)
 {
-	int dx, dy;
-
-	if (currSkill._suSkill != SPL_INVALID) {
-		SetSkill(altSkill);
-		return;
-	}
-	if (altSkill) {
-		return;
-	}
-
-	dx = MousePos.x - (gnWndBookX + SBOOK_LEFT_BORDER);
-	dy = MousePos.y - (gnWndBookY + SBOOK_TOP_BORDER);
-	if (dx < 0 || dy < 0)
-		return;
-
-	if (dy >= lengthof(SpellPages[guBooktab]) * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
-		if (dx <= SBOOK_PAGER_WIDTH * 2) {
-			if (dx <= SBOOK_PAGER_WIDTH) {
-				guBooktab = 0;
-			} else {
-				if (guBooktab != 0)
-					guBooktab--;
-			}
-		} else if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH * 2) {
-			if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH) {
-				guBooktab = SPLBOOKTABS - 1;
-			} else {
-				if (guBooktab < SPLBOOKTABS - 1)
-					guBooktab++;
-			}
-		}
+	int dx;
+	dx = MousePos.x - (gnWndBookX + 2 * SBOOK_CELWIDTH);
+	if (dx < 0) {
+		HandleSkillBtn(altSkill);
 	} else {
 		StartWndDrag(WND_BOOK);
 	}
@@ -2049,8 +2105,8 @@ void DrawTeamBook()
 
 	hasTeam = PlrHasTeam();
 
-	yp += SBOOK_TOP_BORDER + SBOOK_CELHEIGHT;
-	sx += SBOOK_CELBORDER;
+	yp += TBOOK_TOP_BORDER + TBOOK_CELHEIGHT;
+	sx += TBOOK_CELBORDER;
 	for (i = 0; i < NUM_BOOK_ENTRIES; i++) {
 		pnum = i + guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS)
@@ -2058,36 +2114,36 @@ void DrawTeamBook()
 		if (!plr._pActive)
 			continue;
 		// name
-		PrintLimitedString(sx + SBOOK_LINE_TAB, yp - 25, plr._pName, SBOOK_LINE_LENGTH, COL_WHITE, 0);
+		PrintLimitedString(sx + TBOOK_LINE_TAB, yp - 25, plr._pName, TBOOK_LINE_LENGTH, COL_WHITE, 0);
 		// class(level) - team
 		static_assert(MAXCHARLEVEL < 100, "Level must fit to the TeamBook.");
 		snprintf(tempstr, sizeof(tempstr), "%s (lvl:%2d) %c", ClassStrTbl[plr._pClass], plr._pLevel, 'a' + plr._pTeam);
-		PrintGameStr(sx + SBOOK_LINE_TAB, yp - 13, tempstr, COL_WHITE);
+		PrintGameStr(sx + TBOOK_LINE_TAB, yp - 13, tempstr, COL_WHITE);
 
 		// mute
 		if (pnum != mypnum) {
-			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 24, TBOOK_BTN_WIDTH,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 24, TBOOK_BTN_WIDTH,
 				(guTeamMute & (1 << pnum)) != 0, "mute", 10);
 		}
 
 		// drop/leave
 		if (hasTeam && (pnum == mypnum || plr._pTeam == mypnum)) {
-			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 12, TBOOK_BTN_WIDTH, false,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp - 12, TBOOK_BTN_WIDTH, false,
 				pnum == mypnum ? "leave" : "drop", pnum == mypnum ? 8 : 12);
 		}
 
 		// accept/reject
 		if (guTeamInviteRec & (1 << pnum)) {
-			DrawTeamButton(sx + SBOOK_LINE_TAB, yp, TBOOK_BTN_WIDTH,
+			DrawTeamButton(sx + TBOOK_LINE_TAB, yp, TBOOK_BTN_WIDTH,
 				false, "accept", 2);
-			DrawTeamButton(sx + SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10, yp, TBOOK_BTN_WIDTH,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10, yp, TBOOK_BTN_WIDTH,
 				false, "reject", 6);
 		}
 
 		// invite/cancel
 		if (pnum != mypnum && plr._pTeam != myplr._pTeam && myplr._pTeam == mypnum) {
 			unsigned invited = (guTeamInviteSent & (1 << pnum));
-			DrawTeamButton(sx + SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
+			DrawTeamButton(sx + TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8), yp, TBOOK_BTN_WIDTH, false,
 				!invited ? "invite" : "cancel", !invited ? 7 : 2);
 		}
 
@@ -2095,7 +2151,7 @@ void DrawTeamBook()
 		st = plr._pDunLevel == DLV_TOWN ? RSPLTYPE_ABILITY : (plr._pmode == PM_DEATH ? RSPLTYPE_INVALID : RSPLTYPE_SPELL);
 		CelDrawTrnTbl(sx, yp, pSBkIconCels, ClassIconTbl[plr._pClass], SkillTrns[st]);
 
-		yp += SBOOK_CELBORDER + SBOOK_CELHEIGHT;
+		yp += TBOOK_CELBORDER + TBOOK_CELHEIGHT;
 	}
 }
 
@@ -2107,27 +2163,27 @@ void CheckTeamClick(bool altAction)
 		ToggleWindow(WND_TEAM);
 		return;
 	}
-	dx = MousePos.x - (gnWndTeamX + SBOOK_LEFT_BORDER);
-	dy = MousePos.y - (gnWndTeamY + SBOOK_TOP_BORDER);
+	dx = MousePos.x - (gnWndTeamX + TBOOK_LEFT_BORDER);
+	dy = MousePos.y - (gnWndTeamY + TBOOK_TOP_BORDER);
 	if (dx < 0 || dy < 0) {
 		return;
 	}
 
-	if (dy < NUM_BOOK_ENTRIES * (SBOOK_CELBORDER + SBOOK_CELHEIGHT)) {
-		int pnum = dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
-		dy = dy % (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+	if (dy < NUM_BOOK_ENTRIES * (TBOOK_CELBORDER + TBOOK_CELHEIGHT)) {
+		int pnum = dy / (TBOOK_CELBORDER + TBOOK_CELHEIGHT);
+		dy = dy % (TBOOK_CELBORDER + TBOOK_CELHEIGHT);
 		pnum += guTeamTab * NUM_BOOK_ENTRIES;
 		if (pnum >= MAX_PLRS || !plr._pActive) {
 			StartWndDrag(WND_TEAM);
 			return;
 		}
-		if (dx <= SBOOK_CELWIDTH) {
+		if (dx <= TBOOK_CELWIDTH) {
 			// clicked on the icon
 			SetupPlrMsg(pnum);
-		} else if (dx > SBOOK_LINE_TAB + SBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
-		 && dx <= SBOOK_LINE_TAB + SBOOK_LINE_LENGTH + 8) {
+		} else if (dx > TBOOK_LINE_TAB + TBOOK_LINE_LENGTH - (TBOOK_BTN_WIDTH - 8)
+		 && dx <= TBOOK_LINE_TAB + TBOOK_LINE_LENGTH + 8) {
 			// clicked on the right column of buttons
-			dy = 3 * dy / (SBOOK_CELBORDER + SBOOK_CELHEIGHT);
+			dy = 3 * dy / (TBOOK_CELBORDER + TBOOK_CELHEIGHT);
 			if (dy == 0) {
 				// mute
 				if (pnum != mypnum)
@@ -2147,12 +2203,12 @@ void CheckTeamClick(bool altAction)
 					guTeamInviteSent ^= (1 << pnum);
 				}
 			}
-		} else if (dy >= (2 * (SBOOK_CELBORDER + SBOOK_CELHEIGHT) / 3)) {
+		} else if (dy >= (2 * (TBOOK_CELBORDER + TBOOK_CELHEIGHT) / 3)) {
 			if (guTeamInviteRec & (1 << pnum)) {
-				if (dx > SBOOK_LINE_TAB && dx < SBOOK_LINE_TAB + TBOOK_BTN_WIDTH) {
+				if (dx > TBOOK_LINE_TAB && dx < TBOOK_LINE_TAB + TBOOK_BTN_WIDTH) {
 					// accept (invite)
 					NetSendCmdBParam1(CMD_ACK_INVITE, pnum);
-				} else if (dx > SBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10 && dx < SBOOK_LINE_TAB + 2 * TBOOK_BTN_WIDTH + 10) {
+				} else if (dx > TBOOK_LINE_TAB + TBOOK_BTN_WIDTH + 10 && dx < TBOOK_LINE_TAB + 2 * TBOOK_BTN_WIDTH + 10) {
 					// reject (invite)
 					NetSendCmdBParam1(CMD_DEC_INVITE, pnum);
 				}
@@ -2160,15 +2216,15 @@ void CheckTeamClick(bool altAction)
 			}
 		}
 	} else {
-		if (dx <= SBOOK_PAGER_WIDTH * 2) {
-			if (dx <= SBOOK_PAGER_WIDTH) {
+		if (dx <= TBOOK_PAGER_WIDTH * 2) {
+			if (dx <= TBOOK_PAGER_WIDTH) {
 				guTeamTab = 0;
 			} else {
 				if (guTeamTab != 0)
 					guTeamTab--;
 			}
-		} else if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH * 2) {
-			if (dx >= SPANEL_WIDTH - SBOOK_PAGER_WIDTH) {
+		} else if (dx >= SPANEL_WIDTH - TBOOK_PAGER_WIDTH * 2) {
+			if (dx >= SPANEL_WIDTH - TBOOK_PAGER_WIDTH) {
 				guTeamTab = TBOOKTABS - 1;
 			} else {
 				if (guTeamTab < TBOOKTABS - 1)

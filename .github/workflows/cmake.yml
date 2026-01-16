@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         #fetch-tags: true
         fetch-depth: 0
@@ -84,7 +84,7 @@ jobs:
     #build/uwp-project/pkg/
     - name: Upload-Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.artifact }}
         if-no-files-found: error

@@ -159,10 +159,11 @@ You can launch WSL anytime by typing wsl or ubuntu in a Command Prompt or Powers
 In a WSL terminal run these commands to get the source code for DevilutionX
 
 ```
-sudo apt install git
+sudo apt-get install git
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
 ```
+
 </details>
 
 ### Installing dependencies on WSL, Debian and Ubuntu

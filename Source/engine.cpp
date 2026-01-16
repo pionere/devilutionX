@@ -2,8 +2,6 @@
  * @file engine.cpp
  *
  * Implementation of basic engine helper functions:
- * - Sprite blitting
- * - Drawing
  * - Angle calculation
  * - RNG
  * - Memory allocation

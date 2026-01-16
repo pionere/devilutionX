@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "plrctrls.h"
+#include "engine/render/render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -20,14 +21,14 @@ static unsigned _guPlrFrameSize[NUM_PGXS + 1];
 static bool _gbPlrGfxSizeLoaded = false;
 
 /** Maps from armor animation to letter used in graphic files. */
-const char ArmorChar[4] = {
+static const char ArmorChar[4] = {
 	'L', // light
 	'M', // medium
 	'H', // heavy
 	0
 };
 /** Maps from weapon animation to letter used in graphic files. */
-const char WepChar[10] = {
+static const char WepChar[10] = {
 	'N', // unarmed
 	'U', // no weapon + shield
 	'S', // sword + no shield
@@ -40,14 +41,14 @@ const char WepChar[10] = {
 	0
 };
 /** Maps from player class to letter used in graphic files. */
-const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
+static const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
 #ifdef HELLFIRE
 //	'M', 'B', 'C'
 	'M', 'R', 'W'
 #endif
 };
 /** Maps from player class to the folder of graphic files. */
-const char* const gfxClassTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
+static const char* const gfxClassTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #ifdef HELLFIRE
 //	"Monk", "Bard", "Barbarian"
 	"Monk", "Rogue", "Warrior"
@@ -63,8 +64,8 @@ const char* const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
  * Specifies the X and Y offsets to try when a player is entering the level or resurrected.
  * The base position is the location of the portal or the body of the dead player.
  */
-const int plrxoff2[NUM_DIRS + 1] = { 0, 1, 1, 0, -1, 0, -1, 1, -1 };
-const int plryoff2[NUM_DIRS + 1] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
+static const int plrxoff2[NUM_DIRS + 1] = { 0, 1, 1, 0, -1, 0, -1, 1, -1 };
+static const int plryoff2[NUM_DIRS + 1] = { 0, 1, 0, 1, -1, -1, 0, -1, 1 };
 /* Data related to the player-animation types. */
 static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
 	// clang-format off
@@ -85,7 +86,7 @@ static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
  * Specifies the number of frames of each animation for each player class.
    STAND, WALK, ATTACK, SPELL, BLOCK, GOTHIT, DEATH
  */
-const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
+static const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format off
 	{ 10, 8, 16, 20, 2, 6, 20 },
 	{  8, 8, 18, 16, 4, 7, 20 },
@@ -98,7 +99,7 @@ const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
 	// clang-format on
 };
 /** Specifies the frame of attack and spell animation for which the action is triggered, for each player class. */
-const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
+static const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
 	// clang-format off
 	{  9, 14 },
 	{ 10, 12 },
@@ -252,15 +253,6 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 #endif
 
-static void SetPlayerGPtrs(BYTE* pData, BYTE* (&pAnim)[8])
-{
-	int i;
-
-	for (i = 0; i < lengthof(pAnim); i++) {
-		pAnim[i] = const_cast<BYTE*>(CelGetFrameStart(pData, i));
-	}
-}
-
 static inline void GetPlrGFXCells(int pc, const char** szCel, const char** cs)
 {
 /*#ifdef HELLFIRE
@@ -291,6 +283,11 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 		mask &= ~(PGF_STAND_TOWN | PGF_WALK_TOWN);
 	else
 		mask &= ~(PGF_STAND_DUNGEON | PGF_WALK_DUNGEON);
+	if (prefix[2] != 'U' && prefix[2] != 'D' && prefix[2] != 'H')
+/*#ifdef HELLFIRE
+if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
+#endif*/
+		mask &= ~PGF_BLOCK;
 	for (auto pAnimType = &PlrAnimTypes[0]; mask != 0; pAnimType++, mask >>= 1) {
 		if (!(mask & 1))
 			continue;
@@ -301,7 +298,7 @@ static void LoadPlrGFX(int pnum, unsigned gfxflag)
 
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
 		LoadFileWithMem(pszName, plr._pAnimFileData[pAnimType->patGfxIdx]);
-		SetPlayerGPtrs(plr._pAnimFileData[pAnimType->patGfxIdx], plr._pAnims[pAnimType->patGfxIdx].paAnimData);
+		LoadFrameGroups(plr._pAnimFileData[pAnimType->patGfxIdx], plr._pAnims[pAnimType->patGfxIdx].paAnimData);
 		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
 }
@@ -358,13 +355,17 @@ static unsigned GetPlrGFXSize(const char* szCel)
 		GetPlrGFXCells(c, &chrClass, &strClass);
 		for (chrArmor = &ArmorChar[0]; *chrArmor != '\0'; chrArmor++) {
 			for (chrWeapon = &WepChar[0]; *chrWeapon != '\0'; chrWeapon++) { // BUGFIX loads non-existing animations; DT is only for N, BL is only for U, D & H (fixed)
-				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && *chrArmor != 'L' && *chrWeapon != 'N') {
+				if (szCel[0] == 'D' /*&& szCel[1] == 'T'*/ && (*chrArmor != 'L' || *chrWeapon != 'N')) {
 					continue; //Death has no weapon or armor
 				}
-				/* BUGFIX monks can block unarmed and without shield (fixed)
-				if (szCel[0] == 'B' && szCel[1] == 'L' && (*chrWeapon != 'U' && *chrWeapon != 'D' && *chrWeapon != 'H')) {
-					continue; //No block without weapon
-				}*/
+				if (szCel[0] == 'B' /*&& szCel[1] == 'L'*/ && (*chrWeapon != 'U' && *chrWeapon != 'D' && *chrWeapon != 'H')) {
+/* BUGFIX monks can block without shield (fixed)
+#ifdef HELLFIRE
+if (c !=  PC_MONK || *chrWeapon == 'A' || *chrWeapon == 'B')
+#endif
+*/
+					continue; //No block without shield
+				}
 				prefix[0] = *chrClass;
 				prefix[1] = *chrArmor;
 				prefix[2] = *chrWeapon;
@@ -660,9 +661,6 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
 
-	//plr._pAblSkills = SPELL_MASK(Abilities[c]);
-	//plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK) | SPELL_MASK(SPL_BLOCK);
-
 	//plr._pMainSkill = { { SPL_ATTACK, RSPLTYPE_ABILITY } , { SPL_WALK, RSPLTYPE_ABILITY } };
 	//plr._pAltSkill = { { SPL_NULL, 0 } , SPL_NULL, 0 } };
 	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
@@ -749,9 +747,6 @@ void InitPlayer(int pnum)
 	CalculateGold(pnum);
 
 	plr._pNextExper = PlrExpLvlsTbl[plr._pLevel];
-
-	plr._pAblSkills = SPELL_MASK(Abilities[plr._pClass]);
-	plr._pAblSkills |= SPELL_MASK(SPL_WALK) | SPELL_MASK(SPL_BLOCK) | SPELL_MASK(SPL_ATTACK) | SPELL_MASK(SPL_RATTACK);
 }
 
 /*
@@ -1206,7 +1201,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	//}
 }
 
-static bool StartWalk(int pnum, int dir)
+static void StartWalk(int pnum, int dir)
 {
 	int mwi;
 
@@ -1277,7 +1272,6 @@ static bool StartWalk(int pnum, int dir)
 			ScrollInfo._sdir = dir;
 		//}
 	}
-	return true;
 }
 
 static void StartAttack(int pnum)
@@ -2427,6 +2421,9 @@ static void PlrDoDeath(int pnum)
 			if (pnum == mypnum) {
 				gbDeathflag = MDM_DEAD;
 				if (!IsMultiGame) {
+					// close temporary windows
+					PressEscKey();
+					// activate the menu
 					gamemenu_on();
 				}
 			}

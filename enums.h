@@ -2034,6 +2034,8 @@ typedef enum missile_id {
 	MIS_MANASHIELD,
 	MIS_INFRA,
 	MIS_RAGE,
+	MIS_PULSE,
+	MIS_CTA,
 #ifdef HELLFIRE
 	//MIS_LIGHTWALLC,
 	//MIS_LIGHTWALL,
@@ -2270,6 +2272,7 @@ typedef enum _monster_id {
 	MT_BSNEAK,
 	MT_YSNEAK,
 	MT_NGOATMC,
+	MT_AGOATMC,
 	MT_BGOATMC,
 	MT_RGOATMC,
 	MT_GGOATMC,
@@ -2315,6 +2318,7 @@ typedef enum _monster_id {
 	MT_NTHIN,
 	MT_XTHIN,
 	MT_GTHIN,
+	MT_WTHIN,
 	MT_NGARG,
 	MT_XGARG,
 	MT_DGARG,
@@ -3515,8 +3519,6 @@ typedef enum dungeon_message2 {
 typedef enum diablo_message {
 	EMSG_NONE,
 	EMSG_DESYNC,
-	EMSG_LOADING,
-	EMSG_SAVING,
 	EMSG_SHRINE_HIDDEN,
 	EMSG_SHRINE_GLOOMY,
 	EMSG_SHRINE_WEIRD,
@@ -3854,6 +3856,7 @@ typedef enum spell_id {
 	SPL_WIND,
 	SPL_SHROUD,
 	SPL_SWAMP,
+	SPL_PULSE,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,
@@ -4467,6 +4470,13 @@ typedef enum player_skill_flags {
 	SFLAG_BLOCK   = 1 << 3,
 	SFLAG_RAGE    = 1 << 4,
 } player_skill_flags;
+
+typedef enum skill_details_type {
+	SDT_NONE,
+	SDT_DAMAGE,
+	SDT_DAMAGE_MELEE,
+	SDT_DAMAGE_RANGED,
+} skill_details_type;
 
 typedef enum window_active {
 	WND_INV,

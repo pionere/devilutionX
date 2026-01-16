@@ -25,9 +25,9 @@
 #else
 #define INTRO_ARCHIVE            "gendata\\diablo1.smk"
 #define GAME_ID                  ((int)'DRTL')
+#define GAME_VERSION             42
 #define CREDITS_LINE_COUNT       455
 #define CREDITS_TXT              "Meta\\credits.txt"
-#define GAME_VERSION             42
 #define HELP_TITLE               "Diablo Help"
 #endif
 #define HELP_LINE_COUNT          65
