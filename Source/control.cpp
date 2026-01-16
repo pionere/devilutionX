@@ -5,7 +5,6 @@
  */
 #include "all.h"
 #include "plrctrls.h"
-#include "engine/render/render.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/raw_render.h"
 #include "engine/render/text_render.h"
@@ -698,125 +697,17 @@ void SkillHotKey(int slot, bool altSkill)
 	}
 }*/
 
-/**
- * Draws a section of the empty flask cel on top of the panel to create the illusion
- * of the flask getting empty. This function takes a cel and draws a
- * horizontal stripe of height (max-min) onto the back buffer.
- * @param pCelBuff Buffer of the empty flask cel.
- * @param min Top of the flask cel section to draw.
- * @param max Bottom of the flask cel section to draw.
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- */
-/*static void SetFlaskHeight(BYTE* pCelBuff, int min, int max, int sx, int sy)
+static void DrawFlask(int sx, unsigned filled, int emptyCel, int fullCel, int w)
 {
-	int nSrcOff, nDstOff, w;
-
-	assert(gpBuffer != NULL);
-
-	nSrcOff = 88 * min;
-	nDstOff = sx + BUFFER_WIDTH * sy;
-	w = max - min;
-
-	BYTE *src, *dst;
-
-	src = &pCelBuff[nSrcOff];
-	dst = &gpBuffer[nDstOff];
-
-	for ( ; w != 0; w--, src += 88, dst += BUFFER_WIDTH)
-		memcpy(dst, src, 88);
-}*/
-
-/**
- * Draws the dome of the flask that protrudes above the panel top line.
- * It draws a rectangle of fixed width 59 and height 'h' from the source buffer
- * into the target buffer.
- * @param pCelBuff The flask cel buffer.
- * @param w Width of the cel.
- * @param nSrcOff Offset of the source buffer from where the bytes will start to be copied from.
- * @param nDstOff Offset of the target buffer where the bytes will start to be copied to.
- * @param h How many lines of the source buffer that will be copied.
- */
-/*static void DrawFlask(BYTE* pCelBuff, int w, int nSrcOff, int nDstOff, int h)
-{
-	int wdt, hgt;
-	BYTE *src, *dst;
-
-	assert(gpBuffer != NULL);
-
-	src = &pCelBuff[nSrcOff];
-	dst = &gpBuffer[nDstOff];
-
-	for (hgt = h; hgt != 0; hgt--, src += w - 59, dst += BUFFER_WIDTH - 59) {
-		for (wdt = 59; wdt != 0; wdt--) {
-			if (*src != 0)
-				*dst = *src;
-			src++;
-			dst++;
-		}
-	}
-}*/
-
-static void DrawFlask2(int sx, unsigned filled, int emptyCel, int fullCel, int w)
-{
-	const BYTE *empty, *full;
-	int sy, dataSize, i;
-	int8_t width;
+	int sy;
 
 	sy = SCREEN_Y + SCREEN_HEIGHT - 1;
 
 	filled += FLASK_TOTAL_HEIGHT - FLASK_BULB_HEIGHT;
 	unsigned emptied = FLASK_TOTAL_HEIGHT - filled;
-	full = CelGetFrameClippedAt(pFlaskCels, fullCel, 0, &dataSize);
-
-	BYTE* dst = &gpBuffer[BUFFERXY(sx, sy)];
-	for ( ; filled-- != 0; dst -= BUFFER_WIDTH + w) {
-		for (i = w; i != 0; ) {
-			width = *full++;
-			if (width >= 0) {
-				i -= width;
-				memcpy(dst, full, width);
-				full += width;
-				dst += width;
-			} else {
-				dst -= width;
-				i += width;
-			}
-		}
-	}
-
-	if (emptied == 0)
-		return;
-
-	filled = FLASK_TOTAL_HEIGHT - emptied;
-	unsigned blocks = filled / CEL_BLOCK_HEIGHT;
-	empty = CelGetFrameClippedAt(pFlaskCels, emptyCel, blocks, &dataSize);
-	filled = filled % CEL_BLOCK_HEIGHT; // -= blocks * CEL_BLOCK_HEIGHT;
-	while (filled-- != 0) {
-		for (i = w; i != 0; ) {
-			width = *empty++;
-			if (width >= 0) {
-				i -= width;
-				empty += width;
-			} else {
-				i += width;
-			}
-		}
-	}
-
-	for ( ; emptied-- != 0; dst -= BUFFER_WIDTH + w) {
-		for (i = w; i != 0; ) {
-			width = *empty++;
-			if (width >= 0) {
-				i -= width;
-				memcpy(dst, empty, width);
-				empty += width;
-				dst += width;
-			} else {
-				dst -= width;
-				i += width;
-			}
-		}
+	CelClippedDrawSlice(sx, sy, pFlaskCels, fullCel, w, 0, filled);
+	if (emptied != 0) {
+		CelClippedDrawSlice(sx, sy, pFlaskCels, emptyCel, w, filled, emptied);
 	}
 }
 
@@ -841,7 +732,7 @@ void DrawLifeFlask()
 	}
 
 	x = LIFE_FLASK_X;
-	DrawFlask2(x, filled, 1, 2, LIFE_FLASK_WIDTH);
+	DrawFlask(x, filled, 1, 2, LIFE_FLASK_WIDTH);
 }
 
 void DrawManaFlask()
@@ -866,7 +757,7 @@ void DrawManaFlask()
 	}
 
 	x = MANA_FLASK_X;
-	DrawFlask2(x, filled, 3, myplr._pManaShield == 0 ? 4 : 5, MANA_FLASK_WIDTH);
+	DrawFlask(x, filled, 3, myplr._pManaShield == 0 ? 4 : 5, MANA_FLASK_WIDTH);
 }
 
 void InitControlPan()

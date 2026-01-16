@@ -65,6 +65,18 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
  */
 void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth);
 
+/**
+ * @brief Blit a slice of a CEL sprite to the back buffer at the given coordinates
+ * @param sx Target buffer coordinate
+ * @param sy Target buffer coordinate
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL frame number
+ * @param nWidth CEL width of the frame
+ * @param fy the first (lowest) line of the sprite to blit
+ * @param ny the number of lines to blit
+ */
+void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, unsigned fy, unsigned ny);
+
 #ifdef __cplusplus
 }
 #endif

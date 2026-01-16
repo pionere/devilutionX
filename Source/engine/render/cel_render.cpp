@@ -374,4 +374,62 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
 	// gpBufEnd += BUFFER_WIDTH;
 }
 
+/**
+ * @brief Blit a slice of a CEL sprite to the back buffer at the given coordinates
+ * @param sx Target buffer coordinate
+ * @param sy Target buffer coordinate
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL frame number
+ * @param nWidth CEL width of the frame
+ * @param fy the first (lowest) line of the sprite to blit
+ * @param ny the number of lines to blit
+ */
+void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, unsigned fy, unsigned ny)
+{
+	int nDataSize;
+	const BYTE *pRLEBytes;
+	BYTE* pDecodeTo;
+
+	unsigned blocks = fy / CEL_BLOCK_HEIGHT;
+
+	const BYTE *src;
+	BYTE* dst;
+	int i;
+	int8_t width;
+
+	pRLEBytes = CelGetFrameClippedAt(pCelBuff, nCel, blocks, &nDataSize);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy - fy)];
+
+	src = pRLEBytes;
+
+	fy = fy % CEL_BLOCK_HEIGHT; // -= blocks * CEL_BLOCK_HEIGHT;
+	while (fy-- != 0) {
+		for (i = nWidth; i != 0; ) {
+			width = *src++;
+			if (width >= 0) {
+				i -= width;
+				src += width;
+			} else {
+				i += width;
+			}
+		}
+	}
+
+	dst = pDecodeTo;
+	for ( ; ny-- != 0; dst -= BUFFER_WIDTH + nWidth) {
+		for (i = nWidth; i != 0; ) {
+			width = *src++;
+			if (width >= 0) {
+				i -= width;
+				memcpy(dst, src, width);
+				src += width;
+				dst += width;
+			} else {
+				dst -= width;
+				i += width;
+			}
+		}
+	}
+}
+
 DEVILUTION_END_NAMESPACE
