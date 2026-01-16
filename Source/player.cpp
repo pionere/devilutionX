@@ -293,12 +293,13 @@ if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
 			continue;
 
 		szCel = pAnimType->patTxt;
-		assert(pAnimType->patGfxIdx != PGX_DEATH || plr._pgfxnum == ANIM_ID_UNARMED);
-		// assert(pAnimType->patGfxIdx != PGX_DEATH || (plr._pGFXLoad == 0 && mask == 1));// MEM_DEATH
+		const int gfxIdx = pAnimType->patGfxIdx;
+		assert(gfxIdx != PGX_DEATH || plr._pgfxnum == ANIM_ID_UNARMED);
+		// assert(gfxIdx != PGX_DEATH || (plr._pGFXLoad == 0 && mask == 1));// MEM_DEATH
 
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
-		LoadFileWithMem(pszName, plr._pAnimFileData[pAnimType->patGfxIdx]);
-		LoadFrameGroups(plr._pAnimFileData[pAnimType->patGfxIdx], plr._pAnims[pAnimType->patGfxIdx].paAnimData);
+		LoadFileWithMem(pszName, plr._pAnimFileData[gfxIdx]);
+		LoadFrameGroups(plr._pAnimFileData[gfxIdx], plr._pAnims[gfxIdx].paAnimData);
 		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
 }
