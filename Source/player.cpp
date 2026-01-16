@@ -10,6 +10,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define PLR_WALK_ANIMLEN 8
+
 NONETCONST int mypnum = 0;
 PlayerStruct players[MAX_PLRS];
 /* Whether the current player is changing the level. */
@@ -81,22 +83,6 @@ static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
 	{ "BL", PGX_BLOCK },     // PGT_BLOCK
 	{ "HT", PGX_GOTHIT },    // PGT_GOTHIT
 	{ "DT", PGX_DEATH },     // PGT_DEATH
-	// clang-format on
-};
-/**
- * Specifies the number of frames of each animation for each player class.
-   STAND, WALK, ATTACK, SPELL, BLOCK, GOTHIT, DEATH
- */
-static const BYTE PlrGFXAnimLens[NUM_CLASSES][NUM_PLR_ANIMS] = {
-	// clang-format off
-	{ 10, 8, 16, 20, 2, 6, 20 },
-	{  8, 8, 18, 16, 4, 7, 20 },
-	{  8, 8, 16, 12, 6, 8, 20 },
-#ifdef HELLFIRE
-	{  8, 8, 16, 18, 3, 6, 20 },
-	{  8, 8, 18, 16, 4, 7, 20 },
-	{ 10, 8, 16, 20, 2, 6, 20 },
-#endif
 	// clang-format on
 };
 /** Specifies the frame of attack and spell animation for which the action is triggered, for each player class. */
@@ -340,6 +326,9 @@ if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
 				plr._pAnims[gfxIdx].paAnimWidth = 96 * ASSET_MPL;
 			}
 		}
+#endif
+#if DEBUG_MODE
+		assert(gfxIdx != PGX_WALK || plr._pAnims[gfxIdx].paFrames == PLR_WALK_ANIMLEN);
 #endif
 		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
@@ -1186,10 +1175,9 @@ static void StartWalk(int pnum, int dir)
 
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
 	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
-	// assert(PlrGFXAnimLens[plr._pClass][PA_WALK] == PlrGFXAnimLens[PC_WARRIOR][PA_WALK]);
-	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] <= lengthof(MWVel));
-	assert(PlrGFXAnimLens[PC_WARRIOR][PA_WALK] == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
-	mwi = MWVel[PlrGFXAnimLens[PC_WARRIOR][PA_WALK] - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
+	assert(PLR_WALK_ANIMLEN < lengthof(MWVel));
+	assert(PLR_WALK_ANIMLEN == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
+	mwi = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:
 		StartWalk1(pnum, 0, -(mwi >> 1), dir);
