@@ -657,17 +657,16 @@ typedef struct MonFileData {
 	int moImage;
 	const char* moGfxFile;
 	const char* moSndFile;
-	int moAnimFrames[NUM_MON_ANIM];
-	int moAnimFrameLen[NUM_MON_ANIM];
+	BYTE moAnimFrames[NUM_MON_ANIM];
+	BYTE moAnimFrameLen[NUM_MON_ANIM];
 	BYTE moWidth;
 	BOOLEAN moSndSpecial;
 	BYTE moAFNum;
 	BYTE moAFNum2;
+	ALIGNMENT(1, 6)
 } MonFileData;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
-#elif defined(X86_64bit_COMP)
-static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
 #endif
 #pragma pack(push, 1)
 typedef struct MapMonData {
