@@ -86,15 +86,27 @@ static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
 	// clang-format on
 };
 /** Specifies the frame of attack and spell animation for which the action is triggered, for each player class. */
-static const BYTE PlrGFXAnimActFrames[NUM_CLASSES][2] = {
+static const BYTE PlrActFrames[NUM_CLASSES][9] = {
 	// clang-format off
-	{  9, 14 },
-	{ 10, 12 },
-	{ 12,  8 },
+	{  9,  9,  9,  9, 11, 10,  9,  9, 11 },
+	{ 10, 10, 10, 10,  7, 13, 10, 10, 11 },
+	{ 12,  9, 12, 12, 16, 16, 12, 12, 12 },
 #ifdef HELLFIRE
-	{ 12, 13 },
-	{ 10, 12 },
-	{  9, 14 },
+	{  7,  7, 12, 12, 14, 14, 12, 12,  8 },
+	{ 10, 10, 10, 10, 11, 13, 10, 10, 11 },
+	{  9,  9,  9,  9, 11,  8,  8,  8, 11 },
+#endif
+	// clang-format on
+};
+static const BYTE PlrSplFrames[NUM_CLASSES] = {
+	// clang-format off
+	14,
+	12,
+	 8,
+#ifdef HELLFIRE
+	13,
+	12,
+	14
 #endif
 	// clang-format on
 };
@@ -329,6 +341,9 @@ if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
 #endif
 #if DEBUG_MODE
 		assert(gfxIdx != PGX_WALK || plr._pAnims[gfxIdx].paFrames == PLR_WALK_ANIMLEN);
+
+		assert(gfxIdx != PGX_ATTACK || plr._pAnims[gfxIdx].paFrames >= PlrActFrames[plr._pClass][plr._pgfxnum & 0xF]);
+		assert(szCel[1] != 'M' || plr._pAnims[gfxIdx].paFrames >= PlrSplFrames[plr._pClass]);
 #endif
 		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
@@ -511,81 +526,10 @@ void SetPlrAnims(int pnum)
 	}
 
 	pc = plr._pClass;
-	plr._pAFNum = PlrGFXAnimActFrames[pc][0];
-	plr._pSFNum = PlrGFXAnimActFrames[pc][1];
-
 	gn = plr._pgfxnum & 0xF;
-	switch (pc) {
-	case PC_WARRIOR:
-		if (gn == ANIM_ID_BOW) {
-			plr._pAFNum = 11;
-		} else if (gn == ANIM_ID_AXE) {
-			plr._pAFNum = 10;
-		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAFNum = 11;
-		}
-		break;
-	case PC_ROGUE:
-		if (gn == ANIM_ID_AXE) {
-			plr._pAFNum = 13;
-		} else if (gn == ANIM_ID_BOW) {
-			plr._pAFNum = 7;
-		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAFNum = 11;
-		}
-		break;
-	case PC_SORCERER:
-		if (gn == ANIM_ID_UNARMED_SHIELD) {
-			plr._pAFNum = 9;
-		} else if (gn == ANIM_ID_BOW) {
-			plr._pAFNum = 16;
-		} else if (gn == ANIM_ID_AXE) {
-			plr._pAFNum = 16;
-		}
-		break;
-#ifdef HELLFIRE
-	case PC_MONK:
-		switch (gn) {
-		case ANIM_ID_UNARMED:
-		case ANIM_ID_UNARMED_SHIELD:
-			plr._pAFNum = 7;
-			break;
-		case ANIM_ID_BOW:
-			plr._pAFNum = 14;
-			break;
-		case ANIM_ID_AXE:
-			plr._pAFNum = 14;
-			break;
-		case ANIM_ID_STAFF:
-			plr._pAFNum = 8;
-			break;
-		}
-		break;
-	case PC_BARD:
-		if (gn == ANIM_ID_AXE) {
-			plr._pAFNum = 13;
-		} else if (gn == ANIM_ID_BOW) {
-			plr._pAFNum = 11;
-		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAFNum = 11;
-		}
-		break;
-	case PC_BARBARIAN:
-		if (gn == ANIM_ID_AXE) {
-			plr._pAFNum = 8;
-		} else if (gn == ANIM_ID_BOW) {
-			plr._pAFNum = 11;
-		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAFNum = 11;
-		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
-			plr._pAFNum = 8;
-		}
-		break;
-#endif
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+
+	plr._pAFNum = PlrActFrames[pc][gn];
+	plr._pSFNum = PlrSplFrames[pc];
 }
 
 /**
