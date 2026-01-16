@@ -5,6 +5,7 @@
  */
 #include "all.h"
 #include "engine/render/render.h"
+#include "engine/render/cel_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -161,7 +162,7 @@ static void InitCowAnim(int tnum, const BYTE* anim)
 	tw->_mVar1 = -1;                                         // TNR_ANIM_ORDER
 	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
 	tw->_mAnimFrame = RandRange(1, tw->_mAnimLen);           // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 128 * ASSET_MPL;                       // TNR_ANIM_WIDTH
+	tw->_mAnimWidth = CelClippedWidth(anim);                 // TNR_ANIM_WIDTH
 	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
@@ -181,7 +182,7 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int ao)
 	tw->_mVar2 = 0;                                          // TNR_ANIM_FRAME_CNT
 	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
 	tw->_mAnimFrame = 1;                                     // TNR_ANIM_FRAME
-	tw->_mAnimWidth = 96 * ASSET_MPL;                        // TNR_ANIM_WIDTH
+	tw->_mAnimWidth = CelClippedWidth(anim);                 // TNR_ANIM_WIDTH
 	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
 
