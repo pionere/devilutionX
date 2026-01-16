@@ -160,7 +160,7 @@ static void InitCowAnim(int tnum, const BYTE* anim)
 	tw->_mAnimLen = SwapLE32(*(DWORD*)anim);                 // TNR_ANIM_LEN
 	tw->_mVar1 = -1;                                         // TNR_ANIM_ORDER
 	tw->_mAnimCnt = 0;                                       // TNR_ANIM_CNT
-	tw->_mAnimFrame = RandRange(1, 11);                      // TNR_ANIM_FRAME
+	tw->_mAnimFrame = RandRange(1, tw->_mAnimLen);           // TNR_ANIM_FRAME
 	tw->_mAnimWidth = 128 * ASSET_MPL;                       // TNR_ANIM_WIDTH
 	tw->_mAnimXOffset = (tw->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 }
