@@ -44,6 +44,13 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
  */
 void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
 
+/**
+ * @brief calculate the width of the CL2 sprite using the clipping information
+ * @param pCelBuff pointer to CL2-frame offsets and data
+ * @return the width of the CL2 sprite
+ */
+unsigned Cl2Width(const BYTE* pCelBuff);
+
 #ifdef __cplusplus
 }
 #endif

@@ -6,6 +6,7 @@
 #include "all.h"
 #include "plrctrls.h"
 #include "engine/render/render.h"
+#include "engine/render/cl2_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -300,6 +301,46 @@ if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
 		snprintf(pszName, sizeof(pszName), "PlrGFX\\%s\\%s\\%s%s.CL2", strClass, prefix, prefix, szCel);
 		LoadFileWithMem(pszName, plr._pAnimFileData[gfxIdx]);
 		LoadFrameGroups(plr._pAnimFileData[gfxIdx], plr._pAnims[gfxIdx].paAnimData);
+
+		const BYTE* anim = plr._pAnims[gfxIdx].paAnimData[0];
+		plr._pAnims[gfxIdx].paFrames = SwapLE32(*(DWORD*)anim);
+		plr._pAnims[gfxIdx].paAnimWidth = Cl2Width(anim);
+
+#ifdef HELLFIRE
+		if (plr._pClass == PC_BARD && gfxIdx == PGX_ATTACK && (prefix[2] == 'S' || prefix[2] == 'D')) {
+			plr._pAnims[gfxIdx].paFrames = 10; // TODO: check for onehanded swords or daggers?
+		}
+#endif
+#if !USE_PATCH
+		if (plr._pClass == PC_ROGUE) {
+			// fix frame count of RHTAT and RMTAT
+			if (gfxIdx == PGX_ATTACK && prefix[1] != 'L' && prefix[2] == 'T') {
+				plr._pAnims[gfxIdx].paFrames = 18 - 2;
+			}
+			// fix frame count of RHUHT
+			if (gfxIdx == PGX_GOTHIT && prefix[1] == 'H' && prefix[2] == 'U') {
+				plr._pAnims[gfxIdx].paFrames = 8 - 1;
+			}
+			// fix frame count of RHUQM
+			if (gfxIdx == PGX_MAGIC && prefix[1] == 'H' && prefix[2] == 'U') {
+				plr._pAnims[gfxIdx].paFrames = 17 - 1;
+			}
+		}
+		if (plr._pClass == PC_WARRIOR) {
+			// fix frame count of WHMAT
+			if (gfxIdx == PGX_ATTACK && prefix[1] == 'H' && prefix[2] == 'M') {
+				plr._pAnims[gfxIdx].paFrames = 17 - 1;
+			}
+			// fix frame count of WLNLM and WMDLM
+			if (gfxIdx == PGX_LIGHTNING && ((prefix[1] == 'L' && prefix[2] == 'N') || (prefix[1] == 'M' && prefix[2] == 'D'))) {
+				plr._pAnims[gfxIdx].paFrames = 21 - 1;
+			}
+			// fix clipping of W*BAT
+			if (gfxIdx == PGX_ATTACK && prefix[2] == 'B') {
+				plr._pAnims[gfxIdx].paAnimWidth = 96 * ASSET_MPL;
+			}
+		}
+#endif
 		plr._pGFXLoad |= 1 << (pAnimType - &PlrAnimTypes[0]);
 	}
 }
@@ -479,134 +520,75 @@ void SetPlrAnims(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("SetPlrAnims: illegal player %d", pnum);
 	}
-	plr._pAnims[PGX_STAND].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_WALK].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_ATTACK].paAnimWidth = 128 * ASSET_MPL;
-	plr._pAnims[PGX_FIRE].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_LIGHTNING].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_MAGIC].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_BLOCK].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_GOTHIT].paAnimWidth = 96 * ASSET_MPL;
-	plr._pAnims[PGX_DEATH].paAnimWidth = 128 * ASSET_MPL;
 
 	pc = plr._pClass;
 	plr._pAFNum = PlrGFXAnimActFrames[pc][0];
 	plr._pSFNum = PlrGFXAnimActFrames[pc][1];
 
-	plr._pAnims[PGX_STAND].paFrames = PlrGFXAnimLens[pc][PA_STAND];
-	plr._pAnims[PGX_WALK].paFrames = PlrGFXAnimLens[pc][PA_WALK];
-	plr._pAnims[PGX_ATTACK].paFrames = PlrGFXAnimLens[pc][PA_ATTACK];
-	plr._pAnims[PGX_FIRE].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
-	plr._pAnims[PGX_LIGHTNING].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
-	plr._pAnims[PGX_MAGIC].paFrames = PlrGFXAnimLens[pc][PA_SPELL];
-	plr._pAnims[PGX_BLOCK].paFrames = PlrGFXAnimLens[pc][PA_BLOCK];
-	plr._pAnims[PGX_GOTHIT].paFrames = PlrGFXAnimLens[pc][PA_GOTHIT];
-	plr._pAnims[PGX_DEATH].paFrames = PlrGFXAnimLens[pc][PA_DEATH];
-
 	gn = plr._pgfxnum & 0xF;
 	switch (pc) {
 	case PC_WARRIOR:
 		if (gn == ANIM_ID_BOW) {
-			plr._pAnims[PGX_STAND].paFrames = 8;
-			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
-			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_AXE) {
-			plr._pAnims[PGX_ATTACK].paFrames = 20;
 			plr._pAFNum = 10;
 		} else if (gn == ANIM_ID_STAFF) {
-			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		}
 		break;
 	case PC_ROGUE:
 		if (gn == ANIM_ID_AXE) {
-			plr._pAnims[PGX_ATTACK].paFrames = 22;
 			plr._pAFNum = 13;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAnims[PGX_ATTACK].paFrames = 12;
 			plr._pAFNum = 7;
 		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		}
 		break;
 	case PC_SORCERER:
-		plr._pAnims[PGX_FIRE].paAnimWidth = 128 * ASSET_MPL;
-		plr._pAnims[PGX_LIGHTNING].paAnimWidth = 128 * ASSET_MPL;
-		plr._pAnims[PGX_MAGIC].paAnimWidth = 128 * ASSET_MPL;
-		if (gn == ANIM_ID_UNARMED) {
-			plr._pAnims[PGX_ATTACK].paFrames = 20;
-		} else if (gn == ANIM_ID_UNARMED_SHIELD) {
-			// plr._pAnims[PGX_ATTACK].paFrames = 16;
+		if (gn == ANIM_ID_UNARMED_SHIELD) {
 			plr._pAFNum = 9;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAnims[PGX_ATTACK].paFrames = 20;
 			plr._pAFNum = 16;
 		} else if (gn == ANIM_ID_AXE) {
-			plr._pAnims[PGX_ATTACK].paFrames = 24;
 			plr._pAFNum = 16;
 		}
 		break;
 #ifdef HELLFIRE
 	case PC_MONK:
-		plr._pAnims[PGX_STAND].paAnimWidth = 112 * ASSET_MPL;
-		plr._pAnims[PGX_WALK].paAnimWidth = 112 * ASSET_MPL;
-		plr._pAnims[PGX_ATTACK].paAnimWidth = 130 * ASSET_MPL;
-		plr._pAnims[PGX_FIRE].paAnimWidth = 114 * ASSET_MPL;
-		plr._pAnims[PGX_LIGHTNING].paAnimWidth = 114 * ASSET_MPL;
-		plr._pAnims[PGX_MAGIC].paAnimWidth = 114 * ASSET_MPL;
-		plr._pAnims[PGX_BLOCK].paAnimWidth = 98 * ASSET_MPL;
-		plr._pAnims[PGX_GOTHIT].paAnimWidth = 98 * ASSET_MPL;
-		plr._pAnims[PGX_DEATH].paAnimWidth = 160 * ASSET_MPL;
-
 		switch (gn) {
 		case ANIM_ID_UNARMED:
 		case ANIM_ID_UNARMED_SHIELD:
-			plr._pAnims[PGX_ATTACK].paFrames = 12;
 			plr._pAFNum = 7;
 			break;
 		case ANIM_ID_BOW:
-			plr._pAnims[PGX_ATTACK].paFrames = 20;
 			plr._pAFNum = 14;
 			break;
 		case ANIM_ID_AXE:
-			plr._pAnims[PGX_ATTACK].paFrames = 23;
 			plr._pAFNum = 14;
 			break;
 		case ANIM_ID_STAFF:
-			plr._pAnims[PGX_ATTACK].paFrames = 13;
 			plr._pAFNum = 8;
 			break;
 		}
 		break;
 	case PC_BARD:
 		if (gn == ANIM_ID_AXE) {
-			plr._pAnims[PGX_ATTACK].paFrames = 22;
 			plr._pAFNum = 13;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAnims[PGX_ATTACK].paFrames = 12;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
-		} else if (gn == ANIM_ID_SWORD_SHIELD || gn == ANIM_ID_SWORD) {
-			plr._pAnims[PGX_ATTACK].paFrames = 10; // TODO: check for onehanded swords or daggers?
 		}
 		break;
 	case PC_BARBARIAN:
 		if (gn == ANIM_ID_AXE) {
-			plr._pAnims[PGX_ATTACK].paFrames = 20;
 			plr._pAFNum = 8;
 		} else if (gn == ANIM_ID_BOW) {
-			plr._pAnims[PGX_STAND].paFrames = 8;
-			plr._pAnims[PGX_ATTACK].paAnimWidth = 96 * ASSET_MPL;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_STAFF) {
-			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 11;
 		} else if (gn == ANIM_ID_MACE || gn == ANIM_ID_MACE_SHIELD) {
-			// plr._pAnims[PGX_ATTACK].paFrames = 16;
 			plr._pAFNum = 8;
 		}
 		break;
@@ -614,10 +596,6 @@ void SetPlrAnims(int pnum)
 	default:
 		ASSUME_UNREACHABLE
 		break;
-	}
-	if (currLvl._dType == DTYPE_TOWN) {
-		plr._pAnims[PGX_STAND].paFrames = 20;
-		// plr._pAnims[PGX_WALK].paFrames = 8;
 	}
 }
 

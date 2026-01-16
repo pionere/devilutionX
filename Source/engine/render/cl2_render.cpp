@@ -312,4 +312,36 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
+unsigned Cl2Width(const BYTE* pCelBuff)
+{
+	int nDataSize;
+	const BYTE *pRLEBytes;
+
+	pRLEBytes = CelGetFrameClippedAt(pCelBuff, 1, 0, &nDataSize);
+
+	const BYTE *src, *end;
+	int8_t width;
+
+	src = pRLEBytes;
+
+	end = CelGetFrameClippedAt(pCelBuff, 1, 1, &nDataSize);
+
+	unsigned n = 0;
+	while (src < end) {
+		width = *src++;
+		if (width < 0) {
+			width = -width;
+			if (width > 65) {
+				width -= 65;
+				src++;
+			} else {
+				src += width;
+			}
+		}
+		n += width;
+	}
+
+	return n / CEL_BLOCK_HEIGHT;
+}
+
 DEVILUTION_END_NAMESPACE
