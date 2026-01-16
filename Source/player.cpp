@@ -1003,7 +1003,7 @@ void PlrStartStand(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrStartStand: illegal player %d", pnum);
 	}
-	if (plr._pHitPoints >= (1 << 6)) {
+	if (plr._pHitPoints != 0) {
 		StartStand(pnum);
 		RemovePlrFromMap(pnum);
 		dPlayer[plr._px][plr._py] = pnum + 1;
@@ -2616,7 +2616,7 @@ void ProcessPlayers()
 		{
 			//CheckCheatStats(pnum);
 
-			if (plr._pHitPoints < (1 << 6) && !plr._pInvincible) {
+			if (plr._pHitPoints == 0 && !plr._pInvincible) {
 				StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 			}
 			if ((plr._pIFlags & ISPL_DRAINLIFE) && currLvl._dLevelIdx != DLV_TOWN && !plr._pInvincible) {
@@ -3064,15 +3064,16 @@ bool PlrDecHp(int pnum, int hp, int dmgtype)
 		if (pnum == mypnum)
 			NetSendCmd(CMD_REMSHIELD);
 	}
-	plr._pHPBase -= hp;
-	plr._pHitPoints -= hp;
-	if (plr._pHitPoints < (1 << 6)) {
-		StartPlrKill(pnum, dmgtype);
-		return true;
+	hp = plr._pHitPoints - hp;
+	if (hp < (1 << 6)) {
+		hp = 0;
 	}
-	if (pnum == mypnum)
-		gbRedrawFlags |= REDRAW_RECALC_HP;
-	return false;
+	PlrSetHp(pnum, hp);
+	if (hp != 0) {
+		return false;
+	}
+	StartPlrKill(pnum, dmgtype);
+	return true;
 }
 
 void PlrDecMana(int pnum, int mana)
