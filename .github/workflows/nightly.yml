@@ -1725,8 +1725,9 @@ jobs:
       with:
         delete_release: true
         tag_name: devilx-nightly
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+      #env:
+      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Sleep a bit to let GitHub recover from the shock of tag-delete
     #  run: Start-Sleep -s 60
