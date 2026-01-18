@@ -159,6 +159,12 @@ typedef enum filenames {
 	FILE_MON_SKLBWD,
 	FILE_MON_SKLSRD,
 	FILE_MON_ZOMBIED,
+	FILE_MON_ACIDD,
+	FILE_MON_MAGMAW,
+	FILE_MON_SCAVH,
+	FILE_MON_SKINGS,
+	FILE_MON_SKINGW,
+	FILE_MON_SNAKEH,
 #ifdef HELLFIRE
 	FILE_MON_FALLGD,
 	FILE_MON_FALLGW,
@@ -354,6 +360,12 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_SKLBWD*/    "Monsters\\SkelBow\\SklBwd.CL2",
 /*FILE_MON_SKLSRD*/    "Monsters\\SkelSd\\SklSrd.CL2",
 /*FILE_MON_ZOMBIED*/   "Monsters\\Zombie\\Zombied.CL2",
+/*FILE_MON_ACIDD*/     "Monsters\\Acid\\Acidd.CL2",
+/*FILE_MON_MAGMAW*/    "Monsters\\Magma\\Magmaw.CL2",
+/*FILE_MON_SCAVH*/     "Monsters\\Scav\\Scavh.CL2",
+/*FILE_MON_SKINGS*/    "Monsters\\SKing\\SKings.CL2",
+/*FILE_MON_SKINGW*/    "Monsters\\SKing\\SKingw.CL2",
+/*FILE_MON_SNAKEH*/    "Monsters\\Snake\\Snakeh.CL2",
 #ifdef HELLFIRE
 /*FILE_MON_FALLGD*/    "Monsters\\BigFall\\Fallgd.CL2",
 /*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
@@ -2321,6 +2333,80 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 					nn++;
 				}
 			}
+			Cl2Draw(0, height - 1, frameBuf, nn, width);
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchMonFrames(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+
+	int frameCount = 0, width = 0, height = 0;
+	switch (index) {
+	case FILE_MON_ACIDD:  frameCount = 24 - 8; width = 128; height =  96; break;
+	case FILE_MON_MAGMAW: frameCount = 14 - 4; width = 128; height = 128; break;
+	case FILE_MON_SCAVH:  frameCount =  8 - 2; width = 128; height =  96; break;
+	case FILE_MON_SKINGS: frameCount = 12 - 6; width = 160; height = 160; break;
+	case FILE_MON_SKINGW: frameCount =  8 - 2; width = 160; height = 160; break;
+	case FILE_MON_SNAKEH: frameCount =  6 - 1; width = 160; height = 160; break;
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
+	if (srcCelEntries <= frameCount) {
+		return cl2Buf; // assume it is already done
+	}
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			int nn = n;
 			Cl2Draw(0, height - 1, frameBuf, nn, width);
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
@@ -8229,6 +8315,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_MON_ZOMBIED:
 	{	// fix monster gfx file - Zombied.CL2",
 		buf = patchZombieDie(buf, dwLen);
+	} break;
+	case FILE_MON_ACIDD:
+	case FILE_MON_MAGMAW:
+	case FILE_MON_SCAVH:
+	case FILE_MON_SKINGS:
+	case FILE_MON_SKINGW:
+	case FILE_MON_SNAKEH:
+	{	// eliminate extra frames of monster gfx files
+		buf = patchMonFrames(index, buf, dwLen);
 	} break;
 #ifdef HELLFIRE
 	case FILE_MON_FALLGD:
