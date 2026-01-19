@@ -782,6 +782,15 @@ void ValidateData()
 			app_fatal("Animation is not initialized properly for %s (%d).", md.mName, i); // required by InitMonsterGFX
 		if (lengthof(monfiledata) <= md.moFileNum)
 			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
+		if (md.mFlags & MFLAG_NOGETHIT) {
+			if (monfiledata[md.moFileNum].moAnimFrames[MA_GOTHIT] != 0 || monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] != 0) {
+				app_fatal("Unused got-hit animation for %s (%d).", md.mName, i);
+			}
+		} else {
+			if (monfiledata[md.moFileNum].moAnimFrames[MA_GOTHIT] == 0 || monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] == 0) {
+				app_fatal("Missing got-hit animation for %s (%d).", md.mName, i); // required by MonHitByPlr / MonHitByMon
+			}
+		}
 		BYTE afnumReq = 0, altDamReq = 0;
 		if (md.mAI.aiType == AI_ROUNDRANGED || md.mAI.aiType == AI_ROUNDRANGED2 || (md.mAI.aiType == AI_RANGED && md.mAI.aiParam2) // required for MonStartRSpAttack / MonDoRSpAttack
 #ifdef HELLFIRE

@@ -1986,20 +1986,21 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayMonSfx(mnum, MS_GOTHIT);
-	// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-	if (mon->_mType != MT_GOLEM && mon->_mmode != MM_STONE) {
+	if (mon->_mmode != MM_STONE) {
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
-		knockback = (hitflags & ISPL_KNOCKBACK) != 0;
-		stun = (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp;
-		if (knockback || stun) {
-			MonStopWalk(mnum);
-			if (knockback)
-				MonGetKnockback(mnum, dir);
-			if (stun && mon->_mType == MT_NBAT)
-				dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
-			MonStartGetHit(mnum, OPPOSITE(dir));
+		if (!(mon->_mFlags & MFLAG_NOGETHIT)) {
+			knockback = (hitflags & ISPL_KNOCKBACK) != 0;
+			stun = (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp;
+			if (knockback || stun) {
+				MonStopWalk(mnum);
+				if (knockback)
+					MonGetKnockback(mnum, dir);
+				if (stun && mon->_mType == MT_NBAT)
+					dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
+				MonStartGetHit(mnum, OPPOSITE(dir));
+			}
 		}
 	}
 }
@@ -2021,16 +2022,17 @@ void MonHitByMon(int defm, int offm, int dam, int dir)
 		}
 	}
 	PlayMonSfx(defm, MS_GOTHIT);
-	// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-	if (dmon->_mType != MT_GOLEM && dmon->_mmode != MM_STONE) {
+	if (dmon->_mmode != MM_STONE) {
 		// TODO: implement monster vs. monster knockback & bleed?
-		//       assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK));
-		stun = (dam << 2) >= dmon->_mmaxhp;
-		if (stun) {
-			MonStopWalk(defm);
-			if (/*stun && */dmon->_mType == MT_NBAT && offm >= 0)
-				dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
-			MonStartGetHit(defm, OPPOSITE(dir));
+		//       assert(!(monsterdata[MT_GOLEM].mFlags & (MFLAG_KNOCKBACK | MFLAG_CAN_BLEED)));
+		if (!(dmon->_mFlags & MFLAG_NOGETHIT)) {
+			stun = (dam << 2) >= dmon->_mmaxhp;
+			if (stun) {
+				MonStopWalk(defm);
+				if (/*stun && */dmon->_mType == MT_NBAT && offm >= 0)
+					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
+				MonStartGetHit(defm, OPPOSITE(dir));
+			}
 		}
 	}
 }
