@@ -896,8 +896,10 @@ void ValidateData()
 			app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
 			app_fatal("Too long(%d) standing animation for %s (%d).", md.moAnimFrameLen[MA_STAND], md.moGfxFile, i);
-		if (md.moAnimFrames[MA_WALK] > 24) // required by MonWalkDir
+		if (md.moAnimFrames[MA_WALK] > lengthof(MWVel)) // required by MonWalkDir
 			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		if (md.moAnimFrameLen[MA_WALK] != 1) // required by MonWalkDir
+			app_fatal("Invalid framelen for the the walking animation for %s (%d).", md.moAnimFrameLen[MA_WALK], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK] >= SQUELCH_LOW)
 			app_fatal("Too long(%d) walking animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK] >= SQUELCH_LOW)

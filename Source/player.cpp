@@ -1121,6 +1121,7 @@ static void StartWalk(int pnum, int dir)
 	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
 	assert(PLR_WALK_ANIMLEN < lengthof(MWVel));
 	assert(PLR_WALK_ANIMLEN == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
+	assert(PlrAnimFrameLens[PA_WALK] == 1);
 	mwi = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:

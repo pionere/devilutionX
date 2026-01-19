@@ -2746,6 +2746,7 @@ static void MonWalkDir(int mnum, int md)
 	if (monsters[mnum]._mType == MT_FLESTHNG)
 		PlayMonSfx(mnum, MS_SPECIAL);
 #endif
+	// assert(monsters[mnum]._mAnimFrameLen == 1);
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
