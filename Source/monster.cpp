@@ -171,9 +171,10 @@ static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const ch
 #endif
 	for (i = 0; i < NUM_MON_ANIM; i++) {
 		as = &anims[i];
-		if (as->maFrames > 1) {
+		const int nFrames = as->maFrames;
+		if (nFrames > 0) {
 			for (j = 0; j < lengthof(as->maAnimData); j++) {
-				Cl2ApplyTrans(as->maAnimData[j], trn, as->maFrames);
+				Cl2ApplyTrans(as->maAnimData[j], trn, nFrames);
 			}
 		}
 	}
