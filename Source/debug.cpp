@@ -783,11 +783,11 @@ void ValidateData()
 		if (lengthof(monfiledata) <= md.moFileNum)
 			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
 		if (md.mFlags & MFLAG_NOGETHIT) {
-			if (monfiledata[md.moFileNum].moAnimFrames[MA_GOTHIT] != 0 || monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] != 0) {
+			if (monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] != 0) {
 				app_fatal("Unused got-hit animation for %s (%d).", md.mName, i);
 			}
 		} else {
-			if (monfiledata[md.moFileNum].moAnimFrames[MA_GOTHIT] == 0 || monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] == 0) {
+			if (monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] == 0) {
 				app_fatal("Missing got-hit animation for %s (%d).", md.mName, i); // required by MonHitByPlr / MonHitByMon
 			}
 		}
@@ -887,36 +887,36 @@ void ValidateData()
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
 		for (int n = 0; n < NUM_MON_ANIM; n++) {
-			if ((n != MA_SPECIAL && n != MA_GOTHIT) && md.moAnimFrames[n] == 0 && i != MOFILE_GOLEM)
-				app_fatal("moAnimFrames[%d] is not set for %s (%d).", n, md.moGfxFile, i);
+			if ((n != MA_SPECIAL && n != MA_GOTHIT) && md.moAnimFrameLen[n] == 0 && i != MOFILE_GOLEM)
+				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
 			if (n != MA_SPECIAL && md.moAnimFrameLen[n] == 0)
 				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
 		}
-		if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
-			app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
+		//if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
+		//	app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
 			app_fatal("Too long(%d) standing animation for %s (%d).", md.moAnimFrameLen[MA_STAND], md.moGfxFile, i);
-		if (md.moAnimFrames[MA_WALK] > lengthof(MWVel)) // required by MonWalkDir
-			app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		//if (md.moAnimFrames[MA_WALK] > lengthof(MWVel)) // required by MonWalkDir
+		//	app_fatal("Too many(%d) walk-frames for %s (%d).", md.moAnimFrames[MA_WALK], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_WALK] != 1) // required by MonWalkDir
 			app_fatal("Invalid framelen for the the walking animation for %s (%d).", md.moAnimFrameLen[MA_WALK], md.moGfxFile, i);
-		if (md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK] >= SQUELCH_LOW)
-			app_fatal("Too long(%d) walking animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK], md.moGfxFile, i);
-		if (md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK] >= SQUELCH_LOW)
-			app_fatal("Too long(%d) attack animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK], md.moGfxFile, i);
-		if (md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL] >= SQUELCH_LOW)
-			app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
+		//if (md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK] >= SQUELCH_LOW)
+		//	app_fatal("Too long(%d) walking animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_WALK] * md.moAnimFrames[MA_WALK], md.moGfxFile, i);
+		//if (md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK] >= SQUELCH_LOW)
+		//	app_fatal("Too long(%d) attack animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_ATTACK] * md.moAnimFrames[MA_ATTACK], md.moGfxFile, i);
+		//if (md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL] >= SQUELCH_LOW)
+		//	app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_SPECIAL] == 0 && md.moAFNum2 != 0)
 			app_fatal("moAFNum2 is set for %s (%d), but it has no special animation.", md.moGfxFile, i);
-		if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
-			app_fatal("Inconsistent moAnimFrames/moAnimFrameLen settings for the special animation %s (%d).", md.moGfxFile, i);
+		// if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
+		//	app_fatal("Inconsistent moAnimFrames/moAnimFrameLen settings for the special animation %s (%d).", md.moGfxFile, i);
 		// check if the special animation is used
 		bool spUsed = false;
 		for (int n = 0; n < NUM_MTYPES; n++) {
 			const MonsterData& msd = monsterdata[n];
 			if (msd.moFileNum != i) continue;
 			if (IsSkel(n) || n == MT_GOLEM || MonsterAiSpecial(msd.mAI, i)) {
-				if (md.moAnimFrames[MA_SPECIAL] == 0)
+				if (md.moAnimFrameLen[MA_SPECIAL] == 0)
 					app_fatal("Missing special animation for monster %s (%d)", msd.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
 				spUsed = true;
 			}
@@ -925,12 +925,12 @@ void ValidateData()
 			const UniqMonData& um = uniqMonData[n];
 			if (monsterdata[um.mtype].moFileNum != i) continue;
 			if (MonsterAiSpecial(um.mAI, i)) {
-				if (md.moAnimFrames[MA_SPECIAL] == 0)
+				if (md.moAnimFrameLen[MA_SPECIAL] == 0)
 					app_fatal("Missing special animation for unique monster %s (%d)", um.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
 				spUsed = true;
 			}
 		}
-		if (md.moAnimFrames[MA_SPECIAL] != 0 && !spUsed) {
+		if (md.moAnimFrameLen[MA_SPECIAL] != 0 && !spUsed) {
 			app_fatal("Unused special animation for %s (%d)", md.moGfxFile, i);
 		}
 	}
@@ -2074,7 +2074,7 @@ void ValidateData()
 	assert(misfiledata[missiledata[MIS_LIGHTBALL].mFileNum].mfAnimFAmt < NUM_DIRS);              // required by AddNovaC
 	assert(misfiledata[missiledata[MIS_BLEED].mFileNum].mfAnimFAmt < NUM_DIRS);                  // required by MonHitByPlr, PlrHitByAny
 	assert(misfiledata[missiledata[MIS_FIREBOLT].mFileNum].mfAnimFAmt == 16 && missiledata[MIS_FIREBOLT].mdPrSpeed != 0); // required by Sentfire
-	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
+//	assert(monfiledata[MOFILE_SNAKE].moAnimFrames[MA_ATTACK] == 13);                             // required by MI_Rhino
 	assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);                            // required by MI_Rhino
 	assert(monfiledata[MOFILE_MAGMA].moAnimFrameLen[MA_SPECIAL] == 1);                           // required by MonDoRSpAttack
 	// requirements by InitMonsterGFX

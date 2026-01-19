@@ -657,13 +657,11 @@ typedef struct MonFileData {
 	int moImage;
 	const char* moGfxFile;
 	const char* moSndFile;
-	BYTE moAnimFrames[NUM_MON_ANIM];
 	BYTE moAnimFrameLen[NUM_MON_ANIM];
-	BYTE moWidth;
 	BOOLEAN moSndSpecial;
 	BYTE moAFNum;
 	BYTE moAFNum2;
-	ALIGNMENT(1, 6)
+	ALIGNMENT(2, 6)
 } MonFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
