@@ -1595,6 +1595,7 @@ void LoadMissileGFX(BYTE midx)
 	int i, n;
 	BYTE** mad;
 	const char* name;
+	const char* fmt;
 	const MisFileData* mfd;
 
 	mad = misanimdata[midx];
@@ -1603,16 +1604,11 @@ void LoadMissileGFX(BYTE midx)
 	mfd = &misfiledata[midx];
 	n = mfd->mfAnimFAmt;
 	name = mfd->mfName;
-	if (n == 1) {
-		snprintf(pszName, sizeof(pszName), "Missiles\\%s.CL2", name);
-		assert(mad[0] == NULL);
-		mad[0] = LoadFileInMem(pszName);
-	} else {
-		for (i = 0; i < n; i++) {
-			snprintf(pszName, sizeof(pszName), "Missiles\\%s%d.CL2", name, i + 1);
-			assert(mad[i] == NULL);
-			mad[i] = LoadFileInMem(pszName);
-		}
+	fmt = n == 1 ? "Missiles\\%s.CL2" : "Missiles\\%s%d.CL2";
+	for (i = 0; i < n; i++) {
+		snprintf(pszName, sizeof(pszName), fmt, name, i + 1);
+		assert(mad[i] == NULL);
+		mad[i] = LoadFileInMem(pszName);
 	}
 	if (mfd->mfAnimTrans != NULL) {
 		BYTE trn[NUM_COLORS];
