@@ -18,9 +18,9 @@ extern "C" {
  * @brief Apply the color swaps to a CL2 sprite
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
- * @param nCel number of frames in the CL2 file
+ * @param nFrames number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nCel);
+void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames);
 
 /**
  * @brief Blit an outline one pixel larger than the given sprite shape to the back buffer at the given coordinates

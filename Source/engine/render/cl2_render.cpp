@@ -13,9 +13,9 @@ DEVILUTION_BEGIN_NAMESPACE
  * @brief Apply the color swaps to a CL2 sprite
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
- * @param nCel number of frames in the CL2 file
+ * @param nFrames number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nCel)
+void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames)
 {
 	int i, nDataSize;
 	int8_t width;
@@ -25,7 +25,7 @@ void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nCel)
 	assert(pCelBuff != NULL);
 	assert(ttbl != NULL);
 
-	for (i = 1; i <= nCel; i++) {
+	for (i = 1; i <= nFrames; i++) {
 		dst = const_cast<BYTE*>(CelGetFrameClippedAt(pCelBuff, i, 0, &nDataSize));
 		end = &dst[nDataSize];
 		while (dst != end) {
@@ -312,6 +312,11 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
+/**
+ * @brief calculate the width of the CL2 sprite using the clipping information
+ * @param pCelBuff pointer to CL2-frame offsets and data
+ * @return the width of the CL2 sprite
+ */
 unsigned Cl2Width(const BYTE* pCelBuff)
 {
 	int nDataSize;
