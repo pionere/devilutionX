@@ -887,7 +887,7 @@ void ValidateData()
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
 		for (int n = 0; n < NUM_MON_ANIM; n++) {
-			if (n != MA_SPECIAL && md.moAnimFrames[n] == 0 && i != MOFILE_GOLEM)
+			if ((n != MA_SPECIAL && n != MA_GOTHIT) && md.moAnimFrames[n] == 0 && i != MOFILE_GOLEM)
 				app_fatal("moAnimFrames[%d] is not set for %s (%d).", n, md.moGfxFile, i);
 			if (n != MA_SPECIAL && md.moAnimFrameLen[n] == 0)
 				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
