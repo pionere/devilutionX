@@ -892,7 +892,7 @@ Monsters\Mega\Megaa2.wav
 Monsters\Mega\Megad.CL2
 Monsters\Mega\Megad1.wav
 Monsters\Mega\Megad2.wav
-Monsters\Mega\Megah.CL2
+_Monsters\Mega\Megah.CL2
 Monsters\Mega\Megah1.wav
 Monsters\Mega\Megah2.wav
 Monsters\Mega\Megan.CL2
