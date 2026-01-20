@@ -782,14 +782,27 @@ void ValidateData()
 			app_fatal("Animation is not initialized properly for %s (%d).", md.mName, i); // required by InitMonsterGFX
 		if (lengthof(monfiledata) <= md.moFileNum)
 			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
+		const MonFileData& mfd = monfiledata[md.moFileNum];
+		if (mfd.moAnimFrameLen[MA_STAND] == 0) {
+			app_fatal("Missing stand animation for %s (%d).", md.mName, i); // required by InitMonster, etc...
+		}
+		if (mfd.moAnimFrameLen[MA_WALK] == 0) {
+			app_fatal("Missing walk animation for %s (%d).", md.mName, i); // required by MAI_*, etc...
+		}
+		if (mfd.moAnimFrameLen[MA_ATTACK] == 0) {
+			app_fatal("Missing attack animation for %s (%d).", md.mName, i); // required by MAI_*, etc...
+		}
 		if (md.mFlags & MFLAG_NOGETHIT) {
-			if (monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] != 0) {
+			if (mfd.moAnimFrameLen[MA_GOTHIT] != 0) {
 				app_fatal("Unused got-hit animation for %s (%d).", md.mName, i);
 			}
 		} else {
-			if (monfiledata[md.moFileNum].moAnimFrameLen[MA_GOTHIT] == 0) {
+			if (mfd.moAnimFrameLen[MA_GOTHIT] == 0) {
 				app_fatal("Missing got-hit animation for %s (%d).", md.mName, i); // required by MonHitByPlr / MonHitByMon
 			}
+		}
+		if (mfd.moAnimFrameLen[MA_DEATH] == 0) {
+			app_fatal("Missing death animation for %s (%d).", md.mName, i); // required by MonInitKill
 		}
 		BYTE afnumReq = 0, altDamReq = 0;
 		if (md.mAI.aiType == AI_ROUNDRANGED || md.mAI.aiType == AI_ROUNDRANGED2 || (md.mAI.aiType == AI_RANGED && md.mAI.aiParam2) // required for MonStartRSpAttack / MonDoRSpAttack
@@ -802,7 +815,7 @@ void ValidateData()
 		if (md.mAI.aiType == AI_FAT || (md.mAI.aiType == AI_ROUND && md.mAI.aiParam1) || md.mAI.aiType == AI_GARBUD || md.mAI.aiType == AI_SCAV || md.mAI.aiType == AI_GARG) { // required for MonStartSpAttack / MonDoSpAttack
 			afnumReq |= 1;
 		}
-		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_GOLUM || IsSkel(i)) && monfiledata[md.moFileNum].moSndSpecial) { // required for MonStartSpStand
+		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_GOLUM || IsSkel(i)) && mfd.moSndSpecial) { // required for MonStartSpStand
 			afnumReq |= 2;
 		}
 		if (md.mAI.aiType == AI_RHINO || md.mAI.aiType == AI_SNAKE) { // required for MissToMonst
@@ -811,19 +824,19 @@ void ValidateData()
 		if (afnumReq != 0) {
 			if (afnumReq & 2) {
 				// moAFNum2 required
-				if (monfiledata[md.moFileNum].moAFNum2 == 0) {
+				if (mfd.moAFNum2 == 0) {
 					app_fatal("moAFNum2 is not set for %s (%d).", md.mName, i);
 				}
 			}
 			if (afnumReq & 1) {
 				// moAFNum2 optional
-				if (monfiledata[md.moFileNum].moAFNum2 != 0) {
+				if (mfd.moAFNum2 != 0) {
 					altDamReq |= 3; // requires mMaxDamage2 and mHit2
 				}
 			}
 		} else {
 #if DEV_MODE
-			if (monfiledata[md.moFileNum].moAFNum2 != 0)
+			if (mfd.moAFNum2 != 0)
 				LogErrorF("moAFNum2 is set for %s (%d), but it is not used.", md.mName, i);
 #endif
 		}
@@ -886,12 +899,6 @@ void ValidateData()
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
-		for (int n = 0; n < NUM_MON_ANIM; n++) {
-			if ((n != MA_SPECIAL && n != MA_GOTHIT) && md.moAnimFrameLen[n] == 0 && i != MOFILE_GOLEM)
-				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
-			if (n != MA_SPECIAL && md.moAnimFrameLen[n] == 0)
-				app_fatal("moAnimFrameLen[%d] is not set for %s (%d).", n, md.moGfxFile, i);
-		}
 		//if (md.moAnimFrames[MA_STAND] > 0x7FFF) // required by InitMonster
 		//	app_fatal("Too many(%d) stand-frames for %s (%d).", md.moAnimFrames[MA_STAND], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_STAND] >= 0x7FFF) // required by InitMonster
