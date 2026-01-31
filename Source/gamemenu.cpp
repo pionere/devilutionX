@@ -584,13 +584,12 @@ void gamemenu_presskey(int vkey)
 void gamemenu_checkmove()
 {
 	// assert(gmenu_is_active());
-	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
-	if (move_dir.x != AxisDirectionX_NONE) {
-		gamemenu_presskey(move_dir.x == AxisDirectionX_RIGHT ? DVL_VK_RIGHT : DVL_VK_LEFT);
-	}
-	if (move_dir.y != AxisDirectionY_NONE) {
-		gamemenu_presskey(move_dir.y == AxisDirectionY_DOWN ? DVL_VK_DOWN : DVL_VK_UP);
-	}
+	const int move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
+	if (move_dir == DIR_NONE) return;
+	if (move_dir != DIR_W && move_dir != DIR_E)
+		gamemenu_presskey((move_dir > DIR_W && move_dir < DIR_E) ? DVL_VK_UP : DVL_VK_DOWN);
+	if (move_dir != DIR_S && move_dir != DIR_N)
+		gamemenu_presskey((move_dir > DIR_S && move_dir < DIR_N) ? DVL_VK_LEFT : DVL_VK_RIGHT);
 }
 #endif
 

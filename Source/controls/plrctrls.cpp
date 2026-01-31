@@ -6,6 +6,9 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define DirLeft(dir) (dir > DIR_S && dir < DIR_N)
+#define DirUp(dir) (dir > DIR_W && dir < DIR_E)
+
 /**
  * Native game menu, controlled by simulating a keyboard.
  */
@@ -325,12 +328,12 @@ static void FindTrigger()
 	CheckTownPortal();*/
 }
 
-static void AttrIncBtnSnap(AxisDirection dir)
+static void AttrIncBtnSnap(int dir)
 {
 	static AxisDirectionRepeater repeater;
 	dir = repeater.Get(dir);
-	if (dir.y == AxisDirectionY_NONE)
-		return;
+	if (dir == DIR_NONE) return;
+	if (dir == DIR_W || dir == DIR_E) return;
 
 	// find the current slot based on the mouse position
 	int slot = -1;
@@ -340,10 +343,9 @@ static void AttrIncBtnSnap(AxisDirection dir)
 		sy -= CHRBTN_TOP(slot + 1) - CHRBTN_TOP(slot);
 	}
 	// step in the desired direction
-	if (dir.y == AxisDirectionY_UP) {
+	if (DirUp(dir)) {
 		slot--;
 	} else {
-		// assert(dir.y == AxisDirectionY_DOWN);
 		slot++;
 	}
 	// limit the slot to the available ones
@@ -375,12 +377,11 @@ static void AttrIncBtnSnap(AxisDirection dir)
  * If mouse coords are at SLOTXY_CHEST_LAST, consider this center of equipment
  * small inventory squares are 29x29 (roughly)
  */
-static void InvMove(AxisDirection dir)
+static void InvMove(int dir)
 {
 	static AxisDirectionRepeater repeater(/*min_interval_ms=*/100);
 	dir = repeater.Get(dir);
-	if (dir.x == AxisDirectionX_NONE && dir.y == AxisDirectionY_NONE)
-		return;
+	if (dir == DIR_NONE) return;
 
 	int x = MousePos.x;
 	int y = MousePos.y;
@@ -410,7 +411,8 @@ static void InvMove(AxisDirection dir)
 		slot = SLOTXY_INV_FIRST;
 
 	// when item is on cursor, this is the real cursor XY
-	if (dir.x == AxisDirectionX_LEFT) {
+	if (dir != DIR_S && dir != DIR_N) {
+	if (DirLeft(dir)) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:      // head
 			break;           // do nothing
@@ -443,7 +445,7 @@ static void InvMove(AxisDirection dir)
 		default:
 			ASSUME_UNREACHABLE
 		}
-	} else if (dir.x == AxisDirectionX_RIGHT) {
+	} else {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD: // head to amulet
 			slot = SLOTXY_AMULET;
@@ -479,7 +481,9 @@ static void InvMove(AxisDirection dir)
 			ASSUME_UNREACHABLE
 		}
 	}
-	if (dir.y == AxisDirectionY_UP) {
+	}
+	if (dir != DIR_W && dir != DIR_E) {
+	if (DirUp(dir)) {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:
 			break;           // do nothing
@@ -521,7 +525,7 @@ static void InvMove(AxisDirection dir)
 		default:
 			ASSUME_UNREACHABLE
 		}
-	} else if (dir.y == AxisDirectionY_DOWN) {
+	} else {
 		switch (InvSlotTbl[slot]) {
 		case SLOT_HEAD:
 			slot = SLOTXY_CHEST_FIRST;
@@ -559,6 +563,7 @@ static void InvMove(AxisDirection dir)
 		default:
 			ASSUME_UNREACHABLE
 		}
+	}
 	}
 
 	if (slot == r) {
@@ -610,66 +615,60 @@ static void InvMove(AxisDirection dir)
 	SetCursorPos(x, y);
 }
 
-static void SpellBookMove(AxisDirection dir)
+static void SpellBookMove(int dir)
 {
 	static AxisDirectionRepeater repeater;
 	dir = repeater.Get(dir);
-
-	if (dir.x == AxisDirectionX_LEFT) {
+	if (dir == DIR_NONE) return;
+	if (dir == DIR_S || dir == DIR_N) return;
+	if (DirLeft(dir)) {
 		if (guBooktab > 0)
 			guBooktab--;
-	} else if (dir.x == AxisDirectionX_RIGHT) {
+	} else {
 		if (guBooktab < SPLBOOKTABS - 1)
 			guBooktab++;
 	}
 }
 
-static const direction FaceDir[3][3] = {
-	// NONE      UP      DOWN
-	{ DIR_NONE, DIR_N, DIR_S }, // NONE
-	{ DIR_W, DIR_NW, DIR_SW },  // LEFT
-	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
-};
-
-static void WalkInDir(AxisDirection dir)
+static void WalkInDir(int dir)
 {
-	const int pdir = FaceDir[dir.x][dir.y];
-	if (pdir == DIR_NONE) {
+	if (dir == DIR_NONE) {
 		if (sgbControllerActive && myplr._pDestAction == ACTION_WALK)
 			NetSendCmdBParam1(CMD_WALKDIR, NUM_DIRS); // Stop walking
 		return;
 	}
-	NetSendCmdBParam1(CMD_WALKDIR, pdir);
+	NetSendCmdBParam1(CMD_WALKDIR, dir);
 }
 
-static void HandleRepeaterMove(AxisDirectionRepeater &repeater, AxisDirection moveDir)
+static void HandleRepeaterMove(AxisDirectionRepeater &repeater, int moveDir)
 {
 	moveDir = repeater.Get(moveDir);
-	if (moveDir.y != AxisDirectionY_NONE)
-		InputBtnDown(moveDir.y == AxisDirectionY_UP ? ACT_UP : ACT_DOWN);
-	if (moveDir.x != AxisDirectionX_NONE)
-		InputBtnDown(moveDir.x == AxisDirectionX_LEFT ? ACT_LEFT : ACT_RIGHT);
+	if (moveDir == DIR_NONE) return;
+	if (moveDir != DIR_W && moveDir != DIR_E)
+		InputBtnDown(DirUp(moveDir) ? ACT_UP : ACT_DOWN);
+	if (moveDir != DIR_S && moveDir != DIR_N)
+		InputBtnDown(DirLeft(moveDir) ? ACT_LEFT : ACT_RIGHT);
 }
 
-static void HotSpellMove(AxisDirection moveDir)
+static void HotSpellMove(int moveDir)
 {
 	static AxisDirectionRepeater repeater;
 	HandleRepeaterMove(repeater, moveDir);
 }
 
-static void QuestLogMove(AxisDirection moveDir)
+static void QuestLogMove(int moveDir)
 {
 	static AxisDirectionRepeater repeater;
 	HandleRepeaterMove(repeater, moveDir);
 }
 
-static void StoreMove(AxisDirection moveDir)
+static void StoreMove(int moveDir)
 {
 	static AxisDirectionRepeater repeater;
 	HandleRepeaterMove(repeater, moveDir);
 }
 
-typedef void (*HandleLeftStickOrDPadFn)(dvl::AxisDirection);
+typedef void (*HandleLeftStickOrDPadFn)(int);
 
 static HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 {
@@ -706,8 +705,8 @@ static void Movement()
 	    || IsControllerButtonPressed(ControllerButton_BUTTON_BACK))
 		return;
 
-	AxisDirection moveDir = GetMoveDirection();
-	if (moveDir.x != AxisDirectionX_NONE || moveDir.y != AxisDirectionY_NONE) {
+	int moveDir = GetMoveDirection();
+	if (moveDir != DIR_NONE) {
 		sgbControllerActive = true;
 	}
 
