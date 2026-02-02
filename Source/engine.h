@@ -27,7 +27,15 @@ int32_t NextRndSeed();
 int random_(BYTE idx, int v);
 /* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a positive integer and less than or equal to 0x7FFF. */
 int random_low(BYTE idx, int v);
+/**
+ * @brief Multithreaded safe malloc
+ * @param dwBytes Byte size to allocate
+ */
 BYTE* DiabloAllocPtr(size_t dwBytes);
+/**
+ * @brief Multithreaded safe memfree
+ * @param p Memory pointer to free
+ */
 void mem_free_dbg(void* p);
 #define MemFreeDbg(p)       \
 	{                       \
@@ -51,11 +59,28 @@ void mem_free_dbg(void* p);
 		mem_free_dbg(p__p[0]); \
 		mem_free_dbg(p__p);    \
 	}
-BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen = NULL);
-void LoadFileWithMem(const char* pszName, BYTE* p);
+/**
+ * @brief Load an asset in to a buffer
+ * @param name path/name of the asset
+ * @param pdwFileLen Will be set to the size of the asset if non-NULL
+ * @return Buffer with content of the asset
+ */
+BYTE* LoadFileInMem(const char* name, size_t* pdwFileLen = NULL);
+/**
+ * @brief Load an asset in to the given buffer
+ * @param name path/name of the asset
+ * @param p Target buffer
+ */
+void LoadFileWithMem(const char* name, BYTE* p);
+/*
+ * @brief Load a text-asset with line-breaks
+ * @param name path/name of the asset
+ * @param lines number of lines in the text-asset
+ * @return address of the content in memory
+ */
 char** LoadTxtFile(const char* name, int lines);
 
-/* Load .CEL file and overwrite the first (unused) uint32_t with nWidth */
+/* Load a .CEL asset and overwrite the first (unused) uint32_t with nWidth */
 inline CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
 {
 	CelImageBuf* res;
@@ -68,6 +93,14 @@ inline CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
 	return res;
 }
 
+/*
+ * @brief Merge two .CEL assets into a new one
+ * @param celA the first asset to merge
+ * @param nDataSizeA the size of the first asset
+ * @param celA the second asset to merge
+ * @param nDataSizeA the size of the second asset
+ * @return the merged asset
+ */
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 void PlayInGameMovie(const char* pszMovie);

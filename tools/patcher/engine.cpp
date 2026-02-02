@@ -61,32 +61,38 @@ void mem_free_dbg(void* p)
 }
 
 /**
- * @brief Load a file in to a buffer
- * @param pszName Path of file
- * @param pdwFileLen Will be set to file size if non-NULL
- * @return Buffer with content of the file
+ * @brief Load an asset in to a buffer
+ * @param name path/name of the asset
+ * @param pdwFileLen Will be set to the size of the asset if non-NULL
+ * @return Buffer with content of the asset
  */
-BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen)
+BYTE* LoadFileInMem(const char* name, size_t* pdwFileLen)
 {
 	BYTE* buf = NULL;
-	DWORD fileLen = SFileReadFileEx(pszName, &buf);
+	DWORD fileLen = SFileReadFileEx(name, &buf);
 	if (pdwFileLen != NULL)
 		*pdwFileLen = fileLen;
 	return buf;
 }
 
 /**
- * @brief Load a file in to the given buffer
- * @param pszName Path of file
+ * @brief Load an asset in to the given buffer
+ * @param name path/name of the asset
  * @param p Target buffer
  */
-void LoadFileWithMem(const char* pszName, BYTE* p)
+void LoadFileWithMem(const char* name, BYTE* p)
 {
-	// assert(pszName != NULL);
+	// assert(name != NULL);
 	// assert(p != NULL);
-	SFileReadFileEx(pszName, &p);
+	SFileReadFileEx(name, &p);
 }
 
+/*
+ * @brief Load a text-asset with line-breaks
+ * @param name path/name of the asset
+ * @param lines number of lines in the text-asset
+ * @return address of the content in memory
+ */
 char** LoadTxtFile(const char* name, int lines)
 {
 	BYTE* textFile = NULL;
@@ -108,6 +114,14 @@ char** LoadTxtFile(const char* name, int lines)
 }
 
 #define LOAD_LE32(b) (SwapLE32(*((DWORD*)(b))))
+/*
+ * @brief Merge two .CEL assets into a new one
+ * @param celA the first asset to merge
+ * @param nDataSizeA the size of the first asset
+ * @param celA the second asset to merge
+ * @param nDataSizeA the size of the second asset
+ * @return the merged asset
+ */
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 {
 	size_t nDataSize;
