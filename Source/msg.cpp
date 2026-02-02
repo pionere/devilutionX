@@ -738,9 +738,9 @@ static bool delta_get_item(const TCmdGItem* pI)
 		switch (pD->bCmd) {
 		case DCMD_ITM_TAKEN:
 			return false;
-		case DCMD_ITM_SPAWNED:
-			pD->bCmd = DCMD_ITM_TAKEN;
-			return true;
+		// case DCMD_ITM_SPAWNED:
+		//	pD->bCmd = DCMD_ITM_TAKEN;
+		//	return true;
 		case DCMD_ITM_MOVED:
 			pD->bCmd = DCMD_ITM_TAKEN;
 			return true;

@@ -3988,7 +3988,7 @@ typedef enum _cmd_id {
 
 typedef enum _dcmd_item {
 	DCMD_INVALID,
-	DCMD_ITM_SPAWNED,
+	// DCMD_ITM_SPAWNED,
 	DCMD_ITM_TAKEN,
 	DCMD_ITM_MOVED,
 	DCMD_ITM_DROPPED,
