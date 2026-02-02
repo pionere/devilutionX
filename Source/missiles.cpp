@@ -407,75 +407,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 	}
 }
 
-/**
- * @brief Returns the direction a vector from p1(x1, y1) to p2(x2, y2) is pointing to.
- *
- *      W    SW     S
- *            ^
- *            |	
- *     NW ----+---> SE
- *            |
- *            |
- *      N    NE     E
- *
- * @param x1 the x coordinate of p1
- * @param y1 the y coordinate of p1
- * @param x2 the x coordinate of p2
- * @param y2 the y coordinate of p2
- * @return the direction of the p1->p2 vector
-*/
-static int GetDirection8(int x1, int y1, int x2, int y2)
-{
-#if UNOPTIMIZED_DIRECTION
-	int mx, my, md;
-
-	mx = x2 - x1;
-	my = y2 - y1;
-	if (mx >= 0) {
-		if (my >= 0) {
-			if (5 * mx <= (my << 1)) // mx/my <= 0.4, approximation of tan(22.5)
-				return 1;            // DIR_SW
-			md = 0;                  // DIR_S
-		} else {
-			my = -my;
-			if (5 * mx <= (my << 1))
-				return 5; // DIR_NE
-			md = 6;       // DIR_E
-		}
-		if (5 * my <= (mx << 1)) // my/mx <= 0.4
-			md = 7;              // DIR_SE
-	} else {
-		mx = -mx;
-		if (my >= 0) {
-			if (5 * mx <= (my << 1))
-				return 1; // DIR_SW
-			md = 2;       // DIR_W
-		} else {
-			my = -my;
-			if (5 * mx <= (my << 1))
-				return 5; // DIR_NE
-			md = 4;       // DIR_N
-		}
-		if (5 * my <= (mx << 1))
-			md = 3; // DIR_NW
-	}
-	return md;
-#else
-	int dx = x2 - x1;
-	int dy = y2 - y1;
-	unsigned adx = abs(dx);
-	unsigned ady = abs(dy);
-	//                        SE  NE  SW  NW
-	const int BaseDirs[4] = {  7,  5,  1,  3 };
-	int dir = BaseDirs[2 * (dx < 0) + (dy < 0)];
-	//const int DeltaDirs[2][4] = { {0, 1, 2}, {2, 1, 0} };
-	const int DeltaDirs[2][4] = { { 1, 0, 2 }, { 1, 2, 0 } };
-	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
-	//dir += DeltaDir[5 * adx <= (ady << 1) ? 2 : (5 * ady <= (adx << 1) ? 0 : 1)];
-	dir += DeltaDir[5 * adx <= (ady << 1) ? 2 : (5 * ady <= (adx << 1) ? 1 : 0)];
-	return dir & 7;
-#endif
-}
+#define GetDirection8 GetDirection
 
 /**
  * @brief Returns the direction a vector from p1(x1, y1) to p2(x2, y2) is pointing to.
