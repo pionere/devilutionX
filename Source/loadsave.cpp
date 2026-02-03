@@ -47,7 +47,7 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
 	is->_iMagical = savedItem->viMagical;
 	is->_iSelFlag = savedItem->viSelFlag;
-	is->_iFloorFlag = savedItem->viFloorFlag;
+	is->_iSpawnIdx = savedItem->viSpawnIdx;
 	is->_iAnimFlag = savedItem->viAnimFlag;
 
 	// is->_iAnimData = savedItem->viAnimDataAlign
@@ -830,7 +830,7 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 
 	itemSave->viMagical = is->_iMagical;
 	itemSave->viSelFlag = is->_iSelFlag;
-	itemSave->viFloorFlag = is->_iFloorFlag;
+	itemSave->viSpawnIdx = is->_iSpawnIdx;
 	itemSave->viAnimFlag = is->_iAnimFlag;
 
 	// itemSave->viAnimDataAlign = is->_iAnimData;

@@ -3987,11 +3987,11 @@ typedef enum _cmd_id {
 } _cmd_id;
 
 typedef enum _dcmd_item {
-	DCMD_INVALID,
-	// DCMD_ITM_SPAWNED,
-	DCMD_ITM_TAKEN,
-	DCMD_ITM_MOVED,
-	DCMD_ITM_DROPPED,
+	DCMD_INVALID,     // free entry in delta-items
+	DCMD_ITM_SPAWNED, // used entry in delta-items of a spawned item without item-details
+	DCMD_ITM_TAKEN,   // free entry in delta-items which was a spawned item originally
+	DCMD_ITM_MOVED,   // used entry in delta-items which was a spawned item originally
+	DCMD_ITM_DROPPED, // used entry in delta-items
 } _dcmd_item;
 
 typedef enum _dcmd_monster {

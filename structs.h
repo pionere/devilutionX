@@ -252,7 +252,7 @@ typedef struct ItemStruct {
 	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
-	BOOLEAN _iFloorFlag;
+	BYTE _iSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN _iAnimFlag;
 	const BYTE* _iAnimData;  // PSX name -> ItemFrame
 	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
@@ -1189,7 +1189,7 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viy;
 	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
-	BOOLEAN viFloorFlag;
+	BYTE viSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN viAnimFlag;
 	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
 	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
@@ -1644,7 +1644,7 @@ typedef struct TCmdGItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
-	BOOLEAN fromFloor;
+	BYTE fromFloor;
 	PkItemStruct item;
 } TCmdGItem;
 
@@ -1688,6 +1688,7 @@ typedef struct TCmdJoinLevel {
 	LE_INT16 lTimer1;
 	LE_INT16 lTimer2;
 	BYTE pManaShield; // TODO: remove this and from TSyncLvlPlayer and add to PkPlayerStruct?
+	BYTE iFloorItems;
 	BYTE itemsDur[NUM_INVELEM + 1];
 } TCmdJoinLevel;
 

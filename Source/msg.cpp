@@ -183,12 +183,17 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 	// export items
 	item = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].item); i++, item++) {
-		if (item->bCmd == DCMD_INVALID) {
-			*dst = DCMD_INVALID;
-			dst++;
-		} else {
-			copy_pod(*reinterpret_cast<DDItem*>(dst), *item);
-			dst += sizeof(DDItem);
+		static_assert(sizeof(item->bCmd) == sizeof(*dst), "bCmd member of DDItem does not fit to DeltaExportLevel");
+		*dst = item->bCmd;
+		dst++;
+		if (item->bCmd >= DCMD_ITM_MOVED) {
+			static_assert(DCMD_INVALID < DCMD_ITM_MOVED, "DeltaExportLevel requires ordered DCMD_ITM_* enum I.");
+			static_assert(DCMD_ITM_SPAWNED < DCMD_ITM_MOVED, "DeltaExportLevel requires ordered DCMD_ITM_* enum II.");
+			static_assert(DCMD_ITM_TAKEN < DCMD_ITM_MOVED, "DeltaExportLevel requires ordered DCMD_ITM_* enum III.");
+			static_assert(DCMD_ITM_DROPPED >= DCMD_ITM_MOVED, "DeltaExportLevel requires ordered DCMD_ITM_* enum IV.");
+			static_assert(offsetof(DDItem, bCmd) == 0, "DeltaExportLevel does not work with DDItem.");
+			memcpy(dst, &(&item->bCmd)[1], sizeof(DDItem) - sizeof(item->bCmd));
+			dst += sizeof(DDItem) - sizeof(item->bCmd);
 		}
 	}
 
@@ -232,13 +237,19 @@ static void DeltaImportLevel()
 	// import items
 	item = gsDeltaData.ddLevel[bLvl].item;
 	for (i = 0; i < MAXITEMS; i++, item++) {
-		if (*src == DCMD_INVALID) {
-			src++;
-		} else {
-			copy_pod(*item, *reinterpret_cast<DDItem*>(src));
+		net_assert(*src <= DCMD_ITM_DROPPED);
+		static_assert(sizeof(item->bCmd) == sizeof(*src), "bCmd member of DDItem does not fit to DeltaImportLevel");
+		item->bCmd = *src;
+		src++;
+		static_assert(DCMD_INVALID < DCMD_ITM_MOVED, "DeltaImportLevel requires ordered DCMD_ITM_* enum I.");
+		static_assert(DCMD_ITM_SPAWNED < DCMD_ITM_MOVED, "DeltaImportLevel requires ordered DCMD_ITM_* enum II.");
+		static_assert(DCMD_ITM_TAKEN < DCMD_ITM_MOVED, "DeltaImportLevel requires ordered DCMD_ITM_* enum III.");
+		static_assert(DCMD_ITM_DROPPED >= DCMD_ITM_MOVED, "DeltaImportLevel requires ordered DCMD_ITM_* enum IV.");
+		if (item->bCmd >= DCMD_ITM_MOVED) {
 			// TODO: validate data from internet
-			// assert(dst->bCmd == DCMD_SPAWNED || dst->bCmd == DCMD_TAKEN || dst->bCmd == DCMD_DROPPED);
-			src += sizeof(DDItem);
+			static_assert(offsetof(DDItem, bCmd) == 0, "DeltaImportLevel does not work with DDItem.");
+			memcpy(&(&item->bCmd)[1], src, sizeof(DDItem) - sizeof(item->bCmd));
+			src += sizeof(DDItem) - sizeof(item->bCmd);
 		}
 	}
 	// import objects
@@ -717,6 +728,27 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 	gsDeltaData.ddLevel[bLevel].object[oi].bCmd = bCmd;
 }
 
+static void delta_reserve_items(const TCmdJoinLevel* cmd)
+{
+	DDItem* pD;
+	int i, n;
+	BYTE bLevel;
+
+	// assert(IsMultiGame);
+	bLevel = cmd->lLevel;
+	// net_assert(bLevel < NUM_LEVELS);
+
+	pD = gsDeltaData.ddLevel[bLevel].item;
+	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	n = cmd->iFloorItems;
+	net_assert(n < MAXITEMS);
+	for (i = 0; i < n; i++, pD++) {
+		if (pD->bCmd == DCMD_INVALID) {
+			pD->bCmd = DCMD_ITM_SPAWNED;
+		}
+	}
+}
+
 static bool delta_get_item(const TCmdGItem* pI)
 {
 	DDItem* pD;
@@ -730,7 +762,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 	net_assert(bLevel < NUM_LEVELS);
 
 	pD = gsDeltaData.ddLevel[bLevel].item;
-	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID || !pI->item.PkItemEq(pD->item))
 			continue;
@@ -738,7 +770,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 		switch (pD->bCmd) {
 		case DCMD_ITM_TAKEN:
 			return false;
-		// case DCMD_ITM_SPAWNED:
+		case DCMD_ITM_SPAWNED:
 		//	pD->bCmd = DCMD_ITM_TAKEN;
 		//	return true;
 		case DCMD_ITM_MOVED:
@@ -754,15 +786,13 @@ static bool delta_get_item(const TCmdGItem* pI)
 	}
 
 	if (pI->fromFloor) {
+		int n = pI->fromFloor - 1;
+		net_assert(n < MAXITEMS);
 		pD = gsDeltaData.ddLevel[bLevel].item;
-		for (i = 0; i < MAXITEMS; i++, pD++) {
-			if (pD->bCmd == DCMD_INVALID) {
-				pD->bCmd = DCMD_ITM_TAKEN;
-				pD->x = pI->x;
-				pD->y = pI->y;
-				copy_pod(pD->item, pI->item);
-				return true;
-			}
+		pD = &pD[n];
+		if (pD->bCmd == DCMD_ITM_SPAWNED) {
+			pD->bCmd = DCMD_ITM_TAKEN;
+			return true;
 		}
 	}
 
@@ -799,8 +829,8 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 
 	pD = gsDeltaData.ddLevel[bLevel].item;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
-		if (pD->bCmd == DCMD_INVALID) {
-			pD->bCmd = DCMD_ITM_DROPPED;
+		if (pD->bCmd == DCMD_INVALID || pD->bCmd == DCMD_ITM_TAKEN) {
+			pD->bCmd = pD->bCmd == DCMD_INVALID ? DCMD_ITM_DROPPED : DCMD_ITM_MOVED;
 			pD->x = x;
 			pD->y = y;
 			copy_pod(pD->item, *pItem);
@@ -849,17 +879,21 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 void DeltaAddItem(int ii)
 {
 	ItemStruct* is;
-	// commented out to have a complete sync with other players
 	//int i;
-	//DDItem* pD;
+	DDItem* pD;
 
-	//if (!IsMultiGame)
-	//	return;
+	if (!IsMultiGame)
+		return;
 
 	is = &items[ii];
-	is->_iFloorFlag = TRUE;
-	/*pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
-	for (i = 0; i < MAXITEMS; i++, pD++) {
+	is->_iSpawnIdx = ii + 1;
+	// reserve the delta entry
+	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
+	pD = &pD[ii];
+	if (pD->bCmd == DCMD_INVALID) {
+		pD->bCmd = DCMD_ITM_SPAWNED;
+	}
+	/*for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.dwSeed == is->_iSeed
 		 && pD->item.wIndx == is->_iIdx
@@ -983,7 +1017,6 @@ void DeltaLoadLevel()
 	DDObject* dstr;
 	MonsterStruct* mon;
 	DDItem* itm;
-	int ii;
 	int i;
 	bool monInGame;
 
@@ -1102,10 +1135,9 @@ void DeltaLoadLevel()
 	itm = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
-			ii = FindGetItem(&itm->item);
-			assert(ii != -1);
-			assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
-			DeleteItem(ii);
+			assert(items[i]._iSpawnIdx == i + 1);
+			assert(dItem[items[i]._ix][items[i]._iy] == i + 1);
+			DeleteItem(i);
 		}
 	}
 	//  II. place items
@@ -1173,6 +1205,7 @@ void NetSendCmdJoinLevel()
 	cmd.lTimer1 = myplr._pTimer[PLTR_INFRAVISION];
 	cmd.lTimer2 = myplr._pTimer[PLTR_RAGE];
 	cmd.pManaShield = myplr._pManaShield;
+	cmd.iFloorItems = numitems;
 
 	ExportItemDurabilites(mypnum, cmd.itemsDur);
 
@@ -2078,7 +2111,7 @@ void NetSendCmdGItem(BYTE bCmd, BYTE ii)
 	is = &items[ii];
 	cmd.x = is->_ix;
 	cmd.y = is->_iy;
-	cmd.fromFloor = is->_iFloorFlag;
+	cmd.fromFloor = is->_iSpawnIdx;
 
 	PackPkItem(&cmd.item, is);
 
@@ -3195,6 +3228,8 @@ static unsigned On_JOINLEVEL(const TCmd* pCmd, int pnum)
 
 			InitLvlPlayer(pnum, true);
 			ProcessVisionList();
+		} else {
+			delta_reserve_items(cmd);
 		}
 	}
 
