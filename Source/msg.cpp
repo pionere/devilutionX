@@ -253,15 +253,22 @@ static void DeltaImportLevel()
 		}
 	}
 	// import objects
+	for (i = 0; i < MAXOBJECTS; i++) {
+		static_assert(sizeof(gsDeltaData.ddLevel[bLvl].object) == sizeof(src[i]) * MAXOBJECTS, "Validation in DeltaImportLevel does not work with DDObject");
+		BYTE cmd = src[i];
+		net_assert(cmd == DCMD_INVALID || cmd == CMD_OPERATEOBJ || cmd == CMD_DOOROPEN || cmd == CMD_DOORCLOSE || cmd == CMD_TRAPDISABLE);
+	}
 	memcpy(gsDeltaData.ddLevel[bLvl].object, src, sizeof(gsDeltaData.ddLevel[bLvl].object));
 	src += sizeof(gsDeltaData.ddLevel[bLvl].object);
 
 	// import monsters
 	mon = gsDeltaData.ddLevel[bLvl].monster;
 	for (i = 0; i < MAXMONSTERS; i++, mon++) {
+		// net_assert(*src < NUM_DCMD_MON);
 		if (*src == DCMD_MON_INVALID) {
 			src++;
 		} else {
+			// TODO: validate data from internet
 			copy_pod(*mon, *reinterpret_cast<DDMonster*>(src));
 			src += sizeof(DDMonster);
 		}
