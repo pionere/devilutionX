@@ -693,9 +693,9 @@ static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 	if (!IsMultiGame)
 		return;
 
-	gsDeltaData.ddJunk.jGolems[mnum] = pG->goMonLevel;
-
-	InitGolemStats(mnum, pG->goMonLevel);
+	bLevel = pG->goMonLevel;
+	net_assert(bLevel != 0);
+	gsDeltaData.ddJunk.jGolems[mnum] = bLevel;
 
 	bLevel = pG->goDunLevel;
 	net_assert(bLevel < NUM_LEVELS);
@@ -1032,8 +1032,10 @@ void DeltaLoadLevel()
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		// load monsters
-		for (i = 0; i < MAX_MINIONS; i++)
-			InitGolemStats(i, gsDeltaData.ddJunk.jGolems[i]);
+		for (i = 0; i < MAX_MINIONS; i++) {
+			if (gsDeltaData.ddJunk.jGolems[i] != 0)
+				PreSpawnGolem(i, gsDeltaData.ddJunk.jGolems[i]);
+		}
 
 		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].monster;
 		for (i = 0; i < MAXMONSTERS; i++, mstr++) {

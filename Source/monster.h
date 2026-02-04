@@ -73,7 +73,7 @@ void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
 void TalktoMonster(int mnum, int pnum);
-void InitGolemStats(int mnum, int level);
+void PreSpawnGolem(int mnum, int level);
 void SpawnGolem(int mnum, int x, int y, int level);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool* ret);

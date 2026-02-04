@@ -486,7 +486,7 @@ void InitLvlMonsters()
 
 	// reset monsters
 	for (i = 0; i < MAXMONSTERS; i++) {
-		monsters[i]._mmode = MM_UNUSED;
+		monsters[i]._mmode = i < MAX_MINIONS ? MM_RESERVED : MM_UNUSED;
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
 		// reset _mMTidx value to simplify SyncMonsterAnim (loadsave.cpp)
@@ -508,16 +508,8 @@ void InitLvlMonsters()
 		// monsters[i]._mpacksize = 0;
 		// monsters[i]._mvid = NO_VISION;
 	}
-	// reserve minions
+	// skip minions
 	nummonsters = MAX_MINIONS;
-	if (currLvl._dLevelIdx != DLV_TOWN) {
-		AddMonsterType(MT_GOLEM, FALSE);
-		mapMonTypes[0].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
-		for (i = 0; i < MAX_MINIONS; i++) {
-			InitMonster(i, DIR_S, 0, 0, 0);
-			monsters[i]._mmode = MM_RESERVED;
-		}
-	}
 }
 
 void GetLevelMTypes()
@@ -5134,13 +5126,19 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
-void InitGolemStats(int mnum, int level)
+void PreSpawnGolem(int mnum, int level)
 {
 	MonsterStruct* mon;
 
-	mon = &monsters[mnum];
+	int mtidx = AddMonsterType(MT_GOLEM, FALSE);
+	mapMonTypes[mtidx].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+
+	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
+
 	int lvlBonus = level > 0 ? level - 1 : 0;
 
+	mon = &monsters[mnum];
+	mon->_mmode = MM_RESERVED;
 	// mon->_mAI.aiInt = monsterdata[MT_GOLEM].mAI.aiInt + lvlBonus / 16;
 	mon->_mHit = monsterdata[MT_GOLEM].mHit + lvlBonus * 5 / 2;
 	// mon->_mHit2 = monsterdata[MT_GOLEM].mHit2 + lvlBonus * 5 / 2;
@@ -5167,9 +5165,8 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
-	InitMonster(mnum, DIR_S, 0, 0, 0); // reset goal, enemy (+last)
 	level = level * 4 + (plx(mnum)._pMagic >> 6);
-	InitGolemStats(mnum, level);
+	PreSpawnGolem(mnum, level);
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
