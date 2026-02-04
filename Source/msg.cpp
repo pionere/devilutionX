@@ -1040,12 +1040,13 @@ void DeltaLoadLevel()
 			if (mstr->dmCmd != DCMD_MON_INVALID) {
 				mon = &monsters[i];
 				monInGame = mon->_mmode <= MM_INGAME_LAST;
-				// skip minions and prespawn skeletons
-				if (monInGame)
+				// skip monsters with uninitialized fields
+				if (monInGame) {
+					UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 					RemoveMonFromMap(i);
+				}
 				SetMonsterLoc(mon, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
-				UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
 					assert(mon->_mlid == NO_LIGHT);
