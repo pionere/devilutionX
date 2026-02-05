@@ -1860,6 +1860,8 @@ void ValidateData()
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			scrollSpells++;
 		}
+		if (sd.sMissile != 0 && missiledata[sd.sMissile].mFileNum != MFILE_NONE && missiledata[sd.sMissile].mFileNum >= NUM_FIXMFILE)
+			app_fatal("Skill %s (%d) uses a dynamically loaded missile (%d).", sd.sNameText, i, missiledata[sd.sMissile].mFileNum);
 		if (sd.sMissile != 0 && sd.sType == STYPE_NONE && !(sd.sUseFlags & SFLAG_RANGED)) // required by On_SKILLXY, On_SKILLMON, On_SKILLPLR
 			app_fatal("Skill %s (%d) supposed to use a missile, but neither sType nor the SFLAG_RANGED-flag is set.", sd.sNameText, i);
 		//if (!(sd.sUseFlags & SFLAG_DUNGEON) && sd.sType != STYPE_NONE && sd.sType != STYPE_MAGIC && i != SPL_NULL)
