@@ -257,87 +257,85 @@ static void InitMonsterGFX(int midx)
 
 	cmon->cmWidth = Cl2Width(monAnims[0].maAnimData[0]);
 	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
+}
 
-	// load optional missile-gfxs
-	switch (mtype) {
-	case MT_NMAGMA:
-	case MT_YMAGMA:
-	case MT_BMAGMA:
-	case MT_WMAGMA:
-		LoadMissileGFX(MFILE_MAGBALL);
-		break;
-	/*case MT_INCIN:
-	case MT_FLAMLRD:
-	case MT_DOOMFIRE:
-	case MT_HELLBURN:
-		LoadMissileGFX(MFILE_KRULL);
-		break;*/
-	case MT_RTHIN:
-	case MT_NTHIN:
-	case MT_XTHIN:
-	case MT_GTHIN:
-		LoadMissileGFX(MFILE_THINLGHT);
-		break;
-	/*case MT_NSUCC:
-		LoadMissileGFX(MFILE_FLARE);
-		LoadMissileGFX(MFILE_FLAREEXP);
-		break;*/
-	case MT_NACID:
-	case MT_RACID:
-	case MT_BACID:
-	case MT_XACID:
-#ifdef HELLFIRE
-	case MT_SPIDLORD:
-#endif
-		LoadMissileGFX(MFILE_ACIDBF);
+static void InitMissileGFX(int mitype)
+{
+	BYTE midx = missiledata[mitype].mFileNum;
+	if (midx > NUM_FIXMFILE) {
+		LoadMissileGFX(midx);
+	}
+	if (mitype == MIS_ACID) {
 		LoadMissileGFX(MFILE_ACIDSPLA);
 		LoadMissileGFX(MFILE_ACIDPUD);
-		break;
-	case MT_GSUCC:
-		LoadMissileGFX(MFILE_SCUBMISB);
+	}
+	// if (mitype == MIS_FLARE) {
+	//	LoadMissileGFX(MFILE_FLAREEXP);
+	// }
+	if (mitype == MIS_SNOWWICH) {
 		LoadMissileGFX(MFILE_SCBSEXPB);
-		break;
-	case MT_RSUCC:
-		LoadMissileGFX(MFILE_SCUBMISD);
+	}
+	if (mitype == MIS_HLSPWN) {
 		LoadMissileGFX(MFILE_SCBSEXPD);
-		break;
-	case MT_BSUCC:
-		LoadMissileGFX(MFILE_SCUBMISC);
+	}
+	if (mitype == MIS_SOLBRNR) {
 		LoadMissileGFX(MFILE_SCBSEXPC);
-		break;
-	case MT_SMAGE:
-	case MT_OMAGE:
-		LoadMissileGFX(MFILE_MAGEMIS);
+	}
+	if (mitype == MIS_MAGE) {
 		LoadMissileGFX(MFILE_MAGEEXP);
-		break;
-	case MT_DIABLO:
+	}
+	if (mitype == MIS_LIGHTNINGC2) {
+		LoadMissileGFX(MFILE_THINLGHT);
+	}
+	if (mitype == MIS_APOCAC2) {
 		LoadMissileGFX(MFILE_FIREPLAR);
-		break;
+	}
 #ifdef HELLFIRE
-	case MT_SKLWING:
-	case MT_BONEDEMN:
-		LoadMissileGFX(MFILE_MS_ORA_B);
+	if (mitype == MIS_BONEDEMON) {
 		LoadMissileGFX(MFILE_EXORA1_B);
-		break;
-	case MT_PSYCHORB:
-		LoadMissileGFX(MFILE_MS_ORA);
+	}
+	if (mitype == MIS_PSYCHORB) {
 		LoadMissileGFX(MFILE_EXORA1);
-		break;
-	case MT_NECRMORB:
-		LoadMissileGFX(MFILE_MS_REB_B);
+	}
+	if (mitype == MIS_NECROMORB) {
 		LoadMissileGFX(MFILE_EXYEL2_B);
-		break;
-	case MT_HORKDMN:
-		LoadMissileGFX(MFILE_SPAWNS);
-		break;
-	case MT_LICH:
-		LoadMissileGFX(MFILE_MS_ORA_A);
+	}
+	if (mitype == MIS_LICH) {
 		LoadMissileGFX(MFILE_EXORA1_A);
-		break;
-	case MT_ARCHLICH:
-		LoadMissileGFX(MFILE_MS_YEB_A);
+	}
+	if (mitype == MIS_ARCHLICH) {
 		LoadMissileGFX(MFILE_EXYEL2_A);
-		break;
+	}
+#endif
+}
+static void InitMonsterMis(int type, const MonsterAI ai)
+{
+	static_assert(sizeof(ai) <= sizeof(size_t), "Pass ai by reference to InitMonsterMis");
+#ifdef HELLFIRE
+	if ((type >= MT_NACID && type <= MT_XACID) || type == MT_SPIDLORD)
+#else
+	if (type >= MT_NACID && type <= MT_XACID)
+#endif
+		InitMissileGFX(MIS_ACIDPUD);
+	if (ai.aiType == AI_RANGED || ai.aiType == AI_ROUNDRANGED || ai.aiType == AI_ROUNDRANGED2 || ai.aiType == AI_COUNSLR || ai.aiType == AI_MAGE) {
+		if (ai.aiType == AI_MAGE) {
+			InitMissileGFX(MIS_MAGE);
+		}
+		// if (ai.aiType == AI_COUNSLR || ai.aiType == AI_MAGE) {
+		//	InitMissileGFX(MIS_FLASH);
+		// }
+		InitMissileGFX(ai.aiParam1);
+	// } else if (ai.aiType == AI_SKELBOW) {
+	//	InitMissileGFX(MIS_ARROW);
+	// } else if (ai.aiType == AI_FALLEN) {
+	//	InitMissileGFX(MIS_CTA);
+	// } else if (ai.aiType == AI_BAT) {
+	//	InitMissileGFX(MIS_LIGHTNING);
+	// } else if (ai.aiType == AI_FIREMAN) {
+	//	InitMissileGFX(MIS_KRULL);
+#ifdef HELLFIRE
+	} else if (ai.aiType == AI_HORKDMN) {
+		InitMissileGFX(MIS_HORKDMN);
 #endif
 	}
 }
@@ -425,6 +423,8 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinHP = (cmon->cmMinHP * mpl) >> 1;
 	cmon->cmMaxHP = (cmon->cmMaxHP * mpl) >> 1;
 	cmon->cmExp = (cmon->cmExp * mpl) >> 1;
+
+	InitMonsterMis(cmon->cmType, cmon->cmAI);
 }
 
 static bool IsSkel(int mt)
@@ -975,6 +975,8 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	if (flags & UMF_LIGHT) {
 		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 	}
+
+	InitMonsterMis(mon->_mType, mon->_mAI);
 	return flags;
 }
 
