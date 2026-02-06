@@ -1567,10 +1567,18 @@ void InitMissileGFX(int mitype)
 	if (midx > NUM_FIXMFILE) {
 		LoadMissileGFX(midx);
 	}
-	if (mitype == MIS_ACID) {
-		LoadMissileGFX(MFILE_ACIDSPLA); // InitMissileGFX(MIS_EXACIDP)
-		LoadMissileGFX(MFILE_ACIDPUD);  // InitMissileGFX(MIS_ACIDPUD)
-	}
+	// if (mitype == MIS_FIREBOLT) {
+	//	LoadMissileGFX(MFILE_MAGBLOS); // InitMissileGFX(MIS_EXFIRE)
+	// }
+	// if (mitype == MIS_MAGMABALL) {
+	//	LoadMissileGFX(MFILE_MAGBLOS); // InitMissileGFX(MIS_EXFIRE)
+	// }
+	// if (mitype == MIS_FIREBALL) {
+	//	LoadMissileGFX(MFILE_BIGEXP); // InitMissileGFX(MIS_EXFBALL)
+	// }
+	// if (mitype == MIS_HBOLT) {
+	//	LoadMissileGFX(MFILE_HOLYEXPL); // InitMissileGFX(MIS_EXHOLY)
+	// }
 	// if (mitype == MIS_FLARE) {
 	//	LoadMissileGFX(MFILE_FLAREEXP); // InitMissileGFX(MIS_EXFLARE)
 	// }
@@ -1586,13 +1594,65 @@ void InitMissileGFX(int mitype)
 	if (mitype == MIS_MAGE) {
 		LoadMissileGFX(MFILE_MAGEEXP); // InitMissileGFX(MIS_EXMAGE)
 	}
+	if (mitype == MIS_ACID) {
+		LoadMissileGFX(MFILE_ACIDSPLA); // InitMissileGFX(MIS_EXACIDP)
+		LoadMissileGFX(MFILE_ACIDPUD);  // InitMissileGFX(MIS_ACIDPUD)
+	}
+	// if (mitype == MIS_LIGHTNINGC) {
+	//	LoadMissileGFX(MFILE_LGHNING); // InitMissileGFX(MIS_LIGHTNING)
+	// }
 	if (mitype == MIS_LIGHTNINGC2) {
 		LoadMissileGFX(MFILE_THINLGHT); // InitMissileGFX(MIS_LIGHTNING2)
 	}
+	// if (mitype == MIS_BLOODBOILC) {
+	//	LoadMissileGFX(MFILE_BLODBURS); // InitMissileGFX(MIS_BLOODBOIL)
+	// }
+	// if (mitype == MIS_SWAMPC) {
+	//	LoadMissileGFX(MFILE_SWAMP); // InitMissileGFX(MIS_SWAMP)
+	// }
+	// if (mitype == MIS_FLASH) {
+	//	LoadMissileGFX(MFILE_BLUEXBK); // InitMissileGFX(MIS_FLASH2)
+	// }
+	// if (mitype == MIS_STONE) {
+	//	LoadMissileGFX(MFILE_SHATTER1); // InitMissileGFX(MIS_EXSTONE)
+	// }
+	// if (mitype == MIS_FIREWALLC) {
+	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWALL)
+	// }
+	// if (mitype == MIS_FIREWAVEC) {
+	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWAVE)
+	// }
+	// if (mitype == MIS_METEOR) {
+	//	LoadMissileGFX(MFILE_FIREBA);
+	// }
+	// if (mitype == MIS_LIGHTNOVAC) {
+	//	LoadMissileGFX(MFILE_LGHNING); // InitMissileGFX(MIS_LIGHTBALL)
+	// }
+	// if (mitype == MIS_INFERNOC) {
+	//	LoadMissileGFX(MFILE_INFERNO); // InitMissileGFX(MIS_INFERNO)
+	// }
+	// if (mitype == MIS_CBOLTC) {
+	//	LoadMissileGFX(MFILE_MINILTNG); // InitMissileGFX(MIS_CBOLT)
+	// }
 	if (mitype == MIS_APOCAC2) {
 		LoadMissileGFX(MFILE_FIREPLAR); // InitMissileGFX(MIS_EXAPOCA2)
 	}
 #ifdef HELLFIRE
+	// if (mitype == MIS_FIRERING) {
+	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWALL)
+	// }
+	// if (mitype == MIS_RUNEFIRE) {
+	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWAVEC)
+	// }
+	// if (mitype == MIS_RUNELIGHT) {
+	//	LoadMissileGFX(MFILE_LGHNING); // InitMissileGFX(MIS_LIGHTNOVAC)
+	// }
+	// if (mitype == MIS_RUNENOVA) {
+	//	LoadMissileGFX(MFILE_LGHNING); // InitMissileGFX(MIS_LIGHTNINGC)
+	// }
+	// if (mitype == MIS_RUNEWAVE) {
+	//	LoadMissileGFX(MFILE_BIGEXP); // InitMissileGFX(MIS_FIREEXP)
+	// }
 	if (mitype == MIS_BONEDEMON) {
 		LoadMissileGFX(MFILE_EXORA1_B); // InitMissileGFX(MIS_EXBONEDEMON)
 	}
