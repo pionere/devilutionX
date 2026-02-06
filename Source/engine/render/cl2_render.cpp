@@ -18,7 +18,7 @@ DEVILUTION_BEGIN_NAMESPACE
 void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames)
 {
 	int i, nDataSize;
-	int8_t width;
+	int width;
 	BYTE* dst;
 	const BYTE* end;
 
@@ -29,7 +29,7 @@ void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames)
 		dst = const_cast<BYTE*>(CelGetFrameClippedAt(pCelBuff, i, 0, &nDataSize));
 		end = &dst[nDataSize];
 		while (dst != end) {
-			width = *dst++;
+			width = (int8_t)*dst++;
 			assert(dst <= end);
 			if (width < 0) {
 				width = -width;
@@ -60,8 +60,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 {
 	const BYTE *src, *end;
 	BYTE fill, *dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -73,7 +72,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
@@ -125,8 +124,7 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -138,7 +136,7 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
@@ -202,8 +200,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 {
 	const BYTE *src, *end;
 	BYTE fill, *dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -215,7 +212,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
@@ -325,7 +322,7 @@ unsigned Cl2Width(const BYTE* pCelBuff)
 	pRLEBytes = CelGetFrameClippedAt(pCelBuff, 1, 0, &nDataSize);
 
 	const BYTE *src, *end;
-	int8_t width;
+	int width;
 
 	src = pRLEBytes;
 
@@ -333,7 +330,7 @@ unsigned Cl2Width(const BYTE* pCelBuff)
 
 	unsigned n = 0;
 	while (src < end) {
-		width = *src++;
+		width = (int8_t)*src++;
 		if (width < 0) {
 			width = -width;
 			if (width > 65) {

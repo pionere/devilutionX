@@ -20,8 +20,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 {
 	const BYTE *src, *end;
 	BYTE fill, *dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -33,7 +32,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {

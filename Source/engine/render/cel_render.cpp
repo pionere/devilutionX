@@ -20,8 +20,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -33,7 +32,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
@@ -61,8 +60,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -77,7 +75,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
@@ -179,9 +177,8 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 {
 	const BYTE *tbl, *src, *end;
 	BYTE* dst;
-	int i;
+	int i, width;
 	BOOLEAN shift;
-	int8_t width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -195,7 +192,7 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth, shift = 1 - shift) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 					if (((BYTE)(size_t)dst & 1) == shift) {
@@ -311,8 +308,7 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -324,7 +320,7 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 						while (width != 0) {
@@ -394,8 +390,7 @@ void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWi
 
 	const BYTE *src;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	pRLEBytes = CelGetFrameClippedAt(pCelBuff, nCel, blocks, &nDataSize);
 	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy - fy)];
@@ -405,7 +400,7 @@ void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWi
 	fy = fy % CEL_BLOCK_HEIGHT; // -= blocks * CEL_BLOCK_HEIGHT;
 	while (fy-- != 0) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				src += width;
@@ -418,7 +413,7 @@ void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWi
 	dst = pDecodeTo;
 	for ( ; ny-- != 0; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				memcpy(dst, src, width);
@@ -440,7 +435,7 @@ unsigned CelClippedWidth(const BYTE* pCelBuff)
 	pRLEBytes = CelGetFrameClippedAt(pCelBuff, 1, 0, &nDataSize);
 
 	const BYTE *src, *end;
-	int8_t width;
+	int width;
 
 	src = pRLEBytes;
 
@@ -448,7 +443,7 @@ unsigned CelClippedWidth(const BYTE* pCelBuff)
 
 	unsigned n = 0;
 	while (src < end) {
-		width = *src++;
+		width = (int8_t)*src++;
 		if (width >= 0) {
 			n += width;
 			src += width;
