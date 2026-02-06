@@ -259,55 +259,6 @@ static void InitMonsterGFX(int midx)
 	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
 }
 
-static void InitMissileGFX(int mitype)
-{
-	BYTE midx = missiledata[mitype].mFileNum;
-	if (midx > NUM_FIXMFILE) {
-		LoadMissileGFX(midx);
-	}
-	if (mitype == MIS_ACID) {
-		LoadMissileGFX(MFILE_ACIDSPLA);
-		LoadMissileGFX(MFILE_ACIDPUD);
-	}
-	// if (mitype == MIS_FLARE) {
-	//	LoadMissileGFX(MFILE_FLAREEXP);
-	// }
-	if (mitype == MIS_SNOWWICH) {
-		LoadMissileGFX(MFILE_SCBSEXPB);
-	}
-	if (mitype == MIS_HLSPWN) {
-		LoadMissileGFX(MFILE_SCBSEXPD);
-	}
-	if (mitype == MIS_SOLBRNR) {
-		LoadMissileGFX(MFILE_SCBSEXPC);
-	}
-	if (mitype == MIS_MAGE) {
-		LoadMissileGFX(MFILE_MAGEEXP);
-	}
-	if (mitype == MIS_LIGHTNINGC2) {
-		LoadMissileGFX(MFILE_THINLGHT);
-	}
-	if (mitype == MIS_APOCAC2) {
-		LoadMissileGFX(MFILE_FIREPLAR);
-	}
-#ifdef HELLFIRE
-	if (mitype == MIS_BONEDEMON) {
-		LoadMissileGFX(MFILE_EXORA1_B);
-	}
-	if (mitype == MIS_PSYCHORB) {
-		LoadMissileGFX(MFILE_EXORA1);
-	}
-	if (mitype == MIS_NECROMORB) {
-		LoadMissileGFX(MFILE_EXYEL2_B);
-	}
-	if (mitype == MIS_LICH) {
-		LoadMissileGFX(MFILE_EXORA1_A);
-	}
-	if (mitype == MIS_ARCHLICH) {
-		LoadMissileGFX(MFILE_EXYEL2_A);
-	}
-#endif
-}
 static void InitMonsterMis(int type, const MonsterAI ai)
 {
 	static_assert(sizeof(ai) <= sizeof(size_t), "Pass ai by reference to InitMonsterMis");

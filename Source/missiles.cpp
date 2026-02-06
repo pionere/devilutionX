@@ -1521,7 +1521,7 @@ static void SetMissAnim(int mi, int dir)
 	SyncMissAnim(mi);
 }
 
-void LoadMissileGFX(BYTE midx)
+static void LoadMissileGFX(BYTE midx)
 {
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	int i, n;
@@ -1559,6 +1559,56 @@ void InitGameMissileGFX()
 	for (i = 0; i < NUM_FIXMFILE; i++) {
 		LoadMissileGFX(i);
 	}
+}
+
+void InitMissileGFX(int mitype)
+{
+	BYTE midx = missiledata[mitype].mFileNum;
+	if (midx > NUM_FIXMFILE) {
+		LoadMissileGFX(midx);
+	}
+	if (mitype == MIS_ACID) {
+		LoadMissileGFX(MFILE_ACIDSPLA); // InitMissileGFX(MIS_EXACIDP)
+		LoadMissileGFX(MFILE_ACIDPUD);  // InitMissileGFX(MIS_ACIDPUD)
+	}
+	// if (mitype == MIS_FLARE) {
+	//	LoadMissileGFX(MFILE_FLAREEXP); // InitMissileGFX(MIS_EXFLARE)
+	// }
+	if (mitype == MIS_SNOWWICH) {
+		LoadMissileGFX(MFILE_SCBSEXPB); // InitMissileGFX(MIS_EXSNOWWICH)
+	}
+	if (mitype == MIS_HLSPWN) {
+		LoadMissileGFX(MFILE_SCBSEXPD); // InitMissileGFX(MIS_EXHLSPWN)
+	}
+	if (mitype == MIS_SOLBRNR) {
+		LoadMissileGFX(MFILE_SCBSEXPC); // InitMissileGFX(MIS_EXSOLBRNR)
+	}
+	if (mitype == MIS_MAGE) {
+		LoadMissileGFX(MFILE_MAGEEXP); // InitMissileGFX(MIS_EXMAGE)
+	}
+	if (mitype == MIS_LIGHTNINGC2) {
+		LoadMissileGFX(MFILE_THINLGHT); // InitMissileGFX(MIS_LIGHTNING2)
+	}
+	if (mitype == MIS_APOCAC2) {
+		LoadMissileGFX(MFILE_FIREPLAR); // InitMissileGFX(MIS_EXAPOCA2)
+	}
+#ifdef HELLFIRE
+	if (mitype == MIS_BONEDEMON) {
+		LoadMissileGFX(MFILE_EXORA1_B); // InitMissileGFX(MIS_EXBONEDEMON)
+	}
+	if (mitype == MIS_PSYCHORB) {
+		LoadMissileGFX(MFILE_EXORA1); // InitMissileGFX(MIS_EXPSYCHORB)
+	}
+	if (mitype == MIS_NECROMORB) {
+		LoadMissileGFX(MFILE_EXYEL2_B); // InitMissileGFX(MIS_EXNECROMORB)
+	}
+	if (mitype == MIS_LICH) {
+		LoadMissileGFX(MFILE_EXORA1_A); // InitMissileGFX(MIS_EXLICH)
+	}
+	if (mitype == MIS_ARCHLICH) {
+		LoadMissileGFX(MFILE_EXYEL2_A); // InitMissileGFX(MIS_EXARCHLICH)
+	}
+#endif
 }
 
 static void FreeMissileGFX(int midx)
