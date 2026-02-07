@@ -489,7 +489,6 @@ set(devilutionx_SRCS
   #Source/dthread.cpp
   Source/dx.cpp
   Source/encrypt.cpp
-  Source/engine.cpp
   Source/error.cpp
   Source/gamemenu.cpp
   Source/gameui.cpp
@@ -581,6 +580,7 @@ set(devilutionx_SRCS
   Source/dvlnet/zerotier_native.cpp
   Source/dvlnet/zerotier_lwip.cpp
   Source/dvlnet/zt_client.cpp
+  Source/engine/engine.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
@@ -706,7 +706,6 @@ if(CREATE_PATCHER)
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
     #tools/patcher/encrypt.cpp
-    tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
@@ -739,6 +738,7 @@ if(CREATE_PATCHER)
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
     #tools/patcher/DiabloUI/title.cpp
+    tools/patcher/engine/engine.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
