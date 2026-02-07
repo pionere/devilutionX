@@ -580,6 +580,7 @@ set(devilutionx_SRCS
   Source/dvlnet/zerotier_native.cpp
   Source/dvlnet/zerotier_lwip.cpp
   Source/dvlnet/zt_client.cpp
+  Source/engine/cel_util.cpp
   Source/engine/engine.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
@@ -738,6 +739,7 @@ if(CREATE_PATCHER)
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
     #tools/patcher/DiabloUI/title.cpp
+    tools/patcher/engine/cel_util.cpp
     tools/patcher/engine/engine.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp

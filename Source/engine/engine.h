@@ -78,29 +78,6 @@ void LoadFileWithMem(const char* name, BYTE* p);
  */
 char** LoadTxtFile(const char* name, int lines);
 
-/* Load a .CEL asset and overwrite the first (unused) uint32_t with nWidth */
-inline CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
-{
-	CelImageBuf* res;
-
-	res = (CelImageBuf*)LoadFileInMem(name);
-#if DEBUG_MODE
-	res->ciFrameCnt = SwapLE32(*((uint32_t*)res));
-#endif
-	res->ciWidth = nWidth;
-	return res;
-}
-
-/*
- * @brief Merge two .CEL assets into a new one
- * @param celA the first asset to merge
- * @param nDataSizeA the size of the first asset
- * @param celA the second asset to merge
- * @param nDataSizeA the size of the second asset
- * @return the merged asset
- */
-BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
-
 void PlayInGameMovie(const char* pszMovie);
 /* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative (32bit) integer. The result is minVal if (maxVal - minVal) is negative. */
 inline int RandRange(int minVal, int maxVal)

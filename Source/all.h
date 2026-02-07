@@ -34,6 +34,8 @@
 #include "miniwin/miniwin.h"
 //#include "utils/thread.h"
 
+#include "engine/cel_util.h"
+
 //#include "diabloui.h"
 #include "gameui.h"
 #include "display.h"
