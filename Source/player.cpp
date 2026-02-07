@@ -5,8 +5,6 @@
  */
 #include "all.h"
 #include "plrctrls.h"
-#include "engine/render/render.h"
-#include "engine/render/cl2_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

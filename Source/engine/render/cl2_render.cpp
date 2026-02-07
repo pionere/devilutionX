@@ -5,49 +5,7 @@
  */
 #include "cl2_render.h"
 
-#include "render.h"
-
 DEVILUTION_BEGIN_NAMESPACE
-
-/**
- * @brief Apply the color swaps to a CL2 sprite
- * @param pCelBuff pointer to CL2-frame offsets and data
- * @param ttbl Palette translation table
- * @param nFrames number of frames in the CL2 file
- */
-void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames)
-{
-	int i, nDataSize;
-	int width;
-	BYTE* dst;
-	const BYTE* end;
-
-	assert(pCelBuff != NULL);
-	assert(ttbl != NULL);
-
-	for (i = 1; i <= nFrames; i++) {
-		dst = const_cast<BYTE*>(CelGetFrameClippedAt(pCelBuff, i, 0, &nDataSize));
-		end = &dst[nDataSize];
-		while (dst != end) {
-			width = (int8_t)*dst++;
-			assert(dst <= end);
-			if (width < 0) {
-				width = -width;
-				if (width > 65) {
-					*dst = ttbl[*dst];
-					dst++;
-					assert(dst <= end);
-				} else {
-					assert(dst + width <= end);
-					while (width--) {
-						*dst = ttbl[*dst];
-						dst++;
-					}
-				}
-			}
-		}
-	}
-}
 
 /**
  * @brief Blit CL2 sprite to the given buffer
@@ -307,43 +265,6 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light]);
 	else
 		Cl2Blit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
-}
-
-/**
- * @brief calculate the width of the CL2 sprite using the clipping information
- * @param pCelBuff pointer to CL2-frame offsets and data
- * @return the width of the CL2 sprite
- */
-unsigned Cl2Width(const BYTE* pCelBuff)
-{
-	int nDataSize;
-	const BYTE *pRLEBytes;
-
-	pRLEBytes = CelGetFrameClippedAt(pCelBuff, 1, 0, &nDataSize);
-
-	const BYTE *src, *end;
-	int width;
-
-	src = pRLEBytes;
-
-	end = CelGetFrameClippedAt(pCelBuff, 1, 1, &nDataSize);
-
-	unsigned n = 0;
-	while (src < end) {
-		width = (int8_t)*src++;
-		if (width < 0) {
-			width = -width;
-			if (width > 65) {
-				width -= 65;
-				src++;
-			} else {
-				src += width;
-			}
-		}
-		n += width;
-	}
-
-	return n / CEL_BLOCK_HEIGHT;
 }
 
 DEVILUTION_END_NAMESPACE

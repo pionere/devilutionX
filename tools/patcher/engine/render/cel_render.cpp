@@ -5,8 +5,6 @@
  */
 #include "cel_render.h"
 
-#include "render.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
