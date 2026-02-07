@@ -4,8 +4,6 @@
  * Implementation of functionality for loading and spawning towners.
  */
 #include "all.h"
-#include "engine/render/render.h"
-#include "engine/render/cel_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 

@@ -5,8 +5,6 @@
  */
 #include "cel_render.h"
 
-#include "render.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
@@ -425,34 +423,6 @@ void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWi
 			}
 		}
 	}
-}
-
-unsigned CelClippedWidth(const BYTE* pCelBuff)
-{
-	int nDataSize;
-	const BYTE *pRLEBytes;
-
-	pRLEBytes = CelGetFrameClippedAt(pCelBuff, 1, 0, &nDataSize);
-
-	const BYTE *src, *end;
-	int width;
-
-	src = pRLEBytes;
-
-	end = CelGetFrameClippedAt(pCelBuff, 1, 1, &nDataSize);
-
-	unsigned n = 0;
-	while (src < end) {
-		width = (int8_t)*src++;
-		if (width >= 0) {
-			n += width;
-			src += width;
-		} else {
-			n -= width;
-		}
-	}
-
-	return n / CEL_BLOCK_HEIGHT;
 }
 
 DEVILUTION_END_NAMESPACE

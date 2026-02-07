@@ -15,14 +15,6 @@ extern "C" {
 #endif
 
 /**
- * @brief Apply the color swaps to a CL2 sprite
- * @param pCelBuff pointer to CL2-frame offsets and data
- * @param ttbl Palette translation table
- * @param nFrames number of frames in the CL2 file
- */
-void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames);
-
-/**
  * @brief Blit an outline one pixel larger than the given sprite shape to the back buffer at the given coordinates
  * @param col Color index from current palette
  * @param sx Output buffer coordinate
@@ -43,13 +35,6 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
  * @param light index of the light shade/trn to use
  */
 void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, BYTE light);
-
-/**
- * @brief calculate the width of the CL2 sprite using the clipping information
- * @param pCelBuff pointer to CL2-frame offsets and data
- * @return the width of the CL2 sprite
- */
-unsigned Cl2Width(const BYTE* pCelBuff);
 
 #ifdef __cplusplus
 }

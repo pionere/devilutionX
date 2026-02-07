@@ -77,13 +77,6 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
  */
 void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, unsigned fy, unsigned ny);
 
-/**
- * @brief calculate the width of the CEL sprite using the clipping information
- * @param pCelBuff pointer to CEL-frame offsets and data
- * @return the width of the CEL sprite
- */
-unsigned CelClippedWidth(const BYTE* pCelBuff);
-
 #ifdef __cplusplus
 }
 #endif
