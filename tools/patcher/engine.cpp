@@ -166,4 +166,28 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	return cel;
 }
 
+CCritSect::CCritSect()
+{
+	m_critsect = SDL_CreateMutex();
+	if (m_critsect == NULL) {
+		sdl_error(ERR_SDL_MUTEX_CREATE);
+	}
+}
+CCritSect::~CCritSect()
+{
+	SDL_DestroyMutex(m_critsect);
+}
+void CCritSect::Enter()
+{
+	if (SDL_LockMutex(m_critsect) < 0) {
+		sdl_error(ERR_SDL_MUTEX_LOCK);
+	}
+}
+void CCritSect::Leave()
+{
+	if (SDL_UnlockMutex(m_critsect) < 0) {
+		sdl_error(ERR_SDL_MUTEX_UNLOCK);
+	}
+}
+
 DEVILUTION_END_NAMESPACE

@@ -11,8 +11,6 @@
 #ifndef __ENGINE_H__
 #define __ENGINE_H__
 
-//#include "appfat.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 /* Calculate direction (DIR_) from (x1;y1) to (x2;y2) */
@@ -208,29 +206,10 @@ inline constexpr int lengthof(T (&array)[N])
 typedef struct CCritSect {
 	SDL_mutex* m_critsect;
 
-	CCritSect()
-	{
-		m_critsect = SDL_CreateMutex();
-		if (m_critsect == NULL) {
-			sdl_error(ERR_SDL_MUTEX_CREATE);
-		}
-	}
-	~CCritSect()
-	{
-		SDL_DestroyMutex(m_critsect);
-	}
-	void Enter()
-	{
-		if (SDL_LockMutex(m_critsect) < 0) {
-			sdl_error(ERR_SDL_MUTEX_LOCK);
-		}
-	}
-	void Leave()
-	{
-		if (SDL_UnlockMutex(m_critsect) < 0) {
-			sdl_error(ERR_SDL_MUTEX_UNLOCK);
-		}
-	}
+	CCritSect();
+	~CCritSect();
+	void Enter();
+	void Leave();
 } CCritSect;
 
 DEVILUTION_END_NAMESPACE
