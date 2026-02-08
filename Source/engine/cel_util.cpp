@@ -7,6 +7,12 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/*
+ * @brief Get the address of a group in a .CEL asset
+ * @param pCelBuff pointer to groupped CEL-frames offsets and data
+ * @param nGroup CEL group number
+ * @return the address of the group
+ */
 static const BYTE* CelGetFrameGroup(const BYTE* pCelBuff, int nGroup)
 {
 	const uint32_t* pFrameTable;
@@ -16,6 +22,13 @@ static const BYTE* CelGetFrameGroup(const BYTE* pCelBuff, int nGroup)
 	return &pCelBuff[SwapLE32(pFrameTable[nGroup])];
 }
 
+/*
+ * @brief Get the address of a frame in a .CEL asset
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL-frame number
+ * @param nDataSize Will be set to the length of the frame
+ * @return the address of the frame
+ */
 const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 {
 	const uint32_t* pFrameTable;
@@ -27,6 +40,14 @@ const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
 	return &pCelBuff[nCellStart];
 }
 
+/*
+ * @brief Get the address of a clipped frame-block in a .CEL asset
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL-frame number
+ * @param nDataSize Will be set to the length of the remaining frame
+ * @param sy the starting y-coordinate. It will be adjusted to skip out-of-screen pixels.
+ * @return the address of the frame-block
+ */
 const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, int* sy)
 {
 	int dy, startblock, endblock, headerSize;
@@ -73,6 +94,14 @@ const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, i
 	return &pRLEBytes[nDataStart];
 }
 
+/*
+ * @brief Get the address of a clipped frame-block in a .CEL asset
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL-frame number
+ * @param block frame-block index
+ * @param nDataSize Will be set to the length of the remaining frame
+ * @return the address of the frame-block
+ */
 const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block, int* nDataSize)
 {
 	const uint16_t* pFrameTable;
@@ -87,6 +116,11 @@ const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block, int*
 	return &pRLEBytes[nDataStart];
 }
 
+/*
+ * @brief Get the addresses of frame-groups in a .CEL asset
+ * @param pCelBuff pointer to groupped CEL-frames offsets and data
+ * @param pGroups Will be set to the addresses of the groups
+ */
 void LoadFrameGroups(const BYTE* pCelBuff, const BYTE* (&pGroups)[8])
 {
 	int i;
@@ -96,7 +130,12 @@ void LoadFrameGroups(const BYTE* pCelBuff, const BYTE* (&pGroups)[8])
 	}
 }
 
-/* Load a .CEL asset and overwrite the first (unused) uint32_t with nWidth */
+/*
+ * @brief Load a .CEL asset and overwrite the first (unused) uint32_t with nWidth
+ * @param name name of asset
+ * @param nWidth width of the asset
+ * @return pointer to CEL-frame offsets and data with width information
+ */
 CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
 {
 	CelImageBuf* res;
@@ -111,7 +150,7 @@ CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
 
 #define LOAD_LE32(b) (SwapLE32(*((DWORD*)(b))))
 /*
- * @brief Merge two .CEL assets into a new one
+ * @brief Merge two non-groupped .CEL assets into a new one
  * @param celA the first asset to merge
  * @param nDataSizeA the size of the first asset
  * @param celA the second asset to merge
@@ -163,9 +202,9 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 }
 
 /**
- * @brief calculate the width of the CEL sprite using the clipping information
+ * @brief calculate the width of the CEL-frame using the clipping information
  * @param pCelBuff pointer to CEL-frame offsets and data
- * @return the width of the CEL sprite
+ * @return the width of the CEL-frame
  */
 unsigned CelClippedWidth(const BYTE* pCelBuff)
 {
@@ -196,7 +235,7 @@ unsigned CelClippedWidth(const BYTE* pCelBuff)
 }
 
 /**
- * @brief Apply the color swaps to a CL2 sprite
+ * @brief Apply the color swaps to a CL2-frame
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
  * @param nFrames number of frames in the CL2 file
@@ -236,9 +275,9 @@ void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames)
 }
 
 /**
- * @brief calculate the width of the CL2 sprite using the clipping information
+ * @brief calculate the width of the CL2-frame using the clipping information
  * @param pCelBuff pointer to CL2-frame offsets and data
- * @return the width of the CL2 sprite
+ * @return the width of the CL2-frame
  */
 unsigned Cl2Width(const BYTE* pCelBuff)
 {
