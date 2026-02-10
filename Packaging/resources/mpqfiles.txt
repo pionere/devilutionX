@@ -72,6 +72,9 @@ PlrGFX\SNone.TRN
 PlrGFX\SOrange.TRN
 PlrGFX\SRed.TRN
 Sfx\Misc\Wallloop.wav
+Towners\Drunk\TwnDrunk.CEL
+Towners\Strytell\Strytell.CEL
+Towners\TownWmn1\Witch.CEL
 ui_art\credits.CEL
 ui_art\credits.pal
 ui_art\focus.CEL
