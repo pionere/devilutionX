@@ -6,26 +6,20 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-unsigned GetArtStrWidth(const char* str, unsigned size)
-{
-	switch (size) {
-	case AFT_SMALL:
-		return GetSmallStringWidth(str);
-	case AFT_MED:
-	case AFT_BIG:
-		return GetBigStringWidth(str);
-	case AFT_HUGE:
-		return GetHugeStringWidth(str);
-	default:
-		ASSUME_UNREACHABLE
-		return 0;
-	}
-}
+DISABLE_SPEED_OPTIMIZATION
 
-void WordWrapArtStr(char* text, unsigned width, unsigned size)
+void WordWrapArtStr(char* text, int width, unsigned size)
 {
 	const int len = (unsigned)strlen(text);
+	int (*pStrWidth)(const char* str);
 	int lineStart = 0;
+	switch (size) {
+	case AFT_SMALL: pStrWidth = GetSmallStringWidth; break;
+	case AFT_BIG:   pStrWidth = GetBigStringWidth;   break;
+	case AFT_HUGE:  pStrWidth = GetHugeStringWidth;  break;
+	default:
+		ASSUME_UNREACHABLE
+	}
 	for (int i = 0; i <= len; i++) {
 		if (text[i] == '\n') {
 			lineStart = i + 1;
@@ -37,7 +31,7 @@ void WordWrapArtStr(char* text, unsigned width, unsigned size)
 
 		//if (i != len)
 			text[i] = '\0';
-		if (GetArtStrWidth(&text[lineStart], size) <= width) {
+		if (pStrWidth(&text[lineStart]) <= width) {
 			if (i != len)
 				text[i] = ' ';
 			continue;
@@ -62,5 +56,7 @@ void WordWrapArtStr(char* text, unsigned width, unsigned size)
 		lineStart = j + 1;
 	}
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

@@ -20,7 +20,7 @@ static bool sgbPackPlrTbl[MAX_PLRS];
 /** Specifies whether a game should be loaded. */
 bool gbLoadGame;
 /* Specifies whether the player joins an existing game. */
-bool gbJoinGame;
+NONETCONST bool gbJoinGame = false;
 /* The number of active players in the game. */
 BYTE gbActivePlayers;
 /* Mask of pnum values who requested game delta. */
@@ -389,6 +389,10 @@ void multi_process_turn(SNetTurnPkt* turn)
 	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
+#ifdef NONET
+		assert(pnum == 0);
+		pnum = 0;
+#endif
 		data++;
 		dwMsgSize = *(unsigned*)data;
 		data += sizeof(unsigned);
@@ -438,6 +442,10 @@ void multi_pre_process_turn(SNetTurnPkt* turn)
 	dataEnd = data + turn->ntpLen;
 	while (data != dataEnd) {
 		pnum = *data;
+#ifdef NONET
+		assert(pnum == 0);
+		pnum = 0;
+#endif
 		data++;
 		dwMsgSize = *(unsigned*)data;
 		data += sizeof(unsigned);
@@ -674,16 +682,10 @@ static void SetupLocalPlr()
 	p->_pTimer[PLTR_INFRAVISION] = 0;
 	p->_pTimer[PLTR_RAGE] = 0;
 	// reset skills
-	p->_pAtkSkill = SPL_ATTACK;
-	p->_pAtkSkillType = RSPLTYPE_ABILITY;
-	p->_pMoveSkill = SPL_WALK;
-	p->_pMoveSkillType = RSPLTYPE_ABILITY;
-	p->_pAltAtkSkill = SPL_INVALID;
-	p->_pAltAtkSkillType = RSPLTYPE_INVALID;
-	p->_pAltMoveSkill = SPL_INVALID;
-	p->_pAltMoveSkillType = RSPLTYPE_INVALID;
-	//if (!(p->_pSkillFlags & SFLAG_MELEE))
-	//	p->_pAtkSkill = SPL_RATTACK;
+	const PlrSkillStruct psm = { { SPL_ATTACK, RSPLTYPE_ABILITY }, { SPL_WALK, RSPLTYPE_ABILITY } };
+	const PlrSkillStruct psr = { { SPL_RATTACK, RSPLTYPE_ABILITY }, { SPL_WALK, RSPLTYPE_ABILITY } };
+	p->_pMainSkill = (p->_pSkillFlags & SFLAG_MELEE) ? psm : psr;
+	p->_pAltSkill = { { SPL_NULL, 0 }, { SPL_NULL, 0 } };
 	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
 	// CalcPlrInv(mypnum, false); - unnecessary, InitLvlPlayer should take care of this
 	if (p->_pHitPoints == 0)
@@ -790,8 +792,10 @@ static bool multi_init_game(bool bSinglePlayer, _uigamedata& gameData)
 			continue;
 		}
 		gbLoadGame = dlgresult == SELGAME_LOAD;
+#ifndef NONET
 		gbJoinGame = dlgresult == SELGAME_JOIN;
 		mypnum = gameData.aePlayerId;
+#endif
 		if (!IsGameSrv) {
 			pfile_read_hero();
 		}
@@ -832,7 +836,7 @@ bool NetInit(bool bSinglePlayer)
 		//gameData.aeTickRate = SPEED_NORMAL;
 		//gameData.aeNetUpdateRate = 1;
 		//gameData.aeMaxPlayers = MAX_PLRS;
-		gbJoinGame = false;
+		//gbJoinGame = false;
 		memset(players, 0, sizeof(players));
 		if (!multi_init_game(bSinglePlayer, gameData))
 			return false;
@@ -859,9 +863,7 @@ bool NetInit(bool bSinglePlayer)
 		}
 		nthread_run();
 		SetupLocalPlr();
-#ifndef NONET
 		if (!gbJoinGame)
-#endif
 			break;
 		multi_broadcast_plrinfo_msg();
 		if (DownloadDeltaInfo()) {

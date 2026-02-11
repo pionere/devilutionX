@@ -172,6 +172,12 @@ typedef enum unique_item_indexes {
 	UITEM_ENGAGERING,
 	UITEM_DESTRING,
 	UITEM_RAINBOWRING,
+	UITEM_BRAWNBOW,
+	UITEM_MOSQUITO,
+	UITEM_WHITEANVIL,
+	UITEM_ROCKFORK,
+	UITEM_BLUELOTUS,
+	UITEM_GLASSFANG,
 #ifdef HELLFIRE
 	UITEM_GKNUCKLE,
 	UITEM_MERCURING,
@@ -227,7 +233,6 @@ typedef enum item_misc_id {
 	IMISC_FULLREJUV,
 	IMISC_SCROLL,
 	IMISC_BOOK,
-	IMISC_UNIQUE,
 	IMISC_EAR,
 	IMISC_SPECELIX,
 	IMISC_OILQLTY,
@@ -295,6 +300,7 @@ typedef enum unique_item_type {
 	UITYPE_BROADSWR,
 	UITYPE_SABRE,
 	UITYPE_SCIMITAR,
+	UITYPE_BLADE,
 	UITYPE_LONGSWR,
 	UITYPE_BASTARDSWR,
 	UITYPE_TWOHANDSWR,
@@ -359,6 +365,7 @@ typedef enum item_effect_type {
 	IPL_DAMP,
 	IPL_TOHIT_DAMP,
 	IPL_ACP,
+	IPL_TOBLOCK,
 	IPL_FIRERES,
 	IPL_LIGHTRES,
 	IPL_MAGICRES,
@@ -377,7 +384,8 @@ typedef enum item_effect_type {
 	IPL_DEX,
 	IPL_VIT,
 	IPL_ATTRIBS,
-	IPL_GETHIT,
+	IPL_ABS_ANYHIT,
+	IPL_ABS_PHYHIT,
 	IPL_LIFE,
 	IPL_MANA,
 	IPL_DUR,
@@ -414,6 +422,11 @@ typedef enum item_effect_type {
 	IPL_FASTCAST,
 	IPL_FASTWALK,
 	IPL_INVALID          = 0xFF,
+
+	IMP_LVLMOD  = 0,
+	IMP_LVLGAIN = 1,
+	IMP_SETLVL  = 2,
+	IMP_AREAMOD = 3,
 } item_effect_type;
 
 typedef enum item_affix_range {
@@ -446,10 +459,10 @@ typedef enum item_base_bonus {
 
 typedef enum item_special_effect {
 	ISPL_NONE           = 0x00000000,
-	ISPL_QUICKATTACK    = 0x00000001,
-	ISPL_FASTATTACK     = 0x00000002,
-	ISPL_FASTERATTACK   = 0x00000004,
-	ISPL_FASTESTATTACK  = 0x00000008,
+	//ISPL_QUICKATTACK    = 0x00000001,
+	//ISPL_FASTATTACK     = 0x00000002,
+	//ISPL_FASTERATTACK   = 0x00000004,
+	//ISPL_FASTESTATTACK  = 0x00000008,
 	ISPL_FASTRECOVER    = 0x00000010,
 	ISPL_FASTERRECOVER  = 0x00000020,
 	ISPL_FASTESTRECOVER = 0x00000040,
@@ -519,7 +532,10 @@ typedef enum item_cursor_graphic {
 	ICURS_FANG                        = 42,
 	ICURS_OPTIC_AMULET                = 44,
 	ICURS_AMULET                      = 45,
+	//ICURS_ AMULET                   = 46,
+	//ICURS_ AMULET                   = 47,
 	ICURS_AMULET_TYRAEL               = 48,
+	//ICURS_ BAG                      = 49,
 	ICURS_WIZARDSPIKE                 = 50,
 	ICURS_DAGGER                      = 51,
 	ICURS_BLACK_RAZOR                 = 53,
@@ -538,10 +554,12 @@ typedef enum item_cursor_graphic {
 	ICURS_CLUB                        = 66,
 	ICURS_SABRE                       = 67,
 	ICURS_FALCON_GRYPHON              = 68,
+	// ICURS_ CLUB                    = 69,
 	ICURS_GNARLROOT                   = 70,
 	ICURS_SPIKED_CLUB                 = 71,
 	ICURS_SCIMITAR                    = 72,
 	ICURS_POIGNARD                    = 73,
+	ICURS_GLASSFANG                   = 74,
 	ICURS_FULL_HELM                   = 75,
 	ICURS_MAGIC_ROCK                  = 76,
 	ICURS_HELM_OF_SPIRITS             = 77,
@@ -561,6 +579,7 @@ typedef enum item_cursor_graphic {
 	ICURS_CAP                         = 91,
 	ICURS_FLESH_OF_SOULS              = 92,
 	ICURS_THINKING_CAP                = 93,
+	// ICURS_ ROBE                    = 94,
 	ICURS_CROWN                       = 95,
 	ICURS_MAP_OF_THE_STARS            = 96,
 	ICURS_FUNGAL_TOME                 = 97,
@@ -586,15 +605,17 @@ typedef enum item_cursor_graphic {
 	ICURS_DRAGON_SHIELD               = 117,
 	ICURS_SHORT_BOW                   = 118,
 	ICURS_LONG_WAR_BOW                = 119,
-	//ICURS_CELESTIAL_BOW               = 120,
+	//ICURS_CELESTIAL_BOW             = 120,
 	ICURS_WAR_HAMMER                  = 121,
 	ICURS_MAUL                        = 122,
 	ICURS_LONG_STAFF                  = 123,
 	ICURS_WAR_STAFF                   = 124,
+	ICURS_BLUELOTUS                   = 125,
 	ICURS_TAVERN_SIGN                 = 126,
 	ICURS_HARD_LEATHER_ARMOR          = 127,
 	ICURS_RAGS                        = 128,
 	ICURS_QUILTED_ARMOR               = 129,
+	ICURS_ROCKFORK                    = 130,
 	ICURS_FLAIL                       = 131,
 	ICURS_TOWER_SHIELD                = 132,
 	ICURS_COMPOSITE_BOW               = 133,
@@ -609,6 +630,7 @@ typedef enum item_cursor_graphic {
 	ICURS_LARGE_AXE                   = 142,
 	ICURS_GREAT_AXE                   = 143,
 	ICURS_AXE                         = 144,
+	ICURS_BRAWN_BOW                   = 145,
 	ICURS_HOLY_DEFENDER               = 146,
 	ICURS_LARGE_SHIELD                = 147,
 	ICURS_GOTHIC_SHIELD               = 148,
@@ -619,6 +641,7 @@ typedef enum item_cursor_graphic {
 	ICURS_BREAST_PLATE                = 153,
 	ICURS_RING_MAIL                   = 154,
 	ICURS_STAFF_OF_LAZARUS            = 155,
+	//ICURS_ AXE                      = 156,
 	ICURS_ARKAINES_VALOR              = 157,
 	ICURS_THE_NEEDLER                 = 158,
 	ICURS_NAJ_PLATE                   = 159,
@@ -2011,6 +2034,8 @@ typedef enum missile_id {
 	MIS_MANASHIELD,
 	MIS_INFRA,
 	MIS_RAGE,
+	MIS_PULSE,
+	MIS_CTA,
 #ifdef HELLFIRE
 	//MIS_LIGHTWALLC,
 	//MIS_LIGHTWALL,
@@ -2247,6 +2272,7 @@ typedef enum _monster_id {
 	MT_BSNEAK,
 	MT_YSNEAK,
 	MT_NGOATMC,
+	MT_AGOATMC,
 	MT_BGOATMC,
 	MT_RGOATMC,
 	MT_GGOATMC,
@@ -2292,6 +2318,7 @@ typedef enum _monster_id {
 	MT_NTHIN,
 	MT_XTHIN,
 	MT_GTHIN,
+	MT_WTHIN,
 	MT_NGARG,
 	MT_XGARG,
 	MT_DGARG,
@@ -2459,6 +2486,7 @@ typedef enum _monster_flag {
 	MFLAG_LIFESTEAL       = 0x0020,
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
+	MFLAG_NOGETHIT        = 0x0100,
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
@@ -3492,8 +3520,6 @@ typedef enum dungeon_message2 {
 typedef enum diablo_message {
 	EMSG_NONE,
 	EMSG_DESYNC,
-	EMSG_LOADING,
-	EMSG_SAVING,
 	EMSG_SHRINE_HIDDEN,
 	EMSG_SHRINE_GLOOMY,
 	EMSG_SHRINE_WEIRD,
@@ -3747,14 +3773,14 @@ typedef enum direction {
 
 typedef enum _scroll_direction {
 	SDIR_NONE,
-	SDIR_N,
-	SDIR_NE,
-	SDIR_E,
-	SDIR_SE,
 	SDIR_S,
 	SDIR_SW,
 	SDIR_W,
 	SDIR_NW,
+	SDIR_N,
+	SDIR_NE,
+	SDIR_E,
+	SDIR_SE,
 } _scroll_direction;
 
 typedef enum _path_direction {
@@ -3767,6 +3793,13 @@ typedef enum _path_direction {
 	PDIR_SE,
 	PDIR_SW
 } _path_direction;
+
+typedef enum _menu_direction {
+	MDIR_UP,
+	MDIR_DOWN,
+	MDIR_LEFT,
+	MDIR_RIGHT,
+} _menu_direction;
 
 typedef enum lvl_entry {
 	ENTRY_MAIN,
@@ -3824,6 +3857,7 @@ typedef enum spell_id {
 	SPL_WIND,
 	SPL_SHROUD,
 	SPL_SWAMP,
+	SPL_PULSE,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,
@@ -3953,11 +3987,11 @@ typedef enum _cmd_id {
 } _cmd_id;
 
 typedef enum _dcmd_item {
-	DCMD_INVALID,
-	DCMD_ITM_SPAWNED,
-	DCMD_ITM_TAKEN,
-	DCMD_ITM_MOVED,
-	DCMD_ITM_DROPPED,
+	DCMD_INVALID,     // free entry in delta-items
+	DCMD_ITM_SPAWNED, // used entry in delta-items of a spawned item without item-details
+	DCMD_ITM_TAKEN,   // free entry in delta-items which was a spawned item originally
+	DCMD_ITM_MOVED,   // used entry in delta-items which was a spawned item originally
+	DCMD_ITM_DROPPED, // used entry in delta-items
 } _dcmd_item;
 
 typedef enum _dcmd_monster {
@@ -4013,14 +4047,45 @@ typedef enum _music_id {
 
 enum _artFontTables {
 	AFT_SMALL,
-	AFT_MED,
 	AFT_BIG,
 	AFT_HUGE,
 };
 
-enum _artFontColors {
-	AFC_SILVER,
-	AFC_GOLD,
+enum _artFontFlags {
+	AFF_SMALL       = AFT_SMALL << 0,
+	AFF_BIG         = AFT_BIG << 0,
+	AFF_HUGE        = AFT_HUGE << 0,
+	AFF_LEFT        = 0 << 4,
+	AFF_HCENTER     = 1 << 4,
+	AFF_RIGHT       = 2 << 4,
+	AFF_VCENTER     = 1 << 6,
+
+	AFF_SIZE_SHL    = 0, // left shift to create AFF_size
+	AFF_COLOR_SHL   = 8, // left shift to create AFF_color
+
+	AFF_SIZES       = 0x7,
+	AFF_COLORS      = 0xFF,
+};
+
+enum UiFlags {
+	UIS_SMALL       = AFF_SMALL,
+	UIS_MED         = AFF_BIG,
+	UIS_BIG         = AFF_BIG,
+	UIS_HUGE        = AFF_HUGE,
+	UIS_LEFT        = AFF_LEFT,
+	UIS_HCENTER     = AFF_HCENTER,
+	UIS_RIGHT       = AFF_RIGHT,
+	UIS_VCENTER     = AFF_VCENTER,
+	UIS_SILVER      = COL_WHITE << AFF_COLOR_SHL,
+	UIS_GOLD        = COL_GOLD << AFF_COLOR_SHL,
+	UIS_LIGHT       = (COL_GOLD + 2) << AFF_COLOR_SHL,
+	UIS_OPTIONAL    = 1 << 13,
+	UIS_DISABLED    = 1 << 14,
+	UIS_HIDDEN      = 1 << 15,
+
+	UIS_COLOR_SHL   = AFF_COLOR_SHL, // left shift to create UIS_color
+
+	UIS_COLORS  = 0xF,
 };
 
 typedef enum _mainmenu_selections {
@@ -4066,19 +4131,6 @@ typedef enum server_type {
 	SRV_BASIC,
 	SRV_DIRECT,
 } server_type;
-
-typedef enum panel_button_id {
-	PANBTN_MAINMENU,
-	PANBTN_OPTIONS,
-	PANBTN_CHARINFO,
-	PANBTN_INVENTORY,
-	PANBTN_SPELLBOOK,
-	PANBTN_QLOG,
-	PANBTN_AUTOMAP,
-	PANBTN_SENDMSG,
-	PANBTN_TEAMBOOK,
-	NUM_PANBTNS
-} panel_button_id;
 
 typedef enum attribute_id {
 	ATTRIB_STR,
@@ -4420,6 +4472,13 @@ typedef enum player_skill_flags {
 	SFLAG_RAGE    = 1 << 4,
 } player_skill_flags;
 
+typedef enum skill_details_type {
+	SDT_NONE,
+	SDT_DAMAGE,
+	SDT_DAMAGE_MELEE,
+	SDT_DAMAGE_RANGED,
+} skill_details_type;
+
 typedef enum window_active {
 	WND_INV,
 	WND_CHAR,
@@ -4603,6 +4662,20 @@ typedef enum _gmenu_flags {
 	GMF_ENABLED = 1 << 1,
 } _gmenu_flags;
 
+typedef enum gamemenu_id {
+	GMM_EXITGAME,
+	GMM_MAINMENU,
+	GMM_QLOG,
+	GMM_CHARINFO,
+	GMM_INVENTORY,
+	GMM_SKILLLIST,
+	GMM_SPELLBOOK,
+	GMM_AUTOMAP,
+	GMM_SENDMSG,
+	GMM_TEAMBOOK,
+	NUM_GMMS
+} gamemenu_id;
+
 typedef enum mpq_files {
 #if ASSET_MPL != 1
 	MPQ_DEVILHD,
@@ -4657,6 +4730,8 @@ typedef enum input_key {
 	ACT_W_E,
 	ACT_W_SE,
 	ACT_STOP,
+	ACT_MODACT, // action modifier (attack in place, etc...)
+	ACT_MODCTX, // context modifier (show tooltip, etc...)
 	ACT_SKL0,   // skill selection
 	ACT_SKL1,
 	ACT_SKL2,
@@ -4666,7 +4741,7 @@ typedef enum input_key {
 	ACT_SKL6,
 	ACT_SKL7,
 	ACT_SWAP,    // skill-set swap
-	ACT_TGT,     // change target mode
+	ACT_TGT,     // change targeting mode
 	ACT_INV,     // toggle inventory
 	ACT_CHAR,    // toggle character sheet
 	ACT_SKLBOOK, // toggle skill book
@@ -4687,11 +4762,13 @@ typedef enum input_key {
 	ACT_DOWN,
 	ACT_LEFT,
 	ACT_RIGHT,
-	ACT_PGUP,
-	ACT_PGDOWN,
 	ACT_RETURN,
 	ACT_TEAM,   // toggle team book
 	ACT_QUESTS, // toggle quest book
+	ACT_SPREV,  // prev skill selection
+	ACT_SNEXT,  // next skill selection
+	ACT_SAPREV, // prev alt-skill selection
+	ACT_SANEXT, // next alt-skill selection
 	ACT_MSG0, // send quick message
 	ACT_MSG1,
 	ACT_MSG2,

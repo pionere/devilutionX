@@ -1,21 +1,33 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10...3.30)
 
-foreach(_policy CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141)
+# Projects added via `add_subdirectory` or `FetchContent` may have a lower
+# `cmake_minimum_required` than we set here. Set policies that we require
+# to their new value so that they still apply.
+foreach(_policy CMP0069 CMP0077 CMP0083 CMP0092 CMP0111 CMP0126 CMP0135 CMP0141 CMP0177)
   if(POLICY ${_policy})
     cmake_policy(SET ${_policy} NEW)
     set(CMAKE_POLICY_DEFAULT_${_policy} NEW)
   endif()
 endforeach()
 
-# Projects added via `add_subdirectory` or `FetchContent` may have a lower
-# `cmake_minimum_required` than we set here. Set policies that we require
-# to their new value so that they still apply.
-set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+foreach(_policy CMP0169)
+  if(POLICY ${_policy})
+    cmake_policy(SET ${_policy} OLD)
+    set(CMAKE_POLICY_DEFAULT_${_policy} OLD)
+  endif()
+endforeach()
+
+message(STATUS "CMake version: ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
 if(NINTENDO_3DS)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/ctr")
+endif()
+if(NXDK)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xbox_nxdk")
+endif()
+if(UWP_LIB)
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake/xboxone")
 endif()
 
 if(NOT VERSION_NUM)
@@ -32,7 +44,8 @@ endif()
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 endif()
 
 string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_VERSION_NUM ${VERSION_NUM} )
@@ -108,7 +121,6 @@ if(WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWINVER=${WINVER}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=${WINVER}")
   endif()
-  set(USE_PATCH ON)
   if(WINDOWS_STORE)
     if(NTDDI_VERSION < NTDDI_WIN10)
       set(FULLSCREEN_ONLY ON)
@@ -145,9 +157,24 @@ if(IOS)
   include(ios_defs)
 endif()
 
+if(NXDK)
+  include(xbox_nxdk_defs)
+endif()
+
+if(UWP_LIB)
+  include(xboxone_defs)
+endif()
+
 include(CMakeDependentOption)
 include(out_of_tree)
 
+macro(cmake_conditional_value NAME)
+  if(${ARGN})
+    set(${NAME} ON)
+  else()
+    set(${NAME} OFF)
+  endif()
+endmacro()
 macro(cmake_conditional_option NAME DESCRIPTION)
   if(${ARGN})
     option(${NAME} ${DESCRIPTION} ON)
@@ -192,7 +219,8 @@ cmake_dependent_option(HOSTONLY "Disable support for non host-only games" OFF "T
 cmake_dependent_option(DISABLE_EXCEPTIONS "Disable exceptions" ON "NONET" OFF)
 option(RUN_TESTS "Build and run tests" OFF)
 option(HELLFIRE "Build hellfire version" OFF)
-option(USE_PATCH "Create executable to patch assets" OFF)
+option(USE_PATCH "Build to use patched assets" ON)
+cmake_conditional_option(CREATE_PATCHER "Create executable to patch assets" ${USE_PATCH})
 option(CREATE_MPQONE "Merge assets if necessary" OFF)
 cmake_dependent_option(USE_MPQONE "Force the use of merged assets" OFF "NOT CREATE_MPQONE" ON)
 option(HAS_JOYSTICK "Enable joystick support" ON)
@@ -200,16 +228,20 @@ option(HAS_DPAD "Enable D-Pad support" ON)
 option(HAS_KBCTRL "Enable keyboard controller support" OFF)
 cmake_dependent_option(HAS_GAMECTRL "Enable game controller support" ON "NOT USE_SDL1" OFF)
 cmake_dependent_option(HAS_TOUCHPAD "Enable touchpad support" ON "NOT USE_SDL1" OFF)
+cmake_dependent_option(VIRTUAL_GAMEPAD "Initialize default gamepad" OFF "NOT USE_SDL1" OFF)
 option(SCREEN_READER_INTEGRATION "Build with screen reader support" OFF)
 
+get_property(_supports_shared_libs GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS)
 if(NOT NONET)
   option(DEVILUTIONX_SYSTEM_LIBSODIUM "Use system-provided libsodium" OFF)
-  cmake_conditional_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" NOT ${DEVILUTIONX_SYSTEM_LIBSODIUM})
+  cmake_conditional_value(_DEFAULT_STATIC_LIBSODIUM NOT ${DEVILUTIONX_SYSTEM_LIBSODIUM})
+  cmake_dependent_option(DEVILUTIONX_STATIC_LIBSODIUM "Link static libsodium" ${_DEFAULT_STATIC_LIBSODIUM} "${_supports_shared_libs}" ON)
 endif()
 
 if(NOT USE_SDL1)
   option(DEVILUTIONX_SYSTEM_SDL2 "Use system-provided SDL2" OFF)
-  cmake_conditional_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" NOT ${DEVILUTIONX_SYSTEM_SDL2})
+  cmake_conditional_value(_DEFAULT_STATIC_SDL2 NOT ${DEVILUTIONX_SYSTEM_SDL2})
+  cmake_dependent_option(DEVILUTIONX_STATIC_SDL2 "Link static SDL2" ${_DEFAULT_STATIC_SDL2} "${_supports_shared_libs}" ON)
 endif()
 
 if(HELLFIRE)
@@ -316,7 +348,7 @@ if(NOT NONET)
 endif()
 
 if(USE_SDL1)
-  find_package(SDL 1.2.10 REQUIRED)
+  find_package(SDL REQUIRED)
   include_directories(${SDL_INCLUDE_DIR})
 elseif(DEVILUTIONX_SYSTEM_SDL2)
   find_package(SDL2 REQUIRED)
@@ -340,6 +372,8 @@ elseif(DEVILUTIONX_SYSTEM_SDL2)
     # Can't define an INTERFACE target with ::, so alias instead
     add_library(SDL2::SDL2 ALIAS SDL2_lib)
   endif()
+elseif(UWP_LIB)
+  find_package(SDL2 REQUIRED)
 else()
   add_subdirectory(3rdParty/SDL2)
   set(SDL2_MAIN SDL2::SDL2main)
@@ -455,7 +489,6 @@ set(devilutionx_SRCS
   #Source/dthread.cpp
   Source/dx.cpp
   Source/encrypt.cpp
-  Source/engine.cpp
   Source/error.cpp
   Source/gamemenu.cpp
   Source/gameui.cpp
@@ -472,6 +505,7 @@ set(devilutionx_SRCS
   Source/main.cpp
   Source/mainmenu.cpp
   Source/minitext.cpp
+  Source/minitextdat.cpp
   Source/misdat.cpp
   Source/missiles.cpp
   Source/monstdat.cpp
@@ -501,7 +535,6 @@ set(devilutionx_SRCS
   Source/spells.cpp
   Source/stores.cpp
   Source/sync.cpp
-  Source/textdat.cpp
   Source/themes.cpp
   #Source/tmsg.cpp
   Source/town.cpp
@@ -533,7 +566,6 @@ set(devilutionx_SRCS
   Source/DiabloUI/selyesno.cpp
   Source/DiabloUI/settingsmenu.cpp
   Source/DiabloUI/text.cpp
-  Source/DiabloUI/text_draw.cpp
   Source/DiabloUI/title.cpp
   Source/dvlnet/abstract_net.cpp
   Source/dvlnet/base_client.cpp
@@ -548,6 +580,8 @@ set(devilutionx_SRCS
   Source/dvlnet/zerotier_native.cpp
   Source/dvlnet/zerotier_lwip.cpp
   Source/dvlnet/zt_client.cpp
+  Source/engine/cel_util.cpp
+  Source/engine/engine.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
@@ -559,6 +593,7 @@ set(devilutionx_SRCS
   Source/storm/storm_net.cpp
   Source/storm/storm_svid.cpp
   Source/utils/display.cpp
+  Source/utils/filestream.cpp
   Source/utils/paths.cpp
   Source/utils/screen_reader.cpp
   Source/utils/sdl2_to_1_2_backports.cpp
@@ -602,6 +637,10 @@ if(NINTENDO_3DS)
     Source/platform/ctr/asio/sys/uio.c)
 endif()
 
+if(NXDK)
+  list(APPEND devilutionx_SRCS Source/platform/nxdk/nxdk_paths.cpp)
+endif()
+
 if(RUN_TESTS)
   list(APPEND devilutionx_SRCS
     test/appfat_test.cpp
@@ -615,7 +654,6 @@ if(RUN_TESTS)
     test/drlg_l2_test.cpp
     test/drlg_l3_test.cpp
     test/drlg_l4_test.cpp
-    test/sfx_test.cpp
     test/file_util_test.cpp
     test/gfx_test.cpp
     test/lighting_test.cpp
@@ -623,6 +661,7 @@ if(RUN_TESTS)
     test/player_test.cpp
     test/projectile_test.cpp
     test/scrollrt_test.cpp
+    test/sfx_test.cpp
     test/stores_test.cpp)
 endif()
 
@@ -633,6 +672,8 @@ endif()
 
 if(ANDROID)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
+elseif(UWP_LIB)
+  add_library(${BIN_TARGET} STATIC ${devilutionx_SRCS})
 else()
   set(BIN_SOURCES ${devilutionx_SRCS})
   if(APPLE)
@@ -653,7 +694,7 @@ else()
     ${BIN_SOURCES})
 endif()
 
-if(USE_PATCH AND NOT ANDROID)
+if(CREATE_PATCHER)
   set(DEVIL_PATCHER devil_patcher)
   set(devil_patcher_SRCS
     tools/patcher/appfat.cpp
@@ -666,7 +707,6 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
     #tools/patcher/encrypt.cpp
-    tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
@@ -692,13 +732,15 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/DiabloUI/dialogs.cpp
     tools/patcher/DiabloUI/mainmenu.cpp
     tools/patcher/DiabloUI/merger.cpp
+    tools/patcher/DiabloUI/patchdat.cpp
     tools/patcher/DiabloUI/patcher.cpp
     tools/patcher/DiabloUI/progress.cpp
     tools/patcher/DiabloUI/selok.cpp
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
-    tools/patcher/DiabloUI/text_draw.cpp
-    tools/patcher/DiabloUI/title.cpp
+    #tools/patcher/DiabloUI/title.cpp
+    tools/patcher/engine/cel_util.cpp
+    tools/patcher/engine/engine.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
@@ -707,6 +749,7 @@ if(USE_PATCH AND NOT ANDROID)
     tools/patcher/storm/storm.cpp
     tools/patcher/storm/storm_cfg.cpp
     tools/patcher/utils/display.cpp
+    tools/patcher/utils/filestream.cpp
     tools/patcher/utils/paths.cpp
     tools/patcher/utils/screen_reader.cpp
     tools/patcher/utils/sdl2_to_1_2_backports.cpp
@@ -729,24 +772,33 @@ if(USE_PATCH AND NOT ANDROID)
       tools/patcher/platform/ctr/messagebox.cpp)
   endif()
 
-  set(PATCHER_SOURCES ${devil_patcher_SRCS})
-  if(APPLE)
-    list(APPEND PATCHER_SOURCES
-      Packaging/apple/AppIcon.icns
-      Packaging/apple/LaunchScreen.storyboard)
-  elseif(WIN32)
-    list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
-    if(HELLFIRE)
-      list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
-    else()
-      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
-    endif()
+  if(NXDK)
+    list(APPEND devil_patcher_SRCS tools/patcher/platform/nxdk/nxdk_paths.cpp)
   endif()
-  add_executable(${DEVIL_PATCHER}
-    WIN32
-    MACOSX_BUNDLE
-    ${PATCHER_SOURCES})
 
+  if(ANDROID)
+    add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
+  elseif(UWP_LIB)
+    add_library(${DEVIL_PATCHER} STATIC ${devil_patcher_SRCS})
+  else()
+    set(PATCHER_SOURCES ${devil_patcher_SRCS})
+    if(APPLE)
+      list(APPEND PATCHER_SOURCES
+        Packaging/apple/AppIcon.icns
+        Packaging/apple/LaunchScreen.storyboard)
+    elseif(WIN32)
+      list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.exe.manifest)
+      if(HELLFIRE)
+        list(APPEND PATCHER_SOURCES Packaging/windows/hellfire.rc)
+      else()
+        list(APPEND PATCHER_SOURCES Packaging/windows/devilutionx.rc)
+      endif()
+    endif()
+    add_executable(${DEVIL_PATCHER}
+      WIN32
+      MACOSX_BUNDLE
+      ${PATCHER_SOURCES})
+  endif()
   target_link_libraries(${DEVIL_PATCHER} PRIVATE
     #PKWare
     StormLib
@@ -755,6 +807,9 @@ if(USE_PATCH AND NOT ANDROID)
   if(USE_SDL1)
     target_link_libraries(${DEVIL_PATCHER} PRIVATE
       ${SDL_LIBRARY})
+  elseif(UWP_LIB)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE
+      SDL2::SDL2)
   else()
     target_link_libraries(${DEVIL_PATCHER} PRIVATE
       ${SDL2_MAIN}
@@ -891,9 +946,9 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
-  NOMEMCCPY
   DEBUG_MODE
   DEV_MODE
   GPERF
@@ -997,6 +1052,9 @@ endif()
 if(USE_SDL1)
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL_LIBRARY})
+elseif(UWP_LIB)
+  target_link_libraries(${BIN_TARGET} PRIVATE
+    SDL2::SDL2)
 else()
   target_link_libraries(${BIN_TARGET} PRIVATE
     ${SDL2_MAIN}
@@ -1093,6 +1151,20 @@ endif()
 
 if(HAIKU)
   target_link_libraries(${BIN_TARGET} PRIVATE network)
+endif()
+
+if(UWP_LIB)
+  list(APPEND EXTRA_LIBS
+      vccorlib
+      msvcrt
+      dxgi
+      d3d11
+      mmdevapi
+  )
+  target_link_libraries(${BIN_TARGET} PRIVATE ${EXTRA_LIBS})
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE ${EXTRA_LIBS})
+  endif()
 endif()
 
 if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -1254,17 +1326,34 @@ if(VITA)
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d PARENTAL_LEVEL=1")
   set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
   vita_create_self(${BIN_TARGET}.self ${BIN_TARGET} UNSAFE)
-  vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
-    VERSION ${VITA_VERSION}
-    NAME ${VITA_APP_NAME}
-    FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
-    FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-    FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-    FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
-    FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-    FILE Packaging/resources/devilx.mpq devilx.mpq
+  if(DEVIL_PATCHER)
+    vita_create_self(${DEVIL_PATCHER}.self ${DEVIL_PATCHER} UNSAFE)
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self ${DEVIL_PATCHER}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+      FILE Packaging/resources/listfiles.txt listfiles.txt
+      FILE Packaging/resources/mpqfiles.txt mpqfiles.txt
   )
+  else()
+    vita_create_vpk(${BIN_TARGET}.vpk ${VITA_TITLEID} ${BIN_TARGET}.self
+      VERSION ${VITA_VERSION}
+      NAME ${VITA_APP_NAME}
+      FILE Packaging/vita/sce_sys/icon0.png sce_sys/icon0.png
+      FILE Packaging/vita/sce_sys/pic0.png sce_sys/pic0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
+      FILE Packaging/vita/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
+      FILE Packaging/vita/sce_sys/livearea/contents/logo0.png sce_sys/livearea/contents/logo0.png
+      FILE Packaging/vita/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
+      FILE Packaging/resources/devilx.mpq devilx.mpq
+  )
+  endif()
 endif()
 
 if(PS4)
@@ -1335,8 +1424,82 @@ if(NINTENDO_3DS)
   add_dependencies(${APP_TARGET_PREFIX}_cia romfs_files)
 endif()
 
+if(NXDK)
+  target_link_libraries(${BIN_TARGET} PRIVATE "${NXDK_DIR}/lib/libnxdk_automount_d.lib")
+  target_link_options(${BIN_TARGET} PRIVATE "-include:_automount_d_drive")
+
+  set(NXDK_PKG_DIR "${CMAKE_BINARY_DIR}/pkg")
+  set(_xbe_path "${NXDK_PKG_DIR}/default.xbe")
+  add_custom_command(
+    OUTPUT "${_xbe_path}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${NXDK_PKG_DIR}"
+    COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${_xbe_path}" -TITLE:DevilX "-Logo:${PROJECT_SOURCE_DIR}/Packaging/xbox_nxdk/xbe_logo.pgm" "${CMAKE_BINARY_DIR}/${BIN_TARGET}.exe"
+    DEPENDS "${BIN_TARGET}"
+  )
+  add_custom_target(nxdk_xbe ALL DEPENDS "${_xbe_path}")
+  if(DEVIL_PATCHER)
+    target_link_libraries(${DEVIL_PATCHER} PRIVATE "${NXDK_DIR}/lib/libnxdk_automount_d.lib")
+    target_link_options(${DEVIL_PATCHER} PRIVATE "-include:_automount_d_drive")
+
+    set(patcher_xbe_path "${NXDK_PKG_DIR}/patcher.xbe")
+    add_custom_command(
+      OUTPUT "${patcher_xbe_path}"
+      COMMAND "${CMAKE_COMMAND}" -E make_directory "${NXDK_PKG_DIR}"
+      COMMAND "${NXDK_DIR}/tools/cxbe/cxbe" "-OUT:${patcher_xbe_path}" -TITLE:DevilX-Patcher "-Logo:${PROJECT_SOURCE_DIR}/Packaging/xbox_nxdk/xbe_logo.pgm" "${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.exe"
+      DEPENDS "${DEVIL_PATCHER}"
+    )
+    add_custom_target(nxdk_xbe_patcher ALL DEPENDS "${patcher_xbe_path}")
+  endif()
+endif()
+
+if(UWP_LIB)
+  target_compile_definitions(${BIN_TARGET} PRIVATE __UWP__=1)
+  if(DEVIL_PATCHER)
+    target_compile_definitions(${DEVIL_PATCHER} PRIVATE __UWP__=1)
+  endif()
+endif()
+
 if(CPACK)
-  if(WIN32)
+  if(NXDK)
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_STRIP_FILES TRUE)
+    #install(TARGETS nxdk_xbe DESTINATION .)
+    install(FILES "${_xbe_path}"
+      DESTINATION "."
+    )
+
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/windows/README.txt"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
+      DESTINATION "."
+    )
+
+    if(DEVIL_PATCHER)
+      #install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+      install(FILES "${patcher_xbe_path}"
+        DESTINATION "."
+      )
+
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
+    if(ZEROTIER)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
+        DESTINATION "LICENSE"
+      )
+    endif()
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/README-SDL.txt"
+      DESTINATION "LICENSE"
+    )
+
+  elseif(WIN32)
     set(CPACK_PACKAGE_NAME ${project_name})
     if(WIN_NSIS)
       set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_Installer")
@@ -1527,7 +1690,7 @@ if(CPACK)
         RENAME "${project_name}-hellfire.png"
       )
     else()
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon_flat.png"
         DESTINATION "share/icons/hicolor/512x512/apps"
         RENAME "${project_name}.png"
       )
@@ -1565,6 +1728,46 @@ if(CPACK)
     set(CPACK_BUNDLE_PLIST "${PROJECT_SOURCE_DIR}/Packaging/apple/Info.plist")
     set(CPACK_BUNDLE_ICON "${PROJECT_SOURCE_DIR}/Packaging/apple/AppIcon.icns")
     set(CPACK_BUNDLE_EXECUTABLES "${BIN_TARGET};${DEVIL_PATCHER}")
+
+  elseif(PS5)
+    set(CPACK_PACKAGE_NAME ${project_name})
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_PACKAGE_FILE_NAME ${project_name})
+    set(CPACK_STRIP_FILES TRUE)
+
+    install(TARGETS ${BIN_TARGET} DESTINATION .)
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/README.txt"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/ps5/homebrew.js"
+      DESTINATION "."
+    )
+    install(DIRECTORY "${PROJECT_SOURCE_DIR}/Packaging/ps5/sce_sys"
+      DESTINATION "."
+    )
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/devilx.mpq"
+      DESTINATION "."
+    )
+
+    if(DEVIL_PATCHER)
+      install(TARGETS ${DEVIL_PATCHER} DESTINATION .)
+
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/listfiles.txt"
+        DESTINATION "."
+      )
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/mpqfiles.txt"
+        DESTINATION "."
+      )
+    endif()
+
+    if(ZEROTIER)
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/LICENSE.zlib.txt"
+        DESTINATION "LICENSE"
+      )
+    endif()
+    install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/README-SDL.txt"
+      DESTINATION "LICENSE"
+    )
   endif()
 
   set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -1594,6 +1797,7 @@ foreach(
   def_name
   HELLFIRE
   USE_PATCH
+  CREATE_PATCHER
   USE_MPQONE
   CREATE_MPQONE
   NOSOUND
@@ -1613,6 +1817,7 @@ foreach(
   HAS_TOUCHPAD
   HAS_KBCTRL
   HAS_JOYSTICK
+  VIRTUAL_GAMEPAD
   SCREEN_READER_INTEGRATION
   PREFILL_PLAYER_NAME
   ASAN
@@ -1722,28 +1927,25 @@ else()
   message(STATUS " CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 message(STATUS "")
-if(USE_SDL1)
-  message(STATUS " Using dynamically linked SDL1.")
-else()
-  if(DEVILUTIONX_SYSTEM_SDL2)
-    message(STATUS " Using system SDL2.")
-  elseif(DEVILUTIONX_STATIC_SDL2)
-    message(STATUS " Using statically linked SDL2.")
+macro(dependency_options LIB_NAME SYSTEM_OPTION_NAME STATIC_OPTION_NAME)
+  if(${STATIC_OPTION_NAME})
+    set(_msg_type "static")
   else()
-    message(STATUS " Using dynamically linked SDL2.")
+    set(_msg_type "dynamic")
   endif()
+  if(${SYSTEM_OPTION_NAME})
+    set(_msg_source "system library")
+  else()
+    set(_msg_source "library from source")
+  endif()
+  message(STATUS "-- 📚 ${LIB_NAME}: ${_msg_type} ${_msg_source}")
+endmacro()
+if(USE_SDL1)
+  dependency_options("SDL1" "USE_SDL1" "DEVILUTIONX_STATIC_SDL1")
+else()
+  dependency_options("SDL2" "DEVILUTIONX_SYSTEM_SDL2" "DEVILUTIONX_STATIC_SDL2")
 endif()
 if(NOT NONET)
-  if(DEVILUTIONX_STATIC_LIBSODIUM)
-    set(_LINK_MODE "statically")
-  else()
-    set(_LINK_MODE "dynamically")
-  endif()
-  if(DEVILUTIONX_SYSTEM_LIBSODIUM)
-    set(_SOURCE "system ")
-  else()
-    set(_SOURCE "")
-  endif()
-  message(STATUS " Using ${_LINK_MODE} linked ${_SOURCE}libsodium.")
+  dependency_options("libsodium" "DEVILUTIONX_SYSTEM_LIBSODIUM" "DEVILUTIONX_STATIC_LIBSODIUM")
 endif()
 message(STATUS "")

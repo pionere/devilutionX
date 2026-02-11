@@ -26,7 +26,7 @@ static bool CheckAllowPos(int x, int y)
 		checks->push_back({ x, y, (int)checks->size() });
 	return true;
 }
-
+#if 0
 static bool CheckPos(int x, int y, int xoff, int yoff)
 {
 	//LogErrorF("MIS", "PosCheck(%d) - %d:%d", mode, x, y);
@@ -43,11 +43,11 @@ static bool CheckPos(int x, int y, int xoff, int yoff)
 		checkOff->push_back({xoff, yoff, (int)checkOff->size()});
 	return true;
 }
-
+#endif
 #define MIS_VELO_SHIFT      0
 #define MIS_BASE_VELO_SHIFT 16
 #define MIS_SHIFTEDVEL(x)   ((x) << MIS_VELO_SHIFT)
-
+#if 0
 static void GetMissileVel2(int mi, int sx, int sy, int dx, int dy, int v)
 {
 	double dxp, dyp, dr;
@@ -129,7 +129,7 @@ static void MoveMissile(int mi)
 	missile[mi]._mitxoff += missile[mi]._mixvel;
 	missile[mi]._mityoff += missile[mi]._miyvel;
 }
-
+#endif
 static void MoveMissile4(int mi)
 {
 	*(double*)&missile[mi]._mitxoff += *(double*)&missile[mi]._mixvel;
@@ -173,7 +173,7 @@ static void GetMissilePos4(int mi)
 	mis->_mixoff = ((drx - dry) * ASSET_MPL) >> 1;
 	mis->_miyoff = ((drx + dry) * ASSET_MPL) >> 2;
 }
-
+#if 0
 static void FilterPosExtra(std::vector<POS32x>& av, std::vector<POS32x>& bv)
 {
 	for (int i = 0; i < (int)av.size() - 2; i++) {
@@ -267,18 +267,18 @@ static bool CheckRuns()
 		if (i == checkPosA.size())
 			return true;
 	}
-	LogErrorF("MIS", "Run to %d:%d failed (%d vs %d) at %d.", tx, ty, checkPosA.size(), checkPosB.size(), i);
+	// LogErrorF("MIS", "Run to %d:%d failed (%d vs %d) at %d.", tx, ty, checkPosA.size(), checkPosB.size(), i);
 	for (i = 0; i < checkPosA.size(); i++) {
 		//LogErrorF("MIS", "RunA %2d. %d:%d .. %d:%d", i, checkPosA[i].x, checkPosA[i].y, checkPosOffA[i].x, checkPosOffA[i].y);
-		LogErrorF("MIS", "RunA %2d. %d:%d", checkPosA[i].i, checkPosA[i].x, checkPosA[i].y);
+		// LogErrorF("MIS", "RunA %2d. %d:%d", checkPosA[i].i, checkPosA[i].x, checkPosA[i].y);
 	}
 	for (i = 0; i < checkPosB.size(); i++) {
 		//LogErrorF("MIS", "RunB %2d. %d:%d .. %d:%d", i, checkPosB[i].x, checkPosB[i].y, checkPosOffB[i].x, checkPosOffB[i].y);
-		LogErrorF("MIS", "RunB %2d. %d:%d", checkPosB[i].i, checkPosB[i].x, checkPosB[i].y);
+		// LogErrorF("MIS", "RunB %2d. %d:%d", checkPosB[i].i, checkPosB[i].x, checkPosB[i].y);
 	}
 	return false;
 }
-
+#endif
 TEST(Projectile, Trajectories)
 {
 	for (tx = -16; tx < 16; tx++) {
@@ -292,7 +292,7 @@ TEST(Projectile, Trajectories)
 			checkPosOffB.clear();
 			mode = 0;
 			//CheckAllowPos(0, 0);
-			LineClearF(CheckAllowPos, 0, 0, tx, ty);
+//			LineClearF(CheckAllowPos, 0, 0, tx, ty);
 			//CheckAllowPos(tx, ty);
 			/*memset(missile, 0, sizeof(missile));
 			GetMissileVel2(0, 0, 0, tx, ty, MIS_SHIFTEDVEL(8));

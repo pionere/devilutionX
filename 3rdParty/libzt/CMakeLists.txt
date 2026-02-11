@@ -11,7 +11,7 @@ FetchContent_Declare(libzt
   #GIT_REPOSITORY https://github.com/diasurgical/libzt.git
   #GIT_TAG db7b642a4ce9f0f5e0ba7f293bd7ffa7897e4831)
   GIT_REPOSITORY https://github.com/pionere/libzt.git
-  GIT_TAG fc82cd88c36eba2333550de190631689f2449c7a)
+  GIT_TAG 70ea658a8faa878e2f6545d1cea2d590622946cc)
 FetchContent_MakeAvailableExcludeFromAll(libzt)
 
 #if(NOT ANDROID)
@@ -69,8 +69,11 @@ if(MINGW_CROSS)
   option(MINGW_STDTHREADS_GENERATE_STDHEADERS "" ON)
 
   FetchContent_Declare(mingw-std-threads
-    GIT_REPOSITORY https://github.com/meganz/mingw-std-threads
-    GIT_TAG bee085c0a6cb32c59f0b55c7bba976fe6dcfca7f)
+    #GIT_REPOSITORY https://github.com/meganz/mingw-std-threads
+    #GIT_TAG bee085c0a6cb32c59f0b55c7bba976fe6dcfca7f
+    GIT_REPOSITORY https://github.com/pionere/mingw-std-threads
+    GIT_TAG fc4127c956734f6a18f6fa3236d19484ce97f8d9
+  )
   FetchContent_MakeAvailableExcludeFromAll(mingw-std-threads)
 
   target_compile_definitions(libnatpmp_obj PRIVATE -D_WIN32_WINNT=0x601 -DSTATICLIB)

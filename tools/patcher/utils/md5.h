@@ -290,10 +290,12 @@ private:
 	/// Buffer must be 32+1 (nul) = 33 chars long at least 
 	void writeToString()
 	{
-		int pos;
-
-		for (pos = 0; pos < 16; pos++)
-			sprintf(digestChars + (pos * 2), "%02x", digestRaw[pos]);
+		const char hexStr[] = { "0123456789ABCDEF" };
+		for (int pos = 0; pos < 16; pos++) {
+			digestChars[2 * pos + 0] = hexStr[digestRaw[pos] / 16];
+			digestChars[2 * pos + 1] = hexStr[digestRaw[pos] % 16];
+		}
+		digestChars[32] = '\0';
 	}
 
 	// an MD5 digest is a 16-byte number (32 hex digits)
@@ -316,10 +318,10 @@ public:
 		unsigned char buffer[1024];
 
 		if ((file = fopen(filename, "rb")) == NULL)
-			printf("%s can't be opened\n", filename);
+			return NULL;
 		else
 		{
-			while (len = fread(buffer, 1, 1024, file))
+			while ((len = fread(buffer, 1, 1024, file)))
 				Update(buffer, len);
 			Final();
 

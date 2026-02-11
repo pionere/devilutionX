@@ -25,12 +25,15 @@
 #include "utils/sdl_compat.h"
 #include "utils/log.h"
 
-#include "../defs.h"
-#include "../enums.h"
-#include "../structs.h"
+#include "../../defs.h"
+#include "../../enums.h"
+#include "../../structs.h"
 
+#include "engine/engine.h"
 #include "miniwin/miniwin.h"
 //#include "utils/thread.h"
+
+#include "engine/cel_util.h"
 
 //#include "diabloui.h"
 #include "gameui.h"
@@ -59,7 +62,6 @@
 #include "drlp_l4.h"
 //#include "dthread.h"
 #include "encrypt.h"
-#include "engine.h"
 //#include "error.h"
 //#include "gamemenu.h"
 //#include "gendung.h"
@@ -74,6 +76,7 @@
 //#include "loadsave.h"
 #include "mainmenu.h"
 //#include "minitext.h"
+//#include "minitextdat.h"
 //#include "misdat.h"
 //#include "missiles.h"
 //#include "monstdat.h"
@@ -101,7 +104,6 @@
 //#include "spells.h"
 //#include "stores.h"
 //#include "sync.h"
-//#include "textdat.h" // check file name
 //#include "themes.h"
 //#include "tmsg.h"
 //#include "town.h"

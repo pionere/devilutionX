@@ -52,8 +52,12 @@
   // Suppress definitions of `min` and `max` macros by <windows.h>:
   #define NOMINMAX 1
   #include <windows.h>
-
+#ifdef NXDK
+  #include <stdlib.h>
+#endif
+#ifdef FULL
   #include <wininet.h>
+#endif
   #define STORMLIB_LITTLE_ENDIAN
 
   #ifdef _WIN64
@@ -395,6 +399,30 @@
   #define ftruncate64 ftruncate
   #define off64_t off_t
   #define O_LARGEFILE 0
+#endif
+
+#if defined(NXDK)
+  // Typedefs for ANSI C
+  typedef unsigned char  BYTE;
+  typedef unsigned short USHORT;
+  //typedef int            LONG;
+  //typedef unsigned int   DWORD;
+  typedef unsigned long  DWORD_PTR;
+  typedef long           LONG_PTR;
+  typedef long           INT_PTR;
+  //typedef long long      LONGLONG;
+  //typedef unsigned long long ULONGLONG;
+  //typedef void         * HANDLE;
+  //typedef void         * LPOVERLAPPED; // Unsupported on Linux and Mac
+  typedef char           TCHAR;
+  typedef unsigned int   LCID;
+  typedef LONG         * PLONG;
+  typedef DWORD        * LPDWORD;
+  typedef BYTE         * LPBYTE;
+  typedef const char   * LPCTSTR;
+  typedef const char   * LPCSTR;
+  typedef char         * LPTSTR;
+  typedef char         * LPSTR;
 #endif
 
 // Platform-specific error codes for non-Windows platforms

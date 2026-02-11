@@ -86,7 +86,7 @@ void NetSendCmdMonstKill(int mnum, int pnum);
  * @param mnum: the id of the monster
  */
 void NetSendCmdMonstSummon(int mnum);
-void NetSendCmdGolem();
+void NetSendCmdGolem(BYTE x, BYTE y, BYTE lvl);
 void NetSendShrineCmd(BYTE type, int seed);
 void NetSendCmdQuest(BYTE q, bool extOnly);
 void SendStoreCmd1(BYTE idx, BYTE bStoreId, int value);

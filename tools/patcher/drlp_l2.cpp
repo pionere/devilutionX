@@ -246,7 +246,8 @@ static BYTE* patchCatacombsStairs(/*const BYTE* tilBuf, size_t tilLen,*/ const B
 	// draw the micros to the back-buffer
 	pMicrosCel = celBuf;
 	constexpr BYTE TRANS_COLOR = 128;
-	memset(&gpBuffer[0], TRANS_COLOR, 5 * BUFFER_WIDTH * MICRO_HEIGHT);
+	constexpr int DRAW_HEIGHT = 5;
+	memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
 
 	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 3 - 1) * BUFFER_WIDTH], pSubtiles[back0_FrameIndex0], DMT_NONE); // 716
 	// RenderMicro(&gpBuffer[0 + (MICRO_HEIGHT * 4 - MICRO_HEIGHT / 2 - 1) * BUFFER_WIDTH], pSubtiles[back2_FrameIndex1], DMT_NONE); // 251[1]
@@ -667,14 +668,15 @@ static BYTE* fixCatacombsShadows(const BYTE* minBuf, size_t minLen, BYTE* celBuf
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;
@@ -706,17 +708,17 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /*  3 */{ 482 - 1, 1, MET_RTRIANGLE },  // change type
 
 /*  4 */{ 17 - 1, 1, MET_TRANSPARENT }, // mask door
-/*  5 */{ 17 - 1, 0, MET_TRANSPARENT }, // unused
-/*  6 */{ 17 - 1, 2, MET_TRANSPARENT }, // unused
-/*  7 */{ 17 - 1, 4, MET_TRANSPARENT }, // unused
+/*  5 */{ 17 - 1, 0, -1 /* MET_TRANSPARENT */ }, // unused
+/*  6 */{ 17 - 1, 2, -1 /* MET_TRANSPARENT */ }, // unused
+/*  7 */{ 17 - 1, 4, -1 /* MET_TRANSPARENT */ }, // unused
 /*  8 */{ 551 - 1, 0, MET_TRANSPARENT },
 /*  9 */{ 551 - 1, 2, MET_TRANSPARENT },
 /* 10 */{ 551 - 1, 4, MET_TRANSPARENT },
 /* 11 */{ 551 - 1, 5, MET_TRANSPARENT },
 /* 12 */{ 13 - 1, 0, MET_TRANSPARENT },
-/* 13 */{ 13 - 1, 1, MET_TRANSPARENT }, // unused
-/* 14 */{ 13 - 1, 3, MET_TRANSPARENT }, // unused
-/* 15 */{ 13 - 1, 5, MET_TRANSPARENT }, // unused
+/* 13 */{ 13 - 1, 1, -1 /* MET_TRANSPARENT */ }, // unused
+/* 14 */{ 13 - 1, 3, -1 /* MET_TRANSPARENT */ }, // unused
+/* 15 */{ 13 - 1, 5, -1 /* MET_TRANSPARENT */ }, // unused
 /* 16 */{ 553 - 1, 1, MET_TRANSPARENT },
 /* 17 */{ 553 - 1, 3, MET_TRANSPARENT },
 /* 18 */{ 553 - 1, 4, MET_TRANSPARENT },
@@ -736,8 +738,8 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 
 /* 31 */{ 323 - 1, 0, MET_LTRIANGLE }, // redraw floor
 /* 32 */{ 323 - 1, 1, MET_RTRIANGLE },
-/* 33 */{ 324 - 1, 0, MET_LTRIANGLE }, // unused
-/* 34 */{ 324 - 1, 1, MET_RTRIANGLE }, // unused
+/* 33 */{ 324 - 1, 0, -1 /* MET_LTRIANGLE */ }, // unused
+/* 34 */{ 324 - 1, 1, -1 /* MET_RTRIANGLE */ }, // unused
 /* 35 */{ 332 - 1, 0, MET_LTRIANGLE },
 /* 36 */{ 332 - 1, 1, MET_RTRIANGLE },
 /* 37 */{ 331 - 1, 0, MET_LTRIANGLE },
@@ -1385,14 +1387,15 @@ static BYTE* patchCatacombsFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	}
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen + lengthof(micros) * MICRO_WIDTH * MICRO_HEIGHT;
+	constexpr int newEntries = lengthof(micros);
+	size_t maxCelSize = *celLen + newEntries * MICRO_WIDTH * MICRO_HEIGHT;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
-	CelFrameEntry entries[lengthof(micros)];
+	CelFrameEntry entries[newEntries];
 	xx = 0, yy = MICRO_HEIGHT - 1;
 	int idx = 0;
-	for (int i = 0; i < lengthof(micros); i++) {
+	for (int i = 0; i < newEntries; i++) {
 		const CelMicro &micro = micros[i];
 		if (micro.res_encoding >= 0) {
 			entries[idx].encoding = micro.res_encoding;

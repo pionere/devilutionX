@@ -16,12 +16,17 @@ extern "C" {
 extern POS32 MousePos;
 extern bool gbWasUiInit;
 extern bool gbSndInited;
+constexpr bool gbRunGame = false;
 
 extern BYTE* pMicrosCel;
 
 void diablo_quit(int exitStatus);
 int DiabloMain(int argc, char** argv);
 bool PressEscKey();
+
+#ifdef __UWP__
+void setOnInitialized(void (*)());
+#endif
 
 #ifdef __cplusplus
 }

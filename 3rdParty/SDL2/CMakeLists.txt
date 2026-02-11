@@ -22,7 +22,7 @@ else()
   set(SDL_STATIC OFF)
 endif()
 # Temporary workaround for MSVC builds
-if(MSVC)
+if(MSVC AND NOT NXDK)
   set(SDL_LIBC ON)
 endif()
 set(SDL_DYNAPI OFF)
@@ -48,6 +48,8 @@ set(SDL_RLE_ACCEL OFF) # requires fork of SDL2
 set(SDL_BLIT_TRANSFORM OFF) # requires fork of SDL2
 set(SDL_YUV_FORMAT OFF) # requires fork of SDL2
 #set(SDL_RENDER_SW OFF) # requires fork of SDL2
+set(SDL_HAPTIC OFF)
+set(SDL_GESTURES OFF) # requires fork of SDL2
 if(NOSOUND)
   set(SDL_AUDIO OFF)
 endif()
@@ -57,8 +59,9 @@ if(NOT HAS_JOYSTICK AND
    NOT HAS_KBCTRL AND
    NOT HAS_TOUCHPAD)
  set(SDL_JOYSTICK OFF)
- set(SDL_HAPTIC OFF)
- set(SDL_HIDAPI OFF)
+endif()
+if(DEFINED SDL_JOYSTICK AND NOT SDL_JOYSTICK)
+ set(SDL_HIDAPI OFF) # requires fork of SDL2
 endif()
 if(NOT DEBUG_MODE)
   set(SDL_ASSERTIONS "disabled") # requires fork of SDL2
@@ -66,19 +69,16 @@ if(NOT DEBUG_MODE)
   set(SDL_VERBOSE_ERROR OFF) # requires fork of SDL2
   set(SDL_SANITIZE_ACCESS OFF) # requires fork of SDL2
 endif()
+set(SDL_ANALYZE_MACROS OFF) # requires fork of SDL2
 
 include(FetchContent_MakeAvailableExcludeFromAll)
 include(FetchContent)
 FetchContent_Declare(SDL2
-    #URL https://github.com/libsdl-org/SDL/releases/download/release-2.30.5/SDL2-2.30.5.tar.gz
-    #URL_HASH SHA256=f374f3fa29c37dfcc20822d4a7d7dc57e58924d1a5f2ad511bfab4c8193de63b
+    #URL https://github.com/libsdl-org/SDL/releases/download/release-2.32.8/SDL2-2.32.8.tar.gz
+    #URL_HASH SHA256=0ca83e9c9b31e18288c7ec811108e58bac1f1bb5ec6577ad386830eac51c787e
     #URL https://github.com/libsdl-org/SDL/archive/5056b29b0f8611b470d8b8bdb313eab628f8bd6e.tar.gz
     #URL_HASH MD5=3fb6d72c33434082c32d2649c35c6502
     GIT_REPOSITORY https://github.com/pionere/SDL.git
-    GIT_TAG f974e381644839c9c342dd80a1b41d583204a444
+    GIT_TAG cd3a485977cc118d99e96981d37d35fc866e694b
 )
 FetchContent_MakeAvailableExcludeFromAll(SDL2)
-
-if(TARGET SDL2::SDL2-static)
-  add_library(SDL2::SDL2 ALIAS SDL2-static)
-endif()

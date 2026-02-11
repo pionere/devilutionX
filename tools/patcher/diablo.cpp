@@ -4,6 +4,7 @@
  * Implementation of the main game initialization functions.
  */
 #include "all.h"
+#include "controls/touch.h"
 #include "engine/render/text_render.h"
 #include "utils/display.h"
 #include "utils/paths.h"
@@ -69,6 +70,9 @@ static void diablo_init()
 
 	InitLighting();
 	InitText();
+#if HAS_TOUCHPAD
+	InitGamepadGFX();
+#endif
 	InitCursorGFX();
 	UiInitialize();
 	gbWasUiInit = true;
@@ -96,14 +100,26 @@ static void diablo_deinit()
 #endif
 	//if (gbWasUiInit)
 		UiDestroy();
-		FreeText();
 		FreeCursorGFX();
+#if HAS_TOUCHPAD
+		FreeGamepadGFX();
+#endif
+		FreeText();
 	//if (_gbWasArchivesInit)
 		FreeArchives();
 	//if (_gbWasWindowInit) {
 		dx_cleanup(); // close the window + SDL
 	FreeConfig();
 }
+
+#ifdef __UWP__
+void (*onInitialized)() = NULL;
+
+void setOnInitialized(void (*callback)())
+{
+	onInitialized = callback;
+}
+#endif
 
 int DiabloMain(int argc, char** argv)
 {
@@ -112,6 +128,11 @@ int DiabloMain(int argc, char** argv)
 		return res - 1;
 
 	diablo_init();
+
+#ifdef __UWP__
+	onInitialized();
+#endif
+
 	mainmenu_loop();
 	diablo_deinit();
 	return 0;

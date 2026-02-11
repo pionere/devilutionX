@@ -6,6 +6,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+DISABLE_SPEED_OPTIMIZATION
+
 void UiSettingsDialog()
 {
 	TMenuItem* settingsMenu;
@@ -26,8 +28,7 @@ void UiSettingsDialog()
 	gUiItems.push_back(new UiCustom(gmenu_draw, rect0));
 	UiInitScreen(0, NULL, NULL, NULL);
 	// initialize gamemenu
-	InitGMenu();
-	gamemenu_settings(true);
+	gamemenu_main();
 	settingsMenu = gpCurrentMenu;
 
 	Dvl_Event event;
@@ -49,11 +50,8 @@ void UiSettingsDialog()
 				break;
 			}
 		}
-#if HAS_TOUCHPAD
-		finish_simulated_mouse_clicks();
-#endif
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-		CheckMenuMove();
+		gamemenu_checkmove();
 #endif
 	}
 	PlaySfx(IS_TITLSLCT); // TODO: UiFocusNavigationSelect/UiPlaySelectSound ? (needs UiInitScreen)
@@ -65,5 +63,7 @@ void UiSettingsDialog()
 	// FreeBackgroundArt();
 	UiClearItems();
 }
+
+ENABLE_SPEED_OPTIMIZATION
 
 DEVILUTION_END_NAMESPACE

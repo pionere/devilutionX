@@ -5,49 +5,7 @@
  */
 #include "cl2_render.h"
 
-#include "all.h"
-
 DEVILUTION_BEGIN_NAMESPACE
-
-/**
- * @brief Apply the color swaps to a CL2 sprite
- * @param p CL2 buffer
- * @param ttbl Palette translation table
- * @param nCel number of frames in the CL2 file
- */
-void Cl2ApplyTrans(BYTE* p, const BYTE* ttbl, int nCel)
-{
-	int i, nDataSize;
-	int8_t width;
-	BYTE* dst;
-	const BYTE* end;
-
-	assert(p != NULL);
-	assert(ttbl != NULL);
-
-	for (i = 1; i <= nCel; i++) {
-		dst = const_cast<BYTE*>(CelGetFrameClippedAt(p, i, 0, &nDataSize));
-		end = &dst[nDataSize];
-		while (dst != end) {
-			width = *dst++;
-			assert(dst <= end);
-			if (width < 0) {
-				width = -width;
-				if (width > 65) {
-					*dst = ttbl[*dst];
-					dst++;
-					assert(dst <= end);
-				} else {
-					assert(dst + width <= end);
-					while (width--) {
-						*dst = ttbl[*dst];
-						dst++;
-					}
-				}
-			}
-		}
-	}
-}
 
 /**
  * @brief Blit CL2 sprite to the given buffer
@@ -60,8 +18,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 {
 	const BYTE *src, *end;
 	BYTE fill, *dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -73,13 +30,12 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
 					width -= 65;
 					fill = *src++;
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = fill;
@@ -87,9 +43,7 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 							width--;
 						}
 						continue;
-					}
 				} else {
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = *src;
@@ -98,9 +52,6 @@ static void Cl2Blit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 							width--;
 						}
 						continue;
-					} else {
-						src += width;
-					}
 				}
 			}
 			while (true) {
@@ -131,8 +82,7 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -144,7 +94,7 @@ static void Cl2BlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
@@ -208,8 +158,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 {
 	const BYTE *src, *end;
 	BYTE fill, *dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -221,13 +170,12 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width < 0) {
 				width = -width;
 				if (width > 65) {
 					width -= 65;
 					fill = pTable[*src++];
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = fill;
@@ -235,9 +183,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 							width--;
 						}
 						continue;
-					}
 				} else {
-					if (dst < gpBufEnd && dst >= gpBufStart) {
 						i -= width;
 						while (width != 0) {
 							*dst = pTable[*src];
@@ -246,9 +192,6 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
 							width--;
 						}
 						continue;
-					} else {
-						src += width;
-					}
 				}
 			}
 			while (true) {
@@ -272,7 +215,7 @@ static void Cl2BlitLight(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, 
  * @param col Color index from current palette
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  */
@@ -286,8 +229,8 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	// gpBufStart += BUFFER_WIDTH;
 	// gpBufEnd -= BUFFER_WIDTH;
@@ -300,7 +243,7 @@ void Cl2DrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int nCel, in
  * @brief Blit CL2 sprite, and apply a given lighting, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff CL2 buffer
+ * @param pCelBuff pointer to CL2-frame offsets and data
  * @param nCel CL2 frame number
  * @param nWidth Width of sprite
  * @param light index of the light shade to use
@@ -315,8 +258,8 @@ void Cl2DrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth,
 	assert(pCelBuff != NULL);
 	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	if (light != 0)
 		Cl2BlitLight(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light]);

@@ -5,10 +5,10 @@ using namespace dvl;
 
 TEST(Codec, codec_get_encoded_len)
 {
-	EXPECT_EQ(codec_get_encoded_len(50), 72);
+	EXPECT_EQ(codec_get_encoded_len(50), (DWORD)72);
 }
 
 TEST(Codec, codec_get_encoded_len_eq)
 {
-	EXPECT_EQ(codec_get_encoded_len(128), 136);
+	EXPECT_EQ(codec_get_encoded_len(128), (DWORD)136);
 }

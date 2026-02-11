@@ -33,7 +33,7 @@ void FocusOnInventory();
 void FocusOnCharInfo();
 
 // defined in touch.cpp
-void finish_simulated_mouse_clicks();
+void DrawGamepad();
 
 // defined in modifier_hints.cpp
 void DrawControllerModifierHints();
@@ -43,7 +43,6 @@ void UseBeltItem(bool manaItem);
 // Open chests, doors, pickup items.
 void PerformSecondaryAction();
 void PerformSpellAction();
-void StoreSpellCoords();
 
 #ifdef __cplusplus
 }

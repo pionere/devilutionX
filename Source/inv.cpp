@@ -209,9 +209,9 @@ static void InvDrawSlotBack(int X, int Y, int W, int H)
 {
 	BYTE* dst;
 
-	assert(gpBuffer != NULL);
+	// assert(gpBuffer != NULL);
 
-	dst = &gpBuffer[X + BUFFER_WIDTH * Y];
+	dst = &gpBuffer[BUFFERXY(X, Y)];
 
 	int wdt, hgt;
 	BYTE pix;
@@ -245,7 +245,7 @@ void DrawInv()
 	cCels = pCursCels;
 
 	pnum = mypnum;
-	pi = /*pcursinvitem == ITEM_NONE ? NULL :*/ PlrItem(pnum, pcursinvitem);
+	pi = /*!INVIDX_VALID(pcursinvitem) ? NULL :*/ PlrItem(pnum, pcursinvitem);
 	is = &plr._pInvBody[INVLOC_HEAD];
 	if (is->_itype != ITYPE_NONE) {
 		InvDrawSlotBack(screen_x + InvRect[SLOTXY_HEAD_FIRST].X, screen_y + InvRect[SLOTXY_HEAD_LAST].Y, 2 * INV_SLOT_SIZE_PX, 2 * INV_SLOT_SIZE_PX);
@@ -379,7 +379,7 @@ void DrawInvBelt()
 
 	pnum = mypnum;
 	pi = NULL;
-	if (pcursinvitem != ITEM_NONE)
+	if (INVIDX_VALID(pcursinvitem))
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		if (!sgbControllerActive || gbInvflag)
 #endif
@@ -1111,11 +1111,9 @@ static bool CheckInvCut()
 	}
 
 	cii = pcursinvitem;
-	if (cii == INVITEM_NONE)
+	if (!INVIDX_VALID(cii))
 		return false;
-
-	static_assert(KMOD_SHIFT <= UCHAR_MAX, "CheckInvCut send the state of the shift in a byte field.");
-	NetSendCmdBParam2(CMD_CUTPLRITEM, cii, SDL_GetModState() & KMOD_SHIFT);
+	NetSendCmdBParam2(CMD_CUTPLRITEM, cii, (gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) != 0);
 	return true;
 }
 
@@ -1268,27 +1266,22 @@ void SyncPlrStorageRemove(int pnum, int iv)
 	CalcPlrScrolls(pnum);
 }
 
-void CheckInvClick()
-{
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		CheckInvPaste();
-	} else {
-		if (!CheckInvCut()) {
-			StartWndDrag(WND_INV);
-		}
-	}
-}
-
 /**
- * Check for interactions with belt
+ * Check for interactions with inventory or belt
  */
-void CheckBeltClick()
+void CheckInvBeltClick(bool altAction, BYTE wnd)
 {
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		/*return*/ CheckBeltPaste();
+	if (altAction) {
+		if (INVIDX_VALID(pcursinvitem))
+			InvUseItem(pcursinvitem);
+	} else if (pcursicon >= CURSOR_FIRSTITEM) {
+		if (wnd == WND_INV)
+			CheckInvPaste();
+		else
+			CheckBeltPaste();
 	} else {
 		if (!CheckInvCut()) {
-			StartWndDrag(WND_BELT);
+			StartWndDrag(wnd);
 		}
 	}
 }
@@ -1377,7 +1370,7 @@ void SyncInvGetItem(int pnum, int ii)
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	//is->_iCreateInfo &= ~CF_PREGEN;
-	is->_iFloorFlag = FALSE;
+	is->_iSpawnIdx = 0;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
@@ -1408,7 +1401,7 @@ bool SyncAutoGetItem(int pnum, int ii)
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	//is->_iCreateInfo &= ~CF_PREGEN;
-	is->_iFloorFlag = FALSE;
+	is->_iSpawnIdx = 0;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	if (is->_itype == ITYPE_GOLD) {
@@ -1705,7 +1698,7 @@ void InvUseItem(int cii)
 	} break;
 	//case IMISC_MAPOFDOOM:
 	//	doom_init();
-	//	return true;
+	//	break;
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
 	case IMISC_OILSTR:

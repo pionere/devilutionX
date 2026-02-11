@@ -55,23 +55,28 @@ void ScaleJoystickAxes(bool rightAxes)
 	float deadZone = DEADZONE * maximum;
 
 	float magnitude = std::sqrt(analogX * analogX + analogY * analogY);
-	if (magnitude >= deadZone) {
+	if (magnitude > deadZone) {
 		// find scaled axis values with magnitudes between zero and maximum
+		// if (magnitude > maximum) {
+		// 	magnitude = maximum;
+		// }
 		float scalingFactor = (magnitude - deadZone) / (maximum - deadZone) / magnitude;
-		analogX = (analogX * scalingFactor);
-		analogY = (analogY * scalingFactor);
-
+		analogX *= scalingFactor;
+		analogY *= scalingFactor;
+#if 0
 		// clamp to ensure results will never exceed the max_axis value
-		float clampingFactor = 1.0f;
 		float absAnalogX = std::fabs(analogX);
 		float absAnalogY = std::fabs(analogY);
-		if (absAnalogX > 1.0f || absAnalogY > 1.0f) {
-			if (absAnalogX < absAnalogY)
-				absAnalogX = absAnalogY;
-			clampingFactor /= absAnalogX;
+		if (absAnalogX < absAnalogY)
+			absAnalogX = absAnalogY;
+		if (absAnalogX > 1.0f) {
+			float clampingFactor = 1.0f / absAnalogX;
+			analogX *= clampingFactor;
+			analogY *= clampingFactor;
 		}
-		*x = (clampingFactor * analogX);
-		*y = (clampingFactor * analogY);
+#endif
+		*x = analogX;
+		*y = analogY;
 	} else {
 		*x = 0;
 		*y = 0;
@@ -130,28 +135,44 @@ bool ProcessControllerMotion(const SDL_Event& event)
 	return false;
 }
 
-AxisDirection GetLeftStickOrDpadDirection(bool allowDpad)
+static const direction FaceDir[3][3] = {
+	// NONE      UP      DOWN
+	{ DIR_NONE, DIR_N, DIR_S }, // NONE
+	{ DIR_W, DIR_NW, DIR_SW },  // LEFT
+	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
+};
+
+int GetLeftStickOrDpadDirection(bool allowDpad)
 {
-	const float stickX = leftStickX;
-	const float stickY = leftStickY;
+	float stickX = leftStickX;
+	float stickY = leftStickY;
 
-	AxisDirection result { AxisDirectionX_NONE, AxisDirectionY_NONE };
+	int dx = 0, dy = 0;
 
-	allowDpad = allowDpad && !IsControllerButtonPressed(ControllerButton_BUTTON_START);
-
-	if (stickY >= 0.5 || (allowDpad && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_UP))) {
-		result.y = AxisDirectionY_UP;
-	} else if (stickY <= -0.5 || (allowDpad && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_DOWN))) {
-		result.y = AxisDirectionY_DOWN;
+	if (allowDpad && !IsControllerButtonPressed(ControllerButton_BUTTON_START)) {
+		if (IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_UP))
+			stickY = 1.0f;
+		else if (IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_DOWN))
+			stickY = -1.0f;
+		if (IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_LEFT))
+			stickX = 1.0f;
+		else if (IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_RIGHT))
+			stickX = -1.0f;
 	}
 
-	if (stickX <= -0.5 || (allowDpad && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_LEFT))) {
-		result.x = AxisDirectionX_LEFT;
-	} else if (stickX >= 0.5 || (allowDpad && IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_RIGHT))) {
-		result.x = AxisDirectionX_RIGHT;
+	if (stickY >= 0.5) {
+		dy = 1;
+	} else if (stickY <= -0.5) {
+		dy = 2;
 	}
 
-	return result;
+	if (stickX <= -0.5) {
+		dx = 1;
+	} else if (stickX >= 0.5) {
+		dx = 2;
+	}
+
+	return FaceDir[dx][dy];
 }
 
 DEVILUTION_END_NAMESPACE

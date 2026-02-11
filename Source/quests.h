@@ -42,10 +42,9 @@ void ResyncDiablo();
 void ResyncQuests();
 void DrawQuestLog();
 void StartQuestlog();
-void QuestlogUp();
-void QuestlogDown();
+void QuestlogMove(int dir);
 void QuestlogEnter();
-void CheckQuestlogClick();
+void CheckQuestlogClick(bool altAction);
 void SetMultiQuest(int qn, int qa, int qlog, int qvar);
 void PlayDungMsgs();
 

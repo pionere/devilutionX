@@ -24,8 +24,7 @@ extern "C" {
 		y += (vertical) - (horizontal);        \
 	}
 
-extern int ViewX;
-extern int ViewY;
+extern POS32 myview;
 extern ScrollStruct ScrollInfo;
 extern ViewportStruct gsTileVp;
 extern int light_trn_index;

@@ -21,8 +21,6 @@ static BYTE msgcnt;
 const char* const MsgStrings[NUM_EMSGS] = {
 	"",                                               // EMSG_NONE
 	"Multiplayer sync problem",                       // < EMSG_DESYNC >
-	"Loading...",                                     // < EMSG_LOADING >
-	"Saving...",                                      // < EMSG_SAVING >
 	"New strength is forged through destruction.",    // EMSG_SHRINE_HIDDEN
 	"Keep your swords sharp but wit sharper.",        // EMSG_SHRINE_GLOOMY
 	"Know your priorities.",                          // EMSG_SHRINE_WEIRD
@@ -57,7 +55,9 @@ const char* const MsgStrings[NUM_EMSGS] = {
 	"Let the sun guide your path.",                   // EMSG_SHRINE_SOLAR
 #endif
 	// obsolete messages
-	// "No automap available in town"
+	// "Loading...",
+	// "Saving...",
+	// "No automap available in town",
 	// "No multiplayer functions in demo",
 	// "Direct Sound Creation Failed",
 	// "Not enough space to save",
@@ -116,35 +116,17 @@ void ClrDiabloMsg()
 
 void DrawDiabloMsg()
 {
-	int x, y, sx, sy;
-	BYTE backup[2 * SLIDER_BORDER][2 * SLIDER_BOX_HEIGHT];
+	int x, y;
 
 	//assert(currmsg != EMSG_NONE);
 	//assert(msgcnt > 0);
 
-	x = PANEL_CENTERX((3 * SLIDER_BOX_WIDTH) / 2);
-	y = PANEL_CENTERY(SLIDER_BOX_HEIGHT + 2 * TILE_HEIGHT);
-	// preserve image content on borders
-	for (sx = 0; sx < SLIDER_BORDER; sx++) {
-		for (sy = SLIDER_BORDER; sy < SLIDER_BOX_HEIGHT - SLIDER_BORDER; sy++) {
-			backup[sx][sy - SLIDER_BORDER] = gpBuffer[x + (SLIDER_BOX_WIDTH - SLIDER_BORDER) + sx + (y - sy) * BUFFER_WIDTH];
-			backup[sx + SLIDER_BORDER][sy - SLIDER_BORDER] = gpBuffer[sx + x + SLIDER_BOX_WIDTH / 2 + (y - sy) * BUFFER_WIDTH];
-		}
-	}
-	// draw two overlapping bars
-	CelDraw(x, y, gpOptbarCel, 1);
-	CelDraw(x + SLIDER_BOX_WIDTH / 2, y, gpOptbarCel, 1);
-	// restore image content of the unwanted borders
-	for (sx = 0; sx < SLIDER_BORDER; sx++) {
-		for (sy = SLIDER_BORDER; sy < SLIDER_BOX_HEIGHT - SLIDER_BORDER; sy++) {
-			gpBuffer[x + (SLIDER_BOX_WIDTH - SLIDER_BORDER) + sx + (y - sy) * BUFFER_WIDTH] = backup[sx][sy - SLIDER_BORDER];
-			gpBuffer[sx + x + SLIDER_BOX_WIDTH / 2 + (y - sy) * BUFFER_WIDTH] = backup[sx + SLIDER_BORDER][sy - SLIDER_BORDER];
-		}
-	}
-	// make the center transparent
-	DrawRectTrans(x + SLIDER_BORDER, y - SLIDER_BOX_HEIGHT + SLIDER_BORDER, (3 * SLIDER_BOX_WIDTH) / 2 - 2 * SLIDER_BORDER, (SLIDER_BOX_HEIGHT - 2 * SLIDER_BORDER), PAL_BLACK);
+	x = SCREEN_CENTERX(ERRORMSG_WIDTH);
+	y = SCREEN_CENTERY(SLIDER_BOX_HEIGHT + 2 * TILE_HEIGHT);
+	DrawColorTextBox(x, y - SLIDER_BOX_HEIGHT, ERRORMSG_WIDTH, SLIDER_BOX_HEIGHT, COL_GOLD);
+
 	// print the message
-	PrintJustifiedString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + (3 * SLIDER_BOX_WIDTH) / 2, MsgStrings[currmsg], COL_GOLD, FONT_KERN_SMALL);
+	PrintJustifiedString(x, y - (SLIDER_BOX_HEIGHT - SMALL_FONT_HEIGHT) / 2, x + ERRORMSG_WIDTH, MsgStrings[currmsg], COL_GOLD, FONT_KERN_SMALL);
 
 	if (msgdelay > 0 && msgdelay <= time(NULL) - 4) {
 		msgdelay = 0;

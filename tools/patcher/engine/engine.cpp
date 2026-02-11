@@ -1,0 +1,140 @@
+/**
+ * @file engine.cpp
+ *
+ * Implementation of basic engine helper functions:
+ * - Angle calculation
+ * - RNG
+ * - Memory allocation
+ * - File loading
+ * - Video playback
+ */
+#include "all.h"
+
+DEVILUTION_BEGIN_NAMESPACE
+
+#if DEBUG_MODE
+/** Number of times the current seed has been fetched */
+int SeedCount;
+#endif
+/** Current game seed */
+int32_t sglGameSeed;
+#if __cplusplus <= 199711L
+static CCritSect sgMemCrit;
+#endif
+
+/**
+ * @brief Multithreaded safe malloc
+ * @param dwBytes Byte size to allocate
+ */
+BYTE* DiabloAllocPtr(size_t dwBytes)
+{
+	BYTE* buf;
+#if __cplusplus <= 199711L
+	sgMemCrit.Enter();
+	buf = (BYTE*)malloc(dwBytes);
+	sgMemCrit.Leave();
+#else
+	buf = (BYTE*)malloc(dwBytes);
+#endif
+
+	if (buf == NULL)
+		app_fatal("Out of memory");
+
+	return buf;
+}
+
+/**
+ * @brief Multithreaded safe memfree
+ * @param p Memory pointer to free
+ */
+void mem_free_dbg(void* p)
+{
+	if (p != NULL) {
+#if __cplusplus <= 199711L
+		sgMemCrit.Enter();
+		free(p);
+		sgMemCrit.Leave();
+#else
+		free(p);
+#endif
+	}
+}
+
+/**
+ * @brief Load an asset in to a buffer
+ * @param name path/name of the asset
+ * @param pdwFileLen Will be set to the size of the asset if non-NULL
+ * @return Buffer with content of the asset
+ */
+BYTE* LoadFileInMem(const char* name, size_t* pdwFileLen)
+{
+	BYTE* buf = NULL;
+	DWORD fileLen = SFileReadFileEx(name, &buf);
+	if (pdwFileLen != NULL)
+		*pdwFileLen = fileLen;
+	return buf;
+}
+
+/**
+ * @brief Load an asset in to the given buffer
+ * @param name path/name of the asset
+ * @param p Target buffer
+ */
+void LoadFileWithMem(const char* name, BYTE* p)
+{
+	// assert(name != NULL);
+	// assert(p != NULL);
+	SFileReadFileEx(name, &p);
+}
+
+/*
+ * @brief Load a text-asset with line-breaks
+ * @param name path/name of the asset
+ * @param lines number of lines in the text-asset
+ * @return address of the content in memory
+ */
+char** LoadTxtFile(const char* name, int lines)
+{
+	BYTE* textFile = NULL;
+	SFileReadFileEx(name, &textFile);
+	char** textLines = (char**)DiabloAllocPtr(sizeof(char*) * lines);
+
+	for (int i = 0; i < lines; i++) {
+		textLines[i] = (char*)textFile;
+
+		while (*textFile != '\n') {
+			assert(*textFile != '\0');
+			textFile++;
+		}
+		*textFile = '\0';
+		textFile++;
+	}
+
+	return textLines;
+}
+
+CCritSect::CCritSect()
+{
+	m_critsect = SDL_CreateMutex();
+	if (m_critsect == NULL) {
+		sdl_error(ERR_SDL_MUTEX_CREATE);
+	}
+}
+CCritSect::~CCritSect()
+{
+	SDL_DestroyMutex(m_critsect);
+}
+void CCritSect::Enter()
+{
+	if (SDL_LockMutex(m_critsect) < 0) {
+		sdl_error(ERR_SDL_MUTEX_LOCK);
+	}
+}
+void CCritSect::Leave()
+{
+	if (SDL_UnlockMutex(m_critsect) < 0) {
+		sdl_error(ERR_SDL_MUTEX_UNLOCK);
+	}
+}
+
+DEVILUTION_END_NAMESPACE

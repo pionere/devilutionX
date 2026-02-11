@@ -5,8 +5,6 @@
  */
 #include "cel_render.h"
 
-#include "all.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
@@ -20,8 +18,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -33,7 +30,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
@@ -61,8 +58,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -77,7 +73,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
@@ -118,7 +114,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
  * @brief Blit CEL sprite to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data with width information
  * @param nCel CEL frame number
  */
 void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
@@ -129,9 +125,10 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
+	assert(nCel > 0);
 
 	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	CelBlit(pDecodeTo, pRLEBytes, nDataSize, pCelBuff->ciWidth);
 }
@@ -140,7 +137,7 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
  * @brief Blit CEL sprite, and apply trn, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data with width information
  * @param nCel CEL frame number
  * @param tbl Palette translation table
  */
@@ -152,9 +149,10 @@ void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const 
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
+	assert(nCel > 0);
 
 	pRLEBytes = CelGetFrame((const BYTE*)pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	/*if (tbl == NULL) {
 		if (light_trn_index == 0) {
@@ -177,9 +175,8 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 {
 	const BYTE *tbl, *src, *end;
 	BYTE* dst;
-	int i;
+	int i, width;
 	BOOLEAN shift;
-	int8_t width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -193,10 +190,9 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth, shift = 1 - shift) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
-				if (dst < gpBufEnd && dst >= gpBufStart) {
 					if (((BYTE)(size_t)dst & 1) == shift) {
 						if (!(width & 1)) {
 							goto L_ODD;
@@ -241,10 +237,6 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
 							}
 						}
 					}
-				} else {
-					src += width;
-					dst += width;
-				}
 			} else {
 				dst -= width;
 				i += width;
@@ -257,7 +249,7 @@ static void CelBlitLightTrans(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataS
  * @brief Blit CEL sprite, and optionally use stippled-transparency or light trn, to the given buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  */
@@ -269,9 +261,10 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, in
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
+	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	if (gbCelTransparencyActive)
 		CelBlitLightTrans(pDecodeTo, pRLEBytes, nDataSize, nWidth);
@@ -285,7 +278,7 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, in
  * @brief Blit CEL sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  * @param light index of the light shade/trn to use
@@ -298,9 +291,10 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
+	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	if (light != 0)
 		CelBlitTrnTbl(pDecodeTo, pRLEBytes, nDataSize, nWidth, ColorTrns[light]);
@@ -308,52 +302,11 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
 		CelBlit(pDecodeTo, pRLEBytes, nDataSize, nWidth);
 }
 
-/**
- * @brief Blit to a buffer at given coordinates
- * @param pBuff Target buffer
- * @param x Cordinate in pBuff buffer
- * @param y Cordinate in pBuff buffer
- * @param wdt Width of pBuff
- * @param pCelBuff Cel data
- * @param nCel CEL frame number
- * @param nWidth Width of sprite
- */
-/*static void CelBlitWidth(BYTE* pBuff, int x, int y, int wdt, BYTE* pCelBuff, int nCel, int nWidth)
-{
-	BYTE *pRLEBytes, *dst, *end;
-
-	assert(pCelBuff != NULL);
-	assert(pBuff != NULL);
-
-	int i, nDataSize;
-	int8_t width;
-
-	pRLEBytes = CelGetFrame(pCelBuff, nCel, &nDataSize);
-	end = &pRLEBytes[nDataSize];
-	dst = &pBuff[y * wdt + x];
-
-	for ( ; pRLEBytes != end; dst -= wdt + nWidth) {
-		for (i = nWidth; i != 0; ) {
-			width = *pRLEBytes++;
-			if (width >= 0) {
-				i -= width;
-				memcpy(dst, pRLEBytes, width);
-				dst += width;
-				pRLEBytes += width;
-			} else {
-				dst -= width;
-				i += width;
-			}
-		}
-	}
-}*/
-
 static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int nWidth, BYTE col)
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -365,21 +318,9 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
-				//if (dst < gpBufEnd && dst >= gpBufStart) {
-					//if (dst >= gpBufEnd - BUFFER_WIDTH) {
-					//	while (width != 0) {
-					//		if (*src++) {
-					//			dst[-BUFFER_WIDTH] = col;
-					//			dst[-1] = col;
-					//			dst[1] = col;
-					//		}
-					//		dst++;
-					//		width--;
-					//	}
-					//} else {
 						while (width != 0) {
 							if (*src++) {
 								dst[-BUFFER_WIDTH] = col;
@@ -390,11 +331,6 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
 							dst++;
 							width--;
 						}
-					//}
-				//} else {
-				//	src += width;
-				//	dst += width;
-				//}
 			} else {
 				dst -= width;
 				i += width;
@@ -408,7 +344,7 @@ static void CelBlitOutline(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize
  * @param col color of the sprite and the outline (Color index from current palette)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff CEL buffer
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  */
@@ -420,15 +356,73 @@ void CelClippedDrawOutline(BYTE col, int sx, int sy, const BYTE* pCelBuff, int n
 
 	assert(gpBuffer != NULL);
 	assert(pCelBuff != NULL);
+	assert(nCel > 0);
 
-	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize);
-	pDecodeTo = &gpBuffer[sx + BUFFER_WIDTH * sy];
+	pRLEBytes = CelGetFrameClipped(pCelBuff, nCel, &nDataSize, &sy);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy)];
 
 	// gpBufStart += BUFFER_WIDTH;
 	// gpBufEnd -= BUFFER_WIDTH;
 	CelBlitOutline(pDecodeTo, pRLEBytes, nDataSize, nWidth, col);
 	// gpBufStart -= BUFFER_WIDTH;
 	// gpBufEnd += BUFFER_WIDTH;
+}
+
+/**
+ * @brief Blit a slice of a CEL sprite to the back buffer at the given coordinates
+ * @param sx Target buffer coordinate
+ * @param sy Target buffer coordinate
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL frame number
+ * @param nWidth CEL width of the frame
+ * @param fy the first (lowest) line of the sprite to blit
+ * @param ny the number of lines to blit
+ */
+void CelClippedDrawSlice(int sx, int sy, const BYTE* pCelBuff, int nCel, int nWidth, unsigned fy, unsigned ny)
+{
+	int nDataSize;
+	const BYTE *pRLEBytes;
+	BYTE* pDecodeTo;
+
+	unsigned blocks = fy / CEL_BLOCK_HEIGHT;
+
+	const BYTE *src;
+	BYTE* dst;
+	int i, width;
+
+	pRLEBytes = CelGetFrameClippedAt(pCelBuff, nCel, blocks, &nDataSize);
+	pDecodeTo = &gpBuffer[BUFFERXY(sx, sy - fy)];
+
+	src = pRLEBytes;
+
+	fy = fy % CEL_BLOCK_HEIGHT; // -= blocks * CEL_BLOCK_HEIGHT;
+	while (fy-- != 0) {
+		for (i = nWidth; i != 0; ) {
+			width = (int8_t)*src++;
+			if (width >= 0) {
+				i -= width;
+				src += width;
+			} else {
+				i += width;
+			}
+		}
+	}
+
+	dst = pDecodeTo;
+	for ( ; ny-- != 0; dst -= BUFFER_WIDTH + nWidth) {
+		for (i = nWidth; i != 0; ) {
+			width = (int8_t)*src++;
+			if (width >= 0) {
+				i -= width;
+				memcpy(dst, src, width);
+				src += width;
+				dst += width;
+			} else {
+				dst -= width;
+				i += width;
+			}
+		}
+	}
 }
 
 DEVILUTION_END_NAMESPACE

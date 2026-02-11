@@ -159,10 +159,11 @@ You can launch WSL anytime by typing wsl or ubuntu in a Command Prompt or Powers
 In a WSL terminal run these commands to get the source code for DevilutionX
 
 ```
-sudo apt install git
+sudo apt-get install git
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
 ```
+
 </details>
 
 ### Installing dependencies on WSL, Debian and Ubuntu
@@ -587,6 +588,34 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 </details>
 
 </blockquote></details>
+
+<details><summary>Xbox One/Series</summary>
+
+### Dependencies
+
+* Windows 10
+* CMake
+* Git
+* Visual Studio 2022 with the foloowing packages installed:
+    * C++ (v143) Universal Windows Platform tools
+    * Windows 11 SDK (10.0.26100.0)
+    * MSVC v143 - VS 2022 C++ x64/x86 build tools
+
+_Note: Visual Studio Community Edition can be used._
+
+### Building
+
+Add the following to the PATH:
+* CMake
+* GIT
+
+Run:
+```
+Packaging/xbox-one/build.bat
+```
+
+[Xbox One/Series manual](/docs/manual/platforms/xbox-one.md)
+</details>
 
 <details><summary><b>CMake build options</b></summary>
 

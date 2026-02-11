@@ -44,4 +44,19 @@ SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
 	return surface;
 }
 #endif
+
+#if !SDL_VERSION_ATLEAST(2, 0, 10) && !defined(NXDK)
+typedef enum
+{
+	SDL_TOUCH_DEVICE_INVALID = -1,
+	SDL_TOUCH_DEVICE_DIRECT,            /* touch screen with window-relative coordinates */
+	SDL_TOUCH_DEVICE_INDIRECT_ABSOLUTE, /* trackpad with absolute device coordinates */
+	SDL_TOUCH_DEVICE_INDIRECT_RELATIVE  /* trackpad with screen cursor-relative coordinates */
+} SDL_TouchDeviceType;
+
+inline SDL_TouchDeviceType SDL_GetTouchDeviceType(SDL_TouchID touchID)
+{
+	return SDL_TOUCH_DEVICE_DIRECT;
+}
+#endif
 #endif // !USE_SDL1

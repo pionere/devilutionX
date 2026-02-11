@@ -15,7 +15,7 @@ static SDL_Color orig_palette[NUM_COLORS];
 /** Specifies the gamma correction level. */
 int _gnGammaCorrection = 100;
 /** Specifies the current fade level. */
-int gnFadeValue;
+int gnFadeValue = 0;
 
 void UpdatePalette()
 {
@@ -88,7 +88,7 @@ void PaletteFadeIn(bool instant)
 	if (!instant) {
 		int fv = 0; // gnFadeValue;
 		Uint32 tc = SDL_GetTicks();
-		for (i = fv; i < FADE_LEVELS; i = fv + (SDL_GetTicks() - tc) >> 0) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
+		for (i = fv; i < FADE_LEVELS; i = fv + ((SDL_GetTicks() - tc) >> 0)) { // instead of >> 0 it was /2.083 ... 32 frames @ 60hz
 			SetFadeLevel(i);
 			BltFast();
 			RenderPresent();

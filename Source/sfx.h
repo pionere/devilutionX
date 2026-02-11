@@ -7,7 +7,7 @@
 #define __SFX_H__
 
 #ifdef NOSOUND
-#include "engine.h"
+#include "engine/engine.h"
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE

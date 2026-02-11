@@ -7,12 +7,13 @@ if (buildAsApplication) {
 }
 
 android {
-	ndkVersion '28.0.13004108'
+	ndkVersion '28.2.13676358'
 	// ndkVersion '25.2.9519653'
 	compileSdk 35
-	aaptOptions { // probably does not matter...
-		noCompress 'mpq'
-	}
+	// does not matter...
+	//androidResources { 
+	//	noCompress 'mpq'
+	//}
 	// if (buildAsApplication) {
 	namespace 'org.diasurgical.devilutionx'
 	// }
@@ -26,7 +27,7 @@ android {
 		versionName "1.0.0"
 		externalNativeBuild {
 			cmake {
-				arguments "-DANDROID_STL=c++_static", project.findProperty("cmakearg0"), project.findProperty("cmakearg1"), project.findProperty("cmakearg2")
+				arguments "-DANDROID_STL=c++_static", project.findProperty('cmakearg0'), project.findProperty('cmakearg1'), project.findProperty('cmakearg2')
 				abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
 			}
 		}
@@ -36,7 +37,10 @@ android {
 			applicationIdSuffix "dev"
 		}
 		release {
-			minifyEnabled false
+			// Enables code-related app optimization.
+			minifyEnabled true
+			// Enables resource shrinking.
+			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}
@@ -76,5 +80,4 @@ android {
 
 dependencies {
 	implementation fileTree(include: ['*.jar'], dir: 'libs')
-	implementation 'com.android.support.constraint:constraint-layout:2.0.4'
 }

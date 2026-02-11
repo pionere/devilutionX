@@ -66,7 +66,7 @@ static int checker_callback()
 		} else if (SDL_strcmp(filemetadata[workPhase].fileHash1, res) == 0) {
 			checkResult[workPhase] = 1;
 		} else {
-			// LogErrorF("", "File:%s hash:%s", diabdat_paths[workPhase].c_str(), res);
+			// LogErrorF("File:%s hash:%s", diabdat_paths[workPhase].c_str(), res);
 			checkResult[workPhase] = 2;
 		}
 	} else {
@@ -108,17 +108,17 @@ void UiCheckerDialog()
 
 		for (int i = 0; i <= NUM_MPQS && cursor < sizeof(dialogText) - 1; i++) {
 			if (checkResult[i] == 0) {
-				// LogErrorF("", "File:%s is correct (GOG).", filemetadata[i].fileName);
+				// LogErrorF("File:%s is correct (GOG).", filemetadata[i].fileName);
 				continue;
 			}
 			if (checkResult[i] == 1) {
 				if (i != MPQ_DEVILX) {
-					// LogErrorF("", "File:%s is correct (???).", filemetadata[i].fileName);
+					// LogErrorF("File:%s is correct (???).", filemetadata[i].fileName);
 					continue;
 				}
 			}
 			if (filemetadata[i].optional && i != NUM_MPQS) {
-				// LogErrorF("", "File:%s ignored.", filemetadata[i].fileName);
+				// LogErrorF("File:%s ignored.", filemetadata[i].fileName);
 				continue;
 			}
 			if (dialogText[0] != '\0') {
@@ -143,7 +143,7 @@ void UiCheckerDialog()
 				else
 					cursor += snprintf(&dialogText[cursor], sizeof(dialogText) - cursor, "%s must be recreated.", filemetadata[i].fileName);
 			}
-			// LogErrorF("", "File:%s reported. cursor at %d.", filemetadata[i].fileName, cursor);
+			// LogErrorF("File:%s reported. cursor at %d.", filemetadata[i].fileName, cursor);
 		}
 #if USE_MPQONE
 		if (checkResult[NUM_MPQS] == 0 && dialogText[0] != '\0') {

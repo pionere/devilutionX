@@ -15,8 +15,8 @@ DEVILUTION_BEGIN_NAMESPACE
   * _vRows: the number of rows on the screen.
   * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
   * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to ViewX.
-  * _vShiftY: the base offset to ViewY.
+  * _vShiftX: the base offset to myview.x.
+  * _vShiftY: the base offset to myview.y.
 */
 ViewportStruct gsMouseVp;
 
@@ -378,8 +378,8 @@ void CheckCursMove()
 	}
 
 	// Center player tile on screen
-	mx = ViewX + gsMouseVp._vShiftX;
-	my = ViewY + gsMouseVp._vShiftY;
+	mx = myview.x + gsMouseVp._vShiftX;
+	my = myview.y + gsMouseVp._vShiftY;
 
 	// ensure sx/y are positive
 	sx += TILE_WIDTH;
@@ -437,7 +437,7 @@ void CheckCursMove()
 		curitem[1] = dItem[mx][my];
 		if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
 			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-				if (/*pnum != mypnum && */plr._pmode == PM_DEATH && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
+				if (/*pnum != mypnum && */plr._pmode == PM_DEATH/* && !plr._pLvlChanging*/ && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
 					deadplr[0] = pnum + 1;
 				}
 			}

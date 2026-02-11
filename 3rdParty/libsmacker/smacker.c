@@ -1005,7 +1005,7 @@ static smk smk_open_generic(union smk_read_t fp, unsigned long size)
 	smk_malloc(s, sizeof(struct smk_t));
 	smk_header *hdr = (smk_header*)fp.ram;
 	if (size < sizeof(smk_header)) {
-		LogError("libsmacker::smk_open_generic() - ERROR: SMK content is too short. (got: %d, required: %d)\n", size, sizeof(smk_header));
+		LogError("libsmacker::smk_open_generic() - ERROR: SMK content is too short. (got: %lu, required: %d)\n", size, sizeof(smk_header));
 #if DEBUG_MODE
 		goto error;
 #endif
@@ -1660,7 +1660,11 @@ static char smk_render_palette(struct smk_video_t * s, unsigned char * p, unsign
 			}
 
 			/* OK!  Copy the color-palette entries. */
+#ifdef FULL
 			memmove(&s->palette[i][0], &oldPalette[src][0], count * 3);
+#else
+			memcpy(&s->palette[i][0], &oldPalette[src][0], count * 3);
+#endif
 			i += count;
 		} else {
 			/* 0x00: Set Color block

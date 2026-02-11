@@ -16,10 +16,6 @@ static_assert((int8_t)WND_NONE < 0, "WND_VALID checks only the sign of the WND_-
 extern "C" {
 #endif
 
-/** The number of buttons in the menu. */
-extern int numpanbtns;
-/** Specifies whether the menu-button is pressed. */
-extern bool gabPanbtn[NUM_PANBTNS];
 /** Specifies how much the life flask is filled (percentage). */
 extern int gnHPPer;
 /** Specifies how much the mana flask is filled (percentage). */
@@ -66,9 +62,9 @@ extern bool gbChrbtnactive;
 extern bool gbSkillListFlag;
 
 void DrawSkillList();
+void SkillListMove(int dir);
 void SetSkill(bool altSkill);
-void SetSkillHotKey(int slot, bool altSkill);
-void SelectHotKeySkill(int slot, bool altSkill);
+void SkillHotKey(int slot, bool altSkill);
 void DrawLifeFlask();
 void DrawManaFlask();
 void DrawSkillIcons();
@@ -76,22 +72,16 @@ void InitControlPan();
 void FreeControlPan();
 void StartWndDrag(BYTE wnd);
 void DoWndDrag();
-void DrawCtrlBtns();
 bool ToggleWindow(BYTE wnd);
 bool TryPanBtnClick();
-void TryLimitedPanBtnClick();
-void ReleasePanBtn();
-void HandlePanBtn(int i);
 void HandleSkillBtn(bool altSkill);
 void DrawChr();
 void ReleaseLvlBtn();
 void DrawLevelUpIcon();
 void DrawInfoStr();
-void CheckChrBtnClick();
+void CheckChrBtnClick(bool altAction);
 void ReleaseChrBtn();
-void DrawTextBox(unsigned separators);
 void DrawSTextBox(int x, int y);
-void DrawTextBoxSLine(int x, int y, int dy, bool widePanel);
 void DrawDurIcon();
 void DrawSpellBook();
 void CheckBookClick(bool altSkill);
@@ -99,7 +89,7 @@ const char* get_pieces_str(int nGold);
 void DrawGoldSplit();
 void control_drop_gold(int vkey);
 void DrawTeamBook();
-void CheckTeamClick();
+void CheckTeamClick(bool altAction);
 void DrawGolemBar();
 void InitCampaignMap(int cii);
 void DrawCampaignMap();
