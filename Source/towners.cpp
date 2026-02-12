@@ -33,76 +33,6 @@ static const int snSFX[3][NUM_CLASSES] = {
 	// clang-format on
 };
 
-/** Specifies the animation frame sequence of a given NPC. */
-static const int8_t AnimOrder[6][144] = {
-	// clang-format off
-/*SMITH*/{ 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
-	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
-	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
-	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
-	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	    14, 13, 12, 11, 10, 9, 8, 7, 6, 5,
-	    5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-	    15, 16, 1, 1, 1, 1, 1, 1, 1, 1,
-	    1, 1, 1, 1, 1, 1, 1, 2, 3, 4,
-	    0 },
-/*HEALER*/{ 1, 2, 3, 3, 2, 1, 20, 19, 19, 20,
-	    1, 2, 3, 3, 2, 1, 20, 19, 19, 20,
-	    1, 2, 3, 3, 2, 1, 20, 19, 19, 20,
-	    1, 2, 3, 3, 2, 1, 20, 19, 19, 20,
-	    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-	    11, 12, 13, 14, 15, 16, 15, 14, 13, 12,
-	    11, 10, 9, 8, 7, 6, 5, 4, 5, 6,
-	    7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-	    15, 14, 13, 12, 11, 10, 9, 8, 7, 6,
-	    5, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-	    13, 14, 15, 16, 17, 18, 19, 20, 0 },
-/*STORY*/{ 1, 1, 1, 1, 24, 23, 22, 21, 20, 19,
-	    18, 17, 16, 15, 16, 17, 18, 19, 20, 21,
-	    22, 23, 24, 1, 1, 1, 1, 1, 1, 1,
-	    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-	    11, 12, 13, 14, 15, 14, 13, 12, 11, 10,
-	    9, 8, 7, 6, 5, 4, 3, 2, 1, 0 },
-/*TAVERN*/{ 1, 2, 3, 3, 2, 1, 16, 15, 14, 14,
-	    15, 16, 1, 2, 3, 3, 2, 1, 16, 15,
-	    14, 14, 15, 16, 1, 2, 3, 3, 2, 1,
-	    16, 15, 14, 14, 15, 16, 1, 2, 3, 3,
-	    2, 1, 16, 15, 14, 14, 15, 16, 1, 2,
-	    3, 3, 2, 1, 16, 15, 14, 14, 15, 16,
-	    1, 2, 3, 3, 2, 1, 16, 15, 14, 14,
-	    15, 16, 1, 2, 3, 3, 2, 1, 16, 15,
-	    14, 14, 15, 16, 1, 2, 3, 2, 1, 16,
-	    15, 14, 14, 15, 16, 1, 2, 3, 4, 5,
-	    6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-	    16, 0 },
-/*DRUNK*/{ 1, 1, 1, 2, 3, 4, 5, 6, 7, 8,
-	    9, 8, 7, 7, 7, 7, 6, 5, 4, 3,
-	    2, 1, 10, 10, 1, 1, 1, 10, 1, 2,
-	    3, 4, 5, 6, 7, 8, 7, 6, 5, 4,
-	    3, 2, 1, 10, 1, 2, 3, 4, 5, 5,
-	    5, 4, 3, 2, 0 },
-/*WITCH*/{ 4, 4, 4, 5, 6, 6, 6, 5, 4, 15,
-	    14, 13, 13, 13, 14, 15, 4, 5, 6, 6,
-	    6, 5, 4, 4, 4, 5, 6, 6, 6, 5,
-	    4, 15, 14, 13, 13, 13, 14, 15, 4, 5,
-	    6, 6, 6, 5, 4, 4, 4, 5, 6, 6,
-	    6, 5, 4, 15, 14, 13, 13, 13, 14, 15,
-	    4, 5, 6, 6, 6, 5, 4, 3, 2, 1,
-	    1, 18, 1, 1, 2, 1, 1, 18, 1, 1,
-	    2, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-	    10, 11, 12, 13, 14, 15, 15, 15, 14, 13,
-	    13, 13, 13, 14, 15, 15, 15, 14, 13, 12,
-	    12, 12, 11, 10, 10, 10, 9, 8, 9, 10,
-	    10, 11, 12, 13, 14, 15, 16, 17, 18, 1,
-	    1, 2, 1, 1, 18, 1, 1, 2, 1, 2,
-	    3, 0 }
-	// clang-format on
-};
-
 /** Contains the TEXT_-ranges related to gossip for each towner ID. */
 const int GossipList[STORE_TOWNERS][2] = {
 	// clang-format off
@@ -159,7 +89,7 @@ static void InitMonAnim(MonsterStruct* mon, const BYTE* anim)
 	mon->_mAnimCnt = 0;                                        // TNR_ANIM_CNT
 }
 
-static void InitCowAnim(int tnum, const BYTE* anim)
+static void InitCowAnim(int tnum, const BYTE* anim, int Delay)
 {
 	MonsterStruct* tw;
 
@@ -167,12 +97,12 @@ static void InitCowAnim(int tnum, const BYTE* anim)
 
 	InitMonAnim(tw, anim);
 
-	tw->_mAnimFrameLen = 3;                                  // TNR_ANIM_FRAME_LEN
-	tw->_mVar1 = -1;                                         // TNR_ANIM_ORDER
-	tw->_mAnimFrame = RandRange(1, tw->_mAnimLen);           // TNR_ANIM_FRAME
+	tw->_mAnimFrameLen = Delay;                    // TNR_ANIM_FRAME_LEN
+	tw->_mVar1 = 0;                                // TNR_ANIM_ORDER
+	tw->_mAnimFrame = RandRange(1, tw->_mAnimLen); // TNR_ANIM_FRAME
 }
 
-static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int ao)
+static void InitTownerAnim(int tnum, const char* pAnimFile)
 {
 	MonsterStruct* tw;
 
@@ -181,10 +111,14 @@ static void InitTownerAnim(int tnum, const char* pAnimFile, int Delay, int ao)
 	const BYTE* anim = LoadFileInMem(pAnimFile);
 	InitMonAnim(tw, anim);
 
-	tw->_mAnimFrameLen = Delay;                              // TNR_ANIM_FRAME_LEN
-	tw->_mVar1 = ao;                                         // TNR_ANIM_ORDER
-	tw->_mVar2 = 0;                                          // TNR_ANIM_FRAME_CNT
-	tw->_mAnimFrame = 1;                                     // TNR_ANIM_FRAME
+	CelMetaInfo mi;
+	LoadCelMetaInfo(anim, mi);
+
+	tw->_mAnimFrameLen = mi.cmiAnimDelay; // TNR_ANIM_FRAME_LEN
+	tw->_mVar1 = mi.cmiAnimOrder;         // TNR_ANIM_ORDER
+	// assert(mi.cmiAnimDelay != 0);
+	tw->_mVar2 = 0;                       // TNR_ANIM_FRAME_CNT
+	tw->_mAnimFrame = 1;                  // TNR_ANIM_FRAME
 }
 
 #ifdef HELLFIRE
@@ -250,7 +184,7 @@ static void InitSmith()
 {
 	InitTownerInfo(numtowners, "Griswold the Blacksmith", TOWN_SMITH, TPOS_SMITH, 7);
 	InitTownerTalk(numtowners, STORE_SMITH, TEXT_SMITH1);
-	InitTownerAnim(numtowners, "Towners\\Smith\\SmithN.CEL", 3, 0);
+	InitTownerAnim(numtowners, "Towners\\Smith\\SmithN.CEL");
 	numtowners++;
 }
 
@@ -258,14 +192,14 @@ static void InitTavern()
 {
 	InitTownerInfo(numtowners, "Ogden the Tavern owner", TOWN_TAVERN, TPOS_TAVERN, 7);
 	InitTownerTalk(numtowners, STORE_TAVERN, TEXT_TAVERN1);
-	InitTownerAnim(numtowners, "Towners\\TwnF\\TwnFN.CEL", 3, 3);
+	InitTownerAnim(numtowners, "Towners\\TwnF\\TwnFN.CEL");
 	numtowners++;
 }
 
 static void InitDeadguy()
 {
 	InitTownerInfo(numtowners, "Wounded Townsman", TOWN_DEADGUY, 14 + DBORDERX, 22 + DBORDERY, 1);
-	InitTownerAnim(numtowners, "Towners\\Butch\\Deadguy.CEL", 6, -1);
+	InitTownerAnim(numtowners, "Towners\\Butch\\Deadguy.CEL");
 	numtowners++;
 }
 
@@ -273,7 +207,7 @@ static void InitWitch()
 {
 	InitTownerInfo(numtowners, "Adria the Witch", TOWN_WITCH, 70 + DBORDERX, 10 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_WITCH, TEXT_WITCH1);
-	InitTownerAnim(numtowners, "Towners\\TownWmn1\\Witch.CEL", 6, 5);
+	InitTownerAnim(numtowners, "Towners\\TownWmn1\\Witch.CEL");
 	numtowners++;
 }
 
@@ -281,7 +215,7 @@ static void InitBarmaid()
 {
 	InitTownerInfo(numtowners, "Gillian the Barmaid", TOWN_BARMAID, 33 + DBORDERX, 56 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_BARMAID, TEXT_BARMAID1);
-	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL", 6, -1);
+	InitTownerAnim(numtowners, "Towners\\TownWmn1\\WmnN.CEL");
 	numtowners++;
 }
 
@@ -289,7 +223,7 @@ static void InitPegboy()
 {
 	InitTownerInfo(numtowners, "Wirt the Peg-legged boy", TOWN_PEGBOY, 1 + DBORDERX, 43 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_PEGBOY, TEXT_PEGBOY1);
-	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL", 6, -1);
+	InitTownerAnim(numtowners, "Towners\\TownBoy\\PegKid1.CEL");
 	numtowners++;
 }
 
@@ -297,7 +231,7 @@ static void InitHealer()
 {
 	InitTownerInfo(numtowners, "Pepin the Healer", TOWN_HEALER, TPOS_HEALER, 7);
 	InitTownerTalk(numtowners, STORE_HEALER, TEXT_HEALER1);
-	InitTownerAnim(numtowners, "Towners\\Healer\\Healer.CEL", 6, 1);
+	InitTownerAnim(numtowners, "Towners\\Healer\\Healer.CEL");
 	numtowners++;
 }
 
@@ -305,7 +239,7 @@ static void InitStory()
 {
 	InitTownerInfo(numtowners, "Cain the Elder", TOWN_STORY, 52 + DBORDERX, 61 + DBORDERY, 7);
 	InitTownerTalk(numtowners, STORE_STORY, TEXT_STORY1);
-	InitTownerAnim(numtowners, "Towners\\Strytell\\Strytell.CEL", 3, 2);
+	InitTownerAnim(numtowners, "Towners\\Strytell\\Strytell.CEL");
 	numtowners++;
 }
 
@@ -313,7 +247,7 @@ static void InitDrunk()
 {
 	InitTownerInfo(numtowners, "Farnham the Drunk", TOWN_DRUNK, 61 + DBORDERX, 74 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_DRUNK, TEXT_DRUNK1);
-	InitTownerAnim(numtowners, "Towners\\Drunk\\TwnDrunk.CEL", 3, 4);
+	InitTownerAnim(numtowners, "Towners\\Drunk\\TwnDrunk.CEL");
 	numtowners++;
 }
 
@@ -321,7 +255,7 @@ static void InitPriest()
 {
 	InitTownerInfo(numtowners, "Tremain the Priest", TOWN_PRIEST, 63 + DBORDERX, 69 + DBORDERY, 3);
 	InitTownerTalk(numtowners, STORE_PRIEST, TEXT_PRIEST1);
-	InitTownerAnim(numtowners, "Towners\\Priest\\Priest8.CEL", 4, -1);
+	InitTownerAnim(numtowners, "Towners\\Priest\\Priest8.CEL");
 	numtowners++;
 }
 
@@ -353,6 +287,9 @@ static void InitCows()
 	assert(pCowCels == NULL);
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL");
 	LoadFrameGroups(pCowCels, cowAnims);
+	CelMetaInfo mi;
+	LoadCelGroupMetaInfo(pCowCels, mi);
+	BYTE delay = mi.cmiAnimDelay;
 	static_assert(lengthof(TownCowX) == lengthof(TownCowY), "Mismatching TownCow tables I.");
 	static_assert(lengthof(TownCowX) == lengthof(TownCowDir), "Mismatching TownCow tables II.");
 	for (i = 0; i < lengthof(TownCowX); i++) {
@@ -360,7 +297,7 @@ static void InitCows()
 		y = TownCowY[i];
 		dir = TownCowDir[i];
 		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y, 3);
-		InitCowAnim(numtowners, cowAnims[dir]);
+		InitCowAnim(numtowners, cowAnims[dir], delay);
 
 		xo = x + TownCowXOff[i];
 		yo = y + TownCowYOff[i];
@@ -382,7 +319,10 @@ static void InitCows()
 static void InitFarmer()
 {
 	InitTownerInfo(numtowners, "Lester the farmer", TOWN_FARMER, TPOS_FARMER, 7);
-	InitTownerAnim(numtowners, "Towners\\Farmer\\Farmrn2.CEL", 3, -1);
+	InitTownerAnim(numtowners, "Towners\\Farmer\\Farmrn2.CEL");
+#if !USE_PATCH
+	monsters[numtowners].mAnimFrameLen = 3;              // TNR_ANIM_FRAME_LEN
+#endif
 	numtowners++;
 }
 
@@ -392,7 +332,10 @@ static void InitCowFarmer()
 
 	InitTownerInfo(numtowners, "Complete Nut", TOWN_COWFARM, TPOS_COWFARM, 7);
 	pAnimFile = quests[Q_JERSEY]._qactive != QUEST_DONE ? "Towners\\Farmer\\cfrmrn2.CEL" : "Towners\\Farmer\\mfrmrn2.CEL";
-	InitTownerAnim(numtowners, pAnimFile, 3, -1);
+	InitTownerAnim(numtowners, pAnimFile);
+#if !USE_PATCH
+	monsters[numtowners].mAnimFrameLen = 3;              // TNR_ANIM_FRAME_LEN
+#endif
 	numtowners++;
 }
 
@@ -402,7 +345,10 @@ static void InitGirl()
 
 	InitTownerInfo(numtowners, "Celia", TOWN_GIRL, TPOS_GIRL, 3);
 	pAnimFile = quests[Q_GIRL]._qactive != QUEST_DONE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
-	InitTownerAnim(numtowners, pAnimFile, 6, -1);
+	InitTownerAnim(numtowners, pAnimFile);
+#if !USE_PATCH
+	monsters[numtowners].mAnimFrameLen = 6;              // TNR_ANIM_FRAME_LEN
+#endif
 	numtowners++;
 }
 #endif
@@ -480,13 +426,13 @@ void ProcessTowners()
 		if (tw->_mAnimCnt >= tw->_mAnimFrameLen) { // TNR_ANIM_FRAME_LEN
 			tw->_mAnimCnt = 0;
 
-			if (tw->_mVar1 >= 0) { // TNR_ANIM_ORDER
-				ao = tw->_mVar1;
+			ao = tw->_mVar1;
+			if (ao != 0) { // TNR_ANIM_ORDER
 				tw->_mVar2++; // TNR_ANIM_FRAME_CNT
-				if (AnimOrder[ao][tw->_mVar2] == 0)
+				if (tw->_mAnimData[ao + tw->_mVar2] == 0)
 					tw->_mVar2 = 0;
 
-				tw->_mAnimFrame = AnimOrder[ao][tw->_mVar2]; // TNR_ANIM_FRAME, TNR_ANIM_FRAME_CNT
+				tw->_mAnimFrame = tw->_mAnimData[ao + tw->_mVar2]; // TNR_ANIM_FRAME, TNR_ANIM_FRAME_CNT
 			} else {
 				tw->_mAnimFrame++;                   // TNR_ANIM_FRAME
 				if (tw->_mAnimFrame > tw->_mAnimLen) // TNR_ANIM_LEN

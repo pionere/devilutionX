@@ -150,6 +150,13 @@ typedef enum filenames {
 #if ASSET_MPL == 1
 	FILE_L5LIGHT_CEL,
 #endif
+#if ASSET_MPL == 1
+	FILE_TWN_FARMER,
+	FILE_TWN_CFARMER,
+	FILE_TWN_MFARMER,
+	FILE_TWN_GIRLW,
+	FILE_TWN_GIRLS,
+#endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
 	FILE_MON_GOATBD,
@@ -350,6 +357,13 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
 #if ASSET_MPL == 1
 /*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
+#endif
+#if ASSET_MPL == 1
+/*FILE_TWN_FARMER*/    "Towners\\Farmer\\Farmrn2.CEL",
+/*FILE_TWN_CFARMER*/   "Towners\\Farmer\\cfrmrn2.CEL",
+/*FILE_TWN_MFARMER*/   "Towners\\Farmer\\mfrmrn2.CEL",
+/*FILE_TWN_GIRLW*/     "Towners\\Girl\\Girlw1.CEL",
+/*FILE_TWN_GIRLS*/     "Towners\\Girl\\Girls1.CEL",
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
@@ -2073,6 +2087,48 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
 	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
 
+	return resCelBuf;
+}
+
+static BYTE* addAnimDelayInfo(int index, BYTE* celBuf, size_t* celLen)
+{
+	uint32_t* pFrameTable;
+	uint32_t frameCount;
+	uint32_t nMetaStart, nMetaEnd;
+
+	pFrameTable = (uint32_t*)&celBuf[0];
+	frameCount = SwapLE32(pFrameTable[0]);
+	nMetaStart = (1 + frameCount + 1) * sizeof(uint32_t);
+	nMetaEnd = SwapLE32(pFrameTable[1]);
+
+	if (nMetaStart != nMetaEnd) {
+		return celBuf; // assume it is already done
+	}
+
+	BYTE frameDelay = 0;
+	switch (index) {
+	case FILE_TWN_FARMER:
+	case FILE_TWN_CFARMER:
+	case FILE_TWN_MFARMER: frameDelay = 3; break;
+	case FILE_TWN_GIRLW:
+	case FILE_TWN_GIRLS:   frameDelay = 6; break;
+	}
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen + 2;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memcpy(resCelBuf, celBuf, nMetaStart);
+	resCelBuf[nMetaStart + 0] = CELMETA_ANIMDELAY;
+	resCelBuf[nMetaStart + 1] = frameDelay;
+	memcpy(&resCelBuf[nMetaStart + 2], &celBuf[nMetaStart], maxCelSize - (nMetaStart + 2));
+
+	// update offsets
+	pFrameTable = (uint32_t*)&resCelBuf[0];
+	for (unsigned i = 1; i <= frameCount + 1; i++) {
+		pFrameTable[i] += 2;
+	}
+
+	*celLen = maxCelSize;
 	return resCelBuf;
 }
 #endif // HELLFIRE
@@ -8278,6 +8334,16 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_L5LIGHT_CEL:
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);
+	} break;
+#endif // ASSET_MPL
+#if ASSET_MPL == 1
+	case FILE_TWN_FARMER:  // Farmrn2.CEL
+	case FILE_TWN_CFARMER: // cfrmrn2.CEL
+	case FILE_TWN_MFARMER: // mfrmrn2.CEL
+	case FILE_TWN_GIRLW:   // Girlw1.CEL
+	case FILE_TWN_GIRLS:   // Girls1.CEL
+	{	// add meta data
+		buf = addAnimDelayInfo(index, buf, dwLen);
 	} break;
 #endif // ASSET_MPL
 #endif // HELLFIRE

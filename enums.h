@@ -4561,6 +4561,15 @@ typedef enum anim_armor_id {
 	ANIM_ID_HEAVY_ARMOR  = 0x20
 } anim_armor_id;
 
+typedef enum cel_meta_type {
+	CELMETA_DIMENSIONS,
+	CELMETA_DIMENSIONS_PER_FRAME,
+	CELMETA_ANIMORDER,
+	CELMETA_ANIMDELAY,
+	CELMETA_ACTIONFRAMES,
+	NUM_CELMETA
+} cel_meta_type;
+
 typedef enum shrine_gametype {
 	SHRINETYPE_ANY,
 	SHRINETYPE_SINGLE,

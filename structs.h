@@ -99,6 +99,14 @@ typedef struct RECT_AREA32 {
 	int y2;
 } RECT_AREA32;
 
+typedef struct CelMetaInfo {
+	DWORD cmiDimensions;
+	DWORD cmiDimensionsPerFrame;
+	DWORD cmiAnimOrder;
+	BYTE  cmiAnimDelay;
+	DWORD cmiActionFrames;
+} CelMetaInfo;
+
 typedef struct CelImageBuf {
 #if DEBUG_MODE
 	WORD ciWidth; // number of images before loaded, but overwritten with width when loaded

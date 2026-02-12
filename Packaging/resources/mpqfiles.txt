@@ -72,9 +72,17 @@ PlrGFX\SNone.TRN
 PlrGFX\SOrange.TRN
 PlrGFX\SRed.TRN
 Sfx\Misc\Wallloop.wav
+Towners\Animals\Cow.CEL
+Towners\Butch\Deadguy.CEL
 Towners\Drunk\TwnDrunk.CEL
+Towners\Healer\Healer.CEL
+Towners\Priest\Priest8.CEL
+Towners\Smith\SmithN.CEL
 Towners\Strytell\Strytell.CEL
+Towners\TownBoy\PegKid1.CEL
 Towners\TownWmn1\Witch.CEL
+Towners\TownWmn1\WmnN.CEL
+Towners\TwnF\TwnFN.CEL
 ui_art\credits.CEL
 ui_art\credits.pal
 ui_art\focus.CEL

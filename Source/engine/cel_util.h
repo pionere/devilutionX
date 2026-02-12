@@ -40,19 +40,33 @@ const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, i
 const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block, int* nDataSize);
 
 /*
- * @brief Get the addresses of frame-groups in a .CEL asset
- * @param pCelBuff pointer to groupped CEL-frames offsets and data
- * @param pGroups Will be set to the addresses of the groups
- */
-void LoadFrameGroups(const BYTE* pCelBuff, const BYTE* (&pGroups)[8]);
-
-/*
  * @brief Load a .CEL asset and overwrite the first (unused) uint32_t with nWidth
  * @param name name of asset
  * @param nWidth width of the asset
  * @return pointer to CEL-frame offsets and data with width information
  */
 CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth);
+
+/*
+ * @brief Retrive the offsets of the metainfo in a .CEL asset
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param mi Will be set to the offsets of the metainfo
+ */
+void LoadCelMetaInfo(const BYTE* pCelBuff, CelMetaInfo &mi);
+
+/*
+ * @brief Retrive the offsets of the metainfo in a .CEL asset
+ * @param pCelBuff pointer to groupped CEL-frames offsets and data
+ * @param mi Will be set to the offsets of the metainfo
+ */
+void LoadCelGroupMetaInfo(const BYTE* pCelBuff, CelMetaInfo &mi);
+
+/*
+ * @brief Get the addresses of frame-groups in a .CEL asset
+ * @param pCelBuff pointer to groupped CEL-frames offsets and data
+ * @param pGroups Will be set to the addresses of the groups
+ */
+void LoadFrameGroups(const BYTE* pCelBuff, const BYTE* (&pGroups)[8]);
 
 /*
  * @brief Merge two non-groupped .CEL assets into a new one

@@ -22,6 +22,46 @@ static const BYTE* CelGetFrameGroup(const BYTE* pCelBuff, int nGroup)
 	return &pCelBuff[SwapLE32(pFrameTable[nGroup])];
 }
 
+static void CelLoadMetaInfoAt(const BYTE* anim, uint32_t nMetaStart, uint32_t nMetaEnd, uint32_t frameCount, CelMetaInfo &mi)
+{
+	memset(&mi, 0, sizeof(mi));
+
+	while (nMetaStart < nMetaEnd) {
+		uint8_t type = anim[nMetaStart];
+		nMetaStart++;
+
+		switch (type) {
+		case CELMETA_DIMENSIONS:
+			mi.cmiDimensions = nMetaStart;
+			nMetaStart += 2 * sizeof(uint32_t);
+			continue;
+		case CELMETA_DIMENSIONS_PER_FRAME:
+			mi.cmiDimensionsPerFrame = nMetaStart;
+			nMetaStart += frameCount * 2 * sizeof(uint32_t);
+			continue;
+		case CELMETA_ANIMDELAY:
+			mi.cmiAnimDelay = anim[nMetaStart];
+			nMetaStart++;
+			continue;
+		case CELMETA_ANIMORDER:
+			mi.cmiAnimOrder = nMetaStart;
+			break;
+		case CELMETA_ACTIONFRAMES:
+			mi.cmiActionFrames = nMetaStart;
+			break;
+		default:
+			ASSUME_UNREACHABLE;
+		}
+		while (true) {
+			BYTE idx = anim[nMetaStart];
+			nMetaStart++;
+			if (idx == 0) {
+				break;
+			}
+		}
+	}
+}
+
 /*
  * @brief Get the address of a frame in a .CEL asset
  * @param pCelBuff pointer to CEL-frame offsets and data
@@ -114,6 +154,33 @@ const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block, int*
 	*nDataSize -= nDataStart;
 
 	return &pRLEBytes[nDataStart];
+}
+
+void LoadCelMetaInfo(const BYTE* pCelBuff, CelMetaInfo &mi)
+{
+	const uint32_t* pFrameTable;
+	uint32_t frameCount;
+	uint32_t nMetaStart, nMetaEnd;
+
+	pFrameTable = (const uint32_t*)&pCelBuff[0];
+	frameCount = SwapLE32(pFrameTable[0]);
+	nMetaStart = (1 + frameCount + 1) * sizeof(uint32_t);
+	nMetaEnd = SwapLE32(pFrameTable[1]);
+
+	CelLoadMetaInfoAt(pCelBuff, nMetaStart, nMetaEnd, frameCount, mi);
+}
+
+void LoadCelGroupMetaInfo(const BYTE* pCelBuff, CelMetaInfo &mi)
+{
+	constexpr int groupCount = 8;
+	const uint32_t* pFrameTable;
+	uint32_t nMetaStart, nMetaEnd;
+
+	pFrameTable = (const uint32_t*)&pCelBuff[0];
+	nMetaStart = groupCount * sizeof(uint32_t);
+	nMetaEnd = SwapLE32(pFrameTable[0]);
+
+	CelLoadMetaInfoAt(pCelBuff, nMetaStart, nMetaEnd, 0, mi);
 }
 
 /*
