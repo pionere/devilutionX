@@ -1892,29 +1892,27 @@ void ValidateData()
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
 		/*if ((md.mAddProc == AddBleed || md.mAddProc == AddBloodBoil || md.mAddProc == AddFireexp || md.mAddProc == AddInferno || md.mAddProc == AddMisexp)
-		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0])
-			app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);*/
+		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0])
+			app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0]);*/
 		if ((md.mProc == MI_Misexp || md.mProc == MI_MiniExp || md.mProc == MI_LongExp || md.mProc == MI_Bleed || md.mProc == MI_BloodBoil || md.mProc == MI_Inferno || md.mProc == MI_Acidsplat
 #ifdef HELLFIRE
 			 || md.mProc == MI_HorkSpawn
 #endif
 			)
-		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]) {
+		 && md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0]) {
 			if (md.mAddProc != AddAttract)
-				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0]);
-			else if (md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0] /2u)
-				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen[0] * misfiledata[md.mFileNum].mfAnimLen[0] / 2u);
+				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0]);
+			else if (md.mdRange != misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0] /2u)
+				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0] / 2u);
 		}
 		if (md.mProc == MI_ExtExp
-		 && md.mdRange < misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] * misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
-			app_fatal("Animated-Missile %d has invalid duration (%d, expected at least %d).", i, md.mdRange, misfiledata[MFILE_SHATTER1].mfAnimFrameLen[0] * misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
+		 && md.mdRange < misfiledata[MFILE_SHATTER1].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
+			app_fatal("Animated-Missile %d has invalid duration (%d, expected at least %d).", i, md.mdRange, misfiledata[MFILE_SHATTER1].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
 		}
 		if (md.mAddProc == AddCharge && md.mdPrSpeed != (int)(MIS_SHIFTEDVEL(16) / M_SQRT2))
 			app_fatal("Charge-Missile %d has invalid projectile-speed (%d, expected %d).", i, md.mdPrSpeed, (int)(MIS_SHIFTEDVEL(16) / M_SQRT2));
 		if (md.mAddProc == AddMisexp) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				assert(misfiledata[md.mFileNum].mfAnimFrameLen[j] == 1);
-			}
+			assert(misfiledata[md.mFileNum].mfAnimFrameLen == 1);
 		}
 		if (md.mAddProc == AddTelekinesis) {
 			for (int n = 0; n < NUM_SPELLS; n++) {
@@ -1978,10 +1976,8 @@ void ValidateData()
 			assert(md.mFileNum == MFILE_WIND);
 		if (md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_FireWave || md.mProc == MI_Flash || md.mProc == MI_Flash2
 		 || md.mProc == MI_Guardian || md.mProc == MI_Portal || md.mProc == MI_Shroud || md.mProc == MI_Wind) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				if (misfiledata[md.mFileNum].mfAnimFrameLen[j] != 1)
-					app_fatal("Animated-Missile %d depending on mfAnimFrameLen is not a single stepper (%d: %d).", i, j, misfiledata[md.mFileNum].mfAnimFrameLen[j]);
-			}
+			if (misfiledata[md.mFileNum].mfAnimFrameLen[j] != 1)
+				app_fatal("Animated-Missile %d depending on mfAnimFrameLen is not a single stepper.", i);
 		}
 		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
 			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
@@ -2013,18 +2009,20 @@ void ValidateData()
 			app_fatal("Missile-File %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
 		if (mfd.mfAnimFAmt > NUM_DIRS && mfd.mfAnimFAmt != 16)
 			app_fatal("Missile-File %d has invalid mfAnimFAmt.", i); // required by AddMissile
+		if (mfd.mfAnimFrameLen == 0) {
+			if (mfd.mfAnimFlag && mfd.mfAnimFAmt != 0)
+				app_fatal("Missile-File %d has invalid mfAnimFrameLen.", i);
+		} else {
+			if (!mfd.mfAnimFlag) {
+				app_fatal("Missile-File %d has unused mfAnimFrameLen setting.", i);
+			}
+		}
 		for (int n = 0; n < 16; n++) {
 			if (n < mfd.mfAnimFAmt) {
-				if (mfd.mfAnimFrameLen[n] == 0 && mfd.mfAnimFlag) {
-					app_fatal("Missile-File %d has invalid mfAnimFrameLen.", i, n);
-				}
 				if (mfd.mfAnimLen[n] == 0 /*&& mfd.mfAnimFlag*/) {
 					app_fatal("Missile-File %d has invalid mfAnimLen.", i, n);
 				}
 			} else {
-				if (mfd.mfAnimFrameLen[n] != 0) {
-					app_fatal("Missile-File %d has unused mfAnimFrameLen setting (%d).", i, n);
-				}
 				if (mfd.mfAnimLen[n] != 0) {
 					app_fatal("Missile-File %d has unused mfAnimLen setting (%d).", i, n);
 				}
@@ -2061,7 +2059,7 @@ void ValidateData()
 	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] < 17 /* lengthof(ExpLight) */);                // required by MI_Portal
 	assert(misfiledata[MFILE_PORTAL].mfAnimLen[0] == misfiledata[MFILE_RPORTAL].mfAnimLen[0]);   // required by MI_Portal
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_FireWave
-	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen[0] == 1);                                    // required by MI_Meteor
+	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen == 1);                                       // required by MI_Meteor
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);                 // required by MI_Guardian
 	assert(misfiledata[MFILE_LGHNING].mfAnimFAmt == 1);                                          // required by MI_Cbolt
 	assert(misfiledata[MFILE_SHATTER1].mfAnimFAmt == 1);                                         // required by MI_Stone

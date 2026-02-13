@@ -517,11 +517,11 @@ typedef struct MisFileData {
 	BOOLEAN mfAnimFlag;
 	BOOLEAN mfLightFlag;
 	BOOLEAN mfPreFlag;
-	BYTE mfAnimFrameLen[16];
+	BYTE mfAnimFrameLen;
 	BYTE mfAnimLen[16];
 	int mfAnimWidth;
 	int mfAnimXOffset; // could be calculated
-	ALIGNMENT32(2)
+	ALIGNMENT(5, 3)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
