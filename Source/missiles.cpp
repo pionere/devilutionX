@@ -27,6 +27,7 @@ int nummissiles;
 
 // container for live data of missile-animations
 static BYTE* misanimdata[NUM_MFILE + 1][16] = { { 0 } };
+static int misanimdim[NUM_MFILE][2] = { 0 };
 
 // TODO: merge XDirAdd/YDirAdd, offset_x/offset_y, bxadd/byadd, pathxdir/pathydir, plrxoff2/plryoff2, trm3x/trm3y
 /** Maps from direction to X-offset. */
@@ -1464,8 +1465,8 @@ static void SyncMissAnim(int mi)
 	*(uint32_t*)&mis->_miDrawFlag = *(uint32_t*)&mfd->mfDrawFlag;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen;
 	mis->_miAnimLen = mfd->mfAnimLen[dir];
-	mis->_miAnimWidth = mfd->mfAnimWidth * ASSET_MPL;
-	mis->_miAnimXOffset = mfd->mfAnimXOffset * ASSET_MPL;
+	mis->_miAnimWidth = misanimdim[animtype][0];
+	mis->_miAnimXOffset = misanimdim[animtype][1];
 }
 
 static void SyncRhinoAnim(int mi)
@@ -1542,6 +1543,8 @@ static void LoadMissileGFX(BYTE midx)
 		assert(mad[i] == NULL);
 		mad[i] = LoadFileInMem(pszName);
 	}
+	misanimdim[midx][0] = Cl2Width(mad[0]);
+	misanimdim[midx][1] = (misanimdim[midx][0] - TILE_WIDTH) >> 1;
 	if (mfd->mfAnimTrans != NULL) {
 		BYTE trn[NUM_COLORS];
 		LoadFileWithMem(mfd->mfAnimTrans, trn);
