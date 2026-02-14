@@ -110,17 +110,17 @@ const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, i
 	}
 
 	// check if it is too down on the screen
-	headerSize = SwapLE16(*(const uint16_t*)(&pRLEBytes[0]));
+	headerSize = LOAD_LE16(&pRLEBytes[0]);
 	if (startblock >= headerSize) {
 		*nDataSize = 0;
 		return pRLEBytes;
 	}
 
-	nDataStart = SwapLE16(*(const uint16_t*)(&pRLEBytes[startblock]));
+	nDataStart = LOAD_LE16(&pRLEBytes[startblock]);
 	if (endblock >= headerSize) {
 		nDataEnd = 0;
 	} else {
-		nDataEnd = SwapLE16(*(const uint16_t*)(&pRLEBytes[endblock]));
+		nDataEnd = LOAD_LE16(&pRLEBytes[endblock]);
 	}
 
 	if (nDataEnd != 0) {
@@ -209,13 +209,12 @@ CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
 
 	res = (CelImageBuf*)LoadFileInMem(name);
 #if DEBUG_MODE
-	res->ciFrameCnt = SwapLE32(*((uint32_t*)res));
+	res->ciFrameCnt = LOAD_LE32(res);
 #endif
 	res->ciWidth = nWidth;
 	return res;
 }
 
-#define LOAD_LE32(b) (SwapLE32(*((DWORD*)(b))))
 /*
  * @brief Merge two non-groupped .CEL assets into a new one
  * @param celA the first asset to merge

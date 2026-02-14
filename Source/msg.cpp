@@ -943,8 +943,8 @@ static void UnPackEar(const PkItemStruct* src)
 	cursor[16] = '\0';
 	items[MAXITEMS]._iCurs = ((src->wValue >> 6) & 3) + ICURS_EAR_SORCERER;
 	items[MAXITEMS]._ivalue = src->wValue & 0x3F;
-	items[MAXITEMS]._iCreateInfo = SwapLE16(*(WORD*)&items[MAXITEMS]._iPlrName[0]);
-	items[MAXITEMS]._iSeed = SwapLE32(*(DWORD*)&items[MAXITEMS]._iPlrName[2]);
+	items[MAXITEMS]._iCreateInfo = LOAD_LE16(&items[MAXITEMS]._iPlrName[0]);
+	items[MAXITEMS]._iSeed = LOAD_LE32(&items[MAXITEMS]._iPlrName[2]);
 }
 
 void UnPackPkItem(const PkItemStruct* src)
@@ -2954,8 +2954,8 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 #endif
 		};
 		ear._iCurs = earSets[plr._pClass];
-		//ear._iCreateInfo = SwapLE16(*(WORD *)&ear._iPlrName[0]);
-		//ear._iSeed = SwapLE32(*(DWORD *)&ear._iPlrName[2]);
+		//ear._iCreateInfo = LOAD_LE16(&ear._iPlrName[0]);
+		//ear._iSeed = LOAD_LE32(&ear._iPlrName[2]);
 		ear._ivalue = plr._pLevel;
 
 		PlrDeadItem(pnum, &ear, DIR_S);

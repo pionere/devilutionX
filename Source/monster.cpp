@@ -210,7 +210,7 @@ static void InitMonsterGFX(int midx)
 					monAnims[anim].maAnimData[i] = celBuf;
 				}
 			}
-			monAnims[anim].maFrames = SwapLE32(*(DWORD*)monAnims[anim].maAnimData[0]);
+			monAnims[anim].maFrames = LOAD_LE32(monAnims[anim].maAnimData[0]);
 #if !USE_PATCH
 			if (cmon->cmFileNum == MOFILE_ACID && anim == MA_DEATH) {
 				monAnims[anim].maFrames = 24 - 8;

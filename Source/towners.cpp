@@ -83,7 +83,7 @@ static void InitMonAnim(MonsterStruct* mon, const BYTE* anim)
 	// commented out, because it might be populated by InitMonster
 	// assert(mon->_mAnimData == NULL);
 	mon->_mAnimData = anim;                                    // TNR_ANIM_DATA
-	mon->_mAnimLen = SwapLE32(*(DWORD*)anim);                  // TNR_ANIM_LEN
+	mon->_mAnimLen = LOAD_LE32(anim);                          // TNR_ANIM_LEN
 	mon->_mAnimWidth = CelClippedWidth(anim);                  // TNR_ANIM_WIDTH
 	mon->_mAnimXOffset = (mon->_mAnimWidth - TILE_WIDTH) >> 1; // TNR_ANIM_X_OFFSET
 	mon->_mAnimCnt = 0;                                        // TNR_ANIM_CNT

@@ -144,7 +144,7 @@ void InitCursorGFX()
 
 #if USE_PATCH
 	pCursCels = LoadFileInMem("Data\\Inv\\Objcurs.CEL");
-	if (SwapLE32(*(DWORD*)pCursCels) != lengthof(InvItemWidth) - 1) {
+	if (LOAD_LE32(pCursCels) != lengthof(InvItemWidth) - 1) {
 		app_fatal("Invalid file %s in the mpq.", "Data\\Inv\\Objcurs.CEL");
 	}
 #else

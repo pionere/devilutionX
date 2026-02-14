@@ -281,7 +281,7 @@ static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
 	}
 	nCel = mis->_miAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(const uint32_t*)pCelBuff);
+	int frames = LOAD_LE32(pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}
@@ -354,7 +354,7 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(const uint32_t*)pCelBuff);
+	int frames = LOAD_LE32(pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		const char* szMode = "unknown action";
 		if (mon->_mmode < lengthof(szMonModeAssert))
@@ -404,7 +404,7 @@ static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
 	}
 	nCel = mon->_mAnimFrame;
 #if DEBUG_MODE
-	int frames = SwapLE32(*(const uint32_t*)pCelBuff);
+	int frames = LOAD_LE32(pCelBuff);
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
 	}
@@ -487,7 +487,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		}
 		nCel = plr._pAnimFrame;
 #if DEBUG_MODE
-		int frames = SwapLE32(*(const uint32_t*)pCelBuff);
+		int frames = LOAD_LE32(pCelBuff);
 		if (nCel < 1 || frames > 50 || nCel > frames) {
 			const char* szMode = "unknown action";
 			if (plr._pmode < lengthof(szPlrModeAssert))
@@ -545,7 +545,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 			}
 			int nCel = plr._pAnimFrame;
-			int frames = SwapLE32(*(const uint32_t*)pCelBuff);
+			int frames = LOAD_LE32(pCelBuff);
 			if (nCel < 1 || frames > 50 || nCel > frames) {
 				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
 			}

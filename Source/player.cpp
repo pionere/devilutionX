@@ -299,7 +299,7 @@ if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
 		LoadFrameGroups(plr._pAnimFileData[gfxIdx], plr._pAnims[gfxIdx].paAnimData);
 
 		const BYTE* anim = plr._pAnims[gfxIdx].paAnimData[0];
-		plr._pAnims[gfxIdx].paFrames = SwapLE32(*(DWORD*)anim);
+		plr._pAnims[gfxIdx].paFrames = LOAD_LE32(anim);
 		plr._pAnims[gfxIdx].paAnimWidth = Cl2Width(anim);
 
 #ifdef HELLFIRE

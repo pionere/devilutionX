@@ -278,6 +278,9 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define SwapLE32 SDL_SwapLE32
 #define SwapLE16 SDL_SwapLE16
 
+#define LOAD_LE32(dw) (SwapLE32(*((const uint32_t*)(dw))))
+#define LOAD_LE16(sw) (SwapLE16(*((const uint16_t*)(sw))))
+
 #ifdef __has_attribute
 #define DVL_HAVE_ATTRIBUTE(x) __has_attribute(x)
 #else
