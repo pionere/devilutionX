@@ -44,8 +44,16 @@ Meta\credits_hf.txt
 Meta\Dark.tbl
 Meta\Dist.tbl
 Meta\help.txt
+Missiles\Acidbf1.CL2
+Missiles\Acidbf10.CL2
+Missiles\Acidbf11.CL2
+Missiles\Acidspla.CL2
+Missiles\Bigexp.CL2
 Missiles\Greenexp.CL2
 Missiles\Magicexp.CL2
+Missiles\Scbsexpb.CL2
+Missiles\Scbsexpc.CL2
+Missiles\Scbsexpd.CL2
 Missiles\Shroud1.CL2
 Missiles\Shroud2.CL2
 Missiles\Wind1.CL2

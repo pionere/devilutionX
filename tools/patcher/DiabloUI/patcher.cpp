@@ -181,9 +181,6 @@ typedef enum filenames {
 	FILE_MON_UNRAVN,
 	FILE_MON_UNRAVW,
 #endif // HELLFIRE
-	FILE_MIS_ACIDBF1,
-	FILE_MIS_ACIDBF10,
-	FILE_MIS_ACIDBF11,
 	FILE_MIS_FIREBA2,
 	FILE_MIS_FIREBA3,
 	FILE_MIS_FIREBA5,
@@ -389,9 +386,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_UNRAVN*/    "Monsters\\Unrav\\Unravn.CL2",
 /*FILE_MON_UNRAVW*/    "Monsters\\Unrav\\Unravw.CL2",
 #endif // HELLFIRE
-/*FILE_MIS_ACIDBF1*/   "Missiles\\Acidbf1.CL2",
-/*FILE_MIS_ACIDBF10*/  "Missiles\\Acidbf10.CL2",
-/*FILE_MIS_ACIDBF11*/  "Missiles\\Acidbf11.CL2",
 /*FILE_MIS_FIREBA2*/   "Missiles\\Fireba2.CL2",
 /*FILE_MIS_FIREBA3*/   "Missiles\\Fireba3.CL2",
 /*FILE_MIS_FIREBA5*/   "Missiles\\Fireba5.CL2",
@@ -7120,12 +7114,24 @@ static BYTE* patchUnrav(int index, BYTE* cl2Buf, size_t *dwLen)
 }
 
 #endif // HELLFIRE
-
-static BYTE* patchAcidbf(int index, BYTE* cl2Buf, size_t *dwLen)
+#if 0
+static BYTE* patchMisFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 {
-	return ReEncodeCL2(cl2Buf, dwLen, 1, 9 - 1, 96, 96);
-}
+	int frameCount = 0, width = 0, height = 0;
+	switch (index) {
+	case FILE_MIS_ACIDBF1:
+	case FILE_MIS_ACIDBF10:
+	case FILE_MIS_ACIDBF11:
+	case FILE_MIS_ACIDSPLA: frameCount =  9 - 1; width =  96; height =  96; break;
+	case FILE_MIS_BIGEXP:   frameCount = 16 - 1; width = 160; height = 160; break;
+	case FILE_MIS_SCBEXPB:
+	case FILE_MIS_SCBEXPC:
+	case FILE_MIS_SCBEXPD:  frameCount =  7 - 1; width = 128; height = 128; break;
+	}
 
+	return ReEncodeCL2(cl2Buf, dwLen, 1, frameCount, width, height);
+}
+#endif
 static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -8421,12 +8427,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = patchUnrav(index, buf, dwLen);
 	} break;
 #endif // HELLFIRE
-	case FILE_MIS_ACIDBF1:
-	case FILE_MIS_ACIDBF10:
-	case FILE_MIS_ACIDBF11:
-	{	// fix missile gfx file - Holy*.CL2
-		buf = patchAcidbf(index, buf, dwLen);
-	} break;
 	case FILE_MIS_FIREBA2:
 	case FILE_MIS_FIREBA3:
 	case FILE_MIS_FIREBA5:
