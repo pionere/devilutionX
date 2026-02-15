@@ -89,9 +89,8 @@ unsigned CelClippedWidth(const BYTE* pCelBuff);
  * @brief Apply the color swaps to a CL2-frame
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
- * @param nFrames number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames);
+void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl);
 
 /**
  * @brief calculate the width of the CL2-frame using the clipping information

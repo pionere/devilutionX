@@ -304,17 +304,18 @@ unsigned CelClippedWidth(const BYTE* pCelBuff)
  * @brief Apply the color swaps to a CL2-frame
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
- * @param nFrames number of frames in the CL2 file
  */
-void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl, int nFrames)
+void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl)
 {
 	int i, nDataSize;
-	int width;
+	int nFrames, width;
 	BYTE* dst;
 	const BYTE* end;
 
 	assert(pCelBuff != NULL);
 	assert(ttbl != NULL);
+
+	nFrames = LOAD_LE32(pCelBuff);
 
 	for (i = 1; i <= nFrames; i++) {
 		dst = const_cast<BYTE*>(CelGetFrameClippedAt(pCelBuff, i, 0, &nDataSize));

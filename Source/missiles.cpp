@@ -1550,7 +1550,7 @@ static void LoadMissileGFX(BYTE midx)
 		LoadFileWithMem(mfd->mfAnimTrans, trn);
 
 		for (i = 0; i < n; i++) {
-			Cl2ApplyTrans(mad[i], trn, mfd->mfAnimLen[i]);
+			Cl2ApplyTrans(mad[i], trn);
 		}
 	}
 }
