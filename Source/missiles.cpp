@@ -1627,6 +1627,7 @@ void InitMissileGFX(int mitype)
 	// }
 	// if (mitype == MIS_METEOR) {
 	//	LoadMissileGFX(MFILE_FIREBA);
+	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWALL)
 	// }
 	// if (mitype == MIS_LIGHTNOVAC) {
 	//	LoadMissileGFX(MFILE_LGHNING); // InitMissileGFX(MIS_LIGHTBALL)
@@ -1636,10 +1637,14 @@ void InitMissileGFX(int mitype)
 	// }
 	// if (mitype == MIS_CBOLTC) {
 	//	LoadMissileGFX(MFILE_MINILTNG); // InitMissileGFX(MIS_CBOLT)
+	//	LoadMissileGFX(MFILE_LGHNING);
 	// }
 	if (mitype == MIS_APOCAC2) {
 		LoadMissileGFX(MFILE_FIREPLAR); // InitMissileGFX(MIS_EXAPOCA2)
 	}
+	// if (mitype == MIS_PULSE) {
+	//	LoadMissileGFX(MFILE_MINILTNG);
+	// }
 #ifdef HELLFIRE
 	// if (mitype == MIS_FIRERING) {
 	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWALL)
