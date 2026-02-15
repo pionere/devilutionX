@@ -79,21 +79,21 @@ void LoadFrameGroups(const BYTE* pCelBuff, const BYTE* (&pGroups)[8]);
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 /**
- * @brief calculate the width of the CEL-frame using the clipping information
+ * @brief calculate the width of the CEL-frame using the clipping information assuming the frames have identical dimensions
  * @param pCelBuff pointer to CEL-frame offsets and data
  * @return the width of the CEL-frame
  */
 unsigned CelClippedWidth(const BYTE* pCelBuff);
 
 /**
- * @brief Apply the color swaps to a CL2-frame
+ * @brief Apply the color swaps to the CL2-frames
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
  */
 void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl);
 
 /**
- * @brief calculate the width of the CL2-frame using the clipping information
+ * @brief calculate the width of the CL2-frame using the clipping information assuming the frames have identical dimensions
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @return the width of the CL2-frame
  */
