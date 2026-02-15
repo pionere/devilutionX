@@ -5096,8 +5096,6 @@ void MI_Pulse(int mi)
 
 	dir = mis->_miRange % 8u; // NUM_DIRS
 	if (dir == 0) {
-		// assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
-		mis->_miAnimFrame = (mis->_miAnimFrame % misfiledata[MFILE_LGHNING].mfAnimLen[0]) + 1;
 		if (CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE) != 0) {
 			// AddMissile(mis->_mix, mis->_miy, -1, 0, 0, MIS_EXLGHT, MST_NA, 0, 0);
 
@@ -5111,6 +5109,10 @@ void MI_Pulse(int mi)
 	// assert(misfiledata[MFILE_MINILTNG].mfAnimLen[0] == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
 	mis->_miFileNum = dir != 0 ? MFILE_MINILTNG : MFILE_LGHNING;
 	tmp = mis->_miAnimFrame;
+	if (dir == 0) {
+		// assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+		tmp = ((unsigned)tmp % misfiledata[MFILE_LGHNING].mfAnimLen[0]) + 1;
+	}
 	SetMissAnim(mi, 0);
 	mis->_miAnimFrame = tmp;
 	mis->_miPreFlag = dir != 0;
