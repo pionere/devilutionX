@@ -692,14 +692,15 @@ static int SetupObject(int type, int ox, int oy)
 		os->_oModeFlags |= OMF_RESERVED;
 		os->_oSelFlag = 0;
 	} else {
-		if (ods->oLightRadius != 0) {
+		const BYTE olr = ods->oLightRadius;
+		if (olr != 0) {
 #if FLICKER_LIGHT
 			if (type == OBJ_L1LIGHT) {
 				os->_olid = NO_LIGHT;
 			} else
 #endif
 			{
-				TraceLightSource(ox + ods->oLightOffX, oy + ods->oLightOffY, ods->oLightRadius);
+				TraceLightSource(ox + ((olr & OLF_XO) ? 1 : 0), oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
 			}
 		}
 		if (ods->oDoorFlag != ODT_NONE) {
@@ -1836,14 +1837,15 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
 		assert(objectdata[os->_otype].oLightRadius == 0);
 		/*ods = &objectdata[os->_otype];
-		if (ods->oLightRadius != 0) {
+		const BYTE olr = ods->oLightRadius;
+		if (olr != 0) {
 #if FLICKER_LIGHT
 			if (type == OBJ_L1LIGHT) {
 				os->_olid = NO_LIGHT;
 			} else
 #endif
 			{
-				TraceLightSource(os->_ox + ods->oLightOffX, os->_oy + ods->oLightOffY, ods->oLightRadius);
+				TraceLightSource(os->_ox + ((olr & OLF_XO) ? 1 : 0), os->_oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
 			}
 		}*/
 	}

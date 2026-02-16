@@ -3138,6 +3138,12 @@ typedef enum object_proc_func {
 #endif
 } object_proc_func;
 
+typedef enum object_light_flags {
+	OLF_XO    = 1 << 6, // shift the starting position of the light by one on the y-coordinate
+	OLF_YO    = 1 << 7, // shift the starting position of the light by one on the x-coordinate
+	OLF_MASK  = (1 << 6) - 1
+} object_light_flags;
+
 typedef enum object_mode_flags { // TODO: merge with object_break_mode?
 	OMF_NONE,
 	OMF_ACTIVE   = 1 << 0, // interactive object
