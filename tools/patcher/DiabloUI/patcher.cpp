@@ -102,8 +102,10 @@ typedef enum filenames {
 	FILE_OBJ_CANDL2,
 	FILE_OBJ_LSHR,
 	FILE_OBJ_RSHR,
+	FILE_OBJ_TFOUNTN,
 #ifdef HELLFIRE
 	FILE_OBJ_L5LIGHT,
+	FILE_OBJ_URN,
 #endif
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
@@ -307,8 +309,10 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_CANDL2*/    "Objects\\Candle2.CEL",
 /*FILE_OBJ_LSHR*/      "Objects\\LShrineG.CEL",
 /*FILE_OBJ_RSHR*/      "Objects\\RShrineG.CEL",
+/*FILE_OBJ_TFOUNTN*/   "Objects\\TFountn.CEL",
 #ifdef HELLFIRE
 /*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
+/*FILE_OBJ_URN*/       "Objects\\Urn.CEL",
 #endif
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
@@ -2313,6 +2317,65 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
+}
+
+static BYTE* ReEncodeCEL(BYTE* celBuf, size_t *dwLen, int numGroups, int frameCount, int height, int width)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+
+	const size_t maxCelSize = 2 * *dwLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	bool groupped = numGroups != 1;
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCelBuf;
+	if (groupped) {
+		// add optional {CEL GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCelBuf[headerSize];
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf;
+		if (groupped) {
+			frameBuf = CelGetFrameGroup(celBuf, ii);
+		} else {
+			frameBuf = celBuf;
+		}
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
+
+			CelClippedDraw(0, height - 1, frameBuf, n, width);
+
+			pBuf = EncodeFrame(pBuf, width, height, SUB_HEADER_SIZE, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCelBuf;
+
+	mem_free_dbg(celBuf);
+	return resCelBuf;
 }
 
 static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
@@ -8137,10 +8200,18 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// fix object gfx file - RShrineG.CEL
 		buf = fixObjRShrine(buf, dwLen);
 	} break;
+	case FILE_OBJ_TFOUNTN:
+	{	// eliminate extra frames - TFountn.CEL
+		buf = ReEncodeCEL(buf, dwLen, 1, 8 - 4, 96, 128);
+	} break;
 #ifdef HELLFIRE
 	case FILE_OBJ_L5LIGHT:
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);
+	} break;
+	case FILE_OBJ_URN:
+	{	// eliminate extra frame - Urn.CEL
+		buf = ReEncodeCEL(buf, dwLen, 1, 10 - 1, 96, 96);
 	} break;
 #endif
 	case FILE_PLR_WHBAT:
