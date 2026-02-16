@@ -351,7 +351,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_URN*/      { "Urn",      IS_POPPOP2,        1, OAM_NONE,              1,        9,         96, TRUE,       OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_URNEXPLD*/ { "Urnexpld", IS_POPPOP3,        1, OAM_NONE,              1,       10,         96, TRUE,       OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_L5BOOKS*/  { "L5Books",  SFX_NONE,          0, OAM_NONE,              0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
-/*OFILE_L5CANDLE*/ { "L5Light",  SFX_NONE,          0, OAM_NONE,              2,        4,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_L5CANDLE*/ { "L5Light",  SFX_NONE,          0, OAM_NONE,              0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L5LEVER*/  { "L5Lever",  SFX_NONE,          0, OAM_NONE,              0,        0,         96, TRUE,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L6POD1*/   { "L6Pod1",   IS_POPPOP5,        1, OAM_NONE,              1,        9,         96, TRUE,       OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_L6POD2*/   { "L6Pod2",   IS_POPPOP8,        1, OAM_NONE,              1,       10,         96, TRUE,       OBM_BREAKABLE,   ALIGN32 },
