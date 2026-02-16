@@ -34,7 +34,6 @@ typedef enum filenames {
 //	FILE_TOWN_SCEL,
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
-	FILE_L1DOORS_CEL,
 	FILE_CATHEDRAL_SCEL,
 	FILE_CATHEDRAL_CEL,
 	FILE_CATHEDRAL_MIN,
@@ -49,7 +48,6 @@ typedef enum filenames {
 	FILE_BLOOD1_DUN,
 	FILE_BLOOD2_DUN,
 #if ASSET_MPL == 1
-	FILE_L2DOORS_CEL,
 	FILE_CATACOMBS_SCEL,
 	FILE_CATACOMBS_CEL,
 	FILE_CATACOMBS_MIN,
@@ -57,7 +55,6 @@ typedef enum filenames {
 	FILE_CATACOMBS_TIL,
 	FILE_FOULWATR_DUN,
 #if ASSET_MPL == 1
-	FILE_L3DOORS_CEL,
 	FILE_CAVES_CEL,
 	FILE_CAVES_MIN,
 #endif
@@ -98,10 +95,16 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #if ASSET_MPL == 1
-	FILE_OBJ_MCIRL_CEL,
-	FILE_OBJ_CNDL2_CEL,
-	FILE_OBJ_LSHR_CEL,
-	FILE_OBJ_RSHR_CEL,
+	FILE_OBJ_L1DOORS,
+	FILE_OBJ_L2DOORS,
+	FILE_OBJ_L3DOORS,
+	FILE_OBJ_MCIRL,
+	FILE_OBJ_CANDL2,
+	FILE_OBJ_LSHR,
+	FILE_OBJ_RSHR,
+#ifdef HELLFIRE
+	FILE_OBJ_L5LIGHT,
+#endif
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
@@ -147,9 +150,6 @@ typedef enum filenames {
 	FILE_NEST_MIN,
 #endif
 	FILE_NEST_TIL,
-#if ASSET_MPL == 1
-	FILE_L5LIGHT_CEL,
-#endif
 #if ASSET_MPL == 1
 	FILE_TWN_FARMER,
 	FILE_TWN_CFARMER,
@@ -239,7 +239,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 ///*FILE_TOWN_SCEL*/     "Levels\\TownData\\TownS.CEL",
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
-/*FILE_L1DOORS_CEL*/   "Objects\\L1Doors.CEL",
 /*FILE_CATHEDRAL_SCEL*/"Levels\\L1Data\\L1S.CEL",
 /*FILE_CATHEDRAL_CEL*/ "Levels\\L1Data\\L1.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
@@ -254,7 +253,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_BLOOD1_DUN*/    "Levels\\L2Data\\Blood1.DUN",
 /*FILE_BLOOD2_DUN*/    "Levels\\L2Data\\Blood2.DUN",
 #if ASSET_MPL == 1
-/*FILE_L2DOORS_CEL*/   "Objects\\L2Doors.CEL",
 /*FILE_CATACOMBS_SCEL*/"Levels\\L2Data\\L2S.CEL",
 /*FILE_CATACOMBS_CEL*/ "Levels\\L2Data\\L2.CEL",
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
@@ -262,7 +260,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
 /*FILE_FOULWATR_DUN*/  "Levels\\L3Data\\Foulwatr.DUN",
 #if ASSET_MPL == 1
-/*FILE_L3DOORS_CEL*/   "Objects\\L3Doors.CEL",
 /*FILE_CAVES_CEL*/     "Levels\\L3Data\\L3.CEL",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 #endif
@@ -303,10 +300,16 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #if ASSET_MPL == 1
-/*FILE_OBJ_MCIRL_CEL*/ "Objects\\Mcirl.CEL",
-/*FILE_OBJ_CNDL2_CEL*/ "Objects\\Candle2.CEL",
-/*FILE_OBJ_LSHR_CEL*/  "Objects\\LShrineG.CEL",
-/*FILE_OBJ_RSHR_CEL*/  "Objects\\RShrineG.CEL",
+/*FILE_OBJ_L1DOORS*/   "Objects\\L1Doors.CEL",
+/*FILE_OBJ_L2DOORS*/   "Objects\\L2Doors.CEL",
+/*FILE_OBJ_L3DOORS*/   "Objects\\L3Doors.CEL",
+/*FILE_OBJ_MCIRL*/     "Objects\\Mcirl.CEL",
+/*FILE_OBJ_CANDL2*/    "Objects\\Candle2.CEL",
+/*FILE_OBJ_LSHR*/      "Objects\\LShrineG.CEL",
+/*FILE_OBJ_RSHR*/      "Objects\\RShrineG.CEL",
+#ifdef HELLFIRE
+/*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
+#endif
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
@@ -352,9 +355,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_NEST_MIN*/      "NLevels\\L6Data\\L6.MIN",
 #endif
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
-#if ASSET_MPL == 1
-/*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
-#endif
 #if ASSET_MPL == 1
 /*FILE_TWN_FARMER*/    "Towners\\Farmer\\Farmrn2.CEL",
 /*FILE_TWN_CFARMER*/   "Towners\\Farmer\\cfrmrn2.CEL",
@@ -1663,7 +1663,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 	srcHeaderCursor++;
 
 	if (srcCelEntries != 4) {
-		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL_CEL]);
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL]);
 		mem_free_dbg(celBuf);
 		return NULL;
 	}
@@ -1866,7 +1866,7 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 	srcHeaderCursor++;
 
 	if (srcCelEntries != 4) {
-		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_CNDL2_CEL]);
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_CANDL2]);
 		mem_free_dbg(celBuf);
 		return NULL;
 	}
@@ -7853,10 +7853,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = Town_PatchMin(buf, dwLen, false);
 		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
-	case FILE_L1DOORS_CEL:
-	{	// patch L1Doors.CEL
-		buf = DRLP_L1_PatchDoors(buf, dwLen);
-	} break;
 	case FILE_CATHEDRAL_SCEL:
 	{	// patch pSpecialsCel - L1S.CEL
 		buf = DRLP_L1_PatchSpec(buf, dwLen);
@@ -7927,10 +7923,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		patchDungeon(index, buf, dwLen);
 	} break;
 #if ASSET_MPL == 1
-	case FILE_L2DOORS_CEL:
-	{	// patch L2Doors.CEL
-		buf = DRLP_L2_PatchDoors(buf, dwLen);
-	} break;
 	case FILE_CATACOMBS_SCEL:
 	{	// patch pSpecialsCel - L2S.CEL
 		buf = DRLP_L2_PatchSpec(buf, dwLen);
@@ -7980,10 +7972,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		DRLP_L2_PatchTil(buf);
 	} break;
 #if ASSET_MPL == 1
-	case FILE_L3DOORS_CEL:
-	{	// patch L3Doors.CEL
-		buf = DRLP_L3_PatchDoors(buf, dwLen);
-	} break;
 	case FILE_CAVES_CEL:
 	{	// patch dMicroCels - L3.CEL
 		size_t minLen;
@@ -8121,22 +8109,40 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 	} break;
 #if ASSET_MPL == 1
-	case FILE_OBJ_MCIRL_CEL:
+	case FILE_OBJ_L1DOORS:
+	{	// patch L1Doors.CEL
+		buf = DRLP_L1_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_OBJ_L2DOORS:
+	{	// patch L2Doors.CEL
+		buf = DRLP_L2_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_OBJ_L3DOORS:
+	{	// patch L3Doors.CEL
+		buf = DRLP_L3_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_OBJ_MCIRL:
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
 	} break;
-	case FILE_OBJ_CNDL2_CEL:
+	case FILE_OBJ_CANDL2:
 	{	// fix object gfx file - Candle2.CEL
 		buf = fixObjCandle(buf, dwLen);
 	} break;
-	case FILE_OBJ_LSHR_CEL:
+	case FILE_OBJ_LSHR:
 	{	// fix object gfx file - LShrineG.CEL
 		buf = fixObjLShrine(buf, dwLen);
 	} break;
-	case FILE_OBJ_RSHR_CEL:
+	case FILE_OBJ_RSHR:
 	{	// fix object gfx file - RShrineG.CEL
 		buf = fixObjRShrine(buf, dwLen);
 	} break;
+#ifdef HELLFIRE
+	case FILE_OBJ_L5LIGHT:
+	{	// fix object gfx file - L5Light.CEL
+		buf = fixL5Light(buf, dwLen);
+	} break;
+#endif
 	case FILE_PLR_WHBAT:
 	case FILE_PLR_WLBAT:
 	case FILE_PLR_WMBAT:
@@ -8336,12 +8342,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 		DRLP_L5_PatchTil(buf);
 	} break;
-#if ASSET_MPL == 1
-	case FILE_L5LIGHT_CEL:
-	{	// fix object gfx file - L5Light.CEL
-		buf = fixL5Light(buf, dwLen);
-	} break;
-#endif // ASSET_MPL
 #if ASSET_MPL == 1
 	case FILE_TWN_FARMER:  // Farmrn2.CEL
 	case FILE_TWN_CFARMER: // cfrmrn2.CEL
