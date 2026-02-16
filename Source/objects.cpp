@@ -139,7 +139,7 @@ const int flickers[32] = {
 };
 #endif
 
-void AddObjectType(int ofindex)
+static void AddObjectType(int ofindex)
 {
 	char filestr[DATA_ARCHIVE_MAX_PATH];
 
