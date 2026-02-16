@@ -139,8 +139,9 @@ const int flickers[32] = {
 };
 #endif
 
-static void AddObjectType(int ofindex)
+static void AddObjectType(const ObjectData* ods)
 {
+	const int ofindex = ods->ofindex;
 	char filestr[DATA_ARCHIVE_MAX_PATH];
 
 	if (objanimdata[ofindex] != NULL) {
@@ -177,7 +178,7 @@ void InitObjectGFX()
 			continue;
 		}
 		fileload[ods->ofindex] = true;
-		AddObjectType(ods->ofindex);
+		AddObjectType(ods);
 	}
 }
 
@@ -628,7 +629,7 @@ static void LoadMapSetObjects(int idx)
 				assert(oidx < lengthof(ObjConvTbl));
 				oidx = ObjConvTbl[oidx]; // index of objectdata
 				assert(oidx != 0);
-				AddObjectType(objectdata[oidx].ofindex);
+				AddObjectType(&objectdata[oidx]);
 				AddObject(oidx, i, j);
 			}
 			lm++;
