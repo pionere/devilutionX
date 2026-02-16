@@ -833,24 +833,24 @@ static_warning((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align Un
 //////////////////////////////////////////////////
 
 typedef struct ObjectData {
-	BYTE ofindex;     // object_graphic_id
-	BYTE oLvlTypes;   // dungeon_type_mask
-	BYTE otheme;      // theme_id
-	BYTE oquest;      // quest_id
+	BYTE ofindex;        // object_graphic_id
+	BYTE oLvlTypes;      // dungeon_type_mask
+	BYTE otheme;         // theme_id
+	BYTE oquest;         // quest_id
 	//BYTE oAnimFlag;
 	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
-	//int oAnimLen;   // Number of frames in current animation
+	//int oAnimLen;      // Number of frames in current animation
 	//int oAnimWidth;
 	//int oSFX;
 	//BYTE oSFXCnt;
-	BYTE oLightRadius; // light radius with optional x/y offset
-	BYTE oProc;       // object_proc_func
-	BYTE oModeFlags;  // object_mode_flags
+	BYTE oLightRadius;   // light radius with optional x/y offset
+	BYTE oProc;          // object_proc_func
+	BYTE oModeFlags;     // object_mode_flags
 	//BOOL oSolidFlag;
 	//BYTE oBreak;
 	BOOLEAN oMissFlag;
-	BYTE oDoorFlag;   // object_door_type
+	BYTE oDoorFlag;      // object_door_type
 	BYTE oSelFlag;
 	BYTE oPreFlag;
 	BOOLEAN oTrapFlag;
