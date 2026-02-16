@@ -1706,6 +1706,8 @@ void ValidateData()
 				app_fatal("Incorrect oAnimFlag %d for %s (%d)", od.oAnimFlag, od.ofName, i);
 			if (od.oAnimFrameLen <= 0)
 				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
+			if (od.oAnimFrameLen >= 0x7FFF) // required by SetupObject
+				app_fatal("Too high oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
 			if (od.oAnimLen <= 1) // required by SetupObject
 				app_fatal("Invalid oAnimLen %d for %s (%d)", od.oAnimLen, od.ofName, i);
 			if (od.oAnimLen >= 0x7FFF) // required by SetupObject
