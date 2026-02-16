@@ -23,6 +23,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
+static int objanimdim[NUM_OFILE_TYPES];
 // int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
@@ -150,6 +151,7 @@ static void AddObjectType(const ObjectData* ods)
 
 	snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[ofindex].ofName);
 	objanimdata[ofindex] = LoadFileInMem(filestr);
+	objanimdim[ofindex] = CelClippedWidth(objanimdata[ofindex]);
 }
 
 void InitObjectGFX()
@@ -676,7 +678,7 @@ static int SetupObject(int type, int ox, int oy)
 		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 	}
-	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
+	os->_oAnimWidth = objanimdim[ods->ofindex];
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oBreak = ofd->oBreak;
@@ -3561,7 +3563,7 @@ void SyncObjectAnim(int oi)
 	ofidx = objectdata[type].ofindex;
 	os->_oAnimData = objanimdata[ofidx];
 	os->_oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
-	os->_oAnimWidth = objfiledata[ofidx].oAnimWidth * ASSET_MPL;
+	os->_oAnimWidth = objanimdim[ofidx];
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	switch (type) {
 	case OBJ_L1LDOOR:

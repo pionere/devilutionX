@@ -868,10 +868,9 @@ typedef struct ObjFileData {
 	BYTE oAnimFlag; // object_anim_mode
 	int oAnimFrameLen; // Tick length of each frame in the current animation
 	int oAnimLen;   // Number of frames in current animation
-	int oAnimWidth;
 	BOOLEAN oSolidFlag;
 	BYTE oBreak; // object_break_mode
-	ALIGNMENT32(1)
+	ALIGNMENT(2, 1)
 } ObjFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
