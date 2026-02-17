@@ -3982,35 +3982,39 @@ void MI_Firewall(int mi)
 			mis->_miMinDam += mis->_miAnimAdd >= 0 ? mis->_miVar3 : -mis->_miVar3;
 			mis->_miMaxDam += mis->_miAnimAdd >= 0 ? mis->_miVar4 : -mis->_miVar4;
 		}
-		// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
-		if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]
-		// && mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen - 1
-		 && mis->_miAnimAdd >= 0) {
-			// start 'stand' after spawn
-			SetMissAnim(mi, 1);
-			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
-			mis->_miVar1 = RandRange(1, 256);
-		} else if (mis->_miAnimAdd < 0 && mis->_miAnimFrame == 1) {
-			mis->_miDelFlag = TRUE; // + AddUnLight
-			return;
+		if (mis->_miAnimAdd >= 0) {
+			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
+			// assert(mis->_miAnimFrameLen == 1);
+			if (mis->_miAnimFrame == misfiledata[MFILE_FIREWAL].mfAnimLen[0]) {
+				// && mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen - 1
+				// start 'stand' after spawn
+				SetMissAnim(mi, 1);
+				// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+				mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
+				mis->_miVar1 = RandRange(1, 256);
+			}
+		} else {
+			if (mis->_miAnimFrame == 1) {
+				mis->_miDelFlag = TRUE; // + AddUnLight
+				return;
+			}
 		}
 	} else {
 		// assert(mis->_miDir == 1);
 		mis->_miRange--;
-		if (--mis->_miVar1 == 0 && mis->_miRange > 64) {
-			// add random firewall sfx, but only if the fire last more than ~2s
-			mis->_miVar1 = 255;
-			// assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
-			// assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
-			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
-		} else if (mis->_miRange < 0) {
+		if (mis->_miRange < 0) {
 			// start collapse
 			SetMissAnim(mi, 0);
 			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
 			mis->_miAnimFrame = misfiledata[MFILE_FIREWAL].mfAnimLen[0];
 			mis->_miAnimAdd = -1;
 			// mis->_miRange = 0;
+		} else if (mis->_miRange > 64 && --mis->_miVar1 == 0) {
+			// add random firewall sfx, but only if the fire last more than ~2s
+			mis->_miVar1 = 255;
+			// assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
+			// assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
+			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
 		}
 	}
 	PutMissileF(mi, BFLAG_HAZARD); // TODO: do not place hazard if the source is a monster
