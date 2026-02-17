@@ -158,11 +158,9 @@ void InitObjectGFX()
 {
 	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
-	bool fileload[NUM_OFILE_TYPES];
 	int i;
 
-	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
-	memset(fileload, 0, sizeof(fileload));
+	static_assert(false == 0, "InitObjectGFX fills themeload with 0 instead of false values.");
 	memset(themeload, 0, sizeof(themeload));
 
 	for (i = 0; i < numthemes; i++)
@@ -176,10 +174,6 @@ void InitObjectGFX()
 		 && (ods->oquest == Q_INVALID || !QuestStatus(ods->oquest))) {
 			continue;
 		}
-		if (fileload[ods->ofindex]) {
-			continue;
-		}
-		fileload[ods->ofindex] = true;
 		AddObjectType(ods);
 	}
 }
