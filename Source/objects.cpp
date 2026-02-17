@@ -667,7 +667,7 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oAnimFlag = ofd->oAnimFlag;
 	os->_oAnimFrameLen = ofd->oAnimFrameLen;
 	os->_oAnimLen = ofd->oAnimLen;
-	//os->_oAnimCnt = 0;
+	os->_oAnimCnt = 0;
 	if (ofd->oAnimFlag != OAM_NONE) {
 		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
