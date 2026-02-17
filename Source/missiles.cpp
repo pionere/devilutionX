@@ -2238,7 +2238,7 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	int magic, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
-	mis->_miRange = 64 * spllvl + 160;
+	mis->_miRange = 64 * spllvl + 134;
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
 		// TODO: add support for spell duration modifier
@@ -3970,11 +3970,6 @@ void MI_Firewall(int mi)
 
 	mis = &missile[mi];
 	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
-	mis->_miRange--;
-	if (mis->_miRange < 0) {
-		mis->_miDelFlag = TRUE; // + AddUnLight
-		return;
-	}
 	if (mis->_miDir == 0) {
 		if (mis->_miLid == NO_LIGHT) {
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, FireWallLight[0]);
@@ -3996,21 +3991,26 @@ void MI_Firewall(int mi)
 			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miAnimFrame = RandRange(1, misfiledata[MFILE_FIREWAL].mfAnimLen[1]);
 			mis->_miVar1 = RandRange(1, 256);
+		} else if (mis->_miAnimAdd < 0 && mis->_miAnimFrame == 1) {
+			mis->_miDelFlag = TRUE; // + AddUnLight
+			return;
 		}
 	} else {
 		// assert(mis->_miDir == 1);
+		mis->_miRange--;
 		if (--mis->_miVar1 == 0 && mis->_miRange > 64) {
 			// add random firewall sfx, but only if the fire last more than ~2s
 			mis->_miVar1 = 255;
 			// assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
 			// assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
 			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
-		} else if (mis->_miRange == misfiledata[MFILE_FIREWAL].mfAnimLen[0] - 1) {
+		} else if (mis->_miRange < 0) {
 			// start collapse
 			SetMissAnim(mi, 0);
 			// assert(mis->_miAnimLen == misfiledata[MFILE_FIREWAL].mfAnimLen[0]);
 			mis->_miAnimFrame = misfiledata[MFILE_FIREWAL].mfAnimLen[0];
 			mis->_miAnimAdd = -1;
+			// mis->_miRange = 0;
 		}
 	}
 	PutMissileF(mi, BFLAG_HAZARD); // TODO: do not place hazard if the source is a monster
