@@ -2332,7 +2332,7 @@ int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 	mis->_miy = dy - 2;
 	mis->_miVar1 = 0;
 	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
-	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * misfiledata[MFILE_BLODBURS].mfAnimFrameLen * misfiledata[MFILE_BLODBURS].mfAnimLen[0] / 2;
+	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * 8;
 	return MIRES_DONE;
 }
 
