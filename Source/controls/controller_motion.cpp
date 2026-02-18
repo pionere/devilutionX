@@ -2,8 +2,7 @@
 
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 
-#include <cmath>
-
+#include "all.h"
 #include "controller.h"
 #include "devices/game_controller.h"
 #include "devices/joystick.h"
@@ -135,19 +134,10 @@ bool ProcessControllerMotion(const SDL_Event& event)
 	return false;
 }
 
-static const direction FaceDir[3][3] = {
-	// NONE      UP      DOWN
-	{ DIR_NONE, DIR_N, DIR_S }, // NONE
-	{ DIR_W, DIR_NW, DIR_SW },  // LEFT
-	{ DIR_E, DIR_NE, DIR_SE },  // RIGHT
-};
-
 int GetLeftStickOrDpadDirection(bool allowDpad)
 {
 	float stickX = leftStickX;
 	float stickY = leftStickY;
-
-	int dx = 0, dy = 0;
 
 	if (allowDpad && !IsControllerButtonPressed(ControllerButton_BUTTON_START)) {
 		if (IsControllerButtonPressed(ControllerButton_BUTTON_DPAD_UP))
@@ -160,19 +150,17 @@ int GetLeftStickOrDpadDirection(bool allowDpad)
 			stickX = -1.0f;
 	}
 
-	if (stickY >= 0.5) {
-		dy = 1;
-	} else if (stickY <= -0.5) {
-		dy = 2;
+	int res = DIR_NONE;
+	constexpr float StickDirectionThreshold = 0.4F;
+	if (stickX * stickX + stickY * stickY >= StickDirectionThreshold * StickDirectionThreshold) {
+		const int MAX_DIST = -256;
+		const int dx = stickX * MAX_DIST;
+		const int dy = stickY * MAX_DIST;
+		POS32 tpos = { 0, 0 };
+		SHIFT_GRID(tpos.x, tpos.y, dx, dy);
+		res = GetDirection(0, 0, tpos.x, tpos.y);
 	}
-
-	if (stickX <= -0.5) {
-		dx = 1;
-	} else if (stickX >= 0.5) {
-		dx = 2;
-	}
-
-	return FaceDir[dx][dy];
+	return res;
 }
 
 DEVILUTION_END_NAMESPACE

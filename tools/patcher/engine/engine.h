@@ -13,6 +13,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+/* Calculate direction (DIR_) from (x1;y1) to (x2;y2) */
+int GetDirection(int x1, int y1, int x2, int y2);
 /**
  * @brief Multithreaded safe malloc
  * @param dwBytes Byte size to allocate
