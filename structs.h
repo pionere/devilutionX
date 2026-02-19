@@ -838,7 +838,8 @@ typedef struct ObjectData {
 	BYTE otheme;         // theme_id
 	BYTE oquest;         // quest_id
 	//BYTE oAnimFlag;
-	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
+	BYTE oBaseFrame;     // The base frame of the objects
+	BYTE oAnimBaseFrame; // The starting frame of (initially) non-animated objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
 	//int oAnimLen;      // Number of frames in current animation
 	//int oAnimWidth;
@@ -854,7 +855,7 @@ typedef struct ObjectData {
 	BYTE oSelFlag;
 	BYTE oPreFlag;
 	BOOLEAN oTrapFlag;
-	BYTE oAlign[3];
+	BYTE oAlign[2];
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -886,6 +887,7 @@ typedef struct ObjectStruct {
 	BYTE _oAnimFlag;  // object_anim_mode
 	BYTE _oProc;      // object_proc_func
 	BYTE _oModeFlags; // object_mode_flags
+	int _oGfxFrame;   // the base frame of graphics
 	const BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
@@ -912,7 +914,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(8, 6)
+	ALIGNMENT(7, 6)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1409,6 +1411,7 @@ typedef struct LSaveObjectStruct {
 	BYTE voAnimFlag;
 	BYTE voProc;
 	BYTE voModeFlags;
+	INT voGfxFrame;       // the base frame of graphics
 	INT voAnimDataAlign;
 	LE_INT32 voAnimFrameLen; // Tick length of each frame in the current animation
 	LE_INT32 voAnimCnt;   // Increases by one each game tick, counting how close we are to voAnimFrameLen

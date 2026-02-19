@@ -567,7 +567,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 static void DrawObject(int oi, int x, int y, int ox, int oy)
 {
 	const ObjectStruct* os;
-	int sx, sy, xx, yy, nCel, nWidth;
+	int sx, sy, xx, yy, nGfxCel, nAnimCel, nWidth;
 	bool mainTile;
 	const BYTE* pCelBuff;
 	// assert(oi != 0);
@@ -593,18 +593,33 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 		dev_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 	}
 
-	nCel = os->_oAnimFrame;
+	nWidth = os->_oAnimWidth;
+
+	nGfxCel = os->_oGfxFrame;
+	nAnimCel = os->_oAnimFrame;
 #if DEBUG_MODE
 	int frames = ((const CelImageBuf*)pCelBuff)->ciFrameCnt;
-	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Object: frame %d of %d, type %d", nCel, frames, os->_otype);
+	if (nGfxCel > frames) {
+		dev_fatal("Draw Object Gfx: frame %d of %d, type %d", nGfxCel, frames, os->_otype);
+	}
+	if (nAnimCel > frames) {
+		dev_fatal("Draw Object Anim: frame %d of %d, type %d", nAnimCel, frames, os->_otype);
 	}
 #endif
-	nWidth = os->_oAnimWidth;
 	if (oi == pcursobj) {
-		CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nCel, nWidth);
+		if (nGfxCel > 0) {
+			CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nGfxCel, nWidth);
+		}
+		if (nAnimCel > 0) {
+			CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nAnimCel, nWidth);
+		}
 	}
-	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, nWidth, light_trn_index);
+	if (nGfxCel > 0) {
+		CelClippedDrawLightTbl(sx, sy, pCelBuff, nGfxCel, nWidth, light_trn_index);
+	}
+	if (nAnimCel > 0) {
+		CelClippedDrawLightTbl(sx, sy, pCelBuff, nAnimCel, nWidth, light_trn_index);
+	}
 }
 
 /**

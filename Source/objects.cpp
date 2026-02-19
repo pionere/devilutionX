@@ -379,7 +379,7 @@ static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 	oi = AddObject(type, pos.x, pos.y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
-	objects[oi]._oVar6 = objects[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
+	objects[oi]._oVar6 = objects[oi]._oGfxFrame + 1; // LEVER_BOOK_ANIM
 	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
@@ -659,6 +659,7 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oPreFlag = ods->oPreFlag;
 	os->_oProc = ods->oProc;
 	os->_oModeFlags = ods->oModeFlags;
+	os->_oGfxFrame = ods->oBaseFrame;
 	os->_oAnimFrame = ods->oAnimBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
 	ofd = &objfiledata[ods->ofindex];
@@ -773,8 +774,8 @@ static void AddL5StoryBook(int bookidx, int ox, int oy)
 	// assert(oi != -1);
 
 	os = &objects[oi];
-	// assert(os->_oAnimFrame == objectdata[OBJ_L5BOOK].oAnimBaseFrame);
-	os->_oVar4 = objectdata[OBJ_L5BOOK].oAnimBaseFrame + 1; // STORY_BOOK_READ_FRAME
+	// assert(os->_oGfxFrame == objectdata[OBJ_L5BOOK].oBaseFrame);
+	os->_oVar4 = objectdata[OBJ_L5BOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
 	os->_oVar2 = TEXT_BOOK4 + bookidx;                      // STORY_BOOK_MSG
 	os->_oVar5 = BK_STORY_NAKRUL_1 + bookidx;               // STORY_BOOK_NAME
 }
@@ -802,8 +803,8 @@ static void AddNakrulBook(int oi)
 	bookidx += QNB_BOOK_A;
 
 	os = &objects[oi];
-	// assert(os->_oAnimFrame == objectdata[OBJ_NAKRULBOOK].oAnimBaseFrame);
-	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oAnimBaseFrame + 1; // STORY_BOOK_READ_FRAME
+	// assert(os->_oGfxFrame == objectdata[OBJ_NAKRULBOOK].oBaseFrame);
+	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
 	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;             // STORY_BOOK_MSG
 	os->_oVar3 = bookidx;                                       // STORY_BOOK_NAKRUL_IDX
 	os->_oVar5 = BK_NAKRUL_SPELL;                               // STORY_BOOK_NAME
@@ -1069,7 +1070,7 @@ static void AddChest(int oi)
 
 	os = &objects[oi];
 	if (random_(147, 2) == 0)
-		os->_oAnimFrame += 3;
+		os->_oGfxFrame += 3;
 	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
 	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
 	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
@@ -1187,7 +1188,7 @@ static void ObjAddBloodBook(int oi)
 	os = &objects[oi];
 	os->_oRndSeed = NextRndSeed();
 	os->_oVar5 = BK_BLOOD;                   // STORY_BOOK_NAME
-	os->_oVar6 = os->_oAnimFrame + 1;        // LEVER_BOOK_ANIM
+	os->_oVar6 = os->_oGfxFrame + 1;         // LEVER_BOOK_ANIM
 	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
 	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
 	leverid++;
@@ -1216,7 +1217,7 @@ static void AddDecap(int oi)
 
 	os = &objects[oi];
 	os->_oRndSeed = NextRndSeed();
-	os->_oAnimFrame = RandRange(1, 8);
+	os->_oGfxFrame = RandRange(1, 8);
 }
 
 static void AddMagicCircle(int oi)
@@ -1243,8 +1244,8 @@ static void AddStoryBook(int oi)
 	// os->_oVar1 = bookframe;
 	os->_oVar2 = 3 * bookframe + idx + TEXT_BOOK11;      // STORY_BOOK_MSG
 	os->_oVar5 = 3 * bookframe + idx + BK_STORY_MAINA_1; // STORY_BOOK_NAME
-	os->_oAnimFrame = 5 - 2 * bookframe;                 //
-	os->_oVar4 = os->_oAnimFrame + 1;                    // STORY_BOOK_READ_FRAME
+	os->_oGfxFrame = 5 - 2 * bookframe;                  //
+	os->_oVar4 = os->_oGfxFrame + 1;                     // STORY_BOOK_READ_FRAME
 }
 
 static void AddTorturedMaleBody(int oi)
@@ -1253,7 +1254,7 @@ static void AddTorturedMaleBody(int oi)
 
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
-	os->_oAnimFrame = RandRange(1, 4);
+	os->_oGfxFrame = RandRange(1, 4);
 }
 
 static void AddTorturedFemaleBody(int oi)
@@ -1262,7 +1263,7 @@ static void AddTorturedFemaleBody(int oi)
 
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
-	os->_oAnimFrame = RandRange(1, 3);
+	os->_oGfxFrame = RandRange(1, 3);
 }
 
 int AddObject(int type, int ox, int oy)
@@ -1448,10 +1449,10 @@ static void Obj_Circle(int oi)
 	oy = os->_oy;
 	if (myplr._pmode == PM_STAND && myplr._px == ox && myplr._py == oy) {
 		if (os->_otype == OBJ_MCIRCLE1)
-			os->_oAnimFrame = 2;
+			os->_oGfxFrame = 2;
 		else {
 			//assert(os->_otype == OBJ_MCIRCLE2);
-			os->_oAnimFrame = 4;
+			os->_oGfxFrame = 4;
 		}
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
@@ -1469,10 +1470,10 @@ static void Obj_Circle(int oi)
 		}
 	} else {
 		if (os->_otype == OBJ_MCIRCLE1)
-			os->_oAnimFrame = 1;
+			os->_oGfxFrame = 1;
 		else {
 			//assert(os->_otype == OBJ_MCIRCLE2);
-			os->_oAnimFrame = 3;
+			os->_oGfxFrame = 3;
 		}
 	}
 }
@@ -1729,7 +1730,7 @@ static void OpenDoor(ObjectStruct* os)
 	os->_oSelFlag = (objectdata[OBJ_L1LDOOR].oSelFlag & ~1) | 4;
 	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame += 2;
 }
 
 static void CloseDoor(ObjectStruct* os)
@@ -1739,7 +1740,7 @@ static void CloseDoor(ObjectStruct* os)
 	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
 	// TODO: set os->_oSolidFlag = TRUE;
 	os->_oMissFlag = FALSE;
-	os->_oAnimFrame -= 2;
+	os->_oGfxFrame -= 2;
 }
 
 /*
@@ -1892,7 +1893,7 @@ static void OperateLever(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
@@ -1928,7 +1929,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 5
+	os->_oGfxFrame++; // 5
 
 	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 	//for (i = 0; i < numobjects; i++)
@@ -1945,7 +1946,7 @@ static void OperateAncientTome(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (deltaload)
 		return;
@@ -1978,8 +1979,8 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	// assert(os->_oSelFlag != 0);
 	qn = os->_oVar7; // LEVER_BOOK_QUEST
 
-	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
-		os->_oAnimFrame = os->_oVar6;    // LEVER_BOOK_ANIM
+	if (os->_oGfxFrame != os->_oVar6) { // LEVER_BOOK_ANIM
+		os->_oGfxFrame = os->_oVar6;    // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
 			DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
 		if (qn == Q_BLIND) {
@@ -2020,7 +2021,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame += 2;
 
 	if (deltaload)
 		return;
@@ -2088,7 +2089,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 	if (deltaload)
 		return;
 
@@ -2116,7 +2117,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame += 2;
 	if (deltaload)
 		return;
 
@@ -2252,7 +2253,7 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	os->_oAnimFrame = quests[Q_BLOOD]._qvar1;
+	os->_oGfxFrame = quests[Q_BLOOD]._qvar1;
 	if (quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3) {
 		os->_oModeFlags &= ~OMF_ACTIVE;
 		os->_oSelFlag = 0;
@@ -2332,7 +2333,7 @@ static void CloseChest(int oi)
 	if (!(os->_oModeFlags & OMF_RESERVED)) {
 		os->_oSelFlag = 1;
 	}
-	os->_oAnimFrame -= 2;
+	os->_oGfxFrame -= 2;
 
 	//SetRndSeed(os->_oRndSeed); -- do NOT set RndSeed, might conflict with the other chests
 	os->_oRndSeed = NextRndSeed();
@@ -2827,7 +2828,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame += 2;
 
 	if (deltaload)
 		return;
@@ -2849,7 +2850,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame -= 2;
+	os->_oGfxFrame -= 2;
 	if (deltaload)
 		return;
 
@@ -2889,7 +2890,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oGfxFrame++;
 	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 
@@ -2974,7 +2975,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oGfxFrame++;
 	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	if (deltaload)
@@ -3002,7 +3003,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	// assert(os->_oSelFlag != 0);
 
-	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	os->_oGfxFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 		return;
 	}
@@ -3028,7 +3029,7 @@ static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oSelFlag != 0);
 	// assert(currLvl._dLevelIdx == DLV_CRYPT4);
 
-	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	os->_oGfxFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 		if (os->_oVar3 == QNB_BOOK_C) { // STORY_BOOK_NAKRUL_IDX
 			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN)
@@ -3060,7 +3061,7 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
@@ -3090,7 +3091,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (deltaload)
 		return;
@@ -3510,7 +3511,7 @@ static void SyncLever(const ObjectStruct* os)
 
 static void SyncBookLever(const ObjectStruct* os)
 {
-	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
+	if (os->_oGfxFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
