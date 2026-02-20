@@ -839,7 +839,6 @@ typedef struct ObjectData {
 	BYTE oquest;         // quest_id
 	//BYTE oAnimFlag;
 	BYTE oBaseFrame;     // The base frame of the objects
-	BYTE oAnimBaseFrame; // The starting frame of (initially) non-animated objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
 	//int oAnimLen;      // Number of frames in current animation
 	//int oAnimWidth;
@@ -855,7 +854,7 @@ typedef struct ObjectData {
 	BYTE oSelFlag;
 	BYTE oPreFlag;
 	BOOLEAN oTrapFlag;
-	BYTE oAlign[2];
+	BYTE oAlign[3];
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

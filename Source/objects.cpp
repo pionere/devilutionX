@@ -660,7 +660,6 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oProc = ods->oProc;
 	os->_oModeFlags = ods->oModeFlags;
 	os->_oGfxFrame = ods->oBaseFrame;
-	os->_oAnimFrame = ods->oAnimBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
 	ofd = &objfiledata[ods->ofindex];
 	os->_oSFX = ofd->oSFX;
@@ -669,9 +668,16 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oAnimFrameLen = ofd->oAnimFrameLen;
 	os->_oAnimLen = ofd->oAnimLen;
 	os->_oAnimCnt = 0;
+	os->_oAnimFrame = 0;
 	if (ofd->oAnimFlag != OAM_NONE) {
-		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
-		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
+		if (ofd->oAnimFlag == OAM_SINGLE) {
+			os->_oAnimFlag = OAM_NONE;
+			os->_oAnimFrame = 1;
+		} else {
+			// assert(ofd->oAnimFlag == OAM_LOOP);
+			os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
+			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
+		}
 	}
 	os->_oAnimWidth = objanimdim[ods->ofindex];
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
