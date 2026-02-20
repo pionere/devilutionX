@@ -2608,7 +2608,8 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	SetRndSeed(os->_oRndSeed);
 
 	PlaySfxLocN(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
-	os->_oAnimFlag = OAM_SINGLE;
+	// assert(os->_oAnimFlag == OAM_NONE || os->_oAnimFlag == OAM_LOOP);
+	os->_oAnimFlag = os->_oAnimFlag == OAM_NONE ? OAM_SINGLE : OAM_LOOP;
 	//os->_oAnimFrameLen = 1;
 
 	switch (os->_oVar1) { // SHRINE_TYPE
@@ -2911,13 +2912,6 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	static_assert(ITYPE_MARMOR + 1 == ITYPE_HARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors II.");
 	itype = ITYPE_LARMOR + random_(0, currLvl._dLevel >= 24 ? 3 : (currLvl._dLevel >= 10 ? 2 : 1));
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-}
-
-static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
-{
-	OperateShrine(pnum, oi, sendmsg);
-	// restore state
-	objects[oi]._oAnimFlag = OAM_LOOP;
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
@@ -3273,6 +3267,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
+	case OBJ_GOATSHRINE:
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, sendmsg);
 		break;
@@ -3289,9 +3284,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_ARMORSTAND:
 		OperateArmorStand(oi, sendmsg);
-		break;
-	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi, sendmsg);
 		break;
 	case OBJ_BLOODFTN:
 	case OBJ_PURIFYINGFTN:
@@ -3437,6 +3429,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
+	case OBJ_GOATSHRINE:
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, false);
 		break;
@@ -3453,9 +3446,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_ARMORSTAND:
 		OperateArmorStand(oi, false);
-		break;
-	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi, false);
 		break;
 	// case OBJ_BLOODFTN:
 	// case OBJ_PURIFYINGFTN:
