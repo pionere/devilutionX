@@ -661,6 +661,8 @@ static int SetupObject(int type, int ox, int oy)
 	os->_oModeFlags = ods->oModeFlags;
 	os->_oGfxFrame = ods->oBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
+	os->_oAnimWidth = objanimdim[ods->ofindex];
+	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	ofd = &objfiledata[ods->ofindex];
 	os->_oSFX = ofd->oSFX;
 	os->_oSFXCnt = ofd->oSFXCnt;
@@ -679,8 +681,6 @@ static int SetupObject(int type, int ox, int oy)
 			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 		}
 	}
-	os->_oAnimWidth = objanimdim[ods->ofindex];
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
