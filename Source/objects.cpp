@@ -2914,14 +2914,6 @@ static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
 	objects[oi]._oAnimFlag = OAM_LOOP;
 }
 
-static void OperateCauldron(int pnum, int oi, bool sendmsg)
-{
-	OperateShrine(pnum, oi, sendmsg);
-	// restore state
-	objects[oi]._oAnimFrame = 3;
-	objects[oi]._oAnimFlag = OAM_NONE;
-}
-
 static void OperateFountains(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -3275,6 +3267,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
+	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, sendmsg);
 		break;
 	case OBJ_BOOK2R:
@@ -3293,9 +3286,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_GOATSHRINE:
 		OperateGoatShrine(pnum, oi, sendmsg);
-		break;
-	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi, sendmsg);
 		break;
 	case OBJ_BLOODFTN:
 	case OBJ_PURIFYINGFTN:
@@ -3441,6 +3431,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
+	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, false);
 		break;
 	case OBJ_BOOK2R:
@@ -3459,9 +3450,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_GOATSHRINE:
 		OperateGoatShrine(pnum, oi, false);
-		break;
-	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi, false);
 		break;
 	// case OBJ_BLOODFTN:
 	// case OBJ_PURIFYINGFTN:

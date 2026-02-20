@@ -337,7 +337,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_PFOUNTN*/  { "PFountn",  SFX_NONE,          0, OAM_LOOP,              2,       10, TRUE,       OBM_UNBREAKABLE, ALIGN },
 /*OFILE_ARMSTAND*/ { "Armstand", SFX_NONE,          0, OAM_NONE,              0,        0, TRUE,       OBM_UNBREAKABLE, ALIGN },
 /*OFILE_GOATSHRN*/ { "Goatshrn", LS_GSHRINE,        1, OAM_LOOP,              2,       10, TRUE,       OBM_UNBREAKABLE, ALIGN },
-/*OFILE_CAULDREN*/ { "Cauldren", LS_CALDRON,        1, OAM_NONE,              0,        0, TRUE,       OBM_UNBREAKABLE, ALIGN },
+/*OFILE_CAULDREN*/ { "Cauldren", LS_CALDRON,        1, OAM_NONE,              2,        3, TRUE,       OBM_UNBREAKABLE, ALIGN },
 /*OFILE_MFOUNTN*/  { "MFountn",  SFX_NONE,          0, OAM_LOOP,              2,       10, TRUE,       OBM_UNBREAKABLE, ALIGN },
 /*OFILE_TFOUNTN*/  { "TFountn",  SFX_NONE,          0, OAM_LOOP,              2,        4, TRUE,       OBM_UNBREAKABLE, ALIGN },
 /*OFILE_ALTBOY*/   { "Altboy",   SFX_NONE,          0, OAM_NONE,              0,        0, TRUE,       OBM_UNBREAKABLE, ALIGN },
