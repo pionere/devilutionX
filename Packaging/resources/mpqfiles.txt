@@ -72,6 +72,9 @@ NLevels\TownData\Town.DUN
 NLevels\TownData\Town.RDUN
 NLevels\TownData\Town.SLA
 NLevels\TownData\Town.TIL
+Objects\CruxSk1.CEL
+Objects\CruxSk2.CEL
+Objects\CruxSk3.CEL
 Objects\Sarc.CEL
 PlrGFX\Coral.TRN
 PlrGFX\SBlue.TRN
