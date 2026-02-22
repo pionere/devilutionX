@@ -99,10 +99,10 @@ typedef enum filenames {
 	FILE_OBJ_L2DOORS,
 	FILE_OBJ_L3DOORS,
 	FILE_OBJ_MCIRL,
-	FILE_OBJ_CANDL2,
-	FILE_OBJ_LSHR,
-	FILE_OBJ_RSHR,
-	FILE_OBJ_TFOUNTN,
+//	FILE_OBJ_CANDL2,
+//	FILE_OBJ_LSHR,
+//	FILE_OBJ_RSHR,
+//	FILE_OBJ_TFOUNTN,
 #ifdef HELLFIRE
 	FILE_OBJ_L5LIGHT,
 	FILE_OBJ_URN,
@@ -306,10 +306,10 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_L2DOORS*/   "Objects\\L2Doors.CEL",
 /*FILE_OBJ_L3DOORS*/   "Objects\\L3Doors.CEL",
 /*FILE_OBJ_MCIRL*/     "Objects\\Mcirl.CEL",
-/*FILE_OBJ_CANDL2*/    "Objects\\Candle2.CEL",
-/*FILE_OBJ_LSHR*/      "Objects\\LShrineG.CEL",
-/*FILE_OBJ_RSHR*/      "Objects\\RShrineG.CEL",
-/*FILE_OBJ_TFOUNTN*/   "Objects\\TFountn.CEL",
+/*FILE_OBJ_CANDL2*///  "Objects\\Candle2.CEL",
+/*FILE_OBJ_LSHR*///    "Objects\\LShrineG.CEL",
+/*FILE_OBJ_RSHR*///    "Objects\\RShrineG.CEL",
+/*FILE_OBJ_TFOUNTN*/// "Objects\\TFountn.CEL",
 #ifdef HELLFIRE
 /*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
 /*FILE_OBJ_URN*/       "Objects\\Urn.CEL",
@@ -1858,7 +1858,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#if 0
 static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -2029,7 +2029,7 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#endif
 #ifdef HELLFIRE
 static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 {
@@ -8188,6 +8188,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
 	} break;
+#if 0
 	case FILE_OBJ_CANDL2:
 	{	// fix object gfx file - Candle2.CEL
 		buf = fixObjCandle(buf, dwLen);
@@ -8204,6 +8205,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// eliminate extra frames - TFountn.CEL
 		buf = ReEncodeCEL(buf, dwLen, 1, 8 - 4, 96, 128);
 	} break;
+#endif
 #ifdef HELLFIRE
 	case FILE_OBJ_L5LIGHT:
 	{	// fix object gfx file - L5Light.CEL
