@@ -53,6 +53,7 @@ void RecreateItem(int32_t iseed, uint16_t wIndex, uint16_t wCI);
 void PlaceQuestItemInArea(int idx, int areasize);
 void CreateQuestItemAt(int idx, int x, int y, int mode);
 void SpawnQuestItemAt(int idx, int x, int y, int mode);
+void PickQuestItemAt(int idx, int x, int y, int mode);
 void PlaceRock();
 #ifdef HELLFIRE
 void SpawnAmulet(uint16_t wCI, int x, int y /*, bool sendmsg*/);

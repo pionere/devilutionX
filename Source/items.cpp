@@ -2182,6 +2182,22 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 }
 
 /**
+ * Spawn a fixed item around the given location and try to pick it up.
+ * 
+ * @param idx: the index of the item(item_indexes enum)
+ * @param x tile-coordinate of the target location
+ * @param y tile-coordinate of the target location
+ * @param mode icreate_mode (ICM_SEND_FLIP or ICM_DUMMY)
+ */
+void PickQuestItemAt(int idx, int x, int y, int mode)
+{
+	SpawnQuestItemAt(idx, x, y, mode);
+	if (mode >= ICM_SEND) {
+		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, MAXITEMS);
+	}
+}
+
+/**
  * Place a fixed item to a random location where the space is large enough.
  * 
  * @param idx: the index of the item(item_indexes enum)
