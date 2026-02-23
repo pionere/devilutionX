@@ -1075,8 +1075,7 @@ static void AddChest(int oi)
 	int num, rnum, itype;
 
 	os = &objects[oi];
-	if (random_(147, 2) == 0)
-		os->_oGfxFrame += 3;
+	os->_oGfxFrame = random_(147, 2) ? 1 : 3;
 	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
 	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
 	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
@@ -2027,7 +2026,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame += 2;
+	os->_oGfxFrame++;
 
 	if (deltaload)
 		return;
@@ -2123,7 +2122,7 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame += 2;
+	os->_oGfxFrame++;
 	if (deltaload)
 		return;
 
@@ -2339,7 +2338,7 @@ static void CloseChest(int oi)
 	if (!(os->_oModeFlags & OMF_RESERVED)) {
 		os->_oSelFlag = 1;
 	}
-	os->_oGfxFrame -= 2;
+	os->_oGfxFrame--;
 
 	//SetRndSeed(os->_oRndSeed); -- do NOT set RndSeed, might conflict with the other chests
 	os->_oRndSeed = NextRndSeed();
