@@ -2101,7 +2101,7 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
+	PlaySfxLoc(IS_IGRAB, os->_ox, os->_oy);
 	PickQuestItemAt(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
@@ -3090,6 +3090,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
+	PlaySfxLoc(IS_IGRAB, os->_ox, os->_oy);
 	PickQuestItemAt(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
