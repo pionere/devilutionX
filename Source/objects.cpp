@@ -2082,7 +2082,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 }
 
-static void OperateMushPatch(int pnum, int oi, bool sendmsg)
+static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -2102,7 +2102,12 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_IGRAB, os->_ox, os->_oy);
-	PickQuestItemAt(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	PickQuestItemAt(idx, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+}
+
+static void OperateMushPatch(int oi, bool sendmsg)
+{
+	PickItemFromObject(IDI_MUSHROOM, oi, sendmsg);
 }
 
 static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
@@ -3074,24 +3079,7 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 
 static void OperateLazStand(int oi, bool sendmsg)
 {
-	ObjectStruct* os = &objects[oi];
-
-	if (numitems >= MAXITEMS) {
-		return;
-	}
-	// assert(os->_oModeFlags & OMF_ACTIVE);
-	os->_oModeFlags &= ~OMF_ACTIVE;
-	os->_oSelFlag = 0;
-	os->_oGfxFrame++; // 2
-
-	if (deltaload)
-		return;
-
-	if (sendmsg)
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-
-	PlaySfxLoc(IS_IGRAB, os->_ox, os->_oy);
-	PickQuestItemAt(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	PickItemFromObject(IDI_LAZSTAFF, oi, sendmsg);
 }
 
 static void OperateCrux(int pnum, int oi, bool sendmsg)
@@ -3311,7 +3299,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateWeaponRack(oi, sendmsg);
 		break;
 	case OBJ_MUSHPATCH:
-		OperateMushPatch(pnum, oi, sendmsg);
+		OperateMushPatch(oi, sendmsg);
 		break;
 	case OBJ_LAZSTAND:
 		OperateLazStand(oi, sendmsg);
@@ -3473,7 +3461,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		OperateWeaponRack(oi, false);
 		break;
 	case OBJ_MUSHPATCH:
-		OperateMushPatch(pnum, oi, false);
+		OperateMushPatch(oi, false);
 		break;
 	case OBJ_LAZSTAND:
 		OperateLazStand(oi, false);
