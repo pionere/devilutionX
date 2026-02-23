@@ -79,6 +79,7 @@ Objects\CruxSk1.CEL
 Objects\CruxSk2.CEL
 Objects\CruxSk3.CEL
 Objects\Goatshrn.CEL
+Objects\L1Braz.CEL
 Objects\LShrineG.CEL
 Objects\MFountn.CEL
 Objects\PFountn.CEL
