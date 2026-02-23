@@ -1976,7 +1976,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	ObjectStruct* os;
 	int qn;
 
-	if (numitems >= MAXITEMS && !deltaload) {
+	if (!deltaload && numitems >= MAXITEMS) {
 		return;
 	}
 	os = &objects[oi];
@@ -2086,7 +2086,7 @@ static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
-	if (numitems >= MAXITEMS) {
+	if (!deltaload && numitems >= MAXITEMS) {
 		return;
 	}
 
@@ -2114,14 +2114,16 @@ static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
-	if (numitems >= MAXITEMS) {
-		return;
-	}
+	if (!deltaload) {
+		if (numitems >= MAXITEMS) {
+			return;
+		}
 
-	if (quests[Q_BANNER]._qvar1 != QV_BANNER_TALK1 && !deltaload) {
-		if (sendmsg) // if (pnum == mypnum)
-			PlaySfx(sgSFXSets[SFXS_PLR_24][plr._pClass]);
-		return;
+		if (quests[Q_BANNER]._qvar1 != QV_BANNER_TALK1) {
+			if (sendmsg) // if (pnum == mypnum)
+				PlaySfx(sgSFXSets[SFXS_PLR_24][plr._pClass]);
+			return;
+		}
 	}
 	os = &objects[oi];
 	// assert(os->_oModeFlags & OMF_ACTIVE);
