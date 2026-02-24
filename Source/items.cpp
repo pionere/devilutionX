@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define ITEM_ANIM_DELAY 1
+
 int itemactive[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
@@ -2270,7 +2272,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = itemfiledata[it].iAnimLen;
-	is->_iAnimFrameLen = 1;
+	//is->_iAnimFrameLen = ITEM_ANIM_DELAY;
 	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
 	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
 	//is->_iPostDraw = FALSE;
@@ -2338,7 +2340,7 @@ void ProcessItems()
 		is = &items[itemactive[i]];
 		if (is->_iAnimFlag) {
 			is->_iAnimCnt++;
-			if (is->_iAnimCnt >= is->_iAnimFrameLen) {
+			if (is->_iAnimCnt >= ITEM_ANIM_DELAY) {
 				is->_iAnimCnt = 0;
 				is->_iAnimFrame++;
 				if (is->_iCurs != ICURS_MAGIC_ROCK) {
@@ -2372,7 +2374,11 @@ void ProcessItems()
 void SyncItemAnim(int ii)
 {
 	items[ii]._iAnimData = itemanims[ItemCAnimTbl[items[ii]._iCurs]];
-	items[ii]._iAnimFrameLen = 1;
+#if 0
+	items[ii]._iAnimFrameLen = ITEM_ANIM_DELAY;
+	items[ii]._iAnimWidth = ITEM_ANIM_WIDTH;
+	items[ii]._iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) >> 1;
+#endif
 }
 
 int FindGetItem(const PkItemStruct* pkItem)

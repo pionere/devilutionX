@@ -263,7 +263,7 @@ typedef struct ItemStruct {
 	BYTE _iSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN _iAnimFlag;
 	const BYTE* _iAnimData;  // PSX name -> ItemFrame
-	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
+	//unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
 	unsigned _iAnimLen;      // Number of frames in current animation
 	unsigned _iAnimFrame;    // Current frame of animation.
@@ -291,7 +291,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(15, 13)
+	ALIGNMENT(16, 14)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1196,7 +1196,7 @@ typedef struct LSaveItemStruct {
 	BYTE viSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN viAnimFlag;
 	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
-	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
+	//uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
