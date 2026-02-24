@@ -61,7 +61,7 @@ const BYTE ObjConvTbl[128] = {
 	0, //OBJ_SKSTICK4,
 	0, //OBJ_SKSTICK5,
 	0,
-	0,
+	OBJ_L1LIGHT,  // Vile2.DUN
 	OBJ_VILEBOOK, // Vile2.DUN
 	0,
 	0,
@@ -161,7 +161,7 @@ const BYTE ObjConvTbl[128] = {
 const ObjectData objectdata[NUM_OBJECTS] = {
 	// clang-format off
 //                     ofindex,        oLvlTypes,                                 otheme,                  oquest,     oBaseFrame, oLightRadius, oProc,      oModeFlags,             oMissFlag, oDoorFlag, oSelFlag, oPreFlag, oTrapFlag, 
-/*OBJ_L1LIGHT*/      { OFILE_L1BRAZ,   DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,          27,           14, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT if FLICKER_LIGHT
+/*OBJ_L1LIGHT*/      { OFILE_L1BRAZ,   DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,          27,           14, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT if FLICKER_LIGHT
 /*OBJ_L1LDOOR*/      { OFILE_L1DOORS,  DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,           1,            0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_LEFT,         3, FALSE,    TRUE,      ALIGN },
 /*OBJ_L1RDOOR*/      { OFILE_L1DOORS,  DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,           2,            0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_RIGHT,        3, FALSE,    TRUE,      ALIGN },
 /*OBJ_SKFIRE*/       { OFILE_SKULFIRE, 0,                                         THEME_SKELROOM,          Q_INVALID,          12,            8, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT 5

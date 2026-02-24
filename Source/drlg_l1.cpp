@@ -247,18 +247,6 @@ const BYTE L5TWARP[] = {
 	// clang-format on
 };*/
 #endif
-/** Miniset: candlestick. */
-static const BYTE LAMPS[] = {
-	// clang-format off
-	2, 2, // width, height
-
-	13, 13, // search
-	13, 13,
-
-	 0,   0, // replace
-	 0, 128,
-	// clang-format on
-};
 /** Miniset: Poisoned Water Supply entrance. */
 static const BYTE PWATERIN[] = {
 	// clang-format off
@@ -2892,8 +2880,6 @@ static void DRLG_L1()
 		DRLG_L1PlaceThemeRooms();
 
 		DRLG_L1Shadows();
-		for (i = RandRange(5, 9); i > 0; i--)
-			DRLG_PlaceMiniSet(LAMPS);
 	}
 }
 #if 0
@@ -2923,6 +2909,13 @@ static void DRLG_L1FixMap()
 		}
 		// use common tiles
 		lm[2 + 11 +  3 * 21] = SwapLE16(18);
+		// eliminate obsolete braziers
+		lm[2 +  2 + 12 * 21] = 0;
+		lm[2 + 18 + 12 * 21] = 0;
+		lm[2 +  8 + 14 * 21] = 0;
+		lm[2 + 12 + 14 * 21] = 0;
+		lm[2 +  8 + 17 * 21] = 0;
+		lm[2 + 12 + 17 * 21] = 0;
 		// ensure the changing tiles are reserved
 		lm[2 + 21 * 23 +  4 +  5 * 21] = SwapLE16(3);
 		lm[2 + 21 * 23 +  4 +  6 * 21] = SwapLE16(3);
@@ -2963,6 +2956,13 @@ static void DRLG_L1FixMap()
 		lm[2 + 12 + 2 * 37] = SwapLE16(143);
 		lm[2 + 10 + 5 * 37] = SwapLE16(157);
 		lm[2 + 24, 18 * 37] = SwapLE16(140);
+		// eliminate obsolete braziers
+		lm[2 + 11 + 13 * 37] = 0;
+		lm[2 + 11 + 18 * 37] = 0;
+		lm[2 + 23 + 14 * 37] = 0;
+		lm[2 + 26 + 14 * 37] = 0;
+		lm[2 + 23 + 17 * 37] = 0;
+		lm[2 + 26 + 17 * 37] = 0;
 		// use common tiles
 		lm[2 +  7 + 14 * 37] = SwapLE16(84);
 		// use the new shadows
@@ -3143,6 +3143,13 @@ static void DRLG_L1FixPreMap(int idx)
 		// - replace the books
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 10 + 29 * 21 * 2] = SwapLE16(47);
 		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 29 + 30 * 21 * 2] = SwapLE16(47);
+		// - add braziers
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 +  4 + 24 * 21 * 2] = SwapLE16(46);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 36 + 24 * 21 * 2] = SwapLE16(46);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 16 + 28 * 21 * 2] = SwapLE16(46);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 24 + 28 * 21 * 2] = SwapLE16(46);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 16 + 34 * 21 * 2] = SwapLE16(46);
+		lm[2 + 21 * 23 + 21 * 23 * 2 * 2 + 21 * 23 * 2 * 2 + 24 + 34 * 21 * 2] = SwapLE16(46);
 	} else if (pSetPieces[idx]._sptype == SPT_LVL_SKELKING) {
 		// patch the map - SklKng2.DUN
 		// external tiles
@@ -3188,6 +3195,13 @@ static void DRLG_L1FixPreMap(int idx)
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 32 + 41 * 37 * 2] = SwapLE16(5);
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 48 + 45 * 37 * 2] = SwapLE16(5);
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 48 + 17 * 37 * 2] = SwapLE16(5);
+		// add braziers
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 22 + 26 * 37 * 2] = SwapLE16(46);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 22 + 36 * 37 * 2] = SwapLE16(46);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 46 + 28 * 37 * 2] = SwapLE16(46);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 52 + 28 * 37 * 2] = SwapLE16(46);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 46 + 34 * 37 * 2] = SwapLE16(46);
+		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 37 * 25 * 2 * 2 + 52 + 34 * 37 * 2] = SwapLE16(46);
 		// add the skeleton king
 		lm[2 + 37 * 25 + 37 * 25 * 2 * 2 + 19 + 31 * 37 * 2] = SwapLE16((UMT_SKELKING + 1) | (1 << 15));
 		// remove monsters
