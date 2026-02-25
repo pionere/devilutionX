@@ -624,13 +624,13 @@ static void Theme_Library(int themeId)
 	xx = themes[themeId]._tsObjX;
 	yy = themes[themeId]._tsObjY;
 	if (themes[themeId]._tsObjVar1 != 0) {
-		AddObject(OBJ_BOOKCANDLE, xx - 1, yy);
+		AddObject(OBJ_CANDLE2, xx - 1, yy);
 		AddObject(OBJ_BOOKCASER, xx, yy);
-		AddObject(OBJ_BOOKCANDLE, xx + 1, yy);
+		AddObject(OBJ_CANDLE2, xx + 1, yy);
 	} else {
-		AddObject(OBJ_BOOKCANDLE, xx, yy - 1);
+		AddObject(OBJ_CANDLE2, xx, yy - 1);
 		AddObject(OBJ_BOOKCASEL, xx, yy);
-		AddObject(OBJ_BOOKCANDLE, xx, yy + 1);
+		AddObject(OBJ_CANDLE2, xx, yy + 1);
 	}
 
 	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?

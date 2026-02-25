@@ -363,10 +363,10 @@ static void AddCandles()
 
 	tx = pWarps[DWARP_SIDE]._wx;
 	ty = pWarps[DWARP_SIDE]._wy;
-	AddObject(OBJ_STORYCANDLE, tx - 2, ty + 1);
-	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 1);
-	AddObject(OBJ_STORYCANDLE, tx - 1, ty + 2);
-	AddObject(OBJ_STORYCANDLE, tx + 1, ty + 2);
+	AddObject(OBJ_CANDLE2, tx - 2, ty + 1);
+	AddObject(OBJ_CANDLE2, tx + 2, ty + 1);
+	AddObject(OBJ_CANDLE2, tx - 1, ty + 2);
+	AddObject(OBJ_CANDLE2, tx + 1, ty + 2);
 }
 
 static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
@@ -761,12 +761,12 @@ static void AddStoryBook()
 		return;
 
 	AddObject(OBJ_STORYBOOK, pos.x, pos.y);
-	AddObject(OBJ_STORYCANDLE, pos.x - 2, pos.y + 1);
-	AddObject(OBJ_STORYCANDLE, pos.x - 2, pos.y);
-	AddObject(OBJ_STORYCANDLE, pos.x - 1, pos.y - 1);
-	AddObject(OBJ_STORYCANDLE, pos.x + 1, pos.y - 1);
-	AddObject(OBJ_STORYCANDLE, pos.x + 2, pos.y);
-	AddObject(OBJ_STORYCANDLE, pos.x + 2, pos.y + 1);
+	AddObject(OBJ_CANDLE2, pos.x - 2, pos.y + 1);
+	AddObject(OBJ_CANDLE2, pos.x - 2, pos.y);
+	AddObject(OBJ_CANDLE2, pos.x - 1, pos.y - 1);
+	AddObject(OBJ_CANDLE2, pos.x + 1, pos.y - 1);
+	AddObject(OBJ_CANDLE2, pos.x + 2, pos.y);
+	AddObject(OBJ_CANDLE2, pos.x + 2, pos.y + 1);
 }
 
 static void AddHookedBodies()
