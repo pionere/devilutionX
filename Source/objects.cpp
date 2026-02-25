@@ -2110,30 +2110,6 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
-
-static void OperateRockStand(int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-
-	if (!deltaload && numitems >= MAXITEMS) {
-		return;
-	}
-
-	os = &objects[oi];
-	// assert(os->_oModeFlags & OMF_ACTIVE);
-	os->_oModeFlags &= ~OMF_ACTIVE;
-	os->_oSelFlag = 0;
-	os->_oAnimFrame = 0;
-	os->_oAnimFlag = OAM_NONE;
-	if (deltaload)
-		return;
-
-	if (sendmsg)
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-
-	PickQuestItemAt(IDI_ROCK, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-}
-
 static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -2146,7 +2122,12 @@ static void PickItemFromObject(int idx, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame++; // 2
+	if (os->_oAnimFlag != OAM_NONE) {
+		os->_oAnimFlag = OAM_NONE;
+		os->_oAnimFrame = 0;
+	} else {
+		os->_oGfxFrame++; // 2
+	}
 	if (deltaload)
 		return;
 
@@ -2154,6 +2135,11 @@ static void PickItemFromObject(int idx, int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PickQuestItemAt(idx, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+}
+
+static void OperateRockStand(int oi, bool sendmsg)
+{
+	PickItemFromObject(IDI_ROCK, oi, sendmsg);
 }
 
 static void OperateMushPatch(int oi, bool sendmsg)
