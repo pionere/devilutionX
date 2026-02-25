@@ -960,13 +960,48 @@ void InitObjects()
 		objectactive[idx] = objectactive[numobjects];
 }*/
 
-static void AddChest(int oi)
+static void AddChest(int oi, int basetype)
 {
 	ObjectStruct* os;
 	int num, rnum, itype;
+	int8_t dir = -1, trap = -1;
+
+	if (basetype < 0) {
+		switch (basetype) {
+		case OBJ_TCHEST1:
+		case OBJ_TCHEST2:
+		case OBJ_TCHEST3:  trap = 1;          break;
+		case OBJ_TLCHEST1:
+		case OBJ_TLCHEST2:
+		case OBJ_TLCHEST3: trap = 1; dir = 1; break;
+		case OBJ_TRCHEST1:
+		case OBJ_TRCHEST2:
+		case OBJ_TRCHEST3: trap = 1; dir = 0; break;
+		case OBJ_LCHEST1:
+		case OBJ_LCHEST2:
+		case OBJ_LCHEST3:            dir = 1; break;
+		case OBJ_RCHEST1:
+		case OBJ_RCHEST2:
+		case OBJ_RCHEST3:            dir = 0; break;
+		case OBJ_NLCHEST1:
+		case OBJ_NLCHEST2:
+		case OBJ_NLCHEST3: trap = 0; dir = 1; break;
+		case OBJ_NRCHEST1:
+		case OBJ_NRCHEST2:
+		case OBJ_NRCHEST3: trap = 0; dir = 0; break;
+		default:
+			ASSUME_UNREACHABLE;
+		}
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	if (trap < 0) {
+		trap = random_(0, 128) < 13;
+	}
 
 	os = &objects[oi];
-	os->_oGfxFrame = random_(147, 2) ? 1 : 3;
+	os->_oGfxFrame = 1 + 2 * dir;
 	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
 	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3);
 	num = os->_otype;
@@ -980,7 +1015,7 @@ static void AddChest(int oi)
 		itype = 8;
 	os->_oVar2 = itype;      // CHEST_ITEM_TYPE
 	//assert(num <= 3); otherwise the seeds are not 'reserved'
-	if (random_(0, 128) < 13) {
+	if (trap) {
 		os->_oTrapChance = RandRange(1, 64);
 		os->_oVar5 = 0; // TRAP_OI_BACKREF
 	}
@@ -1167,13 +1202,41 @@ static void AddTorturedFemaleBody(int oi)
 
 int AddObject(int type, int ox, int oy)
 {
-	int oi;
+	int oi, baseType;
 	ObjectStruct* os;
 	const ObjectData* ods;
 	const ObjFileData* ofd;
 
 	if (numobjects >= MAXOBJECTS)
 		return -1;
+	baseType = type;
+	if (type < 0) {
+		switch (type) {
+		case OBJ_TCHEST1:
+		case OBJ_TLCHEST1:
+		case OBJ_TRCHEST1:
+		case OBJ_LCHEST1:
+		case OBJ_RCHEST1:
+		case OBJ_NLCHEST1:
+		case OBJ_NRCHEST1: type = OBJ_CHEST1; break;
+		case OBJ_TCHEST2:
+		case OBJ_TLCHEST2:
+		case OBJ_TRCHEST2:
+		case OBJ_LCHEST2:
+		case OBJ_RCHEST2:
+		case OBJ_NLCHEST2:
+		case OBJ_NRCHEST2: type = OBJ_CHEST2; break;
+		case OBJ_TCHEST3:
+		case OBJ_TLCHEST3:
+		case OBJ_TRCHEST3:
+		case OBJ_LCHEST3:
+		case OBJ_RCHEST3:
+		case OBJ_NLCHEST3:
+		case OBJ_NRCHEST3: type = OBJ_CHEST3; break;
+		default:
+			ASSUME_UNREACHABLE;
+		}
+	}
 //	oi = objectavail[0];
 	oi = numobjects;
 	// objectactive[numobjects] = oi;
@@ -1254,7 +1317,7 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_CHEST1:
 		case OBJ_CHEST2:
 		case OBJ_CHEST3:
-			AddChest(oi);
+			AddChest(oi, baseType);
 			break;
 		case OBJ_SARC:
 #ifdef HELLFIRE

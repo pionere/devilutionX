@@ -4252,7 +4252,28 @@ typedef enum _object_id {
 	OBJ_POD,
 	OBJ_PODEX,
 #endif
-	NUM_OBJECTS
+	NUM_OBJECTS,
+	OBJ_TCHEST1  = -1, // trapped chest in random direction
+	OBJ_TLCHEST1 = -2, // trapped chest in SW-NE direction
+	OBJ_TRCHEST1 = -3, // trapped chest in SE-Nw direction
+	OBJ_LCHEST1  = -4, // chest in SW-NE direction with optional trap
+	OBJ_RCHEST1  = -5, // chest in SE-Nw direction with optional trap
+	OBJ_NLCHEST1 = -6, // non-trapped chest in SW-NE
+	OBJ_NRCHEST1 = -7, // non-trapped chest in SE-Nw
+	OBJ_TCHEST2  = -8,
+	OBJ_TLCHEST2 = -9,
+	OBJ_TRCHEST2 = -10,
+	OBJ_LCHEST2  = -11,
+	OBJ_RCHEST2  = -12,
+	OBJ_NLCHEST2 = -13,
+	OBJ_NRCHEST2 = -14,
+	OBJ_TCHEST3  = -15,
+	OBJ_TLCHEST3 = -16,
+	OBJ_TRCHEST3 = -17,
+	OBJ_LCHEST3  = -18,
+	OBJ_RCHEST3  = -19,
+	OBJ_NLCHEST3 = -20,
+	OBJ_NRCHEST3 = -21,
 } _object_id;
 
 typedef enum quest_id {

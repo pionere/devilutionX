@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #endif
 
 /** Maps from dun_object_id to object_id. */
-const BYTE ObjConvTbl[128] = {
+const int8_t ObjConvTbl[128] = {
 	// clang-format off
 	0,
 	OBJ_LEVER, // SklKng2.DUN
@@ -93,13 +93,13 @@ const BYTE ObjConvTbl[128] = {
 	0,
 	0,
 	0, //OBJ_CHEST1,
-	OBJ_CHEST1, // SklKng2.DUN
+	OBJ_LCHEST1, // SklKng2.DUN
 	0, //OBJ_CHEST1,
 	0, //OBJ_CHEST2,
-	OBJ_CHEST2, // SklKng2.DUN
+	OBJ_LCHEST2, // SklKng2.DUN
 	0, //OBJ_CHEST2,
 	0, //OBJ_CHEST3,
-	OBJ_CHEST3, // Bonecha1.DUN
+	OBJ_RCHEST3, // Bonecha1.DUN
 	OBJ_NAKRULBOOK, // Nakrul1.DUN (Q_NAKRUL)
 	OBJ_NAKRULLEVER, // Nakrul1.DUN (Q_NAKRUL)
 	0,
