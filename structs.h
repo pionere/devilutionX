@@ -104,6 +104,8 @@ typedef struct CelMetaInfo {
 	DWORD cmiDimensionsPerFrame;
 	DWORD cmiAnimOrder;
 	BYTE  cmiAnimDelay;
+	int16_t cmiAnimOffsetX;
+	int16_t cmiAnimOffsetY;
 	DWORD cmiActionFrames;
 } CelMetaInfo;
 

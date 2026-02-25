@@ -46,6 +46,18 @@ static void CelLoadMetaInfoAt(const BYTE* anim, uint32_t nMetaStart, uint32_t nM
 		case CELMETA_ANIMORDER:
 			mi.cmiAnimOrder = nMetaStart;
 			break;
+		case CELMETA_ANIMOFFSET:
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+			mi.cmiAnimOffsetX = LOAD_LE16(&anim[nMetaStart]);
+			nMetaStart += sizeof(int16_t);
+			mi.cmiAnimOffsetY = LOAD_LE16(&anim[nMetaStart]);
+			nMetaStart += sizeof(int16_t);
+#else
+			static_assert(offsetof(CelMetaInfo, cmiAnimOffsetX) + sizeof(uint32_t) == offsetof(CelMetaInfo, cmiAnimOffsetY) + sizeof(mi.cmiAnimOffsetY), "Loading of the animoffsets fails in CelLoadMetaInfoAt.");
+			*(uint32_t*)&mi.cmiAnimOffsetX = *(uint32_t*)&anim[nMetaStart];
+			nMetaStart += 2 * sizeof(int16_t);
+#endif
+			continue;
 		case CELMETA_ACTIONFRAMES:
 			mi.cmiActionFrames = nMetaStart;
 			break;
