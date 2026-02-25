@@ -2034,7 +2034,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		else
 			SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 	}
-	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapChance != 0) {
+	if (os->_oTrapChance != 0) {
 		os->_oTrapChance = 0;
 		PlaySfxLoc(IS_TRAP, os->_ox, os->_oy);
 		SetRndSeed(os->_oRndSeed);
