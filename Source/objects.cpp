@@ -897,8 +897,8 @@ static void AddHookedBodies()
 void InitObjects()
 {
 	//gbInitObjFlag = true;
-	if (QuestStatus(Q_ROCK)) // place first to make the life of PlaceRock easier
-		InitRndLocObj5x5(OBJ_STAND);
+	if (QuestStatus(Q_ROCK))
+		InitRndLocObj5x5(OBJ_ROCKSTAND);
 	if (QuestStatus(Q_PWATER))
 		AddCandles();
 	if (QuestStatus(Q_MUSHROOM))
@@ -2079,6 +2079,29 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 }
 
+static void OperateRockStand(int oi, bool sendmsg)
+{
+	ObjectStruct* os;
+
+	if (!deltaload && numitems >= MAXITEMS) {
+		return;
+	}
+
+	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame = 0;
+	os->_oAnimFlag = OAM_NONE;
+	if (deltaload)
+		return;
+
+	if (sendmsg)
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+
+	PickQuestItemAt(IDI_ROCK, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+}
+
 static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -2098,7 +2121,6 @@ static void PickItemFromObject(int idx, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_IGRAB, os->_ox, os->_oy);
 	PickQuestItemAt(idx, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
@@ -3297,6 +3319,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_WEAPONRACKR:
 		OperateWeaponRack(oi, sendmsg);
 		break;
+	case OBJ_ROCKSTAND:
+		OperateRockStand(oi, sendmsg);
+		break;
 	case OBJ_MUSHPATCH:
 		OperateMushPatch(oi, sendmsg);
 		break;
@@ -3458,6 +3483,9 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		OperateWeaponRack(oi, false);
+		break;
+	case OBJ_ROCKSTAND:
+		OperateRockStand(oi, sendmsg);
 		break;
 	case OBJ_MUSHPATCH:
 		OperateMushPatch(oi, false);
@@ -3706,6 +3734,9 @@ void GetObjectStr(int oi)
 	case OBJ_WEAPONRACKL:
 	case OBJ_WEAPONRACKR:
 		txt0 = "Weapon Rack";
+		break;
+	case OBJ_ROCKSTAND:
+		txt0 = "Magic Rock";
 		break;
 	case OBJ_MUSHPATCH:
 		txt0 = "Mushroom Patch";

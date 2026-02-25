@@ -11,6 +11,7 @@ Data\SpellBk.CEL
 Data\Quest.CEL
 Data\TextBox.CEL
 Data\TouchBtn.CEL
+Items\Rock.CEL
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
 Levels\L1Data\Butcher.DUN
@@ -86,6 +87,7 @@ Objects\L1Braz.CEL
 Objects\LShrineG.CEL
 Objects\MFountn.CEL
 Objects\PFountn.CEL
+Objects\Rockstan.CEL
 Objects\RShrineG.CEL
 Objects\Sarc.CEL
 Objects\SkulFire.CEL

@@ -157,8 +157,6 @@ static void PlaceInitItems()
 void InitItems()
 {
 	// if (!currLvl._dSetLvl) {
-		if (QuestStatus(Q_ROCK))
-			PlaceRock();
 		if (QuestStatus(Q_ANVIL))
 			CreateQuestItemAt(IDI_ANVIL, 2 * pSetPieces[0]._spx + DBORDERX + 11, 2 * pSetPieces[0]._spy + DBORDERY + 11, ICM_DELTA);
 		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
@@ -2193,6 +2191,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
  */
 void PickQuestItemAt(int idx, int x, int y, int mode)
 {
+	PlaySfxLoc(IS_IGRAB, x, y);
 	SpawnQuestItemAt(idx, x, y, mode);
 	if (mode >= ICM_SEND) {
 		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, MAXITEMS);
@@ -2223,44 +2222,6 @@ void PlaceQuestItemInArea(int idx, int areasize)
 
 	RespawnItem(ii, false);
 	DeltaAddItem(ii);
-}
-
-/**
- * Place a rock(item) on a stand (OBJ_STAND).
- */
-/*static*/ void PlaceRock()
-{
-	int i, oi;
-
-	if (numitems >= MAXITEMS)
-		return; // should never be the case
-
-	/*for (i = 0; i < numobjects; i++) {
-		oi = i; // objectactive[i];
-		if (objects[oi]._otype == OBJ_STAND)
-			break;
-	}
-	if (i != numobjects) {*/
-	oi = 0; // objectactive[0];
-	if (objects[oi]._otype == OBJ_STAND) {
-		i = itemactive[numitems];
-		assert(i == numitems);
-		CreateQuestItemAt(IDI_ROCK, objects[oi]._ox, objects[oi]._oy, ICM_DELTA);
-//		SetItemData(i, IDI_ROCK);
-		// assert(gbLvlLoad);
-//		RespawnItem(i, false);
-		// draw it above the stand
-		items[i]._iSelFlag = 2;
-		//items[i]._iPostDraw = TRUE;
-		items[i]._iAnimFrame = 11;
-		//items[i]._iAnimFlag = TRUE;
-//		items[i]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
-//		items[i]._iSeed = NextRndSeed();               // make sure it is unique
-//		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
-//		DeltaAddItem(i);
-
-//		numitems++;
-	}
 }
 
 void RespawnItem(int ii, bool FlipFlag)
@@ -2359,11 +2320,8 @@ void ProcessItems()
 						// assert(is->_iAnimFrame == 2);
 						PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
 					// magic rock dropped on the floor
-					} else if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
+					} else if (is->_iAnimFrame == 11)
 						is->_iAnimFrame = 1;
-					// magic rock on stand
-					else if (is->_iSelFlag == 2 && is->_iAnimFrame == 21)
-						is->_iAnimFrame = 11;
 				}
 			}
 		}
