@@ -1034,7 +1034,7 @@ void InitObjects()
 	}
 #endif
 	assert(objectdata[OBJ_CHEST1].oLvlTypes == objectdata[OBJ_CHEST2].oLvlTypes && objectdata[OBJ_CHEST1].oLvlTypes == objectdata[OBJ_CHEST3].oLvlTypes);
-	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
+	if (lvlMask & objectdata[OBJ_CHEST1].oLvlTypes) {
 		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow X.");
 		unsigned num = RandRangeLow(na, na * 2 + 1);
 		InitRndLocObj(num / 512, OBJ_CHEST1);
