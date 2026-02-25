@@ -783,12 +783,11 @@ static void AddHookedBodies()
 			type = random_(0, 32);
 			if (type >= 3)
 				continue;
-			if (ttv == PST_LEFT) {
-				type = OBJ_TORTUREL1 + type;
-			} else {
-				// assert(ttv == PST_RIGHT);
-				type = OBJ_TORTURER1 + type;
-			}
+			static_assert((int)OBJ_TORTUREL1 + 1 == (int)OBJ_TORTUREL2, "AddHookedBodies fails to select object type I.");
+			static_assert((int)OBJ_TORTUREL1 + 2 == (int)OBJ_TORTUREL3, "AddHookedBodies fails to select object type II.");
+			static_assert((int)OBJ_TORTURER1 + 1 == (int)OBJ_TORTURER2, "AddHookedBodies fails to select object type III.");
+			static_assert((int)OBJ_TORTURER1 + 2 == (int)OBJ_TORTURER3, "AddHookedBodies fails to select object type IV.");
+			type += ttv == PST_LEFT ? OBJ_TORTUREL1 : OBJ_TORTURER1;
 			AddObject(type, i, j);
 		}
 	}
