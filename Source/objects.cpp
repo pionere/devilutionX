@@ -575,21 +575,6 @@ static void AddObjTraps()
 	}
 }
 
-static void AddChestTraps()
-{
-	int i;
-
-	for (i = numobjects - 1; i >= 0; i--) {
-		int oi = i; // objectactive[i];
-		ObjectStruct* os = &objects[oi];
-		if (os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3 && os->_oTrapChance == 0 && random_(0, 100) < 10) {
-			os->_otype += OBJ_TCHEST1 - OBJ_CHEST1;
-			os->_oTrapChance = RandRange(1, 64);
-			os->_oVar5 = 0; // TRAP_OI_BACKREF
-		}
-	}
-}
-
 static void LoadMapSetObjects(int idx)
 {
 	int startx = DBORDERX + pSetPieces[idx]._spx * 2;
@@ -961,13 +946,6 @@ void InitObjects()
 	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
 		AddObjTraps();
 	}
-	assert(objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST2].oLvlTypes && objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST3].oLvlTypes); // trapped chest are placed in one place
-	assert((objectdata[OBJ_TCHEST1].oLvlTypes & ~objectdata[OBJ_CHEST1].oLvlTypes) == 0); // no point to place traps if there are not matching chests
-	assert((objectdata[OBJ_TCHEST2].oLvlTypes & ~objectdata[OBJ_CHEST2].oLvlTypes) == 0);
-	assert((objectdata[OBJ_TCHEST3].oLvlTypes & ~objectdata[OBJ_CHEST3].oLvlTypes) == 0);
-	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
-		AddChestTraps();
-	}
 	//gbInitObjFlag = false;
 }
 
@@ -989,10 +967,9 @@ static void AddChest(int oi)
 	os = &objects[oi];
 	os->_oGfxFrame = random_(147, 2) ? 1 : 3;
 	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
-	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
-	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
+	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3);
 	num = os->_otype;
-	num = (num >= OBJ_TCHEST1 && num <= OBJ_TCHEST3) ? num - OBJ_TCHEST1 + 1 : num - OBJ_CHEST1 + 1;
+	num = num - OBJ_CHEST1 + 1;
 	rnum = random_low(147, num + 1); // CHEST_ITEM_SEED2
 	if (!currLvl._dSetLvl)
 		num = rnum;
@@ -1002,6 +979,10 @@ static void AddChest(int oi)
 		itype = 8;
 	os->_oVar2 = itype;      // CHEST_ITEM_TYPE
 	//assert(num <= 3); otherwise the seeds are not 'reserved'
+	if (random_(0, 128) < 13) {
+		os->_oTrapChance = RandRange(1, 64);
+		os->_oVar5 = 0; // TRAP_OI_BACKREF
+	}
 }
 
 static void AddSarc(int oi)
@@ -1272,13 +1253,6 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_CHEST2:
 		case OBJ_CHEST3:
 			AddChest(oi);
-			break;
-		case OBJ_TCHEST1:
-		case OBJ_TCHEST2:
-		case OBJ_TCHEST3:
-			AddChest(oi);
-			objects[oi]._oTrapChance = RandRange(1, 64);
-			objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
 			break;
 		case OBJ_SARC:
 #ifdef HELLFIRE
@@ -2676,8 +2650,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < numobjects; i++) {
 			os = &objects[i]; // objects[objectactive[i]];
-			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
-			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
+			if (os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3) {
 				CloseChest(i); // objectactive[i]
 			}
 		}
@@ -3231,9 +3204,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
-	case OBJ_TCHEST1:
-	case OBJ_TCHEST2:
-	case OBJ_TCHEST3:
 		OperateChest(pnum, oi, sendmsg);
 		break;
 	case OBJ_SARC:
@@ -3396,9 +3366,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
-	case OBJ_TCHEST1:
-	case OBJ_TCHEST2:
-	case OBJ_TCHEST3:
 		OperateChest(pnum, oi, false);
 		break;
 	case OBJ_SARC:
@@ -3610,15 +3577,12 @@ void GetObjectStr(int oi)
 		txt0 = "Lever";
 		break;
 	case OBJ_CHEST1:
-	case OBJ_TCHEST1:
 		txt0 = "Small Chest";
 		break;
 	case OBJ_CHEST2:
-	case OBJ_TCHEST2:
 		txt0 = "Chest";
 		break;
 	case OBJ_CHEST3:
-	case OBJ_TCHEST3:
 	case OBJ_SIGNCHEST:
 		txt0 = "Large Chest";
 		break;
