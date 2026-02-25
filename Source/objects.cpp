@@ -156,6 +156,7 @@ static void AddObjectType(const ObjectData* ods)
 
 void InitObjectGFX()
 {
+#if 0
 	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
 	int i;
@@ -176,6 +177,7 @@ void InitObjectGFX()
 		}
 		AddObjectType(ods);
 	}
+#endif
 }
 
 void FreeObjectGFX()
@@ -602,7 +604,6 @@ static void LoadMapSetObjects(int idx)
 			if (oidx != 0) {
 				assert(oidx < lengthof(ObjConvTbl));
 				oidx = ObjConvTbl[oidx]; // index of objectdata
-				AddObjectType(&objectdata[oidx]);
 				AddObject(oidx, i, j);
 			}
 			lm++;
@@ -1182,6 +1183,7 @@ int AddObject(int type, int ox, int oy)
 	os = &objects[oi];
 	os->_otype = type;
 	ods = &objectdata[type];
+	AddObjectType(ods);
 	os->_oMissFlag = ods->oMissFlag;
 	os->_oDoorFlag = ods->oDoorFlag;
 	os->_oSelFlag = ods->oSelFlag;

@@ -835,8 +835,8 @@ static_warning((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align Un
 typedef struct ObjectData {
 	BYTE ofindex;        // object_graphic_id
 	BYTE oLvlTypes;      // dungeon_type_mask
-	BYTE otheme;         // theme_id
-	BYTE oquest;         // quest_id
+	BYTE otheme;         // theme_id -- unused
+	BYTE oquest;         // quest_id -- unused
 	//BYTE oAnimFlag;
 	BYTE oBaseFrame;     // The base frame of the objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
