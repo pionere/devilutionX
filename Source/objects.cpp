@@ -626,92 +626,6 @@ static void LoadMapSetObjects(int idx)
 	//gbInitObjFlag = false; -- setpieces, setmap levers?
 }
 
-static int SetupObject(int type, int ox, int oy)
-{
-	int oi;
-	ObjectStruct* os;
-	const ObjectData* ods;
-	const ObjFileData* ofd;
-
-	if (numobjects >= MAXOBJECTS)
-		return -1;
-
-//	oi = objectavail[0];
-	oi = numobjects;
-	// objectactive[numobjects] = oi;
-	numobjects++;
-//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
-
-	os = &objects[oi];
-	os->_otype = type;
-	ods = &objectdata[type];
-	os->_oMissFlag = ods->oMissFlag;
-	os->_oDoorFlag = ods->oDoorFlag;
-	os->_oSelFlag = ods->oSelFlag;
-	os->_oPreFlag = ods->oPreFlag;
-	os->_oProc = ods->oProc;
-	os->_oModeFlags = ods->oModeFlags;
-	os->_oGfxFrame = ods->oBaseFrame;
-	os->_oAnimData = objanimdata[ods->ofindex];
-	os->_oAnimWidth = objanimdim[ods->ofindex];
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
-	ofd = &objfiledata[ods->ofindex];
-	os->_oSFX = ofd->oSFX;
-	os->_oSFXCnt = ofd->oSFXCnt;
-	os->_oAnimFlag = ofd->oAnimFlag;
-	os->_oAnimFrameLen = ofd->oAnimFrameLen;
-	os->_oAnimLen = ofd->oAnimLen;
-	os->_oAnimCnt = 0;
-	os->_oAnimFrame = 0;
-	if (ofd->oAnimFlag != OAM_NONE) {
-		if (ofd->oAnimFlag == OAM_SINGLE) {
-			os->_oAnimFlag = OAM_NONE;
-			os->_oAnimFrame = 1;
-		} else {
-			// assert(ofd->oAnimFlag == OAM_LOOP);
-			os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
-			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
-		}
-	}
-	os->_oSolidFlag = ofd->oSolidFlag;
-	os->_oBreak = ofd->oBreak;
-	// os->_oDelFlag = FALSE; - unused
-	os->_oTrapChance = 0;
-	// place object
-	os->_ox = ox;
-	os->_oy = oy;
-	assert(dObject[ox][oy] == 0);
-	dObject[ox][oy] = oi + 1;
-	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
-	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
-		dObject[ox][oy] = 0;
-		os->_oModeFlags |= OMF_RESERVED;
-		os->_oSelFlag = 0;
-	} else {
-		const BYTE olr = ods->oLightRadius;
-		if (olr != 0) {
-#if FLICKER_LIGHT
-			if (type == OBJ_L1LIGHT) {
-				os->_olid = NO_LIGHT;
-			} else
-#endif
-			{
-				TraceLightSource(ox + ((olr & OLF_XO) ? 1 : 0), oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
-			}
-		}
-		if (ods->oDoorFlag != ODT_NONE) {
-			os->_oVar4 = DOOR_CLOSED;
-			//os->_oPreFlag = FALSE;
-			//os->_oSelFlag = 3;
-			//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
-			//os->_oMissFlag = FALSE;
-			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
-			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
-		}
-	}
-	return oi;
-}
-
 static int ObjIndex(int x, int y)
 {
 	int oi = dObject[x][y];
@@ -1271,8 +1185,87 @@ static void AddTorturedFemaleBody(int oi)
 
 int AddObject(int type, int ox, int oy)
 {
-	int oi = SetupObject(type, ox, oy);
-	if (oi >= 0) {
+	int oi;
+	ObjectStruct* os;
+	const ObjectData* ods;
+	const ObjFileData* ofd;
+
+	if (numobjects >= MAXOBJECTS)
+		return -1;
+//	oi = objectavail[0];
+	oi = numobjects;
+	// objectactive[numobjects] = oi;
+	numobjects++;
+//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+	// setup the object
+	os = &objects[oi];
+	os->_otype = type;
+	ods = &objectdata[type];
+	os->_oMissFlag = ods->oMissFlag;
+	os->_oDoorFlag = ods->oDoorFlag;
+	os->_oSelFlag = ods->oSelFlag;
+	os->_oPreFlag = ods->oPreFlag;
+	os->_oProc = ods->oProc;
+	os->_oModeFlags = ods->oModeFlags;
+	os->_oGfxFrame = ods->oBaseFrame;
+	os->_oAnimData = objanimdata[ods->ofindex];
+	os->_oAnimWidth = objanimdim[ods->ofindex];
+	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
+	ofd = &objfiledata[ods->ofindex];
+	os->_oSFX = ofd->oSFX;
+	os->_oSFXCnt = ofd->oSFXCnt;
+	os->_oAnimFlag = ofd->oAnimFlag;
+	os->_oAnimFrameLen = ofd->oAnimFrameLen;
+	os->_oAnimLen = ofd->oAnimLen;
+	os->_oAnimCnt = 0;
+	os->_oAnimFrame = 0;
+	if (ofd->oAnimFlag != OAM_NONE) {
+		if (ofd->oAnimFlag == OAM_SINGLE) {
+			os->_oAnimFlag = OAM_NONE;
+			os->_oAnimFrame = 1;
+		} else {
+			// assert(ofd->oAnimFlag == OAM_LOOP);
+			os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
+			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
+		}
+	}
+	os->_oSolidFlag = ofd->oSolidFlag;
+	os->_oBreak = ofd->oBreak;
+	// os->_oDelFlag = FALSE; - unused
+	os->_oTrapChance = 0;
+	// place object
+	os->_ox = ox;
+	os->_oy = oy;
+	assert(dObject[ox][oy] == 0);
+	dObject[ox][oy] = oi + 1;
+	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
+	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
+		dObject[ox][oy] = 0;
+		os->_oModeFlags |= OMF_RESERVED;
+		os->_oSelFlag = 0;
+	} else {
+		const BYTE olr = ods->oLightRadius;
+		if (olr != 0) {
+#if FLICKER_LIGHT
+			if (type == OBJ_L1LIGHT) {
+				os->_olid = NO_LIGHT;
+			} else
+#endif
+			{
+				TraceLightSource(ox + ((olr & OLF_XO) ? 1 : 0), oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
+			}
+		}
+		if (ods->oDoorFlag != ODT_NONE) {
+			os->_oVar4 = DOOR_CLOSED;
+			//os->_oPreFlag = FALSE;
+			//os->_oSelFlag = 3;
+			//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
+			//os->_oMissFlag = FALSE;
+			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
+			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
+		}
+	}
+	{
 		// init object
 		switch (type) {
 		case OBJ_CHEST1:
