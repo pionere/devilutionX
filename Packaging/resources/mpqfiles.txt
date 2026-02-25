@@ -73,6 +73,7 @@ NLevels\TownData\Town.DUN
 NLevels\TownData\Town.RDUN
 NLevels\TownData\Town.SLA
 NLevels\TownData\Town.TIL
+Objects\Altboy.CEL
 Objects\Bloodfnt.CEL
 Objects\Candle2.CEL
 Objects\Cauldren.CEL
@@ -82,9 +83,12 @@ Objects\Chest3.CEL
 Objects\CruxSk1.CEL
 Objects\CruxSk2.CEL
 Objects\CruxSk3.CEL
+Objects\Decap.CEL
 Objects\Goatshrn.CEL
 Objects\L1Braz.CEL
+Objects\Lever.CEL
 Objects\LShrineG.CEL
+Objects\LzStand.CEL
 Objects\MFountn.CEL
 Objects\PFountn.CEL
 Objects\Rockstan.CEL
@@ -92,6 +96,7 @@ Objects\RShrineG.CEL
 Objects\Sarc.CEL
 Objects\SkulFire.CEL
 Objects\TFountn.CEL
+Objects\WeapStnd.CEL
 Objects\WTorch1.CEL
 Objects\WTorch2.CEL
 Objects\WTorch3.CEL
