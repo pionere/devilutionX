@@ -140,18 +140,18 @@ const int flickers[32] = {
 };
 #endif
 
-static void AddObjectType(const ObjectData* ods)
+static BYTE* AddObjectType(const ObjectData* ods)
 {
 	const int ofindex = ods->ofindex;
 	char filestr[DATA_ARCHIVE_MAX_PATH];
+	BYTE* result = objanimdata[ofindex];
 
-	if (objanimdata[ofindex] != NULL) {
-		return;
+	if (result == NULL) {
+		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[ofindex].ofName);
+		result = objanimdata[ofindex] = LoadFileInMem(filestr);
+		objanimdim[ofindex] = CelClippedWidth(objanimdata[ofindex]);
 	}
-
-	snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[ofindex].ofName);
-	objanimdata[ofindex] = LoadFileInMem(filestr);
-	objanimdim[ofindex] = CelClippedWidth(objanimdata[ofindex]);
+	return result;
 }
 
 void InitObjectGFX()
@@ -1245,7 +1245,6 @@ int AddObject(int type, int ox, int oy)
 	os = &objects[oi];
 	os->_otype = type;
 	ods = &objectdata[type];
-	AddObjectType(ods);
 	os->_oMissFlag = ods->oMissFlag;
 	os->_oDoorFlag = ods->oDoorFlag;
 	os->_oSelFlag = ods->oSelFlag;
@@ -1253,7 +1252,7 @@ int AddObject(int type, int ox, int oy)
 	os->_oProc = ods->oProc;
 	os->_oModeFlags = ods->oModeFlags;
 	os->_oGfxFrame = ods->oBaseFrame;
-	os->_oAnimData = objanimdata[ods->ofindex];
+	os->_oAnimData = AddObjectType(ods);
 	int animLen = LOAD_LE32(os->_oAnimData);
 	if (os->_oGfxFrame == animLen)
 		animLen--;
