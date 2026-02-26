@@ -105,6 +105,7 @@ typedef enum filenames {
 //	FILE_OBJ_TFOUNTN,
 #ifdef HELLFIRE
 	FILE_OBJ_L5LIGHT,
+	FILE_OBJ_L5SARCO,
 	FILE_OBJ_URN,
 #endif
 	FILE_PLR_WHBAT,
@@ -312,6 +313,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_TFOUNTN*/// "Objects\\TFountn.CEL",
 #ifdef HELLFIRE
 /*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
+/*FILE_OBJ_L5SARCO*/   "Objects\\L5Sarco.CEL",
 /*FILE_OBJ_URN*/       "Objects\\Urn.CEL",
 #endif
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
@@ -2068,6 +2070,71 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 				if (gpBuffer[x + y * BUFFER_WIDTH] == 0) {
 					gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
 				}
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
+
+	return resCelBuf;
+}
+
+static BYTE* patchCryptSarco(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int FRAME_WIDTH = 128;
+	constexpr int FRAME_HEIGHT = 96;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	const int resCelEntries = srcCelEntries;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+
+		// make the colors more consistent + eliminate flare
+		for (int y = 0; y < FRAME_HEIGHT; y++) {
+			for (int x = 0; x < FRAME_WIDTH; x++) {
+				BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
+				switch (color) {
+				case 175: color = 111; break;
+				case 176: color =  32; break;
+				case 178: color =  33; break;
+				case 179: color =  32; break;
+				case 180: color =  33; break;
+				case 181: color =  34; break;
+				case 183: color =  34; break;
+				case 189: color =  45; break;
+				case 191: color =  79; break;
+				default:
+					continue;
+				}
+				gpBuffer[x + y * BUFFER_WIDTH] = color;
 			}
 		}
 
@@ -8210,6 +8277,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_OBJ_L5LIGHT:
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);
+	} break;
+	case FILE_OBJ_L5SARCO:
+	{	// patch object gfx file - L5Sarco.CEL
+		buf = patchCryptSarco(buf, dwLen);
 	} break;
 	case FILE_OBJ_URN:
 	{	// eliminate extra frame - Urn.CEL
