@@ -703,9 +703,9 @@ static void AddNakrulBook(int oi)
 	os = &objects[oi];
 	// assert(os->_oGfxFrame == objectdata[OBJ_NAKRULBOOK].oBaseFrame);
 	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
-	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;             // STORY_BOOK_MSG
-	os->_oVar3 = bookidx;                                       // STORY_BOOK_NAKRUL_IDX
-	os->_oVar5 = BK_NAKRUL_SPELL;                               // STORY_BOOK_NAME
+	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;         // STORY_BOOK_MSG
+	os->_oVar3 = bookidx;                                   // STORY_BOOK_NAKRUL_IDX
+	os->_oVar5 = BK_NAKRUL_SPELL;                           // STORY_BOOK_NAME
 }
 
 static void AddLvl2xBooks(int bookidx)
@@ -959,14 +959,14 @@ void InitObjects()
 		objectactive[idx] = objectactive[numobjects];
 }*/
 
-static void AddChest(int oi, int basetype)
+static void AddChest(int oi, int realtype)
 {
 	ObjectStruct* os;
 	int num, rnum, itype;
 	int8_t dir = -1, trap = -1;
 
-	if (basetype < 0) {
-		switch (basetype) {
+	if (realtype < 0) {
+		switch (realtype) {
 		case OBJ_TCHEST1:
 		case OBJ_TCHEST2:
 		case OBJ_TCHEST3:  trap = 1;          break;
@@ -1201,14 +1201,14 @@ static void AddTorturedFemaleBody(int oi)
 
 int AddObject(int type, int ox, int oy)
 {
-	int oi, baseType;
+	int oi, realType;
 	ObjectStruct* os;
 	const ObjectData* ods;
 	const ObjFileData* ofd;
 
 	if (numobjects >= MAXOBJECTS)
 		return -1;
-	baseType = type;
+	realType = type;
 	if (type < 0) {
 		switch (type) {
 		case OBJ_TCHEST1:
@@ -1319,7 +1319,7 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_CHEST1:
 		case OBJ_CHEST2:
 		case OBJ_CHEST3:
-			AddChest(oi, baseType);
+			AddChest(oi, realType);
 			break;
 		case OBJ_SARC:
 #ifdef HELLFIRE
