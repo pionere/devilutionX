@@ -1254,6 +1254,10 @@ int AddObject(int type, int ox, int oy)
 	os->_oModeFlags = ods->oModeFlags;
 	os->_oGfxFrame = ods->oBaseFrame;
 	os->_oAnimData = objanimdata[ods->ofindex];
+	int animLen = LOAD_LE32(os->_oAnimData);
+	if (os->_oGfxFrame == animLen)
+		animLen--;
+	os->_oAnimLen = animLen;
 	os->_oAnimWidth = objanimdim[ods->ofindex];
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	ofd = &objfiledata[ods->ofindex];
@@ -1262,7 +1266,6 @@ int AddObject(int type, int ox, int oy)
 	os->_oAnimFlag = ofd->oAnimFlag;
 	os->_oAnimFrameLen = ofd->oAnimFrameLen;
 	os->_oAnimCnt = 0;
-	os->_oAnimLen = 0;
 	os->_oAnimFrame = 0;
 	if (ofd->oAnimFlag != OAM_NONE) {
 		if (ofd->oAnimFlag == OAM_SINGLE) {
@@ -1273,10 +1276,6 @@ int AddObject(int type, int ox, int oy)
 			os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 		}
-		int animLen = LOAD_LE32(os->_oAnimData);
-		if (os->_oGfxFrame == animLen)
-			animLen--;
-		os->_oAnimLen = animLen;
 	}
 	os->_oSolidFlag = ofd->oSolidFlag;
 	os->_oBreak = ofd->oBreak;
