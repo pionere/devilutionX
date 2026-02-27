@@ -954,31 +954,9 @@ static void AddChest(int oi, int realtype)
 	int8_t dir = -1, trap = -1;
 
 	if (realtype < 0) {
-		switch (realtype) {
-		case OBJ_TCHEST1:
-		case OBJ_TCHEST2:
-		case OBJ_TCHEST3:  trap = 1;          break;
-		case OBJ_TLCHEST1:
-		case OBJ_TLCHEST2:
-		case OBJ_TLCHEST3: trap = 1; dir = 1; break;
-		case OBJ_TRCHEST1:
-		case OBJ_TRCHEST2:
-		case OBJ_TRCHEST3: trap = 1; dir = 0; break;
-		case OBJ_LCHEST1:
-		case OBJ_LCHEST2:
-		case OBJ_LCHEST3:            dir = 1; break;
-		case OBJ_RCHEST1:
-		case OBJ_RCHEST2:
-		case OBJ_RCHEST3:            dir = 0; break;
-		case OBJ_NLCHEST1:
-		case OBJ_NLCHEST2:
-		case OBJ_NLCHEST3: trap = 0; dir = 1; break;
-		case OBJ_NRCHEST1:
-		case OBJ_NRCHEST2:
-		case OBJ_NRCHEST3: trap = 0; dir = 0; break;
-		default:
-			ASSUME_UNREACHABLE;
-		}
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		trap = otc.oTypeParam2;
 	}
 	if (dir < 0) {
 		dir = random_(147, 2);
@@ -1104,19 +1082,13 @@ static void ObjAddRndSeed(int oi)
 static void AddArmorStand(int oi, int realtype)
 {
 	ObjectStruct* os;
-	bool inactive = false;
+	int8_t inactive = 0;
 	int8_t dir = -1;
 
 	if (realtype < 0) {
-		switch (realtype) {
-		case OBJ_ARMORSTANDN:  inactive = true;          break;
-		case OBJ_ARMORSTANDL:                   dir = 1; break;
-		case OBJ_ARMORSTANDLN: inactive = true; dir = 1; break;
-		case OBJ_ARMORSTANDR:                   dir = 0; break;
-		case OBJ_ARMORSTANDRN: inactive = true; dir = 0; break;
-		default:
-			ASSUME_UNREACHABLE;
-		}
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
 	}
 	if (dir < 0) {
 		dir = random_(147, 2);
@@ -1132,19 +1104,13 @@ static void AddArmorStand(int oi, int realtype)
 static void AddWeaponRack(int oi, int realtype)
 {
 	ObjectStruct* os;
-	bool inactive = false;
+	int8_t inactive = 0;
 	int8_t dir = -1;
 
 	if (realtype < 0) {
-		switch (realtype) {
-		case OBJ_WEAPONRACKN:  inactive = true;          break;
-		case OBJ_WEAPONRACKL:                   dir = 1; break;
-		case OBJ_WEAPONRACKLN: inactive = true; dir = 1; break;
-		case OBJ_WEAPONRACKR:                   dir = 0; break;
-		case OBJ_WEAPONRACKRN: inactive = true; dir = 0; break;
-		default:
-			ASSUME_UNREACHABLE;
-		}
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
 	}
 	if (dir < 0) {
 		dir = random_(147, 2);
@@ -1250,41 +1216,8 @@ int AddObject(int type, int ox, int oy)
 		return -1;
 	realType = type;
 	if (type < 0) {
-		switch (type) {
-		case OBJ_TCHEST1:
-		case OBJ_TLCHEST1:
-		case OBJ_TRCHEST1:
-		case OBJ_LCHEST1:
-		case OBJ_RCHEST1:
-		case OBJ_NLCHEST1:
-		case OBJ_NRCHEST1: type = OBJ_CHEST1; break;
-		case OBJ_TCHEST2:
-		case OBJ_TLCHEST2:
-		case OBJ_TRCHEST2:
-		case OBJ_LCHEST2:
-		case OBJ_RCHEST2:
-		case OBJ_NLCHEST2:
-		case OBJ_NRCHEST2: type = OBJ_CHEST2; break;
-		case OBJ_TCHEST3:
-		case OBJ_TLCHEST3:
-		case OBJ_TRCHEST3:
-		case OBJ_LCHEST3:
-		case OBJ_RCHEST3:
-		case OBJ_NLCHEST3:
-		case OBJ_NRCHEST3: type = OBJ_CHEST3; break;
-		case OBJ_WEAPONRACKN:
-		case OBJ_WEAPONRACKL:
-		case OBJ_WEAPONRACKLN:
-		case OBJ_WEAPONRACKR:
-		case OBJ_WEAPONRACKRN: type = OBJ_WEAPONRACK; break;
-		case OBJ_ARMORSTANDN:
-		case OBJ_ARMORSTANDL:
-		case OBJ_ARMORSTANDLN:
-		case OBJ_ARMORSTANDR:
-		case OBJ_ARMORSTANDRN: type = OBJ_ARMORSTAND; break;
-		default:
-			ASSUME_UNREACHABLE;
-		}
+		const ObjTypeConv &otc = objTypeConv[-type];
+		type = otc.oBaseType;
 	}
 //	oi = objectavail[0];
 	oi = numobjects;

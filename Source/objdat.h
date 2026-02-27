@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 extern const int8_t ObjConvTbl[128];
+extern const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1];
 extern const ObjectData objectdata[NUM_OBJECTS];
 extern const ObjFileData objfiledata[NUM_OFILE_TYPES];
 

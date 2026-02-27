@@ -4280,6 +4280,7 @@ typedef enum _object_id {
 	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
 	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-Nw direction
 	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-Nw direction
+	NUM_OBJVERSIONS = 31,
 } _object_id;
 
 typedef enum quest_id {

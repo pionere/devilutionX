@@ -157,6 +157,43 @@ const int8_t ObjConvTbl[128] = {
 	// clang-format on
 };
 
+/** Maps negative object IDs to the corresponding object ID and keeps track of the parameters to configure the final object. */
+const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1] = {
+//                     oBaseType,      oTypeParam1, oTypeParam2, 
+                     { 0,              0,           0,           }, // trapped chest in random direction
+/*OBJ_TCHEST1*/      { OBJ_CHEST1,     -1,          1,           }, // trapped chest in random direction
+/*OBJ_TLCHEST1*/     { OBJ_CHEST1,     1,           1,           }, // trapped chest in SW-NE direction
+/*OBJ_TRCHEST1*/     { OBJ_CHEST1,     0,           1,           }, // trapped chest in SE-Nw direction
+/*OBJ_LCHEST1*/      { OBJ_CHEST1,     1,           -1,          }, // chest in SW-NE direction with optional trap
+/*OBJ_RCHEST1*/      { OBJ_CHEST1,     0,           -1,          }, // chest in SE-Nw direction with optional trap
+/*OBJ_NLCHEST1*/     { OBJ_CHEST1,     1,           0,           }, // non-trapped chest in SW-NE
+/*OBJ_NRCHEST1*/     { OBJ_CHEST1,     0,           0,           }, // non-trapped chest in SE-Nw
+/*OBJ_TCHEST2*/      { OBJ_CHEST2,     -1,          1,           },
+/*OBJ_TLCHEST2*/     { OBJ_CHEST2,     1,           1,           },
+/*OBJ_TRCHEST2*/     { OBJ_CHEST2,     0,           1,           },
+/*OBJ_LCHEST2*/      { OBJ_CHEST2,     1,           -1,          },
+/*OBJ_RCHEST2*/      { OBJ_CHEST2,     0,           -1,          },
+/*OBJ_NLCHEST2*/     { OBJ_CHEST2,     1,           0,           },
+/*OBJ_NRCHEST2*/     { OBJ_CHEST2,     0,           0,           },
+/*OBJ_TCHEST3*/      { OBJ_CHEST3,     -1,          1,           },
+/*OBJ_TLCHEST3*/     { OBJ_CHEST3,     1,           1,           },
+/*OBJ_TRCHEST3*/     { OBJ_CHEST3,     0,           1,           },
+/*OBJ_LCHEST3*/      { OBJ_CHEST3,     1,           -1,          },
+/*OBJ_RCHEST3*/      { OBJ_CHEST3,     0,           -1,          },
+/*OBJ_NLCHEST3*/     { OBJ_CHEST3,     1,           0,           },
+/*OBJ_NRCHEST3*/     { OBJ_CHEST3,     0,           0,           },
+/*OBJ_WEAPONRACKN*/  { OBJ_WEAPONRACK, -1,          1,           }, // inactive weaponrack in random direction
+/*OBJ_WEAPONRACKL*/  { OBJ_WEAPONRACK, 1,           0,           }, // active weaponrack in SW-NE direction
+/*OBJ_WEAPONRACKLN*/ { OBJ_WEAPONRACK, 1,           1,           }, // inactive weaponrack in SW-NE direction
+/*OBJ_WEAPONRACKR*/  { OBJ_WEAPONRACK, 0,           0,           }, // active weaponrack in SE-Nw direction
+/*OBJ_WEAPONRACKRN*/ { OBJ_WEAPONRACK, 0,           1,           }, // inactive weaponrack in SE-Nw direction
+/*OBJ_ARMORSTANDN*/  { OBJ_ARMORSTAND, -1,          1,           }, // inactive armorstand in random direction
+/*OBJ_ARMORSTANDL*/  { OBJ_ARMORSTAND, 1,           0,           }, // active armorstand in SW-NE direction
+/*OBJ_ARMORSTANDLN*/ { OBJ_ARMORSTAND, 1,           1,           }, // inactive armorstand in SW-NE direction
+/*OBJ_ARMORSTANDR*/  { OBJ_ARMORSTAND, 0,           0,           }, // active armorstand in SE-Nw direction
+/*OBJ_ARMORSTANDRN*/ { OBJ_ARMORSTAND, 0,           1,           }, // inactive armorstand in SE-Nw direction
+};
+
 /** Contains the data related to each object ID. */
 const ObjectData objectdata[NUM_OBJECTS] = {
 	// clang-format off
