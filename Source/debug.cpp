@@ -1735,6 +1735,8 @@ void ValidateData()
 					app_fatal("Unsupported oSFXCnt for %s (%d) used by object %d", od.ofName, i, n);
 			}
 		}
+		if ((od.oSolidFlags & ~1) && !(od.oSolidFlags & 1))
+			app_fatal("Large object %s ( %d) is not solid.", od.ofName, i); // required by AddObject
 	}
 	for (i = 0; i < NUM_OBJECTS; i++) {
 		const ObjectData& od = objectdata[i];

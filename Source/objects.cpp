@@ -741,18 +741,6 @@ static int ProgressUberLever(int bookidx, int status)
 }
 #endif
 
-static void Alloc2x2Obj(int oi)
-{
-	int ox, oy;
-
-	ox = objects[oi]._ox;
-	oy = objects[oi]._oy;
-	oi = -(oi + 1);
-	dObject[ox][oy - 1] = oi;
-	dObject[ox - 1][oy] = oi;
-	dObject[ox - 1][oy - 1] = oi;
-}
-
 static void AddStoryBook()
 {
 	POS32 pos = RndLoc7x5();
@@ -1025,7 +1013,6 @@ static void AddSarc(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	dObject[os->_ox][os->_oy - 1] = -(oi + 1);
 	os->_oVar1 = random_(153, 10);       // SARC_ITEM
 	os->_oRndSeed = NextRndSeed();
 	if (os->_oVar1 >= 8)
@@ -1309,21 +1296,31 @@ int AddObject(int type, int ox, int oy)
 			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 		}
 	}
-	os->_oSolidFlag = ofd->oSolidFlag;
+	os->_oSolidFlag = ofd->oSolidFlags; // & 1; -- does not matter at the moment
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
 	os->_oTrapChance = 0;
 	// place object
 	os->_ox = ox;
 	os->_oy = oy;
-	assert(dObject[ox][oy] == 0);
-	dObject[ox][oy] = oi + 1;
 	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
-	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
-		dObject[ox][oy] = 0;
-		os->_oModeFlags |= OMF_RESERVED;
-		os->_oSelFlag = 0;
-	} else {
+	const bool ready = !nSolidTable[dPiece[ox][oy]] || !(os->_oModeFlags & OMF_FLOOR);
+	assert(dObject[ox][oy] == 0);
+	dObject[ox][oy] = ready ? oi + 1 : 0;
+	const int noi = -(oi + 1);
+	if (ofd->oSolidFlags & 2) {
+		assert(dObject[ox][oy - 1] == 0);
+		dObject[ox][oy - 1] = noi;
+	}
+	if (ofd->oSolidFlags & 4) {
+		assert(dObject[ox - 1][oy] == 0);
+		dObject[ox - 1][oy] = noi;
+	}
+	if (ofd->oSolidFlags & 8) {
+		assert(dObject[ox - 1][oy - 1] == 0);
+		dObject[ox - 1][oy - 1] = noi;
+	}
+	if (ready) {
 		const BYTE olr = ods->oLightRadius;
 		if (olr != 0) {
 #if FLICKER_LIGHT
@@ -1344,6 +1341,9 @@ int AddObject(int type, int ox, int oy)
 			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
 			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
 		}
+	} else {
+		os->_oModeFlags |= OMF_RESERVED;
+		os->_oSelFlag = 0;
 	}
 	{
 		// init object
@@ -1423,11 +1423,6 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_GOATSHRINE:
 		case OBJ_CAULDRON:
 			AddCauldronGoatShrine(oi);
-			break;
-		case OBJ_PURIFYINGFTN:
-		case OBJ_MURKYFTN:
-		case OBJ_MUSHPATCH:
-			Alloc2x2Obj(oi);
 			break;
 		//case OBJ_BLOODFTN:
 		//case OBJ_TEARFTN:

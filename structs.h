@@ -867,10 +867,10 @@ typedef struct ObjFileData {
 	const char* ofName;
 	int oSFX; // _sfx_id
 	BYTE oSFXCnt;
-	BYTE oAnimFlag; // object_anim_mode
+	BYTE oAnimFlag;    // object_anim_mode
 	int oAnimFrameLen; // Tick length of each frame in the current animation
-	BOOLEAN oSolidFlag;
-	BYTE oBreak; // object_break_mode
+	BYTE oSolidFlags;  // whether the object is solid + the additional subtiles which need to be allocated to the object
+	BYTE oBreak;       // object_break_mode
 	ALIGNMENT(3, 2)
 } ObjFileData;
 
