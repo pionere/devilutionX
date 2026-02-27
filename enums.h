@@ -4230,10 +4230,7 @@ typedef enum _object_id {
 	OBJ_STORYBOOK,
 	//OBJ_STORYCANDLE,
 	OBJ_TBCROSS,
-	OBJ_WEAPONRACKL,
-	OBJ_WEAPONRACKLN,
-	OBJ_WEAPONRACKR,
-	OBJ_WEAPONRACKRN,
+	OBJ_WEAPONRACK,
 	OBJ_MUSHPATCH,
 	OBJ_LAZSTAND,
 	//OBJ_SLAINHERO,
@@ -4274,6 +4271,11 @@ typedef enum _object_id {
 	OBJ_RCHEST3  = -19,
 	OBJ_NLCHEST3 = -20,
 	OBJ_NRCHEST3 = -21,
+	OBJ_WEAPONRACKN  = -22, // inactive weaponrack in random direction
+	OBJ_WEAPONRACKL  = -23, // active weaponrack in SW-NE direction
+	OBJ_WEAPONRACKLN = -24, // inactive weaponrack in SW-NE direction
+	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-Nw direction
+	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-Nw direction
 } _object_id;
 
 typedef enum quest_id {
