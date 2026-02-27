@@ -625,7 +625,7 @@ static void Theme_Treasure(int themeId)
  */
 static void Theme_Library(int themeId)
 {
-	int xx, yy;
+	int xx, yy, type;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
 	BYTE librnd;
 	const ThemeStruct &theme = themes[themeId];
@@ -644,10 +644,14 @@ static void Theme_Library(int themeId)
 	}
 
 	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?
+	static_assert(OBJ_BOOK2L - 2 == OBJ_BOOK2R, "Theme_Library depends on the order of OBJ_BOOK2L/R");
+	type = OBJ_BOOK2L - 2 * random_(0, 2);
+	static_assert(OBJ_BOOK2L - 1 == OBJ_BOOK2LN, "Theme_Library depends on the order of OBJ_BOOK2L(N)");
+	static_assert(OBJ_BOOK2R - 1 == OBJ_BOOK2RN, "Theme_Library depends on the order of OBJ_BOOK2R(N)");
 	for (xx = theme._tsx1 + 1; xx < theme._tsx2 - 1; xx++) {
 		for (yy = theme._tsy1 + 1; yy < theme._tsy2 - 1; yy++) {
 			if (CheckThemeObj3(xx, yy) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
-				AddObject(random_low(0, 2 * librnd) != 0 ? OBJ_BOOK2LN : OBJ_BOOK2L, xx, yy);
+				AddObject(type - (random_low(0, 2 * librnd) != 0 ? 1 : 0), xx, yy);
 			}
 		}
 	}
