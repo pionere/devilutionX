@@ -1014,7 +1014,7 @@ static void AddSarc(int oi)
 
 	os = &objects[oi];
 	os->_oVar1 = random_(153, 10);       // SARC_ITEM
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	if (os->_oVar1 >= 8)
 		os->_oVar2 = PreSpawnSkeleton(); // SARC_SKELE
 }
@@ -1047,7 +1047,7 @@ static void AddTrap(int oi)
 	mt = mt / 6 + 1;
 	mt = random_low(148, mt) & 3;
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	// TRAP_MISTYPE
 	os->_oVar3 = MIS_ARROW;
 	if (mt == 1)
@@ -1062,7 +1062,7 @@ static void AddBarrel(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar3 = random_(149, 3);  // BARREL_ITEM_TYPE
 	os->_oVar2 = random_(149, 10); // BARREL_ITEM
 	if (os->_oVar2 >= 8)
@@ -1087,7 +1087,7 @@ static void AddShrine(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
 	/* -- disabled because the animation is shifted and not much point without trap (+ cel file is cut in the patcher)
 	if (random_(150, 2) != 0) {
@@ -1095,12 +1095,12 @@ static void AddShrine(int oi)
 		os->_oAnimLen = 22;
 	}*/
 }
-
+#if 0
 static void ObjAddRndSeed(int oi)
 {
 	objects[oi]._oRndSeed = NextRndSeed();
 }
-
+#endif
 static void AddArmorStand(int oi, int realtype)
 {
 	ObjectStruct* os;
@@ -1126,7 +1126,7 @@ static void AddArmorStand(int oi, int realtype)
 	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_ARMORSTAND].oMissFlag;
 	os->_oModeFlags = inactive ? (objectdata[OBJ_ARMORSTAND].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_ARMORSTAND].oModeFlags;
 	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_ARMORSTAND].oSelFlag;
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 }
 
 static void AddWeaponRack(int oi, int realtype)
@@ -1154,7 +1154,7 @@ static void AddWeaponRack(int oi, int realtype)
 	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_WEAPONRACK].oMissFlag;
 	os->_oModeFlags = inactive ? (objectdata[OBJ_WEAPONRACK].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_WEAPONRACK].oModeFlags;
 	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_WEAPONRACK].oSelFlag;
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 }
 
 static void ObjAddBloodBook(int oi)
@@ -1162,7 +1162,7 @@ static void ObjAddBloodBook(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar5 = BK_BLOOD;                   // STORY_BOOK_NAME
 	os->_oVar6 = os->_oGfxFrame + 1;         // LEVER_BOOK_ANIM
 	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
@@ -1183,7 +1183,7 @@ static void AddCauldronGoatShrine(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(SHRINE_THAUMATURGIC); // SHRINE_TYPE
 }
 
@@ -1192,7 +1192,7 @@ static void AddDecap(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oGfxFrame = RandRange(1, 8);
 }
 
@@ -1201,7 +1201,6 @@ static void AddMagicCircle(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
 	os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
 }
 
@@ -1229,7 +1228,6 @@ static void AddTorturedMaleBody(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
 	os->_oGfxFrame = RandRange(1, 4);
 }
 
@@ -1238,7 +1236,6 @@ static void AddTorturedFemaleBody(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
 	os->_oGfxFrame = RandRange(1, 3);
 }
 
@@ -1333,6 +1330,7 @@ int AddObject(int type, int ox, int oy)
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
 	os->_oTrapChance = 0;
+	os->_oRndSeed = NextRndSeed();
 	// place object
 	os->_ox = ox;
 	os->_oy = oy;
@@ -1419,6 +1417,7 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_DECAP:
 			AddDecap(oi);
 			break;
+#if 0
 		case OBJ_BOOKCASEL:
 		case OBJ_BOOKCASER:
 		case OBJ_BARRELEX:
@@ -1431,6 +1430,7 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_PEDESTAL:
 			ObjAddRndSeed(oi);
 			break;
+#endif
 		case OBJ_ARMORSTAND:
 			AddArmorStand(oi, realType);
 			break;
