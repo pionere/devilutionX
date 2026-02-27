@@ -387,16 +387,16 @@ void InitThemes()
 
 /*
  * Place a theme object with the specified frequency.
- * @param themeId: theme id.
+ * @param theme: the theme in which the object should be placed
  * @param type: the type of the object to place
  * @param rndfrq: the frequency to place the object
  */
-static void Place_Obj3(int themeId, int type, int rndfrq)
+static void Place_Obj3(const ThemeStruct &theme, int type, int rndfrq)
 {
 	int xx, yy;
 	// assert(rndfrq > 0);
-	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
-		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
+	for (xx = theme._tsx1 + 1; xx < theme._tsx2 - 1; xx++) {
+		for (yy = theme._tsy1 + 1; yy < theme._tsy2 - 1; yy++) {
 			if (CheckThemeObj3(xx, yy) && random_low(0, rndfrq) == 0) {
 				AddObject(type, xx, yy);
 			}
@@ -661,8 +661,8 @@ static void Theme_Torture(int themeId)
 	const BYTE tortrnd = tortrnds[currLvl._dDunType - 1];   // TODO: use dType instead?
 
 	AddObject(random_(46, 2) ? OBJ_TNUDEW : OBJ_TNUDEM, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	Place_Obj3(themeId, OBJ_TNUDEM, tortrnd);
-	Place_Obj3(themeId, OBJ_TNUDEW, tortrnd);
+	Place_Obj3(themes[themeId], OBJ_TNUDEM, tortrnd);
+	Place_Obj3(themes[themeId], OBJ_TNUDEW, tortrnd);
 	PlaceThemeMonsts(themeId);
 }
 
@@ -688,7 +688,7 @@ static void Theme_Decap(int themeId)
 	const BYTE decaprnd = decaprnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	AddObject(OBJ_DECAP, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	Place_Obj3(themeId, OBJ_DECAP, decaprnd);
+	Place_Obj3(themes[themeId], OBJ_DECAP, decaprnd);
 	PlaceThemeMonsts(themeId);
 }
 
@@ -721,7 +721,7 @@ static void Theme_ArmorStand(int themeId)
 	AddObject(type - (_gbArmorFlag ? 0 : 1), themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	_gbArmorFlag = false;
 	type -= 1;
-	Place_Obj3(themeId, type, armorrnd);
+	Place_Obj3(themes[themeId], type, armorrnd);
 	PlaceThemeMonsts(themeId);
 }
 
@@ -789,7 +789,7 @@ static void Theme_BrnCross(int themeId)
 	const BYTE bcrossrnd = bcrossrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
 	AddObject(OBJ_TBCROSS, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
-	Place_Obj3(themeId, OBJ_TBCROSS, bcrossrnd);
+	Place_Obj3(themes[themeId], OBJ_TBCROSS, bcrossrnd);
 	PlaceThemeMonsts(themeId);
 }
 
@@ -811,7 +811,7 @@ static void Theme_WeaponRack(int themeId)
 	AddObject(type - (_gbWeaponFlag ? 0 : 1), themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	_gbWeaponFlag = false;
 	type -= 1;
-	Place_Obj3(themeId, type, weaponrnd);
+	Place_Obj3(themes[themeId], type, weaponrnd);
 	PlaceThemeMonsts(themeId);
 }
 
