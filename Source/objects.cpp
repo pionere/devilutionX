@@ -1144,6 +1144,28 @@ static void ObjAddBook(int oi, int bookidx)
 	os->_oVar5 = bookidx; // STORY_BOOK_NAME
 }
 
+static void ObjAddBook2(int oi, int realtype)
+{
+	ObjectStruct* os;
+	int8_t inactive = 0;
+	int8_t dir = -1;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = objectdata[OBJ_BOOK2].oBaseFrame + 3 * dir + (inactive ? 2 : 0);
+	// os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_BOOK2].oMissFlag;
+	os->_oModeFlags = inactive ? (objectdata[OBJ_BOOK2].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_BOOK2].oModeFlags;
+	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_BOOK2].oSelFlag;
+	//os->_oRndSeed = NextRndSeed();
+}
+
 static void AddCauldronGoatShrine(int oi)
 {
 	ObjectStruct* os;
@@ -1358,8 +1380,6 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_URNEX:
 		case OBJ_PODEX:
 #endif
-		case OBJ_BOOK2L:
-		case OBJ_BOOK2R:
 		case OBJ_PEDESTAL:
 			ObjAddRndSeed(oi);
 			break;
@@ -1387,6 +1407,9 @@ int AddObject(int type, int ox, int oy)
 			break;
 		case OBJ_VILEBOOK:
 			ObjAddBook(oi, BK_VILENESS);
+			break;
+		case OBJ_BOOK2:
+			ObjAddBook2(oi, realType);
 			break;
 		case OBJ_GOATSHRINE:
 		case OBJ_CAULDRON:
@@ -3292,8 +3315,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, sendmsg);
 		break;
-	case OBJ_BOOK2R:
-	case OBJ_BOOK2L:
+	case OBJ_BOOK2:
 		OperateSkelBook(oi, sendmsg);
 		break;
 	case OBJ_BOOKCASEL:
@@ -3453,8 +3475,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, false);
 		break;
-	case OBJ_BOOK2R:
-	case OBJ_BOOK2L:
+	case OBJ_BOOK2:
 		OperateSkelBook(oi, false);
 		break;
 	case OBJ_BOOKCASEL:
@@ -3691,8 +3712,7 @@ void GetObjectStr(int oi)
 	case OBJ_BOOKCASER:
 		txt0 = "Bookcase";
 		break;
-	case OBJ_BOOK2L:
-	case OBJ_BOOK2R:
+	case OBJ_BOOK2:
 		txt0 = "Lectern";
 		break;
 	case OBJ_BLOODFTN:

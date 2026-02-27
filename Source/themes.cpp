@@ -625,7 +625,7 @@ static void Theme_Treasure(int themeId)
  */
 static void Theme_Library(int themeId)
 {
-	int xx, yy, oi;
+	int xx, yy;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
 	BYTE librnd;
 	const ThemeStruct &theme = themes[themeId];
@@ -647,11 +647,7 @@ static void Theme_Library(int themeId)
 	for (xx = theme._tsx1 + 1; xx < theme._tsx2 - 1; xx++) {
 		for (yy = theme._tsy1 + 1; yy < theme._tsy2 - 1; yy++) {
 			if (CheckThemeObj3(xx, yy) && dMonster[xx][yy] == 0 && random_low(0, librnd) == 0) {
-				oi = AddObject(OBJ_BOOK2L, xx, yy);
-				if (random_low(0, 2 * librnd) != 0 && oi != -1) { /// BUGFIX: check AddObject succeeded (fixed)
-					objects[oi]._oSelFlag = 0;
-					objects[oi]._oAnimFrame += 2;
-				}
+				AddObject(random_low(0, 2 * librnd) != 0 ? OBJ_BOOK2LN : OBJ_BOOK2L, xx, yy);
 			}
 		}
 	}

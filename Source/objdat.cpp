@@ -192,6 +192,16 @@ const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1] = {
 /*OBJ_ARMORSTANDLN*/ { OBJ_ARMORSTAND, 1,           1,           }, // inactive armorstand in SW-NE direction
 /*OBJ_ARMORSTANDR*/  { OBJ_ARMORSTAND, 0,           0,           }, // active armorstand in SE-Nw direction
 /*OBJ_ARMORSTANDRN*/ { OBJ_ARMORSTAND, 0,           1,           }, // inactive armorstand in SE-Nw direction
+/*OBJ_BOOK1N*/       { 0/*OBJ_BOOK1*/, -1,          1,           }, // inactive book1-stand in random direction
+/*OBJ_BOOK1L*/       { 0/*OBJ_BOOK1*/, 1,           0,           }, // active book1-stand in SW-NE direction
+/*OBJ_BOOK1LN*/      { 0/*OBJ_BOOK1*/, 1,           1,           }, // inactive book1-stand in SW-NE direction
+/*OBJ_BOOK1R*/       { 0/*OBJ_BOOK1*/, 0,           0,           }, // active book1-stand in SE-Nw direction
+/*OBJ_BOOK1RN*/      { 0/*OBJ_BOOK1*/, 0,           1,           }, // inactive book1-stand in SE-Nw direction
+/*OBJ_BOOK2N*/       { OBJ_BOOK2,      -1,          1,           }, // inactive book2-stand in random direction
+/*OBJ_BOOK2L*/       { OBJ_BOOK2,      1,           0,           }, // active book2-stand in SW-NE direction
+/*OBJ_BOOK2LN*/      { OBJ_BOOK2,      1,           1,           }, // inactive book2-stand in SW-NE direction
+/*OBJ_BOOK2R*/       { OBJ_BOOK2,      0,           0,           }, // active book2-stand in SE-Nw direction
+/*OBJ_BOOK2RN*/      { OBJ_BOOK2,      0,           1,           }, // inactive book2-stand in SE-Nw direction
 };
 
 /** Contains the data related to each object ID. */
@@ -259,8 +269,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_ANCIENTBOOK*/  { OFILE_BOOK2,    0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_VILEBOOK*/     { OFILE_BOOK2,    0,                                         THEME_NONE,              Q_INVALID,           4,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_MYTHICBOOK*/   { OFILE_BOOK2,    0,                                         THEME_NONE,              Q_BCHAMB,            4,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
-/*OBJ_BOOK2L*/       { OFILE_BOOK2,    0,                                         THEME_LIBRARY,           Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
-/*OBJ_BOOK2R*/       { OFILE_BOOK2,    0,                                         THEME_SKELROOM,          Q_INVALID,           4,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
+/*OBJ_BOOK2*/        { OFILE_BOOK2,    0,                                         THEME_LIBRARY,           Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_BOOKLVR*///    { OFILE_BOOK1,    0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_BLINDBOOK*/    { OFILE_BOOK1,    0,                                         THEME_NONE,              Q_BLIND,             1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_BLOODBOOK*/    { OFILE_BOOK1,    0,                                         THEME_NONE,              Q_BLOOD,             4,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },

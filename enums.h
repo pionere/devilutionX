@@ -4208,8 +4208,7 @@ typedef enum _object_id {
 	OBJ_ANCIENTBOOK,
 	OBJ_VILEBOOK,
 	OBJ_MYTHICBOOK,
-	OBJ_BOOK2L,
-	OBJ_BOOK2R,
+	OBJ_BOOK2,
 	//OBJ_BOOKLVR,
 	OBJ_BLINDBOOK,
 	OBJ_BLOODBOOK,
@@ -4280,7 +4279,17 @@ typedef enum _object_id {
 	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
 	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-Nw direction
 	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-Nw direction
-	NUM_OBJVERSIONS = 31,
+	OBJ_BOOK1N       = -32, // inactive book1-stand in random direction
+	OBJ_BOOK1L       = -33, // active book1-stand in SW-NE direction
+	OBJ_BOOK1LN      = -34, // inactive book1-stand in SW-NE direction
+	OBJ_BOOK1R       = -35, // active book1-stand in SE-Nw direction
+	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-Nw direction
+	OBJ_BOOK2N       = -37, // inactive book2-stand in random direction
+	OBJ_BOOK2L       = -38, // active book2-stand in SW-NE direction
+	OBJ_BOOK2LN      = -39, // inactive book2-stand in SW-NE direction
+	OBJ_BOOK2R       = -40, // active book2-stand in SE-Nw direction
+	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-Nw direction
+	NUM_OBJVERSIONS = 41,
 } _object_id;
 
 typedef enum quest_id {
