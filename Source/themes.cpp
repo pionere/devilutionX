@@ -56,11 +56,12 @@ static const int trm3y[] = {
 static int TFit_Shrine(int themeId)
 {
 	int xx, yy, numMatches;
+	const ThemeStruct &theme = themes[themeId];
 
 	numMatches = 0;
-	yy = themes[themeId]._tsy1;
-	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
-		// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx - 1][yy] == themes[themeId]._tsTransVal && dTransVal[xx + 1][yy] == themes[themeId]._tsTransVal);
+	yy = theme._tsy1;
+	for (xx = theme._tsx1 + 1; xx < theme._tsx2 - 1; xx++) {
+		// assert(dTransVal[xx][yy] == theme._tsTransVal && dTransVal[xx - 1][yy] == theme._tsTransVal && dTransVal[xx + 1][yy] == theme._tsTransVal);
 		if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 			if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) != PST_NONE
 			 // make sure the place is wide enough
@@ -87,9 +88,9 @@ static int TFit_Shrine(int themeId)
 			}
 		}
 	}
-	xx = themes[themeId]._tsx1;
-	for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
-		// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal && dTransVal[xx][yy - 1] == themes[themeId]._tsTransVal && dTransVal[xx][yy + 1] == themes[themeId]._tsTransVal);
+	xx = theme._tsx1;
+	for (yy = theme._tsy1 + 1; yy < theme._tsy2 - 1; yy++) {
+		// assert(dTransVal[xx][yy] == theme._tsTransVal && dTransVal[xx][yy - 1] == theme._tsTransVal && dTransVal[xx][yy + 1] == theme._tsTransVal);
 		if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 			if ((nSpecTrapTable[dPiece[xx - 1][yy]] & PST_TRAP_TYPE) != PST_NONE
 			 // make sure the place is wide enough
@@ -126,18 +127,19 @@ static int TFit_Shrine(int themeId)
 static int TFit_Obj5(int themeId)
 {
 	int xx, yy, i, numMatches;
+	const ThemeStruct &theme = themes[themeId];
 
 	numMatches = 0;
-	for (xx = themes[themeId]._tsx1 + 2; xx < themes[themeId]._tsx2 - 2; xx++) {
-		for (yy = themes[themeId]._tsy1 + 2; yy < themes[themeId]._tsy2 - 2; yy++) {
-			// assert(dTransVal[xx][yy] == themes[themeId]._tsTransVal);
+	for (xx = theme._tsx1 + 2; xx < theme._tsx2 - 2; xx++) {
+		for (yy = theme._tsy1 + 2; yy < theme._tsy2 - 2; yy++) {
+			// assert(dTransVal[xx][yy] == theme._tsTransVal);
 			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				static_assert(lengthof(trm5x) == lengthof(trm5y), "Mismatching trm5 tables.");
 				for (i = 0; i < lengthof(trm5x); i++) {
 					if (nSolidTable[dPiece[xx + trm5x[i]][yy + trm5y[i]]]) {
 						break;
 					}
-					//assert(dTransVal[xx + trm5x[i]][yy + trm5y[i]] == themes[themeId]._tsTransVal);
+					//assert(dTransVal[xx + trm5x[i]][yy + trm5y[i]] == theme._tsTransVal);
 					//if (dTransVal[xx + trm5x[i]][yy + trm5y[i]] != tv) {
 					//	break;
 					//}
@@ -185,10 +187,11 @@ static bool CheckThemeObj3(int x, int y)
 static int TFit_Obj3(int themeId)
 {
 	int xx, yy, numMatches;
+	const ThemeStruct &theme = themes[themeId];
 
 	numMatches = 0;
-	for (xx = themes[themeId]._tsx1 + 1; xx < themes[themeId]._tsx2 - 1; xx++) {
-		for (yy = themes[themeId]._tsy1 + 1; yy < themes[themeId]._tsy2 - 1; yy++) {
+	for (xx = theme._tsx1 + 1; xx < theme._tsx2 - 1; xx++) {
+		for (yy = theme._tsy1 + 1; yy < theme._tsy2 - 1; yy++) {
 			if (CheckThemeObj3(xx, yy)) {
 				drlg.thLocs[numMatches].tpdx = xx;
 				drlg.thLocs[numMatches].tpdy = yy;
