@@ -74,6 +74,7 @@ NLevels\TownData\Town.RDUN
 NLevels\TownData\Town.SLA
 NLevels\TownData\Town.TIL
 Objects\Altboy.CEL
+Objects\Armstand.CEL
 Objects\Bloodfnt.CEL
 Objects\Candle2.CEL
 Objects\Cauldren.CEL

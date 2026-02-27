@@ -710,12 +710,18 @@ static void Theme_PurifyingFountain(int themeId)
  */
 static void Theme_ArmorStand(int themeId)
 {
+	int type;
 	const BYTE armorrnds[4] = { 6, 8, 3, 8 };
 	const BYTE armorrnd = armorrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
-	AddObject(_gbArmorFlag ? OBJ_ARMORSTAND : OBJ_ARMORSTANDN, themes[themeId]._tsObjX, themes[themeId]._tsObjY);
+	static_assert(OBJ_ARMORSTANDL - 2 == OBJ_ARMORSTANDR, "Theme_ArmorStand depends on the order of ARMORSTANDL/R");
+	type = OBJ_ARMORSTANDL - 2 * random_(0, 2);
+	static_assert(OBJ_ARMORSTANDL - 1 == OBJ_ARMORSTANDLN, "Theme_ArmorStand depends on the order of ARMORSTANDL(N)");
+	static_assert(OBJ_ARMORSTANDR - 1 == OBJ_ARMORSTANDRN, "Theme_ArmorStand depends on the order of ARMORSTANDR(N)");
+	AddObject(type - (_gbArmorFlag ? 0 : 1), themes[themeId]._tsObjX, themes[themeId]._tsObjY);
 	_gbArmorFlag = false;
-	Place_Obj3(themeId, OBJ_ARMORSTANDN, armorrnd);
+	type -= 1;
+	Place_Obj3(themeId, type, armorrnd);
 	PlaceThemeMonsts(themeId);
 }
 

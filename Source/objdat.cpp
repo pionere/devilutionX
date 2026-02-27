@@ -123,7 +123,7 @@ const int8_t ObjConvTbl[128] = {
 	OBJ_ALTBOY, // L4Data/Vile1.DUN (Q_BETRAYER), L1Data/Vile2.DUN
 	0,
 	0,
-	OBJ_ARMORSTANDN, //OBJ_ARMORSTAND, // Warlord2.DUN (Q_WARLORD) - changed to inactive versions to eliminate farming potential
+	OBJ_ARMORSTANDLN, //OBJ_ARMORSTAND, // Warlord2.DUN (Q_WARLORD) - changed to inactive versions to eliminate farming potential
 	OBJ_WEAPONRACKLN, //OBJ_WEAPONRACKL, // Warlord2.DUN (Q_WARLORD)
 	0, //OBJ_TORCHR1 (should be OBJ_TORCHL2), // Blood2.DUN (Q_BLOOD)
 	0, //OBJ_TORCHL1, // Blood2.DUN (Q_BLOOD)
@@ -233,7 +233,6 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_L3RDOOR*/      { OFILE_L3DOORS,  DTM_CAVES,                                 THEME_NONE,              Q_INVALID,           1,            0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_RIGHT,        3, FALSE,    TRUE,      ALIGN },
 /*OBJ_PURIFYINGFTN*/ { OFILE_PFOUNTN,  0,                                         THEME_PURIFYINGFOUNTAIN, Q_INVALID,          11,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
 /*OBJ_ARMORSTAND*/   { OFILE_ARMSTAND, 0,                                         THEME_ARMORSTAND,        Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
-/*OBJ_ARMORSTANDN*/  { OFILE_ARMSTAND, 0,                                         THEME_ARMORSTAND,        Q_WARLORD,           2,            0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN },
 /*OBJ_GOATSHRINE*/   { OFILE_GOATSHRN, 0,                                         THEME_GOATSHRINE,        Q_INVALID,          11,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_CAULDRON*/     { OFILE_CAULDREN, DTM_HELL,                                  THEME_NONE,              Q_INVALID,           4,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_MURKYFTN*/     { OFILE_MFOUNTN,  0,                                         THEME_MURKYFOUNTAIN,     Q_INVALID,          11,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },

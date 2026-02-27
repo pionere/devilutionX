@@ -1101,6 +1101,34 @@ static void ObjAddRndSeed(int oi)
 	objects[oi]._oRndSeed = NextRndSeed();
 }
 
+static void AddArmorStand(int oi, int realtype)
+{
+	ObjectStruct* os;
+	bool inactive = false;
+	int8_t dir = -1;
+
+	if (realtype < 0) {
+		switch (realtype) {
+		case OBJ_ARMORSTANDN:  inactive = true;          break;
+		case OBJ_ARMORSTANDL:                   dir = 1; break;
+		case OBJ_ARMORSTANDLN: inactive = true; dir = 1; break;
+		case OBJ_ARMORSTANDR:                   dir = 0; break;
+		case OBJ_ARMORSTANDRN: inactive = true; dir = 0; break;
+		default:
+			ASSUME_UNREACHABLE;
+		}
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = objectdata[OBJ_ARMORSTAND].oBaseFrame + 2 * dir + (inactive ? 1 : 0);
+	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_ARMORSTAND].oMissFlag;
+	os->_oModeFlags = inactive ? (objectdata[OBJ_ARMORSTAND].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_ARMORSTAND].oModeFlags;
+	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_ARMORSTAND].oSelFlag;
+	os->_oRndSeed = NextRndSeed();
+}
+
 static void AddWeaponRack(int oi, int realtype)
 {
 	ObjectStruct* os;
@@ -1252,6 +1280,11 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_WEAPONRACKLN:
 		case OBJ_WEAPONRACKR:
 		case OBJ_WEAPONRACKRN: type = OBJ_WEAPONRACK; break;
+		case OBJ_ARMORSTANDN:
+		case OBJ_ARMORSTANDL:
+		case OBJ_ARMORSTANDLN:
+		case OBJ_ARMORSTANDR:
+		case OBJ_ARMORSTANDRN: type = OBJ_ARMORSTAND; break;
 		default:
 			ASSUME_UNREACHABLE;
 		}
@@ -1396,8 +1429,10 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_BOOK2L:
 		case OBJ_BOOK2R:
 		case OBJ_PEDESTAL:
-		case OBJ_ARMORSTAND:
 			ObjAddRndSeed(oi);
+			break;
+		case OBJ_ARMORSTAND:
+			AddArmorStand(oi, realType);
 			break;
 		case OBJ_WEAPONRACK:
 			AddWeaponRack(oi, realType);

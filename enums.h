@@ -4219,7 +4219,6 @@ typedef enum _object_id {
 	OBJ_L3RDOOR,
 	OBJ_PURIFYINGFTN,
 	OBJ_ARMORSTAND,
-	OBJ_ARMORSTANDN,
 	OBJ_GOATSHRINE,
 	OBJ_CAULDRON,
 	OBJ_MURKYFTN,
@@ -4276,6 +4275,11 @@ typedef enum _object_id {
 	OBJ_WEAPONRACKLN = -24, // inactive weaponrack in SW-NE direction
 	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-Nw direction
 	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-Nw direction
+	OBJ_ARMORSTANDN  = -27, // inactive armorstand in random direction
+	OBJ_ARMORSTANDL  = -28, // active armorstand in SW-NE direction
+	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
+	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-Nw direction
+	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-Nw direction
 } _object_id;
 
 typedef enum quest_id {
