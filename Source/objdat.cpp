@@ -183,25 +183,25 @@ const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1] = {
 /*OBJ_NLCHEST3*/     { OBJ_CHEST3,     1,           0,           },
 /*OBJ_NRCHEST3*/     { OBJ_CHEST3,     0,           0,           },
 /*OBJ_WEAPONRACKN*/  { OBJ_WEAPONRACK, -1,          1,           }, // inactive weaponrack in random direction
-/*OBJ_WEAPONRACKL*/  { OBJ_WEAPONRACK, 1,           0,           }, // active weaponrack in SW-NE direction
-/*OBJ_WEAPONRACKLN*/ { OBJ_WEAPONRACK, 1,           1,           }, // inactive weaponrack in SW-NE direction
-/*OBJ_WEAPONRACKR*/  { OBJ_WEAPONRACK, 0,           0,           }, // active weaponrack in SE-Nw direction
-/*OBJ_WEAPONRACKRN*/ { OBJ_WEAPONRACK, 0,           1,           }, // inactive weaponrack in SE-Nw direction
+/*OBJ_WEAPONRACKL*/  { OBJ_WEAPONRACK, 0,           0,           }, // active weaponrack in SW-NE direction
+/*OBJ_WEAPONRACKLN*/ { OBJ_WEAPONRACK, 0,           1,           }, // inactive weaponrack in SW-NE direction
+/*OBJ_WEAPONRACKR*/  { OBJ_WEAPONRACK, 1,           0,           }, // active weaponrack in SE-Nw direction
+/*OBJ_WEAPONRACKRN*/ { OBJ_WEAPONRACK, 1,           1,           }, // inactive weaponrack in SE-Nw direction
 /*OBJ_ARMORSTANDN*/  { OBJ_ARMORSTAND, -1,          1,           }, // inactive armorstand in random direction
-/*OBJ_ARMORSTANDL*/  { OBJ_ARMORSTAND, 1,           0,           }, // active armorstand in SW-NE direction
-/*OBJ_ARMORSTANDLN*/ { OBJ_ARMORSTAND, 1,           1,           }, // inactive armorstand in SW-NE direction
-/*OBJ_ARMORSTANDR*/  { OBJ_ARMORSTAND, 0,           0,           }, // active armorstand in SE-Nw direction
-/*OBJ_ARMORSTANDRN*/ { OBJ_ARMORSTAND, 0,           1,           }, // inactive armorstand in SE-Nw direction
+/*OBJ_ARMORSTANDL*/  { OBJ_ARMORSTAND, 0,           0,           }, // active armorstand in SW-NE direction
+/*OBJ_ARMORSTANDLN*/ { OBJ_ARMORSTAND, 0,           1,           }, // inactive armorstand in SW-NE direction
+/*OBJ_ARMORSTANDR*/  { OBJ_ARMORSTAND, 1,           0,           }, // active armorstand in SE-Nw direction
+/*OBJ_ARMORSTANDRN*/ { OBJ_ARMORSTAND, 1,           1,           }, // inactive armorstand in SE-Nw direction
 /*OBJ_BOOK1N*/       { 0/*OBJ_BOOK1*/, -1,          1,           }, // inactive book1-stand in random direction
-/*OBJ_BOOK1L*/       { 0/*OBJ_BOOK1*/, 1,           0,           }, // active book1-stand in SW-NE direction
-/*OBJ_BOOK1LN*/      { 0/*OBJ_BOOK1*/, 1,           1,           }, // inactive book1-stand in SW-NE direction
-/*OBJ_BOOK1R*/       { 0/*OBJ_BOOK1*/, 0,           0,           }, // active book1-stand in SE-Nw direction
-/*OBJ_BOOK1RN*/      { 0/*OBJ_BOOK1*/, 0,           1,           }, // inactive book1-stand in SE-Nw direction
+/*OBJ_BOOK1L*/       { 0/*OBJ_BOOK1*/, 0,           0,           }, // active book1-stand in SW-NE direction
+/*OBJ_BOOK1LN*/      { 0/*OBJ_BOOK1*/, 0,           1,           }, // inactive book1-stand in SW-NE direction
+/*OBJ_BOOK1R*/       { 0/*OBJ_BOOK1*/, 1,           0,           }, // active book1-stand in SE-Nw direction
+/*OBJ_BOOK1RN*/      { 0/*OBJ_BOOK1*/, 1,           1,           }, // inactive book1-stand in SE-Nw direction
 /*OBJ_BOOK2N*/       { OBJ_BOOK2,      -1,          1,           }, // inactive book2-stand in random direction
-/*OBJ_BOOK2L*/       { OBJ_BOOK2,      1,           0,           }, // active book2-stand in SW-NE direction
-/*OBJ_BOOK2LN*/      { OBJ_BOOK2,      1,           1,           }, // inactive book2-stand in SW-NE direction
-/*OBJ_BOOK2R*/       { OBJ_BOOK2,      0,           0,           }, // active book2-stand in SE-Nw direction
-/*OBJ_BOOK2RN*/      { OBJ_BOOK2,      0,           1,           }, // inactive book2-stand in SE-Nw direction
+/*OBJ_BOOK2L*/       { OBJ_BOOK2,      0,           0,           }, // active book2-stand in SW-NE direction
+/*OBJ_BOOK2LN*/      { OBJ_BOOK2,      0,           1,           }, // inactive book2-stand in SW-NE direction
+/*OBJ_BOOK2R*/       { OBJ_BOOK2,      1,           0,           }, // active book2-stand in SE-Nw direction
+/*OBJ_BOOK2RN*/      { OBJ_BOOK2,      1,           1,           }, // inactive book2-stand in SE-Nw direction
 };
 
 /** Contains the data related to each object ID. */
