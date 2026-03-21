@@ -70,13 +70,13 @@ const int8_t ObjConvTbl[128] = {
 	0,
 	0, //OBJ_TRAPL,
 	0, //OBJ_TRAPR,
-	OBJ_TORTUREL1, // Butcher.DUN (Q_BUTCHER)
-	OBJ_TORTUREL2, // Butcher.DUN (Q_BUTCHER)
-	OBJ_TORTURER1, // Butcher.DUN (Q_BUTCHER)
-	OBJ_TORTURER2, // Butcher.DUN (Q_BUTCHER)
-	OBJ_TORTUREL3, // Butcher.DUN (Q_BUTCHER)
-	0,
-	0,
+	0, //OBJ_TORTUREL1, // Butcher.DUN (Q_BUTCHER)
+	0, //OBJ_TORTUREL2, // Butcher.DUN (Q_BUTCHER)
+	0, //OBJ_TORTURER1, // Butcher.DUN (Q_BUTCHER)
+	0, //OBJ_TORTURER2, // Butcher.DUN (Q_BUTCHER)
+	0, //OBJ_TORTUREL3, // Butcher.DUN (Q_BUTCHER)
+	OBJ_TORTUREL, // Butcher.DUN (Q_BUTCHER)
+	OBJ_TORTURER, // Butcher.DUN (Q_BUTCHER)
 	0,
 	0,
 	0,
@@ -202,8 +202,8 @@ const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1] = {
 /*OBJ_BOOK2LN*/      { OBJ_BOOK2,      0,           1,           }, // inactive book2-stand in SW-NE direction
 /*OBJ_BOOK2R*/       { OBJ_BOOK2,      1,           0,           }, // active book2-stand in SE-NW direction
 /*OBJ_BOOK2RN*/      { OBJ_BOOK2,      1,           1,           }, // inactive book2-stand in SE-NW direction
-/*OBJ_TORTUREL*/     { OBJ_TORTURE,    0,          -1,           }, // random tortured body on the SW-NE wall
-/*OBJ_TORTURER*/     { OBJ_TORTURE,    1,          -1,           }, // random tortured body on the SE-NW wall
+/*OBJ_TORTUREL*/     { OBJ_TORTURE,    0,          -1,           }, // random hooked body on the SW-NE wall
+/*OBJ_TORTURER*/     { OBJ_TORTURE,    1,          -1,           }, // random hooked body on the SE-NW wall
 /*OBJ_TORTUREL1*/    { OBJ_TORTURE,    0,           0,           }, // 1. hooked body on the SW-NE wall
 /*OBJ_TORTUREL2*/    { OBJ_TORTURE,    0,           1,           }, // 2. hooked body on the SW-NE wall
 /*OBJ_TORTUREL3*/    { OBJ_TORTURE,    0,           2,           }, // 3. hooked body on the SW-NE wall

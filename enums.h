@@ -4284,8 +4284,8 @@ typedef enum _object_id {
 	OBJ_BOOK2LN      = -39, // inactive book2-stand in SW-NE direction
 	OBJ_BOOK2R       = -40, // active book2-stand in SE-NW direction
 	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-NW direction
-	OBJ_TORTUREL     = -42, // random tortured body on the SW-NE wall
-	OBJ_TORTURER     = -43, // random tortured body on the SE-NW wall
+	OBJ_TORTUREL     = -42, // random hooked body on the SW-NE wall
+	OBJ_TORTURER     = -43, // random hooked body on the SE-NW wall
 	OBJ_TORTUREL1    = -44, // 1. hooked body on the SW-NE wall
 	OBJ_TORTUREL2    = -45, // 2. hooked body on the SW-NE wall
 	OBJ_TORTUREL3    = -46, // 3. hooked body on the SW-NE wall
