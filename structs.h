@@ -119,6 +119,10 @@ typedef struct CelImageBuf {
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelImageBuf;
 
+typedef struct TRNFileData {
+	const char* trnName;
+} TRNFileData;
+
 typedef struct CampaignMapEntry {
 	BYTE ceDunType;
 	BYTE ceIndex;
@@ -513,7 +517,7 @@ static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mi
 
 typedef struct MisFileData {
 	const char* mfName;
-	const char* mfAnimTrans;
+	BYTE mfAnimTrans;
 	int mfAnimFAmt;
 	BOOLEAN mfDrawFlag;
 	BOOLEAN mfAnimFlag;
@@ -636,7 +640,7 @@ typedef struct MonsterData {
 	uint16_t moFileNum; // _monster_gfx_id
 	BYTE mLevel;
 	BYTE mSelFlag;
-	const char* mTransFile;
+	BYTE mTransFile;
 	const char* mName;
 	MonsterAI mAI;
 	uint16_t mMinHP;
@@ -655,7 +659,7 @@ typedef struct MonsterData {
 	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties (_monster_resistance)
 	uint16_t mMagicRes2; // resistances in hell difficulty (_monster_resistance)
 	uint16_t mExp;
-	ALIGNMENT(5, 2)
+	ALIGNMENT(5, 3)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -804,7 +808,7 @@ typedef struct MonEnemyStruct {
 typedef struct UniqMonData {
 	int mtype; // _monster_id
 	const char* mName;
-	const char* mTrnName;
+	BYTE muTrans;
 	BYTE muLevelIdx; // level-index to place the monster (dungeon_level)
 	BYTE muLevel;    // difficulty level of the monster
 	uint16_t mmaxhp;
@@ -823,7 +827,7 @@ typedef struct UniqMonData {
 	BYTE mUnqAC;   // armor class bonus
 	BYTE mQuestId; // quest_id
 	int mtalkmsg;  // _speech_id
-	ALIGNMENT(6, 2)
+	ALIGNMENT(6, 3)
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

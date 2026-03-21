@@ -148,30 +148,19 @@ static void (*const AiProc[])(int i) = {
 	// clang-format on
 };
 
-static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
+static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], BYTE transFile)
 {
 	int i, j;
 	const MonAnimStruct* as;
 	BYTE trn[NUM_COLORS];
 
-	// A TRN file contains a sequence of color transitions, represented
-	// as indexes into a palette. (a 256 byte array of palette indices)
-	LoadFileWithMem(transFile, trn);
-#if !USE_PATCH
-	// patch TRN files - Monsters/*.TRN
-	BYTE *cf = trn;
-	for (i = 0; i < NUM_COLORS; i++) {
-		if (*cf == 255) {
-			*cf = 0;
-		}
-		cf++;
-	}
-#endif
-	for (i = 0; i < NUM_MON_ANIM; i++) {
-		as = &anims[i];
-		if (as->maFrames > 0) {
-			for (j = 0; j < lengthof(as->maAnimData); j++) {
-				Cl2ApplyTrans(as->maAnimData[j], trn);
+	if (LoadTrnWithMem(transFile, trn)) {
+		for (i = 0; i < NUM_MON_ANIM; i++) {
+			as = &anims[i];
+			if (as->maFrames > 0) {
+				for (j = 0; j < lengthof(as->maAnimData); j++) {
+					Cl2ApplyTrans(as->maAnimData[j], trn);
+				}
 			}
 		}
 	}
@@ -241,9 +230,9 @@ static void InitMonsterGFX(int midx)
 		}
 	}
 
-	if (monsterdata[mtype].mTransFile != NULL) {
+	//if (monsterdata[mtype].mTransFile != NULL) {
 		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
-	}
+	//}
 
 	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
 	if (mtype == MT_GOLEM) {
@@ -830,7 +819,6 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 
 static unsigned InitUniqueMonster(int mnum, int uniqindex)
 {
-	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
 	unsigned baseLvl, lvlBonus, monLvl;
@@ -858,9 +846,7 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
 	}
 
-	if (uniqm->mTrnName != NULL) {
-		snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-		LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
+	if (LoadTrnWithMem(uniqm->muTrans, ColorTrns[uniquetrans])) {
 		static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
 		mon->_muniqtrans = uniquetrans++;
 	}

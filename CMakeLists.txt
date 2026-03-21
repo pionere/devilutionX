@@ -541,6 +541,7 @@ set(devilutionx_SRCS
   Source/towners.cpp
   #Source/track.cpp
   Source/trigs.cpp
+  Source/trndat.cpp
   Source/controls/axis_direction.cpp
   Source/controls/controller.cpp
   Source/controls/controller_motion.cpp

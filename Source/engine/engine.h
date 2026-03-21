@@ -70,6 +70,13 @@ BYTE* LoadFileInMem(const char* name, size_t* pdwFileLen = NULL);
  * @param p Target buffer
  */
 void LoadFileWithMem(const char* name, BYTE* p);
+/**
+ * @brief Load a translation (trn) asset in to the given buffer
+ * @param id _trn_id of the asset
+ * @param p Target buffer
+ * @return whether trn was loaded
+ */
+bool LoadTrnWithMem(BYTE id, BYTE* p);
 /*
  * @brief Load a text-asset with line-breaks
  * @param name path/name of the asset

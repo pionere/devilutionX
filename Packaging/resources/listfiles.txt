@@ -640,9 +640,9 @@ Monsters\Bat\Batn.CL2
 _Monsters\Bat\Bats1.wav
 _Monsters\Bat\Bats2.wav
 Monsters\Bat\Batw.CL2
-Monsters\Bat\grey.trn
-Monsters\Bat\orange.trn
-Monsters\Bat\red.trn
+Monsters\Bat\grey.TRN
+Monsters\Bat\orange.TRN
+Monsters\Bat\red.TRN
 _Monsters\BigFall\Bfala1.wav
 _Monsters\BigFall\Bfala2.wav
 _Monsters\BigFall\Bfald1.wav

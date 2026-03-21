@@ -9,6 +9,7 @@
  * - Video playback
  */
 #include "all.h"
+#include "../trndat.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -287,6 +288,49 @@ void LoadFileWithMem(const char* name, BYTE* p)
 	// assert(name != NULL);
 	// assert(p != NULL);
 	SFileReadFileEx(name, &p);
+}
+
+/**
+ * @brief Load a translation (trn) asset in to the given buffer
+ *  A TRN file contains a sequence of color transitions, represented
+ *  as indexes into a palette. (a 256 byte array of palette indices)
+ * @param id _trn_id of the asset
+ * @param p Target buffer
+ * @return whether trn was loaded
+ */
+bool LoadTrnWithMem(BYTE id, BYTE* p)
+{
+	char pszName[DATA_ARCHIVE_MAX_PATH];
+	const char* path = NULL;
+	if (id >= TRN_MON_FIRST && id <= TRN_MON_LAST) {
+		path = "Monsters";
+	} else if (id >= TRN_UMON_FIRST && id <= TRN_UMON_LAST) {
+		path = "Monsters\\Monsters";
+	} else if (id >= TRN_PLR_FIRST && id <= TRN_PLR_LAST) {
+		path = "PlrGFX";
+	}
+	const char* name = trnfiledata[id].trnName;
+
+	if (path != NULL) {
+		snprintf(pszName, sizeof(pszName), "%s\\%s.TRN", path, name);
+
+		LoadFileWithMem(pszName, p);
+
+#if !USE_PATCH
+		// patch TRN files - Monsters/*.TRN
+		if ((id >= TRN_MON_FIRST && id <= TRN_MON_LAST) || (id >= TRN_UMON_FIRST && id <= TRN_UMON_LAST)) {
+			int i;
+			BYTE *cf = p;
+			for (i = 0; i < NUM_COLORS; i++) {
+				if (*cf == 255) {
+					*cf = 0;
+				}
+				cf++;
+			}
+		}
+#endif
+	}
+	return path != NULL;
 }
 
 /*

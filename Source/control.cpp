@@ -812,13 +812,13 @@ void InitControlPan()
 			SkillTrns[j] = j;
 		SkillTrns[NUM_COLORS - 1] = 0;
 	}*/
-	LoadFileWithMem("PlrGFX\\SNone.TRN", SkillTrns[RSPLTYPE_ABILITY]);
-	LoadFileWithMem("PlrGFX\\SBlue.TRN", SkillTrns[RSPLTYPE_SPELL]);
-	LoadFileWithMem("PlrGFX\\SRed.TRN", SkillTrns[RSPLTYPE_SCROLL]);
-	LoadFileWithMem("PlrGFX\\SOrange.TRN", SkillTrns[RSPLTYPE_CHARGES]);
-	LoadFileWithMem("PlrGFX\\SGray.TRN", SkillTrns[RSPLTYPE_INVALID]);
+	LoadTrnWithMem(TRN_PLR_NONE, SkillTrns[RSPLTYPE_ABILITY]);
+	LoadTrnWithMem(TRN_PLR_BLUE, SkillTrns[RSPLTYPE_SPELL]);
+	LoadTrnWithMem(TRN_PLR_RED, SkillTrns[RSPLTYPE_SCROLL]);
+	LoadTrnWithMem(TRN_PLR_ORANGE, SkillTrns[RSPLTYPE_CHARGES]);
+	LoadTrnWithMem(TRN_PLR_GRAY, SkillTrns[RSPLTYPE_INVALID]);
 #ifdef HELLFIRE
-	LoadFileWithMem("PlrGFX\\Coral.TRN", SkillTrns[RSPLTYPE_RUNE]);
+	LoadTrnWithMem(TRN_PLR_CORAL, SkillTrns[RSPLTYPE_RUNE]);
 #endif
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);

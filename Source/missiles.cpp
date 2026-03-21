@@ -1525,6 +1525,7 @@ static void SetMissAnim(int mi, int dir)
 static void LoadMissileGFX(BYTE midx)
 {
 	char pszName[DATA_ARCHIVE_MAX_PATH];
+	BYTE trn[NUM_COLORS];
 	int i, n;
 	BYTE** mad;
 	const char* name;
@@ -1545,10 +1546,7 @@ static void LoadMissileGFX(BYTE midx)
 	}
 	misanimdim[midx][0] = Cl2Width(mad[0]);
 	misanimdim[midx][1] = (misanimdim[midx][0] - TILE_WIDTH) >> 1;
-	if (mfd->mfAnimTrans != NULL) {
-		BYTE trn[NUM_COLORS];
-		LoadFileWithMem(mfd->mfAnimTrans, trn);
-
+	if (LoadTrnWithMem(mfd->mfAnimTrans, trn)) {
 		for (i = 0; i < n; i++) {
 			Cl2ApplyTrans(mad[i], trn);
 		}
