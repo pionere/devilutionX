@@ -4250,11 +4250,11 @@ typedef enum _object_id {
 	NUM_OBJECTS,
 	OBJ_TCHEST1  = -1, // trapped chest in random direction
 	OBJ_TLCHEST1 = -2, // trapped chest in SW-NE direction
-	OBJ_TRCHEST1 = -3, // trapped chest in SE-Nw direction
+	OBJ_TRCHEST1 = -3, // trapped chest in SE-NW direction
 	OBJ_LCHEST1  = -4, // chest in SW-NE direction with optional trap
-	OBJ_RCHEST1  = -5, // chest in SE-Nw direction with optional trap
+	OBJ_RCHEST1  = -5, // chest in SE-NW direction with optional trap
 	OBJ_NLCHEST1 = -6, // non-trapped chest in SW-NE
-	OBJ_NRCHEST1 = -7, // non-trapped chest in SE-Nw
+	OBJ_NRCHEST1 = -7, // non-trapped chest in SE-NW
 	OBJ_TCHEST2  = -8,
 	OBJ_TLCHEST2 = -9,
 	OBJ_TRCHEST2 = -10,
@@ -4272,23 +4272,23 @@ typedef enum _object_id {
 	OBJ_WEAPONRACKN  = -22, // inactive weaponrack in random direction
 	OBJ_WEAPONRACKL  = -23, // active weaponrack in SW-NE direction
 	OBJ_WEAPONRACKLN = -24, // inactive weaponrack in SW-NE direction
-	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-Nw direction
-	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-Nw direction
+	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-NW direction
+	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-NW direction
 	OBJ_ARMORSTANDN  = -27, // inactive armorstand in random direction
 	OBJ_ARMORSTANDL  = -28, // active armorstand in SW-NE direction
 	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
-	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-Nw direction
-	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-Nw direction
+	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-NW direction
+	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-NW direction
 	OBJ_BOOK1N       = -32, // inactive book1-stand in random direction
 	OBJ_BOOK1L       = -33, // active book1-stand in SW-NE direction
 	OBJ_BOOK1LN      = -34, // inactive book1-stand in SW-NE direction
-	OBJ_BOOK1R       = -35, // active book1-stand in SE-Nw direction
-	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-Nw direction
+	OBJ_BOOK1R       = -35, // active book1-stand in SE-NW direction
+	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-NW direction
 	OBJ_BOOK2N       = -37, // inactive book2-stand in random direction
 	OBJ_BOOK2L       = -38, // active book2-stand in SW-NE direction
 	OBJ_BOOK2LN      = -39, // inactive book2-stand in SW-NE direction
-	OBJ_BOOK2R       = -40, // active book2-stand in SE-Nw direction
-	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-Nw direction
+	OBJ_BOOK2R       = -40, // active book2-stand in SE-NW direction
+	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-NW direction
 	NUM_OBJVERSIONS = 41,
 } _object_id;
 
