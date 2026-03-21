@@ -4176,12 +4176,7 @@ typedef enum _object_id {
 	OBJ_SWITCHSKL,
 	OBJ_TNUDEM,
 	OBJ_TNUDEW,
-	OBJ_TORTUREL1,
-	OBJ_TORTUREL2,
-	OBJ_TORTUREL3,
-	OBJ_TORTURER1,
-	OBJ_TORTURER2,
-	OBJ_TORTURER3,
+	OBJ_TORTURE,
 	OBJ_L2LDOOR,
 	OBJ_L2RDOOR,
 	OBJ_TORCHL1,
@@ -4289,7 +4284,15 @@ typedef enum _object_id {
 	OBJ_BOOK2LN      = -39, // inactive book2-stand in SW-NE direction
 	OBJ_BOOK2R       = -40, // active book2-stand in SE-NW direction
 	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-NW direction
-	NUM_OBJVERSIONS = 41,
+	OBJ_TORTUREL     = -42, // random tortured body on the SW-NE wall
+	OBJ_TORTURER     = -43, // random tortured body on the SE-NW wall
+	OBJ_TORTUREL1    = -44, // 1. hooked body on the SW-NE wall
+	OBJ_TORTUREL2    = -45, // 2. hooked body on the SW-NE wall
+	OBJ_TORTUREL3    = -46, // 3. hooked body on the SW-NE wall
+	OBJ_TORTURER1    = -47, // 1. hooked body on the SE-NW wall
+	OBJ_TORTURER2    = -48, // 2. hooked body on the SE-NW wall
+	OBJ_TORTURER3    = -49, // 3. hooked body on the SE-NW wall
+	NUM_OBJVERSIONS = 49,
 } _object_id;
 
 typedef enum quest_id {
