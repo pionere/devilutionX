@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define ITEM_ANIM_DELAY 1
+
 int itemactive[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
@@ -155,8 +157,6 @@ static void PlaceInitItems()
 void InitItems()
 {
 	// if (!currLvl._dSetLvl) {
-		if (QuestStatus(Q_ROCK))
-			PlaceRock();
 		if (QuestStatus(Q_ANVIL))
 			CreateQuestItemAt(IDI_ANVIL, 2 * pSetPieces[0]._spx + DBORDERX + 11, 2 * pSetPieces[0]._spy + DBORDERY + 11, ICM_DELTA);
 		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
@@ -1868,14 +1868,13 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 {
 	int i, ui;
 	BYTE uok[NUM_UITEM];
-	BYTE uid;
-
-	if (random_(28, 100) > (quality == CFDQ_UNIQUE ? 15 : 1))
+	const ItemData &item = AllItemList[items[ii]._iIdx];
+	const BYTE uid = item.iUniqType;
+	if (uid == UITYPE_NONE || (item.iRnd != 0 && random_(28, 100) > (quality == CFDQ_UNIQUE ? 15 : 1)))
 		return -1;
 
 	static_assert(NUM_UITEM <= UCHAR_MAX, "Unique index must fit to a BYTE in CheckUnique.");
 
-	uid = AllItemList[items[ii]._iIdx].iUniqType;
 	ui = 0;
 	for (i = 0; i < NUM_UITEM; i++) {
 		if (UniqueItemList[i].UIUniqType == uid
@@ -2183,6 +2182,23 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 }
 
 /**
+ * Spawn a fixed item around the given location and try to pick it up.
+ * 
+ * @param idx: the index of the item(item_indexes enum)
+ * @param x tile-coordinate of the target location
+ * @param y tile-coordinate of the target location
+ * @param mode icreate_mode (ICM_SEND_FLIP or ICM_DUMMY)
+ */
+void PickQuestItemAt(int idx, int x, int y, int mode)
+{
+	PlaySfxLoc(IS_IGRAB, x, y);
+	SpawnQuestItemAt(idx, x, y, mode);
+	if (mode >= ICM_SEND) {
+		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, MAXITEMS);
+	}
+}
+
+/**
  * Place a fixed item to a random location where the space is large enough.
  * 
  * @param idx: the index of the item(item_indexes enum)
@@ -2208,44 +2224,6 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	DeltaAddItem(ii);
 }
 
-/**
- * Place a rock(item) on a stand (OBJ_STAND).
- */
-/*static*/ void PlaceRock()
-{
-	int i, oi;
-
-	if (numitems >= MAXITEMS)
-		return; // should never be the case
-
-	/*for (i = 0; i < numobjects; i++) {
-		oi = i; // objectactive[i];
-		if (objects[oi]._otype == OBJ_STAND)
-			break;
-	}
-	if (i != numobjects) {*/
-	oi = 0; // objectactive[0];
-	if (objects[oi]._otype == OBJ_STAND) {
-		i = itemactive[numitems];
-		assert(i == numitems);
-		CreateQuestItemAt(IDI_ROCK, objects[oi]._ox, objects[oi]._oy, ICM_DELTA);
-//		SetItemData(i, IDI_ROCK);
-		// assert(gbLvlLoad);
-//		RespawnItem(i, false);
-		// draw it above the stand
-		items[i]._iSelFlag = 2;
-		//items[i]._iPostDraw = TRUE;
-		items[i]._iAnimFrame = 11;
-		//items[i]._iAnimFlag = TRUE;
-//		items[i]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
-//		items[i]._iSeed = NextRndSeed();               // make sure it is unique
-//		SetItemLoc(i, objects[oi]._ox, objects[oi]._oy);
-//		DeltaAddItem(i);
-
-//		numitems++;
-	}
-}
-
 void RespawnItem(int ii, bool FlipFlag)
 {
 	ItemStruct* is;
@@ -2255,7 +2233,7 @@ void RespawnItem(int ii, bool FlipFlag)
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
 	is->_iAnimLen = itemfiledata[it].iAnimLen;
-	is->_iAnimFrameLen = 1;
+	//is->_iAnimFrameLen = ITEM_ANIM_DELAY;
 	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
 	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
 	//is->_iPostDraw = FALSE;
@@ -2323,7 +2301,7 @@ void ProcessItems()
 		is = &items[itemactive[i]];
 		if (is->_iAnimFlag) {
 			is->_iAnimCnt++;
-			if (is->_iAnimCnt >= is->_iAnimFrameLen) {
+			if (is->_iAnimCnt >= ITEM_ANIM_DELAY) {
 				is->_iAnimCnt = 0;
 				is->_iAnimFrame++;
 				if (is->_iCurs != ICURS_MAGIC_ROCK) {
@@ -2342,11 +2320,8 @@ void ProcessItems()
 						// assert(is->_iAnimFrame == 2);
 						PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
 					// magic rock dropped on the floor
-					} else if (is->_iSelFlag == 1 && is->_iAnimFrame == 11)
+					} else if (is->_iAnimFrame == 11)
 						is->_iAnimFrame = 1;
-					// magic rock on stand
-					else if (is->_iSelFlag == 2 && is->_iAnimFrame == 21)
-						is->_iAnimFrame = 11;
 				}
 			}
 		}
@@ -2357,7 +2332,11 @@ void ProcessItems()
 void SyncItemAnim(int ii)
 {
 	items[ii]._iAnimData = itemanims[ItemCAnimTbl[items[ii]._iCurs]];
-	items[ii]._iAnimFrameLen = 1;
+#if 0
+	items[ii]._iAnimFrameLen = ITEM_ANIM_DELAY;
+	items[ii]._iAnimWidth = ITEM_ANIM_WIDTH;
+	items[ii]._iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) >> 1;
+#endif
 }
 
 int FindGetItem(const PkItemStruct* pkItem)

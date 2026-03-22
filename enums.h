@@ -8,6 +8,113 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+typedef enum _trn_id {
+	TRN_NONE,
+
+	TRN_MON_FIRST,
+	TRN_MON_ZOMBIE_BR = TRN_MON_FIRST,
+	TRN_MON_ZOMBIE_GREY,
+	TRN_MON_ZOMBIE_YEL,
+	TRN_MON_FALLSP_FALT,
+	TRN_MON_FALLSP_DARK,
+	TRN_MON_FALLSP_BLUE,
+	TRN_MON_SKELSD_WHITE,
+	TRN_MON_SKELSD_SKELT,
+	TRN_MON_SKELSD_BLACK,
+	TRN_MON_SCAV_BR,
+	TRN_MON_SCAV_BE,
+	TRN_MON_SCAV_WHITE,
+	TRN_MON_SNEAK_V1,
+	TRN_MON_SNEAK_V2,
+	TRN_MON_SNEAK_V3,
+	TRN_MON_GOATMC_BEIGE,
+	TRN_MON_GOATMC_RED,
+	TRN_MON_GOATMC_GRAY,
+	TRN_MON_BAT_RED,
+	TRN_MON_BAT_GREY,
+	TRN_MON_BAT_ORANGE,
+	TRN_MON_ACID_BLK,
+	TRN_MON_ACID_BLUE,
+	TRN_MON_ACID_RED,
+	TRN_MON_FAT_BLUE,
+	TRN_MON_FAT_BG,
+	TRN_MON_FAT_RED,
+	TRN_MON_MAGMA_YEL,
+	TRN_MON_MAGMA_BLUE,
+	TRN_MON_MAGMA_WIERD,
+	TRN_MON_RHINO_ORANGE,
+	TRN_MON_RHINO_BLUE,
+	TRN_MON_RHINO_BR,
+	TRN_MON_THIN_V1,
+	TRN_MON_THIN_V2,
+	TRN_MON_THIN_V3,
+	TRN_MON_GARG_E,
+	TRN_MON_GARG_BR,
+	TRN_MON_GARG_BLUE,
+	TRN_MON_MEGA_GUARD,
+	TRN_MON_MEGA_VTEXL,
+	TRN_MON_MEGA_BALR,
+	TRN_MON_SNAKE_R,
+	TRN_MON_SNAKE_G,
+	TRN_MON_SNAKE_B,
+	TRN_MON_BLACK_RT,
+	TRN_MON_BLACK_BT,
+	TRN_MON_BLACK_BE,
+	TRN_MON_SUCC_B,
+	TRN_MON_SUCC_RW,
+	TRN_MON_SUCC_BW,
+	TRN_MON_MAGE_G,
+	TRN_MON_MAGE_GD,
+	TRN_MON_MAGE_BK,
+	TRN_MON_LAST = TRN_MON_MAGE_BK,
+
+	TRN_UMON_FIRST,
+	TRN_UMON_BSDB = TRN_UMON_FIRST,
+	TRN_UMON_GENERAL,
+	TRN_UMON_BNG,
+	TRN_UMON_REDV,
+	TRN_UMON_BLKJD,
+	TRN_UMON_BHKA,
+	TRN_UMON_BSTS,
+	TRN_UMON_PTU,
+	TRN_UMON_BR,
+	TRN_UMON_ETH,
+	TRN_UMON_SHBT,
+	TRN_UMON_DE,
+	TRN_UMON_GTQ,
+	TRN_UMON_BHBS,
+	TRN_UMON_RCRN,
+	TRN_UMON_SKFR,
+	TRN_UMON_TSPO,
+	TRN_UMON_PMR,
+	TRN_UMON_MTD,
+	TRN_UMON_BASHTB,
+	TRN_UMON_DB,
+	TRN_UMON_SHDR,
+	TRN_UMON_BFTP,
+	TRN_UMON_BFDS,
+	TRN_UMON_BGBL,
+	TRN_UMON_DSFM,
+	TRN_UMON_BLF,
+	TRN_UMON_BHSM,
+	TRN_UMON_BSM,
+	TRN_UMON_WFTD,
+	TRN_UMON_LAST = TRN_UMON_WFTD,
+
+	TRN_PLR_FIRST,
+	TRN_PLR_STONE = TRN_PLR_FIRST,
+	TRN_PLR_BLUE,
+	TRN_PLR_GRAY,
+	TRN_PLR_NONE,
+	TRN_PLR_ORANGE,
+	TRN_PLR_CORAL,
+	TRN_PLR_INFRA,
+	TRN_PLR_RED,
+	TRN_PLR_LAST = TRN_PLR_RED,
+
+	NUM_TRNS = TRN_PLR_LAST
+} _trn_id;
+
 typedef enum item_indexes {
 	IDI_GOLD,
 	IDI_WARRSWORD,
@@ -2034,6 +2141,8 @@ typedef enum missile_id {
 	MIS_MANASHIELD,
 	MIS_INFRA,
 	MIS_RAGE,
+	MIS_PULSE,
+	MIS_CTA,
 #ifdef HELLFIRE
 	//MIS_LIGHTWALLC,
 	//MIS_LIGHTWALL,
@@ -2270,6 +2379,7 @@ typedef enum _monster_id {
 	MT_BSNEAK,
 	MT_YSNEAK,
 	MT_NGOATMC,
+	MT_AGOATMC,
 	MT_BGOATMC,
 	MT_RGOATMC,
 	MT_GGOATMC,
@@ -2315,6 +2425,7 @@ typedef enum _monster_id {
 	MT_NTHIN,
 	MT_XTHIN,
 	MT_GTHIN,
+	MT_WTHIN,
 	MT_NGARG,
 	MT_XGARG,
 	MT_DGARG,
@@ -2482,6 +2593,7 @@ typedef enum _monster_flag {
 	MFLAG_LIFESTEAL       = 0x0020,
 	MFLAG_CAN_OPEN_DOOR   = 0x0040,
 	MFLAG_SEARCH          = 0x0080,
+	MFLAG_NOGETHIT        = 0x0100,
 	MFLAG_NOSTONE         = 0x0200,
 	MFLAG_NOCORPSE        = 0x0400,
 	MFLAG_CAN_BLEED       = 0x0800,
@@ -3133,6 +3245,12 @@ typedef enum object_proc_func {
 #endif
 } object_proc_func;
 
+typedef enum object_light_flags {
+	OLF_XO    = 1 << 6, // shift the starting position of the light by one on the y-coordinate
+	OLF_YO    = 1 << 7, // shift the starting position of the light by one on the x-coordinate
+	OLF_MASK  = (1 << 6) - 1
+} object_light_flags;
+
 typedef enum object_mode_flags { // TODO: merge with object_break_mode?
 	OMF_NONE,
 	OMF_ACTIVE   = 1 << 0, // interactive object
@@ -3515,8 +3633,6 @@ typedef enum dungeon_message2 {
 typedef enum diablo_message {
 	EMSG_NONE,
 	EMSG_DESYNC,
-	EMSG_LOADING,
-	EMSG_SAVING,
 	EMSG_SHRINE_HIDDEN,
 	EMSG_SHRINE_GLOOMY,
 	EMSG_SHRINE_WEIRD,
@@ -3854,6 +3970,7 @@ typedef enum spell_id {
 	SPL_WIND,
 	SPL_SHROUD,
 	SPL_SWAMP,
+	SPL_PULSE,
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_STONE,
@@ -3983,11 +4100,11 @@ typedef enum _cmd_id {
 } _cmd_id;
 
 typedef enum _dcmd_item {
-	DCMD_INVALID,
-	DCMD_ITM_SPAWNED,
-	DCMD_ITM_TAKEN,
-	DCMD_ITM_MOVED,
-	DCMD_ITM_DROPPED,
+	DCMD_INVALID,     // free entry in delta-items
+	DCMD_ITM_SPAWNED, // used entry in delta-items of a spawned item without item-details
+	DCMD_ITM_TAKEN,   // free entry in delta-items which was a spawned item originally
+	DCMD_ITM_MOVED,   // used entry in delta-items which was a spawned item originally
+	DCMD_ITM_DROPPED, // used entry in delta-items
 } _dcmd_item;
 
 typedef enum _dcmd_monster {
@@ -4160,18 +4277,13 @@ typedef enum _object_id {
 	OBJ_CRUXM,
 	OBJ_CRUXR,
 	OBJ_CRUXL,
-	OBJ_STAND,
+	OBJ_ROCKSTAND,
 	//OBJ_ANGEL,
 	//OBJ_NUDEW2R,
 	OBJ_SWITCHSKL,
 	OBJ_TNUDEM,
 	OBJ_TNUDEW,
-	OBJ_TORTUREL1,
-	OBJ_TORTUREL2,
-	OBJ_TORTUREL3,
-	OBJ_TORTURER1,
-	OBJ_TORTURER2,
-	OBJ_TORTURER3,
+	OBJ_TORTURE,
 	OBJ_L2LDOOR,
 	OBJ_L2RDOOR,
 	OBJ_TORCHL1,
@@ -4192,17 +4304,13 @@ typedef enum _object_id {
 	OBJ_SHRINER,
 	OBJ_BOOKCASEL,
 	OBJ_BOOKCASER,
-	OBJ_BOOKCANDLE,
+	//OBJ_BOOKCANDLE,
 	OBJ_BLOODFTN,
 	OBJ_DECAP,
-	OBJ_TCHEST1,
-	OBJ_TCHEST2,
-	OBJ_TCHEST3,
 	OBJ_ANCIENTBOOK,
 	OBJ_VILEBOOK,
 	OBJ_MYTHICBOOK,
-	OBJ_BOOK2L,
-	OBJ_BOOK2R,
+	OBJ_BOOK2,
 	//OBJ_BOOKLVR,
 	OBJ_BLINDBOOK,
 	OBJ_BLOODBOOK,
@@ -4212,7 +4320,6 @@ typedef enum _object_id {
 	OBJ_L3RDOOR,
 	OBJ_PURIFYINGFTN,
 	OBJ_ARMORSTAND,
-	OBJ_ARMORSTANDN,
 	OBJ_GOATSHRINE,
 	OBJ_CAULDRON,
 	OBJ_MURKYFTN,
@@ -4221,12 +4328,9 @@ typedef enum _object_id {
 	OBJ_MCIRCLE1,
 	OBJ_MCIRCLE2,
 	OBJ_STORYBOOK,
-	OBJ_STORYCANDLE,
+	//OBJ_STORYCANDLE,
 	OBJ_TBCROSS,
-	OBJ_WEAPONRACKL,
-	OBJ_WEAPONRACKLN,
-	OBJ_WEAPONRACKR,
-	OBJ_WEAPONRACKRN,
+	OBJ_WEAPONRACK,
 	OBJ_MUSHPATCH,
 	OBJ_LAZSTAND,
 	//OBJ_SLAINHERO,
@@ -4245,7 +4349,57 @@ typedef enum _object_id {
 	OBJ_POD,
 	OBJ_PODEX,
 #endif
-	NUM_OBJECTS
+	NUM_OBJECTS,
+	OBJ_TCHEST1  = -1, // trapped chest in random direction
+	OBJ_TLCHEST1 = -2, // trapped chest in SW-NE direction
+	OBJ_TRCHEST1 = -3, // trapped chest in SE-NW direction
+	OBJ_LCHEST1  = -4, // chest in SW-NE direction with optional trap
+	OBJ_RCHEST1  = -5, // chest in SE-NW direction with optional trap
+	OBJ_NLCHEST1 = -6, // non-trapped chest in SW-NE
+	OBJ_NRCHEST1 = -7, // non-trapped chest in SE-NW
+	OBJ_TCHEST2  = -8,
+	OBJ_TLCHEST2 = -9,
+	OBJ_TRCHEST2 = -10,
+	OBJ_LCHEST2  = -11,
+	OBJ_RCHEST2  = -12,
+	OBJ_NLCHEST2 = -13,
+	OBJ_NRCHEST2 = -14,
+	OBJ_TCHEST3  = -15,
+	OBJ_TLCHEST3 = -16,
+	OBJ_TRCHEST3 = -17,
+	OBJ_LCHEST3  = -18,
+	OBJ_RCHEST3  = -19,
+	OBJ_NLCHEST3 = -20,
+	OBJ_NRCHEST3 = -21,
+	OBJ_WEAPONRACKN  = -22, // inactive weaponrack in random direction
+	OBJ_WEAPONRACKL  = -23, // active weaponrack in SW-NE direction
+	OBJ_WEAPONRACKLN = -24, // inactive weaponrack in SW-NE direction
+	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-NW direction
+	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-NW direction
+	OBJ_ARMORSTANDN  = -27, // inactive armorstand in random direction
+	OBJ_ARMORSTANDL  = -28, // active armorstand in SW-NE direction
+	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
+	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-NW direction
+	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-NW direction
+	OBJ_BOOK1N       = -32, // inactive book1-stand in random direction
+	OBJ_BOOK1L       = -33, // active book1-stand in SW-NE direction
+	OBJ_BOOK1LN      = -34, // inactive book1-stand in SW-NE direction
+	OBJ_BOOK1R       = -35, // active book1-stand in SE-NW direction
+	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-NW direction
+	OBJ_BOOK2N       = -37, // inactive book2-stand in random direction
+	OBJ_BOOK2L       = -38, // active book2-stand in SW-NE direction
+	OBJ_BOOK2LN      = -39, // inactive book2-stand in SW-NE direction
+	OBJ_BOOK2R       = -40, // active book2-stand in SE-NW direction
+	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-NW direction
+	OBJ_TORTUREL     = -42, // random hooked body on the SW-NE wall
+	OBJ_TORTURER     = -43, // random hooked body on the SE-NW wall
+	OBJ_TORTUREL1    = -44, // 1. hooked body on the SW-NE wall
+	OBJ_TORTUREL2    = -45, // 2. hooked body on the SW-NE wall
+	OBJ_TORTUREL3    = -46, // 3. hooked body on the SW-NE wall
+	OBJ_TORTURER1    = -47, // 1. hooked body on the SE-NW wall
+	OBJ_TORTURER2    = -48, // 2. hooked body on the SE-NW wall
+	OBJ_TORTURER3    = -49, // 3. hooked body on the SE-NW wall
+	NUM_OBJVERSIONS = 49,
 } _object_id;
 
 typedef enum quest_id {
@@ -4468,6 +4622,13 @@ typedef enum player_skill_flags {
 	SFLAG_RAGE    = 1 << 4,
 } player_skill_flags;
 
+typedef enum skill_details_type {
+	SDT_NONE,
+	SDT_DAMAGE,
+	SDT_DAMAGE_MELEE,
+	SDT_DAMAGE_RANGED,
+} skill_details_type;
+
 typedef enum window_active {
 	WND_INV,
 	WND_CHAR,
@@ -4549,6 +4710,16 @@ typedef enum anim_armor_id {
 	ANIM_ID_MEDIUM_ARMOR = 0x10,
 	ANIM_ID_HEAVY_ARMOR  = 0x20
 } anim_armor_id;
+
+typedef enum cel_meta_type {
+	CELMETA_DIMENSIONS,
+	CELMETA_DIMENSIONS_PER_FRAME,
+	CELMETA_ANIMORDER,
+	CELMETA_ANIMDELAY,
+	CELMETA_ANIMOFFSET,
+	CELMETA_ACTIONFRAMES,
+	NUM_CELMETA
+} cel_meta_type;
 
 typedef enum shrine_gametype {
 	SHRINETYPE_ANY,

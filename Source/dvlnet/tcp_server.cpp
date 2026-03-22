@@ -21,7 +21,7 @@ tcp_server::tcp_server(base_client& client, asio::io_context& ioc, packet_factor
 bool tcp_server::setup_server(const char* bindAddr, unsigned short port, char (&errorText)[256])
 {
 	asio::error_code err;
-	auto addr = asio::ip::address::from_string(bindAddr, err);
+	auto addr = asio::ip::make_address(bindAddr, err);
 	if (!err) {
 		auto ep = asio::ip::tcp::endpoint(addr, port);
 		connect_acceptor(acceptor, ep, err);

@@ -5,8 +5,6 @@
  */
 #include "cel_render.h"
 
-#include "all.h"
-
 DEVILUTION_BEGIN_NAMESPACE
 
 /**
@@ -20,8 +18,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -33,7 +30,7 @@ static void CelBlit(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize, int n
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
@@ -61,8 +58,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 {
 	const BYTE *src, *end;
 	BYTE* dst;
-	int i;
-	int8_t width;
+	int i, width;
 
 	// assert(gpBuffer != NULL);
 	// assert(pDecodeTo != NULL);
@@ -75,7 +71,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
 
 	for ( ; src != end; dst -= BUFFER_WIDTH + nWidth) {
 		for (i = nWidth; i != 0; ) {
-			width = *src++;
+			width = (int8_t)*src++;
 			if (width >= 0) {
 				i -= width;
 				if (dst < gpBufEnd && dst >= gpBufStart) {
@@ -116,7 +112,7 @@ static void CelBlitTrnTbl(BYTE* pDecodeTo, const BYTE* pRLEBytes, int nDataSize,
  * @brief Blit CEL sprite to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data with width information
  * @param nCel CEL frame number
  */
 void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
@@ -139,7 +135,7 @@ void CelDraw(int sx, int sy, const CelImageBuf* pCelBuff, int nCel)
  * @brief Blit CEL sprite, and apply trn, to the back buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data with width information
  * @param nCel CEL frame number
  * @param tbl Palette translation table
  */
@@ -163,7 +159,7 @@ void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const 
  * @brief Blit CEL sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param pCelBuff Cel data
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth Width of sprite
  */

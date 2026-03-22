@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define plr            players[pnum]
 #define plx(x)         players[x]
 #define PLR_WALK_SHIFT 8
+#define plrAbility     Abilities[plr._pClass]
 
 #ifdef __cplusplus
 extern "C" {

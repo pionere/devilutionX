@@ -23,6 +23,7 @@ DEVILUTION_BEGIN_NAMESPACE
 
 int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
+static int objanimdim[NUM_OFILE_TYPES];
 // int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
@@ -139,27 +140,28 @@ const int flickers[32] = {
 };
 #endif
 
-void AddObjectType(int ofindex)
+static BYTE* AddObjectType(const ObjectData* ods)
 {
+	const int ofindex = ods->ofindex;
 	char filestr[DATA_ARCHIVE_MAX_PATH];
+	BYTE* result = objanimdata[ofindex];
 
-	if (objanimdata[ofindex] != NULL) {
-		return;
+	if (result == NULL) {
+		snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[ofindex].ofName);
+		result = objanimdata[ofindex] = LoadFileInMem(filestr);
+		objanimdim[ofindex] = CelClippedWidth(objanimdata[ofindex]);
 	}
-
-	snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[ofindex].ofName);
-	objanimdata[ofindex] = LoadFileInMem(filestr);
+	return result;
 }
 
 void InitObjectGFX()
 {
+#if 0
 	const ObjectData* ods;
 	bool themeload[NUM_THEMES];
-	bool fileload[NUM_OFILE_TYPES];
 	int i;
 
-	static_assert(false == 0, "InitObjectGFX fills fileload and themeload with 0 instead of false values.");
-	memset(fileload, 0, sizeof(fileload));
+	static_assert(false == 0, "InitObjectGFX fills themeload with 0 instead of false values.");
 	memset(themeload, 0, sizeof(themeload));
 
 	for (i = 0; i < numthemes; i++)
@@ -173,12 +175,9 @@ void InitObjectGFX()
 		 && (ods->oquest == Q_INVALID || !QuestStatus(ods->oquest))) {
 			continue;
 		}
-		if (fileload[ods->ofindex]) {
-			continue;
-		}
-		fileload[ods->ofindex] = true;
-		AddObjectType(ods->ofindex);
+		AddObjectType(ods);
 	}
+#endif
 }
 
 void FreeObjectGFX()
@@ -364,10 +363,10 @@ static void AddCandles()
 
 	tx = pWarps[DWARP_SIDE]._wx;
 	ty = pWarps[DWARP_SIDE]._wy;
-	AddObject(OBJ_STORYCANDLE, tx - 2, ty + 1);
-	AddObject(OBJ_STORYCANDLE, tx + 2, ty + 1);
-	AddObject(OBJ_STORYCANDLE, tx - 1, ty + 2);
-	AddObject(OBJ_STORYCANDLE, tx + 1, ty + 2);
+	AddObject(OBJ_CANDLE2, tx - 2, ty + 1);
+	AddObject(OBJ_CANDLE2, tx + 2, ty + 1);
+	AddObject(OBJ_CANDLE2, tx - 1, ty + 2);
+	AddObject(OBJ_CANDLE2, tx + 1, ty + 2);
 }
 
 static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
@@ -382,7 +381,7 @@ static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 	oi = AddObject(type, pos.x, pos.y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
-	objects[oi]._oVar6 = objects[oi]._oAnimFrame + 1; // LEVER_BOOK_ANIM
+	objects[oi]._oVar6 = objects[oi]._oGfxFrame + 1; // LEVER_BOOK_ANIM
 	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
@@ -438,13 +437,6 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 	case DTYPE_TOWN:
 		return;
 	case DTYPE_CATHEDRAL:
-		for (j = y1; j <= y2; j++) {
-			for (i = x1; i <= x2; i++) {
-				pn = dPiece[i][j];
-				if (pn == 270)
-					AddObject(OBJ_L1LIGHT, i, j);
-			}
-		}
 		wdoor = OBJ_L1LDOOR;
 		edoor = OBJ_L1RDOOR;
 		break;
@@ -585,21 +577,6 @@ static void AddObjTraps()
 	}
 }
 
-static void AddChestTraps()
-{
-	int i;
-
-	for (i = numobjects - 1; i >= 0; i--) {
-		int oi = i; // objectactive[i];
-		ObjectStruct* os = &objects[oi];
-		if (os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3 && os->_oTrapChance == 0 && random_(0, 100) < 10) {
-			os->_otype += OBJ_TCHEST1 - OBJ_CHEST1;
-			os->_oTrapChance = RandRange(1, 64);
-			os->_oVar5 = 0; // TRAP_OI_BACKREF
-		}
-	}
-}
-
 static void LoadMapSetObjects(int idx)
 {
 	int startx = DBORDERX + pSetPieces[idx]._spx * 2;
@@ -623,96 +600,16 @@ static void LoadMapSetObjects(int idx)
 	rh += starty;
 	for (j = starty; j < rh; j++) {
 		for (i = startx; i < rw; i++) {
-			if (*lm != 0) {
-				oidx = SwapLE16(*lm); // index of ObjConvTbl
+			oidx = SwapLE16(*lm); // index of ObjConvTbl
+			if (oidx != 0) {
 				assert(oidx < lengthof(ObjConvTbl));
 				oidx = ObjConvTbl[oidx]; // index of objectdata
-				assert(oidx != 0);
-				AddObjectType(objectdata[oidx].ofindex);
 				AddObject(oidx, i, j);
 			}
 			lm++;
 		}
 	}
 	//gbInitObjFlag = false; -- setpieces, setmap levers?
-}
-
-static int SetupObject(int type, int ox, int oy)
-{
-	int oi;
-	ObjectStruct* os;
-	const ObjectData* ods;
-	const ObjFileData* ofd;
-
-	if (numobjects >= MAXOBJECTS)
-		return -1;
-
-//	oi = objectavail[0];
-	oi = numobjects;
-	// objectactive[numobjects] = oi;
-	numobjects++;
-//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
-
-	os = &objects[oi];
-	os->_otype = type;
-	ods = &objectdata[type];
-	os->_oMissFlag = ods->oMissFlag;
-	os->_oDoorFlag = ods->oDoorFlag;
-	os->_oSelFlag = ods->oSelFlag;
-	os->_oPreFlag = ods->oPreFlag;
-	os->_oProc = ods->oProc;
-	os->_oModeFlags = ods->oModeFlags;
-	os->_oAnimFrame = ods->oAnimBaseFrame;
-	os->_oAnimData = objanimdata[ods->ofindex];
-	ofd = &objfiledata[ods->ofindex];
-	os->_oSFX = ofd->oSFX;
-	os->_oSFXCnt = ofd->oSFXCnt;
-	os->_oAnimFlag = ofd->oAnimFlag;
-	os->_oAnimFrameLen = ofd->oAnimFrameLen;
-	os->_oAnimLen = ofd->oAnimLen;
-	//os->_oAnimCnt = 0;
-	if (ofd->oAnimFlag != OAM_NONE) {
-		os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
-		os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
-	}
-	os->_oAnimWidth = ofd->oAnimWidth * ASSET_MPL;
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
-	os->_oSolidFlag = ofd->oSolidFlag;
-	os->_oBreak = ofd->oBreak;
-	// os->_oDelFlag = FALSE; - unused
-	os->_oTrapChance = 0;
-	// place object
-	os->_ox = ox;
-	os->_oy = oy;
-	assert(dObject[ox][oy] == 0);
-	dObject[ox][oy] = oi + 1;
-	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
-	if (nSolidTable[dPiece[ox][oy]] && (os->_oModeFlags & OMF_FLOOR)) {
-		dObject[ox][oy] = 0;
-		os->_oModeFlags |= OMF_RESERVED;
-		os->_oSelFlag = 0;
-	} else {
-		if (ods->oLightRadius != 0) {
-#if FLICKER_LIGHT
-			if (type == OBJ_L1LIGHT) {
-				os->_olid = NO_LIGHT;
-			} else
-#endif
-			{
-				TraceLightSource(ox + ods->oLightOffX, oy + ods->oLightOffY, ods->oLightRadius);
-			}
-		}
-		if (ods->oDoorFlag != ODT_NONE) {
-			os->_oVar4 = DOOR_CLOSED;
-			//os->_oPreFlag = FALSE;
-			//os->_oSelFlag = 3;
-			//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
-			//os->_oMissFlag = FALSE;
-			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
-			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
-		}
-	}
-	return oi;
 }
 
 static int ObjIndex(int x, int y)
@@ -775,8 +672,8 @@ static void AddL5StoryBook(int bookidx, int ox, int oy)
 	// assert(oi != -1);
 
 	os = &objects[oi];
-	// assert(os->_oAnimFrame == objectdata[OBJ_L5BOOK].oAnimBaseFrame);
-	os->_oVar4 = objectdata[OBJ_L5BOOK].oAnimBaseFrame + 1; // STORY_BOOK_READ_FRAME
+	// assert(os->_oGfxFrame == objectdata[OBJ_L5BOOK].oBaseFrame);
+	os->_oVar4 = objectdata[OBJ_L5BOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
 	os->_oVar2 = TEXT_BOOK4 + bookidx;                      // STORY_BOOK_MSG
 	os->_oVar5 = BK_STORY_NAKRUL_1 + bookidx;               // STORY_BOOK_NAME
 }
@@ -804,11 +701,11 @@ static void AddNakrulBook(int oi)
 	bookidx += QNB_BOOK_A;
 
 	os = &objects[oi];
-	// assert(os->_oAnimFrame == objectdata[OBJ_NAKRULBOOK].oAnimBaseFrame);
-	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oAnimBaseFrame + 1; // STORY_BOOK_READ_FRAME
-	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;             // STORY_BOOK_MSG
-	os->_oVar3 = bookidx;                                       // STORY_BOOK_NAKRUL_IDX
-	os->_oVar5 = BK_NAKRUL_SPELL;                               // STORY_BOOK_NAME
+	// assert(os->_oGfxFrame == objectdata[OBJ_NAKRULBOOK].oBaseFrame);
+	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
+	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;         // STORY_BOOK_MSG
+	os->_oVar3 = bookidx;                                   // STORY_BOOK_NAKRUL_IDX
+	os->_oVar5 = BK_NAKRUL_SPELL;                           // STORY_BOOK_NAME
 }
 
 static void AddLvl2xBooks(int bookidx)
@@ -844,18 +741,6 @@ static int ProgressUberLever(int bookidx, int status)
 }
 #endif
 
-static void Alloc2x2Obj(int oi)
-{
-	int ox, oy;
-
-	ox = objects[oi]._ox;
-	oy = objects[oi]._oy;
-	oi = -(oi + 1);
-	dObject[ox][oy - 1] = oi;
-	dObject[ox - 1][oy] = oi;
-	dObject[ox - 1][oy - 1] = oi;
-}
-
 static void AddStoryBook()
 {
 	POS32 pos = RndLoc7x5();
@@ -864,12 +749,12 @@ static void AddStoryBook()
 		return;
 
 	AddObject(OBJ_STORYBOOK, pos.x, pos.y);
-	AddObject(OBJ_STORYCANDLE, pos.x - 2, pos.y + 1);
-	AddObject(OBJ_STORYCANDLE, pos.x - 2, pos.y);
-	AddObject(OBJ_STORYCANDLE, pos.x - 1, pos.y - 1);
-	AddObject(OBJ_STORYCANDLE, pos.x + 1, pos.y - 1);
-	AddObject(OBJ_STORYCANDLE, pos.x + 2, pos.y);
-	AddObject(OBJ_STORYCANDLE, pos.x + 2, pos.y + 1);
+	AddObject(OBJ_CANDLE2, pos.x - 2, pos.y + 1);
+	AddObject(OBJ_CANDLE2, pos.x - 2, pos.y);
+	AddObject(OBJ_CANDLE2, pos.x - 1, pos.y - 1);
+	AddObject(OBJ_CANDLE2, pos.x + 1, pos.y - 1);
+	AddObject(OBJ_CANDLE2, pos.x + 2, pos.y);
+	AddObject(OBJ_CANDLE2, pos.x + 2, pos.y + 1);
 }
 
 static void AddHookedBodies()
@@ -886,12 +771,7 @@ static void AddHookedBodies()
 			type = random_(0, 32);
 			if (type >= 3)
 				continue;
-			if (ttv == PST_LEFT) {
-				type = OBJ_TORTUREL1 + type;
-			} else {
-				// assert(ttv == PST_RIGHT);
-				type = OBJ_TORTURER1 + type;
-			}
+			type = ttv == PST_LEFT ? OBJ_TORTUREL : OBJ_TORTURER;
 			AddObject(type, i, j);
 		}
 	}
@@ -900,8 +780,8 @@ static void AddHookedBodies()
 void InitObjects()
 {
 	//gbInitObjFlag = true;
-	if (QuestStatus(Q_ROCK)) // place first to make the life of PlaceRock easier
-		InitRndLocObj5x5(OBJ_STAND);
+	if (QuestStatus(Q_ROCK))
+		InitRndLocObj5x5(OBJ_ROCKSTAND);
 	if (QuestStatus(Q_PWATER))
 		AddCandles();
 	if (QuestStatus(Q_MUSHROOM))
@@ -957,17 +837,13 @@ void InitObjects()
 #endif
 	}
 	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+	static_assert(NUM_DTYPES <= sizeof(BYTE) * 8, "Level mask might overflow in InitObjects.");
 	BYTE lvlMask = 1 << currLvl._dType;
 	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHR1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TORCHL1].oLvlTypes) {
 		AddL2Torches();
 	}
-	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTUREL2].oLvlTypes);
-	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTUREL3].oLvlTypes);
-	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTURER1].oLvlTypes);
-	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTURER2].oLvlTypes);
-	assert(objectdata[OBJ_TORTUREL1].oLvlTypes == objectdata[OBJ_TORTURER3].oLvlTypes);
-	if (lvlMask & objectdata[OBJ_TORTUREL1].oLvlTypes) {
+	if (lvlMask & objectdata[OBJ_TORTURE].oLvlTypes) {
 		AddHookedBodies();
 	}
 
@@ -978,6 +854,11 @@ void InitObjects()
 				na++;
 	na = na * AllLevels[currLvl._dLevelNum].dObjDensity / 32;
 
+	if (lvlMask & objectdata[OBJ_L1LIGHT].oLvlTypes) {
+		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow.");
+		unsigned num = RandRangeLow(na, na * 2 + 1);
+		InitRndLocObj(num / 512, OBJ_L1LIGHT);
+	}
 	if (lvlMask & objectdata[OBJ_SARC].oLvlTypes) {
 		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow I.");
 		unsigned num = RandRangeLow(na, na * 2 + 1);
@@ -1031,7 +912,7 @@ void InitObjects()
 	}
 #endif
 	assert(objectdata[OBJ_CHEST1].oLvlTypes == objectdata[OBJ_CHEST2].oLvlTypes && objectdata[OBJ_CHEST1].oLvlTypes == objectdata[OBJ_CHEST3].oLvlTypes);
-	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
+	if (lvlMask & objectdata[OBJ_CHEST1].oLvlTypes) {
 		static_assert(DSIZEX * DSIZEY < 0x7FFF, "InitObjects uses RandRangeLow X.");
 		unsigned num = RandRangeLow(na, na * 2 + 1);
 		InitRndLocObj(num / 512, OBJ_CHEST1);
@@ -1043,13 +924,6 @@ void InitObjects()
 	assert(objectdata[OBJ_TRAPL].oLvlTypes == objectdata[OBJ_TRAPR].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
 		AddObjTraps();
-	}
-	assert(objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST2].oLvlTypes && objectdata[OBJ_TCHEST1].oLvlTypes == objectdata[OBJ_TCHEST3].oLvlTypes); // trapped chest are placed in one place
-	assert((objectdata[OBJ_TCHEST1].oLvlTypes & ~objectdata[OBJ_CHEST1].oLvlTypes) == 0); // no point to place traps if there are not matching chests
-	assert((objectdata[OBJ_TCHEST2].oLvlTypes & ~objectdata[OBJ_CHEST2].oLvlTypes) == 0);
-	assert((objectdata[OBJ_TCHEST3].oLvlTypes & ~objectdata[OBJ_CHEST3].oLvlTypes) == 0);
-	if (lvlMask & objectdata[OBJ_TCHEST1].oLvlTypes) {
-		AddChestTraps();
 	}
 	//gbInitObjFlag = false;
 }
@@ -1064,19 +938,30 @@ void InitObjects()
 		objectactive[idx] = objectactive[numobjects];
 }*/
 
-static void AddChest(int oi)
+static void AddChest(int oi, int realtype)
 {
 	ObjectStruct* os;
 	int num, rnum, itype;
+	int8_t dir = -1, trap = -1;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		trap = otc.oTypeParam2;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	if (trap < 0) {
+		trap = random_(0, 128) < 13;
+	}
 
 	os = &objects[oi];
-	if (random_(147, 2) == 0)
-		os->_oAnimFrame += 3;
+	os->_oGfxFrame = 1 + 2 * dir;
 	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
-	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3
-	//	|| os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3);
+	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3);
 	num = os->_otype;
-	num = (num >= OBJ_TCHEST1 && num <= OBJ_TCHEST3) ? num - OBJ_TCHEST1 + 1 : num - OBJ_CHEST1 + 1;
+	num = num - OBJ_CHEST1 + 1;
 	rnum = random_low(147, num + 1); // CHEST_ITEM_SEED2
 	if (!currLvl._dSetLvl)
 		num = rnum;
@@ -1086,6 +971,10 @@ static void AddChest(int oi)
 		itype = 8;
 	os->_oVar2 = itype;      // CHEST_ITEM_TYPE
 	//assert(num <= 3); otherwise the seeds are not 'reserved'
+	if (trap) {
+		os->_oTrapChance = RandRange(1, 64);
+		os->_oVar5 = 0; // TRAP_OI_BACKREF
+	}
 }
 
 static void AddSarc(int oi)
@@ -1093,9 +982,8 @@ static void AddSarc(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	dObject[os->_ox][os->_oy - 1] = -(oi + 1);
 	os->_oVar1 = random_(153, 10);       // SARC_ITEM
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	if (os->_oVar1 >= 8)
 		os->_oVar2 = PreSpawnSkeleton(); // SARC_SKELE
 }
@@ -1128,7 +1016,7 @@ static void AddTrap(int oi)
 	mt = mt / 6 + 1;
 	mt = random_low(148, mt) & 3;
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	// TRAP_MISTYPE
 	os->_oVar3 = MIS_ARROW;
 	if (mt == 1)
@@ -1143,7 +1031,7 @@ static void AddBarrel(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar3 = random_(149, 3);  // BARREL_ITEM_TYPE
 	os->_oVar2 = random_(149, 10); // BARREL_ITEM
 	if (os->_oVar2 >= 8)
@@ -1168,7 +1056,7 @@ static void AddShrine(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(NUM_SHRINETYPE); // SHRINE_TYPE
 	/* -- disabled because the animation is shifted and not much point without trap (+ cel file is cut in the patcher)
 	if (random_(150, 2) != 0) {
@@ -1176,10 +1064,54 @@ static void AddShrine(int oi)
 		os->_oAnimLen = 22;
 	}*/
 }
-
+#if 0
 static void ObjAddRndSeed(int oi)
 {
 	objects[oi]._oRndSeed = NextRndSeed();
+}
+#endif
+static void AddArmorStand(int oi, int realtype)
+{
+	ObjectStruct* os;
+	int8_t inactive = 0;
+	int8_t dir = -1;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = objectdata[OBJ_ARMORSTAND].oBaseFrame + 2 * dir + (inactive ? 1 : 0);
+	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_ARMORSTAND].oMissFlag;
+	os->_oModeFlags = inactive ? (objectdata[OBJ_ARMORSTAND].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_ARMORSTAND].oModeFlags;
+	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_ARMORSTAND].oSelFlag;
+	//os->_oRndSeed = NextRndSeed();
+}
+
+static void AddWeaponRack(int oi, int realtype)
+{
+	ObjectStruct* os;
+	int8_t inactive = 0;
+	int8_t dir = -1;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = objectdata[OBJ_WEAPONRACK].oBaseFrame + 2 * dir + (inactive ? 1 : 0);
+	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_WEAPONRACK].oMissFlag;
+	os->_oModeFlags = inactive ? (objectdata[OBJ_WEAPONRACK].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_WEAPONRACK].oModeFlags;
+	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_WEAPONRACK].oSelFlag;
+	//os->_oRndSeed = NextRndSeed();
 }
 
 static void ObjAddBloodBook(int oi)
@@ -1187,9 +1119,9 @@ static void ObjAddBloodBook(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar5 = BK_BLOOD;                   // STORY_BOOK_NAME
-	os->_oVar6 = os->_oAnimFrame + 1;        // LEVER_BOOK_ANIM
+	os->_oVar6 = os->_oGfxFrame + 1;         // LEVER_BOOK_ANIM
 	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
 	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
 	leverid++;
@@ -1203,13 +1135,56 @@ static void ObjAddBook(int oi, int bookidx)
 	os->_oVar5 = bookidx; // STORY_BOOK_NAME
 }
 
+static void ObjAddBook2(int oi, int realtype)
+{
+	ObjectStruct* os;
+	int8_t inactive = 0;
+	int8_t dir = -1;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = objectdata[OBJ_BOOK2].oBaseFrame + 3 * dir + (inactive ? 2 : 0);
+	// os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_BOOK2].oMissFlag;
+	os->_oModeFlags = inactive ? (objectdata[OBJ_BOOK2].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_BOOK2].oModeFlags;
+	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_BOOK2].oSelFlag;
+	//os->_oRndSeed = NextRndSeed();
+}
+
 static void AddCauldronGoatShrine(int oi)
 {
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
+	//os->_oRndSeed = NextRndSeed();
 	os->_oVar1 = FindValidShrine(SHRINE_THAUMATURGIC); // SHRINE_TYPE
+}
+
+static void AddTorture(int oi, int realtype)
+{
+	ObjectStruct* os;
+	int8_t frame = -1;
+	int8_t dir = -1;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		frame = otc.oTypeParam2;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	if (frame < 0) {
+		frame = random_(147, 3);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = 1 + 3 * dir + frame;
 }
 
 static void AddDecap(int oi)
@@ -1217,8 +1192,8 @@ static void AddDecap(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oRndSeed = NextRndSeed();
-	os->_oAnimFrame = RandRange(1, 8);
+	//os->_oRndSeed = NextRndSeed();
+	os->_oGfxFrame = RandRange(1, 8);
 }
 
 static void AddMagicCircle(int oi)
@@ -1226,7 +1201,6 @@ static void AddMagicCircle(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
 	os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
 }
 
@@ -1245,8 +1219,8 @@ static void AddStoryBook(int oi)
 	// os->_oVar1 = bookframe;
 	os->_oVar2 = 3 * bookframe + idx + TEXT_BOOK11;      // STORY_BOOK_MSG
 	os->_oVar5 = 3 * bookframe + idx + BK_STORY_MAINA_1; // STORY_BOOK_NAME
-	os->_oAnimFrame = 5 - 2 * bookframe;                 //
-	os->_oVar4 = os->_oAnimFrame + 1;                    // STORY_BOOK_READ_FRAME
+	os->_oGfxFrame = 5 - 2 * bookframe;                  //
+	os->_oVar4 = os->_oGfxFrame + 1;                     // STORY_BOOK_READ_FRAME
 }
 
 static void AddTorturedMaleBody(int oi)
@@ -1254,8 +1228,7 @@ static void AddTorturedMaleBody(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
-	os->_oAnimFrame = RandRange(1, 4);
+	os->_oGfxFrame = RandRange(1, 4);
 }
 
 static void AddTorturedFemaleBody(int oi)
@@ -1263,27 +1236,123 @@ static void AddTorturedFemaleBody(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
-	os->_oAnimFrame = RandRange(1, 3);
+	os->_oGfxFrame = RandRange(1, 3);
 }
 
 int AddObject(int type, int ox, int oy)
 {
-	int oi = SetupObject(type, ox, oy);
-	if (oi >= 0) {
+	int oi, realType;
+	ObjectStruct* os;
+	const ObjectData* ods;
+	const ObjFileData* ofd;
+
+	if (numobjects >= MAXOBJECTS)
+		return -1;
+	realType = type;
+	if (type < 0) {
+		const ObjTypeConv &otc = objTypeConv[-type];
+		type = otc.oBaseType;
+	}
+//	oi = objectavail[0];
+	oi = numobjects;
+	// objectactive[numobjects] = oi;
+	numobjects++;
+//	objectavail[0] = objectavail[MAXOBJECTS - numobjects];
+	// setup the object
+	os = &objects[oi];
+	os->_otype = type;
+	ods = &objectdata[type];
+	os->_oMissFlag = ods->oMissFlag;
+	os->_oDoorFlag = ods->oDoorFlag;
+	os->_oSelFlag = ods->oSelFlag;
+	os->_oPreFlag = ods->oPreFlag;
+	os->_oProc = ods->oProc;
+	os->_oModeFlags = ods->oModeFlags;
+	os->_oGfxFrame = ods->oBaseFrame;
+	os->_oAnimData = AddObjectType(ods);
+	int animLen = LOAD_LE32(os->_oAnimData);
+	if (os->_oGfxFrame == animLen)
+		animLen--;
+	os->_oAnimLen = animLen;
+	os->_oAnimWidth = objanimdim[ods->ofindex];
+	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
+	ofd = &objfiledata[ods->ofindex];
+	os->_oSFX = ofd->oSFX;
+	os->_oSFXCnt = ofd->oSFXCnt;
+	os->_oAnimFlag = ofd->oAnimFlag;
+	os->_oAnimFrameLen = ofd->oAnimFrameLen;
+	os->_oAnimCnt = 0;
+	os->_oAnimFrame = 0;
+	if (ofd->oAnimFlag != OAM_NONE) {
+		if (ofd->oAnimFlag == OAM_SINGLE) {
+			os->_oAnimFlag = OAM_NONE;
+			os->_oAnimFrame = 1;
+		} else {
+			// assert(ofd->oAnimFlag == OAM_LOOP);
+			os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
+			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
+		}
+	}
+	os->_oSolidFlag = ofd->oSolidFlags; // & 1; -- does not matter at the moment
+	os->_oBreak = ofd->oBreak;
+	// os->_oDelFlag = FALSE; - unused
+	os->_oTrapChance = 0;
+	os->_oRndSeed = NextRndSeed();
+	// place object
+	os->_ox = ox;
+	os->_oy = oy;
+	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
+	const bool ready = !nSolidTable[dPiece[ox][oy]] || !(os->_oModeFlags & OMF_FLOOR);
+	assert(dObject[ox][oy] == 0);
+	dObject[ox][oy] = ready ? oi + 1 : 0;
+	const int noi = -(oi + 1);
+	if (ofd->oSolidFlags & 2) {
+		assert(dObject[ox][oy - 1] == 0);
+		dObject[ox][oy - 1] = noi;
+	}
+	if (ofd->oSolidFlags & 4) {
+		assert(dObject[ox - 1][oy] == 0);
+		dObject[ox - 1][oy] = noi;
+	}
+	if (ofd->oSolidFlags & 8) {
+		assert(dObject[ox - 1][oy - 1] == 0);
+		dObject[ox - 1][oy - 1] = noi;
+	}
+	if (ready) {
+		const BYTE olr = ods->oLightRadius;
+		if (olr != 0) {
+#if FLICKER_LIGHT
+			if (type == OBJ_L1LIGHT) {
+				os->_olid = NO_LIGHT;
+			} else
+#endif
+			{
+				TraceLightSource(ox + ((olr & OLF_XO) ? 1 : 0), oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
+			}
+		}
+		if (ods->oDoorFlag != ODT_NONE) {
+			os->_oVar4 = DOOR_CLOSED;
+			//os->_oPreFlag = FALSE;
+			//os->_oSelFlag = 3;
+			//os->_oSolidFlag = FALSE; // TODO: should be TRUE;
+			//os->_oMissFlag = FALSE;
+			//os->_oDoorFlag = ldoor ? ODT_LEFT : ODT_RIGHT;
+			os->_oVar1 = dPiece[ox][oy]; // DOOR_PIECE_CLOSED
+		}
+	} else {
+		os->_oModeFlags |= OMF_RESERVED;
+		os->_oSelFlag = 0;
+	}
+	{
 		// init object
 		switch (type) {
 		case OBJ_CHEST1:
 		case OBJ_CHEST2:
 		case OBJ_CHEST3:
-			AddChest(oi);
+			AddChest(oi, realType);
 			break;
-		case OBJ_TCHEST1:
-		case OBJ_TCHEST2:
-		case OBJ_TCHEST3:
-			AddChest(oi);
-			objects[oi]._oTrapChance = RandRange(1, 64);
-			objects[oi]._oVar5 = 0; // TRAP_OI_BACKREF
+		case OBJ_TORTURE:
+			AddTorture(oi, realType);
 			break;
 		case OBJ_SARC:
 #ifdef HELLFIRE
@@ -1318,6 +1387,7 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_DECAP:
 			AddDecap(oi);
 			break;
+#if 0
 		case OBJ_BOOKCASEL:
 		case OBJ_BOOKCASER:
 		case OBJ_BARRELEX:
@@ -1325,13 +1395,15 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_URNEX:
 		case OBJ_PODEX:
 #endif
-		case OBJ_BOOK2L:
-		case OBJ_BOOK2R:
 		case OBJ_PEDESTAL:
-		case OBJ_ARMORSTAND:
-		case OBJ_WEAPONRACKL:
-		case OBJ_WEAPONRACKR:
 			ObjAddRndSeed(oi);
+			break;
+#endif
+		case OBJ_ARMORSTAND:
+			AddArmorStand(oi, realType);
+			break;
+		case OBJ_WEAPONRACK:
+			AddWeaponRack(oi, realType);
 			break;
 		case OBJ_BLOODBOOK:
 			ObjAddBloodBook(oi);
@@ -1351,14 +1423,12 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_VILEBOOK:
 			ObjAddBook(oi, BK_VILENESS);
 			break;
+		case OBJ_BOOK2:
+			ObjAddBook2(oi, realType);
+			break;
 		case OBJ_GOATSHRINE:
 		case OBJ_CAULDRON:
 			AddCauldronGoatShrine(oi);
-			break;
-		case OBJ_PURIFYINGFTN:
-		case OBJ_MURKYFTN:
-		case OBJ_MUSHPATCH:
-			Alloc2x2Obj(oi);
 			break;
 		//case OBJ_BLOODFTN:
 		//case OBJ_TEARFTN:
@@ -1450,10 +1520,10 @@ static void Obj_Circle(int oi)
 	oy = os->_oy;
 	if (myplr._pmode == PM_STAND && myplr._px == ox && myplr._py == oy) {
 		if (os->_otype == OBJ_MCIRCLE1)
-			os->_oAnimFrame = 2;
+			os->_oGfxFrame = 2;
 		else {
 			//assert(os->_otype == OBJ_MCIRCLE2);
-			os->_oAnimFrame = 4;
+			os->_oGfxFrame = 4;
 		}
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
@@ -1471,10 +1541,10 @@ static void Obj_Circle(int oi)
 		}
 	} else {
 		if (os->_otype == OBJ_MCIRCLE1)
-			os->_oAnimFrame = 1;
+			os->_oGfxFrame = 1;
 		else {
 			//assert(os->_otype == OBJ_MCIRCLE2);
-			os->_oAnimFrame = 3;
+			os->_oGfxFrame = 3;
 		}
 	}
 }
@@ -1731,7 +1801,7 @@ static void OpenDoor(ObjectStruct* os)
 	os->_oSelFlag = (objectdata[OBJ_L1LDOOR].oSelFlag & ~1) | 4;
 	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame += 2;
 }
 
 static void CloseDoor(ObjectStruct* os)
@@ -1741,7 +1811,7 @@ static void CloseDoor(ObjectStruct* os)
 	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
 	// TODO: set os->_oSolidFlag = TRUE;
 	os->_oMissFlag = FALSE;
-	os->_oAnimFrame -= 2;
+	os->_oGfxFrame -= 2;
 }
 
 /*
@@ -1820,7 +1890,6 @@ void MonstCheckDoors(int mx, int my)
 void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
 	int i;
-	// const ObjectData* ods;
 
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
@@ -1835,17 +1904,18 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		os->_oModeFlags &= ~OMF_RESERVED;
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
 		assert(objectdata[os->_otype].oLightRadius == 0);
-		/*ods = &objectdata[os->_otype];
-		if (ods->oLightRadius != 0) {
+		const ObjectData* ods = &objectdata[os->_otype];
+		const BYTE olr = ods->oLightRadius;
+		if (olr != 0) {
 #if FLICKER_LIGHT
 			if (type == OBJ_L1LIGHT) {
 				os->_olid = NO_LIGHT;
 			} else
 #endif
 			{
-				TraceLightSource(os->_ox + ods->oLightOffX, os->_oy + ods->oLightOffY, ods->oLightRadius);
+				TraceLightSource(os->_ox + ((olr & OLF_XO) ? 1 : 0), os->_oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
 			}
-		}*/
+		}
 	}
 	// add new objects (doors + light) -- except when a delta of a single-player game is loaded
 	if (!deltaload || IsMultiGame)
@@ -1893,7 +1963,7 @@ static void OperateLever(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
@@ -1929,7 +1999,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 5
+	os->_oGfxFrame++; // 5
 
 	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
 	//for (i = 0; i < numobjects; i++)
@@ -1946,7 +2016,7 @@ static void OperateAncientTome(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (deltaload)
 		return;
@@ -1971,7 +2041,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	ObjectStruct* os;
 	int qn;
 
-	if (numitems >= MAXITEMS && !deltaload) {
+	if (!deltaload && numitems >= MAXITEMS) {
 		return;
 	}
 	os = &objects[oi];
@@ -1979,8 +2049,8 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	// assert(os->_oSelFlag != 0);
 	qn = os->_oVar7; // LEVER_BOOK_QUEST
 
-	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
-		os->_oAnimFrame = os->_oVar6;    // LEVER_BOOK_ANIM
+	if (os->_oGfxFrame != os->_oVar6) { // LEVER_BOOK_ANIM
+		os->_oGfxFrame = os->_oVar6;    // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
 			DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
 		if (qn == Q_BLIND) {
@@ -2021,7 +2091,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame++;
 
 	if (deltaload)
 		return;
@@ -2039,7 +2109,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		else
 			SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 	}
-	if (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3 && os->_oTrapChance != 0) {
+	if (os->_oTrapChance != 0) {
 		os->_oTrapChance = 0;
 		PlaySfxLoc(IS_TRAP, os->_ox, os->_oy);
 		SetRndSeed(os->_oRndSeed);
@@ -2076,12 +2146,11 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
-
-static void OperateMushPatch(int pnum, int oi, bool sendmsg)
+static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
-	if (numitems >= MAXITEMS) {
+	if (!deltaload && numitems >= MAXITEMS) {
 		return;
 	}
 
@@ -2089,35 +2158,51 @@ static void OperateMushPatch(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	if (os->_oAnimFlag != OAM_NONE) {
+		os->_oAnimFlag = OAM_NONE;
+		os->_oAnimFrame = 0;
+	} else {
+		os->_oGfxFrame++; // 2
+	}
 	if (deltaload)
 		return;
 
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
-	SpawnQuestItemAt(IDI_MUSHROOM, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	PickQuestItemAt(idx, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+}
+
+static void OperateRockStand(int oi, bool sendmsg)
+{
+	PickItemFromObject(IDI_ROCK, oi, sendmsg);
+}
+
+static void OperateMushPatch(int oi, bool sendmsg)
+{
+	PickItemFromObject(IDI_MUSHROOM, oi, sendmsg);
 }
 
 static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
-	if (numitems >= MAXITEMS) {
-		return;
-	}
+	if (!deltaload) {
+		if (numitems >= MAXITEMS) {
+			return;
+		}
 
-	if (quests[Q_BANNER]._qvar1 != QV_BANNER_TALK1 && !deltaload) {
-		if (sendmsg) // if (pnum == mypnum)
-			PlaySfx(sgSFXSets[SFXS_PLR_24][plr._pClass]);
-		return;
+		if (quests[Q_BANNER]._qvar1 != QV_BANNER_TALK1) {
+			if (sendmsg) // if (pnum == mypnum)
+				PlaySfx(sgSFXSets[SFXS_PLR_24][plr._pClass]);
+			return;
+		}
 	}
 	os = &objects[oi];
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame++;
 	if (deltaload)
 		return;
 
@@ -2253,7 +2338,7 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	os->_oAnimFrame = quests[Q_BLOOD]._qvar1;
+	os->_oGfxFrame = quests[Q_BLOOD]._qvar1;
 	if (quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3) {
 		os->_oModeFlags &= ~OMF_ACTIVE;
 		os->_oSelFlag = 0;
@@ -2333,7 +2418,7 @@ static void CloseChest(int oi)
 	if (!(os->_oModeFlags & OMF_RESERVED)) {
 		os->_oSelFlag = 1;
 	}
-	os->_oAnimFrame -= 2;
+	os->_oGfxFrame--;
 
 	//SetRndSeed(os->_oRndSeed); -- do NOT set RndSeed, might conflict with the other chests
 	os->_oRndSeed = NextRndSeed();
@@ -2602,7 +2687,8 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	SetRndSeed(os->_oRndSeed);
 
 	PlaySfxLocN(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
-	os->_oAnimFlag = OAM_SINGLE;
+	// assert(os->_oAnimFlag == OAM_NONE || os->_oAnimFlag == OAM_LOOP);
+	os->_oAnimFlag = os->_oAnimFlag == OAM_NONE ? OAM_SINGLE : OAM_LOOP;
 	//os->_oAnimFrameLen = 1;
 
 	switch (os->_oVar1) { // SHRINE_TYPE
@@ -2651,8 +2737,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_THAUMATURGIC:
 		for (i = 0; i < numobjects; i++) {
 			os = &objects[i]; // objects[objectactive[i]];
-			if ((os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3)
-			 || (os->_otype >= OBJ_TCHEST1 && os->_otype <= OBJ_TCHEST3)) {
+			if (os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3) {
 				CloseChest(i); // objectactive[i]
 			}
 		}
@@ -2828,7 +2913,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame += 2;
+	os->_oGfxFrame += 2;
 
 	if (deltaload)
 		return;
@@ -2850,7 +2935,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame -= 2;
+	os->_oGfxFrame -= 2;
 	if (deltaload)
 		return;
 
@@ -2890,7 +2975,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oGfxFrame++;
 	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 
@@ -2905,21 +2990,6 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	static_assert(ITYPE_MARMOR + 1 == ITYPE_HARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors II.");
 	itype = ITYPE_LARMOR + random_(0, currLvl._dLevel >= 24 ? 3 : (currLvl._dLevel >= 10 ? 2 : 1));
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
-}
-
-static void OperateGoatShrine(int pnum, int oi, bool sendmsg)
-{
-	OperateShrine(pnum, oi, sendmsg);
-	// restore state
-	objects[oi]._oAnimFlag = OAM_LOOP;
-}
-
-static void OperateCauldron(int pnum, int oi, bool sendmsg)
-{
-	OperateShrine(pnum, oi, sendmsg);
-	// restore state
-	objects[oi]._oAnimFrame = 3;
-	objects[oi]._oAnimFlag = OAM_NONE;
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
@@ -2975,7 +3045,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++;
+	os->_oGfxFrame++;
 	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 	if (deltaload)
@@ -3003,7 +3073,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	// assert(os->_oSelFlag != 0);
 
-	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	os->_oGfxFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 		return;
 	}
@@ -3029,7 +3099,7 @@ static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oSelFlag != 0);
 	// assert(currLvl._dLevelIdx == DLV_CRYPT4);
 
-	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	os->_oGfxFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 		if (os->_oVar3 == QNB_BOOK_C) { // STORY_BOOK_NAKRUL_IDX
 			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN)
@@ -3061,7 +3131,7 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
+	os->_oGfxFrame++; // 2
 
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
@@ -3083,23 +3153,7 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 
 static void OperateLazStand(int oi, bool sendmsg)
 {
-	ObjectStruct* os = &objects[oi];
-
-	if (numitems >= MAXITEMS) {
-		return;
-	}
-	// assert(os->_oModeFlags & OMF_ACTIVE);
-	os->_oModeFlags &= ~OMF_ACTIVE;
-	os->_oSelFlag = 0;
-	os->_oAnimFrame++; // 2
-
-	if (deltaload)
-		return;
-
-	if (sendmsg)
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-
-	SpawnQuestItemAt(IDI_LAZSTAFF, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	PickItemFromObject(IDI_LAZSTAFF, oi, sendmsg);
 }
 
 static void OperateCrux(int pnum, int oi, bool sendmsg)
@@ -3237,9 +3291,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
-	case OBJ_TCHEST1:
-	case OBJ_TCHEST2:
-	case OBJ_TCHEST3:
 		OperateChest(pnum, oi, sendmsg);
 		break;
 	case OBJ_SARC:
@@ -3275,10 +3326,11 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
+	case OBJ_GOATSHRINE:
+	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, sendmsg);
 		break;
-	case OBJ_BOOK2R:
-	case OBJ_BOOK2L:
+	case OBJ_BOOK2:
 		OperateSkelBook(oi, sendmsg);
 		break;
 	case OBJ_BOOKCASEL:
@@ -3290,12 +3342,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_ARMORSTAND:
 		OperateArmorStand(oi, sendmsg);
-		break;
-	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi, sendmsg);
-		break;
-	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi, sendmsg);
 		break;
 	case OBJ_BLOODFTN:
 	case OBJ_PURIFYINGFTN:
@@ -3318,12 +3364,14 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_PEDESTAL:
 		OperatePedestal(pnum, oi, sendmsg);
 		break;
-	case OBJ_WEAPONRACKL:
-	case OBJ_WEAPONRACKR:
+	case OBJ_WEAPONRACK:
 		OperateWeaponRack(oi, sendmsg);
 		break;
+	case OBJ_ROCKSTAND:
+		OperateRockStand(oi, sendmsg);
+		break;
 	case OBJ_MUSHPATCH:
-		OperateMushPatch(pnum, oi, sendmsg);
+		OperateMushPatch(oi, sendmsg);
 		break;
 	case OBJ_LAZSTAND:
 		OperateLazStand(oi, sendmsg);
@@ -3403,9 +3451,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_CHEST1:
 	case OBJ_CHEST2:
 	case OBJ_CHEST3:
-	case OBJ_TCHEST1:
-	case OBJ_TCHEST2:
-	case OBJ_TCHEST3:
 		OperateChest(pnum, oi, false);
 		break;
 	case OBJ_SARC:
@@ -3441,10 +3486,11 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
+	case OBJ_GOATSHRINE:
+	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, false);
 		break;
-	case OBJ_BOOK2R:
-	case OBJ_BOOK2L:
+	case OBJ_BOOK2:
 		OperateSkelBook(oi, false);
 		break;
 	case OBJ_BOOKCASEL:
@@ -3456,12 +3502,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_ARMORSTAND:
 		OperateArmorStand(oi, false);
-		break;
-	case OBJ_GOATSHRINE:
-		OperateGoatShrine(pnum, oi, false);
-		break;
-	case OBJ_CAULDRON:
-		OperateCauldron(pnum, oi, false);
 		break;
 	// case OBJ_BLOODFTN:
 	// case OBJ_PURIFYINGFTN:
@@ -3484,12 +3524,14 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_PEDESTAL:
 		OperatePedestal(-1, oi, false);
 		break;
-	case OBJ_WEAPONRACKL:
-	case OBJ_WEAPONRACKR:
+	case OBJ_WEAPONRACK:
 		OperateWeaponRack(oi, false);
 		break;
+	case OBJ_ROCKSTAND:
+		OperateRockStand(oi, sendmsg);
+		break;
 	case OBJ_MUSHPATCH:
-		OperateMushPatch(pnum, oi, false);
+		OperateMushPatch(oi, false);
 		break;
 	case OBJ_LAZSTAND:
 		OperateLazStand(oi, false);
@@ -3511,7 +3553,7 @@ static void SyncLever(const ObjectStruct* os)
 
 static void SyncBookLever(const ObjectStruct* os)
 {
-	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
+	if (os->_oGfxFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
@@ -3557,9 +3599,11 @@ void SyncObjectAnim(int oi)
 	type = os->_otype;
 	ofidx = objectdata[type].ofindex;
 	os->_oAnimData = objanimdata[ofidx];
+#if 0
 	os->_oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
-	os->_oAnimWidth = objfiledata[ofidx].oAnimWidth * ASSET_MPL;
+	os->_oAnimWidth = objanimdim[ofidx];
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
+#endif
 	switch (type) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
@@ -3616,15 +3660,12 @@ void GetObjectStr(int oi)
 		txt0 = "Lever";
 		break;
 	case OBJ_CHEST1:
-	case OBJ_TCHEST1:
 		txt0 = "Small Chest";
 		break;
 	case OBJ_CHEST2:
-	case OBJ_TCHEST2:
 		txt0 = "Chest";
 		break;
 	case OBJ_CHEST3:
-	case OBJ_TCHEST3:
 	case OBJ_SIGNCHEST:
 		txt0 = "Large Chest";
 		break;
@@ -3686,8 +3727,7 @@ void GetObjectStr(int oi)
 	case OBJ_BOOKCASER:
 		txt0 = "Bookcase";
 		break;
-	case OBJ_BOOK2L:
-	case OBJ_BOOK2R:
+	case OBJ_BOOK2:
 		txt0 = "Lectern";
 		break;
 	case OBJ_BLOODFTN:
@@ -3730,9 +3770,11 @@ void GetObjectStr(int oi)
 #endif
 		txt0 = BookName[os->_oVar5]; // STORY_BOOK_NAME
 		break;
-	case OBJ_WEAPONRACKL:
-	case OBJ_WEAPONRACKR:
+	case OBJ_WEAPONRACK:
 		txt0 = "Weapon Rack";
+		break;
+	case OBJ_ROCKSTAND:
+		txt0 = "Magic Rock";
 		break;
 	case OBJ_MUSHPATCH:
 		txt0 = "Mushroom Patch";

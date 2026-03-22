@@ -34,7 +34,6 @@ typedef enum filenames {
 //	FILE_TOWN_SCEL,
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
-	FILE_L1DOORS_CEL,
 	FILE_CATHEDRAL_SCEL,
 	FILE_CATHEDRAL_CEL,
 	FILE_CATHEDRAL_MIN,
@@ -49,7 +48,6 @@ typedef enum filenames {
 	FILE_BLOOD1_DUN,
 	FILE_BLOOD2_DUN,
 #if ASSET_MPL == 1
-	FILE_L2DOORS_CEL,
 	FILE_CATACOMBS_SCEL,
 	FILE_CATACOMBS_CEL,
 	FILE_CATACOMBS_MIN,
@@ -57,7 +55,6 @@ typedef enum filenames {
 	FILE_CATACOMBS_TIL,
 	FILE_FOULWATR_DUN,
 #if ASSET_MPL == 1
-	FILE_L3DOORS_CEL,
 	FILE_CAVES_CEL,
 	FILE_CAVES_MIN,
 #endif
@@ -98,10 +95,19 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #if ASSET_MPL == 1
-	FILE_OBJ_MCIRL_CEL,
-	FILE_OBJ_CNDL2_CEL,
-	FILE_OBJ_LSHR_CEL,
-	FILE_OBJ_RSHR_CEL,
+	FILE_OBJ_L1DOORS,
+	FILE_OBJ_L2DOORS,
+	FILE_OBJ_L3DOORS,
+	FILE_OBJ_MCIRL,
+//	FILE_OBJ_CANDL2,
+//	FILE_OBJ_LSHR,
+//	FILE_OBJ_RSHR,
+//	FILE_OBJ_TFOUNTN,
+#ifdef HELLFIRE
+	FILE_OBJ_L5LIGHT,
+	FILE_OBJ_L5SARCO,
+	FILE_OBJ_URN,
+#endif
 	FILE_PLR_WHBAT,
 	FILE_PLR_WLBAT,
 	FILE_PLR_WMBAT,
@@ -148,7 +154,11 @@ typedef enum filenames {
 #endif
 	FILE_NEST_TIL,
 #if ASSET_MPL == 1
-	FILE_L5LIGHT_CEL,
+	FILE_TWN_FARMER,
+	FILE_TWN_CFARMER,
+	FILE_TWN_MFARMER,
+	FILE_TWN_GIRLW,
+	FILE_TWN_GIRLS,
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
@@ -158,6 +168,12 @@ typedef enum filenames {
 	FILE_MON_SKLBWD,
 	FILE_MON_SKLSRD,
 	FILE_MON_ZOMBIED,
+	FILE_MON_ACIDD,
+	FILE_MON_MAGMAW,
+	FILE_MON_SCAVH,
+	FILE_MON_SKINGS,
+	FILE_MON_SKINGW,
+	FILE_MON_SNAKEH,
 #ifdef HELLFIRE
 	FILE_MON_FALLGD,
 	FILE_MON_FALLGW,
@@ -168,9 +184,6 @@ typedef enum filenames {
 	FILE_MON_UNRAVN,
 	FILE_MON_UNRAVW,
 #endif // HELLFIRE
-	FILE_MIS_ACIDBF1,
-	FILE_MIS_ACIDBF10,
-	FILE_MIS_ACIDBF11,
 	FILE_MIS_FIREBA2,
 	FILE_MIS_FIREBA3,
 	FILE_MIS_FIREBA5,
@@ -229,7 +242,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 ///*FILE_TOWN_SCEL*/     "Levels\\TownData\\TownS.CEL",
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
-/*FILE_L1DOORS_CEL*/   "Objects\\L1Doors.CEL",
 /*FILE_CATHEDRAL_SCEL*/"Levels\\L1Data\\L1S.CEL",
 /*FILE_CATHEDRAL_CEL*/ "Levels\\L1Data\\L1.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
@@ -244,7 +256,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_BLOOD1_DUN*/    "Levels\\L2Data\\Blood1.DUN",
 /*FILE_BLOOD2_DUN*/    "Levels\\L2Data\\Blood2.DUN",
 #if ASSET_MPL == 1
-/*FILE_L2DOORS_CEL*/   "Objects\\L2Doors.CEL",
 /*FILE_CATACOMBS_SCEL*/"Levels\\L2Data\\L2S.CEL",
 /*FILE_CATACOMBS_CEL*/ "Levels\\L2Data\\L2.CEL",
 /*FILE_CATACOMBS_MIN*/ "Levels\\L2Data\\L2.MIN",
@@ -252,7 +263,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_CATACOMBS_TIL*/ "Levels\\L2Data\\L2.TIL",
 /*FILE_FOULWATR_DUN*/  "Levels\\L3Data\\Foulwatr.DUN",
 #if ASSET_MPL == 1
-/*FILE_L3DOORS_CEL*/   "Objects\\L3Doors.CEL",
 /*FILE_CAVES_CEL*/     "Levels\\L3Data\\L3.CEL",
 /*FILE_CAVES_MIN*/     "Levels\\L3Data\\L3.MIN",
 #endif
@@ -293,10 +303,19 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #if ASSET_MPL == 1
-/*FILE_OBJ_MCIRL_CEL*/ "Objects\\Mcirl.CEL",
-/*FILE_OBJ_CNDL2_CEL*/ "Objects\\Candle2.CEL",
-/*FILE_OBJ_LSHR_CEL*/  "Objects\\LShrineG.CEL",
-/*FILE_OBJ_RSHR_CEL*/  "Objects\\RShrineG.CEL",
+/*FILE_OBJ_L1DOORS*/   "Objects\\L1Doors.CEL",
+/*FILE_OBJ_L2DOORS*/   "Objects\\L2Doors.CEL",
+/*FILE_OBJ_L3DOORS*/   "Objects\\L3Doors.CEL",
+/*FILE_OBJ_MCIRL*/     "Objects\\Mcirl.CEL",
+/*FILE_OBJ_CANDL2*///  "Objects\\Candle2.CEL",
+/*FILE_OBJ_LSHR*///    "Objects\\LShrineG.CEL",
+/*FILE_OBJ_RSHR*///    "Objects\\RShrineG.CEL",
+/*FILE_OBJ_TFOUNTN*/// "Objects\\TFountn.CEL",
+#ifdef HELLFIRE
+/*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
+/*FILE_OBJ_L5SARCO*/   "Objects\\L5Sarco.CEL",
+/*FILE_OBJ_URN*/       "Objects\\Urn.CEL",
+#endif
 /*FILE_PLR_WHBAT*/     "PlrGFX\\Warrior\\WHB\\WHBAT.CL2",
 /*FILE_PLR_WLBAT*/     "PlrGFX\\Warrior\\WLB\\WLBAT.CL2",
 /*FILE_PLR_WMBAT*/     "PlrGFX\\Warrior\\WMB\\WMBAT.CL2",
@@ -343,7 +362,11 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 #endif
 /*FILE_NEST_TIL*/      "NLevels\\L6Data\\L6.TIL",
 #if ASSET_MPL == 1
-/*FILE_L5LIGHT_CEL*/   "Objects\\L5Light.CEL",
+/*FILE_TWN_FARMER*/    "Towners\\Farmer\\Farmrn2.CEL",
+/*FILE_TWN_CFARMER*/   "Towners\\Farmer\\cfrmrn2.CEL",
+/*FILE_TWN_MFARMER*/   "Towners\\Farmer\\mfrmrn2.CEL",
+/*FILE_TWN_GIRLW*/     "Towners\\Girl\\Girlw1.CEL",
+/*FILE_TWN_GIRLS*/     "Towners\\Girl\\Girls1.CEL",
 #endif
 #endif // HELLFIRE
 #if ASSET_MPL == 1
@@ -353,6 +376,12 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_SKLBWD*/    "Monsters\\SkelBow\\SklBwd.CL2",
 /*FILE_MON_SKLSRD*/    "Monsters\\SkelSd\\SklSrd.CL2",
 /*FILE_MON_ZOMBIED*/   "Monsters\\Zombie\\Zombied.CL2",
+/*FILE_MON_ACIDD*/     "Monsters\\Acid\\Acidd.CL2",
+/*FILE_MON_MAGMAW*/    "Monsters\\Magma\\Magmaw.CL2",
+/*FILE_MON_SCAVH*/     "Monsters\\Scav\\Scavh.CL2",
+/*FILE_MON_SKINGS*/    "Monsters\\SKing\\SKings.CL2",
+/*FILE_MON_SKINGW*/    "Monsters\\SKing\\SKingw.CL2",
+/*FILE_MON_SNAKEH*/    "Monsters\\Snake\\Snakeh.CL2",
 #ifdef HELLFIRE
 /*FILE_MON_FALLGD*/    "Monsters\\BigFall\\Fallgd.CL2",
 /*FILE_MON_FALLGW*/    "Monsters\\BigFall\\Fallgw.CL2",
@@ -363,9 +392,6 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_UNRAVN*/    "Monsters\\Unrav\\Unravn.CL2",
 /*FILE_MON_UNRAVW*/    "Monsters\\Unrav\\Unravw.CL2",
 #endif // HELLFIRE
-/*FILE_MIS_ACIDBF1*/   "Missiles\\Acidbf1.CL2",
-/*FILE_MIS_ACIDBF10*/  "Missiles\\Acidbf10.CL2",
-/*FILE_MIS_ACIDBF11*/  "Missiles\\Acidbf11.CL2",
 /*FILE_MIS_FIREBA2*/   "Missiles\\Fireba2.CL2",
 /*FILE_MIS_FIREBA3*/   "Missiles\\Fireba3.CL2",
 /*FILE_MIS_FIREBA5*/   "Missiles\\Fireba5.CL2",
@@ -1643,7 +1669,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 	srcHeaderCursor++;
 
 	if (srcCelEntries != 4) {
-		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL_CEL]);
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_MCIRL]);
 		mem_free_dbg(celBuf);
 		return NULL;
 	}
@@ -1834,7 +1860,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#if 0
 static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -1846,7 +1872,7 @@ static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 	srcHeaderCursor++;
 
 	if (srcCelEntries != 4) {
-		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_CNDL2_CEL]);
+		app_warn("Invalid file %s in the mpq.", filesToPatch[FILE_OBJ_CANDL2]);
 		mem_free_dbg(celBuf);
 		return NULL;
 	}
@@ -2005,7 +2031,7 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-
+#endif
 #ifdef HELLFIRE
 static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 {
@@ -2061,6 +2087,113 @@ static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
 	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
 
+	return resCelBuf;
+}
+
+static BYTE* patchCryptSarco(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int FRAME_WIDTH = 128;
+	constexpr int FRAME_HEIGHT = 96;
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	const int resCelEntries = srcCelEntries;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+
+		// make the colors more consistent + eliminate flare
+		for (int y = 0; y < FRAME_HEIGHT; y++) {
+			for (int x = 0; x < FRAME_WIDTH; x++) {
+				BYTE color = gpBuffer[x + y * BUFFER_WIDTH];
+				switch (color) {
+				case 175: color = 111; break;
+				case 176: color =  32; break;
+				case 178: color =  33; break;
+				case 179: color =  32; break;
+				case 180: color =  33; break;
+				case 181: color =  34; break;
+				case 183: color =  34; break;
+				case 189: color =  45; break;
+				case 191: color =  79; break;
+				default:
+					continue;
+				}
+				gpBuffer[x + y * BUFFER_WIDTH] = color;
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, FRAME_WIDTH, FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
+
+	return resCelBuf;
+}
+
+static BYTE* addAnimDelayInfo(int index, BYTE* celBuf, size_t* celLen)
+{
+	uint32_t* pFrameTable;
+	uint32_t frameCount;
+	uint32_t nMetaStart, nMetaEnd;
+
+	pFrameTable = (uint32_t*)&celBuf[0];
+	frameCount = SwapLE32(pFrameTable[0]);
+	nMetaStart = (1 + frameCount + 1) * sizeof(uint32_t);
+	nMetaEnd = SwapLE32(pFrameTable[1]);
+
+	if (nMetaStart != nMetaEnd) {
+		return celBuf; // assume it is already done
+	}
+
+	BYTE frameDelay = 0;
+	switch (index) {
+	case FILE_TWN_FARMER:
+	case FILE_TWN_CFARMER:
+	case FILE_TWN_MFARMER: frameDelay = 3; break;
+	case FILE_TWN_GIRLW:
+	case FILE_TWN_GIRLS:   frameDelay = 6; break;
+	}
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen + 2;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memcpy(resCelBuf, celBuf, nMetaStart);
+	resCelBuf[nMetaStart + 0] = CELMETA_ANIMDELAY;
+	resCelBuf[nMetaStart + 1] = frameDelay;
+	memcpy(&resCelBuf[nMetaStart + 2], &celBuf[nMetaStart], maxCelSize - (nMetaStart + 2));
+
+	// update offsets
+	pFrameTable = (uint32_t*)&resCelBuf[0];
+	for (unsigned i = 1; i <= frameCount + 1; i++) {
+		pFrameTable[i] += 2;
+	}
+
+	*celLen = maxCelSize;
 	return resCelBuf;
 }
 #endif // HELLFIRE
@@ -2230,7 +2363,7 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 
 		const BYTE* frameBuf;
 		if (groupped) {
-			frameBuf = CelGetFrameStart(cl2Buf, ii);
+			frameBuf = CelGetFrameGroup(cl2Buf, ii);
 		} else {
 			frameBuf = cl2Buf;
 		}
@@ -2251,6 +2384,65 @@ static BYTE* ReEncodeCL2(BYTE* cl2Buf, size_t *dwLen, int numGroups, int frameCo
 
 	mem_free_dbg(cl2Buf);
 	return resCl2Buf;
+}
+
+static BYTE* ReEncodeCEL(BYTE* celBuf, size_t *dwLen, int numGroups, int frameCount, int height, int width)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+
+	const size_t maxCelSize = 2 * *dwLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	bool groupped = numGroups != 1;
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCelBuf;
+	if (groupped) {
+		// add optional {CEL GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCelBuf[headerSize];
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf;
+		if (groupped) {
+			frameBuf = CelGetFrameGroup(celBuf, ii);
+		} else {
+			frameBuf = celBuf;
+		}
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
+
+			CelClippedDraw(0, height - 1, frameBuf, n, width);
+
+			pBuf = EncodeFrame(pBuf, width, height, SUB_HEADER_SIZE, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCelBuf;
+
+	mem_free_dbg(celBuf);
+	return resCelBuf;
 }
 
 static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
@@ -2306,7 +2498,7 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
@@ -2320,6 +2512,80 @@ static BYTE* patchPlrFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 					nn++;
 				}
 			}
+			Cl2Draw(0, height - 1, frameBuf, nn, width);
+
+			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
+
+			pBuf = EncodeCl2(pBuf, frameSrc, width, height, TRANS_COLOR);
+			hdr[n + 1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+		}
+		hdr += ni + 2;
+	}
+
+	*dwLen = (size_t)pBuf - (size_t)resCl2Buf;
+
+	mem_free_dbg(cl2Buf);
+	return resCl2Buf;
+}
+
+static BYTE* patchMonFrames(int index, BYTE* cl2Buf, size_t *dwLen)
+{
+	constexpr BYTE TRANS_COLOR = 1;
+	constexpr int numGroups = NUM_DIRS;
+	constexpr bool groupped = true;
+
+	int frameCount = 0, width = 0, height = 0;
+	switch (index) {
+	case FILE_MON_ACIDD:  frameCount = 24 - 8; width = 128; height =  96; break;
+	case FILE_MON_MAGMAW: frameCount = 14 - 4; width = 128; height = 128; break;
+	case FILE_MON_SCAVH:  frameCount =  8 - 2; width = 128; height =  96; break;
+	case FILE_MON_SKINGS: frameCount = 12 - 6; width = 160; height = 160; break;
+	case FILE_MON_SKINGW: frameCount =  8 - 2; width = 160; height = 160; break;
+	case FILE_MON_SNAKEH: frameCount =  6 - 1; width = 160; height = 160; break;
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)cl2Buf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[numGroups]);
+	if (srcCelEntries <= frameCount) {
+		return cl2Buf; // assume it is already done
+	}
+
+	BYTE* resCl2Buf = DiabloAllocPtr(2 * *dwLen);
+	memset(resCl2Buf, 0, 2 * *dwLen);
+
+	int headerSize = 0;
+	for (int i = 0; i < numGroups; i++) {
+		int ni = frameCount;
+		headerSize += 4 + 4 * (ni + 1);
+	}
+	if (groupped) {
+		headerSize += sizeof(DWORD) * numGroups;
+	}
+
+	DWORD* hdr = (DWORD*)resCl2Buf;
+	if (groupped) {
+		// add optional {CL2 GROUP HEADER}
+		int offset = numGroups * 4;
+		for (int i = 0; i < numGroups; i++, hdr++) {
+			hdr[0] = offset;
+			int ni = frameCount;
+			offset += 4 + 4 * (ni + 1);
+		}
+	}
+
+	BYTE* pBuf = &resCl2Buf[headerSize];
+	bool needsPatch = false;
+	for (int ii = 0; ii < numGroups; ii++) {
+		int ni = frameCount;
+		hdr[0] = SwapLE32(ni);
+		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
+
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
+
+		for (int n = 1; n <= ni; n++) {
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
+			// draw the frame to the buffer
+			int nn = n;
 			Cl2Draw(0, height - 1, frameBuf, nn, width);
 
 			BYTE* frameSrc = &gpBuffer[0 + (height - 1) * BUFFER_WIDTH];
@@ -2393,7 +2659,7 @@ static BYTE* patchRogueExtraPixels(int index, BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, (size_t)BUFFER_WIDTH * height);
@@ -2575,20 +2841,20 @@ static BYTE* patchWarriorStand(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, 
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
 			if (ii == 1) { // DIR_SW
 				// draw the stand frame
-				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+				const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[0 + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				// }
 				Cl2Draw(0, height - 1, stdFrameBuf, n, width);
 				// draw the attack frame
 				constexpr int atkWidth = 128;
-				const BYTE* atkFrameBuf = CelGetFrameStart(atkBuf, ii);
+				const BYTE* atkFrameBuf = CelGetFrameGroup(atkBuf, ii);
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[0 + width + BUFFER_WIDTH * y], TRANS_COLOR, atkWidth);
 				// }
@@ -3008,7 +3274,7 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -3031,7 +3297,7 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 						case 3: si = 7 - 1; break;
 						}
 
-						const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+						const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 						Cl2Draw(width, height - 1, stdFrameBuf, si + 1, width);
 
 						for (int y = 0; y < height; y++) {
@@ -3110,7 +3376,7 @@ static BYTE* patchMagmaDie(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 						// draw leg
 						int si = 1 - 1;
 
-						const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+						const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 						Cl2Draw(width, height - 1, stdFrameBuf, si + 1, width);
 
 						int sx = 0, sy = 0, ex = 0, ey = 0;
@@ -4088,7 +4354,7 @@ static BYTE* patchGoatBDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4161,7 +4427,7 @@ static BYTE* patchSklAxDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4396,7 +4662,7 @@ static BYTE* patchSklAxDie(BYTE* cl2Buf, size_t *dwLen)
 							}
 						}
 
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 0, 0, width, 56, 90, 61, 93, TRANS_COLOR);
@@ -4459,7 +4725,7 @@ static BYTE* patchSklBwDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4592,7 +4858,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -4861,7 +5127,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 					}
 					// complete the sword
 					if (i + 1 == 15) {
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 2, 0, width, 44, 84, 71, 89, TRANS_COLOR);
@@ -4949,7 +5215,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 					}
 					// complete the left-leg
 					if (i + 1 == 14) {
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 0, 0, width, 44, 86, 48, 87, TRANS_COLOR);
@@ -4957,7 +5223,7 @@ static BYTE* patchSklSrDie(BYTE* cl2Buf, size_t *dwLen)
 						gpBuffer[45 + BUFFER_WIDTH * 87] = 165;
 					}
 					if (i + 1 == 15) {
-						const BYTE* prevFrameBuf = CelGetFrameStart(resCl2Buf, ii);
+						const BYTE* prevFrameBuf = CelGetFrameGroup(resCl2Buf, ii);
 						Cl2Draw(width, height - 1, prevFrameBuf, n - 1, width);
 
 						CopyFrame(0, 0, 0, width, 43, 86, 51, 89, TRANS_COLOR);
@@ -5019,7 +5285,7 @@ static BYTE* patchZombieDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -5138,7 +5404,7 @@ static BYTE* patchFallGDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -5239,7 +5505,7 @@ static BYTE* patchFallGDie(BYTE* cl2Buf, size_t *dwLen)
 								gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
 							}
 						}
-						const BYTE* baseFrameBuf = CelGetFrameStart(cl2Buf, 8 - 1);
+						const BYTE* baseFrameBuf = CelGetFrameGroup(cl2Buf, 8 - 1);
 						Cl2Draw(width, height - 1, baseFrameBuf, 1, width);
 
 						for (int y = 97 + 2; y < 110 + 2 - 2; y++) {
@@ -5425,7 +5691,7 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -5437,7 +5703,7 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 				// }
 				Cl2Draw(0, height - 1, frameBuf, n, width);
 				// draw the west-walk frame
-				const BYTE* wwFrameBuf = CelGetFrameStart(cl2Buf, 2); // DIR_W
+				const BYTE* wwFrameBuf = CelGetFrameGroup(cl2Buf, 2); // DIR_W
 				// for (int y = 0; y < height; y++) {
 				//	memset(&gpBuffer[width + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				// }
@@ -5558,7 +5824,7 @@ static BYTE* patchFallGWalk(BYTE* cl2Buf, size_t *dwLen, BYTE* stdBuf)
 				case 6: fn = 8; dx =  -2; dy =  5; break;
 				case 7: fn = 9; dx =  -8; dy =  8; break;
 				}
-				const BYTE* stdFrameBuf = CelGetFrameStart(stdBuf, ii);
+				const BYTE* stdFrameBuf = CelGetFrameGroup(stdBuf, ii);
 				for (int y = 0; y < height; y++) {
 					memset(&gpBuffer[width + BUFFER_WIDTH * y], TRANS_COLOR, width);
 				}
@@ -6683,7 +6949,7 @@ static BYTE* patchGoatLDie(BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -6922,7 +7188,7 @@ static BYTE* patchUnrav(int index, BYTE* cl2Buf, size_t *dwLen)
 		hdr[0] = SwapLE32(ni);
 		hdr[1] = SwapLE32((DWORD)((size_t)pBuf - (size_t)hdr));
 
-		const BYTE* frameBuf = CelGetFrameStart(cl2Buf, ii);
+		const BYTE* frameBuf = CelGetFrameGroup(cl2Buf, ii);
 
 		for (int n = 1; n <= ni; n++) {
 			memset(&gpBuffer[0], TRANS_COLOR, BUFFER_WIDTH * height);
@@ -6978,12 +7244,24 @@ static BYTE* patchUnrav(int index, BYTE* cl2Buf, size_t *dwLen)
 }
 
 #endif // HELLFIRE
-
-static BYTE* patchAcidbf(int index, BYTE* cl2Buf, size_t *dwLen)
+#if 0
+static BYTE* patchMisFrames(int index, BYTE* cl2Buf, size_t *dwLen)
 {
-	return ReEncodeCL2(cl2Buf, dwLen, 1, 9 - 1, 96, 96);
-}
+	int frameCount = 0, width = 0, height = 0;
+	switch (index) {
+	case FILE_MIS_ACIDBF1:
+	case FILE_MIS_ACIDBF10:
+	case FILE_MIS_ACIDBF11:
+	case FILE_MIS_ACIDSPLA: frameCount =  9 - 1; width =  96; height =  96; break;
+	case FILE_MIS_BIGEXP:   frameCount = 16 - 1; width = 160; height = 160; break;
+	case FILE_MIS_SCBEXPB:
+	case FILE_MIS_SCBEXPC:
+	case FILE_MIS_SCBEXPD:  frameCount =  7 - 1; width = 128; height = 128; break;
+	}
 
+	return ReEncodeCL2(cl2Buf, dwLen, 1, frameCount, width, height);
+}
+#endif
 static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -7705,10 +7983,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = Town_PatchMin(buf, dwLen, false);
 		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
-	case FILE_L1DOORS_CEL:
-	{	// patch L1Doors.CEL
-		buf = DRLP_L1_PatchDoors(buf, dwLen);
-	} break;
 	case FILE_CATHEDRAL_SCEL:
 	{	// patch pSpecialsCel - L1S.CEL
 		buf = DRLP_L1_PatchSpec(buf, dwLen);
@@ -7779,10 +8053,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		patchDungeon(index, buf, dwLen);
 	} break;
 #if ASSET_MPL == 1
-	case FILE_L2DOORS_CEL:
-	{	// patch L2Doors.CEL
-		buf = DRLP_L2_PatchDoors(buf, dwLen);
-	} break;
 	case FILE_CATACOMBS_SCEL:
 	{	// patch pSpecialsCel - L2S.CEL
 		buf = DRLP_L2_PatchSpec(buf, dwLen);
@@ -7832,10 +8102,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		DRLP_L2_PatchTil(buf);
 	} break;
 #if ASSET_MPL == 1
-	case FILE_L3DOORS_CEL:
-	{	// patch L3Doors.CEL
-		buf = DRLP_L3_PatchDoors(buf, dwLen);
-	} break;
 	case FILE_CAVES_CEL:
 	{	// patch dMicroCels - L3.CEL
 		size_t minLen;
@@ -7973,22 +8239,54 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 	} break;
 #if ASSET_MPL == 1
-	case FILE_OBJ_MCIRL_CEL:
+	case FILE_OBJ_L1DOORS:
+	{	// patch L1Doors.CEL
+		buf = DRLP_L1_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_OBJ_L2DOORS:
+	{	// patch L2Doors.CEL
+		buf = DRLP_L2_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_OBJ_L3DOORS:
+	{	// patch L3Doors.CEL
+		buf = DRLP_L3_PatchDoors(buf, dwLen);
+	} break;
+	case FILE_OBJ_MCIRL:
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
 	} break;
-	case FILE_OBJ_CNDL2_CEL:
+#if 0
+	case FILE_OBJ_CANDL2:
 	{	// fix object gfx file - Candle2.CEL
 		buf = fixObjCandle(buf, dwLen);
 	} break;
-	case FILE_OBJ_LSHR_CEL:
+	case FILE_OBJ_LSHR:
 	{	// fix object gfx file - LShrineG.CEL
 		buf = fixObjLShrine(buf, dwLen);
 	} break;
-	case FILE_OBJ_RSHR_CEL:
+	case FILE_OBJ_RSHR:
 	{	// fix object gfx file - RShrineG.CEL
 		buf = fixObjRShrine(buf, dwLen);
 	} break;
+	case FILE_OBJ_TFOUNTN:
+	{	// eliminate extra frames - TFountn.CEL
+		buf = ReEncodeCEL(buf, dwLen, 1, 8 - 4, 96, 128);
+	} break;
+#endif
+#ifdef HELLFIRE
+	case FILE_OBJ_L5LIGHT:
+	{	// fix object gfx file - L5Light.CEL
+		buf = fixL5Light(buf, dwLen);
+	} break;
+	case FILE_OBJ_L5SARCO:
+	{	// patch object gfx file - L5Sarco.CEL
+		buf = patchCryptSarco(buf, dwLen);
+	} break;
+	case FILE_OBJ_URN:
+	{	// eliminate extra frame - Urn.CEL
+		buf = ReEncodeCEL(buf, dwLen, 1, 10 - 1, 96, 96);
+	} break;
+#endif
 	case FILE_PLR_WHBAT:
 	case FILE_PLR_WLBAT:
 	case FILE_PLR_WMBAT:
@@ -8189,9 +8487,13 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		DRLP_L5_PatchTil(buf);
 	} break;
 #if ASSET_MPL == 1
-	case FILE_L5LIGHT_CEL:
-	{	// fix object gfx file - L5Light.CEL
-		buf = fixL5Light(buf, dwLen);
+	case FILE_TWN_FARMER:  // Farmrn2.CEL
+	case FILE_TWN_CFARMER: // cfrmrn2.CEL
+	case FILE_TWN_MFARMER: // mfrmrn2.CEL
+	case FILE_TWN_GIRLW:   // Girlw1.CEL
+	case FILE_TWN_GIRLS:   // Girls1.CEL
+	{	// add meta data
+		buf = addAnimDelayInfo(index, buf, dwLen);
 	} break;
 #endif // ASSET_MPL
 #endif // HELLFIRE
@@ -8229,6 +8531,15 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// fix monster gfx file - Zombied.CL2",
 		buf = patchZombieDie(buf, dwLen);
 	} break;
+	case FILE_MON_ACIDD:
+	case FILE_MON_MAGMAW:
+	case FILE_MON_SCAVH:
+	case FILE_MON_SKINGS:
+	case FILE_MON_SKINGW:
+	case FILE_MON_SNAKEH:
+	{	// eliminate extra frames of monster gfx files
+		buf = patchMonFrames(index, buf, dwLen);
+	} break;
 #ifdef HELLFIRE
 	case FILE_MON_FALLGD:
 	{	// fix monster gfx file - Fallgd.CL2",
@@ -8260,12 +8571,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = patchUnrav(index, buf, dwLen);
 	} break;
 #endif // HELLFIRE
-	case FILE_MIS_ACIDBF1:
-	case FILE_MIS_ACIDBF10:
-	case FILE_MIS_ACIDBF11:
-	{	// fix missile gfx file - Holy*.CL2
-		buf = patchAcidbf(index, buf, dwLen);
-	} break;
 	case FILE_MIS_FIREBA2:
 	case FILE_MIS_FIREBA3:
 	case FILE_MIS_FIREBA5:

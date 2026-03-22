@@ -65,10 +65,8 @@ void FreeArchives()
 #else
 	int i;
 	for (i = 0; i < NUM_MPQS; i++) {
-		if (diabdat_mpqs[i] != NULL) {
-			SFileCloseArchive(diabdat_mpqs[i]);
-			diabdat_mpqs[i] = NULL;
-		}
+		SFileCloseArchive(diabdat_mpqs[i]);
+		diabdat_mpqs[i] = NULL;
 	}
 #endif
 }
@@ -199,9 +197,7 @@ static void LoadArchives()
 
 	// cleanup
 	for (i = 0; i < NUM_MPQS; i++) {
-		if (diabdat_mpqs[i] != NULL) {
-			SFileCloseArchive(diabdat_mpqs[i]);
-		}
+		SFileCloseArchive(diabdat_mpqs[i]);
 	}
 	diabdat_mpq = init_test_access(MPQONE);
 	assert(diabdat_mpq != NULL);

@@ -102,10 +102,6 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 {
-	// pause game if not in the main menu
-	if (gbRunGame) {
-		diablo_pause_game(pItem != NULL);
-	}
 	_gbMouseNavigation = false;
 	gpCurrentMenu = pItem;
 	guCurrentMenuSize = nItems;
