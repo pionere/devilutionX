@@ -24,7 +24,7 @@ extern int numlights;
 extern int numvision;
 
 #define MAXDARKNESS     15
-#define NUM_COLOR_TRNS  (MAXDARKNESS + 1 + 3 + 8)
+#define NUM_COLOR_TRNS  (MAXDARKNESS + 1 + 3 + MAX_LVLMUNIQS)
 #define COLOR_TRN_RED   (MAXDARKNESS + 1)
 #define COLOR_TRN_GRAY  (MAXDARKNESS + 2)
 #define COLOR_TRN_CORAL (MAXDARKNESS + 3)
