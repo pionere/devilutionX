@@ -159,57 +159,57 @@ const int8_t ObjConvTbl[128] = {
 
 /** Maps negative object IDs to the corresponding object ID and keeps track of the parameters to configure the final object. */
 const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1] = {
-//                     oBaseType,      oTypeParam1, oTypeParam2, 
-                     { 0,              0,           0,           }, // trapped chest in random direction
-/*OBJ_TCHEST1*/      { OBJ_CHEST1,     -1,          1,           }, // trapped chest in random direction
-/*OBJ_TLCHEST1*/     { OBJ_CHEST1,     1,           1,           }, // trapped chest in SW-NE direction
-/*OBJ_TRCHEST1*/     { OBJ_CHEST1,     0,           1,           }, // trapped chest in SE-NW direction
-/*OBJ_LCHEST1*/      { OBJ_CHEST1,     1,           -1,          }, // chest in SW-NE direction with optional trap
-/*OBJ_RCHEST1*/      { OBJ_CHEST1,     0,           -1,          }, // chest in SE-NW direction with optional trap
-/*OBJ_NLCHEST1*/     { OBJ_CHEST1,     1,           0,           }, // non-trapped chest in SW-NE
-/*OBJ_NRCHEST1*/     { OBJ_CHEST1,     0,           0,           }, // non-trapped chest in SE-NW
-/*OBJ_TCHEST2*/      { OBJ_CHEST2,     -1,          1,           },
-/*OBJ_TLCHEST2*/     { OBJ_CHEST2,     1,           1,           },
-/*OBJ_TRCHEST2*/     { OBJ_CHEST2,     0,           1,           },
-/*OBJ_LCHEST2*/      { OBJ_CHEST2,     1,           -1,          },
-/*OBJ_RCHEST2*/      { OBJ_CHEST2,     0,           -1,          },
-/*OBJ_NLCHEST2*/     { OBJ_CHEST2,     1,           0,           },
-/*OBJ_NRCHEST2*/     { OBJ_CHEST2,     0,           0,           },
-/*OBJ_TCHEST3*/      { OBJ_CHEST3,     -1,          1,           },
-/*OBJ_TLCHEST3*/     { OBJ_CHEST3,     1,           1,           },
-/*OBJ_TRCHEST3*/     { OBJ_CHEST3,     0,           1,           },
-/*OBJ_LCHEST3*/      { OBJ_CHEST3,     1,           -1,          },
-/*OBJ_RCHEST3*/      { OBJ_CHEST3,     0,           -1,          },
-/*OBJ_NLCHEST3*/     { OBJ_CHEST3,     1,           0,           },
-/*OBJ_NRCHEST3*/     { OBJ_CHEST3,     0,           0,           },
-/*OBJ_WEAPONRACKN*/  { OBJ_WEAPONRACK, -1,          1,           }, // inactive weaponrack in random direction
-/*OBJ_WEAPONRACKL*/  { OBJ_WEAPONRACK, 0,           0,           }, // active weaponrack in SW-NE direction
-/*OBJ_WEAPONRACKLN*/ { OBJ_WEAPONRACK, 0,           1,           }, // inactive weaponrack in SW-NE direction
-/*OBJ_WEAPONRACKR*/  { OBJ_WEAPONRACK, 1,           0,           }, // active weaponrack in SE-NW direction
-/*OBJ_WEAPONRACKRN*/ { OBJ_WEAPONRACK, 1,           1,           }, // inactive weaponrack in SE-NW direction
-/*OBJ_ARMORSTANDN*/  { OBJ_ARMORSTAND, -1,          1,           }, // inactive armorstand in random direction
-/*OBJ_ARMORSTANDL*/  { OBJ_ARMORSTAND, 0,           0,           }, // active armorstand in SW-NE direction
-/*OBJ_ARMORSTANDLN*/ { OBJ_ARMORSTAND, 0,           1,           }, // inactive armorstand in SW-NE direction
-/*OBJ_ARMORSTANDR*/  { OBJ_ARMORSTAND, 1,           0,           }, // active armorstand in SE-NW direction
-/*OBJ_ARMORSTANDRN*/ { OBJ_ARMORSTAND, 1,           1,           }, // inactive armorstand in SE-NW direction
-/*OBJ_BOOK1N*/       { 0/*OBJ_BOOK1*/, -1,          1,           }, // inactive book1-stand in random direction
-/*OBJ_BOOK1L*/       { 0/*OBJ_BOOK1*/, 0,           0,           }, // active book1-stand in SW-NE direction
-/*OBJ_BOOK1LN*/      { 0/*OBJ_BOOK1*/, 0,           1,           }, // inactive book1-stand in SW-NE direction
-/*OBJ_BOOK1R*/       { 0/*OBJ_BOOK1*/, 1,           0,           }, // active book1-stand in SE-NW direction
-/*OBJ_BOOK1RN*/      { 0/*OBJ_BOOK1*/, 1,           1,           }, // inactive book1-stand in SE-NW direction
-/*OBJ_BOOK2N*/       { OBJ_BOOK2,      -1,          1,           }, // inactive book2-stand in random direction
-/*OBJ_BOOK2L*/       { OBJ_BOOK2,      0,           0,           }, // active book2-stand in SW-NE direction
-/*OBJ_BOOK2LN*/      { OBJ_BOOK2,      0,           1,           }, // inactive book2-stand in SW-NE direction
-/*OBJ_BOOK2R*/       { OBJ_BOOK2,      1,           0,           }, // active book2-stand in SE-NW direction
-/*OBJ_BOOK2RN*/      { OBJ_BOOK2,      1,           1,           }, // inactive book2-stand in SE-NW direction
-/*OBJ_TORTUREL*/     { OBJ_TORTURE,    0,          -1,           }, // random hooked body on the SW-NE wall
-/*OBJ_TORTURER*/     { OBJ_TORTURE,    1,          -1,           }, // random hooked body on the SE-NW wall
-/*OBJ_TORTUREL1*/    { OBJ_TORTURE,    0,           0,           }, // 1. hooked body on the SW-NE wall
-/*OBJ_TORTUREL2*/    { OBJ_TORTURE,    0,           1,           }, // 2. hooked body on the SW-NE wall
-/*OBJ_TORTUREL3*/    { OBJ_TORTURE,    0,           2,           }, // 3. hooked body on the SW-NE wall
-/*OBJ_TORTURER1*/    { OBJ_TORTURE,    1,           0,           }, // 1. hooked body on the SE-NW wall
-/*OBJ_TORTURER2*/    { OBJ_TORTURE,    1,           1,           }, // 2. hooked body on the SE-NW wall
-/*OBJ_TORTURER3*/    { OBJ_TORTURE,    1,           2,           }, // 3. hooked body on the SE-NW wall
+//                     oBaseType,      oTypeParam1, oTypeParam2, oTypeParam3
+                     { 0,              0,           0,           0 }, // trapped chest in random direction
+/*OBJ_TCHEST1*/      { OBJ_CHEST1,     -1,          1,           0 }, // trapped chest in random direction
+/*OBJ_TLCHEST1*/     { OBJ_CHEST1,     1,           1,           0 }, // trapped chest in SW-NE direction
+/*OBJ_TRCHEST1*/     { OBJ_CHEST1,     0,           1,           0 }, // trapped chest in SE-NW direction
+/*OBJ_LCHEST1*/      { OBJ_CHEST1,     1,           -1,          0 }, // chest in SW-NE direction with optional trap
+/*OBJ_RCHEST1*/      { OBJ_CHEST1,     0,           -1,          0 }, // chest in SE-NW direction with optional trap
+/*OBJ_NLCHEST1*/     { OBJ_CHEST1,     1,           0,           0 }, // non-trapped chest in SW-NE
+/*OBJ_NRCHEST1*/     { OBJ_CHEST1,     0,           0,           0 }, // non-trapped chest in SE-NW
+/*OBJ_TCHEST2*/      { OBJ_CHEST2,     -1,          1,           0 },
+/*OBJ_TLCHEST2*/     { OBJ_CHEST2,     1,           1,           0 },
+/*OBJ_TRCHEST2*/     { OBJ_CHEST2,     0,           1,           0 },
+/*OBJ_LCHEST2*/      { OBJ_CHEST2,     1,           -1,          0 },
+/*OBJ_RCHEST2*/      { OBJ_CHEST2,     0,           -1,          0 },
+/*OBJ_NLCHEST2*/     { OBJ_CHEST2,     1,           0,           0 },
+/*OBJ_NRCHEST2*/     { OBJ_CHEST2,     0,           0,           0 },
+/*OBJ_TCHEST3*/      { OBJ_CHEST3,     -1,          1,           0 },
+/*OBJ_TLCHEST3*/     { OBJ_CHEST3,     1,           1,           0 },
+/*OBJ_TRCHEST3*/     { OBJ_CHEST3,     0,           1,           0 },
+/*OBJ_LCHEST3*/      { OBJ_CHEST3,     1,           -1,          0 },
+/*OBJ_RCHEST3*/      { OBJ_CHEST3,     0,           -1,          0 },
+/*OBJ_NLCHEST3*/     { OBJ_CHEST3,     1,           0,           0 },
+/*OBJ_NRCHEST3*/     { OBJ_CHEST3,     0,           0,           0 },
+/*OBJ_WEAPONRACKN*/  { OBJ_WEAPONRACK, -1,          1,           0 }, // inactive weaponrack in random direction
+/*OBJ_WEAPONRACKL*/  { OBJ_WEAPONRACK, 0,           0,           0 }, // active weaponrack in SW-NE direction
+/*OBJ_WEAPONRACKLN*/ { OBJ_WEAPONRACK, 0,           1,           0 }, // inactive weaponrack in SW-NE direction
+/*OBJ_WEAPONRACKR*/  { OBJ_WEAPONRACK, 1,           0,           0 }, // active weaponrack in SE-NW direction
+/*OBJ_WEAPONRACKRN*/ { OBJ_WEAPONRACK, 1,           1,           0 }, // inactive weaponrack in SE-NW direction
+/*OBJ_ARMORSTANDN*/  { OBJ_ARMORSTAND, -1,          1,           0 }, // inactive armorstand in random direction
+/*OBJ_ARMORSTANDL*/  { OBJ_ARMORSTAND, 0,           0,           0 }, // active armorstand in SW-NE direction
+/*OBJ_ARMORSTANDLN*/ { OBJ_ARMORSTAND, 0,           1,           0 }, // inactive armorstand in SW-NE direction
+/*OBJ_ARMORSTANDR*/  { OBJ_ARMORSTAND, 1,           0,           0 }, // active armorstand in SE-NW direction
+/*OBJ_ARMORSTANDRN*/ { OBJ_ARMORSTAND, 1,           1,           0 }, // inactive armorstand in SE-NW direction
+/*OBJ_BOOK1N*/       { 0/*OBJ_BOOK1*/, -1,          1,           0 }, // inactive book1-stand in random direction
+/*OBJ_BOOK1L*/       { 0/*OBJ_BOOK1*/, 0,           0,           0 }, // active book1-stand in SW-NE direction
+/*OBJ_BOOK1LN*/      { 0/*OBJ_BOOK1*/, 0,           1,           0 }, // inactive book1-stand in SW-NE direction
+/*OBJ_BOOK1R*/       { 0/*OBJ_BOOK1*/, 1,           0,           0 }, // active book1-stand in SE-NW direction
+/*OBJ_BOOK1RN*/      { 0/*OBJ_BOOK1*/, 1,           1,           0 }, // inactive book1-stand in SE-NW direction
+/*OBJ_BOOK2N*/       { OBJ_BOOK2,      -1,          1,           0 }, // inactive book2-stand in random direction
+/*OBJ_BOOK2L*/       { OBJ_BOOK2,      0,           0,           0 }, // active book2-stand in SW-NE direction
+/*OBJ_BOOK2LN*/      { OBJ_BOOK2,      0,           1,           0 }, // inactive book2-stand in SW-NE direction
+/*OBJ_BOOK2R*/       { OBJ_BOOK2,      1,           0,           0 }, // active book2-stand in SE-NW direction
+/*OBJ_BOOK2RN*/      { OBJ_BOOK2,      1,           1,           0 }, // inactive book2-stand in SE-NW direction
+/*OBJ_TORTUREL*/     { OBJ_TORTURE,    0,          -1,           0 }, // random hooked body on the SW-NE wall
+/*OBJ_TORTURER*/     { OBJ_TORTURE,    1,          -1,           0 }, // random hooked body on the SE-NW wall
+/*OBJ_TORTUREL1*/    { OBJ_TORTURE,    0,           0,           0 }, // 1. hooked body on the SW-NE wall
+/*OBJ_TORTUREL2*/    { OBJ_TORTURE,    0,           1,           0 }, // 2. hooked body on the SW-NE wall
+/*OBJ_TORTUREL3*/    { OBJ_TORTURE,    0,           2,           0 }, // 3. hooked body on the SW-NE wall
+/*OBJ_TORTURER1*/    { OBJ_TORTURE,    1,           0,           0 }, // 1. hooked body on the SE-NW wall
+/*OBJ_TORTURER2*/    { OBJ_TORTURE,    1,           1,           0 }, // 2. hooked body on the SE-NW wall
+/*OBJ_TORTURER3*/    { OBJ_TORTURE,    1,           2,           0 }, // 3. hooked body on the SE-NW wall
 };
 
 /** Contains the data related to each object ID. */

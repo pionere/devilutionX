@@ -841,8 +841,8 @@ static_warning((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align Un
 typedef struct {
 	BYTE oBaseType;     // _object_id
 	int8_t oTypeParam1; // direction (left: 0, right:1, random: -1)
-	int8_t oTypeParam2; // trapped (no: 0, yes: 1, random: -1) for chests or inactive (no: 0, yes: 1) for armorstands and weaponracks
-	BYTE oAlign;
+	int8_t oTypeParam2; // trapped (no: 0, yes: 1, random: -1) for chests, inactive (no: 0, yes: 1) for armorstands, weaponracks and books, frame index for hooked bodies
+	int8_t oTypeParam3; // unused
 } ObjTypeConv;
 
 typedef struct ObjectData {
