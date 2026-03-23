@@ -749,17 +749,18 @@ static void Theme_ArmorStand(int themeId)
  */
 static void Theme_GoatShrine(int themeId)
 {
-	int i, xx, yy, x, y;
+	int i, xx, yy, mtidx, x, y;
 	const ThemeStruct &theme = themes[themeId];
 
 	xx = theme._tsObjX;
 	yy = theme._tsObjY;
 	AddObject(OBJ_GOATSHRINE, xx, yy);
+	mtidx = mapGoatTypes[random_low(136, numGoatTypes)];
 	for (i = 0; i < lengthof(offset_x); i++) {
 		x = xx + offset_x[i];
 		y = yy + offset_y[i];
 		// assert(dTransVal[x][y] == theme._tsTransVal && !nSolidTable[dPiece[x][y]]);
-		AddMonster(mapGoatTypes[0], x, y); // OPPOSITE(i)
+		AddMonster(mtidx, x, y); // OPPOSITE(i)
 	}
 }
 
