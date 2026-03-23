@@ -252,15 +252,15 @@ BYTE* DiabloAllocPtr(size_t dwBytes)
  */
 void mem_free_dbg(void* p)
 {
-	if (p != NULL) {
 #if __cplusplus <= 199711L
+	if (p != NULL) {
 		sgMemCrit.Enter();
 		free(p);
 		sgMemCrit.Leave();
-#else
-		free(p);
-#endif
 	}
+#else
+	free(p);
+#endif
 }
 
 /**
