@@ -296,7 +296,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_mAISeed = savedMon->vmAISeed;
 
 	mon->_muniqtype = savedMon->vmuniqtype;
-	mon->_muniqtrans = savedMon->vmuniqtrans;
+	mon->_muniqanim = savedMon->vmuniqanim;
 	mon->_mNameColor = savedMon->vmNameColor;
 	mon->_mlid = savedMon->vmlid;
 
@@ -1084,7 +1084,7 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmAISeed = mon->_mAISeed;
 
 	monSave->vmuniqtype = mon->_muniqtype;
-	monSave->vmuniqtrans = mon->_muniqtrans;
+	monSave->vmuniqanim = mon->_muniqanim;
 	monSave->vmNameColor = mon->_mNameColor;
 	monSave->vmlid = mon->_mlid;
 

@@ -17,7 +17,7 @@ int nummonsters;
 /* The data of the monsters on the current level. */
 MonsterStruct monsters[MAXMONSTERS];
 /* Monster types on the current level. */
-MapMonData mapMonTypes[MAX_LVLMTYPES];
+MapMonData mapMonTypes[MAX_LVLMTYPES + 1];
 /* The number of monster types on the current level. */
 int nummtypes;
 
@@ -35,8 +35,11 @@ BYTE mapSkelTypes[MAX_LVLMTYPES];
 /* Goat-monster types on the current level. */
 BYTE mapGoatTypes[MAX_LVLMTYPES];
 
-/* The next light-index to be used for the trn of a unique monster. */
-BYTE uniquetrans;
+/* The animations of the unique monsters on the current level. */
+static BYTE* uniqAnimData[MAX_LVLMUNIQS][NUM_MON_ANIM];
+static MonAnimStruct uniqAnims[MAX_LVLMUNIQS][NUM_MON_ANIM];
+/* The number of unique monsters on the current level. */
+static BYTE numUniqAnims;
 
 /** 'leader' of monsters without leaders. */
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE field.");
@@ -424,7 +427,7 @@ void InitLvlMonsters()
 	numScaTypes = 0;
 	numSkelTypes = 0;
 	numGoatTypes = 0;
-	uniquetrans = COLOR_TRN_UNIQ;
+	numUniqAnims = 0;
 	monstimgtot = MAX_LVLMIMAGE - monfiledata[monsterdata[MT_GOLEM].moFileNum].moImage;
 	totalmonsters = MAXMONSTERS;
 
@@ -439,11 +442,11 @@ void InitLvlMonsters()
 		monsters[i]._mAlign_1 = 0;
 		monsters[i]._mgoal = MGOAL_NORMAL;
 		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
-		// reset _muniqtrans to simplify InitTownerInfo (towner.cpp)
+		// reset _muniqanim to simplify InitTownerInfo (towner.cpp)
 		// reset _mNameColor to simplify InitTownerInfo (towner.cpp)
 		// reset _mlid value to simplify SyncMonstersLight (loadsave.cpp), DeltaLoadLevel, SummonMonster and InitTownerInfo (towner.cpp)
 		monsters[i]._muniqtype = 0;
-		monsters[i]._muniqtrans = 0;
+		monsters[i]._muniqanim = 0;
 		monsters[i]._mNameColor = COL_WHITE;
 		monsters[i]._mlid = NO_LIGHT;
 		// reset _mleaderflag value to simplify GroupUnity
@@ -654,7 +657,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	// mon->_mAISeed = -- should be set before use
 
 	mon->_muniqtype = 0;
-	mon->_muniqtrans = 0;
+	mon->_muniqanim = 0;
 	mon->_mNameColor = COL_WHITE;
 	mon->_mlid = NO_LIGHT;
 
@@ -829,12 +832,42 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
 	unsigned baseLvl, lvlBonus, monLvl;
+	int anim;
 
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
 	mon->_muniqtype = uniqindex + 1;
 
 	uniqm = &uniqMonData[uniqindex];
+	// initialize unique-gfx
+	if (uniqm->muTrans != TRN_NONE) {
+		mapMonTypes[MAX_LVLMTYPES].cmFileNum = mon->_mFileNum;
+		mapMonTypes[MAX_LVLMTYPES].cmType = mon->_mType;
+		InitMonsterGFX(MAX_LVLMTYPES);
+		// assert(mon->_mType != MT_GOLEM);
+		InitMonsterTRN(mapMonTypes[MAX_LVLMTYPES].cmAnims, uniqm->muTrans);
+	} else {
+		for (anim = 0; anim < NUM_MON_ANIM; anim++)
+			mapMonTypes[MAX_LVLMTYPES].cmAnimData[anim] = mapMonTypes[mon->_mMTidx].cmAnimData[anim];
+	}
+
+	anim = numUniqAnims++;
+	mon->_muniqanim = anim;
+	BYTE* (&umAnimData)[NUM_MON_ANIM] = uniqAnimData[anim];
+	MonAnimStruct* uam = uniqAnims[anim];
+
+	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+		BYTE* celBuf = mapMonTypes[MAX_LVLMTYPES].cmAnimData[anim];
+		mapMonTypes[MAX_LVLMTYPES].cmAnimData[anim] = NULL;
+		umAnimData[anim] = celBuf;
+		uam[anim].maFrameLen = mon->_mAnims[anim].maFrameLen;
+		uam[anim].maFrames = mon->_mAnims[anim].maFrames;
+		// assert(mon->_mType != MT_GOLEM);
+		if (celBuf != NULL)
+			LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(uam[anim].maAnimData));
+	}
+	mon->_mAnims = uam;
+	// initialize unique-stats
 	mon->_mLevel = uniqm->muLevel;
 
 	mon->_mExp *= 2;
@@ -853,10 +886,6 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
 	}
 
-	if (LoadTrnWithMem(uniqm->muTrans, ColorTrns[uniquetrans])) {
-		static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
-		mon->_muniqtrans = uniquetrans++;
-	}
 
 	mon->_mHit += uniqm->mUnqHit;
 	mon->_mHit2 += uniqm->mUnqHit2;
@@ -988,7 +1017,7 @@ static void PlaceUniques()
 	int u, mt;
 
 	for (u = 0; uniqMonData[u].mtype != MT_INVALID; u++) {
-		if (uniquetrans >= NUM_COLOR_TRNS)
+		if (numUniqAnims >= MAX_LVLMUNIQS)
 			continue;
 		/*if (uniqMonData[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
@@ -1042,7 +1071,7 @@ static void SetMapMonsters(int idx)
 				} else {
 					mtype = (mtype & INT16_MAX) - 1;
 					mtidx = AddMonsterType(uniqMonData[mtype].mtype, FALSE);
-					// assert(uniquetrans < NUM_COLOR_TRNS);
+					// assert(numUniqAnims < MAX_LVLMUNIQS);
 					mnum = PlaceMonster(mtidx, i, j);
 					InitUniqueMonster(mnum, mtype);
 				}
@@ -4599,13 +4628,28 @@ void ProcessMonsters()
 
 void FreeMonsters()
 {
-	int i, j;
-
+	int i, anim, j;
 	for (i = 0; i < nummtypes; i++) {
-		for (j = 0; j < NUM_MON_ANIM; j++) {
-			MemFreeDbg(mapMonTypes[i].cmAnimData[j]);
+		for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+			for (j = 0; j < numUniqAnims; j++) {
+				if (uniqAnimData[j][anim] == mapMonTypes[i].cmAnimData[anim]) {
+					uniqAnimData[j][anim] = NULL;
+				}
+			}
+			MemFreeDbg(mapMonTypes[i].cmAnimData[anim]);
 		}
 	}
+	for (i = 0; i < numUniqAnims; i++) {
+		for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+			MemFreeDbg(uniqAnimData[i][anim]);
+		}
+	}
+
+	// nummtypes = 0;
+	// numScaTypes = 0;
+	// numSkelTypes = 0;
+	// numGoatTypes = 0;
+	// numUniqAnims = 0;
 
 	FreeMonMissileGFX();
 	FreeMonsterSFX();
@@ -4627,15 +4671,17 @@ void SyncMonsterAnim(int mnum)
 	}
 	mmdata = &mapMonTypes[mon->_mMTidx];
 	mon->_mType = mmdata->cmType;
-	mon->_mAnims = mmdata->cmAnims;
 	mon->_mAnimWidth = mmdata->cmWidth;
 	mon->_mAnimXOffset = mmdata->cmXOffset;
 	mon->_mAFNum = mmdata->cmAFNum;
 	mon->_mAFNum2 = mmdata->cmAFNum2;
-	if (mon->_muniqtype != 0)
+	if (mon->_muniqtype != 0) {
 		mon->_mName = uniqMonData[mon->_muniqtype - 1].mName;
-	else
+		mon->_mAnims = uniqAnims[mon->_muniqanim];
+	} else {
 		mon->_mName = monsterdata[mon->_mType].mName;
+		mon->_mAnims = mmdata->cmAnims;
+	}
 
 	mode = mon->_mmode;
 	if (mode == MM_STONE)

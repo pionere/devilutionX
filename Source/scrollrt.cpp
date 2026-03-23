@@ -376,8 +376,6 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
-	else if (mon->_muniqtrans != 0)
-		trans = mon->_muniqtrans;
 	else
 		trans = light_trn_index;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
@@ -392,7 +390,6 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
 {
 	int mx, my, nCel, nWidth;
-	BYTE trans;
 	const BYTE* pCelBuff;
 
 	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
@@ -410,8 +407,7 @@ static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
-	trans = mon->_muniqtrans == 0 ? light_trn_index : mon->_muniqtrans;
-	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
+	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
 static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)

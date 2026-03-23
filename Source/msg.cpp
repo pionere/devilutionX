@@ -3691,7 +3691,7 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mRndSeed,
 	mon->_mAISeed,
 	mon->_muniqtype,
-	mon->_muniqtrans,
+	mon->_muniqanim,
 	mon->_mNameColor,
 	mon->_mlid,
 	mon->_mleader,
