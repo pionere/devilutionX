@@ -22,10 +22,14 @@ MapMonData mapMonTypes[MAX_LVLMTYPES];
 int nummtypes;
 
 static_assert(MAX_LVLMTYPES <= UCHAR_MAX, "Monster-type indices are stored in a BYTE fields.");
+/* The number of monster types scattered on the current level. */
+BYTE numScaTypes;
 /* The number of skeleton-monster types on the current level. */
 BYTE numSkelTypes;
 /* The number of goat-monster types on the current level. */
 BYTE numGoatTypes;
+/* Scattered monster types on the current level. */
+BYTE mapScaTypes[MAX_LVLMTYPES];
 /* Skeleton-monster types on the current level. */
 BYTE mapSkelTypes[MAX_LVLMTYPES];
 /* Goat-monster types on the current level. */
@@ -403,6 +407,8 @@ static int AddMonsterType(int type, BOOL scatter)
 	}
 
 	if (scatter && !mapMonTypes[i].cmPlaceScatter) {
+		mapScaTypes[numScaTypes] = i;
+		numScaTypes++;
 		mapMonTypes[i].cmPlaceScatter = TRUE;
 		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
 	}
@@ -415,6 +421,7 @@ void InitLvlMonsters()
 	int i;
 
 	nummtypes = 0;
+	numScaTypes = 0;
 	numSkelTypes = 0;
 	numGoatTypes = 0;
 	uniquetrans = COLOR_TRN_UNIQ;
@@ -1062,10 +1069,9 @@ static void PlaceSetMapMonsters()
 
 void InitMonsters()
 {
-	unsigned na, numplacemonsters, numscattypes;
+	unsigned na, numplacemonsters;
 	int i, j, xx, yy;
 	int mtidx;
-	int scatteridx[MAX_LVLMTYPES];
 	const int tdx[4] = { -1, -1,  2,  2 };
 	const int tdy[4] = { -1,  2, -1,  2 };
 
@@ -1103,17 +1109,10 @@ void InitMonsters()
 			totalmonsters = MAXMONSTERS - 10;
 		// place quest/unique monsters
 		PlaceUniques();
-		numscattypes = 0;
-		for (i = 0; i < nummtypes; i++) {
-			if (mapMonTypes[i].cmPlaceScatter) {
-				scatteridx[numscattypes] = i;
-				numscattypes++;
-			}
-		}
-		// assert(numscattypes != 0 || na == 0);
+		// assert(numScaTypes != 0 || na == 0);
 		i = currLvl._dLevelIdx;
 		while (nummonsters < totalmonsters) {
-			mtidx = scatteridx[random_low(95, numscattypes)];
+			mtidx = mapScaTypes[random_low(95, numScaTypes)];
 			if (i == DLV_CATHEDRAL1 || random_(95, 2) == 0)
 				na = 1;
 #ifdef HELLFIRE

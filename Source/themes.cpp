@@ -413,27 +413,18 @@ static void Place_Obj3(const ThemeStruct &theme, int type, int rndfrq)
  */
 static void PlaceThemeMonsts(const ThemeStruct &theme)
 {
-	int xx, yy;
-	int scattertypes[MAX_LVLMTYPES];
-	int numscattypes, mtype, i;
+	int mtidx, xx, yy;
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	const BYTE rndfrq = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
-	numscattypes = 0;
-	for (i = 0; i < nummtypes; i++) {
-		if (mapMonTypes[i].cmPlaceScatter) {
-			scattertypes[numscattypes] = i;
-			numscattypes++;
-		}
-	}
-	// assert(numscattypes > 0);
-	mtype = scattertypes[random_low(0, numscattypes)];
+	// assert(numScaTypes != 0);
+	mtidx = mapScaTypes[random_low(0, numScaTypes)];
 	for (xx = theme._tsx1; xx < theme._tsx2; xx++) {
 		for (yy = theme._tsy1; yy < theme._tsy2; yy++) {
 			// assert(dTransVal[xx][yy] == theme._tsTransVal);
 			if (/*dTransVal[xx][yy] == tv &&*/ (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
 				if (random_low(0, rndfrq) == 0) {
-					AddMonster(mtype, xx, yy);
+					AddMonster(mtidx, xx, yy);
 				}
 			}
 		}
