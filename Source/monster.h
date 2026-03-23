@@ -25,7 +25,9 @@ extern "C" {
 extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
+/* The number of monster types on the current level. */
 extern int nummtypes;
+/* The number of skeleton-monster types on the current level. */
 extern BYTE numSkelTypes;
 /* The number of goat-monster types on the current level. */
 extern BYTE numGoatTypes;
