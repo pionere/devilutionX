@@ -1870,15 +1870,13 @@ static void CloseDoor(ObjectStruct* os)
 
 /*
  * check if the given player is in the right position to open a door.
- * @param oi: the index of the door
+ * @param os: the door object
  * @param pnum: the index of the player
  */
-static bool PlrCheckDoor(int oi, int pnum)
+static bool PlrCheckDoor(const ObjectStruct* os, int pnum)
 {
-	ObjectStruct* os;
 	int dx, dy;
 
-	os = &objects[oi];
 	dx = abs(os->_ox - plr._px);
 	dy = abs(os->_oy - plr._py);
 	if (os->_oDoorFlag == ODT_LEFT)
@@ -1888,11 +1886,14 @@ static bool PlrCheckDoor(int oi, int pnum)
 }
 
 static void SyncDoors(const ObjectStruct* os);
-static void OperateDoor(int oi, bool sendmsg)
+static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 {
 	ObjectStruct* os;
 
 	os = &objects[oi];
+	if (pnum >= 0 && !PlrCheckDoor(os, pnum) && !TeleFlag) {
+		return;
+	}
 	// open a closed door
 	if (os->_oVar4 == DOOR_CLOSED) {
 		if (sendmsg)
@@ -1937,7 +1938,7 @@ void MonstCheckDoors(int mx, int my)
 		if (objects[oi]._oDoorFlag == ODT_NONE || objects[oi]._oVar4 != DOOR_CLOSED)
 			continue;
 		// assert(CheckDoor(oi, mnum));
-		OperateDoor(oi, true);
+		OperateObject(-1, oi, false);
 	}
 }
 
@@ -2019,11 +2020,12 @@ static void OperateLever(int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 	os->_oGfxFrame++; // 2
 
-	if (sendmsg)
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+	if (!deltaload) {
+		if (sendmsg)
+			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	if (!deltaload)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
+	}
 	if (!CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
 		return;
 	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
@@ -3187,10 +3189,10 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 	os->_oGfxFrame++; // 2
 
-	if (sendmsg)
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-
 	if (!deltaload) {
+		if (sendmsg)
+			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+
 		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
 			// assert(quests[Q_NAKRUL]._qvar1 < QV_NAKRUL_BOOKOPEN);
 			quests[Q_NAKRUL]._qactive = QUEST_DONE;
@@ -3237,7 +3239,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	if (sendmsg || pnum == -1) // send message if the crux was destroyed by a missile
+	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(LS_BONESP, os->_ox, os->_oy);
@@ -3315,7 +3317,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 {
 	bool sendmsg;
 
-	sendmsg = (pnum == mypnum);
+	sendmsg = (pnum < 0 || pnum == mypnum); // && !deltaload
 	if (!(objects[oi]._oModeFlags & OMF_ACTIVE))
 		return;
 	switch (objects[oi]._otype) {
@@ -3329,8 +3331,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_L2RDOOR:
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		if (TeleFlag || PlrCheckDoor(oi, pnum))
-			OperateDoor(oi, sendmsg);
+		OperateDoor(pnum, oi, sendmsg, TeleFlag);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
@@ -3469,7 +3470,8 @@ void SyncTrapClose(int oi)
 
 void SyncOpObject(/*int pnum,*/ int oi)
 {
-	OperateObject(-1, oi, true);
+	// assert(deltaload);
+	OperateObject(-1, oi, false);
 
 	/*if (!(objects[oi]._oModeFlags & OMF_ACTIVE))
 		return;
