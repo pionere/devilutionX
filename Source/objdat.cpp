@@ -162,26 +162,26 @@ const ObjTypeConv objTypeConv[NUM_OBJVERSIONS + 1] = {
 //                     oBaseType,      oTypeParam1, oTypeParam2, oTypeParam3
                      { 0,              0,           0,           0 }, // trapped chest in random direction
 /*OBJ_TCHEST1*/      { OBJ_CHEST1,     -1,          1,           0 }, // trapped chest in random direction
-/*OBJ_TLCHEST1*/     { OBJ_CHEST1,     1,           1,           0 }, // trapped chest in SW-NE direction
-/*OBJ_TRCHEST1*/     { OBJ_CHEST1,     0,           1,           0 }, // trapped chest in SE-NW direction
-/*OBJ_LCHEST1*/      { OBJ_CHEST1,     1,           -1,          0 }, // chest in SW-NE direction with optional trap
-/*OBJ_RCHEST1*/      { OBJ_CHEST1,     0,           -1,          0 }, // chest in SE-NW direction with optional trap
-/*OBJ_NLCHEST1*/     { OBJ_CHEST1,     1,           0,           0 }, // non-trapped chest in SW-NE
-/*OBJ_NRCHEST1*/     { OBJ_CHEST1,     0,           0,           0 }, // non-trapped chest in SE-NW
+/*OBJ_TLCHEST1*/     { OBJ_CHEST1,     0,           1,           0 }, // trapped chest in SW-NE direction
+/*OBJ_TRCHEST1*/     { OBJ_CHEST1,     1,           1,           0 }, // trapped chest in SE-NW direction
+/*OBJ_LCHEST1*/      { OBJ_CHEST1,     0,           -1,          0 }, // chest in SW-NE direction with optional trap
+/*OBJ_RCHEST1*/      { OBJ_CHEST1,     1,           -1,          0 }, // chest in SE-NW direction with optional trap
+/*OBJ_NLCHEST1*/     { OBJ_CHEST1,     0,           0,           0 }, // non-trapped chest in SW-NE
+/*OBJ_NRCHEST1*/     { OBJ_CHEST1,     1,           0,           0 }, // non-trapped chest in SE-NW
 /*OBJ_TCHEST2*/      { OBJ_CHEST2,     -1,          1,           0 },
-/*OBJ_TLCHEST2*/     { OBJ_CHEST2,     1,           1,           0 },
-/*OBJ_TRCHEST2*/     { OBJ_CHEST2,     0,           1,           0 },
-/*OBJ_LCHEST2*/      { OBJ_CHEST2,     1,           -1,          0 },
-/*OBJ_RCHEST2*/      { OBJ_CHEST2,     0,           -1,          0 },
-/*OBJ_NLCHEST2*/     { OBJ_CHEST2,     1,           0,           0 },
-/*OBJ_NRCHEST2*/     { OBJ_CHEST2,     0,           0,           0 },
+/*OBJ_TLCHEST2*/     { OBJ_CHEST2,     0,           1,           0 },
+/*OBJ_TRCHEST2*/     { OBJ_CHEST2,     1,           1,           0 },
+/*OBJ_LCHEST2*/      { OBJ_CHEST2,     0,           -1,          0 },
+/*OBJ_RCHEST2*/      { OBJ_CHEST2,     1,           -1,          0 },
+/*OBJ_NLCHEST2*/     { OBJ_CHEST2,     0,           0,           0 },
+/*OBJ_NRCHEST2*/     { OBJ_CHEST2,     1,           0,           0 },
 /*OBJ_TCHEST3*/      { OBJ_CHEST3,     -1,          1,           0 },
-/*OBJ_TLCHEST3*/     { OBJ_CHEST3,     1,           1,           0 },
-/*OBJ_TRCHEST3*/     { OBJ_CHEST3,     0,           1,           0 },
-/*OBJ_LCHEST3*/      { OBJ_CHEST3,     1,           -1,          0 },
-/*OBJ_RCHEST3*/      { OBJ_CHEST3,     0,           -1,          0 },
-/*OBJ_NLCHEST3*/     { OBJ_CHEST3,     1,           0,           0 },
-/*OBJ_NRCHEST3*/     { OBJ_CHEST3,     0,           0,           0 },
+/*OBJ_TLCHEST3*/     { OBJ_CHEST3,     0,           1,           0 },
+/*OBJ_TRCHEST3*/     { OBJ_CHEST3,     1,           1,           0 },
+/*OBJ_LCHEST3*/      { OBJ_CHEST3,     0,           -1,          0 },
+/*OBJ_RCHEST3*/      { OBJ_CHEST3,     1,           -1,          0 },
+/*OBJ_NLCHEST3*/     { OBJ_CHEST3,     0,           0,           0 },
+/*OBJ_NRCHEST3*/     { OBJ_CHEST3,     1,           0,           0 },
 /*OBJ_WEAPONRACKN*/  { OBJ_WEAPONRACK, -1,          1,           0 }, // inactive weaponrack in random direction
 /*OBJ_WEAPONRACKL*/  { OBJ_WEAPONRACK, 0,           0,           0 }, // active weaponrack in SW-NE direction
 /*OBJ_WEAPONRACKLN*/ { OBJ_WEAPONRACK, 0,           1,           0 }, // inactive weaponrack in SW-NE direction
