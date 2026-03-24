@@ -23,7 +23,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FLAMETRAP_ACTIVE_FRAME   1
 #define FLAMETRAP_INACTIVE_FRAME 2
 
-int trapid;
+static int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 static int objanimdim[NUM_OFILE_TYPES];
 
@@ -40,17 +40,17 @@ static BYTE numUniqAnims;
 // int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
-int leverid;
+static int leverid;
 //int objectavail[MAXOBJECTS];
 ObjectStruct objects[MAXOBJECTS];
 //bool gbInitObjFlag;
 
 /** Specifies the X-coordinate delta between barrels. */
-const int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+static const int bxadd[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 /** Specifies the Y-coordinate delta between barrels. */
-const int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+static const int byadd[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
 /** Maps from shrine_id to shrine name. */
-const char* const shrinestrs[NUM_SHRINETYPE] = {
+static const char* const shrinestrs[NUM_SHRINETYPE] = {
 	"Hidden",
 	"Gloomy",
 	"Weird",
@@ -87,7 +87,7 @@ const char* const shrinestrs[NUM_SHRINETYPE] = {
  * SHRINETYPE_SINGLE - 1 - sp only
  * SHRINETYPE_MULTI - 2 - mp only
  */
-const BYTE shrineavail[NUM_SHRINETYPE] = {
+static const BYTE shrineavail[NUM_SHRINETYPE] = {
 	SHRINETYPE_ANY,    // SHRINE_HIDDEN
 	SHRINETYPE_ANY,    // SHRINE_GLOOMY
 	SHRINETYPE_ANY,    // SHRINE_WEIRD
@@ -119,7 +119,7 @@ const BYTE shrineavail[NUM_SHRINETYPE] = {
 #endif
 };
 /** Maps from book_id to book name. */
-const char* const BookName[NUM_BOOKS] = {
+static const char* const BookName[NUM_BOOKS] = {
 /*BK_STORY_MAINA_1*/  "The Great Conflict",
 /*BK_STORY_MAINA_2*/  "The Wages of Sin are War",
 /*BK_STORY_MAINA_3*/  "The Tale of the Horadrim",
@@ -147,7 +147,7 @@ const char* const BookName[NUM_BOOKS] = {
 };
 
 #if FLICKER_LIGHT
-const int flickers[32] = {
+static const int flickers[32] = {
 	1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, 0, 0, 1
 	//{ 0, 0, 0, 0, 0, 0, 1, 1, 1 }
 };
