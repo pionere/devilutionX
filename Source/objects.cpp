@@ -2991,7 +2991,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame -= 2;
+	os->_oGfxFrame++;
 	if (deltaload)
 		return;
 
