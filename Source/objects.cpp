@@ -7,6 +7,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define MAX_LVLOUNIQS 8
+
 #define DOOR_CLOSED  0
 #define DOOR_OPEN    1
 #define DOOR_BLOCKED 2
@@ -24,6 +26,17 @@ DEVILUTION_BEGIN_NAMESPACE
 int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 static int objanimdim[NUM_OFILE_TYPES];
+
+/* The animations of the unique objects on the current level. */
+static BYTE* uniqAnimData[MAX_LVLOUNIQS];
+typedef struct ObjAnimStruct {
+	BYTE oaFileNum;
+	BYTE oaTrnIdx;
+} ObjAnimStruct;
+static ObjAnimStruct uniqAnims[MAX_LVLOUNIQS];
+/* The number of unique object-types on the current level. */
+static BYTE numUniqAnims;
+
 // int objectactive[MAXOBJECTS];
 /** Specifies the number of active objects. */
 int numobjects;
@@ -194,6 +207,7 @@ void InitLvlObjects()
 //	int i;
 
 	numobjects = 0;
+	numUniqAnims = 0;
 
 	//memset(objects, 0, sizeof(objects));
 	//memset(objectactive, 0, sizeof(objectactive));
@@ -1207,20 +1221,23 @@ static void AddMagicCircle(int oi)
 static void AddStoryBook(int oi)
 {
 	ObjectStruct* os;
-	BYTE bookframe, idx;
+	BYTE bookframe, trn, idx;
 
 	static_assert((int)DLV_CATHEDRAL4 == 4, "AddStoryBook converts DLV to index with shift I.");
 	static_assert((int)DLV_CATACOMBS4 == 8, "AddStoryBook converts DLV to index with shift II.");
 	static_assert((int)DLV_CAVES4 == 12, "AddStoryBook converts DLV to index with shift III.");
 	idx = (currLvl._dLevelIdx >> 2) - 1;
 	bookframe = quests[Q_DIABLO]._qvar1;
+	// trn = bookframe == 0 ? TRN_UMON_TWH : (bookframe == 1 ? TRN_MON_THIN_V3 : TRN_NONE);
+	trn = bookframe == 0 ? TRN_NONE : (bookframe == 1 ? TRN_MON_THIN_V3 : TRN_UMON_TWH);
 
 	os = &objects[oi];
 	// os->_oVar1 = bookframe;
 	os->_oVar2 = 3 * bookframe + idx + TEXT_BOOK11;      // STORY_BOOK_MSG
 	os->_oVar5 = 3 * bookframe + idx + BK_STORY_MAINA_1; // STORY_BOOK_NAME
-	os->_oGfxFrame = 5 - 2 * bookframe;                  //
-	os->_oVar4 = os->_oGfxFrame + 1;                     // STORY_BOOK_READ_FRAME
+	os->_oUniqAnim = trn;
+	// os->_oGfxFrame = objectdata[OBJ_STORYBOOK].oBaseFrame;
+	os->_oVar4 = objectdata[OBJ_STORYBOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
 }
 
 static void AddTorturedMaleBody(int oi)
@@ -1297,6 +1314,7 @@ int AddObject(int type, int ox, int oy)
 	os->_oBreak = ofd->oBreak;
 	// os->_oDelFlag = FALSE; - unused
 	os->_oTrapChance = 0;
+	os->_oUniqAnim = TRN_NONE;
 	os->_oRndSeed = NextRndSeed();
 	// place object
 	os->_ox = ox;
@@ -1453,6 +1471,42 @@ int AddObject(int type, int ox, int oy)
 			break;
 #endif
 		}
+	}
+	{ // initialize unique-gfx
+	const ObjAnimStruct anim = { ods->ofindex, os->_oUniqAnim };
+	static_assert((int)TRN_NONE == 0, "");
+	if (anim.oaTrnIdx != TRN_NONE) {
+		int i;
+
+		for (i = 0; i < numUniqAnims; i++) {
+			if (uniqAnims[i].oaFileNum == anim.oaFileNum && uniqAnims[i].oaTrnIdx == anim.oaTrnIdx) {
+				break;
+			}
+		}
+
+		if (i >= numUniqAnims) {
+			if (numUniqAnims < MAX_LVLOUNIQS) {
+				char filestr[DATA_ARCHIVE_MAX_PATH];
+				BYTE trn[NUM_COLORS];
+				snprintf(filestr, sizeof(filestr), "Objects\\%s.CEL", objfiledata[anim.oaFileNum].ofName);
+
+
+				BYTE* animData = LoadFileInMem(filestr);
+				LoadTrnWithMem(os->_oUniqAnim, trn);
+				CelApplyTrans(animData, trn);
+
+				i = numUniqAnims;
+				uniqAnims[i] = anim;
+				uniqAnimData[i] = animData;
+				numUniqAnims++;
+			}
+		}
+		static_assert(MAX_LVLOUNIQS < UCHAR_MAX, "");
+		os->_oUniqAnim = i < numUniqAnims ? i + 1 : 0;
+		if (os->_oUniqAnim != 0) {
+			os->_oAnimData = uniqAnimData[os->_oUniqAnim - 1];
+		}
+	}
 	}
 	return oi;
 }
@@ -3598,7 +3652,7 @@ void SyncObjectAnim(int oi)
 	os = &objects[oi];
 	type = os->_otype;
 	ofidx = objectdata[type].ofindex;
-	os->_oAnimData = objanimdata[ofidx];
+	os->_oAnimData = os->_oUniqAnim == 0 ? objanimdata[ofidx] : uniqAnimData[os->_oUniqAnim - 1];
 #if 0
 	os->_oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
 	os->_oAnimWidth = objanimdim[ofidx];

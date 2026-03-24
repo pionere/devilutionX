@@ -86,7 +86,14 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 unsigned CelClippedWidth(const BYTE* pCelBuff);
 
 /**
- * @brief Apply the color swaps to the CL2-frames
+ * @brief Apply the color swaps to the clipped CEL-frames
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param ttbl Palette translation table
+ */
+void CelApplyTrans(BYTE* pCelBuff, const BYTE* ttbl);
+
+/**
+ * @brief Apply the color swaps to the (clipped) CL2-frames
  * @param pCelBuff pointer to CL2-frame offsets and data
  * @param ttbl Palette translation table
  */

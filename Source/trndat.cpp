@@ -96,6 +96,7 @@ const TRNFileData trnfiledata[NUM_TRNS + 1] = {
 /* TRN_UMON_BLF */         { "BLF" },
 /* TRN_UMON_BHSM */        { "BHSM" },
 /* TRN_UMON_BSM */         { "BSM" },
+/* TRN_UMON_TWH */         { "TWH" },
 /* TRN_UMON_WFTD */        { "WFTD" },
 
 /* TRN_PLR_STONE */        { "Stone" },

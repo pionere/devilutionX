@@ -1017,6 +1017,7 @@ Monsters\Monsters\SHBT.TRN
 Monsters\Monsters\SHDR.TRN
 Monsters\Monsters\SKFR.TRN
 Monsters\Monsters\TSPO.TRN
+Monsters\Monsters\TWH.TRN
 Monsters\Monsters\WFTD.TRN
 Monsters\newsfx\Biclopa1.wav
 Monsters\newsfx\Biclopa2.wav
@@ -1475,7 +1476,7 @@ Objects\Banner.CEL
 Objects\Barrel.CEL
 Objects\Barrelex.CEL
 Objects\BCase.CEL
-Objects\Bkslbrnt.CEL
+_Objects\Bkslbrnt.CEL
 _Objects\Bkurns.CEL
 Objects\Bloodfnt.CEL
 Objects\Book1.CEL
