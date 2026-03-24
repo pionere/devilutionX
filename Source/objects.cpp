@@ -2466,7 +2466,7 @@ static void CloseChest(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	if (!(os->_oModeFlags & OMF_ACTIVE))
+	if (os->_oModeFlags & OMF_ACTIVE)
 		return;
 	os->_oModeFlags |= OMF_ACTIVE;
 	if (!(os->_oModeFlags & OMF_RESERVED)) {
