@@ -129,12 +129,12 @@ static const char* const BookName[NUM_BOOKS] = {
 /*BK_STORY_MAINC_1*/  "The Realms Beyond",
 /*BK_STORY_MAINC_2*/  "Tale of the Three",
 /*BK_STORY_MAINC_3*/  "The Black King",
-/*BK_BLOOD*/          "Book of Blood",
-/*BK_ANCIENT*/        "Ancient Book",
-/*BK_STEEL*/          "Steel Tome",
 /*BK_BLIND*/          "Book of the Blind",
-/*BK_MYTHIC*/         "Mythical Book",
+/*BK_BLOOD*/          "Book of Blood",
+/*BK_STEEL*/          "Steel Tome",
+/*BK_ANCIENT*/        "Ancient Book",
 /*BK_VILENESS*/       "Book of Vileness",
+/*BK_MYTHIC*/         "Mythical Book",
 #ifdef HELLFIRE
 	//"Journal: The Ensorcellment",
 /*BK_STORY_NAKRUL_1*/ "Journal: The Meeting",
@@ -1134,19 +1134,24 @@ static void ObjAddBloodBook(int oi)
 
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
-	os->_oVar5 = BK_BLOOD;                   // STORY_BOOK_NAME
 	os->_oVar6 = os->_oGfxFrame + 1;         // LEVER_BOOK_ANIM
 	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
 	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
 	leverid++;
 }
 
-static void ObjAddBook(int oi, int bookidx)
+static void ObjAddBook(int oi)
 {
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oVar5 = bookidx; // STORY_BOOK_NAME
+	static_assert((int)BK_BLOOD == (int)OBJ_BLOODBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums I.");
+	static_assert((int)BK_STEEL == (int)OBJ_STEELTOME - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums II.");
+	static_assert((int)BK_ANCIENT == (int)OBJ_ANCIENTBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums III.");
+	static_assert((int)BK_VILENESS == (int)OBJ_VILEBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums IV.");
+	static_assert((int)BK_MYTHIC == (int)OBJ_MYTHICBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums V.");
+
+	os->_oVar5 = os->_otype - (int)OBJ_BLINDBOOK + (int)BK_BLIND; // STORY_BOOK_NAME
 }
 
 static void ObjAddBook2(int oi, int realtype)
@@ -1425,21 +1430,13 @@ int AddObject(int type, int ox, int oy)
 			break;
 		case OBJ_BLOODBOOK:
 			ObjAddBloodBook(oi);
-			break;
+			/* fall-through */
 		case OBJ_ANCIENTBOOK:
-			ObjAddBook(oi, BK_ANCIENT);
-			break;
 		case OBJ_STEELTOME:
-			ObjAddBook(oi, BK_STEEL);
-			break;
 		case OBJ_BLINDBOOK:
-			ObjAddBook(oi, BK_BLIND);
-			break;
 		case OBJ_MYTHICBOOK:
-			ObjAddBook(oi, BK_MYTHIC);
-			break;
 		case OBJ_VILEBOOK:
-			ObjAddBook(oi, BK_VILENESS);
+			ObjAddBook(oi);
 			break;
 		case OBJ_BOOK2:
 			ObjAddBook2(oi, realType);
