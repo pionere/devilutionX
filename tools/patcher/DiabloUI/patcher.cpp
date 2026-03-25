@@ -104,6 +104,7 @@ typedef enum filenames {
 //	FILE_OBJ_RSHR,
 //	FILE_OBJ_TFOUNTN,
 #ifdef HELLFIRE
+	FILE_OBJ_L5BOOKS,
 	FILE_OBJ_L5LIGHT,
 	FILE_OBJ_L5SARCO,
 	FILE_OBJ_URN,
@@ -312,6 +313,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_RSHR*///    "Objects\\RShrineG.CEL",
 /*FILE_OBJ_TFOUNTN*/// "Objects\\TFountn.CEL",
 #ifdef HELLFIRE
+/*FILE_OBJ_L5BOOKS*/   "Objects\\L5Books.CEL",
 /*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
 /*FILE_OBJ_L5SARCO*/   "Objects\\L5Sarco.CEL",
 /*FILE_OBJ_URN*/       "Objects\\Urn.CEL",
@@ -2033,6 +2035,178 @@ static BYTE* fixObjRShrine(BYTE* celBuf, size_t* celLen)
 }
 #endif
 #ifdef HELLFIRE
+static BYTE* patchCryptBooks(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int FRAME_WIDTH = 96;
+	constexpr int FRAME_HEIGHT = 96;
+	constexpr int RES_FRAME_WIDTH = 46;
+	constexpr int RES_FRAME_HEIGHT = 56;
+
+	if (CelClippedWidth(celBuf) != FRAME_WIDTH) {
+		return celBuf; // assume it is already done
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	const int resCelEntries = srcCelEntries;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+
+		CelClippedDraw(1 * FRAME_WIDTH, FRAME_HEIGHT - 1, celBuf, ((i + 1 == 2 || i + 1 == 5) ? 1 : 0) + 1, FRAME_WIDTH);
+		CelClippedDraw(2 * FRAME_WIDTH, FRAME_HEIGHT - 1, celBuf, ((i + 1 == 2 || i + 1 == 5) ? 0 : 1) + 1, FRAME_WIDTH);
+		if (i + 1 == 3 || i + 1 == 6) {
+			// select the pixels of the stand from frame 1 and 2
+			constexpr int FRAME_BORDER = 2;
+			const int dx = (i + 1 == 3) ? 0 : 2;
+			for (int y = FRAME_BORDER; y < FRAME_HEIGHT - FRAME_BORDER; y++) {
+				for (int x = FRAME_WIDTH - FRAME_BORDER - 1; x >= FRAME_BORDER; x--) {
+					BYTE pixel = gpBuffer[1 * FRAME_WIDTH + x + y * BUFFER_WIDTH];
+					if (pixel != TRANS_COLOR && pixel >= 128) {
+						pixel = gpBuffer[2 * FRAME_WIDTH + x + y * BUFFER_WIDTH];
+						if (pixel != TRANS_COLOR && pixel >= 128) {
+							pixel = TRANS_COLOR;
+						}
+					}
+					gpBuffer[x + dx + y * BUFFER_WIDTH] = pixel;
+				}
+			}
+			if (i + 1 == 6) {
+				// add missing pixels
+				gpBuffer[53 + 60 * BUFFER_WIDTH] = 43;
+				gpBuffer[54 + 59 * BUFFER_WIDTH] = 46;
+				gpBuffer[55 + 59 * BUFFER_WIDTH] = 45;
+				gpBuffer[56 + 58 * BUFFER_WIDTH] = 47;
+				gpBuffer[52 + 61 * BUFFER_WIDTH] = 42;
+				gpBuffer[53 + 61 * BUFFER_WIDTH] = 42;
+				gpBuffer[54 + 60 * BUFFER_WIDTH] = 42;
+				gpBuffer[55 + 60 * BUFFER_WIDTH] = 42;
+				gpBuffer[56 + 59 * BUFFER_WIDTH] = 42;
+				gpBuffer[57 + 59 * BUFFER_WIDTH] = 42;
+				gpBuffer[57 + 58 * BUFFER_WIDTH] = 42;
+				gpBuffer[58 + 58 * BUFFER_WIDTH] = 42;
+				gpBuffer[57 + 57 * BUFFER_WIDTH] = 42;
+				gpBuffer[58 + 57 * BUFFER_WIDTH] = 42;
+				gpBuffer[58 + 56 * BUFFER_WIDTH] = 42;
+				// eliminate unused pixels
+				for (int y = 15 + 40; y < 22 + 40; y++) {
+					for (int x = 12 + 25; x < 21 + 25; x++) {
+						if ((y - 40) - 17 > ((x - 25) - 11) / 2) continue;
+						gpBuffer[x + y * BUFFER_WIDTH] = TRANS_COLOR;
+					}
+				}
+			}
+		} else {
+			// select the pixels of the book from frame 1 or 2
+			for (int y = 0; y < FRAME_HEIGHT; y++) {
+				for (int x = 0; x < FRAME_WIDTH; x++) {
+					BYTE pixel = gpBuffer[1 * FRAME_WIDTH + x + y * BUFFER_WIDTH];
+					if (pixel != TRANS_COLOR && pixel < 128) {
+						pixel = TRANS_COLOR;
+					}
+					gpBuffer[x + y * BUFFER_WIDTH] = pixel;
+				}
+			}
+			if (i + 1 > 3) {
+				// flip horizontally
+				for (int y = 0; y < FRAME_HEIGHT; y++) {
+					for (int x = 0; x < FRAME_WIDTH / 2; x++) {
+						BYTE pixel0 = gpBuffer[x + y * BUFFER_WIDTH];
+						BYTE pixel1 = gpBuffer[FRAME_WIDTH - 1 - x + y * BUFFER_WIDTH];
+						gpBuffer[x + y * BUFFER_WIDTH] = pixel1;
+						gpBuffer[FRAME_WIDTH - 1 - x + y * BUFFER_WIDTH] = pixel0;
+					}
+				}
+
+				if (i + 1 == 4) {
+					// fix the book-spine
+					gpBuffer[62 + 46 * BUFFER_WIDTH] = TRANS_COLOR; // (was color188)
+					gpBuffer[64 + 48 * BUFFER_WIDTH] = TRANS_COLOR; // (was color190)
+					gpBuffer[61 + 49 * BUFFER_WIDTH] = 187; // (was color186)
+					gpBuffer[62 + 49 * BUFFER_WIDTH] = 202; // (was color188)
+					gpBuffer[63 + 49 * BUFFER_WIDTH] = TRANS_COLOR; // (was color254)
+					gpBuffer[64 + 49 * BUFFER_WIDTH] = TRANS_COLOR; // (was color191)
+					gpBuffer[61 + 50 * BUFFER_WIDTH] = 203; // (was color188)
+					gpBuffer[63 + 50 * BUFFER_WIDTH] = 188; // (was color191)
+					gpBuffer[64 + 50 * BUFFER_WIDTH] = TRANS_COLOR; // (was color190)
+					gpBuffer[60 + 51 * BUFFER_WIDTH] = 202; // (was color190)
+					gpBuffer[61 + 51 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[64 + 51 * BUFFER_WIDTH] = TRANS_COLOR; // (was color191)
+					gpBuffer[60 + 52 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[63 + 52 * BUFFER_WIDTH] = TRANS_COLOR; // (was color191)
+					gpBuffer[57 + 53 * BUFFER_WIDTH] = 190; // (was color189)
+					gpBuffer[59 + 53 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[35 + 54 * BUFFER_WIDTH] = 187;
+					gpBuffer[36 + 54 * BUFFER_WIDTH] = 188;
+					gpBuffer[57 + 54 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[58 + 54 * BUFFER_WIDTH] = 202; // (was color190)
+					gpBuffer[62 + 50 * BUFFER_WIDTH] = 202; // (was color254)
+					gpBuffer[54 + 57 * BUFFER_WIDTH] = 202; // (was color190)
+					gpBuffer[50 + 60 * BUFFER_WIDTH] = 202; // (was color190)
+					gpBuffer[53 + 58 * BUFFER_WIDTH] = 188; // (was color190)
+					gpBuffer[57 + 55 * BUFFER_WIDTH] = 188; // (was color190)
+					gpBuffer[62 + 51 * BUFFER_WIDTH] = 188; // (was color190)
+					gpBuffer[35 + 55 * BUFFER_WIDTH] = 190;
+					gpBuffer[36 + 55 * BUFFER_WIDTH] = 203;
+					gpBuffer[37 + 55 * BUFFER_WIDTH] = 203;
+					gpBuffer[35 + 56 * BUFFER_WIDTH] = 189;
+					gpBuffer[56 + 55 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[54 + 56 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[55 + 56 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[53 + 57 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[52 + 58 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[49 + 59 * BUFFER_WIDTH] = 189; // (was color191)
+					gpBuffer[50 + 59 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[51 + 59 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[53 + 59 * BUFFER_WIDTH] = 190; // (was color191)
+					gpBuffer[47 + 60 * BUFFER_WIDTH] = 201; // (was color203)
+					gpBuffer[48 + 60 * BUFFER_WIDTH] = 202; // (was color189)
+					gpBuffer[49 + 60 * BUFFER_WIDTH] = 201; // (was color191)
+					gpBuffer[49 + 61 * BUFFER_WIDTH] = 188; // (was color190)
+					gpBuffer[49 + 62 * BUFFER_WIDTH] = 189; // (was color191)
+				}
+			}
+		}
+
+		// resize the frame
+		for (int y = 0; y < RES_FRAME_HEIGHT; y++) {
+			for (int x = 0; x < RES_FRAME_WIDTH; x++) {
+				gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[(x + (FRAME_WIDTH - RES_FRAME_WIDTH) / 2) + (y + FRAME_HEIGHT - RES_FRAME_HEIGHT) * BUFFER_WIDTH];
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, RES_FRAME_WIDTH, RES_FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
+
+	return resCelBuf;
+}
+
 static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
@@ -8274,6 +8448,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 #endif
 #ifdef HELLFIRE
+	case FILE_OBJ_L5BOOKS:
+	{	// patch object gfx file - L5Book.CEL
+		buf = patchCryptBooks(buf, dwLen);
+	} break;
 	case FILE_OBJ_L5LIGHT:
 	{	// fix object gfx file - L5Light.CEL
 		buf = fixL5Light(buf, dwLen);

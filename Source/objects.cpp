@@ -395,7 +395,6 @@ static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 	oi = AddObject(type, pos.x, pos.y);
 	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
 	leverid++;
-	objects[oi]._oVar6 = objects[oi]._oGfxFrame + 1; // LEVER_BOOK_ANIM
 	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
@@ -686,10 +685,19 @@ static void AddL5StoryBook(int bookidx, int ox, int oy)
 	// assert(oi != -1);
 
 	os = &objects[oi];
+	os->_oVar2 = TEXT_BOOK4 + bookidx;                  // STORY_BOOK_MSG
+	os->_oVar5 = BK_STORY_NAKRUL_1 + bookidx;           // STORY_BOOK_NAME
+}
+
+static void AddL5StoryBook(int oi)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	os->_oUniqAnim = TRN_MON_THIN_V3;
 	// assert(os->_oGfxFrame == objectdata[OBJ_L5BOOK].oBaseFrame);
-	os->_oVar4 = objectdata[OBJ_L5BOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
-	os->_oVar2 = TEXT_BOOK4 + bookidx;                      // STORY_BOOK_MSG
-	os->_oVar5 = BK_STORY_NAKRUL_1 + bookidx;               // STORY_BOOK_NAME
+	os->_oAnimFrame = objectdata[OBJ_L5BOOK].oBaseFrame - 2;
+	os->_oVar4 = objectdata[OBJ_L5BOOK].oBaseFrame - 1; // STORY_BOOK_READ_FRAME
 }
 
 static void AddNakrulBook(int oi)
@@ -715,8 +723,10 @@ static void AddNakrulBook(int oi)
 	bookidx += QNB_BOOK_A;
 
 	os = &objects[oi];
+	os->_oUniqAnim = TRN_MON_THIN_V3;
 	// assert(os->_oGfxFrame == objectdata[OBJ_NAKRULBOOK].oBaseFrame);
-	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
+	os->_oAnimFrame = objectdata[OBJ_NAKRULBOOK].oBaseFrame - 2;
+	os->_oVar4 = objectdata[OBJ_NAKRULBOOK].oBaseFrame - 1; // STORY_BOOK_READ_FRAME
 	os->_oVar2 = TEXT_BOOKA + bookidx - QNB_BOOK_A;         // STORY_BOOK_MSG
 	os->_oVar3 = bookidx;                                   // STORY_BOOK_NAKRUL_IDX
 	os->_oVar5 = BK_NAKRUL_SPELL;                           // STORY_BOOK_NAME
@@ -1134,7 +1144,6 @@ static void ObjAddBloodBook(int oi)
 
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
-	os->_oVar6 = os->_oGfxFrame + 1;         // LEVER_BOOK_ANIM
 	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
 	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
 	leverid++;
@@ -1145,6 +1154,9 @@ static void ObjAddBook(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
+	os->_oAnimFrame = os->_oGfxFrame - 2;
+	os->_oVar6 = os->_oAnimFrame + 1;         // LEVER_BOOK_ANIM
+
 	static_assert((int)BK_BLOOD == (int)OBJ_BLOODBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums I.");
 	static_assert((int)BK_STEEL == (int)OBJ_STEELTOME - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums II.");
 	static_assert((int)BK_ANCIENT == (int)OBJ_ANCIENTBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums III.");
@@ -1169,7 +1181,8 @@ static void ObjAddBook2(int oi, int realtype)
 		dir = random_(147, 2);
 	}
 	os = &objects[oi];
-	os->_oGfxFrame = objectdata[OBJ_BOOK2].oBaseFrame + 3 * dir + (inactive ? 2 : 0);
+	os->_oGfxFrame = objectdata[OBJ_BOOK2].oBaseFrame + 3 * dir;
+	os->_oAnimFrame = inactive ? 0 : (os->_oGfxFrame - 2);
 	// os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_BOOK2].oMissFlag;
 	os->_oModeFlags = inactive ? (objectdata[OBJ_BOOK2].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_BOOK2].oModeFlags;
 	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_BOOK2].oSelFlag;
@@ -1242,7 +1255,8 @@ static void AddStoryBook(int oi)
 	os->_oVar5 = 3 * bookframe + idx + BK_STORY_MAINA_1; // STORY_BOOK_NAME
 	os->_oUniqAnim = trn;
 	// os->_oGfxFrame = objectdata[OBJ_STORYBOOK].oBaseFrame;
-	os->_oVar4 = objectdata[OBJ_STORYBOOK].oBaseFrame + 1; // STORY_BOOK_READ_FRAME
+	os->_oAnimFrame = objectdata[OBJ_STORYBOOK].oBaseFrame - 2;
+	os->_oVar4 = objectdata[OBJ_STORYBOOK].oBaseFrame - 1; // STORY_BOOK_READ_FRAME
 }
 
 static void AddTorturedMaleBody(int oi)
@@ -1463,6 +1477,9 @@ int AddObject(int type, int ox, int oy)
 			AddTorturedFemaleBody(oi);
 			break;
 #ifdef HELLFIRE
+		case OBJ_L5BOOK:
+			AddL5StoryBook(oi);
+			break;
 		case OBJ_NAKRULBOOK:
 			AddNakrulBook(oi);
 			break;
@@ -2102,8 +2119,8 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	// assert(os->_oSelFlag != 0);
 	qn = os->_oVar7; // LEVER_BOOK_QUEST
 
-	if (os->_oGfxFrame != os->_oVar6) { // LEVER_BOOK_ANIM
-		os->_oGfxFrame = os->_oVar6;    // LEVER_BOOK_ANIM
+	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
+		os->_oAnimFrame = os->_oVar6;    // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
 			DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
 		if (qn == Q_BLIND) {
@@ -2966,7 +2983,7 @@ static void OperateSkelBook(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame += 2;
+	os->_oAnimFrame = 0;
 
 	if (deltaload)
 		return;
@@ -3126,7 +3143,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	// assert(os->_oSelFlag != 0);
 
-	os->_oGfxFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 		return;
 	}
@@ -3152,7 +3169,7 @@ static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oSelFlag != 0);
 	// assert(currLvl._dLevelIdx == DLV_CRYPT4);
 
-	os->_oGfxFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
+	os->_oAnimFrame = os->_oVar4; // STORY_BOOK_READ_FRAME
 	if (deltaload) {
 		if (os->_oVar3 == QNB_BOOK_C) { // STORY_BOOK_NAKRUL_IDX
 			if (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN)
@@ -3606,7 +3623,7 @@ static void SyncLever(const ObjectStruct* os)
 
 static void SyncBookLever(const ObjectStruct* os)
 {
-	if (os->_oGfxFrame == os->_oVar6) { // LEVER_BOOK_ANIM
+	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
 		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
 		//if (os->_otype == OBJ_BLINDBOOK) {
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];

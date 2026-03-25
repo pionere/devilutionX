@@ -65,6 +65,13 @@ CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth);
  */
 BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
+/**
+ * @brief calculate the width of the CEL-frame using the clipping information assuming the frames have identical dimensions
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @return the width of the CEL-frame
+ */
+unsigned CelClippedWidth(const BYTE* pCelBuff);
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __CEL_UTIL_H__ */

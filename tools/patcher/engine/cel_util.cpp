@@ -207,4 +207,37 @@ BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB)
 	return cel;
 }
 
+/**
+ * @brief calculate the width of the CEL-frame using the clipping information assuming the frames have identical dimensions
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @return the width of the CEL-frame
+ */
+unsigned CelClippedWidth(const BYTE* pCelBuff)
+{
+	int nDataSize;
+	const BYTE *pRLEBytes;
+
+	pRLEBytes = CelGetFrameClippedAt(pCelBuff, 1, 0, &nDataSize);
+
+	const BYTE *src, *end;
+	int width;
+
+	src = pRLEBytes;
+
+	end = CelGetFrameClippedAt(pCelBuff, 1, 1, &nDataSize);
+
+	unsigned n = 0;
+	while (src < end) {
+		width = (int8_t)*src++;
+		if (width >= 0) {
+			n += width;
+			src += width;
+		} else {
+			n -= width;
+		}
+	}
+
+	return n / CEL_BLOCK_HEIGHT;
+}
+
 DEVILUTION_END_NAMESPACE
