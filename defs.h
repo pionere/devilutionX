@@ -270,10 +270,15 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define ASSUME_UNREACHABLE assert(0);
 #endif
 
-#if INET_MODE
-#define net_assert(x) assert(x)
+#if DEBUG_MODE || DEV_MODE
+#define net_assert(x)     assert(x)
+#define net_check(x, ...) assert(x)
+#elif INET_MODE
+#define net_assert(x)     assert(x)
+#define net_check(x, ...) if (!(x)) { return __VA_ARGS__; }
 #else
-#define net_assert(x) do { (void) sizeof(x); } while(0)
+#define net_assert(x)      do { (void) sizeof(x); } while(0)
+#define net_check(x, ...)  do { (void) sizeof(x); } while(0)
 #endif
 
 #define SwapLE64 SDL_SwapLE64

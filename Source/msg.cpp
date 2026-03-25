@@ -9,6 +9,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define net_check_cmd(x) net_check(x, sizeof(*cmd))
+
 #define MAX_CHUNKS             (NUM_LEVELS + MAX_PLRS + 5)
 #define DELTA_ERROR_DISCONNECT (MAX_CHUNKS + 1)
 #define DELTA_ERROR_FAIL_0     (MAX_CHUNKS + 2)
@@ -2302,7 +2304,7 @@ static unsigned On_WALKXY(const TCmd* pCmd, int pnum)
 	const TCmdLoc* cmd = (const TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
+		net_check_cmd(IN_ACTIVE_AREA(cmd->x, cmd->y));
 		plr._pDestAction = ACTION_WALK;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2370,7 +2372,7 @@ static unsigned On_TURN(const TCmd* pCmd, int pnum)
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		dir = cmd->bParam1;
 
-		net_assert(dir < NUM_DIRS);
+		net_check_cmd(dir < NUM_DIRS);
 		plr._pDestAction = ACTION_TURN;
 		plr._pDestParam1 = dir;
 	}
@@ -2384,14 +2386,14 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 	int8_t sf = su.from;
 	bool sameLvl = currLvl._dLevelIdx == plr._pDunLevel;
 
-	net_assert(sn != SPL_NULL && sn < NUM_SPELLS);
+	net_check(sn != SPL_NULL && sn < NUM_SPELLS, false);
 
 	if (plr._pmode != PM_DEATH && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
 		slvl = plr._pSkillLvl[sn];
 		if (sf == SPLFROM_MANA) {
 			if (slvl == 0)
 				return false;
-			net_assert(plr._pMemSkills & SPELL_MASK(sn));
+			net_check(plr._pMemSkills & SPELL_MASK(sn), false);
 			// always grant skill-activity to prevent de-sync
 			// TODO: add checks to prevent abuse?
 			ma = GetManaAmount(pnum, sn);
@@ -2403,9 +2405,9 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 			}
 		} else if (sf == SPLFROM_ABILITY) {
 			uint64_t mask = SPELL_MASK(plrAbility) | (SPL_ABI_MASK & ~SPELL_MASK(SPL_WALK));
-			net_assert(mask & SPELL_MASK(sn));
+			net_check(mask & SPELL_MASK(sn), false);
 		} else {
-			net_assert((BYTE)sf < NUM_INVELEM);
+			net_check((BYTE)sf < NUM_INVELEM, false);
 			if (!SyncUseItem(pnum, sf, sn))
 				return false;
 		}
@@ -2428,7 +2430,7 @@ static unsigned On_BLOCK(const TCmd* pCmd, int pnum)
 	if (CheckPlrSkillUse(pnum, su)) {
 		dir = cmd->bParam1;
 
-		net_assert(dir < NUM_DIRS);
+		net_check_cmd(dir < NUM_DIRS);
 		plr._pDestAction = ACTION_BLOCK;
 		plr._pDestParam1 = dir;
 	}
@@ -2443,7 +2445,7 @@ static unsigned On_GOTOGETITEM(const TCmd* pCmd, int pnum)
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		ii = cmd->wParam1;
 
-		net_assert(ii < MAXITEMS);
+		net_check_cmd(ii < MAXITEMS);
 		plr._pDestAction = ACTION_PICKUPITEM;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2604,8 +2606,8 @@ static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 
-		net_assert(IN_ACTIVE_AREA(x, y));
-		net_assert(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
+		net_check_cmd(IN_ACTIVE_AREA(x, y));
+		net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
 		plr._pDestAction = spelldata[sn].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[sn].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
 		plr._pDestParam1 = x;
@@ -2627,10 +2629,10 @@ static unsigned On_OPERATEITEM(const TCmd* pCmd, int pnum)
 		BYTE cii = cmd->ioIdx;
 
 	// manipulate the item
-	net_assert(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
-	net_assert((BYTE)from < NUM_INVELEM ||
+	net_check_cmd(skill < NUM_SPELLS && (spelldata[skill].sMissile == MIS_OPITEM || spelldata[skill].sMissile == MIS_REPAIR));
+	net_check_cmd((BYTE)from < NUM_INVELEM ||
 		(from == SPLFROM_ABILITY && skill != SPL_OIL));
-	net_assert(cii < NUM_INVELEM);
+	net_check_cmd(cii < NUM_INVELEM);
 
 	if (skill == SPL_OIL)
 		DoOil(pnum, from, cii);
@@ -2659,9 +2661,9 @@ static unsigned On_OPOBJXY(const TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 
-		net_assert(oi < MAXOBJECTS);
-		net_assert(IN_ACTIVE_AREA(x, y));
-		net_assert(abs(dObject[x][y]) == oi + 1);
+		net_check_cmd(oi < MAXOBJECTS);
+		net_check_cmd(IN_ACTIVE_AREA(x, y));
+		net_check_cmd(abs(dObject[x][y]) == oi + 1);
 
 		plr._pDestAction = ACTION_OPERATE;
 		plr._pDestParam1 = x;
@@ -2687,9 +2689,9 @@ static unsigned On_DISARMXY(const TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 
-		net_assert(oi < MAXOBJECTS);
-		net_assert(IN_ACTIVE_AREA(x, y));
-		net_assert(abs(dObject[x][y]) == oi + 1);
+		net_check_cmd(oi < MAXOBJECTS);
+		net_check_cmd(IN_ACTIVE_AREA(x, y));
+		net_check_cmd(abs(dObject[x][y]) == oi + 1);
 
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = x;
@@ -2710,8 +2712,8 @@ static unsigned On_SKILLMON(const TCmd* pCmd, int pnum)
 		sn = cmd->msu.skill;
 		mnum = cmd->msMnum;
 
-		net_assert(mnum < MAXMONSTERS);
-		net_assert(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
+		net_check_cmd(mnum < MAXMONSTERS);
+		net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
 		plr._pDestAction = spelldata[sn].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[sn].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
 		plr._pDestParam1 = mnum;                // target id
@@ -2731,8 +2733,8 @@ static unsigned On_SKILLPLR(const TCmd* pCmd, int pnum)
 		sn = cmd->psu.skill;
 		tnum = cmd->psPnum;
 
-		net_assert(tnum < MAX_PLRS);
-		net_assert(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
+		net_check_cmd(tnum < MAX_PLRS);
+		net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
 		plr._pDestAction = spelldata[sn].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[sn].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
 		plr._pDestParam1 = tnum;                // target id
@@ -2751,7 +2753,7 @@ static unsigned On_TALKMON(const TCmd* pCmd, int pnum)
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		mnum = cmd->wParam1;
 
-		net_assert(mnum < MAXMONSTERS);
+		net_check_cmd(mnum < MAXMONSTERS);
 		plr._pDestAction = ACTION_TALK;
 		plr._pDestParam1 = mnum;
 	}
@@ -2767,8 +2769,8 @@ static unsigned On_NEWLVL(const TCmd* pCmd, int pnum)
 	bLevel = cmd->bLevel;
 	bPlayers = cmd->bPlayers;
 
-	net_assert(bLevel < NUM_LEVELS);
-	net_assert(bPlayers > 0 && bPlayers <= MAX_PLRS);
+	net_check_cmd(bLevel < NUM_LEVELS);
+	net_check_cmd(bPlayers > 0 && bPlayers <= MAX_PLRS);
 	if (gsDeltaData.ddLevelPlrs[bLevel] == 0) {
 		gsDeltaData.ddLevelPlrs[bLevel] = bPlayers;
 	}
@@ -2796,9 +2798,9 @@ static unsigned On_CREATELVL(const TCmd* pCmd, int pnum)
 		}
 	}
 	bPlayers = cmd->clPlayers;
-	net_assert(bLevel < NUM_LEVELS);
-	net_assert(bPlayers != 0 && bPlayers < MAX_PLRS);
-	net_assert(cmd->clType < NUM_DTYPES);
+	net_check_cmd(bLevel < NUM_LEVELS);
+	net_check_cmd(bPlayers != 0 && bPlayers < MAX_PLRS);
+	net_check_cmd(cmd->clType < NUM_DTYPES);
 	// reset level delta (entities + automap)
 	// - multi
 	static_assert((int)DCMD_INVALID == 0, "On_CREATELVL initializes the items with zero, assuming the invalid command to be zero.");
@@ -2826,7 +2828,7 @@ static unsigned On_USEPORTAL(const TCmd* pCmd, int pnum)
 	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	BYTE idx = cmd->bParam1;
 
-	net_assert(idx < MAX_PLRS);
+	net_check_cmd(idx < MAX_PLRS);
 
 	UseTownPortal(pnum, idx);
 
@@ -3053,7 +3055,7 @@ static unsigned On_SHRINE(const TCmd* pCmd, int pnum)
 	if (plr._pmode != PM_DEATH) {
 		const BYTE type = cmd->shType;
 
-		net_assert(type < NUM_SHRINETYPE);
+		net_check_cmd(type < NUM_SHRINETYPE);
 
 		SyncShrineCmd(pnum, type, cmd->shSeed);
 	}
@@ -3066,7 +3068,7 @@ static unsigned On_SPLITPLRGOLD(const TCmd* pCmd, int pnum)
 	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
 	const BYTE r = cmd->byteParam;
 
-	net_assert(r < NUM_INV_GRID_ELEM);
+	net_check_cmd(r < NUM_INV_GRID_ELEM);
 
 	// if (plr._pmode != PM_DEATH)
 		SyncSplitGold(pnum, r, cmd->wordParam);
@@ -3081,7 +3083,7 @@ static unsigned On_PASTEPLRITEM(const TCmd* pCmd, int pnum)
 	if (plr._pmode != PM_DEATH) {
 		const BYTE r = cmd->bParam1;
 
-		net_assert(r < SLOTXY_BELT_FIRST);
+		net_check_cmd(r < SLOTXY_BELT_FIRST);
 
 		InvPasteItem(pnum, r);
 	}
@@ -3096,7 +3098,7 @@ static unsigned On_PASTEPLRBELTITEM(const TCmd* pCmd, int pnum)
 	if (plr._pmode != PM_DEATH) {
 		const BYTE r = cmd->bParam1;
 
-		net_assert(r < MAXBELTITEMS);
+		net_check_cmd(r < MAXBELTITEMS);
 
 		InvPasteBeltItem(pnum, r);
 	}
@@ -3111,7 +3113,7 @@ static unsigned On_CUTPLRITEM(const TCmd* pCmd, int pnum)
 	if (plr._pmode != PM_DEATH) {
 		const BYTE cii = cmd->bParam1;
 
-		net_assert(cii < NUM_INVELEM);
+		net_check_cmd(cii < NUM_INVELEM);
 
 		InvCutItem(pnum, cii, cmd->bParam2);
 	}
@@ -3124,7 +3126,7 @@ static unsigned On_DELPLRITEM(const TCmd* pCmd, int pnum)
 	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
 	const BYTE cii = cmd->bParam1;
 
-	net_assert(cii < NUM_INVELEM);
+	net_check_cmd(cii < NUM_INVELEM);
 
 	SyncPlrItemRemove(pnum, cii);
 
@@ -3138,7 +3140,7 @@ static unsigned On_USEPLRITEM(const TCmd* pCmd, int pnum)
 	if (plr._pmode != PM_DEATH) {
 		const BYTE cii = cmd->bParam1;
 
-		net_assert(cii < NUM_INVELEM);
+		net_check_cmd(cii < NUM_INVELEM);
 
 		SyncUseItem(pnum, cii, SPL_INVALID);
 	}
@@ -3154,8 +3156,8 @@ static unsigned On_USEPLRMAP(const TCmd* pCmd, int pnum)
 		const BYTE cii = cmd->bParam1;
 		const BYTE mIdx = cmd->bParam2;
 
-		net_assert(cii < NUM_INVELEM);
-		net_assert(mIdx < MAXCAMPAIGNSIZE);
+		net_check_cmd(cii < NUM_INVELEM);
+		net_check_cmd(mIdx < MAXCAMPAIGNSIZE);
 
 		SyncUseMapItem(pnum, cii, mIdx);
 	}
@@ -3190,14 +3192,14 @@ static unsigned On_JOINLEVEL(const TCmd* pCmd, int pnum)
 		return sizeof(*cmd);
 	}
 	// should not be the case if priority is respected
-	net_assert(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel);
+	net_check_cmd(geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel);
 	// if (geBufferMsgs != MSG_LVL_DELTA_WAIT &&
 	//// (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)) {
+		net_check_cmd(cmd->lLevel < NUM_LEVELS);
+		net_check_cmd(IN_ACTIVE_AREA(cmd->px, cmd->py));
 		plr._pLvlChanging = FALSE;
 		//if (plr._pmode != PM_DEATH)
 			plr._pInvincible = 40;
-		net_assert(cmd->lLevel < NUM_LEVELS);
-		net_assert(IN_ACTIVE_AREA(cmd->px, cmd->py));
 		plr._pDunLevel = cmd->lLevel;
 		plr._px = cmd->px;
 		plr._py = cmd->py;
@@ -3296,7 +3298,7 @@ static unsigned On_TELEKINMON(const TCmd* pCmd, int pnum)
 	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
 	int mnum = cmd->wordParam;
 
-	net_assert(mnum < MAXMONSTERS);
+	net_check_cmd(mnum < MAXMONSTERS);
 
 	DoTelekinesis(pnum, monsters[mnum]._mx, monsters[mnum]._my, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
 
@@ -3308,7 +3310,7 @@ static unsigned On_TELEKINPLR(const TCmd* pCmd, int pnum)
 	const TCmdBParam2* cmd = (const TCmdBParam2*)pCmd;
 	int tnum = cmd->bParam2;
 
-	net_assert(tnum < MAX_PLRS);
+	net_check_cmd(tnum < MAX_PLRS);
 
 	DoTelekinesis(pnum, players[tnum]._px, players[tnum]._py, cmd->bParam1, (MTT_PLAYER << 16) | tnum);
 
@@ -3320,7 +3322,7 @@ static unsigned On_TELEKINOBJ(const TCmd* pCmd, int pnum)
 	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
 	int oi = cmd->wordParam;
 
-	net_assert(oi < MAXOBJECTS);
+	net_check_cmd(oi < MAXOBJECTS);
 
 	DoTelekinesis(pnum, objects[oi]._ox, objects[oi]._oy, cmd->byteParam, (MTT_OBJECT << 16) | oi);
 
@@ -3332,9 +3334,9 @@ static unsigned On_ACTIVATEPORTAL(const TCmd* pCmd, int pnum)
 	const TCmdLocBParam1* cmd = (const TCmdLocBParam1*)pCmd;
 	BYTE bLevel = cmd->bParam1;
 
-	net_assert(bLevel != DLV_TOWN);
-	// net_assert(bLevel < NUM_LEVELS);
-	net_assert(IN_ACTIVE_AREA(cmd->x, cmd->y));
+	net_check_cmd(bLevel != DLV_TOWN);
+	// net_check_cmd(bLevel < NUM_LEVELS);
+	net_check_cmd(IN_ACTIVE_AREA(cmd->x, cmd->y));
 
 	static_assert(MAXPORTAL == MAX_PLRS, "On_ACTIVATEPORTAL uses pnum as portal-id.");
 	if (currLvl._dLevelIdx == DLV_TOWN)
@@ -3488,12 +3490,12 @@ static unsigned On_STORE_1(const TCmd* pCmd, int pnum)
 	const TCmdStore1* cmd = (const TCmdStore1*)pCmd;
 	BYTE c = cmd->stCmd, cii = cmd->stLoc;
 
-	net_assert(plr._pmode != PM_DEATH);
-	net_assert(plr._pDunLevel == DLV_TOWN);
+	net_check_cmd(plr._pmode != PM_DEATH);
+	net_check_cmd(plr._pDunLevel == DLV_TOWN);
 	if (c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_PEGBOY) {
-		net_assert(cii < NUM_INVELEM);
+		net_check_cmd(cii < NUM_INVELEM);
 	} else {
-		net_assert(c == STORE_DFORGET && cii < NUM_SPELLS);
+		net_check_cmd(c == STORE_DFORGET && cii < NUM_SPELLS);
 	}
 
 	SyncStoreCmd(pnum, c, cii, cmd->stValue);
@@ -3509,9 +3511,9 @@ static unsigned On_STORE_2(const TCmd* pCmd, int pnum)
 	const TCmdStore2* cmd = (const TCmdStore2*)pCmd;
 	BYTE c = cmd->stCmd;
 
-	net_assert(plr._pmode != PM_DEATH);
-	net_assert(plr._pDunLevel == DLV_TOWN);
-	net_assert(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_PBUY);
+	net_check_cmd(plr._pmode != PM_DEATH);
+	net_check_cmd(plr._pDunLevel == DLV_TOWN);
+	net_check_cmd(c == STORE_HBUY || c == STORE_SBUY || c == STORE_SPBUY || c == STORE_WBUY || c == STORE_PBUY);
 
 	UnPackPkItem(&cmd->item);
 	SyncStoreCmd(pnum, c, MAXITEMS, cmd->stValue);
@@ -3524,8 +3526,8 @@ static unsigned On_QTOWNER(const TCmd* pCmd, int pnum)
 {
 	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
-	net_assert(plr._pmode != PM_DEATH);
-	net_assert(plr._pDunLevel == DLV_TOWN);
+	net_check_cmd(plr._pmode != PM_DEATH);
+	net_check_cmd(plr._pDunLevel == DLV_TOWN);
 
 	SyncTownerQ(pnum, cmd->wParam1);
 
@@ -4456,7 +4458,9 @@ static unsigned On_BLOODPASS(const TCmd* pCmd, int pnum)
 
 static unsigned On_OPENSPIL(const TCmd* pCmd, int pnum)
 {
-	net_assert(quests[Q_BANNER]._qactive != QUEST_NOTAVAIL);
+	const TCmd* cmd = (const TCmd*)pCmd;
+
+	net_check_cmd(quests[Q_BANNER]._qactive != QUEST_NOTAVAIL);
 
 	quests[Q_BANNER]._qactive = QUEST_DONE;
 	quests[Q_BANNER]._qvar1 = QV_BANNER_ATTACK;
@@ -4467,13 +4471,15 @@ static unsigned On_OPENSPIL(const TCmd* pCmd, int pnum)
 		ResyncBanner();
 		//RedoLightAndVision();
 	}
-	return sizeof(*pCmd);
+	return sizeof(*cmd);
 }
 #ifdef HELLFIRE
 static unsigned On_OPENNAKRUL(const TCmd* pCmd, int pnum)
 {
-	// net_assert(quests[Q_NAKRUL]._qactive != QUEST_NOTAVAIL);
-	net_assert(plr._pDunLevel == questlist[Q_NAKRUL]._qdlvl);
+	const TCmd* cmd = (const TCmd*)pCmd;
+
+	// net_check_cmd(quests[Q_NAKRUL]._qactive != QUEST_NOTAVAIL);
+	net_check_cmd(plr._pDunLevel == questlist[Q_NAKRUL]._qdlvl);
 
 	quests[Q_NAKRUL]._qactive = QUEST_DONE;
 	quests[Q_NAKRUL]._qvar1 = QV_NAKRUL_BOOKOPEN;
@@ -4484,7 +4490,7 @@ static unsigned On_OPENNAKRUL(const TCmd* pCmd, int pnum)
 		WakeNakrul();
 		//RedoLightAndVision();
 	}
-	return sizeof(*pCmd);
+	return sizeof(*cmd);
 }
 #endif
 unsigned ParseMsg(int pnum, const TCmd* pCmd)
