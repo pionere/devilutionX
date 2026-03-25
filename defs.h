@@ -166,6 +166,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define SMITH_PREMIUM_ITEMS     8
 #define SMITH_MAX_VALUE         140000
 #define SMITH_MAX_PREMIUM_VALUE 140000
+#define FORGET_MAX_COST         32000
 
 // from diablo 2 beta
 #define MAXRESIST               75

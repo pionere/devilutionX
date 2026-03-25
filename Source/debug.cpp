@@ -915,7 +915,7 @@ void ValidateData()
 		//	app_fatal("Too long(%d) special animation for %s (%d) to finish before relax.", md.moAnimFrameLen[MA_SPECIAL] * md.moAnimFrames[MA_SPECIAL], md.moGfxFile, i);
 		if (md.moAnimFrameLen[MA_SPECIAL] == 0 && md.moAFNum2 != 0)
 			app_fatal("moAFNum2 is set for %s (%d), but it has no special animation.", md.moGfxFile, i);
-		// if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
+		//if ((md.moAnimFrames[MA_SPECIAL] == 0) != (md.moAnimFrameLen[MA_SPECIAL] == 0))
 		//	app_fatal("Inconsistent moAnimFrames/moAnimFrameLen settings for the special animation %s (%d).", md.moGfxFile, i);
 		// check if the special animation is used
 		bool spUsed = false;
@@ -1847,6 +1847,8 @@ void ValidateData()
 				app_fatal("Invalid sBookLvl %d for %s (%d)", sd.sBookLvl, sd.sNameText, i);
 			if (sd.sBookCost <= 0)
 				app_fatal("Invalid sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i);
+			if (sd.sBookCost >= FORGET_MAX_COST)
+				app_fatal("Too high sBookCost %d for %s (%d)", sd.sBookCost, sd.sNameText, i); // required by S_StartDForget (and SyncStoreCmd)
 			bookSpells++;
 		}
 		if (sd.sStaffLvl != SPELL_NA) {

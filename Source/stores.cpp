@@ -68,6 +68,7 @@ constexpr int STORAGE_LIMIT = maxv(maxv(maxv(maxv(NUM_INV_GRID_ELEM + maxv(MAXBE
 #define STORE_BARMAID_EXIT   18
 
 #define STORE_DRUNK_GOSSIP 12
+#define STORE_DRUNK_FORGET 14
 #define STORE_DRUNK_EXIT   18
 
 //#define STORE_PRIEST_GOSSIP 12
@@ -704,6 +705,9 @@ static void S_StartConfirm()
 	case STORE_SREPAIR:
 		msg = "You want this item be repaired for %d gold?";
 		break;
+	case STORE_DFORGET:
+		msg = "You want to forget this skill for %d gold?";
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -807,6 +811,50 @@ static void S_StartSIdentify()
 	S_StartSellOrUpdate(false, StoryIdItem, "You have nothing to identify.", "Identify which item?");
 }
 
+static void S_StartDForget()
+{
+	PlayerStruct* p;
+	int i;
+
+	// S_StartSellOrUpdate
+	storenumh = 0;
+	for (i = 0; i < STORAGE_LIMIT; i++)
+		storehold[i]._itype = ITYPE_NONE;
+
+	p = &myplr;
+	for (i = 0; i < NUM_SPELLS; i++) {
+		if (p->_pMemSkills & SPELL_MASK(i)) {
+			ItemStruct* itm;
+
+			itm = &storehold[storenumh];
+			SetItemSData(itm, IDI_BOOK1);
+			itm->_iSpell = i;
+
+			const int price = FORGET_MAX_COST - spelldata[i].sBookCost;
+			itm->_iStatFlag = p->_pGold >= price;
+			itm->_iIvalue = price;
+
+			storehidx[storenumh] = i;
+			storenumh++;
+		}
+	}
+	const char* title_0 = "You are dumb already.";
+	const char* title_n = "Forget what?";
+	const char* msg;
+	gbWidePanel = true;
+	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
+	if (storenumh == 0) {
+		msg = title_0;
+	} else {
+		// stextsidx = 0;
+		S_ScrollHold();
+
+		msg = title_n;
+	}
+	AddStoreFrame(msg);
+}
+
 static void S_StartIdShow()
 {
 	//assert(stextshold == STORE_SIDENTIFY);
@@ -895,6 +943,7 @@ static void S_StartDrunk()
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_DRUNK_GOSSIP, true, talkname[TOWN_DRUNK], COL_BLUE, true);
+	AddSText(0, STORE_DRUNK_FORGET, true, "Forget", COL_WHITE, true);
 	AddSText(0, STORE_DRUNK_EXIT, true, "Say Goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1006,6 +1055,9 @@ void StartStore(int s)
 		break;
 	case STORE_DRUNK:
 		S_StartDrunk();
+		break;
+	case STORE_DFORGET:
+		S_StartDForget();
 		break;
 	case STORE_BARMAID:
 		S_StartBarMaid();
@@ -1384,6 +1436,10 @@ void STextESC()
 	case STORE_ERRAND:
 		StartStore(STORE_PRIEST);
 		break;
+	case STORE_DFORGET:
+		StartStore(STORE_DRUNK);
+		stextsel = STORE_DRUNK_FORGET;
+		break;
 	case STORE_WAIT:
 		break;
 	default:
@@ -1720,6 +1776,16 @@ static bool SyncSellItem(int pnum, int cii, int cost)
 	return true;
 }
 
+static void RemovePlrSkill(PlrSkillStruct &skill, const PlrSkillUse& su)
+{
+	if (skill._psAttack == su) {
+		skill._psAttack = { SPL_NULL, 0 };
+	}
+	if (skill._psMove == su) {
+		skill._psMove = { SPL_NULL, 0 };
+	}
+}
+
 void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 {
 	ItemStruct* pi;
@@ -1790,6 +1856,21 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		//lastshold = STORE_PEGBOY;
 		lastshold = STORE_PBUY;
 		break;
+	case STORE_DFORGET: {
+		ii = price;
+		price = FORGET_MAX_COST - spelldata[price].sBookCost;
+		if (!TakePlrsMoney(pnum, price))
+			return;
+		plr._pMemSkills &= ~SPELL_MASK(ii);
+		// ValidateActionSkills(pnum, RSPLTYPE_SPELL, ~SPELL_MASK(ii));
+		const PlrSkillUse su = { (BYTE)ii, RSPLTYPE_SPELL };
+		RemovePlrSkill(plr._pMainSkill, su);
+		RemovePlrSkill(plr._pAltSkill, su);
+		for (int i = 0; i < lengthof(plr._pSkillHotKey); i++) {
+			RemovePlrSkill(plr._pSkillHotKey[i], su);
+			RemovePlrSkill(plr._pAltSkillHotKey[i], su);
+		}
+	} break;
 	}
 
 	CalcPlrInv(pnum, true);
@@ -2039,6 +2120,11 @@ static void StoryIdItem(int i)
 	SendStoreCmd1(i, STORE_SIDENTIFY, STORE_ID_PRICE);
 }
 
+static void DrunkForget(int idx)
+{
+	SendStoreCmd1(idx, STORE_DFORGET, storeitem._iSpell);
+}
+
 static void S_ConfirmEnter()
 {
 	int lastshold = stextshold;
@@ -2077,6 +2163,9 @@ static void S_ConfirmEnter()
 			break;
 		case STORE_SPBUY:
 			func = SmithBuyPItem;
+			break;
+		case STORE_DFORGET:
+			func = DrunkForget;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -2154,6 +2243,11 @@ static void S_SIDEnter()
 	S_UpdateEnter(STORE_SIDENTIFY);
 }
 
+static void S_DForgetEnter()
+{
+	S_UpdateEnter(STORE_DFORGET);
+}
+
 static void S_TalkEnter()
 {
 	if (stextsel == 22) {
@@ -2227,6 +2321,9 @@ static void S_DrunkEnter()
 		stextshold = STORE_DRUNK;
 		talker = TOWN_DRUNK;
 		StartStore(STORE_GOSSIP);
+		break;
+	case STORE_DRUNK_FORGET:
+		StartStore(STORE_DFORGET);
 		break;
 	case STORE_DRUNK_EXIT:
 		stextflag = STORE_NONE;
@@ -2348,6 +2445,9 @@ void STextEnter()
 		break;
 	case STORE_DRUNK:
 		S_DrunkEnter();
+		break;
+	case STORE_DFORGET:
+		S_DForgetEnter();
 		break;
 	case STORE_TAVERN:
 		S_TavernEnter();

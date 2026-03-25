@@ -3490,8 +3490,11 @@ static unsigned On_STORE_1(const TCmd* pCmd, int pnum)
 
 	net_assert(plr._pmode != PM_DEATH);
 	net_assert(plr._pDunLevel == DLV_TOWN);
-	net_assert(c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_PEGBOY);
-	net_assert(cii < NUM_INVELEM);
+	if (c == STORE_SSELL || c == STORE_SIDENTIFY || c == STORE_SREPAIR || c == STORE_WRECHARGE || c == STORE_PEGBOY) {
+		net_assert(cii < NUM_INVELEM);
+	} else {
+		net_assert(c == STORE_DFORGET && cii < NUM_SPELLS);
+	}
 
 	SyncStoreCmd(pnum, c, cii, cmd->stValue);
 
