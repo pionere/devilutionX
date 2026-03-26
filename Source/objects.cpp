@@ -1089,7 +1089,7 @@ static void AddShrine(int oi)
 	}*/
 }
 #if 0
-static void ObjAddRndSeed(int oi)
+static void AddObjRndSeed(int oi)
 {
 	objects[oi]._oRndSeed = NextRndSeed();
 }
@@ -1138,7 +1138,7 @@ static void AddWeaponRack(int oi, int realtype)
 	//os->_oRndSeed = NextRndSeed();
 }
 
-static void ObjAddBloodBook(int oi)
+static void AddBloodBook(int oi)
 {
 	ObjectStruct* os;
 
@@ -1149,7 +1149,7 @@ static void ObjAddBloodBook(int oi)
 	leverid++;
 }
 
-static void ObjAddBook(int oi)
+static void AddBook(int oi)
 {
 	ObjectStruct* os;
 
@@ -1157,16 +1157,16 @@ static void ObjAddBook(int oi)
 	os->_oAnimFrame = os->_oGfxFrame - 2;
 	os->_oVar6 = os->_oAnimFrame + 1;         // LEVER_BOOK_ANIM
 
-	static_assert((int)BK_BLOOD == (int)OBJ_BLOODBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums I.");
-	static_assert((int)BK_STEEL == (int)OBJ_STEELTOME - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums II.");
-	static_assert((int)BK_ANCIENT == (int)OBJ_ANCIENTBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums III.");
-	static_assert((int)BK_VILENESS == (int)OBJ_VILEBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums IV.");
-	static_assert((int)BK_MYTHIC == (int)OBJ_MYTHICBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "ObjAddBook requires ordered enums V.");
+	static_assert((int)BK_BLOOD == (int)OBJ_BLOODBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums I.");
+	static_assert((int)BK_STEEL == (int)OBJ_STEELTOME - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums II.");
+	static_assert((int)BK_ANCIENT == (int)OBJ_ANCIENTBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums III.");
+	static_assert((int)BK_VILENESS == (int)OBJ_VILEBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums IV.");
+	static_assert((int)BK_MYTHIC == (int)OBJ_MYTHICBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums V.");
 
 	os->_oVar5 = os->_otype - (int)OBJ_BLINDBOOK + (int)BK_BLIND; // STORY_BOOK_NAME
 }
 
-static void ObjAddBook2(int oi, int realtype)
+static void AddBook2(int oi, int realtype)
 {
 	ObjectStruct* os;
 	int8_t inactive = 0;
@@ -1433,7 +1433,7 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_PODEX:
 #endif
 		case OBJ_PEDESTAL:
-			ObjAddRndSeed(oi);
+			AddObjRndSeed(oi);
 			break;
 #endif
 		case OBJ_ARMORSTAND:
@@ -1443,17 +1443,17 @@ int AddObject(int type, int ox, int oy)
 			AddWeaponRack(oi, realType);
 			break;
 		case OBJ_BLOODBOOK:
-			ObjAddBloodBook(oi);
+			AddBloodBook(oi);
 			/* fall-through */
 		case OBJ_ANCIENTBOOK:
 		case OBJ_STEELTOME:
 		case OBJ_BLINDBOOK:
 		case OBJ_MYTHICBOOK:
 		case OBJ_VILEBOOK:
-			ObjAddBook(oi);
+			AddBook(oi);
 			break;
 		case OBJ_BOOK2:
-			ObjAddBook2(oi, realType);
+			AddBook2(oi, realType);
 			break;
 		case OBJ_GOATSHRINE:
 		case OBJ_CAULDRON:
@@ -1461,7 +1461,7 @@ int AddObject(int type, int ox, int oy)
 			break;
 		//case OBJ_BLOODFTN:
 		//case OBJ_TEARFTN:
-		//	ObjAddRndSeed(oi);
+		//	AddObjRndSeed(oi);
 		//	break;
 		case OBJ_MCIRCLE1:
 		case OBJ_MCIRCLE2:
