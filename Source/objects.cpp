@@ -1578,6 +1578,11 @@ static void FindClosestPlr(int* dx, int* dy)
 	}
 }
 
+static void ObjLvrChangeMap(const ObjectStruct* os/*, bool hasNewObjPiece*/)
+{
+	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, hasNewObjPiece*/); // LEVER_EFFECT
+}
+
 static void Obj_Circle(int oi)
 {
 	ObjectStruct* os;
@@ -1596,7 +1601,7 @@ static void Obj_Circle(int oi)
 		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
 				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CENTRALOPEN;
-				// DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, true*/); // LEVER_EFFECT
+				// ObjLvrChangeMap(os/*, true*/);
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
 			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
@@ -2000,7 +2005,7 @@ static bool CheckLeverGroup(int type, int lvrIdx)
 		os = &objects[i]; // objects[objectactive[i]]
 		if (os->_otype != type) // OBJ_SWITCHSKL, OBJ_LEVER, OBJ_VILEBOOK
 			continue;
-		if (lvrIdx != os->_oVar8 || !(os->_oModeFlags & OMF_ACTIVE)) // LEVER_INDEX
+		if (os->_oVar8 != lvrIdx || !(os->_oModeFlags & OMF_ACTIVE)) // LEVER_INDEX
 			continue;
 		return false;
 	}
@@ -2042,7 +2047,7 @@ static void OperateLever(int oi, bool sendmsg)
 	}
 	if (!CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
 		return;
-	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+	ObjLvrChangeMap(os/*, false*/);
 }
 
 static void OperateVileBook(int pnum, int oi, bool sendmsg)
@@ -2071,7 +2076,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	os->_oSelFlag = 0;
 	os->_oGfxFrame++; // 5
 
-	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+	ObjLvrChangeMap(os/*, false*/);
 	//for (i = 0; i < numobjects; i++)
 	//	SyncObjectAnim(objectactive[i]);
 }
@@ -2122,7 +2127,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	if (os->_oAnimFrame != os->_oVar6) { // LEVER_BOOK_ANIM
 		os->_oAnimFrame = os->_oVar6;    // LEVER_BOOK_ANIM
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
-			DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4 /*, qn == Q_BLIND*/); // LEVER_EFFECT
+			ObjLvrChangeMap(os/*, qn == Q_BLIND*/);
 		if (qn == Q_BLIND) {
 			if (!deltaload)
 				SpawnUnique(UITEM_OPTAMULET, 2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5, sendmsg ? ICM_SEND : ICM_DUMMY);
@@ -3242,9 +3247,9 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	os->_oMissFlag = TRUE;
 	os->_oBreak = OBM_BROKEN;
 
-	triggered = CheckCrux(os->_oVar8); // LEVER_EFFECT
+	triggered = CheckCrux(os->_oVar8); // LEVER_INDEX
 	if (triggered)
-		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/);
+		ObjLvrChangeMap(os/*, false*/);
 
 	if (deltaload) {
 		os->_oAnimFrame = os->_oAnimLen;
@@ -3612,13 +3617,13 @@ void SyncOpObject(/*int pnum,*/ int oi)
 static void SyncLever(const ObjectStruct* os)
 {
 	if (CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
-		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+		ObjLvrChangeMap(os/*, false*/);
 }
 
 static void SyncBookLever(const ObjectStruct* os)
 {
 	if (os->_oAnimFrame == os->_oVar6) { // LEVER_BOOK_ANIM
-		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, os->_otype == OBJ_BLINDBOOK*/); // LEVER_EFFECT
+		ObjLvrChangeMap(os/*, os->_otype == OBJ_BLINDBOOK*/);
 		//if (os->_otype == OBJ_BLINDBOOK) {
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
 			//DRLG_MRectTrans(os->_oVar1 + 2, os->_oVar2 + 2, os->_oVar1 + 4, os->_oVar2 + 4, tv); // LEVER_EFFECT
@@ -3629,8 +3634,8 @@ static void SyncBookLever(const ObjectStruct* os)
 
 static void SyncCrux(const ObjectStruct* os)
 {
-	if (CheckCrux(os->_oVar8)) // LEVER_EFFECT
-		DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, false*/); // LEVER_EFFECT
+	if (CheckCrux(os->_oVar8)) // LEVER_INDEX
+		ObjLvrChangeMap(os/*, false*/);
 }
 
 #ifdef HELLFIRE
