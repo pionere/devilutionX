@@ -599,7 +599,7 @@ static void Theme_Treasure(int themeId)
  */
 static void Theme_Library(int themeId)
 {
-	int xx, yy, type;
+	int xx, yy, dx, dy, type;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
 	BYTE librnd;
 	const ThemeStruct &theme = themes[themeId];
@@ -607,15 +607,13 @@ static void Theme_Library(int themeId)
 
 	xx = theme._tsObjX;
 	yy = theme._tsObjY;
-	if (theme._tsObjVar1 != 0) {
-		AddObject(OBJ_CANDLE2, xx - 1, yy);
-		AddObject(OBJ_BOOKCASER, xx, yy);
-		AddObject(OBJ_CANDLE2, xx + 1, yy);
-	} else {
-		AddObject(OBJ_CANDLE2, xx, yy - 1);
-		AddObject(OBJ_BOOKCASEL, xx, yy);
-		AddObject(OBJ_CANDLE2, xx, yy + 1);
-	}
+	dx = theme._tsObjVar1;
+	dy = 1 - dx;
+	static_assert(OBJ_BOOKCASEL + 1 == OBJ_BOOKCASER, "Theme_Library depends on the order of OBJ_BOOKCASEL/R");
+	type = OBJ_BOOKCASEL + dx;
+	AddObject(OBJ_CANDLE2, xx - dx, yy - dy);
+	AddObject(type, xx, yy);
+	AddObject(OBJ_CANDLE2, xx + dx, yy + dy);
 
 	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?
 	static_assert(OBJ_BOOK2L - 2 == OBJ_BOOK2R, "Theme_Library depends on the order of OBJ_BOOK2L/R");
