@@ -2076,7 +2076,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	//	SyncObjectAnim(objectactive[i]);
 }
 
-static void OperateAncientTome(int pnum, int oi, bool sendmsg)
+static void OperateAncientBook(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -2253,7 +2253,7 @@ static void OperateMushPatch(int oi, bool sendmsg)
 	PickItemFromObject(IDI_MUSHROOM, oi, sendmsg);
 }
 
-static void OperateInnSignChest(int pnum, int oi, bool sendmsg)
+static void OperateSignChest(int pnum, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -2975,7 +2975,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	}
 }
 
-static void OperateSkelBook(int oi, bool sendmsg)
+static void OperateBook2(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -3352,7 +3352,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateLever(oi, sendmsg);
 		break;
 	case OBJ_ANCIENTBOOK:
-		OperateAncientTome(pnum, oi, sendmsg);
+		OperateAncientBook(pnum, oi, sendmsg);
 		break;
 	case OBJ_VILEBOOK:
 		OperateVileBook(pnum, oi, sendmsg);
@@ -3400,7 +3400,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateShrine(pnum, oi, sendmsg);
 		break;
 	case OBJ_BOOK2:
-		OperateSkelBook(oi, sendmsg);
+		OperateBook2(oi, sendmsg);
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
@@ -3446,7 +3446,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateLazStand(oi, sendmsg);
 		break;
 	case OBJ_SIGNCHEST:
-		OperateInnSignChest(pnum, oi, sendmsg);
+		OperateSignChest(pnum, oi, sendmsg);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -3492,28 +3492,22 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	switch (objects[oi]._otype) {
 	case OBJ_L1LDOOR:
 	case OBJ_L1RDOOR:
-		OperateL1Door(oi, false);
-		break;
 #ifdef HELLFIRE
 	case OBJ_L5LDOOR:
 	case OBJ_L5RDOOR:
-		OperateL5Door(oi, false);
-		break;
 #endif
 	case OBJ_L2LDOOR:
 	case OBJ_L2RDOOR:
-		OperateL2Door(oi, false);
-		break;
 	case OBJ_L3LDOOR:
 	case OBJ_L3RDOOR:
-		OperateL3Door(oi, false);
+		OperateDoor(pnum, oi, false);
 		break;
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
 		break;
 	case OBJ_ANCIENTBOOK:
-		OperateAncientTome(pnum, oi, false);
+		OperateAncientBook(pnum, oi, false);
 		break;
 	case OBJ_VILEBOOK:
 		OperateVileBook(pnum, oi, false);
@@ -3561,7 +3555,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		OperateShrine(pnum, oi, false);
 		break;
 	case OBJ_BOOK2:
-		OperateSkelBook(oi, false);
+		OperateBook2(oi, false);
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
@@ -3607,7 +3601,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		OperateLazStand(oi, false);
 		break;
 	case OBJ_SIGNCHEST:
-		OperateInnSignChest(pnum, oi, false);
+		OperateSignChest(pnum, oi, false);
 		break;
 	default:
 		ASSUME_UNREACHABLE
