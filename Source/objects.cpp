@@ -2068,7 +2068,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame++; // 5
+	os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_READ_ANIM
 
 	ObjLvrChangeMap(os/*, false*/);
 	//for (i = 0; i < numobjects; i++)
@@ -2085,7 +2085,7 @@ static void OperateAncientBook(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame++; // 2
+	os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_READ_ANIM
 
 	if (deltaload)
 		return;
