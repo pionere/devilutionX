@@ -381,23 +381,6 @@ static void ObjAddCandles()
 	AddObject(OBJ_CANDLE2, tx + 1, ty + 2);
 }
 
-static void ObjAddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
-{
-	int oi;
-	POS32 pos;
-	ObjectStruct* os;
-
-	pos = RndLoc5x5();
-	if (pos.x == 0)
-		return;
-
-	oi = AddObject(type, pos.x, pos.y);
-	os = &objects[oi];
-	SetObjMapRange(os, x1, y1, x2, y2, leverid);
-	leverid++;
-	os->_oVar7 = qn; // LEVER_BOOK_QUEST
-}
-
 // generate numobjs groups of barrels
 static void InitRndBarrels(int numobjs, int otype)
 {
@@ -816,13 +799,13 @@ void InitObjects()
 		}
 	}
 	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-		ObjAddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
+		InitRndLocObj5x5(OBJ_STEELTOME);
 	}
 	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-		ObjAddBookLever(OBJ_MYTHICBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
+		InitRndLocObj5x5(OBJ_MYTHICBOOK);
 	}
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
-		ObjAddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
+		InitRndLocObj5x5(OBJ_BLINDBOOK);
 	}
 	if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
 		ObjSetSKingRanges();
@@ -1138,6 +1121,12 @@ static void AddWeaponRack(int oi, int realtype)
 	//os->_oRndSeed = NextRndSeed();
 }
 
+static inline void AddLeverEffect(ObjectStruct* os, int x1, int y1, int x2, int y2)
+{
+	SetObjMapRange(os, x1, y1, x2, y2, leverid);
+	leverid++;
+}
+
 static void AddBook(int oi)
 {
 	ObjectStruct* os;
@@ -1155,9 +1144,20 @@ static void AddBook(int oi)
 	os->_oVar5 = os->_otype - (int)OBJ_BLINDBOOK + (int)BK_BLIND; // STORY_BOOK_NAME
 	if (os->_oVar5 == BK_BLOOD) {
 		//os->_oRndSeed = NextRndSeed();
-		os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
-		SetObjMapRange(os, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
-		leverid++;
+		os->_oVar7 = Q_BLOOD;           // LEVER_BOOK_QUEST
+		AddLeverEffect(os, 0, 0, 0, 0); // NULL_LVR_EFFECT
+	} else if (os->_oVar5 == BK_STEEL) {
+		// assert(pSetPieces[0]._sptype == SPT_WARLORD);
+		os->_oVar7 = Q_WARLORD;         // LEVER_BOOK_QUEST
+		AddLeverEffect(os, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5);
+	} else if (os->_oVar5 == BK_MYTHIC) {
+		// assert(pSetPieces[0]._sptype == SPT_BCHAMB);
+		os->_oVar7 = Q_BCHAMB;          // LEVER_BOOK_QUEST
+		AddLeverEffect(os, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5);
+	} else if (os->_oVar5 == BK_BLIND) {
+		// assert(pSetPieces[0]._sptype == SPT_BLIND);
+		os->_oVar7 = Q_BLIND;           // LEVER_BOOK_QUEST
+		AddLeverEffect(os, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10);
 	}
 }
 
