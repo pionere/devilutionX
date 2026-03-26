@@ -4507,6 +4507,7 @@ typedef enum quest_var1_state {
 } quest_var1_state;
 
 typedef enum book_id {
+	BK_LECTERN,
 	BK_STORY_MAINA_1,
 	BK_STORY_MAINA_2,
 	BK_STORY_MAINA_3,

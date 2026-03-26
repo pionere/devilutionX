@@ -120,6 +120,7 @@ static const BYTE shrineavail[NUM_SHRINETYPE] = {
 };
 /** Maps from book_id to book name. */
 static const char* const BookName[NUM_BOOKS] = {
+/*BK_LECTERN*/        "Lectern",
 /*BK_STORY_MAINA_1*/  "The Great Conflict",
 /*BK_STORY_MAINA_2*/  "The Wages of Sin are War",
 /*BK_STORY_MAINA_3*/  "The Tale of the Horadrim",
@@ -1187,6 +1188,7 @@ static void AddBook2(int oi, int realtype)
 	os->_oModeFlags = inactive ? (objectdata[OBJ_BOOK2].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_BOOK2].oModeFlags;
 	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_BOOK2].oSelFlag;
 	//os->_oRndSeed = NextRndSeed();
+	os->_oVar5 = BK_LECTERN; // STORY_BOOK_NAME
 }
 
 static void AddCauldronGoatShrine(int oi)
@@ -3796,9 +3798,6 @@ void GetObjectStr(int oi)
 	case OBJ_BOOKCASER:
 		txt0 = "Bookcase";
 		break;
-	case OBJ_BOOK2:
-		txt0 = "Lectern";
-		break;
 	case OBJ_BLOODFTN:
 		txt0 = "Blood Fountain";
 		break;
@@ -3833,6 +3832,7 @@ void GetObjectStr(int oi)
 	case OBJ_BLINDBOOK:
 	case OBJ_STEELTOME:
 	case OBJ_STORYBOOK:
+	case OBJ_BOOK2:
 #ifdef HELLFIRE
 	case OBJ_L5BOOK:
 	case OBJ_NAKRULBOOK:
