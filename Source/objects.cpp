@@ -220,11 +220,8 @@ void InitLvlObjects()
 	leverid = 1;
 }
 
-static void SetObjMapRange(int oi, int x1, int y1, int x2, int y2, int v)
+static void SetObjMapRange(ObjectStruct* os, int x1, int y1, int x2, int y2, int v)
 {
-	ObjectStruct* os;
-
-	os = &objects[oi];
 	// LEVER_EFFECT
 	os->_oVar1 = x1;
 	os->_oVar2 = y1;
@@ -388,15 +385,17 @@ static void ObjAddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 {
 	int oi;
 	POS32 pos;
+	ObjectStruct* os;
 
 	pos = RndLoc5x5();
 	if (pos.x == 0)
 		return;
 
 	oi = AddObject(type, pos.x, pos.y);
-	SetObjMapRange(oi, x1, y1, x2, y2, leverid);
+	os = &objects[oi];
+	SetObjMapRange(os, x1, y1, x2, y2, leverid);
 	leverid++;
-	objects[oi]._oVar7 = qn; // LEVER_BOOK_QUEST
+	os->_oVar7 = qn; // LEVER_BOOK_QUEST
 }
 
 // generate numobjs groups of barrels
@@ -626,56 +625,56 @@ static void LoadMapSetObjects(int idx)
 	//gbInitObjFlag = false; -- setpieces, setmap levers?
 }
 
-static int ObjIndex(int x, int y)
+static ObjectStruct* ObjectAt(int x, int y)
 {
 	int oi = dObject[x][y];
 #if DEBUG_MODE
 	if (oi == 0) {
-		app_fatal("ObjIndex: Active object not found at (%d,%d)", x, y);
+		app_fatal("ObjectAt: Active object not found at (%d,%d)", x, y);
 	}
 #endif
 	oi = oi >= 0 ? oi - 1 : -(oi + 1);
-	return oi;
+	return &objects[oi];
 }
 
 static void ObjSetSKingRanges()
 {
-	SetObjMapRange(ObjIndex(DBORDERX + 48, DBORDERY + 18), 20, 7, 23, 10, 1);
-	SetObjMapRange(ObjIndex(DBORDERX + 48, DBORDERY + 43), 20, 14, 21, 16, 2);
-	SetObjMapRange(ObjIndex(DBORDERX + 11, DBORDERY + 21), 8, 1, 15, 11, 3);
-	SetObjMapRange(ObjIndex(DBORDERX + 30, DBORDERY + 19), 8, 1, 15, 11, 3);
-	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 37), 8, 1, 15, 11, 3);
-	SetObjMapRange(ObjIndex(DBORDERX + 11, DBORDERY + 37), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 48, DBORDERY + 18), 20, 7, 23, 10, 1);
+	SetObjMapRange(ObjectAt(DBORDERX + 48, DBORDERY + 43), 20, 14, 21, 16, 2);
+	SetObjMapRange(ObjectAt(DBORDERX + 11, DBORDERY + 21), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 30, DBORDERY + 19), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 33, DBORDERY + 37), 8, 1, 15, 11, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 11, DBORDERY + 37), 8, 1, 15, 11, 3);
 }
 
 static void ObjSetBChamRanges()
 {
-	SetObjMapRange(ObjIndex(DBORDERX + 21, DBORDERY + 14), 17, 0, 21, 5, 1);
-	SetObjMapRange(ObjIndex(DBORDERX + 21, DBORDERY + 30), 13, 0, 16, 5, 2);
+	SetObjMapRange(ObjectAt(DBORDERX + 21, DBORDERY + 14), 17, 0, 21, 5, 1);
+	SetObjMapRange(ObjectAt(DBORDERX + 21, DBORDERY + 30), 13, 0, 16, 5, 2);
 }
 
 static void ObjSetVileRanges()
 {
-	SetObjMapRange(ObjIndex(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
-	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
-	//SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
+	SetObjMapRange(ObjectAt(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
+	//SetObjMapRange(ObjectAt(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
 }
 
 /*static void ObjSetMazeRanges()
 {
-	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 25), 0?, 0?, 45?, ?, 1);
-	SetObjMapRange(ObjIndex(DBORDERX + 15, DBORDERY + 51), ?, ?, ?, ?, ?);
-	SetObjMapRange(ObjIndex(DBORDERX + 27, DBORDERY + 51), ?, ?, ?, ?, ?);
-	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 57), ?, ?, ?, ?, ?);
-	SetObjMapRange(ObjIndex(DBORDERX + 79, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjectAt(DBORDERX + 33, DBORDERY + 25), 0?, 0?, 45?, ?, 1);
+	SetObjMapRange(ObjectAt(DBORDERX + 15, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjectAt(DBORDERX + 27, DBORDERY + 51), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjectAt(DBORDERX + 33, DBORDERY + 57), ?, ?, ?, ?, ?);
+	SetObjMapRange(ObjectAt(DBORDERX + 79, DBORDERY + 51), ?, ?, ?, ?, ?);
 }*/
 
 static void ObjSetDiabRanges()
 {
-	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[0]._spx + 5, DBORDERY + 2 * pSetPieces[0]._spy + 5), pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1);
-	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[1]._spx + 13, DBORDERY + 2 * pSetPieces[1]._spy + 10), pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2);
-	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 2), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
-	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 14), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 2 * pSetPieces[0]._spx + 5, DBORDERY + 2 * pSetPieces[0]._spy + 5), pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1);
+	SetObjMapRange(ObjectAt(DBORDERX + 2 * pSetPieces[1]._spx + 13, DBORDERY + 2 * pSetPieces[1]._spy + 10), pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2);
+	SetObjMapRange(ObjectAt(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 2), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
+	SetObjMapRange(ObjectAt(DBORDERX + 2 * pSetPieces[2]._spx + 8, DBORDERY + 2 * pSetPieces[2]._spy + 14), pSetPieces[3]._spx, pSetPieces[3]._spy, pSetPieces[3]._spx + 9, pSetPieces[3]._spy + 9, 3);
 }
 
 #ifdef HELLFIRE
@@ -1157,7 +1156,7 @@ static void AddBook(int oi)
 	if (os->_oVar5 == BK_BLOOD) {
 		//os->_oRndSeed = NextRndSeed();
 		os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
-		SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
+		SetObjMapRange(os, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
 		leverid++;
 	}
 }
