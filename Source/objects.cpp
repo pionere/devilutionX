@@ -371,7 +371,7 @@ static void InitRndLocObj5x5(int objtype)
 		AddObject(objtype, pos.x, pos.y);
 }
 
-static void AddCandles()
+static void ObjAddCandles()
 {
 	int tx, ty;
 
@@ -383,7 +383,7 @@ static void AddCandles()
 	AddObject(OBJ_CANDLE2, tx + 1, ty + 2);
 }
 
-static void AddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
+static void ObjAddBookLever(int type, int x1, int y1, int x2, int y2, int qn)
 {
 	int oi;
 	POS32 pos;
@@ -436,7 +436,7 @@ static void InitRndBarrels(int numobjs, int otype)
 	}
 }
 
-static void AddDunObjs(int x1, int y1, int x2, int y2)
+static void ObjAddDunObjs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn, wdoor, edoor, type;
 
@@ -491,7 +491,7 @@ static void AddDunObjs(int x1, int y1, int x2, int y2)
 	}
 }
 
-static void AddL2Torches()
+static void ObjAddTorches()
 {
 	int i, j;
 	// place torches on NW->SE walls
@@ -540,7 +540,7 @@ static void AddL2Torches()
 	}
 }
 
-static void AddObjTraps()
+static void ObjAddTraps()
 {
 	int i, ox, oy, tx, ty, on, rndv;
 
@@ -637,7 +637,7 @@ static int ObjIndex(int x, int y)
 	return oi;
 }
 
-static void AddSKingObjs()
+static void ObjSetSKingRanges()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 48, DBORDERY + 18), 20, 7, 23, 10, 1);
 	SetObjMapRange(ObjIndex(DBORDERX + 48, DBORDERY + 43), 20, 14, 21, 16, 2);
@@ -647,20 +647,20 @@ static void AddSKingObjs()
 	SetObjMapRange(ObjIndex(DBORDERX + 11, DBORDERY + 37), 8, 1, 15, 11, 3);
 }
 
-static void AddBChamObjs()
+static void ObjSetBChamRanges()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 21, DBORDERY + 14), 17, 0, 21, 5, 1);
 	SetObjMapRange(ObjIndex(DBORDERX + 21, DBORDERY + 30), 13, 0, 16, 5, 2);
 }
 
-static void AddVileObjs()
+static void ObjSetVileRanges()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
 	SetObjMapRange(ObjIndex(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
 	//SetObjMapRange(ObjIndex(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
 }
 
-/*static void AddMazeObjs()
+/*static void ObjSetMazeRanges()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 33, DBORDERY + 25), 0?, 0?, 45?, ?, 1);
 	SetObjMapRange(ObjIndex(DBORDERX + 15, DBORDERY + 51), ?, ?, ?, ?, ?);
@@ -669,7 +669,7 @@ static void AddVileObjs()
 	SetObjMapRange(ObjIndex(DBORDERX + 79, DBORDERY + 51), ?, ?, ?, ?, ?);
 }*/
 
-static void AddDiabObjs()
+static void ObjSetDiabRanges()
 {
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[0]._spx + 5, DBORDERY + 2 * pSetPieces[0]._spy + 5), pSetPieces[1]._spx, pSetPieces[1]._spy, pSetPieces[1]._spx + 11, pSetPieces[1]._spy + 12, 1);
 	SetObjMapRange(ObjIndex(DBORDERX + 2 * pSetPieces[1]._spx + 13, DBORDERY + 2 * pSetPieces[1]._spy + 10), pSetPieces[2]._spx, pSetPieces[2]._spy, pSetPieces[2]._spx + 11, pSetPieces[2]._spy + 11, 2);
@@ -678,7 +678,7 @@ static void AddDiabObjs()
 }
 
 #ifdef HELLFIRE
-static void AddL5StoryBook(int bookidx, int ox, int oy)
+static void ObjAddL5StoryBook(int bookidx, int ox, int oy)
 {
 	ObjectStruct* os;
 	int oi = AddObject(OBJ_L5BOOK, ox, oy);
@@ -732,14 +732,14 @@ static void AddNakrulBook(int oi)
 	os->_oVar5 = BK_NAKRUL_SPELL;                           // STORY_BOOK_NAME
 }
 
-static void AddLvl2xBooks(int bookidx)
+static void ObjAddLvl2xBooks(int bookidx)
 {
 	POS32 pos = RndLoc5x5();
 
 	if (pos.x == 0)
 		return;
 
-	AddL5StoryBook(bookidx, pos.x, pos.y);
+	ObjAddL5StoryBook(bookidx, pos.x, pos.y);
 	AddObject(OBJ_L5CANDLE, pos.x - 1, pos.y - 1);
 	AddObject(OBJ_L5CANDLE, pos.x - 1, pos.y + 1);
 }
@@ -765,7 +765,7 @@ static int ProgressUberLever(int bookidx, int status)
 }
 #endif
 
-static void AddStoryBook()
+static void ObjAddStoryBook()
 {
 	POS32 pos = RndLoc7x5();
 
@@ -781,7 +781,7 @@ static void AddStoryBook()
 	AddObject(OBJ_CANDLE2, pos.x + 2, pos.y + 1);
 }
 
-static void AddHookedBodies()
+static void ObjAddHookedBodies()
 {
 	int i, j, ttv, type;
 	// TODO: straight loop (in dlrgs)?
@@ -807,7 +807,7 @@ void InitObjects()
 	if (QuestStatus(Q_ROCK))
 		InitRndLocObj5x5(OBJ_ROCKSTAND);
 	if (QuestStatus(Q_PWATER))
-		AddCandles();
+		ObjAddCandles();
 	if (QuestStatus(Q_MUSHROOM))
 		InitRndLocObj5x5(OBJ_MUSHPATCH);
 	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
@@ -816,59 +816,59 @@ void InitObjects()
 		}
 	}
 	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-		AddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
+		ObjAddBookLever(OBJ_STEELTOME, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 7, pSetPieces[0]._spy + 5, Q_WARLORD);
 	}
 	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-		AddBookLever(OBJ_MYTHICBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
+		ObjAddBookLever(OBJ_MYTHICBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy, pSetPieces[0]._spx + 5, pSetPieces[0]._spy + 5, Q_BCHAMB);
 	}
 	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
-		AddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
+		ObjAddBookLever(OBJ_BLINDBOOK, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10, Q_BLIND);
 	}
 	if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
-		AddSKingObjs();
+		ObjSetSKingRanges();
 	}
 	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
-		AddBChamObjs();
+		ObjSetBChamRanges();
 	}
 	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
-		AddVileObjs();
+		ObjSetVileRanges();
 	}
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL4:
-		AddStoryBook();
+		ObjAddStoryBook();
 		break;
 	case DLV_CATACOMBS4:
-		AddStoryBook();
+		ObjAddStoryBook();
 		break;
 	case DLV_CAVES4:
-		AddStoryBook();
+		ObjAddStoryBook();
 		break;
 	case DLV_HELL4:
-		AddDiabObjs();
+		ObjSetDiabRanges();
 		return;
 #ifdef HELLFIRE
 	case DLV_CRYPT1:
-		AddLvl2xBooks(QNB_BOOK_1);
+		ObjAddLvl2xBooks(QNB_BOOK_1);
 		break;
 	case DLV_CRYPT2:
-		AddLvl2xBooks(QNB_BOOK_2);
-		AddLvl2xBooks(QNB_BOOK_3);
+		ObjAddLvl2xBooks(QNB_BOOK_2);
+		ObjAddLvl2xBooks(QNB_BOOK_3);
 		break;
 	case DLV_CRYPT3:
-		AddLvl2xBooks(QNB_BOOK_4);
-		AddLvl2xBooks(QNB_BOOK_5);
+		ObjAddLvl2xBooks(QNB_BOOK_4);
+		ObjAddLvl2xBooks(QNB_BOOK_5);
 		break;
 #endif
 	}
-	AddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
+	ObjAddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	static_assert(NUM_DTYPES <= sizeof(BYTE) * 8, "Level mask might overflow in InitObjects.");
 	BYTE lvlMask = 1 << currLvl._dType;
 	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHR1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TORCHL1].oLvlTypes) {
-		AddL2Torches();
+		ObjAddTorches();
 	}
 	if (lvlMask & objectdata[OBJ_TORTURE].oLvlTypes) {
-		AddHookedBodies();
+		ObjAddHookedBodies();
 	}
 
 	unsigned na = 0;
@@ -947,7 +947,7 @@ void InitObjects()
 	}
 	assert(objectdata[OBJ_TRAPL].oLvlTypes == objectdata[OBJ_TRAPR].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TRAPL].oLvlTypes) {
-		AddObjTraps();
+		ObjAddTraps();
 	}
 	//gbInitObjFlag = false;
 }
@@ -1988,7 +1988,7 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	}
 	// add new objects (doors + light) -- except when a delta of a single-player game is loaded
 	if (!deltaload || IsMultiGame)
-		AddDunObjs(x1, y1, x2, y2);
+		ObjAddDunObjs(x1, y1, x2, y2);
 }
 
 static bool CheckLeverGroup(int type, int lvrIdx)
