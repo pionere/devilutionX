@@ -1139,17 +1139,6 @@ static void AddWeaponRack(int oi, int realtype)
 	//os->_oRndSeed = NextRndSeed();
 }
 
-static void AddBloodBook(int oi)
-{
-	ObjectStruct* os;
-
-	os = &objects[oi];
-	//os->_oRndSeed = NextRndSeed();
-	os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
-	SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
-	leverid++;
-}
-
 static void AddBook(int oi)
 {
 	ObjectStruct* os;
@@ -1165,6 +1154,12 @@ static void AddBook(int oi)
 	static_assert((int)BK_MYTHIC == (int)OBJ_MYTHICBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums V.");
 
 	os->_oVar5 = os->_otype - (int)OBJ_BLINDBOOK + (int)BK_BLIND; // STORY_BOOK_NAME
+	if (os->_oVar5 == BK_BLOOD) {
+		//os->_oRndSeed = NextRndSeed();
+		os->_oVar7 = Q_BLOOD;                    // LEVER_BOOK_QUEST
+		SetObjMapRange(oi, 0, 0, 0, 0, leverid); // NULL_LVR_EFFECT
+		leverid++;
+	}
 }
 
 static void AddBook2(int oi, int realtype)
@@ -1445,8 +1440,6 @@ int AddObject(int type, int ox, int oy)
 			AddWeaponRack(oi, realType);
 			break;
 		case OBJ_BLOODBOOK:
-			AddBloodBook(oi);
-			/* fall-through */
 		case OBJ_ANCIENTBOOK:
 		case OBJ_STEELTOME:
 		case OBJ_BLINDBOOK:
