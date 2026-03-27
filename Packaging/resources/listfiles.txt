@@ -1516,7 +1516,9 @@ Objects\L6Pod2.CEL
 Objects\Lever.CEL
 Objects\LShrineG.CEL
 Objects\LzStand.CEL
-Objects\Mcirl.CEL
+_Objects\Mcirl.CEL
+Objects\Mcirl1.CEL
+Objects\Mcirl2.CEL
 Objects\MFountn.CEL
 _Objects\MiniWatr.CEL
 Objects\Mushptch.CEL

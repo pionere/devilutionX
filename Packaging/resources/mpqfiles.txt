@@ -95,6 +95,8 @@ Objects\L1Braz.CEL
 Objects\Lever.CEL
 Objects\LShrineG.CEL
 Objects\LzStand.CEL
+Objects\Mcirl1.CEL
+Objects\Mcirl2.CEL
 Objects\MFountn.CEL
 Objects\PFountn.CEL
 Objects\Rockstan.CEL

@@ -1233,8 +1233,9 @@ static void AddMagicCircle(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oVar5 = 0;                  // VILE_CIRCLE_PROGRESS
-	os->_oVar6 = os->_oGfxFrame + 1; // CIRCLE_ACTIVE_FRAME
+	os->_oVar5 = 0;                                          // VILE_CIRCLE_PROGRESS
+	// assert(objectdata[OBJ_MCIRCLE1].oBaseFrame == os->_oGfxFrame);
+	// os->_oVar6 = objectdata[OBJ_MCIRCLE1].oBaseFrame + 1; // CIRCLE_ACTIVE_FRAME
 }
 
 static void AddStoryBook(int oi)
@@ -1597,7 +1598,8 @@ static void Obj_Circle(int oi)
 	if (pnum >= 0 && plr._pmode != PM_STAND) {
 		pnum = -1;
 	}
-	os->_oGfxFrame = os->_oVar6 - (pnum < 0 ? 1 : 0); // CIRCLE_ACTIVE_FRAME
+	// os->_oGfxFrame = os->_oVar6 - (pnum < 0 ? 1 : 0);
+	os->_oGfxFrame = objectdata[OBJ_MCIRCLE1].oBaseFrame + (pnum >= 0 ? 1 : 0); // CIRCLE_ACTIVE_FRAME
 	if (pnum >= 0) {
 		// if (CheckLeverGroup(OBJ_VILEBOOK, os->_oVar8) ... ?
 		if (/*ox == LAZ_CENTRAL_X && oy == LAZ_CENTRAL_Y &&*/ os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
@@ -1608,6 +1610,7 @@ static void Obj_Circle(int oi)
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
 			AddMissile(LAZ_CENTRAL_X, LAZ_CENTRAL_Y, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+			// assert(pnum == mypnum);
 			gbActionBtnDown = 0;
 			// StartTurn(pnum, DIR_NW); ?
 			plr._pdir = DIR_NW;

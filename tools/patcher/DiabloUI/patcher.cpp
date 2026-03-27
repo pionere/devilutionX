@@ -98,7 +98,7 @@ typedef enum filenames {
 	FILE_OBJ_L1DOORS,
 	FILE_OBJ_L2DOORS,
 	FILE_OBJ_L3DOORS,
-	FILE_OBJ_MCIRL,
+//	FILE_OBJ_MCIRL,
 //	FILE_OBJ_CANDL2,
 //	FILE_OBJ_LSHR,
 //	FILE_OBJ_RSHR,
@@ -307,7 +307,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_L1DOORS*/   "Objects\\L1Doors.CEL",
 /*FILE_OBJ_L2DOORS*/   "Objects\\L2Doors.CEL",
 /*FILE_OBJ_L3DOORS*/   "Objects\\L3Doors.CEL",
-/*FILE_OBJ_MCIRL*/     "Objects\\Mcirl.CEL",
+/*FILE_OBJ_MCIRL*///   "Objects\\Mcirl.CEL",
 /*FILE_OBJ_CANDL2*///  "Objects\\Candle2.CEL",
 /*FILE_OBJ_LSHR*///    "Objects\\LShrineG.CEL",
 /*FILE_OBJ_RSHR*///    "Objects\\RShrineG.CEL",
@@ -1660,6 +1660,7 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 	}
 }
 #if ASSET_MPL == 1
+#if 0
 static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -1862,7 +1863,7 @@ static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 
 	return resCelBuf;
 }
-#if 0
+
 static BYTE* fixObjCandle(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
@@ -8425,11 +8426,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// patch L3Doors.CEL
 		buf = DRLP_L3_PatchDoors(buf, dwLen);
 	} break;
+#if 0
 	case FILE_OBJ_MCIRL:
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
 	} break;
-#if 0
 	case FILE_OBJ_CANDL2:
 	{	// fix object gfx file - Candle2.CEL
 		buf = fixObjCandle(buf, dwLen);

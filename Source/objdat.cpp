@@ -288,8 +288,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_MURKYFTN*/     { OFILE_MFOUNTN,  0,                                         THEME_MURKYFOUNTAIN,     Q_INVALID,          11,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
 /*OBJ_TEARFTN*/      { OFILE_TFOUNTN,  0,                                         THEME_TEARFOUNTAIN,      Q_INVALID,           5,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_ALTBOY*/       { OFILE_ALTBOY,   0,                                         THEME_NONE,              Q_BETRAYER,          1,            0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN },
-/*OBJ_MCIRCLE1*/     { OFILE_MCIRL,    0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     FALSE,     ALIGN },
-/*OBJ_MCIRCLE2*/     { OFILE_MCIRL,    0,                                         THEME_NONE,              Q_INVALID,           3,            0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     FALSE,     ALIGN },
+/*OBJ_MCIRCLE1*/     { OFILE_MCIRL1,   0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     FALSE,     ALIGN },
+/*OBJ_MCIRCLE2*/     { OFILE_MCIRL2,   0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     FALSE,     ALIGN },
 /*OBJ_STORYBOOK*/    { OFILE_BOOK1,    DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_INVALID,           6,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN }, // BUGFIX should only be loaded on level 1-12 (crypt masks as 1-4) (fixed)
 /*OBJ_STORYCANDLE*///{ OFILE_CANDLE2,  DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_BETRAYER,          5,            7, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT
 /*OBJ_TBCROSS*/      { OFILE_BURNCROS, 0,                                         THEME_BRNCROSS,          Q_INVALID,           0,           15, OPF_BCROSS, OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // + OPF_LIGHT 5
@@ -383,7 +383,8 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_MFOUNTN*/  { "MFountn",  SFX_NONE,          0, OAM_LOOP,              2, 1 | 14,      OBM_UNBREAKABLE, ALIGN },
 /*OFILE_TFOUNTN*/  { "TFountn",  SFX_NONE,          0, OAM_LOOP,              2, 1,           OBM_UNBREAKABLE, ALIGN },
 /*OFILE_ALTBOY*/   { "Altboy",   SFX_NONE,          0, OAM_NONE,              0, 1,           OBM_UNBREAKABLE, ALIGN },
-/*OFILE_MCIRL*/    { "Mcirl",    SFX_NONE,          0, OAM_NONE,              0, 0,           OBM_UNBREAKABLE, ALIGN },
+/*OFILE_MCIRL1*/   { "Mcirl1",   SFX_NONE,          0, OAM_NONE,              0, 0,           OBM_UNBREAKABLE, ALIGN },
+/*OFILE_MCIRL2*/   { "Mcirl2",   SFX_NONE,          0, OAM_NONE,              0, 0,           OBM_UNBREAKABLE, ALIGN },
 /*OFILE_BKSLBRNT*///{ "Bkslbrnt", SFX_NONE,          0, OAM_NONE,              0, 1,           OBM_UNBREAKABLE, ALIGN },
 /*OFILE_MUSHPTCH*/ { "Mushptch", SFX_NONE,          0, OAM_NONE,              0, 1 | 14,      OBM_UNBREAKABLE, ALIGN },
 /*OFILE_LZSTAND*/  { "LzStand",  SFX_NONE,          0, OAM_NONE,              0, 1,           OBM_UNBREAKABLE, ALIGN },
