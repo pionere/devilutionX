@@ -1862,6 +1862,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		if (!TakePlrsMoney(pnum, price))
 			return;
 		plr._pMemSkills &= ~SPELL_MASK(ii);
+		plr._pSkillLvlBase[ii] = 0;
 		// ValidateActionSkills(pnum, RSPLTYPE_SPELL, ~SPELL_MASK(ii));
 		const PlrSkillUse su = { (BYTE)ii, RSPLTYPE_SPELL };
 		RemovePlrSkill(plr._pMainSkill, su);
