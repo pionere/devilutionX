@@ -1423,6 +1423,8 @@ int AddObject(int type, int ox, int oy)
 #if 0
 		case OBJ_BOOKCASEL:
 		case OBJ_BOOKCASER:
+		case OBJ_BOOKSHELFL:
+		case OBJ_BOOKSHELFR:
 		case OBJ_BARRELEX:
 #ifdef HELLFIRE
 		case OBJ_URNEX:
@@ -2992,8 +2994,7 @@ static void OperateBook2(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC,
-		random_(161, 5) != 0 ? IMISC_SCROLL : IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateBookCase(int oi, bool sendmsg)
@@ -3013,7 +3014,11 @@ static void OperateBookCase(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_BOOK, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	static_assert(OBJ_BOOKCASEL < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R I.");
+	static_assert(OBJ_BOOKCASER < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R II.");
+	static_assert(OBJ_BOOKSHELFR > OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R III.");
+	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC,
+		(os->_otype < OBJ_BOOKSHELFL || random_(0, 2)) ? IMISC_BOOK : IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateDecap(int oi, bool sendmsg)
@@ -3403,6 +3408,8 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
+	case OBJ_BOOKSHELFL:
+	case OBJ_BOOKSHELFR:
 		OperateBookCase(oi, sendmsg);
 		break;
 	case OBJ_DECAP:
@@ -3558,6 +3565,8 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		break;
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
+	case OBJ_BOOKSHELFL:
+	case OBJ_BOOKSHELFR:
 		OperateBookCase(oi, false);
 		break;
 	case OBJ_DECAP:
@@ -3789,6 +3798,10 @@ void GetObjectStr(int oi)
 	case OBJ_BOOKCASEL:
 	case OBJ_BOOKCASER:
 		txt0 = "Bookcase";
+		break;
+	case OBJ_BOOKSHELFL:
+	case OBJ_BOOKSHELFR:
+		txt0 = "Bookshelf";
 		break;
 	case OBJ_BLOODFTN:
 		txt0 = "Blood Fountain";

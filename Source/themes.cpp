@@ -597,23 +597,61 @@ static void Theme_Treasure(int themeId)
  *
  * @param themeId: theme id.
  */
+static const int8_t LibPatterns[][3] = {
+	{ -1, 0, 1 },
+	{  1, 0,-1 },
+	{  1, 0, 1 },
+	{  0, 1, 0 },
+};
+static int NextLibraryObj(int8_t type, bool notzhar, unsigned ver, int dx)
+{
+	ver &= 7;
+	return type < 0 ? type : (type == 0 ? ((ver & 3) ? OBJ_CANDLE2 : -1) : ((ver == 1 && notzhar) ? -1 : (((!notzhar || ver > 1) ? OBJ_BOOKCASEL : OBJ_BOOKSHELFL) + dx)));
+}
 static void Theme_Library(int themeId)
 {
-	int xx, yy, dx, dy, type;
+	int xx, yy, dx, dy, type, t0, t1, t2;
 	const BYTE librnds[4] = { 1, 2, 2, 5 };
 	BYTE librnd;
 	const ThemeStruct &theme = themes[themeId];
 	const bool placemonsters = /*QuestStatus(Q_ZHAR) &&*/ themeId != zharlib;
+	const int8_t* ptrn;
 
 	xx = theme._tsObjX;
 	yy = theme._tsObjY;
 	dx = theme._tsObjVar1;
 	dy = 1 - dx;
 	static_assert(OBJ_BOOKCASEL + 1 == OBJ_BOOKCASER, "Theme_Library depends on the order of OBJ_BOOKCASEL/R");
-	type = OBJ_BOOKCASEL + dx;
-	AddObject(OBJ_CANDLE2, xx - dx, yy - dy);
-	AddObject(type, xx, yy);
-	AddObject(OBJ_CANDLE2, xx + dx, yy + dy);
+	static_assert(OBJ_BOOKSHELFL + 1 == OBJ_BOOKSHELFR, "Theme_Library depends on the order of OBJ_BOOKSHELFL/R");
+	unsigned ver = random_(0, 1 << (2 + 3 + 3 + 3));
+	if (placemonsters
+		// make sure the place is wide enough
+		// - on the inside
+		&& !nSolidTable[dPiece[xx - 2 * dx][yy - 2 * dy]]
+		&& !nSolidTable[dPiece[xx + 2 * dx][yy + 2 * dy]]
+		 // - on the wall (to avoid doors)
+		&& !nSolidTable[dPiece[xx - 2 * dx - dy][yy - 2 * dy - dx]]
+		&& !nSolidTable[dPiece[xx - 2 * dx - dy][yy - 2 * dy - dx]]) {
+		type = ver & 3;
+		// ptrn = &LibPatterns[ver & 3][0];
+	} else {
+		type = 3;
+		// ptrn = &LibPatterns[3][0];
+	}
+	ptrn = &LibPatterns[type][0];
+	ver >>= 2;
+	t0 = NextLibraryObj(ptrn[0], placemonsters, ver, dx);
+	ver >>= 3;
+	if (t0 >= 0)
+		AddObject(t0, xx - dx, yy - dy);
+	t1 = NextLibraryObj(ptrn[1], placemonsters, ver, dx);
+	ver >>= 3;
+	if (t1 >= 0)
+		AddObject(t1, xx, yy);
+	t2 = NextLibraryObj(ptrn[2], placemonsters, ver, dx);
+	// ver >>= 3;
+	if (t2 >= 0)
+		AddObject(t2, xx + dx, yy + dy);
 
 	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?
 	static_assert(OBJ_BOOK2L - 2 == OBJ_BOOK2R, "Theme_Library depends on the order of OBJ_BOOK2L/R");

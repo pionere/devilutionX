@@ -80,6 +80,7 @@ Objects\BCase.CEL
 Objects\Bloodfnt.CEL
 Objects\Book1.CEL
 Objects\Book2.CEL
+Objects\BShelf.CEL
 Objects\Candle2.CEL
 Objects\Cauldren.CEL
 Objects\Chest1.CEL
