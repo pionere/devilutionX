@@ -23,6 +23,10 @@ DEVILUTION_BEGIN_NAMESPACE
 #define FLAMETRAP_ACTIVE_FRAME   1
 #define FLAMETRAP_INACTIVE_FRAME 2
 
+// position of the central circle on the SL_VILEBETRAYER level (single player)
+#define LAZ_CENTRAL_X LAZ_CIRCLE_X
+#define LAZ_CENTRAL_Y (LAZ_CIRCLE_Y - 10)
+
 static int trapid;
 static BYTE* objanimdata[NUM_OFILE_TYPES] = { 0 };
 static int objanimdim[NUM_OFILE_TYPES];
@@ -640,7 +644,7 @@ static void ObjSetVileRanges()
 {
 	SetObjMapRange(ObjectAt(DBORDERX + 10, DBORDERY + 29), 3, 4, 8, 10, 1);
 	SetObjMapRange(ObjectAt(DBORDERX + 29, DBORDERY + 30), 11, 4, 16, 10, 2);
-	//SetObjMapRange(ObjectAt(DBORDERX + 19, DBORDERY + 20), 7, 11, 13, 18, 3);
+	//SetObjMapRange(ObjectAt(LAZ_CENTRAL_X, LAZ_CENTRAL_Y), 7, 11, 13, 18, 3);
 }
 
 /*static void ObjSetMazeRanges()
@@ -1229,7 +1233,8 @@ static void AddMagicCircle(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
-	os->_oVar5 = 0; // VILE_CIRCLE_PROGRESS
+	os->_oVar5 = 0;                  // VILE_CIRCLE_PROGRESS
+	os->_oVar6 = os->_oGfxFrame + 1; // CIRCLE_ACTIVE_FRAME
 }
 
 static void AddStoryBook(int oi)
@@ -1582,38 +1587,32 @@ static void ObjLvrChangeMap(const ObjectStruct* os/*, bool hasNewObjPiece*/)
 static void Obj_Circle(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy;
+	int ox, oy, pnum;
 
 	os = &objects[oi];
 	ox = os->_ox;
 	oy = os->_oy;
-	if (myplr._pmode == PM_STAND && myplr._px == ox && myplr._py == oy) {
-		if (os->_otype == OBJ_MCIRCLE1)
-			os->_oGfxFrame = 2;
-		else {
-			//assert(os->_otype == OBJ_MCIRCLE2);
-			os->_oGfxFrame = 4;
-		}
-		if (ox == DBORDERX + 19 && oy == DBORDERY + 20 && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
+	pnum = dPlayer[ox][oy];
+	pnum--;
+	if (pnum >= 0 && plr._pmode != PM_STAND) {
+		pnum = -1;
+	}
+	os->_oGfxFrame = os->_oVar6 - (pnum < 0 ? 1 : 0); // CIRCLE_ACTIVE_FRAME
+	if (pnum >= 0) {
+		// if (CheckLeverGroup(OBJ_VILEBOOK, os->_oVar8) ... ?
+		if (/*ox == LAZ_CENTRAL_X && oy == LAZ_CENTRAL_Y &&*/ os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
+			// assert(currLvl._dLevelIdx == SL_VILEBETRAYER && ox == LAZ_CENTRAL_X && oy == LAZ_CENTRAL_Y);
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
 				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CENTRALOPEN;
 				// ObjLvrChangeMap(os/*, true*/);
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
-			assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
-			AddMissile(DBORDERX + 19, DBORDERY + 20, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, mypnum, 0);
+			AddMissile(LAZ_CENTRAL_X, LAZ_CENTRAL_Y, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 			gbActionBtnDown = 0;
-			// StartTurn(mypnum, DIR_NW); ?
-			myplr._pdir = DIR_NW;
-			myplr._pAnimData = myplr._pAnims[PGX_STAND].paAnimData[DIR_NW];
-			myplr._pDestAction = ACTION_NONE;
-		}
-	} else {
-		if (os->_otype == OBJ_MCIRCLE1)
-			os->_oGfxFrame = 1;
-		else {
-			//assert(os->_otype == OBJ_MCIRCLE2);
-			os->_oGfxFrame = 3;
+			// StartTurn(pnum, DIR_NW); ?
+			plr._pdir = DIR_NW;
+			plr._pAnimData = plr._pAnims[PGX_STAND].paAnimData[DIR_NW];
+			plr._pDestAction = ACTION_NONE;
 		}
 	}
 }
@@ -2066,7 +2065,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 
 	FindClosestPlr(&dx, &dy);
 	AddMissile(os->_ox, os->_oy + 1, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
-	objects[dObject[DBORDERX + 19][DBORDERY + 20] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
+	objects[dObject[LAZ_CENTRAL_X][LAZ_CENTRAL_Y] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
