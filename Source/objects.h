@@ -30,6 +30,7 @@ void DisarmObject(int pnum, int oi);
 void OperateObject(int pnum, int oi, bool TeleFlag);
 bool SyncBloodPass(int pnum, int oi);
 void SyncShrineCmd(int pnum, BYTE type, int seed);
+void SyncBookCmd(int pnum, BYTE sn);
 // void SyncOpObject(int pnum, int oi);
 void SyncOpObject(int oi);
 void SyncDoorOpen(int oi);

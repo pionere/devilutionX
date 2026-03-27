@@ -2093,19 +2093,15 @@ static void OperateAncientBook(int pnum, int oi, bool sendmsg)
 
 	if (deltaload)
 		return;
-	if (plr._pSkillLvlBase[SPL_GUARDIAN] == 0) {
-		plr._pSkillExp[SPL_GUARDIAN] = SkillExpLvlsTbl[0];
-		IncreasePlrSkillLvl(pnum, SPL_GUARDIAN);
-	}
 	PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
-	if (pnum == mypnum)
-		InitDiabloMsg(EMSG_BONECHAMB);
 	// SetRndSeed(os->_oRndSeed);
 	AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 	quests[Q_BCHAMB]._qactive = QUEST_DONE;
 	if (sendmsg) {
 		NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+		// assert(pnum == mypnum);
+		NetSendCmdBParam1(CMD_BOOK, SPL_GUARDIAN);
 	}
 }
 
@@ -2731,6 +2727,16 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 
 	CalcPlrInv(pnum, true);
 	// gbRedrawFlags |= REDRAW_DRAW_ALL;
+}
+
+void SyncBookCmd(int pnum, BYTE sn)
+{
+	if (plr._pSkillLvlBase[sn] == 0) {
+		plr._pSkillExp[sn] = SkillExpLvlsTbl[0];
+		IncreasePlrSkillLvl(pnum, sn);
+	}
+	if (pnum == mypnum)
+		InitDiabloMsg(EMSG_BONECHAMB);
 }
 ENABLE_SPEED_OPTIMIZATION
 

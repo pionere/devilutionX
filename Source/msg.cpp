@@ -3063,6 +3063,24 @@ static unsigned On_SHRINE(const TCmd* pCmd, int pnum)
 	return sizeof(*cmd);
 }
 
+/**
+ * Sync Book effect with every player
+ */
+static unsigned On_BOOK(const TCmd* pCmd, int pnum)
+{
+	const TCmdBParam1* cmd = (const TCmdBParam1*)pCmd;
+
+	//if (plr._pmode != PM_DEATH) {
+		const BYTE sn = cmd->bParam1;
+
+		net_check_cmd(sn < NUM_SPELLS && spelldata[sn].sBookLvl != SPELL_NA);
+
+		SyncBookCmd(pnum, sn);
+	//}
+
+	return sizeof(*cmd);
+}
+
 static unsigned On_SPLITPLRGOLD(const TCmd* pCmd, int pnum)
 {
 	const TCmdParamBW* cmd = (const TCmdParamBW*)pCmd;
@@ -4618,6 +4636,8 @@ unsigned ParseCmd(int pnum, const TCmd* pCmd)
 	//	return On_TRAPCLOSE(pCmd, pnum);
 	case CMD_SHRINE:
 		return On_SHRINE(pCmd, pnum);
+	case CMD_BOOK:
+		return On_BOOK(pCmd, pnum);
 	case CMD_TELEKINITM:
 		return On_TELEKINITM(pCmd, pnum);
 	case CMD_TELEKINMON:
