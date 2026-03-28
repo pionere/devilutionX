@@ -1256,10 +1256,8 @@ restart:
 	}
 }*/
 
-static void GetBookSpell(int ii, unsigned lvl)
+static BYTE GetBookSpell(unsigned lvl)
 {
-	const SpellData* sd;
-	ItemStruct* is;
 	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetBookSpell stores spell-ids in BYTEs.");
 	BYTE ss[NUM_SPELLS];
 	int bs, ns;
@@ -1276,9 +1274,16 @@ static void GetBookSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_low(14, ns)];
+	return ss[random_low(14, ns)];
+}
 
-	is = &items[ii];
+static void SetBookSpell(ItemStruct* is, unsigned lvl)
+{
+	const SpellData* sd;
+	int bs;
+
+	bs = GetBookSpell(lvl);
+
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 	is->_iMinMag = sd->sMinInt;
@@ -1303,10 +1308,8 @@ static void GetBookSpell(int ii, unsigned lvl)
 	is->_iCurs = bs;
 }
 
-static void GetScrollSpell(int ii, unsigned lvl)
+static BYTE GetScrollSpell(unsigned lvl)
 {
-	const SpellData* sd;
-	ItemStruct* is;
 	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetScrollSpell stores spell-ids in BYTEs.");
 #ifdef HELLFIRE
 	static_assert((int)SPL_RUNE_LAST + 1 == (int)NUM_SPELLS, "GetScrollSpell skips spells at the end of the enum.");
@@ -1328,9 +1331,16 @@ static void GetScrollSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_low(14, ns)];
+	return ss[random_low(14, ns)];
+}
 
-	is = &items[ii];
+static void SetScrollSpell(ItemStruct* is, unsigned lvl)
+{
+	const SpellData* sd;
+	int bs;
+
+	bs = GetScrollSpell(lvl);
+
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 	is->_iMinMag = sd->sMinInt > 20 ? sd->sMinInt - 20 : 0;
@@ -1340,10 +1350,8 @@ static void GetScrollSpell(int ii, unsigned lvl)
 }
 
 #ifdef HELLFIRE
-static void GetRuneSpell(int ii, unsigned lvl)
+static BYTE GetRuneSpell(unsigned lvl)
 {
-	const SpellData* sd;
-	ItemStruct* is;
 	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetRuneSpell stores spell-ids in BYTEs.");
 	BYTE ss[SPL_RUNE_LAST - SPL_RUNE_FIRST + 1];
 	int bs, ns;
@@ -1360,9 +1368,16 @@ static void GetRuneSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_low(14, ns)];
+	return ss[random_low(14, ns)];
+}
 
-	is = &items[ii];
+static void SetRuneSpell(ItemStruct* is, unsigned lvl)
+{
+	const SpellData* sd;
+	int bs;
+
+	bs = GetRuneSpell(lvl);
+
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 	is->_iMinMag = sd->sMinInt;
@@ -1449,12 +1464,12 @@ static void GetItemAttrs(int ii, int idata, unsigned lvl)
 
 	is = &items[ii];
 	if (is->_iMiscId == IMISC_BOOK)
-		GetBookSpell(ii, lvl);
+		SetBookSpell(is, lvl);
 	else if (is->_iMiscId == IMISC_SCROLL)
-		GetScrollSpell(ii, lvl);
+		SetScrollSpell(is, lvl);
 #ifdef HELLFIRE
 	else if (is->_iMiscId == IMISC_RUNE)
-		GetRuneSpell(ii, lvl);
+		SetRuneSpell(is, lvl);
 #endif
 	else if (is->_itype == ITYPE_GOLD) {
 		lvl = items_get_currlevel();
