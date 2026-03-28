@@ -98,6 +98,7 @@ Objects\LzStand.CEL
 Objects\Mcirl1.CEL
 Objects\Mcirl2.CEL
 Objects\MFountn.CEL
+Objects\Mushptch.CEL
 Objects\PFountn.CEL
 Objects\Rockstan.CEL
 Objects\RShrineG.CEL

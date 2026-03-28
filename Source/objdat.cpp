@@ -294,8 +294,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_STORYCANDLE*///{ OFILE_CANDLE2,  DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_BETRAYER,          5,            7, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT
 /*OBJ_TBCROSS*/      { OFILE_BURNCROS, 0,                                         THEME_BRNCROSS,          Q_INVALID,           0,           15, OPF_BCROSS, OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // + OPF_LIGHT 5
 /*OBJ_WEAPONRACK*/   { OFILE_WEAPSTND, 0,                                         THEME_WEAPONRACK,        Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, FALSE,     ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
-/*OBJ_MUSHPATCH*/    { OFILE_MUSHPTCH, 0,                                         THEME_NONE,              Q_MUSHROOM,          1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
-/*OBJ_LAZSTAND*/     { OFILE_LZSTAND,  0,                                         THEME_NONE,              Q_BETRAYER,          1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
+/*OBJ_MUSHPATCH*/    { OFILE_MUSHPTCH, 0,                                         THEME_NONE,              Q_MUSHROOM,          2,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
+/*OBJ_LAZSTAND*/     { OFILE_LZSTAND,  0,                                         THEME_NONE,              Q_BETRAYER,          2,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_SLAINHERO*///  { OFILE_DECAP,    DTM_CAVES,                                 THEME_NONE,              Q_INVALID,           2,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
 /*OBJ_SIGNCHEST*/    { OFILE_CHEST3,   0,                                         THEME_NONE,              Q_BANNER,            1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
 #ifdef HELLFIRE
@@ -386,8 +386,8 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_MCIRL1*/   { "Mcirl1",   SFX_NONE,          0, OAM_NONE,              0, 0,           OBM_UNBREAKABLE, ALIGN },
 /*OFILE_MCIRL2*/   { "Mcirl2",   SFX_NONE,          0, OAM_NONE,              0, 0,           OBM_UNBREAKABLE, ALIGN },
 /*OFILE_BKSLBRNT*///{ "Bkslbrnt", SFX_NONE,          0, OAM_NONE,              0, 1,           OBM_UNBREAKABLE, ALIGN },
-/*OFILE_MUSHPTCH*/ { "Mushptch", SFX_NONE,          0, OAM_NONE,              0, 1 | 14,      OBM_UNBREAKABLE, ALIGN },
-/*OFILE_LZSTAND*/  { "LzStand",  SFX_NONE,          0, OAM_NONE,              0, 1,           OBM_UNBREAKABLE, ALIGN },
+/*OFILE_MUSHPTCH*/ { "Mushptch", SFX_NONE,          0, OAM_SINGLE,            1, 1 | 14,      OBM_UNBREAKABLE, ALIGN },
+/*OFILE_LZSTAND*/  { "LzStand",  SFX_NONE,          0, OAM_SINGLE,            1, 1,           OBM_UNBREAKABLE, ALIGN },
 #ifdef HELLFIRE
 /*OFILE_L5DOOR*/   { "L5Door",   IS_CROPEN,         2, OAM_NONE,              0, 0,           OBM_UNBREAKABLE, ALIGN },
 /*OFILE_L5SARCO*/  { "L5Sarco",  SFX_NONE,          0, OAM_SINGLE,            3, 1 | 2,       OBM_UNBREAKABLE, ALIGN },

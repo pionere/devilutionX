@@ -2227,12 +2227,8 @@ static void PickItemFromObject(int idx, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	if (os->_oAnimFlag != OAM_NONE) {
-		os->_oAnimFlag = OAM_NONE;
-		os->_oAnimFrame = 0;
-	} else {
-		os->_oGfxFrame++; // 2
-	}
+	os->_oAnimFlag = OAM_NONE;
+	os->_oAnimFrame = 0;
 	if (deltaload)
 		return;
 
