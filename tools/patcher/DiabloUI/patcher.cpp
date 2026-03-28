@@ -105,6 +105,7 @@ typedef enum filenames {
 //	FILE_OBJ_TFOUNTN,
 #ifdef HELLFIRE
 	FILE_OBJ_L5BOOKS,
+	FILE_OBJ_L5LEVER,
 	FILE_OBJ_L5LIGHT,
 	FILE_OBJ_L5SARCO,
 	FILE_OBJ_URN,
@@ -314,6 +315,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_TFOUNTN*/// "Objects\\TFountn.CEL",
 #ifdef HELLFIRE
 /*FILE_OBJ_L5BOOKS*/   "Objects\\L5Books.CEL",
+/*FILE_OBJ_L5LEVER*/   "Objects\\L5Lever.CEL",
 /*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
 /*FILE_OBJ_L5SARCO*/   "Objects\\L5Sarco.CEL",
 /*FILE_OBJ_URN*/       "Objects\\Urn.CEL",
@@ -2253,6 +2255,66 @@ static BYTE* patchCryptBooks(BYTE* celBuf, size_t* celLen)
 				}
 			}
 		}
+
+		// resize the frame
+		for (int y = 0; y < RES_FRAME_HEIGHT; y++) {
+			for (int x = 0; x < RES_FRAME_WIDTH; x++) {
+				gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[(x + (FRAME_WIDTH - RES_FRAME_WIDTH) / 2) + (y + FRAME_HEIGHT - RES_FRAME_HEIGHT) * BUFFER_WIDTH];
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, RES_FRAME_WIDTH, RES_FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
+
+	return resCelBuf;
+}
+
+static BYTE* patchCryptLever(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int FRAME_WIDTH = 96;
+	constexpr int FRAME_HEIGHT = 96;
+	constexpr int RES_FRAME_WIDTH = 40;
+	constexpr int RES_FRAME_HEIGHT = 46;
+
+	if (CelClippedWidth(celBuf) != FRAME_WIDTH) {
+		return celBuf; // assume it is already done
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	const int resCelEntries = srcCelEntries;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+
+		// shift the frame
+		ShiftFrame(FRAME_WIDTH, FRAME_HEIGHT, 0, -5, 0, 55, FRAME_WIDTH, FRAME_HEIGHT, TRANS_COLOR);
 
 		// resize the frame
 		for (int y = 0; y < RES_FRAME_HEIGHT; y++) {
@@ -8452,6 +8514,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_OBJ_L5BOOKS:
 	{	// patch object gfx file - L5Book.CEL
 		buf = patchCryptBooks(buf, dwLen);
+	} break;
+	case FILE_OBJ_L5LEVER:
+	{	// patch object gfx file - L5Lever.CEL
+		buf = patchCryptLever(buf, dwLen);
 	} break;
 	case FILE_OBJ_L5LIGHT:
 	{	// fix object gfx file - L5Light.CEL
