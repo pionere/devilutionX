@@ -1660,6 +1660,76 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 	}
 }
 #if ASSET_MPL == 1
+static void ShiftFrame(int width, int height, int dx, int dy, int sx, int sy, int ex, int ey, BYTE TRANS_COLOR)
+{
+	if (dx == 0 && dy == 0)
+		return;
+	if (dx <= 0) {
+		if (dy <= 0) {
+			// for (int y = std::max(sy, -dy); y < ey; y++) {
+			for (int y = sy; y < ey; y++) {
+				// for (int x = std::max(sx, -dx); x < ex; x++) {
+				for (int x = sx; x < ex; x++) {
+					if (x + dx >= 0 /*&& x + dx < width*/ && y + dy >= 0 /*&& y + dy < height*/)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
+			}
+		} else {
+			// for (int y = std::min(ey, height - dy) - 1; y >= sy; y--) {
+			for (int y = ey - 1; y >= sy; y--) {
+				// for (int x = std::max(sx, -dx); x < ex; x++) {
+				for (int x = sx; x < ex; x++) {
+					if (x + dx >= 0 /*&& x + dx < width && y + dy >= 0 */&& y + dy < height)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
+			}
+		}
+	} else {
+		if (dy <= 0) {
+			// for (int y = std::max(sy, -dy); y < ey; y++) {
+			for (int y = sy; y < ey; y++) {
+				// for (int x = std::min(ex, width - dx) - 1; x >= sx; x--) {
+				for (int x = ex - 1; x >= sx; x--) {
+					if (/*x + dx >= 0 && */x + dx < width && y + dy >= 0 /*&& y + dy < height*/)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
+			}
+		} else {
+			// for (int y = std::min(ey, height - dy) - 1; y >= sy; y--) {
+			for (int y = ey - 1; y >= sy; y--) {
+				// for (int x = std::min(ex, width - dx) - 1; x >= sx; x--) {
+				for (int x = ex - 1; x >= sx; x--) {
+					if (/*x + dx >= 0 && */x + dx < width /*&& y + dy >= 0 */&& y + dy < height)
+					{
+						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
+						if (color == TRANS_COLOR)
+							continue;
+						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
+					}
+					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
+				}
+			}
+		}
+	}
+}
 #if 0
 static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 {
@@ -3131,76 +3201,6 @@ static BYTE* patchWarriorStand(BYTE* cl2Buf, size_t *dwLen, const BYTE* atkBuf, 
 	return resCl2Buf;
 }
 #endif // ASSET_MPL
-static void ShiftFrame(int width, int height, int dx, int dy, int sx, int sy, int ex, int ey, BYTE TRANS_COLOR)
-{
-	if (dx == 0 && dy == 0)
-		return;
-	if (dx <= 0) {
-		if (dy <= 0) {
-			// for (int y = std::max(sy, -dy); y < ey; y++) {
-			for (int y = sy; y < ey; y++) {
-				// for (int x = std::max(sx, -dx); x < ex; x++) {
-				for (int x = sx; x < ex; x++) {
-					if (x + dx >= 0 /*&& x + dx < width*/ && y + dy >= 0 /*&& y + dy < height*/)
-					{
-						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
-						if (color == TRANS_COLOR)
-							continue;
-						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
-					}
-					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-				}
-			}
-		} else {
-			// for (int y = std::min(ey, height - dy) - 1; y >= sy; y--) {
-			for (int y = ey - 1; y >= sy; y--) {
-				// for (int x = std::max(sx, -dx); x < ex; x++) {
-				for (int x = sx; x < ex; x++) {
-					if (x + dx >= 0 /*&& x + dx < width && y + dy >= 0 */&& y + dy < height)
-					{
-						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
-						if (color == TRANS_COLOR)
-							continue;
-						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
-					}
-					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-				}
-			}
-		}
-	} else {
-		if (dy <= 0) {
-			// for (int y = std::max(sy, -dy); y < ey; y++) {
-			for (int y = sy; y < ey; y++) {
-				// for (int x = std::min(ex, width - dx) - 1; x >= sx; x--) {
-				for (int x = ex - 1; x >= sx; x--) {
-					if (/*x + dx >= 0 && */x + dx < width && y + dy >= 0 /*&& y + dy < height*/)
-					{
-						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
-						if (color == TRANS_COLOR)
-							continue;
-						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
-					}
-					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-				}
-			}
-		} else {
-			// for (int y = std::min(ey, height - dy) - 1; y >= sy; y--) {
-			for (int y = ey - 1; y >= sy; y--) {
-				// for (int x = std::min(ex, width - dx) - 1; x >= sx; x--) {
-				for (int x = ex - 1; x >= sx; x--) {
-					if (/*x + dx >= 0 && */x + dx < width /*&& y + dy >= 0 */&& y + dy < height)
-					{
-						BYTE color = gpBuffer[x + BUFFER_WIDTH * y];
-						if (color == TRANS_COLOR)
-							continue;
-						gpBuffer[x + dx + BUFFER_WIDTH * (y + dy)] = color;
-					}
-					gpBuffer[x + BUFFER_WIDTH * y] = TRANS_COLOR;
-				}
-			}
-		}
-	}
-}
 
 static BYTE* centerCursors(BYTE* celBuf, size_t* celLen)
 {
