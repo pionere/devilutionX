@@ -2278,7 +2278,7 @@ static BYTE* patchCryptBooks(BYTE* celBuf, size_t* celLen)
 	return resCelBuf;
 }
 
-static BYTE* fixL5Light(BYTE* celBuf, size_t* celLen)
+static BYTE* patchCryptLight(BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 128;
 	constexpr int FRAME_WIDTH = 96;
@@ -8455,7 +8455,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	} break;
 	case FILE_OBJ_L5LIGHT:
 	{	// fix object gfx file - L5Light.CEL
-		buf = fixL5Light(buf, dwLen);
+		buf = patchCryptLight(buf, dwLen);
 	} break;
 	case FILE_OBJ_L5SARCO:
 	{	// patch object gfx file - L5Sarco.CEL
