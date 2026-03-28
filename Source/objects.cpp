@@ -988,6 +988,18 @@ static void AddChest(int oi, int realtype)
 	}
 }
 
+static void AddBanner(int oi)
+{
+	ObjectStruct* os;
+	int8_t dir = -1;
+
+	if (dir < 0) {
+		dir = random_(147, 3);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = 1 + dir;
+}
+
 static void AddSarc(int oi)
 {
 	ObjectStruct* os;
@@ -1389,6 +1401,9 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_CHEST2:
 		case OBJ_CHEST3:
 			AddChest(oi, realType);
+			break;
+		case OBJ_BANNER:
+			AddBanner(oi);
 			break;
 		case OBJ_TORTURE:
 			AddTorture(oi, realType);

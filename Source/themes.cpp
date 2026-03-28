@@ -508,13 +508,13 @@ done:
 	PlaceThemeMonsts(theme);
 }
 
-static void AddSkelMonOrObj(BYTE rnd, int type, int x, int y)
+static void AddSkelMonOrBanner(BYTE rnd, int x, int y)
 {
 	assert(PosOkActor(x, y));
 	if (rnd == 0 || random_low(0, rnd) != 0) {
 		AddMonster(mapSkelTypes[random_low(136, numSkelTypes)], x, y);
 	} else {
-		AddObject(type, x, y);
+		AddObject(OBJ_BANNER, x, y);
 	}
 }
 
@@ -537,21 +537,21 @@ static void Theme_SkelRoom(int themeId)
 
 	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 
-	AddSkelMonOrObj(monstrnd, OBJ_BANNERL, xx - 1, yy - 1);
+	AddSkelMonOrBanner(monstrnd, xx - 1, yy - 1);
 
-	AddSkelMonOrObj(0, 0, xx, yy - 1);
+	AddSkelMonOrBanner(0, xx, yy - 1);
 
-	AddSkelMonOrObj(monstrnd, OBJ_BANNERR, xx + 1, yy - 1);
+	AddSkelMonOrBanner(monstrnd, xx + 1, yy - 1);
 
-	AddSkelMonOrObj(monstrnd, OBJ_BANNERM, xx - 1, yy);
+	AddSkelMonOrBanner(monstrnd, xx - 1, yy);
 
-	AddSkelMonOrObj(monstrnd, OBJ_BANNERM, xx + 1, yy);
+	AddSkelMonOrBanner(monstrnd, xx + 1, yy);
 
-	AddSkelMonOrObj(monstrnd, OBJ_BANNERR, xx - 1, yy + 1);
+	AddSkelMonOrBanner(monstrnd, xx - 1, yy + 1);
 
-	AddSkelMonOrObj(0, 0, xx, yy + 1);
+	AddSkelMonOrBanner(0, xx, yy + 1);
 
-	AddSkelMonOrObj(monstrnd, OBJ_BANNERL, xx + 1, yy + 1);
+	AddSkelMonOrBanner(monstrnd, xx + 1, yy + 1);
 
 	if ((dObject[xx][yy - 3] == 0 || !objects[dObject[xx][yy - 3] - 1]._oDoorFlag)   // not a door
 	 && (nSolidTable[dPiece[xx][yy - 3]] || !nSolidTable[dPiece[xx + 1][yy - 3]])) { // or a single path to NE TODO: allow if !nSolidTable[dPiece[xx - 1][yy - 3]]?
