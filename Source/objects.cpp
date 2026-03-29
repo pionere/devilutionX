@@ -1351,6 +1351,7 @@ int AddObject(int type, int ox, int oy)
 	os->_oGfxFrame = ods->oBaseFrame;
 	os->_oAnimData = AddObjectType(ods);
 	int animLen = LOAD_LE32(os->_oAnimData);
+	// assert(ofd->oAnimFlag == OAM_NONE || animLen <= 0x7FFF);
 	if (os->_oGfxFrame == animLen)
 		animLen--;
 	os->_oAnimLen = animLen;
@@ -1885,7 +1886,7 @@ void ProcessObjects()
 
 		if (objects[oi]._oAnimFlag == OAM_NONE)
 			continue;
-
+		// assert(objects[oi]._oAnimFlag == OAM_ONCE);
 		objects[oi]._oAnimCnt++;
 
 		if (objects[oi]._oAnimCnt < objects[oi]._oAnimFrameLen)
