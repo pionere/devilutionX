@@ -1661,7 +1661,7 @@ static void patchDungeon(int fileIndex, BYTE* fileBuf, size_t* fileSize)
 	} break;
 	}
 }
-#if ASSET_MPL == 1
+
 static void ShiftFrame(int width, int height, int dx, int dy, int sx, int sy, int ex, int ey, BYTE TRANS_COLOR)
 {
 	if (dx == 0 && dy == 0)
@@ -1732,6 +1732,7 @@ static void ShiftFrame(int width, int height, int dx, int dy, int sx, int sy, in
 		}
 	}
 }
+#if ASSET_MPL == 1
 #if 0
 static BYTE* fixObjCircle(BYTE* celBuf, size_t* celLen)
 {
