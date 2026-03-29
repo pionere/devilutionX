@@ -3262,7 +3262,7 @@ typedef enum object_mode_flags { // TODO: merge with object_break_mode?
 
 typedef enum object_anim_mode {
 	OAM_NONE,
-	OAM_SINGLE,
+	OAM_ONCE,
 	OAM_LOOP,
 } object_anim_mode;
 

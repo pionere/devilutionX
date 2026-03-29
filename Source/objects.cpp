@@ -1364,7 +1364,7 @@ int AddObject(int type, int ox, int oy)
 	os->_oAnimCnt = 0;
 	os->_oAnimFrame = 0;
 	if (ofd->oAnimFlag != OAM_NONE) {
-		if (ofd->oAnimFlag == OAM_SINGLE) {
+		if (ofd->oAnimFlag == OAM_ONCE) {
 			os->_oAnimFlag = OAM_NONE;
 			os->_oAnimFrame = 1;
 		} else {
@@ -2340,7 +2340,7 @@ static void OperateSarc(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
 
-	os->_oAnimFlag = OAM_SINGLE;
+	os->_oAnimFlag = OAM_ONCE;
 	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
@@ -2784,7 +2784,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 
 	PlaySfxLocN(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
 	// assert(os->_oAnimFlag == OAM_NONE || os->_oAnimFlag == OAM_LOOP);
-	os->_oAnimFlag = os->_oAnimFlag == OAM_NONE ? OAM_SINGLE : OAM_LOOP;
+	os->_oAnimFlag = os->_oAnimFlag == OAM_NONE ? OAM_ONCE : OAM_LOOP;
 	//os->_oAnimFrameLen = 1;
 
 	switch (os->_oVar1) { // SHRINE_TYPE
@@ -3296,7 +3296,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oAnimFlag = OAM_SINGLE;
+	os->_oAnimFlag = OAM_ONCE;
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
 	// os->_oSolidFlag = TRUE;
@@ -3334,7 +3334,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 	os->_oModeFlags &= ~OMF_ACTIVE;
 
 	// os->_oVar1 = 0;
-	// os->_oAnimFlag = OAM_SINGLE;
+	// os->_oAnimFlag = OAM_ONCE;
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
@@ -3348,7 +3348,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 		// os->_oAnimFrameLen = 1000;
 		return;
 	}
-	os->_oAnimFlag = OAM_SINGLE;
+	os->_oAnimFlag = OAM_ONCE;
 	// os->_oAnimFrame = 1;
 
 	// assert(os->_oSFXCnt == 1);

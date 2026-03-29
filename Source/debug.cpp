@@ -1702,7 +1702,7 @@ void ValidateData()
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		const ObjFileData& od = objfiledata[i];
 		if (od.oAnimFlag != OAM_NONE) {
-			if (od.oAnimFlag == OAM_SINGLE)
+			if (od.oAnimFlag == OAM_ONCE)
 				app_fatal("Incorrect oAnimFlag %d for %s (%d)", od.oAnimFlag, od.ofName, i);
 			if (od.oAnimFrameLen <= 0)
 				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
