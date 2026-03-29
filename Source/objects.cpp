@@ -1364,13 +1364,13 @@ int AddObject(int type, int ox, int oy)
 	os->_oAnimCnt = 0;
 	os->_oAnimFrame = 0;
 	if (ofd->oAnimFlag != OAM_NONE) {
-		if (ofd->oAnimFlag == OAM_ONCE) {
-			os->_oAnimFlag = OAM_NONE;
-			os->_oAnimFrame = 1;
-		} else {
-			// assert(ofd->oAnimFlag == OAM_LOOP);
+		if (ofd->oAnimFlag == OAM_LOOP) {
 			os->_oAnimCnt = random_low(146, os->_oAnimFrameLen);
 			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
+		} else {
+			// assert(ofd->oAnimFlag == OAM_ONCE || ofd->oAnimFlag == OAM_TRANS);
+			os->_oAnimFrame = 1;
+			os->_oAnimFlag = OAM_NONE;
 		}
 	}
 	os->_oSolidFlag = ofd->oSolidFlags; // & 1; -- does not matter at the moment
