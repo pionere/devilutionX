@@ -1109,7 +1109,8 @@ static void AddArmorStand(int oi, int realtype)
 		dir = random_(147, 2);
 	}
 	os = &objects[oi];
-	os->_oGfxFrame = objectdata[OBJ_ARMORSTAND].oBaseFrame + 2 * dir + (inactive ? 1 : 0);
+	os->_oGfxFrame = objectdata[OBJ_ARMORSTAND].oBaseFrame + 2 * dir;
+	os->_oAnimFrame = inactive ? 0 : (os->_oGfxFrame - 1);
 	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_ARMORSTAND].oMissFlag;
 	os->_oModeFlags = inactive ? (objectdata[OBJ_ARMORSTAND].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_ARMORSTAND].oModeFlags;
 	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_ARMORSTAND].oSelFlag;
@@ -1131,7 +1132,8 @@ static void AddWeaponRack(int oi, int realtype)
 		dir = random_(147, 2);
 	}
 	os = &objects[oi];
-	os->_oGfxFrame = objectdata[OBJ_WEAPONRACK].oBaseFrame + 2 * dir + (inactive ? 1 : 0);
+	os->_oGfxFrame = objectdata[OBJ_WEAPONRACK].oBaseFrame + 2 * dir;
+	os->_oAnimFrame = inactive ? 0 : (os->_oGfxFrame - 1);
 	os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_WEAPONRACK].oMissFlag;
 	os->_oModeFlags = inactive ? (objectdata[OBJ_WEAPONRACK].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_WEAPONRACK].oModeFlags;
 	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_WEAPONRACK].oSelFlag;
@@ -1370,7 +1372,7 @@ int AddObject(int type, int ox, int oy)
 			os->_oAnimFrame = RandRangeLow(1, os->_oAnimLen);
 		} else {
 			// assert(ofd->oAnimFlag == OAM_ONCE || ofd->oAnimFlag == OAM_TRANS);
-			os->_oAnimFrame = 1;
+			os->_oAnimFrame = ofd->oAnimFlag == OAM_ONCE ? 1 : (os->_oGfxFrame - 1);
 			os->_oAnimFlag = OAM_NONE;
 		}
 	}
@@ -3063,7 +3065,8 @@ static void OperateBookCase(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame++;
+	os->_oAnimFrame = 0;
+
 	if (deltaload)
 		return;
 
@@ -3107,7 +3110,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame++;
+	os->_oAnimFrame = 0;
 	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
 
@@ -3177,9 +3180,10 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
-	os->_oGfxFrame++;
+	os->_oAnimFrame = 0;
 	// os->_oSolidFlag = TRUE;
 	os->_oMissFlag = TRUE;
+
 	if (deltaload)
 		return;
 
