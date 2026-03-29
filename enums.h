@@ -4309,12 +4309,12 @@ typedef enum _object_id {
 	//OBJ_BOOKCANDLE,
 	OBJ_BLOODFTN,
 	OBJ_DECAP,
+	OBJ_BOOK1,
 	OBJ_BOOK2,
 	//OBJ_BOOKLVR,
 	OBJ_BLINDBOOK,
 	OBJ_BLOODBOOK,
 	OBJ_STEELTOME,
-	OBJ_ANCIENTBOOK,
 	OBJ_VILEBOOK,
 	OBJ_MYTHICBOOK,
 	OBJ_PEDESTAL,
@@ -4387,20 +4387,21 @@ typedef enum _object_id {
 	OBJ_BOOK1LN      = -34, // inactive book1-stand in SW-NE direction
 	OBJ_BOOK1R       = -35, // active book1-stand in SE-NW direction
 	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-NW direction
-	OBJ_BOOK2N       = -37, // inactive book2-stand in random direction
-	OBJ_BOOK2L       = -38, // active book2-stand in SW-NE direction
-	OBJ_BOOK2LN      = -39, // inactive book2-stand in SW-NE direction
-	OBJ_BOOK2R       = -40, // active book2-stand in SE-NW direction
-	OBJ_BOOK2RN      = -41, // inactive book2-stand in SE-NW direction
-	OBJ_TORTUREL     = -42, // random hooked body on the SW-NE wall
-	OBJ_TORTURER     = -43, // random hooked body on the SE-NW wall
-	OBJ_TORTUREL1    = -44, // 1. hooked body on the SW-NE wall
-	OBJ_TORTUREL2    = -45, // 2. hooked body on the SW-NE wall
-	OBJ_TORTUREL3    = -46, // 3. hooked body on the SW-NE wall
-	OBJ_TORTURER1    = -47, // 1. hooked body on the SE-NW wall
-	OBJ_TORTURER2    = -48, // 2. hooked body on the SE-NW wall
-	OBJ_TORTURER3    = -49, // 3. hooked body on the SE-NW wall
-	NUM_OBJVERSIONS = 49,
+	OBJ_ANCIENTBOOK  = -37,
+	OBJ_BOOK2N       = -38, // inactive book2-stand in random direction
+	OBJ_BOOK2L       = -39, // active book2-stand in SW-NE direction
+	OBJ_BOOK2LN      = -40, // inactive book2-stand in SW-NE direction
+	OBJ_BOOK2R       = -41, // active book2-stand in SE-NW direction
+	OBJ_BOOK2RN      = -42, // inactive book2-stand in SE-NW direction
+	OBJ_TORTUREL     = -43, // random hooked body on the SW-NE wall
+	OBJ_TORTURER     = -44, // random hooked body on the SE-NW wall
+	OBJ_TORTUREL1    = -45, // 1. hooked body on the SW-NE wall
+	OBJ_TORTUREL2    = -46, // 2. hooked body on the SW-NE wall
+	OBJ_TORTUREL3    = -47, // 3. hooked body on the SW-NE wall
+	OBJ_TORTURER1    = -48, // 1. hooked body on the SE-NW wall
+	OBJ_TORTURER2    = -49, // 2. hooked body on the SE-NW wall
+	OBJ_TORTURER3    = -50, // 3. hooked body on the SE-NW wall
+	NUM_OBJVERSIONS = 50,
 } _object_id;
 
 typedef enum quest_id {
@@ -4508,6 +4509,7 @@ typedef enum quest_var1_state {
 
 typedef enum book_id {
 	BK_LECTERN,
+	BK_SKILL,
 	BK_STORY_MAINA_1,
 	BK_STORY_MAINA_2,
 	BK_STORY_MAINA_3,
@@ -4517,10 +4519,10 @@ typedef enum book_id {
 	BK_STORY_MAINC_1,
 	BK_STORY_MAINC_2,
 	BK_STORY_MAINC_3,
+	BK_ANCIENT,
 	BK_BLIND,
 	BK_BLOOD,
 	BK_STEEL,
-	BK_ANCIENT,
 	BK_VILENESS,
 	BK_MYTHIC,
 #ifdef HELLFIRE

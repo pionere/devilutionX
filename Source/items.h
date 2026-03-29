@@ -42,6 +42,7 @@ void GetItemSeed(ItemStruct* is);
 void SetGoldItemValue(ItemStruct* is, int value);
 void CreatePlrItems(int pnum);
 bool ItemSpaceOk(int x, int y);
+BYTE GetBookSpell(unsigned lvl);
 void SetItemData(int ii, int idata);
 void SetItemSData(ItemStruct* is, int idata);
 void SpawnUnique(int uid, int x, int y, int mode);
@@ -54,7 +55,6 @@ void PlaceQuestItemInArea(int idx, int areasize);
 void CreateQuestItemAt(int idx, int x, int y, int mode);
 void SpawnQuestItemAt(int idx, int x, int y, int mode);
 void PickQuestItemAt(int idx, int x, int y, int mode);
-void PlaceRock();
 #ifdef HELLFIRE
 void SpawnAmulet(uint16_t wCI, int x, int y /*, bool sendmsg*/);
 #endif

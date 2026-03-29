@@ -523,12 +523,21 @@ static void AddSkelMonOrBanner(BYTE rnd, int x, int y)
  *
  * @param themeId: theme id.
  */
+static const int8_t SkelPatterns[][2] = {
+	{  0,  0 },
+	{ -1,  0 },
+	{  0, -1 },
+	{ -1, -1 },
+	{  1, -1 },
+	{ -1,  1 },
+};
 static void Theme_SkelRoom(int themeId)
 {
 	int xx, yy;
 	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
 	BYTE monstrnd;
 	const ThemeStruct &theme = themes[themeId];
+	int8_t objs[2];
 
 	xx = theme._tsObjX;
 	yy = theme._tsObjY;
@@ -553,15 +562,30 @@ static void Theme_SkelRoom(int themeId)
 
 	AddSkelMonOrBanner(monstrnd, xx + 1, yy + 1);
 
+	unsigned ver = random_(0, 8);
+	if (ver >= (unsigned)lengthof(SkelPatterns)) {
+		ver = 0;
+	}
+	objs[0] = SkelPatterns[ver][0];
+	objs[1] = SkelPatterns[ver][1];
+
 	if ((dObject[xx][yy - 3] == 0 || !objects[dObject[xx][yy - 3] - 1]._oDoorFlag)   // not a door
 	 && (nSolidTable[dPiece[xx][yy - 3]] || !nSolidTable[dPiece[xx + 1][yy - 3]])) { // or a single path to NE TODO: allow if !nSolidTable[dPiece[xx - 1][yy - 3]]?
 		// assert(dObject[xx][yy - 2] == 0);
-		AddObject(OBJ_BOOK2R, xx, yy - 2);
+	} else {
+		objs[0] = -1;
 	}
 	if ((dObject[xx][yy + 3] == 0 || !objects[dObject[xx][yy + 3] - 1]._oDoorFlag)   // not a door
 	 && (nSolidTable[dPiece[xx][yy + 3]] || !nSolidTable[dPiece[xx + 1][yy + 3]])) { // or a single path to SW TODO: allow if !nSolidTable[dPiece[xx - 1][yy + 3]]?
 		// assert(dObject[xx][yy + 2] == 0);
-		AddObject(OBJ_BOOK2R, xx, yy + 2);
+	} else {
+		objs[1] = -1;
+	}
+	if (objs[0] >= 0) {
+		AddObject(objs[0] == 0 ? OBJ_BOOK2R : OBJ_BOOK1R, xx, yy - 2);
+	}
+	if (objs[1] >= 0) {
+		AddObject(objs[1] == 0 ? OBJ_BOOK2R : OBJ_BOOK1R, xx, yy + 2);
 	}
 }
 

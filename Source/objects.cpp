@@ -125,6 +125,7 @@ static const BYTE shrineavail[NUM_SHRINETYPE] = {
 /** Maps from book_id to book name. */
 static const char* const BookName[NUM_BOOKS] = {
 /*BK_LECTERN*/        "Lectern",
+/*BK_SKILL*/          "Skillbook",
 /*BK_STORY_MAINA_1*/  "The Great Conflict",
 /*BK_STORY_MAINA_2*/  "The Wages of Sin are War",
 /*BK_STORY_MAINA_3*/  "The Tale of the Horadrim",
@@ -134,10 +135,10 @@ static const char* const BookName[NUM_BOOKS] = {
 /*BK_STORY_MAINC_1*/  "The Realms Beyond",
 /*BK_STORY_MAINC_2*/  "Tale of the Three",
 /*BK_STORY_MAINC_3*/  "The Black King",
+/*BK_ANCIENT*/        "Ancient Book",
 /*BK_BLIND*/          "Book of the Blind",
 /*BK_BLOOD*/          "Book of Blood",
 /*BK_STEEL*/          "Steel Tome",
-/*BK_ANCIENT*/        "Ancient Book",
 /*BK_VILENESS*/       "Book of Vileness",
 /*BK_MYTHIC*/         "Mythical Book",
 #ifdef HELLFIRE
@@ -1151,9 +1152,10 @@ static void AddBook(int oi)
 	os->_oAnimFrame = os->_oGfxFrame - 2;
 	os->_oVar6 = os->_oGfxFrame - 1;         // LEVER_BOOK_READ_ANIM
 
+	os->_oUniqAnim = objectdata[os->_otype].ofindex == OFILE_BOOK1 ? TRN_MON_THIN_V2 : TRN_NONE;
+
 	static_assert((int)BK_BLOOD == (int)OBJ_BLOODBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums I.");
 	static_assert((int)BK_STEEL == (int)OBJ_STEELTOME - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums II.");
-	static_assert((int)BK_ANCIENT == (int)OBJ_ANCIENTBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums III.");
 	static_assert((int)BK_VILENESS == (int)OBJ_VILEBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums IV.");
 	static_assert((int)BK_MYTHIC == (int)OBJ_MYTHICBOOK - (int)OBJ_BLINDBOOK + (int)BK_BLIND, "AddBook requires ordered enums V.");
 
@@ -1175,6 +1177,34 @@ static void AddBook(int oi)
 		os->_oVar7 = Q_BLIND;           // LEVER_BOOK_QUEST
 		AddLeverEffect(os, pSetPieces[0]._spx, pSetPieces[0]._spy + 1, pSetPieces[0]._spx + 11, pSetPieces[0]._spy + 10);
 	}
+}
+
+static void AddBook1(int oi, int realtype)
+{
+	ObjectStruct* os;
+	int8_t inactive = 0;
+	int8_t dir = -1;
+	int8_t bookidx = BK_SKILL;
+
+	if (realtype < 0) {
+		const ObjTypeConv &otc = objTypeConv[-realtype];
+		dir = otc.oTypeParam1;
+		inactive = otc.oTypeParam2;
+		bookidx = otc.oTypeParam3;
+	}
+	if (dir < 0) {
+		dir = random_(147, 2);
+	}
+	os = &objects[oi];
+	os->_oGfxFrame = objectdata[OBJ_BOOK1].oBaseFrame + 3 * dir;
+	os->_oAnimFrame = os->_oGfxFrame - (inactive ? 1 : 2);
+	os->_oVar6 = os->_oGfxFrame - 1; // STORY_BOOK_READ_ANIM
+	// os->_oMissFlag = inactive ? TRUE : objectdata[OBJ_BOOK2].oMissFlag;
+	os->_oModeFlags = inactive ? (objectdata[OBJ_BOOK1].oModeFlags & ~OMF_ACTIVE) : objectdata[OBJ_BOOK1].oModeFlags;
+	os->_oSelFlag = inactive ? 0 : objectdata[OBJ_BOOK1].oSelFlag;
+	os->_oVar5 = bookidx; // STORY_BOOK_NAME
+
+	os->_oVar7 = bookidx == BK_ANCIENT ? SPL_GUARDIAN : GetBookSpell(currLvl._dLevelIdx); // BOOK_SKILL
 }
 
 static void AddBook2(int oi, int realtype)
@@ -1261,7 +1291,7 @@ static void AddStoryBook(int oi)
 	idx = (currLvl._dLevelIdx >> 2) - 1;
 	bookframe = quests[Q_DIABLO]._qvar1;
 	// trn = bookframe == 0 ? TRN_UMON_TWH : (bookframe == 1 ? TRN_MON_THIN_V3 : TRN_NONE);
-	trn = bookframe == 0 ? TRN_NONE : (bookframe == 1 ? TRN_MON_THIN_V3 : TRN_UMON_TWH);
+	trn = bookframe == 0 ? TRN_MON_THIN_V2 : (bookframe == 1 ? TRN_MON_THIN_V3 : TRN_UMON_TWH);
 
 	os = &objects[oi];
 	// os->_oVar1 = bookframe;
@@ -1462,12 +1492,14 @@ int AddObject(int type, int ox, int oy)
 			AddWeaponRack(oi, realType);
 			break;
 		case OBJ_BLOODBOOK:
-		case OBJ_ANCIENTBOOK:
 		case OBJ_STEELTOME:
 		case OBJ_BLINDBOOK:
 		case OBJ_MYTHICBOOK:
 		case OBJ_VILEBOOK:
 			AddBook(oi);
+			break;
+		case OBJ_BOOK1:
+			AddBook1(oi, realType);
 			break;
 		case OBJ_BOOK2:
 			AddBook2(oi, realType);
@@ -2092,32 +2124,6 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	ObjLvrChangeMap(os/*, false*/);
 	//for (i = 0; i < numobjects; i++)
 	//	SyncObjectAnim(objectactive[i]);
-}
-
-static void OperateAncientBook(int pnum, int oi, bool sendmsg)
-{
-	ObjectStruct* os;
-
-	// assert(currLvl._dLevelIdx == SL_BONECHAMB);
-
-	os = &objects[oi];
-	// assert(os->_oModeFlags & OMF_ACTIVE);
-	os->_oModeFlags &= ~OMF_ACTIVE;
-	os->_oSelFlag = 0;
-	os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_READ_ANIM
-
-	if (deltaload)
-		return;
-	PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
-	// SetRndSeed(os->_oRndSeed);
-	AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
-	quests[Q_BCHAMB]._qactive = QUEST_DONE;
-	if (sendmsg) {
-		NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
-		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-		// assert(pnum == mypnum);
-		NetSendCmdBParam1(CMD_BOOK, SPL_GUARDIAN);
-	}
 }
 
 static void OperateBookLever(int pnum, int oi, bool sendmsg)
@@ -2745,9 +2751,9 @@ void SyncBookCmd(int pnum, BYTE sn)
 	if (plr._pSkillLvlBase[sn] == 0) {
 		plr._pSkillExp[sn] = SkillExpLvlsTbl[0];
 		IncreasePlrSkillLvl(pnum, sn);
+		if (pnum == mypnum)
+			InitDiabloMsg(EMSG_BONECHAMB);
 	}
-	if (pnum == mypnum)
-		InitDiabloMsg(EMSG_BONECHAMB);
 }
 ENABLE_SPEED_OPTIMIZATION
 
@@ -2992,6 +2998,38 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 #endif
 	default:
 		ASSUME_UNREACHABLE
+	}
+}
+
+static void OperateBook1(int oi, bool sendmsg)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	// assert(os->_oModeFlags & OMF_ACTIVE);
+	os->_oModeFlags &= ~OMF_ACTIVE;
+	os->_oSelFlag = 0;
+	os->_oAnimFrame = os->_oVar6; // STORY_BOOK_READ_ANIM
+
+	if (deltaload)
+		return;
+
+	if (os->_oVar5 == BK_ANCIENT) { // STORY_BOOK_NAME
+		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
+		// SetRndSeed(os->_oRndSeed);
+		// AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
+		quests[Q_BCHAMB]._qactive = QUEST_DONE;
+		if (sendmsg) {
+			NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
+		}
+	} else {
+		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	}
+	if (sendmsg) {
+		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
+		// assert(pnum == mypnum);
+		if (myplr._pMagic >= spelldata[os->_oVar7].sMinInt)
+			NetSendCmdBParam1(CMD_BOOK, os->_oVar7); // BOOK_SKILL
 	}
 }
 
@@ -3374,9 +3412,6 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, sendmsg);
 		break;
-	case OBJ_ANCIENTBOOK:
-		OperateAncientBook(pnum, oi, sendmsg);
-		break;
 	case OBJ_VILEBOOK:
 		OperateVileBook(pnum, oi, sendmsg);
 		break;
@@ -3530,9 +3565,6 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_LEVER:
 	case OBJ_SWITCHSKL:
 		OperateLever(oi, false);
-		break;
-	case OBJ_ANCIENTBOOK:
-		OperateAncientBook(pnum, oi, false);
 		break;
 	case OBJ_VILEBOOK:
 		OperateVileBook(pnum, oi, false);
@@ -3849,13 +3881,13 @@ void GetObjectStr(int oi)
 	case OBJ_TEARFTN:
 		txt0 = "Fountain of Tears";
 		break;
-	case OBJ_ANCIENTBOOK:
 	case OBJ_VILEBOOK:
 	case OBJ_MYTHICBOOK:
 	case OBJ_BLOODBOOK:
 	case OBJ_BLINDBOOK:
 	case OBJ_STEELTOME:
 	case OBJ_STORYBOOK:
+	case OBJ_BOOK1:
 	case OBJ_BOOK2:
 #ifdef HELLFIRE
 	case OBJ_L5BOOK:

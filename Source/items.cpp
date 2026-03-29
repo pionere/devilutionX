@@ -1256,7 +1256,7 @@ restart:
 	}
 }*/
 
-static BYTE GetBookSpell(unsigned lvl)
+BYTE GetBookSpell(unsigned lvl)
 {
 	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetBookSpell stores spell-ids in BYTEs.");
 	BYTE ss[NUM_SPELLS];
