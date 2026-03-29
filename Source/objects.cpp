@@ -2427,7 +2427,7 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 		return;
 	}
 
-	os->_oGfxFrame = quests[Q_BLOOD]._qvar1;
+	os->_oAnimFrame = quests[Q_BLOOD]._qvar1 - 1;
 	if (quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3) {
 		os->_oModeFlags &= ~OMF_ACTIVE;
 		os->_oSelFlag = 0;
