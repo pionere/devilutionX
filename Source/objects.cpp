@@ -1151,6 +1151,11 @@ static void AddBook(int oi)
 	ObjectStruct* os;
 
 	os = &objects[oi];
+	if (os->_oGfxFrame == 0) {
+		int8_t dir = random_(147, 2);
+		// os->_oGfxFrame = objectdata[OBJ_BOOK1].oBaseFrame + 3 * dir;
+		os->_oGfxFrame = 3 * (dir + 1);
+	}
 	os->_oAnimFrame = os->_oGfxFrame - 2;
 	os->_oVar6 = os->_oGfxFrame - 1;         // LEVER_BOOK_READ_ANIM
 
