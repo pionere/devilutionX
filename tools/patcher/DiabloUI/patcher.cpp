@@ -95,9 +95,9 @@ typedef enum filenames {
 	FILE_THINV1_TRN,
 	FILE_GREY_TRN,
 #if ASSET_MPL == 1
-	FILE_OBJ_L1DOORS,
-	FILE_OBJ_L2DOORS,
-	FILE_OBJ_L3DOORS,
+//	FILE_OBJ_L1DOORS,
+//	FILE_OBJ_L2DOORS,
+//	FILE_OBJ_L3DOORS,
 //	FILE_OBJ_MCIRL,
 //	FILE_OBJ_CANDL2,
 //	FILE_OBJ_LSHR,
@@ -105,6 +105,7 @@ typedef enum filenames {
 //	FILE_OBJ_TFOUNTN,
 #ifdef HELLFIRE
 	FILE_OBJ_L5BOOKS,
+	FILE_OBJ_L5DOOR,
 	FILE_OBJ_L5LEVER,
 	FILE_OBJ_L5LIGHT,
 	FILE_OBJ_L5SARCO,
@@ -305,9 +306,9 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_THINV1_TRN*/    "Monsters\\Thin\\Thinv1.TRN",
 /*FILE_GREY_TRN*/      "Monsters\\Zombie\\Grey.TRN",
 #if ASSET_MPL == 1
-/*FILE_OBJ_L1DOORS*/   "Objects\\L1Doors.CEL",
-/*FILE_OBJ_L2DOORS*/   "Objects\\L2Doors.CEL",
-/*FILE_OBJ_L3DOORS*/   "Objects\\L3Doors.CEL",
+/*FILE_OBJ_L1DOORS*/// "Objects\\L1Doors.CEL",
+/*FILE_OBJ_L2DOORS*/// "Objects\\L2Doors.CEL",
+/*FILE_OBJ_L3DOORS*/// "Objects\\L3Doors.CEL",
 /*FILE_OBJ_MCIRL*///   "Objects\\Mcirl.CEL",
 /*FILE_OBJ_CANDL2*///  "Objects\\Candle2.CEL",
 /*FILE_OBJ_LSHR*///    "Objects\\LShrineG.CEL",
@@ -315,6 +316,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_OBJ_TFOUNTN*/// "Objects\\TFountn.CEL",
 #ifdef HELLFIRE
 /*FILE_OBJ_L5BOOKS*/   "Objects\\L5Books.CEL",
+/*FILE_OBJ_L5DOOR*/    "Objects\\L5Door.CEL",
 /*FILE_OBJ_L5LEVER*/   "Objects\\L5Lever.CEL",
 /*FILE_OBJ_L5LIGHT*/   "Objects\\L5Light.CEL",
 /*FILE_OBJ_L5SARCO*/   "Objects\\L5Sarco.CEL",
@@ -2253,6 +2255,77 @@ static BYTE* patchCryptBooks(BYTE* celBuf, size_t* celLen)
 					gpBuffer[49 + 60 * BUFFER_WIDTH] = 201; // (was color191)
 					gpBuffer[49 + 61 * BUFFER_WIDTH] = 188; // (was color190)
 					gpBuffer[49 + 62 * BUFFER_WIDTH] = 189; // (was color191)
+				}
+			}
+		}
+
+		// resize the frame
+		for (int y = 0; y < RES_FRAME_HEIGHT; y++) {
+			for (int x = 0; x < RES_FRAME_WIDTH; x++) {
+				gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[(x + (FRAME_WIDTH - RES_FRAME_WIDTH) / 2) + (y + FRAME_HEIGHT - RES_FRAME_HEIGHT) * BUFFER_WIDTH];
+			}
+		}
+
+		// write to the new CEL file
+		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
+		dstHeaderCursor++;
+
+		dstDataCursor = EncodeFrame(dstDataCursor, RES_FRAME_WIDTH, RES_FRAME_HEIGHT, SUB_HEADER_SIZE, TRANS_COLOR);
+
+		// skip the original frame
+		srcHeaderCursor++;
+	}
+
+	// add file-size
+	*celLen = (size_t)dstDataCursor - (size_t)resCelBuf;
+	dstHeaderCursor[0] = SwapLE32((DWORD)*celLen);
+
+	return resCelBuf;
+}
+
+static BYTE* patchCryptDoor(BYTE* celBuf, size_t* celLen)
+{
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int FRAME_WIDTH = 64;
+	constexpr int FRAME_HEIGHT = 160;
+	constexpr int RES_FRAME_WIDTH = 58;
+	constexpr int RES_FRAME_HEIGHT = 130;
+
+	if (CelClippedWidth(celBuf) != FRAME_WIDTH) {
+		return celBuf; // assume it is already done
+	}
+
+	DWORD* srcHeaderCursor = (DWORD*)celBuf;
+	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
+	srcHeaderCursor++;
+
+	const int resCelEntries = srcCelEntries;
+
+	// create the new CEL file
+	size_t maxCelSize = *celLen;
+	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+	memset(resCelBuf, 0, maxCelSize);
+
+	DWORD* dstHeaderCursor = (DWORD*)resCelBuf;
+	*dstHeaderCursor = SwapLE32(resCelEntries);
+	dstHeaderCursor++;
+
+	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	for (int i = 0; i < resCelEntries; i++) {
+		// draw the frame to the back-buffer
+		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
+		CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+
+		// swap frame 2 and 3
+		if (i + 1 == 2) {
+			memset(&gpBuffer[0], TRANS_COLOR, (size_t)2 * FRAME_HEIGHT * BUFFER_WIDTH);
+			CelClippedDraw(0, FRAME_HEIGHT - 1, celBuf, i + 1 + 1, FRAME_WIDTH);
+			CelClippedDraw(0, 2 * FRAME_HEIGHT - 1, celBuf, i + 1, FRAME_WIDTH);
+		}
+		if (i + 1 == 3) {
+			for (int y = 0; y < FRAME_HEIGHT; y++) {
+				for (int x = 0; x < FRAME_WIDTH; x++) {
+					gpBuffer[x + y * BUFFER_WIDTH] = gpBuffer[x + (y + FRAME_HEIGHT) * BUFFER_WIDTH];
 				}
 			}
 		}
@@ -8477,6 +8550,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		}
 	} break;
 #if ASSET_MPL == 1
+#if 0
 	case FILE_OBJ_L1DOORS:
 	{	// patch L1Doors.CEL
 		buf = DRLP_L1_PatchDoors(buf, dwLen);
@@ -8489,7 +8563,6 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	{	// patch L3Doors.CEL
 		buf = DRLP_L3_PatchDoors(buf, dwLen);
 	} break;
-#if 0
 	case FILE_OBJ_MCIRL:
 	{	// fix object gfx file - Mcirls.CEL
 		buf = fixObjCircle(buf, dwLen);
@@ -8515,6 +8588,10 @@ static BYTE* patchFile(int index, size_t *dwLen)
 	case FILE_OBJ_L5BOOKS:
 	{	// patch object gfx file - L5Book.CEL
 		buf = patchCryptBooks(buf, dwLen);
+	} break;
+	case FILE_OBJ_L5DOOR:
+	{	// patch object gfx file - L5Door.CEL
+		buf = patchCryptDoor(buf, dwLen);
 	} break;
 	case FILE_OBJ_L5LEVER:
 	{	// patch object gfx file - L5Lever.CEL

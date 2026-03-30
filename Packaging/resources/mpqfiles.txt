@@ -92,6 +92,9 @@ Objects\CruxSk3.CEL
 Objects\Decap.CEL
 Objects\Goatshrn.CEL
 Objects\L1Braz.CEL
+Objects\L1Doors.CEL
+Objects\L2Doors.CEL
+Objects\L3Doors.CEL
 Objects\Lever.CEL
 Objects\LShrineG.CEL
 Objects\LzStand.CEL

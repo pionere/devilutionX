@@ -1927,7 +1927,7 @@ static void OpenDoor(ObjectStruct* os)
 	os->_oSelFlag = (objectdata[OBJ_L1LDOOR].oSelFlag & ~1) | 4;
 	// TODO: set os->_oSolidFlag = FALSE;
 	os->_oMissFlag = TRUE;
-	os->_oGfxFrame += 2;
+	os->_oGfxFrame++;
 }
 
 static void CloseDoor(ObjectStruct* os)
@@ -1937,7 +1937,7 @@ static void CloseDoor(ObjectStruct* os)
 	os->_oSelFlag = objectdata[OBJ_L1LDOOR].oSelFlag;
 	// TODO: set os->_oSolidFlag = TRUE;
 	os->_oMissFlag = FALSE;
-	os->_oGfxFrame -= 2;
+	os->_oGfxFrame--;
 }
 
 /*
