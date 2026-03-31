@@ -1332,6 +1332,7 @@ int AddObject(int type, int ox, int oy)
 	ObjectStruct* os;
 	const ObjectData* ods;
 	const ObjFileData* ofd;
+	CelMetaInfo mi;
 
 	if (numobjects >= MAXOBJECTS)
 		return -1;
@@ -1362,13 +1363,14 @@ int AddObject(int type, int ox, int oy)
 	if (os->_oGfxFrame == animLen)
 		animLen--;
 	os->_oAnimLen = animLen;
+	LoadCelMetaInfo(os->_oAnimData, mi);
+	os->_oAnimFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
 	os->_oAnimWidth = objanimdim[ods->ofindex];
 	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	ofd = &objfiledata[ods->ofindex];
 	os->_oSFX = ofd->oSFX;
 	os->_oSFXCnt = ofd->oSFXCnt;
 	os->_oAnimFlag = ofd->oAnimFlag;
-	os->_oAnimFrameLen = ofd->oAnimFrameLen;
 	os->_oAnimCnt = 0;
 	os->_oAnimFrame = 0;
 	if (ofd->oAnimFlag != OAM_NONE) {

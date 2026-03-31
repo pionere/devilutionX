@@ -1701,12 +1701,6 @@ void ValidateData()
 	// objects
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
 		const ObjFileData& od = objfiledata[i];
-		if (od.oAnimFlag != OAM_NONE && od.oAnimFlag != OAM_SWITCH && od.oAnimFlag != OAM_SINGLE) {
-			if (od.oAnimFrameLen <= 0)
-				app_fatal("Invalid oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
-			if (od.oAnimFrameLen >= 0x7FFF) // required by SetupObject
-				app_fatal("Too high oAnimFrameLen %d for %s (%d)", od.oAnimFrameLen, od.ofName, i);
-		}
 		if (od.oSFXCnt != 0) {
 			for (int n = 0; n < NUM_OBJECTS; n++) {
 				const ObjectData& obd = objectdata[n];

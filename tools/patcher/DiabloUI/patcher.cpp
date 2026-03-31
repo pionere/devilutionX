@@ -2484,7 +2484,7 @@ static BYTE* patchCryptSarco(BYTE* celBuf, size_t* celLen)
 	const int resCelEntries = srcCelEntries;
 
 	// create the new CEL file
-	size_t maxCelSize = *celLen;
+	size_t maxCelSize = 2 * *celLen;
 	BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
 	memset(resCelBuf, 0, maxCelSize);
 
@@ -2493,6 +2493,11 @@ static BYTE* patchCryptSarco(BYTE* celBuf, size_t* celLen)
 	dstHeaderCursor++;
 
 	BYTE* dstDataCursor = resCelBuf + 4 * (resCelEntries + 2);
+	// add frame-length metadata
+	*dstDataCursor = CELMETA_ANIMDELAY;
+	dstDataCursor++;
+	*dstDataCursor = 3;
+	dstDataCursor++;
 	for (int i = 0; i < resCelEntries; i++) {
 		// draw the frame to the back-buffer
 		memset(&gpBuffer[0], TRANS_COLOR, (size_t)FRAME_HEIGHT * BUFFER_WIDTH);
