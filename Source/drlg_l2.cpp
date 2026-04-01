@@ -2647,6 +2647,8 @@ static void DRLG_L2FixPreMap(int idx)
 			lm[2 + 10 * 16 + 3 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
 			lm[2 + 10 * 16 + 6 + y * 10] = SwapLE16((3 << 8) | (3 << 12));
 		}
+		lm[2 + 10 * 16 + 0 + 5 * 10] = SwapLE16((3 << 8));
+		lm[2 + 10 * 16 + 9 + 5 * 10] = SwapLE16((3 << 8));
 	} else if (pSetPieces[idx]._sptype == SPT_BCHAMB) {
 		// patch the map - Bonestr1.DUN
 		// useless tiles
