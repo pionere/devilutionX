@@ -481,7 +481,8 @@ static void ObjAddDunObjs(int x1, int y1, int x2, int y2)
 
 static void ObjAddTorches()
 {
-	int i, j;
+	int i, j, type;
+	bool p0, p1;
 	// place torches on NW->SE walls
 	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 		for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
@@ -491,12 +492,17 @@ static void ObjAddTorches()
 			// select 'trapable' position
 			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_LEFT)
 				continue;
-			if (random_(145, 32) != 0)
+			type = random_(145, 64);
+			if ((unsigned)(type - 1) > 2)
 				continue;
-			// assert(nSolidTable[dPiece[i][j - 1]] | nSolidTable[dPiece[i][j + 1]]);
-			if (!nSolidTable[dPiece[i + 1][j]]) {
+			p0 = type & 1;
+			p1 = type & 2;
+			if (nSolidTable[dPiece[i + 1][j]]) p0 = false;
+			if (nSolidTable[dPiece[i - 1][j]]) p1 = false;
+			if (p0) {
 				AddObject(OBJ_TORCHL1, i, j);
-			} else {
+			}
+			if (p1) {
 				AddObject(OBJ_TORCHL2, i - 1, j);
 			}
 			// skip a few tiles to prevent close placement
@@ -512,13 +518,18 @@ static void ObjAddTorches()
 			// select 'trapable' position
 			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_RIGHT)
 				continue;
-			if (random_(145, 32) != 0)
+			type = random_(145, 64);
+			if ((unsigned)(type - 1) > 2)
 				continue;
-			// assert(nSolidTable[dPiece[i - 1][j]] | nSolidTable[dPiece[i + 1][j]]);
-			if (!nSolidTable[dPiece[i][j + 1]]) {
+			p0 = type & 1;
+			p1 = type & 2;
+			if (nSolidTable[dPiece[i][j + 1]]) p0 = false;
+			if (nSolidTable[dPiece[i][j - 1]]) p1 = false;
+			if (p0) {
 				if (dObject[i][j] == 0) // check torches from the previous loop
 					AddObject(OBJ_TORCHR1, i, j);
-			} else {
+			}
+			if (p1) {
 				if (dObject[i][j - 1] == 0) // check torches from the previous loop
 					AddObject(OBJ_TORCHR2, i, j - 1);
 			}
