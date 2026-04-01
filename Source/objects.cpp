@@ -589,11 +589,11 @@ static void ObjAddTraps()
 	}
 }
 
-static void LoadMapSetObjects(int idx)
+static void LoadMapSetObjects(const SetPieceStruct &sps)
 {
-	int startx = DBORDERX + pSetPieces[idx]._spx * 2;
-	int starty = DBORDERY + pSetPieces[idx]._spy * 2;
-	const BYTE* pMap = pSetPieces[idx]._spData;
+	int startx = DBORDERX + sps._spx * 2;
+	int starty = DBORDERY + sps._spy * 2;
+	const BYTE* pMap = sps._spData;
 	int i, j;
 	uint16_t rw, rh, *lm, oidx;
 
@@ -811,26 +811,16 @@ void InitObjects()
 		InitRndLocObj5x5(OBJ_MUSHPATCH);
 	for (int i = lengthof(pSetPieces) - 1; i >= 0; i--) {
 		if (pSetPieces[i]._spData != NULL) { // pSetPieces[i]._sptype != SPT_NONE
-			LoadMapSetObjects(i);
+			LoadMapSetObjects(pSetPieces[i]);
 		}
 	}
-	if (pSetPieces[0]._sptype == SPT_WARLORD) { // QuestStatus(Q_WARLORD)
-		InitRndLocObj5x5(OBJ_STEELTOME);
-	}
-	if (pSetPieces[0]._sptype == SPT_BCHAMB) { // QuestStatus(Q_BCHAMB)
-		InitRndLocObj5x5(OBJ_MYTHICBOOK);
-	}
-	if (pSetPieces[0]._sptype == SPT_BLIND) { // QuestStatus(Q_BLIND)
-		InitRndLocObj5x5(OBJ_BLINDBOOK);
-	}
-	if (pSetPieces[0]._sptype == SPT_LVL_SKELKING) {
-		ObjSetSKingRanges();
-	}
-	if (pSetPieces[0]._sptype == SPT_LVL_BCHAMB) {
-		ObjSetBChamRanges();
-	}
-	if (pSetPieces[0]._sptype == SPT_LVL_BETRAYER) {
-		ObjSetVileRanges();
+	switch (pSetPieces[0]._sptype) {
+	case SPT_BLIND:        InitRndLocObj5x5(OBJ_BLINDBOOK);  break; // QuestStatus(Q_BLIND)
+	case SPT_BCHAMB:       InitRndLocObj5x5(OBJ_MYTHICBOOK); break; // QuestStatus(Q_BCHAMB)
+	case SPT_WARLORD:      InitRndLocObj5x5(OBJ_STEELTOME);  break; // QuestStatus(Q_WARLORD)
+	case SPT_LVL_SKELKING: ObjSetSKingRanges();              break;
+	case SPT_LVL_BCHAMB:   ObjSetBChamRanges();              break;
+	case SPT_LVL_BETRAYER: ObjSetVileRanges();               break;
 	}
 	switch (currLvl._dLevelIdx) {
 	case DLV_CATHEDRAL4:
@@ -2411,7 +2401,7 @@ static void SyncPedestal(/*int oi*/)
 		}
 #else
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
-		LoadMapSetObjects(0);
+		LoadMapSetObjects(pSetPieces[0]);
 		MemFreeDbg(pSetPieces[0]._spData);
 #endif
 		SavePreLighting();
