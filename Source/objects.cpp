@@ -479,6 +479,14 @@ static void ObjAddDunObjs(int x1, int y1, int x2, int y2)
 	}
 }
 
+static int CondAddObject(int type, int xp, int yp)
+{
+	int result = -1;
+	if (dObject[xp][yp] == 0)
+		result = AddObject(type, xp, yp);
+	return result;
+}
+
 static void ObjAddTorches()
 {
 	int i, j, type;
@@ -526,12 +534,10 @@ static void ObjAddTorches()
 			if (nSolidTable[dPiece[i][j + 1]]) p0 = false;
 			if (nSolidTable[dPiece[i][j - 1]]) p1 = false;
 			if (p0) {
-				if (dObject[i][j] == 0) // check torches from the previous loop
-					AddObject(OBJ_TORCHR1, i, j);
+				CondAddObject(OBJ_TORCHR1, i, j);
 			}
 			if (p1) {
-				if (dObject[i][j - 1] == 0) // check torches from the previous loop
-					AddObject(OBJ_TORCHR2, i, j - 1);
+				CondAddObject(OBJ_TORCHR2, i, j - 1);
 			}
 			// skip a few tiles to prevent close placement
 			i += 4;
@@ -574,13 +580,12 @@ static void ObjAddTraps()
 			tx = ox;
 			on = OBJ_TRAPR;
 		}
+		// skip setmap pieces
 		if (dFlags[tx][ty] & BFLAG_OBJ_PROTECT)
-			continue;
-		if (dObject[tx][ty] != 0)
 			continue;
 		if ((nSpecTrapTable[dPiece[tx][ty]] & PST_TRAP_TYPE) == PST_NONE)
 			continue;
-		on = AddObject(on, tx, ty);
+		on = CondAddObject(on, tx, ty);
 		if (on == -1)
 			return;
 		objects[on]._oVar1 = oi; // TRAP_OI_REF
