@@ -109,6 +109,9 @@ Objects\RShrineG.CEL
 Objects\Sarc.CEL
 Objects\SkulFire.CEL
 Objects\TFountn.CEL
+Objects\TNudeM.CEL
+Objects\TNudeW.CEL
+Objects\Traphole.CEL
 Objects\TSoul.CEL
 Objects\WeapStnd.CEL
 Objects\WTorch1.CEL
