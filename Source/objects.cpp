@@ -489,7 +489,7 @@ static int CondAddObject(int type, int xp, int yp)
 
 static void ObjAddTorches()
 {
-	int i, j, type;
+	int i, j, ttv, type;
 	bool p0, p1;
 	// place torches on NW->SE walls
 	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
@@ -498,7 +498,8 @@ static void ObjAddTorches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_LEFT)
+			ttv = (nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) >> PST_TRAP_SHL;
+			if (ttv != (PST_LEFT >> PST_TRAP_SHL))
 				continue;
 			type = random_(145, 64);
 			if ((unsigned)(type - 1) > 2)
@@ -524,20 +525,32 @@ static void ObjAddTorches()
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			// select 'trapable' position
-			if ((nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) != PST_RIGHT)
+			ttv = (nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) >> PST_TRAP_SHL;
+			if (ttv == (PST_NONE >> PST_TRAP_SHL) || ttv == (PST_LEFT >> PST_TRAP_SHL))
 				continue;
 			type = random_(145, 64);
 			if ((unsigned)(type - 1) > 2)
 				continue;
 			p0 = type & 1;
 			p1 = type & 2;
-			if (nSolidTable[dPiece[i][j + 1]]) p0 = false;
-			if (nSolidTable[dPiece[i][j - 1]]) p1 = false;
-			if (p0) {
-				CondAddObject(OBJ_TORCHR1, i, j);
-			}
-			if (p1) {
-				CondAddObject(OBJ_TORCHR2, i, j - 1);
+			if (ttv == (PST_RIGHT >> PST_TRAP_SHL)) {
+				if (nSolidTable[dPiece[i][j + 1]]) p0 = false;
+				if (nSolidTable[dPiece[i][j - 1]]) p1 = false;
+				if (p0) {
+					CondAddObject(OBJ_TORCHR1, i, j);
+				}
+				if (p1) {
+					CondAddObject(OBJ_TORCHR2, i, j - 1);
+				}
+			} else {
+				if (nSolidTable[dPiece[i + 1][j + 1]]) p0 = false;
+				if (nSolidTable[dPiece[i - 1][j - 1]]) p1 = false;
+				if (p0) {
+					CondAddObject(OBJ_TORCHM1, i, j);
+				}
+				if (p1) {
+					CondAddObject(OBJ_TORCHM2, i - 1, j - 1);
+				}
 			}
 			// skip a few tiles to prevent close placement
 			i += 4;
@@ -568,7 +581,7 @@ static void ObjAddTraps()
 				continue;
 
 			ty = oy;
-			on = OBJ_TRAPL;
+			on = PST_LEFT >> PST_TRAP_SHL; // OBJ_TRAPL;
 		} else {
 			ty = oy - 1;
 			while (!nSolidTable[dPiece[ox][ty]])
@@ -578,14 +591,14 @@ static void ObjAddTraps()
 				continue;
 
 			tx = ox;
-			on = OBJ_TRAPR;
+			on = PST_RIGHT >> PST_TRAP_SHL; //  OBJ_TRAPR;
 		}
 		// skip setmap pieces
 		if (dFlags[tx][ty] & BFLAG_OBJ_PROTECT)
 			continue;
-		if ((nSpecTrapTable[dPiece[tx][ty]] & PST_TRAP_TYPE) == PST_NONE)
+		if (((nSpecTrapTable[dPiece[tx][ty]] & PST_TRAP_TYPE) >> PST_TRAP_SHL) != on)
 			continue;
-		on = CondAddObject(on, tx, ty);
+		on = CondAddObject(on == (PST_LEFT >> PST_TRAP_SHL) ? OBJ_TRAPL : OBJ_TRAPR, tx, ty);
 		if (on == -1)
 			return;
 		objects[on]._oVar1 = oi; // TRAP_OI_REF
@@ -792,14 +805,17 @@ static void ObjAddHookedBodies()
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 			ttv = nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE;
-			if (ttv == PST_NONE)
+			// assert(ttv == PST_NONE || ttv == PST_LEFT || ttv == PST_RIGHT);
+			ttv >>= PST_TRAP_SHL;
+			// if (ttv == (PST_NONE >> PST_TRAP_SHL) || ttv == (PST_TOP >> PST_TRAP_SHL))
+			if (ttv == (PST_NONE >> PST_TRAP_SHL))
 				continue;
 			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
 				continue;
 			type = random_(0, 32);
 			if (type >= 3)
 				continue;
-			type = ttv == PST_LEFT ? OBJ_TORTUREL : OBJ_TORTURER;
+			type = ttv == (PST_LEFT >> PST_TRAP_SHL) ? OBJ_TORTUREL : OBJ_TORTURER;
 			AddObject(type, i, j);
 		}
 	}
@@ -857,7 +873,9 @@ void InitObjects()
 	ObjAddDunObjs(DBORDERX, DBORDERY, MAXDUNX - DBORDERX - 1, MAXDUNY - DBORDERY - 1);
 	static_assert(NUM_DTYPES <= sizeof(BYTE) * 8, "Level mask might overflow in InitObjects.");
 	BYTE lvlMask = 1 << currLvl._dType;
-	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHR1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes);
+	assert(objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHL2].oLvlTypes &&
+		   objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR1].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHR2].oLvlTypes &&
+		   objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHM1].oLvlTypes && objectdata[OBJ_TORCHL1].oLvlTypes == objectdata[OBJ_TORCHM2].oLvlTypes);
 	if (lvlMask & objectdata[OBJ_TORCHL1].oLvlTypes) {
 		ObjAddTorches();
 	}

@@ -63,7 +63,7 @@ static int TFit_Shrine(int themeId)
 	for (xx = theme._tsx1 + 1; xx < theme._tsx2 - 1; xx++) {
 		// assert(dTransVal[xx][yy] == theme._tsTransVal && dTransVal[xx - 1][yy] == theme._tsTransVal && dTransVal[xx + 1][yy] == theme._tsTransVal);
 		if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
-			if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) != PST_NONE
+			if ((nSpecTrapTable[dPiece[xx][yy - 1]] & PST_TRAP_TYPE) == PST_RIGHT
 			 // make sure the place is wide enough
 			 // - on the inside
 			 && !nSolidTable[dPiece[xx - 1][yy]]
@@ -92,7 +92,7 @@ static int TFit_Shrine(int themeId)
 	for (yy = theme._tsy1 + 1; yy < theme._tsy2 - 1; yy++) {
 		// assert(dTransVal[xx][yy] == theme._tsTransVal && dTransVal[xx][yy - 1] == theme._tsTransVal && dTransVal[xx][yy + 1] == theme._tsTransVal);
 		if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
-			if ((nSpecTrapTable[dPiece[xx - 1][yy]] & PST_TRAP_TYPE) != PST_NONE
+			if ((nSpecTrapTable[dPiece[xx - 1][yy]] & PST_TRAP_TYPE) == PST_LEFT
 			 // make sure the place is wide enough
 			 // - on the inside
 			 && !nSolidTable[dPiece[xx][yy - 1]]

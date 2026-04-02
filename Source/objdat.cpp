@@ -251,6 +251,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_TORCHL2*/      { OFILE_WTORCH4,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,          10,           12, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT 5
 /*OBJ_TORCHR1*/      { OFILE_WTORCH2,  DTM_CATACOMBS,                             THEME_NONE,              Q_BLOOD,            10,  OLF_YO | 12, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT 5
 /*OBJ_TORCHR2*/      { OFILE_WTORCH3,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,          10,           12, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT 5
+/*OBJ_TORCHM1*/      { OFILE_WTORCH5,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,          10,OLF_XO|OLF_YO|12, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT 5
+/*OBJ_TORCHM2*/      { OFILE_WTORCH6,  DTM_CATACOMBS,                             THEME_NONE,              Q_INVALID,          10,           12, OPF_NONE,   OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT 5
 /*OBJ_SARC*/         { OFILE_SARC,     DTM_CATHEDRAL,                             THEME_NONE,              Q_INVALID,           6,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    TRUE,      ALIGN },
 /*OBJ_FLAMEHOLE*///  { OFILE_FLAME1,   0,                                         THEME_NONE,              Q_INVALID,           0,            0, OPF_FLTRP,  OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN },
 /*OBJ_FLAMELVR*///   { OFILE_LEVER,    0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
@@ -346,6 +348,8 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_TNUDEW*/   { "TNudeW",   SFX_NONE,          0, OAM_NONE,              1,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_TSOUL*/    { "TSoul",    SFX_NONE,          0, OAM_NONE,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L2DOORS*/  { "L2Doors",  IS_DOOROPEN,       2, OAM_SWITCH,            0,           OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_WTORCH6*/  { "WTorch6",  SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_WTORCH5*/  { "WTorch5",  SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_WTORCH4*/  { "WTorch4",  SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_WTORCH3*/  { "WTorch3",  SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_SARC*/     { "Sarc",     SFX_NONE,          0, OAM_ONCE,              1 | 2,       OBM_UNBREAKABLE, ALIGN32 },

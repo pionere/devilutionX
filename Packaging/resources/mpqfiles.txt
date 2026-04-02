@@ -118,6 +118,8 @@ Objects\WTorch1.CEL
 Objects\WTorch2.CEL
 Objects\WTorch3.CEL
 Objects\WTorch4.CEL
+Objects\WTorch5.CEL
+Objects\WTorch6.CEL
 PlrGFX\Coral.TRN
 PlrGFX\SBlue.TRN
 PlrGFX\SGray.TRN
