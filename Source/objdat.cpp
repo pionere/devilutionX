@@ -305,7 +305,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_L5SARC*/       { OFILE_L5SARCO,  DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           0,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    TRUE,      ALIGN },
 /*OBJ_URN*/          { OFILE_URN,      DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           0,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_URNEX*/        { OFILE_URNEXPLD, DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           0,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
-/*OBJ_L5CANDLE*/     { OFILE_L5CANDLE, DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           1,           10, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT
+/*OBJ_L5CANDLE*/     { OFILE_L5LIGHT,  DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           1,           10, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    FALSE,     ALIGN }, // OPF_LIGHT
 /*OBJ_L5BOOK*/       { OFILE_L5BOOKS,  DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           3,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_NAKRULBOOK*/   { OFILE_L5BOOKS,  0,                                         THEME_NONE,              Q_NAKRUL,            3,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    FALSE,     ALIGN },
 /*OBJ_NAKRULLEVER*/  { OFILE_L5LEVER,  0,                                         THEME_NONE,              Q_NAKRUL,            1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    FALSE,     ALIGN },
@@ -397,7 +397,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_URN*/      { "Urn",      IS_POPPOP2,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_URNEXPLD*/ { "Urnexpld", IS_POPPOP3,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_L5BOOKS*/  { "L5Books",  SFX_NONE,          0, OAM_NONE /*OAM_ONCE*/, 1,           OBM_UNBREAKABLE, ALIGN32 },
-/*OFILE_L5CANDLE*/ { "L5Light",  SFX_NONE,          0, OAM_NONE,              1,           OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_L5LIGHT*/  { "L5Light",  SFX_NONE,          0, OAM_NONE,              1,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L5LEVER*/  { "L5Lever",  SFX_NONE,          0, OAM_SWITCH,            1,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L6POD1*/   { "L6Pod1",   IS_POPPOP5,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_L6POD2*/   { "L6Pod2",   IS_POPPOP8,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
