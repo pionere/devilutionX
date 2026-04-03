@@ -1486,7 +1486,7 @@ static bool DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize
 
 static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DRT_TYPES])
 {
-	int xx, yy;
+	int xx, yy, wx, wy;
 	const int x1 = themes[themeIndex]._tsx1;
 	const int y1 = themes[themeIndex]._tsy1;
 	const int x2 = themes[themeIndex]._tsx2;
@@ -1518,11 +1518,34 @@ static void DRLG_CreateThemeRoom(int themeIndex, const BYTE (&themeTiles)[NUM_DR
 	dungeon[x1][y2] = themeTiles[DRT_BOTTOM_LEFT];
 	dungeon[x2][y2] = themeTiles[DRT_BOTTOM_RIGHT];
 
-	// exits
-	if (random_(0, 2) == 0) {
-		dungeon[x2][(y1 + y2 + 1) / 2u] = themeTiles[DRT_DOOR_VERT];
+	// exit
+	if (themeTiles[DRT_DOOR_VERT] == themeTiles[DRT_WALL_VERT])
+		return;
+	wx = (x2 - x1 - 1);
+	wy = (y2 - y1 - 1);
+	xx = random_(0, 2 * wx + 2 * wy);
+	if (xx < 2 * wx) {
+		if (xx < wx) {
+			yy = y1;
+//EventPlrMsg("Exit North-East %d:%d, %d:%d (%d:%d .. %d:%d)", x1 + 1 + xx, y1, DBORDERX + 2 * (x1 + 1 + xx), DBORDERY + 2 * y1, x1, y1, x2, y2);
+		} else {
+			xx -= wx;
+//EventPlrMsg("Exit South-West %d:%d, %d:%d (%d:%d .. %d:%d)", x1 + 1 + xx, y2, DBORDERX + 2 * (x1 + 1 + xx), DBORDERY + 2 * y2, x1, y1, x2, y2);
+			yy = y2;
+		}
+		dungeon[x1 + 1 + xx][yy] = themeTiles[DRT_DOOR_HORIZ];
 	} else {
-		dungeon[(x1 + x2 + 1) / 2u][y2] = themeTiles[DRT_DOOR_HORIZ];
+		xx -= 2 * wx;
+		if (xx < wy) {
+//EventPlrMsg("Exit North-West %d:%d, %d:%d (%d:%d .. %d:%d)", x1, y1 + 1 + xx, DBORDERX + 2 * x1, DBORDERY + 2 * (y1 + 1 + xx), x1, y1, x2, y2);
+			yy = x1;
+		} else {
+			xx -= wy;
+			// assert(xx < wy);
+//EventPlrMsg("Exit South-East %d:%d, %d:%d (%d:%d .. %d:%d)", x2, y1 + 1 + xx, DBORDERX + 2 * x2, DBORDERY + 2 * (y1 + 1 + xx), x1, y1, x2, y2);
+			yy = x2;
+		}
+		dungeon[yy][y1 + 1 + xx] = themeTiles[DRT_DOOR_VERT];
 	}
 }
 
