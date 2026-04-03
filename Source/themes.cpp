@@ -601,7 +601,7 @@ static void Theme_Treasure(int themeId)
 	const BYTE treasrnd = treasrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
 	const ThemeStruct &theme = themes[themeId];
 
-	for (xx =theme._tsx1; xx < theme._tsx2; xx++) {
+	for (xx = theme._tsx1; xx < theme._tsx2; xx++) {
 		for (yy = theme._tsy1; yy < theme._tsy2; yy++) {
 			// assert(dTransVal[xx][yy] == theme._tsTransVal);
 			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
@@ -657,10 +657,8 @@ static void Theme_Library(int themeId)
 		&& !nSolidTable[dPiece[xx - 2 * dx - dy][yy - 2 * dy - dx]]
 		&& !nSolidTable[dPiece[xx - 2 * dx - dy][yy - 2 * dy - dx]]) {
 		type = ver & 3;
-		// ptrn = &LibPatterns[ver & 3][0];
 	} else {
 		type = 3;
-		// ptrn = &LibPatterns[3][0];
 	}
 	ptrn = &LibPatterns[type][0];
 	ver >>= 2;
@@ -677,6 +675,8 @@ static void Theme_Library(int themeId)
 	if (t2 >= 0)
 		AddObject(t2, xx + dx, yy + dy);
 
+	static_assert(DTYPE_CATHEDRAL == 1 && DTYPE_CATACOMBS == 2, "Theme_Library uses dungeon_type as an array-index.");
+	// assert(currLvl._dDunType == 1 /* DTYPE_CATHEDRAL */ || currLvl._dDunType == 2 /* DTYPE_CATACOMBS */);
 	librnd = librnds[currLvl._dDunType - 1];     // TODO: use dType instead?
 	static_assert(OBJ_BOOK2L - 2 == OBJ_BOOK2R, "Theme_Library depends on the order of OBJ_BOOK2L/R");
 	type = OBJ_BOOK2L - 2 * random_(0, 2);

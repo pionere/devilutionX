@@ -886,7 +886,6 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
 	}
 
-
 	mon->_mHit += uniqm->mUnqHit;
 	mon->_mHit2 += uniqm->mUnqHit2;
 	mon->_mMagic += uniqm->mUnqMag;
