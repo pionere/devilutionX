@@ -76,6 +76,7 @@ NLevels\TownData\Town.SLA
 NLevels\TownData\Town.TIL
 Objects\Altboy.CEL
 Objects\Armstand.CEL
+Objects\Banner.CEL
 Objects\BCase.CEL
 Objects\Bloodfnt.CEL
 Objects\Book1.CEL
