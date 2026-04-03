@@ -1982,34 +1982,29 @@ static void DRLG_L4ThemeExitFix()
 		y2 = themes[i]._tsy2;
 		switch (random_(0, 4)) {
 		case 0:
-			yy = (y1 + y2 + 1) / 2u;
-			dungeon[x1][yy - 1] = 53;
-			dungeon[x1][yy + 0] = 50;
-			dungeon[x1][yy + 1] = 52;
-			//dungeon[x2 - 1][yy - 1] = 54;
-			break;
+			xx = x1;
+			goto V2;
 		case 1:
+			xx = x2;
+V2:
 			yy = (y1 + y2 + 1) / 2u;
-			dungeon[x2][yy - 1] = 53;
-			dungeon[x2][yy + 0] = 50;
-			dungeon[x2][yy + 1] = 52;
-			//dungeon[x2 - 1][yy - 1] = 54;
+			dungeon[xx][yy - 1] = 53;
+			dungeon[xx][yy + 0] = 50;
+			dungeon[xx][yy + 1] = 52;
+			//dungeon[xx - 1][yy - 1] = 54;
 			break;
 		case 2:
-			xx = (x1 + x2 + 1) / 2u;
-			dungeon[xx - 1][y1] = 57;
-			dungeon[xx + 0][y1] = 50;
-			dungeon[xx + 1][y1] = 56;
-			//dungeon[xx + 0][y2 - 1] = 59;
-			//dungeon[xx - 1][y2 - 1] = 58;
-			break;
+			yy = y1;
+			goto H2;
 		case 3:
+			yy = y2;
+H2:
 			xx = (x1 + x2 + 1) / 2u;
-			dungeon[xx - 1][y2] = 57;
-			dungeon[xx + 0][y2] = 50;
-			dungeon[xx + 1][y2] = 56;
-			//dungeon[xx + 0][y2 - 1] = 59;
-			//dungeon[xx - 1][y2 - 1] = 58;
+			dungeon[xx - 1][yy] = 57;
+			dungeon[xx + 0][yy] = 50;
+			dungeon[xx + 1][yy] = 56;
+			//dungeon[xx + 0][yy - 1] = 59;
+			//dungeon[xx - 1][yy - 1] = 58;
 			break;
 		}
 	}
