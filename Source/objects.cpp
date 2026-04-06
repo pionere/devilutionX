@@ -566,7 +566,7 @@ static void ObjAddTraps()
 	for (i = numobjects - 1; i >= 0; i--) {
 		int oi = i; // objectactive[i];
 		ObjectStruct* os = &objects[oi];
-		if (!objectdata[os->_otype].oTrapFlag)
+		if (objectdata[os->_otype].oTrapFlag == OTM_NONE)
 			continue;
 		if (random_(144, 128) >= rndv)
 			continue;

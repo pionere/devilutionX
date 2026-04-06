@@ -866,7 +866,7 @@ typedef struct ObjectData {
 	BYTE oDoorFlag;      // object_door_type
 	BYTE oSelFlag;
 	BYTE oPreFlag;
-	BOOLEAN oTrapFlag;
+	BYTE oTrapFlag;      // object_trap_mode
 	BYTE oAlign[3];
 } ObjectData;
 

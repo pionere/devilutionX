@@ -1742,6 +1742,17 @@ void ValidateData()
 				app_fatal("Light radius is zero for %d. object.", i);
 			}
 		}
+		if (od.oTrapFlag != OTM_NONE) {
+			const ObjFileData& ofd = objfiledata[od.ofindex];
+			if (ofd.oDoorFlag != ODT_NONE && od.oTrapFlag != OTM_DOOR)
+				app_fatal("DoorFlag (%d) conflicts with the trap mode setting for %s (%d) used by object %d", ofd.oDoorFlag, od.ofName, i, n);
+			if (od.oTrapFlag == OTM_DOOR && ofd.oDoorFlag == ODT_NONE)
+				app_fatal("Trap mode setting (%d) conflicts with the DoorFlag for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+			if (od.oTrapFlag == OTM_1X1 && ofd.oSolidFlags != 1)
+				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+			if (od.oTrapFlag == OTM_1X2 && ofd.oSolidFlags != (1 | 2))
+				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+		}
 	}
 #endif // DEBUG_DATA
 	assert(objectdata[OBJ_L1RDOOR].oSelFlag == objectdata[OBJ_L1LDOOR].oSelFlag); //  required by OpenDoor, CloseDoor

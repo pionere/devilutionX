@@ -3283,6 +3283,13 @@ typedef enum object_door_type {
 	ODT_RIGHT,
 } object_door_type;
 
+typedef enum object_trap_mode {
+	OTM_NONE,
+	OTM_DOOR, // 1x1 object which is not passable, triggered by open
+	OTM_1X1,  // 1x1 object which is not passable, triggered by inactivation
+	OTM_1X2,  // 1x2 object which is not passable, triggered by inactivation
+} object_trap_mode;
+
 typedef enum _object_id {
 	OBJ_L1LIGHT,
 	OBJ_L1LDOOR,
