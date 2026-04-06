@@ -3283,6 +3283,156 @@ typedef enum object_door_type {
 	ODT_RIGHT,
 } object_door_type;
 
+typedef enum _object_id {
+	OBJ_L1LIGHT,
+	OBJ_L1LDOOR,
+	OBJ_L1RDOOR,
+	OBJ_SKFIRE,
+	OBJ_LEVER,
+	OBJ_CHEST1,
+	OBJ_CHEST2,
+	OBJ_CHEST3,
+	//OBJ_CANDLE1,
+	OBJ_CANDLE2,
+	//OBJ_CANDLEO,
+	OBJ_BANNER,
+	//OBJ_SKPILE,
+	//OBJ_SKSTICK1,
+	//OBJ_SKSTICK2,
+	//OBJ_SKSTICK3,
+	//OBJ_SKSTICK4,
+	//OBJ_SKSTICK5,
+	OBJ_CRUXM,
+	OBJ_CRUXR,
+	OBJ_CRUXL,
+	OBJ_ROCKSTAND,
+	//OBJ_ANGEL,
+	//OBJ_NUDEW2R,
+	OBJ_SWITCHSKL,
+	OBJ_TNUDEM,
+	OBJ_TNUDEW,
+	OBJ_TORTURE,
+	OBJ_L2LDOOR,
+	OBJ_L2RDOOR,
+	OBJ_TORCHL1,
+	OBJ_TORCHL2,
+	OBJ_TORCHR1,
+	OBJ_TORCHR2,
+	OBJ_TORCHM1,
+	OBJ_TORCHM2,
+	OBJ_SARC,
+	//OBJ_FLAMEHOLE,
+	//OBJ_FLAMELVR,
+	//OBJ_WATER,
+	OBJ_TRAPL,
+	OBJ_TRAPR,
+	//OBJ_WEAPRACK,
+	OBJ_BARREL,
+	OBJ_BARRELEX,
+	OBJ_SHRINEL,
+	OBJ_SHRINER,
+	OBJ_BOOKCASEL,
+	OBJ_BOOKCASER,
+	OBJ_BOOKSHELFL,
+	OBJ_BOOKSHELFR,
+	//OBJ_BOOKCANDLE,
+	OBJ_BLOODFTN,
+	OBJ_DECAP,
+	OBJ_BOOK1,
+	OBJ_BOOK2,
+	//OBJ_BOOKLVR,
+	OBJ_BLINDBOOK,
+	OBJ_BLOODBOOK,
+	OBJ_STEELTOME,
+	OBJ_VILEBOOK,
+	OBJ_MYTHICBOOK,
+	OBJ_PEDESTAL,
+	OBJ_L3LDOOR,
+	OBJ_L3RDOOR,
+	OBJ_PURIFYINGFTN,
+	OBJ_ARMORSTAND,
+	OBJ_GOATSHRINE,
+	OBJ_CAULDRON,
+	OBJ_MURKYFTN,
+	OBJ_TEARFTN,
+	OBJ_ALTBOY,
+	OBJ_MCIRCLE1,
+	OBJ_MCIRCLE2,
+	OBJ_STORYBOOK,
+	//OBJ_STORYCANDLE,
+	OBJ_TBCROSS,
+	OBJ_WEAPONRACK,
+	OBJ_MUSHPATCH,
+	OBJ_LAZSTAND,
+	//OBJ_SLAINHERO,
+	OBJ_SIGNCHEST,
+#ifdef HELLFIRE
+	OBJ_L5LDOOR,
+	OBJ_L5RDOOR,
+	OBJ_L5SARC,
+	OBJ_URN,
+	OBJ_URNEX,
+	OBJ_L5CANDLE,
+	OBJ_L5BOOK,
+	OBJ_NAKRULBOOK,
+	OBJ_NAKRULLEVER,
+	OBJ_POD,
+	OBJ_PODEX,
+#endif
+	NUM_OBJECTS,
+	OBJ_TCHEST1  = -1, // trapped chest in random direction
+	OBJ_TLCHEST1 = -2, // trapped chest in SW-NE direction
+	OBJ_TRCHEST1 = -3, // trapped chest in SE-NW direction
+	OBJ_LCHEST1  = -4, // chest in SW-NE direction with optional trap
+	OBJ_RCHEST1  = -5, // chest in SE-NW direction with optional trap
+	OBJ_NLCHEST1 = -6, // non-trapped chest in SW-NE
+	OBJ_NRCHEST1 = -7, // non-trapped chest in SE-NW
+	OBJ_TCHEST2  = -8,
+	OBJ_TLCHEST2 = -9,
+	OBJ_TRCHEST2 = -10,
+	OBJ_LCHEST2  = -11,
+	OBJ_RCHEST2  = -12,
+	OBJ_NLCHEST2 = -13,
+	OBJ_NRCHEST2 = -14,
+	OBJ_TCHEST3  = -15,
+	OBJ_TLCHEST3 = -16,
+	OBJ_TRCHEST3 = -17,
+	OBJ_LCHEST3  = -18,
+	OBJ_RCHEST3  = -19,
+	OBJ_NLCHEST3 = -20,
+	OBJ_NRCHEST3 = -21,
+	OBJ_WEAPONRACKN  = -22, // inactive weaponrack in random direction
+	OBJ_WEAPONRACKL  = -23, // active weaponrack in SW-NE direction
+	OBJ_WEAPONRACKLN = -24, // inactive weaponrack in SW-NE direction
+	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-NW direction
+	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-NW direction
+	OBJ_ARMORSTANDN  = -27, // inactive armorstand in random direction
+	OBJ_ARMORSTANDL  = -28, // active armorstand in SW-NE direction
+	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
+	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-NW direction
+	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-NW direction
+	OBJ_BOOK1N       = -32, // inactive book1-stand in random direction
+	OBJ_BOOK1L       = -33, // active book1-stand in SW-NE direction
+	OBJ_BOOK1LN      = -34, // inactive book1-stand in SW-NE direction
+	OBJ_BOOK1R       = -35, // active book1-stand in SE-NW direction
+	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-NW direction
+	OBJ_ANCIENTBOOK  = -37,
+	OBJ_BOOK2N       = -38, // inactive book2-stand in random direction
+	OBJ_BOOK2L       = -39, // active book2-stand in SW-NE direction
+	OBJ_BOOK2LN      = -40, // inactive book2-stand in SW-NE direction
+	OBJ_BOOK2R       = -41, // active book2-stand in SE-NW direction
+	OBJ_BOOK2RN      = -42, // inactive book2-stand in SE-NW direction
+	OBJ_TORTUREL     = -43, // random hooked body on the SW-NE wall
+	OBJ_TORTURER     = -44, // random hooked body on the SE-NW wall
+	OBJ_TORTUREL1    = -45, // 1. hooked body on the SW-NE wall
+	OBJ_TORTUREL2    = -46, // 2. hooked body on the SW-NE wall
+	OBJ_TORTUREL3    = -47, // 3. hooked body on the SW-NE wall
+	OBJ_TORTURER1    = -48, // 1. hooked body on the SE-NW wall
+	OBJ_TORTURER2    = -49, // 2. hooked body on the SE-NW wall
+	OBJ_TORTURER3    = -50, // 3. hooked body on the SE-NW wall
+	NUM_OBJVERSIONS = 50,
+} _object_id;
+
 typedef enum dungeon_type {
 	DTYPE_TOWN,
 	DTYPE_CATHEDRAL,
@@ -4263,156 +4413,6 @@ typedef enum attribute_id {
 	ATTRIB_VIT,
 	NUM_ATTRIBS
 } attribute_id;
-
-typedef enum _object_id {
-	OBJ_L1LIGHT,
-	OBJ_L1LDOOR,
-	OBJ_L1RDOOR,
-	OBJ_SKFIRE,
-	OBJ_LEVER,
-	OBJ_CHEST1,
-	OBJ_CHEST2,
-	OBJ_CHEST3,
-	//OBJ_CANDLE1,
-	OBJ_CANDLE2,
-	//OBJ_CANDLEO,
-	OBJ_BANNER,
-	//OBJ_SKPILE,
-	//OBJ_SKSTICK1,
-	//OBJ_SKSTICK2,
-	//OBJ_SKSTICK3,
-	//OBJ_SKSTICK4,
-	//OBJ_SKSTICK5,
-	OBJ_CRUXM,
-	OBJ_CRUXR,
-	OBJ_CRUXL,
-	OBJ_ROCKSTAND,
-	//OBJ_ANGEL,
-	//OBJ_NUDEW2R,
-	OBJ_SWITCHSKL,
-	OBJ_TNUDEM,
-	OBJ_TNUDEW,
-	OBJ_TORTURE,
-	OBJ_L2LDOOR,
-	OBJ_L2RDOOR,
-	OBJ_TORCHL1,
-	OBJ_TORCHL2,
-	OBJ_TORCHR1,
-	OBJ_TORCHR2,
-	OBJ_TORCHM1,
-	OBJ_TORCHM2,
-	OBJ_SARC,
-	//OBJ_FLAMEHOLE,
-	//OBJ_FLAMELVR,
-	//OBJ_WATER,
-	OBJ_TRAPL,
-	OBJ_TRAPR,
-	//OBJ_WEAPRACK,
-	OBJ_BARREL,
-	OBJ_BARRELEX,
-	OBJ_SHRINEL,
-	OBJ_SHRINER,
-	OBJ_BOOKCASEL,
-	OBJ_BOOKCASER,
-	OBJ_BOOKSHELFL,
-	OBJ_BOOKSHELFR,
-	//OBJ_BOOKCANDLE,
-	OBJ_BLOODFTN,
-	OBJ_DECAP,
-	OBJ_BOOK1,
-	OBJ_BOOK2,
-	//OBJ_BOOKLVR,
-	OBJ_BLINDBOOK,
-	OBJ_BLOODBOOK,
-	OBJ_STEELTOME,
-	OBJ_VILEBOOK,
-	OBJ_MYTHICBOOK,
-	OBJ_PEDESTAL,
-	OBJ_L3LDOOR,
-	OBJ_L3RDOOR,
-	OBJ_PURIFYINGFTN,
-	OBJ_ARMORSTAND,
-	OBJ_GOATSHRINE,
-	OBJ_CAULDRON,
-	OBJ_MURKYFTN,
-	OBJ_TEARFTN,
-	OBJ_ALTBOY,
-	OBJ_MCIRCLE1,
-	OBJ_MCIRCLE2,
-	OBJ_STORYBOOK,
-	//OBJ_STORYCANDLE,
-	OBJ_TBCROSS,
-	OBJ_WEAPONRACK,
-	OBJ_MUSHPATCH,
-	OBJ_LAZSTAND,
-	//OBJ_SLAINHERO,
-	OBJ_SIGNCHEST,
-#ifdef HELLFIRE
-	OBJ_L5LDOOR,
-	OBJ_L5RDOOR,
-	OBJ_L5SARC,
-	OBJ_URN,
-	OBJ_URNEX,
-	OBJ_L5CANDLE,
-	OBJ_L5BOOK,
-	OBJ_NAKRULBOOK,
-	OBJ_NAKRULLEVER,
-	OBJ_POD,
-	OBJ_PODEX,
-#endif
-	NUM_OBJECTS,
-	OBJ_TCHEST1  = -1, // trapped chest in random direction
-	OBJ_TLCHEST1 = -2, // trapped chest in SW-NE direction
-	OBJ_TRCHEST1 = -3, // trapped chest in SE-NW direction
-	OBJ_LCHEST1  = -4, // chest in SW-NE direction with optional trap
-	OBJ_RCHEST1  = -5, // chest in SE-NW direction with optional trap
-	OBJ_NLCHEST1 = -6, // non-trapped chest in SW-NE
-	OBJ_NRCHEST1 = -7, // non-trapped chest in SE-NW
-	OBJ_TCHEST2  = -8,
-	OBJ_TLCHEST2 = -9,
-	OBJ_TRCHEST2 = -10,
-	OBJ_LCHEST2  = -11,
-	OBJ_RCHEST2  = -12,
-	OBJ_NLCHEST2 = -13,
-	OBJ_NRCHEST2 = -14,
-	OBJ_TCHEST3  = -15,
-	OBJ_TLCHEST3 = -16,
-	OBJ_TRCHEST3 = -17,
-	OBJ_LCHEST3  = -18,
-	OBJ_RCHEST3  = -19,
-	OBJ_NLCHEST3 = -20,
-	OBJ_NRCHEST3 = -21,
-	OBJ_WEAPONRACKN  = -22, // inactive weaponrack in random direction
-	OBJ_WEAPONRACKL  = -23, // active weaponrack in SW-NE direction
-	OBJ_WEAPONRACKLN = -24, // inactive weaponrack in SW-NE direction
-	OBJ_WEAPONRACKR  = -25, // active weaponrack in SE-NW direction
-	OBJ_WEAPONRACKRN = -26, // inactive weaponrack in SE-NW direction
-	OBJ_ARMORSTANDN  = -27, // inactive armorstand in random direction
-	OBJ_ARMORSTANDL  = -28, // active armorstand in SW-NE direction
-	OBJ_ARMORSTANDLN = -29, // inactive armorstand in SW-NE direction
-	OBJ_ARMORSTANDR  = -30, // active armorstand in SE-NW direction
-	OBJ_ARMORSTANDRN = -31, // inactive armorstand in SE-NW direction
-	OBJ_BOOK1N       = -32, // inactive book1-stand in random direction
-	OBJ_BOOK1L       = -33, // active book1-stand in SW-NE direction
-	OBJ_BOOK1LN      = -34, // inactive book1-stand in SW-NE direction
-	OBJ_BOOK1R       = -35, // active book1-stand in SE-NW direction
-	OBJ_BOOK1RN      = -36, // inactive book1-stand in SE-NW direction
-	OBJ_ANCIENTBOOK  = -37,
-	OBJ_BOOK2N       = -38, // inactive book2-stand in random direction
-	OBJ_BOOK2L       = -39, // active book2-stand in SW-NE direction
-	OBJ_BOOK2LN      = -40, // inactive book2-stand in SW-NE direction
-	OBJ_BOOK2R       = -41, // active book2-stand in SE-NW direction
-	OBJ_BOOK2RN      = -42, // inactive book2-stand in SE-NW direction
-	OBJ_TORTUREL     = -43, // random hooked body on the SW-NE wall
-	OBJ_TORTURER     = -44, // random hooked body on the SE-NW wall
-	OBJ_TORTUREL1    = -45, // 1. hooked body on the SW-NE wall
-	OBJ_TORTUREL2    = -46, // 2. hooked body on the SW-NE wall
-	OBJ_TORTUREL3    = -47, // 3. hooked body on the SW-NE wall
-	OBJ_TORTURER1    = -48, // 1. hooked body on the SE-NW wall
-	OBJ_TORTURER2    = -49, // 2. hooked body on the SE-NW wall
-	OBJ_TORTURER3    = -50, // 3. hooked body on the SE-NW wall
-	NUM_OBJVERSIONS = 50,
-} _object_id;
 
 typedef enum quest_id {
 	Q_BUTCHER,
