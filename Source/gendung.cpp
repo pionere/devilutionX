@@ -1407,15 +1407,17 @@ void InitLvlMap()
  * @param floor the id of the floor tile in dungeon
  * @param x the x-coordinate of the starting position
  * @param y the y-coordinate of the starting position
- * @param minSize the minimum size of the room (must be less than 20)
- * @param maxSize the maximum size of the room (must be less than 20)
+ * @param minSize the minimum size of the room (must be less than 16)
+ * @param maxSize the maximum size of the room (must be less than 16)
  * @param room the w/h of the room if found
  * @return whether a fitting room was found
  */
 static bool DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize, AREA32 &room)
 {
 	int xmax, ymax, i, j, smallest;
-	int xArray[16], yArray[16];
+	int wArray[2 * 16] = { };
+	int* xArray = &wArray[0];
+	int* yArray = &wArray[16];
 	int size, bestSize, w, h;
 
 	// assert(maxSize < 16);
@@ -1425,9 +1427,6 @@ static bool DRLG_FitThemeRoom(BYTE floor, int x, int y, int minSize, int maxSize
 	// BUGFIX: change '&&' to '||' (fixed)
 	if (xmax < minSize || ymax < minSize)
 		return false;
-
-	memset(xArray, 0, sizeof(xArray));
-	memset(yArray, 0, sizeof(yArray));
 
 	// find horizontal(x) limits
 	smallest = xmax;
