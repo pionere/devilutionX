@@ -564,9 +564,10 @@ static void ObjAddTraps()
 
 	rndv = 10 + (currLvl._dLevel >> 1);
 	for (i = numobjects - 1; i >= 0; i--) {
-		int oi = i; // objectactive[i];
+		const int oi = i; // objectactive[i];
 		ObjectStruct* os = &objects[oi];
-		if (objectdata[os->_otype].oTrapFlag == OTM_NONE)
+		const BYTE tt = objectdata[os->_otype].oTrapFlag;
+		if (tt == OTM_NONE)
 			continue;
 		if (random_(144, 128) >= rndv)
 			continue;
@@ -602,6 +603,7 @@ static void ObjAddTraps()
 		if (on == -1)
 			return;
 		objects[on]._oVar1 = oi; // TRAP_OI_REF
+		objects[on]._oVar2 = tt; // TRAP_TRIG_TYPE
 		objects[oi]._oTrapChance = RandRange(1, 64);
 		objects[oi]._oVar5 = on + 1; // TRAP_OI_BACKREF
 	}
@@ -1805,35 +1807,20 @@ static void Obj_Trap(int oi)
 
 	trigNum = 0;
 	on = &objects[os->_oVar1]; // TRAP_OI_REF
-	switch (on->_otype) {
-	case OBJ_L1LDOOR:
-	case OBJ_L1RDOOR:
-	case OBJ_L2LDOOR:
-	case OBJ_L2RDOOR:
-	case OBJ_L3LDOOR:
-	case OBJ_L3RDOOR:
-#ifdef HELLFIRE
-	case OBJ_L5LDOOR:
-	case OBJ_L5RDOOR:
-#endif
+	switch (os->_oVar2) { // TRAP_TRIG_TYPE
+	case OTM_DOOR:
 		if (on->_oVar4 != DOOR_CLOSED) {
 			trigArea = baseTrigArea;
 			trigNum = lengthof(baseTrigArea);
 		}
 		break;
-	case OBJ_CHEST1:
-	case OBJ_CHEST2:
-	case OBJ_CHEST3:
-	case OBJ_SWITCHSKL:
+	case OTM_1X1:
 		if (!(on->_oModeFlags & OMF_ACTIVE)) {
 			trigArea = baseTrigArea;
 			trigNum = lengthof(baseTrigArea);
 		}
 		break;
-	case OBJ_SARC:
-#ifdef HELLFIRE
-	case OBJ_L5SARC:
-#endif
+	case OTM_1X2:
 		if (!(on->_oModeFlags & OMF_ACTIVE)) {
 			trigArea = sarcTrigArea;
 			trigNum = lengthof(sarcTrigArea);
