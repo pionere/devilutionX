@@ -329,17 +329,18 @@ void InitThemes()
 	if (numthemes == 0)
 		return;
 	// assert(currLvl._dLevelNum < DLV_HELL4 || (currLvl._dDynLvl && currLvl._dLevelNum == DLV_HELL4)); // there are no themes in hellfire (and on diablo-level)
-	sh = (currLvl._dDunType == DGT_CAVES ? 1 : 0); // shift location of the room where the walls are on the southern side of the tile (fences in caves)
-	for (i = 0; i < numthemes; i++) {
+	static_assert(DBORDERX == DBORDERY, "Shift of InitThemes requires matching borders.");
+	sh = DBORDERX + (currLvl._dDunType == DGT_CAVES ? 1 : 0); // shift location of the room where the walls are on the southern side of the tile (fences in caves)
+	for (i = numthemes - 1; i >= 0; i--) {
 		x1 = themes[i]._tsx1;
 		y1 = themes[i]._tsy1;
 		x2 = themes[i]._tsx2;
 		y2 = themes[i]._tsy2;
 		// convert to subtile-coordinates and select the internal subtiles of the room [p0;p1)
-		x1 = DBORDERX + 2 * x1 + 1 + sh;
-		y1 = DBORDERY + 2 * y1 + 1 + sh;
-		x2 = DBORDERX + 2 * x2 + sh;
-		y2 = DBORDERY + 2 * y2 + sh;
+		x1 = 2 * x1 + 1 + sh;
+		y1 = 2 * y1 + 1 + sh;
+		x2 = 2 * x2 + sh;
+		y2 = 2 * y2 + sh;
 		themes[i]._tsx1 = x1;
 		themes[i]._tsy1 = y1;
 		themes[i]._tsx2 = x2;
