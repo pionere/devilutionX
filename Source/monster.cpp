@@ -1100,18 +1100,20 @@ void InitMonsters()
 	unsigned na, numplacemonsters;
 	int i, j, xx, yy;
 	int mtidx;
-	const int tdx[4] = { -1, -1,  2,  2 };
-	const int tdy[4] = { -1,  2, -1,  2 };
+	const int tdx[] = { 0 };
+	const int tdy[] = { 0 };
 
 #if DEBUG_MODE
 	if (IsMultiGame)
 		CheckDungeonClear();
 #endif
-	// reserve the entry/exit area
+	// reserve the entry area
 	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0)
 			continue;
-		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
+		if (i == DWARP_EXIT) // && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		if (i == DWARP_SIDE)
 			continue;
 		static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
@@ -1158,7 +1160,9 @@ void InitMonsters()
 	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
 		if (pWarps[i]._wx == 0)
 			continue;
-		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
+		if (i == DWARP_EXIT) // && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		if (i == DWARP_SIDE)
 			continue;
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
 			DoUnVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15);
