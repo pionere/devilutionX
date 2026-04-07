@@ -105,6 +105,8 @@ Objects\MFountn.CEL
 Objects\Mushptch.CEL
 Objects\Pedistl.CEL
 Objects\PFountn.CEL
+Objects\Prsrplt1.CEL
+Objects\Prsrplt2.CEL
 Objects\Rockstan.CEL
 Objects\RShrineG.CEL
 Objects\Sarc.CEL

@@ -12,6 +12,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define DOOR_CLOSED  0
 #define DOOR_OPEN    1
 #define DOOR_BLOCKED 2
+#define DOOR_LOCKED  3
 
 #define TRAP_ACTIVE   0
 #define TRAP_INACTIVE 1
@@ -252,7 +253,7 @@ static bool RndLocOk(int xp, int yp)
 	//return false;
 }
 
-static POS32 RndLoc3x3()
+POS32 RndLoc3x3()
 {
 	int xp, yp, i, j, tries;
 	static_assert(DBORDERX != 0, "RndLoc3x3 returns 0;0 position as a failed location.");
@@ -813,6 +814,17 @@ static void ObjAddHookedBodies()
 			type = ttv == (PST_LEFT >> PST_TRAP_SHL) ? OBJ_TORTUREL : OBJ_TORTURER;
 			AddObject(type, i, j);
 		}
+	}
+}
+
+void ObjAddDoorLock(int ox, int oy, int oi)
+{
+	int on;
+
+	on = AddObject(currLvl._dType != DTYPE_CAVES ? OBJ_PRSPLT1 : OBJ_PRSPLT2, ox, oy);
+	if (on >= 0) {
+		objects[on]._oVar1 = oi + 1; // LOCK_OI_REF
+		objects[oi]._oVar4 = DOOR_LOCKED;
 	}
 }
 
@@ -1661,6 +1673,36 @@ static void ObjLvrChangeMap(const ObjectStruct* os/*, bool hasNewObjPiece*/)
 	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, hasNewObjPiece*/); // LEVER_EFFECT
 }
 
+static void Obj_Plate(int oi)
+{
+	ObjectStruct* os;
+	int ox, oy, pnum;
+
+	os = &objects[oi];
+	ox = os->_ox;
+	oy = os->_oy;
+	pnum = dPlayer[ox][oy];
+	pnum--;
+	if (pnum >= 0 && plr._pmode != PM_STAND) {
+		pnum = -1;
+	}
+	assert(objectdata[OBJ_PRSPLT1].oBaseFrame == objectdata[OBJ_PRSPLT2].oBaseFrame);
+	os->_oGfxFrame = objectdata[OBJ_PRSPLT1].oBaseFrame + (pnum >= 0 ? 1 : 0); // PRSPLT_ACTIVE_FRAME
+	if (pnum >= 0) {
+		int on = os->_oVar1; // LOCK_OI_REF
+		if (on != 0) {
+			os->_oVar1 = 0;
+			on--;
+			if (objects[on]._oVar4 == DOOR_LOCKED) {
+				objects[on]._oVar4 = DOOR_CLOSED;
+				PlaySfxLoc(IS_LEVER, ox, oy);
+				if (pnum == mypnum)
+					NetSendCmdParam1(CMD_DOORCLOSE, on);
+			}
+		}
+	}
+}
+
 static void Obj_Circle(int oi)
 {
 	ObjectStruct* os;
@@ -1700,9 +1742,11 @@ static void UpdateDoorBlocks(ObjectStruct* os)
 {
 	int dx, dy;
 
-	dx = os->_ox;
-	dy = os->_oy;
-	os->_oVar4 = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0 ? DOOR_OPEN : DOOR_BLOCKED;
+	if (os->_oVar4 != DOOR_LOCKED) {
+		dx = os->_ox;
+		dy = os->_oy;
+		os->_oVar4 = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0 ? DOOR_OPEN : DOOR_BLOCKED;
+	}
 }
 
 static void Obj_Door(int oi)
@@ -1798,7 +1842,7 @@ static void Obj_Trap(int oi)
 	if (os->_oVar4 != TRAP_ACTIVE) // TRAP_LIVE
 		return;
 
-	trigNum = 0;
+	trigNum = -1;
 	on = &objects[os->_oVar1]; // TRAP_OI_REF
 	switch (os->_oVar2) { // TRAP_TRIG_TYPE
 	case OTM_DOOR:
@@ -1819,11 +1863,17 @@ static void Obj_Trap(int oi)
 			trigNum = lengthof(sarcTrigArea);
 		}
 		break;
+	case OTM_0X0:
+		// assert(on->_oAnimLen == objectdata[OBJ_PRSPLT1].oBaseFrame + 1);
+		if (on->_oGfxFrame == objectdata[OBJ_PRSPLT1].oBaseFrame + 1) { // PRSPLT_ACTIVE_FRAME
+			trigNum = 0;
+		}
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	if (trigNum == 0)
+	if (trigNum < 0)
 		return;
 
 	os->_oVar4 = TRAP_INACTIVE; // TRAP_LIVE
@@ -1881,6 +1931,7 @@ static void (*const OiProc[])(int i) = {
 /*OPF_DOOR*/        &Obj_Door,
 /*OPF_FLAMETRAP*/// &Obj_FlameTrap,
 /*OPF_TRAP*/        &Obj_Trap,
+/*OPF_PRSPLT*/      &Obj_Plate,
 /*OPF_CIRCLE*/      &Obj_Circle,
 /*OPF_BCROSS*/      &Obj_BCrossDamage,
 #if FLICKER_LIGHT
@@ -1994,9 +2045,9 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 		}
 #endif
 		PlaySfxLoc(sfx, os->_ox, os->_oy);
+		if (os->_oVar4 == DOOR_BLOCKED || os->_oVar4 == DOOR_LOCKED)
+			return;
 	}
-	if (os->_oVar4 == DOOR_BLOCKED)
-		return;
 	if (sendmsg)
 		NetSendCmdParam1(CMD_DOORCLOSE, oi);
 	CloseDoor(os);
@@ -3532,12 +3583,12 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 
 void SyncDoorOpen(int oi)
 {
-	if (objects[oi]._oVar4 == DOOR_CLOSED)
+	if (objects[oi]._oVar4 == DOOR_CLOSED || objects[oi]._oVar4 == DOOR_LOCKED)
 		SyncOpObject(oi);
 }
 void SyncDoorClose(int oi)
 {
-	if (objects[oi]._oVar4 == DOOR_OPEN)
+	if (objects[oi]._oVar4 == DOOR_OPEN || objects[oi]._oVar4 == DOOR_LOCKED)
 		SyncOpObject(oi);
 }
 
@@ -3722,7 +3773,7 @@ static void SyncDoors(const ObjectStruct* os)
 	int pn;
 
 	pn = os->_oVar1; // DOOR_PIECE_CLOSED
-	if (os->_oVar4 != DOOR_CLOSED) {
+	if (os->_oVar4 != DOOR_CLOSED && os->_oVar4 != DOOR_LOCKED) {
 		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
 		pn--;
 	}
@@ -3822,6 +3873,8 @@ void GetObjectStr(int oi)
 			txt0 = "Open";
 		else if (os->_oVar4 == DOOR_CLOSED)
 			txt0 = "Closed";
+		else if (os->_oVar4 == DOOR_LOCKED)
+			txt0 = "Locked";
 		else // if (os->_oVar4 == DOOR_BLOCKED)
 			txt0 = "Blocked";
 		txt1 = " Door";

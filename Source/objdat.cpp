@@ -289,6 +289,8 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_MURKYFTN*/     { OFILE_MFOUNTN,  0,                                         THEME_MURKYFOUNTAIN,     Q_INVALID,          11,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    OTM_NONE,  ALIGN },
 /*OBJ_TEARFTN*/      { OFILE_TFOUNTN,  0,                                         THEME_TEARFOUNTAIN,      Q_INVALID,           5,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    OTM_NONE,  ALIGN },
 /*OBJ_ALTBOY*/       { OFILE_ALTBOY,   0,                                         THEME_NONE,              Q_BETRAYER,          1,            0, OPF_NONE,   OMF_FLOOR,              TRUE,      ODT_NONE,         0, FALSE,    OTM_NONE,  ALIGN },
+/*OBJ_PRSPLT1*/      { OFILE_PRSRPLT1, 0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_PRSPLT, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     OTM_0X0,   ALIGN },
+/*OBJ_PRSPLT2*/      { OFILE_PRSRPLT2, 0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_PRSPLT, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     OTM_0X0,   ALIGN },
 /*OBJ_MCIRCLE1*/     { OFILE_MCIRL1,   0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     OTM_NONE,  ALIGN },
 /*OBJ_MCIRCLE2*/     { OFILE_MCIRL2,   0,                                         THEME_NONE,              Q_INVALID,           1,            0, OPF_CIRCLE, OMF_FLOOR,              TRUE,      ODT_NONE,         0, TRUE,     OTM_NONE,  ALIGN },
 /*OBJ_STORYBOOK*/    { OFILE_BOOK1,    DTM_CATHEDRAL | DTM_CATACOMBS | DTM_CAVES, THEME_NONE,              Q_INVALID,           6,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    OTM_NONE,  ALIGN }, // BUGFIX should only be loaded on level 1-12 (crypt masks as 1-4) (fixed)
@@ -359,7 +361,8 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_EXPLOD1*///{ "Explod1",  SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_EXPLOD2*///{ "Explod2",  SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_VAPOR1*/// { "Vapor1",   SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
-/*OFILE_PRSRPLT1*///{ "Prsrplt1", SFX_NONE,          0, OAM_SWITCH,            0,           OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_PRSRPLT1*/ { "Prsrplt1", SFX_NONE,          0, OAM_SWITCH,            0,           OBM_UNBREAKABLE, ALIGN32 },
+/*OFILE_PRSRPLT2*/ { "Prsrplt2", SFX_NONE,          0, OAM_SWITCH,            0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_TRAPHOLE*/ { "Traphole", SFX_NONE,          0, OAM_NONE,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_DIRTFALL*///{ "Dirtfall", SFX_NONE,          0, OAM_LOOP,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_WATER*///  { "Water",    SFX_NONE,          0, OAM_LOOP,              1,           OBM_UNBREAKABLE, ALIGN32 },

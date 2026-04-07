@@ -1748,6 +1748,8 @@ void ValidateData()
 				app_fatal("DoorFlag (%d) conflicts with the trap mode setting for %s (%d) used by object %d", ofd.oDoorFlag, od.ofName, i, n);
 			if (od.oTrapFlag == OTM_DOOR && ofd.oDoorFlag == ODT_NONE)
 				app_fatal("Trap mode setting (%d) conflicts with the DoorFlag for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+			if (od.oTrapFlag == OTM_0X0 && ofd.oSolidFlags != 0)
+				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
 			if (od.oTrapFlag == OTM_1X1 && ofd.oSolidFlags != 1)
 				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
 			if (od.oTrapFlag == OTM_1X2 && ofd.oSolidFlags != (1 | 2))

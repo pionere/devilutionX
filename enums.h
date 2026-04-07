@@ -3191,7 +3191,8 @@ typedef enum object_graphic_id {
 	//OFILE_EXPLOD1,
 	//OFILE_EXPLOD2,
 	//OFILE_VAPOR1,
-	//OFILE_PRSRPLT1,
+	OFILE_PRSRPLT1,
+	OFILE_PRSRPLT2,
 	OFILE_TRAPHOLE,
 	//OFILE_DIRTFALL,
 	//OFILE_WATER,
@@ -3242,6 +3243,7 @@ typedef enum object_proc_func {
 	OPF_DOOR,
 	//OPF_FLTRP,
 	OPF_TRAP,
+	OPF_PRSPLT,
 	OPF_CIRCLE,
 	OPF_BCROSS,
 #if FLICKER_LIGHT
@@ -3288,6 +3290,7 @@ typedef enum object_trap_mode {
 	OTM_DOOR, // 1x1 object which is not passable, triggered by open
 	OTM_1X1,  // 1x1 object which is not passable, triggered by inactivation
 	OTM_1X2,  // 1x2 object which is not passable, triggered by inactivation
+	OTM_0X0,  // 1x1 object which is passable, triggered by gfx change
 } object_trap_mode;
 
 typedef enum _object_id {
@@ -3363,6 +3366,8 @@ typedef enum _object_id {
 	OBJ_MURKYFTN,
 	OBJ_TEARFTN,
 	OBJ_ALTBOY,
+	OBJ_PRSPLT1,
+	OBJ_PRSPLT2,
 	OBJ_MCIRCLE1,
 	OBJ_MCIRCLE2,
 	OBJ_STORYBOOK,

@@ -888,6 +888,44 @@ static void Theme_WeaponRack(int themeId)
 }
 
 /**
+ * Theme_Lock locks the door of themes.
+ *
+ * @param themeId: theme id.
+ */
+void Theme_Lock(int themeId)
+{
+	int xx, yy, oi, doi = -1;
+	POS32 pos;
+	const ThemeStruct &theme = themes[themeId];
+
+	if (random_(0, 16) != 0) {
+		return;
+	}
+	for (xx = theme._tsx1 - 1; xx <= theme._tsx2; xx++) {
+		for (yy = theme._tsy1 - 1; yy <= theme._tsy2; yy++) {
+			if (xx >= theme._tsx1 && xx < theme._tsx2 && yy >= theme._tsy1 && yy < theme._tsy2) continue;
+			if (!nSolidTable[dPiece[xx][yy]]) return;
+			oi = dObject[xx][yy];
+			if (oi <= 0) continue;
+			oi--;
+			if (objects[oi]._oDoorFlag == ODT_NONE) continue;
+			if (doi >= 0) return;
+			doi = oi;
+		}
+	}
+	// assert(doi >= 0);
+	while (true) {
+		pos = RndLoc3x3();
+		if (pos.x == 0)
+			return;
+		// assert(pos.x < theme._tsx1 || pos.x > theme._tsx2 || pos.y < theme._tsy1 || pos.y > theme._tsy2);
+		break;
+	}
+
+	ObjAddDoorLock(pos.x, pos.y, doi);
+}
+
+/**
  * UpdateL4Trans sets each value of the transparency map to 1.
  */
 /*static void UpdateL4Trans()
@@ -964,6 +1002,7 @@ void CreateThemeRooms()
 			ASSUME_UNREACHABLE
 			break;
 		}
+		Theme_Lock(i);
 	}
 	//gbInitObjFlag = false;
 	// TODO: why was this necessary in the vanilla code?

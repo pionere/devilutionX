@@ -1525,7 +1525,8 @@ Objects\Mushptch.CEL
 _Objects\Nude2.CEL
 Objects\Pedistl.CEL
 Objects\PFountn.CEL
-_Objects\Prsrplt1.CEL
+Objects\Prsrplt1.CEL
+Objects\Prsrplt2.CEL
 Objects\Rockstan.CEL
 Objects\RShrineG.CEL
 Objects\Sarc.CEL
