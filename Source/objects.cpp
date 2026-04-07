@@ -482,7 +482,8 @@ static void ObjAddDunObjs(int x1, int y1, int x2, int y2)
 static int CondAddObject(int type, int xp, int yp)
 {
 	int result = -1;
-	if (dObject[xp][yp] == 0)
+	if ((/*dMonster[xp][yp] | dPlayer[xp][yp] |*/ dObject[xp][yp]
+	 | /*nSolidTable[dPiece[xp][yp]] | */(dFlags[xp][yp] & BFLAG_OBJ_PROTECT)) == 0) // keep in sync with RndLocOk
 		result = AddObject(type, xp, yp);
 	return result;
 }
@@ -494,9 +495,6 @@ static void ObjAddTorches()
 	// place torches on NW->SE walls
 	for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
 		for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
-			// skip setmap pieces
-			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
-				continue;
 			// select 'trapable' position
 			ttv = (nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) >> PST_TRAP_SHL;
 			if (ttv != (PST_LEFT >> PST_TRAP_SHL))
@@ -509,10 +507,10 @@ static void ObjAddTorches()
 			if (nSolidTable[dPiece[i + 1][j]]) p0 = false;
 			if (nSolidTable[dPiece[i - 1][j]]) p1 = false;
 			if (p0) {
-				AddObject(OBJ_TORCHL1, i, j);
+				CondAddObject(OBJ_TORCHL1, i, j);
 			}
 			if (p1) {
-				AddObject(OBJ_TORCHL2, i - 1, j);
+				CondAddObject(OBJ_TORCHL2, i - 1, j);
 			}
 			// skip a few tiles to prevent close placement
 			j += 4;
@@ -521,9 +519,6 @@ static void ObjAddTorches()
 	// place torches on NE->SW walls
 	for (j = DBORDERY; j < DBORDERY + DSIZEY; j++) {
 		for (i = DBORDERX; i < DBORDERX + DSIZEX; i++) {
-			// skip setmap pieces
-			if (dFlags[i][j] & BFLAG_OBJ_PROTECT)
-				continue;
 			// select 'trapable' position
 			ttv = (nSpecTrapTable[dPiece[i][j]] & PST_TRAP_TYPE) >> PST_TRAP_SHL;
 			if (ttv == (PST_NONE >> PST_TRAP_SHL) || ttv == (PST_LEFT >> PST_TRAP_SHL))
@@ -594,9 +589,7 @@ static void ObjAddTraps()
 			tx = ox;
 			on = PST_RIGHT >> PST_TRAP_SHL; //  OBJ_TRAPR;
 		}
-		// skip setmap pieces
-		if (dFlags[tx][ty] & BFLAG_OBJ_PROTECT)
-			continue;
+		// select trapable position
 		if (((nSpecTrapTable[dPiece[tx][ty]] & PST_TRAP_TYPE) >> PST_TRAP_SHL) != on)
 			continue;
 		on = CondAddObject(on == (PST_LEFT >> PST_TRAP_SHL) ? OBJ_TRAPL : OBJ_TRAPR, tx, ty);
