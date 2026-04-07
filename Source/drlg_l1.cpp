@@ -2703,7 +2703,7 @@ static void DRLG_L1()
 {
 	int i, areaidx;
 	// bool placeWater = QuestStatus(Q_PWATER);
-	const int arealimits[] = { DMAXX * DMAXY, 761, 693, 533 };
+	const int arealimits[] = { 900, 800, 693, 533 };
 	areaidx = 0;
 	if (currLvl._dLevelIdx == DLV_CATHEDRAL1) {
 		areaidx = 2;

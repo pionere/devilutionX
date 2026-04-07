@@ -2012,6 +2012,8 @@ H2:
 
 static void DRLG_L4()
 {
+	int i;
+
 	while (true) {
 		do {
 			memset(drlg.dungBlock, 0, sizeof(drlg.dungBlock));
@@ -2020,7 +2022,8 @@ static void DRLG_L4()
 			//memset(dungeon, 30, sizeof(dungeon));
 			L4FirstRoom();
 			L4ConnectBlock();
-		} while (DRLG_L4GetArea() < 190);
+			i = DRLG_L4GetArea();
+		} while (i < 190 || i > 220);
 
 		L4Block2Dungeon();
 		DRLG_L4MakeMegas();
