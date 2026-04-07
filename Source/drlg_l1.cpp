@@ -1102,17 +1102,17 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 			 && L1CheckRoom(rx - 1, ry - 1, width + 1, height + 2)) { // BUGFIX: swap args 3 and 4 ("height+2" and "width+1") (fixed)
 				// - add room to the left
 				L1DrawRoom(rx, ry, width, height);
-				break;
+				// -> force similar room on the right side
+				i = 1;
+				goto right;
 			}
 		}
-		if (i != 0) {
-			// room added to the left -> force similar room on the right side
-			i = 1;
-		} else {
+		{
 			// room was not added to the left -> try to more options on the right
 			rx = -1;
 			i = 20;
 		}
+right:
 		// try to place a room to the right
 		rxy2 = x + w;
 		while (true) {
@@ -1120,6 +1120,7 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 			 && L1CheckRoom(rxy2, ry - 1, width + 1, height + 2)) {
 				// - add room to the right
 				L1DrawRoom(rxy2, ry, width, height);
+				// i = 1;
 				break;
 			}
 			if (--i == 0)
@@ -1145,17 +1146,17 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 			 && L1CheckRoom(rx - 1, ry - 1, width + 2, height + 1)) {
 				// - add room to the top
 				L1DrawRoom(rx, ry, width, height);
-				break;
+				// -> force similar room on the bottom side
+				i = 1;
+				goto bottom;
 			}
 		}
-		if (i != 0) {
-			// room added to the top -> force similar room on the bottom side
-			i = 1;
-		} else {
+		{
 			// room was not added to the top -> try to more options on the bottom
 			ry = -1;
 			i = 20;
 		}
+bottom:
 		// try to place a room to the bottom
 		rxy2 = y + h;
 		while (true) {
@@ -1163,6 +1164,7 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 			 && L1CheckRoom(rx - 1, rxy2, width + 2, height + 1)) {
 				// - add room to the bottom
 				L1DrawRoom(rx, rxy2, width, height);
+				// i = 1;
 				break;
 			}
 			if (--i == 0)
