@@ -42,8 +42,8 @@ const BYTE L4DYNENTRY2[] = {
 	// clang-format off
 	2, 2, // width, height
 
-	2, 6, // search
-	2, 6,
+	1, 6, // search
+	1, 6,
 
 	63, 0, // replace
 	0, 0,
