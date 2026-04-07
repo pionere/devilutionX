@@ -416,8 +416,8 @@ static void Place_Obj3(const ThemeStruct &theme, int type, int rndfrq)
 static void PlaceThemeMonsts(const ThemeStruct &theme)
 {
 	int mtidx, xx, yy;
-	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
-	const BYTE rndfrq = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	BYTE rndfrq = 32u * 32u / 2 / AllLevels[currLvl._dLevelNum].dMonDensity;
+	if (rndfrq == 0) rndfrq = 1;
 
 	// assert(numScaTypes != 0);
 	mtidx = mapScaTypes[random_low(0, numScaTypes)];
@@ -510,10 +510,15 @@ done:
 	PlaceThemeMonsts(theme);
 }
 
+static unsigned ThemeMonCount(const ThemeStruct &theme)
+{
+	return AllLevels[currLvl._dLevelNum].dMonDensity * (theme._tsx2 - theme._tsx1) * (theme._tsy2 - theme._tsy1);
+}
+
 static void AddSkelMonOrBanner(BYTE rnd, int x, int y)
 {
 	assert(PosOkActor(x, y));
-	if (rnd == 0 || random_low(0, rnd) != 0) {
+	if (rnd == 0 || random_low(0, rnd) == 0) {
 		AddMonster(mapSkelTypes[random_low(136, numSkelTypes)], x, y);
 	} else {
 		AddObject(OBJ_BANNER, x, y);
@@ -536,9 +541,8 @@ static const int8_t SkelPatterns[][2] = {
 static void Theme_SkelRoom(int themeId)
 {
 	int xx, yy;
-	const BYTE monstrnds[4] = { 6, 7, 3, 9 };
-	BYTE monstrnd;
 	const ThemeStruct &theme = themes[themeId];
+	BYTE monstrnd;
 	int8_t objs[2];
 
 	xx = theme._tsObjX;
@@ -546,7 +550,8 @@ static void Theme_SkelRoom(int themeId)
 
 	AddObject(OBJ_SKFIRE, xx, yy);
 
-	monstrnd = monstrnds[currLvl._dDunType - 1]; // TODO: use dType instead?
+	monstrnd = 8u * 32u * 32u / ThemeMonCount(theme);
+	if (monstrnd == 0) monstrnd = 1;
 
 	AddSkelMonOrBanner(monstrnd, xx - 1, yy - 1);
 
@@ -787,16 +792,20 @@ static void Theme_GoatShrine(int themeId)
 {
 	int i, xx, yy, mtidx, x, y;
 	const ThemeStruct &theme = themes[themeId];
+	BYTE monstrnd;
 
 	xx = theme._tsObjX;
 	yy = theme._tsObjY;
 	AddObject(OBJ_GOATSHRINE, xx, yy);
+	monstrnd = 8u * 32u * 32u / ThemeMonCount(theme);
+	if (monstrnd == 0) monstrnd = 1;
 	mtidx = mapGoatTypes[random_low(136, numGoatTypes)];
 	for (i = 0; i < lengthof(offset_x); i++) {
 		x = xx + offset_x[i];
 		y = yy + offset_y[i];
 		// assert(dTransVal[x][y] == theme._tsTransVal && !nSolidTable[dPiece[x][y]]);
-		AddMonster(mtidx, x, y); // OPPOSITE(i)
+		if (random_low(0, monstrnd) == 0)
+			AddMonster(mtidx, x, y); // OPPOSITE(i)
 	}
 }
 
