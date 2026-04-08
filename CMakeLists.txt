@@ -719,6 +719,7 @@ if(CREATE_PATCHER)
     tools/patcher/sfx.cpp
     tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
+    tools/patcher/towndat.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
     tools/patcher/controls/controller.cpp
