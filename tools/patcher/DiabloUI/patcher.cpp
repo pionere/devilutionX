@@ -31,9 +31,11 @@ typedef enum filenames {
 	FILE_MOVIE_VIC2,
 	FILE_MOVIE_VIC3,
 #if ASSET_MPL == 1
+#ifndef HELLFIRE
 //	FILE_TOWN_SCEL,
 	FILE_TOWN_CEL,
 	FILE_TOWN_MIN,
+#endif
 	FILE_CATHEDRAL_SCEL,
 	FILE_CATHEDRAL_CEL,
 	FILE_CATHEDRAL_MIN,
@@ -242,9 +244,11 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MOVIE_VIC2*/    "gendata\\DiabVic2.smk",
 /*FILE_MOVIE_VIC3*/    "gendata\\DiabVic3.smk",
 #if ASSET_MPL == 1
+#ifndef HELLFIRE
 ///*FILE_TOWN_SCEL*/     "Levels\\TownData\\TownS.CEL",
 /*FILE_TOWN_CEL*/      "Levels\\TownData\\Town.CEL",
 /*FILE_TOWN_MIN*/      "Levels\\TownData\\Town.MIN",
+#endif
 /*FILE_CATHEDRAL_SCEL*/"Levels\\L1Data\\L1S.CEL",
 /*FILE_CATHEDRAL_CEL*/ "Levels\\L1Data\\L1.CEL",
 /*FILE_CATHEDRAL_MIN*/ "Levels\\L1Data\\L1.MIN",
@@ -8266,6 +8270,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		mem_free_dbg(minBuf);
 	} break;
 #endif
+#ifndef HELLFIRE
 	case FILE_TOWN_CEL:
 	{	// patch dMicroCels - TOWN.CEL
 		size_t minLen;
@@ -8301,6 +8306,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = Town_PatchMin(buf, dwLen, false);
 		buf = buildBlkMin(buf, dwLen, blockSize);
 	} break;
+#endif
 	case FILE_CATHEDRAL_SCEL:
 	{	// patch pSpecialsCel - L1S.CEL
 		buf = DRLP_L1_PatchSpec(buf, dwLen);
