@@ -3952,6 +3952,8 @@ void MI_Acidpud(int mi)
 		} else {
 			mis->_miRange = misfiledata[MFILE_ACIDPUD].mfAnimLen[1] * misfiledata[MFILE_ACIDPUD].mfAnimFrameLen;
 			SetMissAnim(mi, 1);
+			// assert(mis->_miAnimLen == misfiledata[MFILE_ACIDPUD].mfAnimLen[1]);
+			// assert(mis->_miAnimFrameLen == misfiledata[MFILE_ACIDPUD].mfAnimFrameLen);
 		}
 	}
 	PutMissileF(mi, BFLAG_MISSILE_PRE);
@@ -4646,6 +4648,7 @@ void MI_Acidsplat(int mi)
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimLen == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0]);
+	// assert(mis->_miAnimFrameLen == misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen);
 	/*if (mis->_miRange == misfiledata[MFILE_ACIDSPLA].mfAnimLen[0] * misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen) {
 		mis->_mix++;
 		mis->_miy++;
@@ -5027,6 +5030,8 @@ void MI_Cbolt(int mi)
 			mis->_miFileNum = MFILE_LGHNING;
 			mis->_miRange = misfiledata[MFILE_LGHNING].mfAnimLen[0] * misfiledata[MFILE_LGHNING].mfAnimFrameLen;
 			SetMissAnim(mi, 0);
+			// assert(mis->_miAnimLen == misfiledata[MFILE_LGHNING].mfAnimLen[0]);
+			// assert(mis->_miAnimFrameLen == misfiledata[MFILE_LGHNING].mfAnimFrameLen);
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
 	}
