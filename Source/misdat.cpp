@@ -164,7 +164,7 @@ const MisFileData misfiledata[NUM_MFILE] = {
 /*MFILE_DOOM*///    { "Doom",     TRN_NONE,                      9, TRUE,       TRUE,       FALSE,       FALSE,     1,              { 15, 15, 15, 15, 15, 15, 15, 15, 15,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
 /*MFILE_DOOMEXP*/// { "Doomexp",  TRN_NONE,                      1, TRUE,       TRUE,       FALSE,       FALSE,     1,              { 15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
 /*MFILE_BLODBURS*/  { "Blodburs", TRN_NONE,                      1, TRUE,       TRUE,       FALSE,       FALSE,     2,              {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
-/*MFILE_SWAMP*/     { "Blodburs", TRN_MON_FALLSP_FALT,           1, TRUE,       TRUE,       FALSE,       FALSE,     1,              {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
+/*MFILE_SWAMP*/     { "Swamp",    TRN_NONE,                      1, TRUE,       TRUE,       FALSE,       FALSE,     1,              {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
 /*MFILE_NEWEXP*///  { "Newexp",   TRN_NONE,                      1, TRUE,       TRUE,       FALSE,       FALSE,     1,              { 15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
 /*MFILE_SHATTER1*/  { "Shatter1", TRN_NONE,                      1, TRUE,       TRUE,       FALSE,       FALSE,     1,              { 12,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },
 /*MFILE_BIGEXP*/    { "Bigexp",   TRN_NONE,                      1, TRUE,       TRUE,       FALSE,       FALSE,     1,              { 15,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }, ALIGN },

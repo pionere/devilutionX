@@ -601,6 +601,7 @@ Missiles\spawns5.CL2
 Missiles\spawns6.CL2
 Missiles\spawns7.CL2
 Missiles\spawns8.CL2
+Missiles\Swamp.CL2
 _spwn_Missiles\thinlght.cel
 Missiles\Thinlght.CL2
 Missiles\Wind1.CL2

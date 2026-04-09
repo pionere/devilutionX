@@ -57,6 +57,7 @@ Missiles\Scbsexpc.CL2
 Missiles\Scbsexpd.CL2
 Missiles\Shroud1.CL2
 Missiles\Shroud2.CL2
+Missiles\Swamp.CL2
 Missiles\Wind1.CL2
 Missiles\Wind2.CL2
 Monsters\Diablo\Diablod1.WAV
