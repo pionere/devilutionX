@@ -8290,7 +8290,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			minBuf = Town_PatchMin(minBuf, &minLen, false);
+			std::set<unsigned> removeMicrosBkp = removeMicros;
 			buf = buildBlkCel(buf, dwLen);
+			removeMicros = removeMicrosBkp;
+			minBuf = buildBlkMin(minBuf, &minLen, BLOCK_SIZE_TOWN);
+			buf = Town_PatchCelFrames(minBuf, minLen, buf, dwLen);
 		}
 		mem_free_dbg(minBuf);
 	} break;
@@ -8704,7 +8708,11 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = Town_PatchCel(minBuf, minLen, buf, dwLen);
 		if (buf != NULL) {
 			minBuf = Town_PatchMin(minBuf, &minLen, true);
+			std::set<unsigned> removeMicrosBkp = removeMicros;
 			buf = buildBlkCel(buf, dwLen);
+			removeMicros = removeMicrosBkp;
+			minBuf = buildBlkMin(minBuf, &minLen, BLOCK_SIZE_TOWN);
+			buf = Town_PatchCelFrames(minBuf, minLen, buf, dwLen);
 		}
 		mem_free_dbg(minBuf);
 	} break;

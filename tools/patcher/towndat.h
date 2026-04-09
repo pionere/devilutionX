@@ -10,6 +10,14 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+typedef struct DeltaFrameData {
+	int dfFrameNum;
+	BYTE dfx;
+	BYTE dfy;
+	BYTE color;
+	BYTE align;
+} DeltaFrameData;
+
 typedef struct POS {
 	BYTE x;
 	BYTE y;
@@ -26,6 +34,8 @@ typedef struct POScol {
 extern "C" {
 #endif
 
+// data to patch CEL
+extern const DeltaFrameData deltaGrain[3072];
 // data to patch SCEL
 extern const POS trans18[47];
 extern const POS trans19[814];

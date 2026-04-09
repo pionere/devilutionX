@@ -2357,6 +2357,186 @@ BYTE* Town_PatchCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* cel
 	return celBuf;
 }
 
+BYTE* Town_PatchCelFrames(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
+{
+	const uint16_t* pSubtiles = (const uint16_t*)minBuf;
+	// TODO: check minLen
+	const unsigned blockSize = BLOCK_SIZE_TOWN;
+	unsigned xx, yy;
+	constexpr BYTE TRANS_COLOR = 128;
+	constexpr int DRAW_HEIGHT = 8;
+	const int batchEntries = (DEFAULT_WIDTH / MICRO_WIDTH) * DRAW_HEIGHT;
+	CelFrameEntry entries[batchEntries];
+
+	int idx = 0;
+	// patch frames to reduce graininess
+	for (int i = 0; i < lengthof(deltaGrain); ) {
+		if ((idx % batchEntries) == 0) {
+			if (idx != 0) {
+				// recreate the new CEL file with the new batch
+				size_t maxCelSize = *celLen; // + batchEntries * MICRO_WIDTH * MICRO_HEIGHT;
+				BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+				memset(resCelBuf, 0, maxCelSize);
+
+				*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+				mem_free_dbg(celBuf);
+				celBuf = resCelBuf;
+			}
+			// (re)start the process
+			idx = 0;
+			pMicrosCel = celBuf;
+			memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
+			xx = 0; yy = MICRO_HEIGHT - 1;
+		}
+
+		// draw the micro to the back-buffer
+		const DeltaFrameData* frame = &deltaGrain[i];
+		int frameNum = frame->dfFrameNum;
+		unsigned index = 0;
+		for ( ; index < minLen / sizeof(uint16_t); index++) {
+			const uint16_t levelCelBlock = SwapLE16(pSubtiles[index]);
+			if ((levelCelBlock & 0xFFF) == frameNum) {
+				// assert(idx < batchEntries);
+				entries[idx].encoding = levelCelBlock >> 12;
+				entries[idx].frameRef = levelCelBlock & 0xFFF;
+				entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
+				RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], levelCelBlock, DMT_NONE);
+				idx++;
+				break;
+			}
+		}
+		if (index >= minLen / sizeof(uint16_t)) {
+			app_fatal("Town-frame %d missing from .MIN", frameNum);
+		}
+		// patch the frame (if necessary)
+		bool change = false;
+		while (i < lengthof(deltaGrain)) {
+			frame = &deltaGrain[i];
+			if (frame->dfFrameNum != frameNum) {
+				break;
+			}
+			unsigned addr = (xx + frame->dfx) + (yy - (MICRO_HEIGHT - 1 - frame->dfy)) * BUFFER_WIDTH;
+			if (gpBuffer[addr] != frame->color) {
+				gpBuffer[addr] = frame->color;
+				change = true;
+			}
+			i++;
+		}
+		if (!change) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				for (int x = 0; x < MICRO_WIDTH; x++) {
+					unsigned addr = (xx + x) + (yy - (MICRO_HEIGHT - 1 - y)) * BUFFER_WIDTH;
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+			idx--;
+			continue;
+		}
+
+		// move to the next micro
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+	// write the last batch to the CEL file (necessary because encodeCelMicros requires ordered entries)
+	if (idx != 0) {
+		// create the new CEL file
+		size_t maxCelSize = *celLen; // + batchEntries * MICRO_WIDTH * MICRO_HEIGHT;
+		BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+		memset(resCelBuf, 0, maxCelSize);
+
+		*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+		mem_free_dbg(celBuf);
+		celBuf = resCelBuf;
+		idx = 0;
+	}
+	// change pixels with color 127 to color 0
+	for (int i = 0; ; i++) {
+		if ((idx % batchEntries) == 0) {
+			if (idx != 0) {
+				// recreate the new CEL file with the new batch
+				size_t maxCelSize = *celLen; // + batchEntries * MICRO_WIDTH * MICRO_HEIGHT;
+				BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+				memset(resCelBuf, 0, maxCelSize);
+
+				*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+				mem_free_dbg(celBuf);
+				celBuf = resCelBuf;
+			}
+			// (re)start the process
+			idx = 0;
+			pMicrosCel = celBuf;
+			memset(&gpBuffer[0], TRANS_COLOR, DRAW_HEIGHT * BUFFER_WIDTH * MICRO_HEIGHT);
+			xx = 0; yy = MICRO_HEIGHT - 1;
+		}
+
+		// draw the micro to the back-buffer
+		int frameNum = i + 1;
+		unsigned index = 0;
+		for ( ; index < minLen / sizeof(uint16_t); index++) {
+			const uint16_t levelCelBlock = SwapLE16(pSubtiles[index]);
+			if ((levelCelBlock & 0xFFF) == frameNum) {
+				// assert(idx < batchEntries);
+				entries[idx].encoding = levelCelBlock >> 12;
+				entries[idx].frameRef = levelCelBlock & 0xFFF;
+				entries[idx].frameSrc = &gpBuffer[xx + yy * BUFFER_WIDTH];
+				RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], levelCelBlock, DMT_NONE);
+				idx++;
+				break;
+			}
+		}
+		if (index >= minLen / sizeof(uint16_t)) {
+			break;
+		}
+		// patch the frame if necessary
+		bool change = false;
+		for (int y = 0; y < MICRO_HEIGHT; y++) {
+			for (int x = 0; x < MICRO_WIDTH; x++) {
+				unsigned addr = (xx + x) + (yy - (MICRO_HEIGHT - 1 - y)) * BUFFER_WIDTH;
+				if (gpBuffer[addr] == 127) {
+					gpBuffer[addr] = 0;
+					change = true;
+				}
+			}
+		}
+		if (!change) {
+			for (int y = 0; y < MICRO_HEIGHT; y++) {
+				for (int x = 0; x < MICRO_WIDTH; x++) {
+					unsigned addr = (xx + x) + (yy - (MICRO_HEIGHT - 1 - y)) * BUFFER_WIDTH;
+					gpBuffer[addr] = TRANS_COLOR;
+				}
+			}
+			idx--;
+			continue;
+		}
+
+		// move to the next micro
+		yy += MICRO_HEIGHT;
+		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
+			yy = MICRO_HEIGHT - 1;
+			xx += MICRO_WIDTH;
+		}
+	}
+	// write the last batch to the CEL file
+	if (idx != 0) {
+		// create the new CEL file
+		size_t maxCelSize = *celLen; // + batchEntries * MICRO_WIDTH * MICRO_HEIGHT;
+		BYTE* resCelBuf = DiabloAllocPtr(maxCelSize);
+		memset(resCelBuf, 0, maxCelSize);
+
+		*celLen = encodeCelMicros(entries, idx, resCelBuf, celBuf, TRANS_COLOR);
+
+		mem_free_dbg(celBuf);
+		celBuf = resCelBuf;
+	}
+	return celBuf;
+}
+
 BYTE* Town_PatchSpec(const BYTE* minBuf, size_t minLen, const BYTE* celBuf, size_t celLen, BYTE* sCelBuf, size_t* sCelLen)
 {
 	typedef struct {
