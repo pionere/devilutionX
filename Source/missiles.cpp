@@ -3127,7 +3127,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		maxdam = monsters[misource]._mMaxDamage;
 	}
 	mis->_miMinDam = mindam << (6 - 4);
-	mis->_miMinDam = maxdam << (6 - 4);
+	mis->_miMaxDam = maxdam << (6 - 4);
 	return MIRES_DONE;
 }
 
