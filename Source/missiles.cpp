@@ -76,7 +76,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		for (k = 0; k < sl; k++)
 			mind += mind >> 3;
 
-		mind *= misfiledata[MFILE_BLUEXFR].mfAnimLen[0];
+		mind *= misfiledata[MFILE_BLUEXFR].mfAnimLen[0] * misfiledata[MFILE_BLUEXFR].mfAnimFrameLen;
 		maxd = mind << 3;
 		mind >>= 6;
 		maxd >>= 6;
@@ -197,8 +197,14 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		maxd = (magic >> 1) + (sl << 5);
 		break;
 	case SPL_INFERNO:
-		mind = (magic * 20) >> 6;
-		maxd = ((magic + (sl << 4)) * 30) >> 6;
+		mind = magic;
+		maxd = magic + (sl << 4);
+
+		k = misfiledata[MFILE_INFERNO].mfAnimLen[0] * misfiledata[MFILE_INFERNO].mfAnimFrameLen;
+		mind *= k;
+		maxd *= k;
+		mind >>= 6 - 2;
+		maxd >>= 6 - 2;
 		break;
 	case SPL_GOLEM:
 		sl = sl * 4 + (magic >> 6);
@@ -235,16 +241,17 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_WIND:
 		mind = (magic >> 3) + 7 * sl + 1;
 		maxd = (magic >> 3) + 8 * sl + 1;
-		// (dam * 2 * misfiledata[MFILE_WIND].mfAnimLen[0] / 16) << (-3 + 5)
-		mind = mind * 3;
-		maxd = maxd * 3;
+
+		k = misfiledata[MFILE_WIND].mfAnimLen[0] * misfiledata[MFILE_WIND].mfAnimFrameLen;
+		k = ((k + 1) << (-3 + 5)) / 16;
+		mind = mind * k;
+		maxd = maxd * k;
 		break;
 #ifdef HELLFIRE
 	/*case SPL_LIGHTWALL:
 		mind = 1;
 		maxd = ((magic >> 1) + sl) << (-3 + 5);
 		break;
-	case SPL_RUNEWAVE:
 	case SPL_IMMOLAT:
 		mind = 1 + (magic >> 3);
 		maxd = mind + 4;
