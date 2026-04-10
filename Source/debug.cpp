@@ -122,6 +122,8 @@ static int MonsterAiMissile(const MonsterAI &mai)
 	if (mai.aiType == AI_ROUNDRANGED || mai.aiType == AI_RANGED || mai.aiType == AI_ROUNDRANGED2
 		|| mai.aiType == AI_COUNSLR || mai.aiType == AI_ZHAR || mai.aiType == AI_LAZARUS) {
 		int mm = mai.aiParam1;
+		if (mm == MIS_CTA)
+			return -1;
 		if (mm == MIS_LIGHTNINGC2)
 			mm = MIS_LIGHTNING2;
 		if (mm == MIS_LIGHTNINGC)
@@ -783,7 +785,7 @@ void ValidateData()
 		if (lengthof(monfiledata) <= md.moFileNum)
 			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
 		const MonFileData& mfd = monfiledata[md.moFileNum];
-		if (mfd.moAnimFrameLen[MA_STAND] == 0) {
+		if (mfd.moAnimFrameLen[MA_STAND] == 0 && i != MT_GOLEM) {
 			app_fatal("Missing stand animation for %s (%d).", md.mName, i); // required by InitMonster, etc...
 		}
 		if (mfd.moAnimFrameLen[MA_WALK] == 0) {
@@ -1569,7 +1571,7 @@ void ValidateData()
 				if (paramA == 0 && paramB == 0
 				 && pow != IPL_INDESTRUCTIBLE && pow != IPL_NOMANA && pow != IPL_KNOCKBACK && pow != IPL_STUN && pow != IPL_NO_BLEED && pow != IPL_BLEED && pow != IPL_PENETRATE_PHYS
 				 && pow != IPL_SETDAM && pow != IPL_ONEHAND && pow != IPL_ALLRESZERO && pow != IPL_DRAINLIFE && pow != IPL_SETAC && pow != IPL_MANATOLIFE && pow != IPL_LIFETOMANA)
-					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+					app_fatal("Invalid UIParam%d set for '%s' %d. (range is not set)", n, ui.UIName, i);
 
 				for (int m = n + 1; m <= 6; m++) {
 					if (GetUniqueItemPower(ui, m) == pow)
@@ -1621,7 +1623,7 @@ void ValidateData()
 				}
 			} else if (pow == IPL_FASTATTACK) {
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 4)
-					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is 1..4)", n, ui.UIName, i);
 				if (GetUniqueItemParamB(ui, n) >= 3) {
 					for (int n = 0; n < NUM_IDI; n++) {
 						if (AllItemList[n].iUniqType == ui.UIUniqType && AllItemList[n].itype == ITYPE_BOW) {
@@ -1631,16 +1633,16 @@ void ValidateData()
 				}
 			} else if (pow == IPL_FASTRECOVER) {
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
-					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is 1..3)", n, ui.UIName, i);
 			} else if (pow == IPL_FASTCAST) {
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
-					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is 1..3)", n, ui.UIName, i);
 			} else if (pow == IPL_FASTWALK) {
 				if (GetUniqueItemParamA(ui, n) < 1 || GetUniqueItemParamB(ui, n) > 3)
-					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is 1..3)", n, ui.UIName, i);
 			} else if (pow == IPL_DUR) {
 				if (GetUniqueItemParamA(ui, n) <= -100 || GetUniqueItemParamB(ui, n) > 200)
-					app_fatal("Invalid UIParam%d set for '%s' %d.", n, ui.UIName, i);
+					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is -100..200)", n, ui.UIName, i);
 			} else if (pow == IPL_REQSTR) {
 				for (int n = 0; n < NUM_IDI; n++) {
 					if (AllItemList[n].iUniqType == ui.UIUniqType) {
@@ -1744,16 +1746,16 @@ void ValidateData()
 		}
 		if (od.oTrapFlag != OTM_NONE) {
 			const ObjFileData& ofd = objfiledata[od.ofindex];
-			if (ofd.oDoorFlag != ODT_NONE && od.oTrapFlag != OTM_DOOR)
-				app_fatal("DoorFlag (%d) conflicts with the trap mode setting for %s (%d) used by object %d", ofd.oDoorFlag, od.ofName, i, n);
-			if (od.oTrapFlag == OTM_DOOR && ofd.oDoorFlag == ODT_NONE)
-				app_fatal("Trap mode setting (%d) conflicts with the DoorFlag for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+			if (od.oDoorFlag != ODT_NONE && od.oTrapFlag != OTM_DOOR)
+				app_fatal("DoorFlag (%d) conflicts with the trap mode setting for object %d", od.oDoorFlag, i);
+			if (od.oTrapFlag == OTM_DOOR && od.oDoorFlag == ODT_NONE)
+				app_fatal("Trap mode setting (%d) conflicts with the DoorFlag for object %d", od.oTrapFlag, i);
 			if (od.oTrapFlag == OTM_0X0 && ofd.oSolidFlags != 0)
-				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, ofd.ofName, od.ofindex, i);
 			if (od.oTrapFlag == OTM_1X1 && ofd.oSolidFlags != 1)
-				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, ofd.ofName, od.ofindex, i);
 			if (od.oTrapFlag == OTM_1X2 && ofd.oSolidFlags != (1 | 2))
-				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, od.ofName, i, n);
+				app_fatal("Trap mode setting (%d) conflicts with the SolidFlags for %s (%d) used by object %d", od.oTrapFlag, ofd.ofName, od.ofindex, i);
 		}
 	}
 #endif // DEBUG_DATA
@@ -1809,7 +1811,7 @@ void ValidateData()
 			int w = GetSmallStringWidth(sd.sNameText);
 			if (w > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))
 				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSkillDetails
-			if (w > (SKILLBOOK_PNL_WIDTH - (2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET + 2 * BOXBORDER_WIDTH)))
+			if (w > (SBOOK_PNL_WIDTH - (2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET + 2 * BOXBORDER_WIDTH)))
 				app_fatal("Name of %s (%d) is too wide.", sd.sNameText, i); // required by DrawSpellBook
 		}
 
@@ -1872,7 +1874,7 @@ void ValidateData()
 				app_fatal("Targeted skill %s (%d) does not have scCurs.", sd.sNameText, i);
 			scrollSpells++;
 		}
-		if (sd.sMissile != 0 && missiledata[sd.sMissile].mFileNum != MFILE_NONE && missiledata[sd.sMissile].mFileNum >= NUM_FIXMFILE)
+		if (sd.sMissile != 0 && missiledata[sd.sMissile].mFileNum != MFILE_NONE && missiledata[sd.sMissile].mFileNum != MFILE_ACTOR && missiledata[sd.sMissile].mFileNum >= NUM_FIXMFILE)
 			app_fatal("Skill %s (%d) uses a dynamically loaded missile (%d).", sd.sNameText, i, missiledata[sd.sMissile].mFileNum);
 		if (sd.sMissile != 0 && sd.sType == STYPE_NONE && !(sd.sUseFlags & SFLAG_RANGED)) // required by On_SKILLXY, On_SKILLMON, On_SKILLPLR
 			app_fatal("Skill %s (%d) supposed to use a missile, but neither sType nor the SFLAG_RANGED-flag is set.", sd.sNameText, i);
@@ -1918,8 +1920,8 @@ void ValidateData()
 				app_fatal("Animated-Missile %d has invalid duration (%d, expected %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[0] / 2u);
 		}
 		if (md.mProc == MI_ExtExp
-		 && md.mdRange < misfiledata[MFILE_SHATTER1].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
-			app_fatal("Animated-Missile %d has invalid duration (%d, expected at least %d).", i, md.mdRange, misfiledata[MFILE_SHATTER1].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
+		 && md.mdRange < misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]) {
+			app_fatal("Animated-Missile %d has invalid duration (%d, expected at least %d).", i, md.mdRange, misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
 		}
 		if (md.mAddProc == AddCharge && md.mdPrSpeed != (int)(MIS_SHIFTEDVEL(16) / M_SQRT2))
 			app_fatal("Charge-Missile %d has invalid projectile-speed (%d, expected %d).", i, md.mdPrSpeed, (int)(MIS_SHIFTEDVEL(16) / M_SQRT2));
@@ -2022,7 +2024,7 @@ void ValidateData()
 		}
 		if (md.mProc == MI_ExtExp) {
 			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				assert(misfiledata[md.mFileNum].mfAnimFrameLen * misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_SHATTER1].mfAnimFrameLen * misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
+				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_SHATTER1].mfAnimLen[0]);
 			}
 		}
 		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
@@ -2051,8 +2053,7 @@ void ValidateData()
 		if (mfd.mfAnimFAmt == 0) {
 			if (i != MFILE_NONE && i != MFILE_ACTOR)
 				app_fatal("Missile-File %d without animation.", i);
-		} else if (mfd.mfAnimXOffset != (mfd.mfAnimWidth - TILE_WIDTH) / 2)
-			app_fatal("Missile-File %d is not drawn to the center. Width: %d, Offset: %d", i, mfd.mfAnimWidth, mfd.mfAnimXOffset);
+		}
 		if (mfd.mfAnimFAmt > NUM_DIRS && mfd.mfAnimFAmt != 16)
 			app_fatal("Missile-File %d has invalid mfAnimFAmt.", i); // required by AddMissile
 		if (mfd.mfAnimFrameLen == 0) {
@@ -2170,6 +2171,7 @@ void ValidateData()
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1); // required by PlrDoSpell
 	assert(PlrAnimFrameLens[PGX_DEATH] > 1); // required by PlrDoDeath
 #ifdef DEBUG_DATA
+#if 0
 	int wal = -1;
 	for (i = 0; i < NUM_CLASSES; i++) {
 		int pnum = 0;
@@ -2201,6 +2203,7 @@ void ValidateData()
 			}
 		}
 	}
+#endif
 	// towners
 	for (i = 0; i < STORE_TOWNERS; i++) {
 		//const int(*gl)[2] = &GossipList[i];
