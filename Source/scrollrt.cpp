@@ -511,11 +511,11 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 			trans = trans <= 5 ? 0 : (trans - 5);
 			/*if (plr.pManaShield != 0)
 				Cl2DrawLightTbl(
-				    px + plr._pAnimXOffset - misfiledata[MFILE_MANASHLD].mfAnimXOffset,
+				    px + plr._pAnimXOffset - misanimdim[MFILE_MANASHLD][1],
 				    py,
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
-				    misfiledata[MFILE_MANASHLD].mfAnimWidth, trans);*/
+				    misanimdim[MFILE_MANASHLD][0], trans);*/
 		}
 		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 	}
