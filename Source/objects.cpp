@@ -2191,7 +2191,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	//	SyncObjectAnim(objectactive[i]);
 }
 
-static void OperateBookLever(int pnum, int oi, bool sendmsg)
+static void OperateBookLever(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 	int qn;
@@ -2218,7 +2218,7 @@ static void OperateBookLever(int pnum, int oi, bool sendmsg)
 	}
 	if (deltaload)
 		return;
-	if (pnum == mypnum)
+	if (sendmsg) // pnum == mypnum
 		StartQTextMsg(questlist[qn]._qdmsg);
 	if (quests[qn]._qvar1 == QV_INIT) {
 		// assert(qn == [Q_BLOOD, Q_BCHAMB, Q_BLIND, Q_WARLORD]);
@@ -3263,7 +3263,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 /**
  * Handle the reading of story books in the dungeon.
  */
-static void OperateStoryBook(int pnum, int oi, bool sendmsg)
+static void OperateStoryBook(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -3278,7 +3278,7 @@ static void OperateStoryBook(int pnum, int oi, bool sendmsg)
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-	if (pnum == mypnum)
+	if (sendmsg) // pnum == mypnum
 		StartQTextMsg(os->_oVar2); // STORY_BOOK_MSG
 }
 
@@ -3288,7 +3288,7 @@ void OpenNakrulRoom()
 	DRLG_ChangeMap(pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 2, pSetPieces[0]._spx + 2, pSetPieces[0]._spy + 3/*, false*/);
 }
 
-static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
+static void OperateNakrulBook(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 
@@ -3310,7 +3310,7 @@ static void OperateNakrulBook(int pnum, int oi, bool sendmsg)
 	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
-	if (pnum == mypnum) {
+	if (sendmsg) { // pnum == mypnum
 		StartQTextMsg(os->_oVar2); // STORY_BOOK_MSG
 		if (quests[Q_NAKRUL]._qactive != QUEST_DONE) {
 			quests[Q_NAKRUL]._qvar2 = ProgressUberLever(os->_oVar3, quests[Q_NAKRUL]._qvar2); // STORY_BOOK_NAKRUL_IDX
@@ -3354,7 +3354,7 @@ static void OperateLazStand(int oi, bool sendmsg)
 	PickItemFromObject(IDI_LAZSTAFF, oi, sendmsg);
 }
 
-static void OperateCrux(int pnum, int oi, bool sendmsg)
+static void OperateCrux(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
 	bool triggered;
@@ -3390,7 +3390,7 @@ static void OperateCrux(int pnum, int oi, bool sendmsg)
 		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
 }
 
-static void OperateBarrel(int pnum, int oi, bool sendmsg)
+static void OperateBarrel(int oi, bool sendmsg)
 {
 	ObjectStruct* os = &objects[oi];
 	int xotype, mpo;
@@ -3438,7 +3438,7 @@ static void OperateBarrel(int pnum, int oi, bool sendmsg)
 				if (mpo > 0) {
 					mpo--;
 					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
-						OperateBarrel(pnum, mpo, sendmsg);
+						OperateBarrel(mpo, sendmsg);
 				}
 			}
 		}
@@ -3501,12 +3501,12 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_STEELTOME:
 	//case OBJ_BOOKLVR:
 	case OBJ_MYTHICBOOK:
-		OperateBookLever(pnum, oi, sendmsg);
+		OperateBookLever(oi, sendmsg);
 		break;
 	case OBJ_CRUXM:
 	case OBJ_CRUXR:
 	case OBJ_CRUXL:
-		OperateCrux(pnum, oi, sendmsg);
+		OperateCrux(oi, sendmsg);
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
@@ -3516,7 +3516,7 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_POD:
 	case OBJ_PODEX:
 #endif
-		OperateBarrel(pnum, oi, sendmsg);
+		OperateBarrel(oi, sendmsg);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -3550,12 +3550,12 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 		OperateNakrulLever(oi, sendmsg);
 		break;
 	case OBJ_NAKRULBOOK:
-		OperateNakrulBook(pnum, oi, sendmsg);
+		OperateNakrulBook(oi, sendmsg);
 		break;
 	case OBJ_L5BOOK:
 #endif
 	case OBJ_STORYBOOK:
-		OperateStoryBook(pnum, oi, sendmsg);
+		OperateStoryBook(oi, sendmsg);
 		break;
 	case OBJ_PEDESTAL:
 		OperatePedestal(pnum, oi, sendmsg);
@@ -3655,12 +3655,12 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_STEELTOME:
 	//case OBJ_BOOKLVR:
 	case OBJ_MYTHICBOOK:
-		OperateBookLever(pnum, oi, false);
+		OperateBookLever(oi, false);
 		break;
 	case OBJ_CRUXM:
 	case OBJ_CRUXR:
 	case OBJ_CRUXL:
-		OperateCrux(pnum, oi, false);
+		OperateCrux(oi, false);
 		break;
 	case OBJ_BARREL:
 	case OBJ_BARRELEX:
@@ -3670,7 +3670,7 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_POD:
 	case OBJ_PODEX:
 #endif
-		OperateBarrel(pnum, oi, false);
+		OperateBarrel(oi, false);
 		break;
 	case OBJ_SHRINEL:
 	case OBJ_SHRINER:
@@ -3704,12 +3704,12 @@ void SyncOpObject(/*int pnum,*/ int oi)
 		OperateNakrulLever(oi, false);
 		break;
 	case OBJ_NAKRULBOOK:
-		OperateNakrulBook(pnum, oi, false);
+		OperateNakrulBook(oi, false);
 		break;
 	case OBJ_L5BOOK:
 #endif
 	case OBJ_STORYBOOK:
-		OperateStoryBook(-1, oi, false);
+		OperateStoryBook(oi, false);
 		break;
 	case OBJ_PEDESTAL:
 		OperatePedestal(-1, oi, false);
