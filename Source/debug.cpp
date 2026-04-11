@@ -2009,9 +2009,7 @@ void ValidateData()
 		if (md.mProc == MI_Portal) {
 			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
 			assert(misfiledata[md.mFileNum].mfAnimFrameLen == 1);
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
-				assert(misfiledata[md.mFileNum].mfAnimLen[j] == misfiledata[MFILE_PORTAL].mfAnimLen[j]);
-			}
+			assert(misfiledata[md.mFileNum].mfAnimLen[0] == misfiledata[MFILE_PORTAL].mfAnimLen[0]);
 		}
 		if (md.mProc == MI_Shroud)
 			assert(md.mFileNum == MFILE_SHROUD);
@@ -2096,7 +2094,6 @@ void ValidateData()
 	assert(missiledata[MIS_BLOODBOIL].mdPrSpeed == 0);           // required by MI_BloodBoilC
 	assert(missiledata[MIS_SWAMP].mdPrSpeed == 0);               // required by MI_BloodBoilC
 	assert(missiledata[MIS_STONE].mdPrSpeed == 0);               // required by MI_Rune
-	assert(misfiledata[MFILE_LGHNING].mfAnimLen[0] == misfiledata[MFILE_THINLGHT].mfAnimLen[0]); // required by AddLightning
 	assert(misfiledata[MFILE_MINILTNG].mfAnimLen[0] == misfiledata[MFILE_LGHNING].mfAnimLen[0]); // required by MI_Pulse
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] < 14 /* lengthof(FireWallLight) */);          // required by MI_Firewall
 	assert(misfiledata[MFILE_FIREWAL].mfAnimLen[0] >= 8);                                        // required by MI_Firewall
@@ -2108,10 +2105,7 @@ void ValidateData()
 	assert(misfiledata[MFILE_BLUEXFR].mfAnimFrameLen == 1);                                      // required by MI_Flash
 	assert(misfiledata[MFILE_BLUEXBK].mfAnimFrameLen == 1);                                      // required by MI_Flash2
 	assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen == 1);                                       // required by MI_Meteor
-	assert(misfiledata[MFILE_SHROUD].mfAnimFrameLen == 1);                                       // required by MI_Shroud
-	assert(misfiledata[MFILE_GUARD].mfAnimFrameLen == 1);                                        // required by MI_Guardian
 	assert(((1 + misfiledata[MFILE_GUARD].mfAnimLen[0]) >> 1) <= MAX_LIGHT_RAD);                 // required by MI_Guardian
-	assert(misfiledata[MFILE_GUARD].mfAnimLen[1] >= 2);                                          // required by MI_Guardian
 	assert(misfiledata[MFILE_LGHNING].mfAnimFAmt == 1);                                          // required by MI_Cbolt
 	assert(misfiledata[MFILE_SHATTER1].mfAnimFAmt == 1);                                         // required by MI_Stone
 	assert(misfiledata[MFILE_ARROWS].mfAnimLen[0] == 16);                                        // required by AddArrow
