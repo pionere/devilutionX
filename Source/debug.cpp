@@ -1906,15 +1906,14 @@ void ValidateData()
 		const MissileData& md = missiledata[i];
 		if (md.mAddProc == NULL)
 			app_fatal("Missile %d has no valid mAddProc.", i);
+		const MisFileData* mfd = &misfiledata[md.mFileNum];
+		const int n = mfd->mfAnimFAmt;
 #ifdef DEBUG_ASSETS
 		char pszName[DATA_ARCHIVE_MAX_PATH];
-		int n;
 		const char* name;
 		const char* fmt;
-		const MisFileData* mfd = &misfiledata[md.mFileNum];
 		int mAnimLen[16] = { 0 };
 
-		n = mfd->mfAnimFAmt;
 		name = mfd->mfName;
 		if (n > 16) {
 			app_fatal("Unsupported number (%d) of animation in misfiledata (%s)", n, name);
@@ -1975,16 +1974,16 @@ void ValidateData()
 			assert(misfiledata[md.mFileNum].mfAnimFrameLen == 1);
 		}
 		if (md.mAddProc == AddPortal || md.mAddProc == AddTown) {
-			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
+			assert(n == 2);
 		}
 #ifdef DEBUG_ASSETS
 		if (md.mAddProc == AddLightball) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+			for (int j = 0; j < n; j++) {
 				assert(mAnimLen[j] == MIA_LGHNING_LENGTH);
 			}
 		}
 		if (md.mAddProc == AddLightning) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+			for (int j = 0; j < n; j++) {
 				assert(mAnimLen[j] == MIA_LGHNING_LENGTH);
 			}
 		}
@@ -2011,17 +2010,17 @@ void ValidateData()
 			app_fatal("Missile %d has no valid mProc.", i);
 #ifdef DEBUG_ASSETS
 		if (md.mProc == MI_Misexp) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+			for (int j = 0; j < n; j++) {
 				assert(mAnimLen[j] < 16 /* lengthof(ExpLight) */);
 			}
 		}
 		if (md.mProc == MI_MiniExp) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+			for (int j = 0; j < n; j++) {
 				assert(mAnimLen[j] < 11 /* lengthof(ExpLight) */);
 			}
 		}
 		if (md.mProc == MI_Inferno) {
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+			for (int j = 0; j < n; j++) {
 				assert(mAnimLen[j] < 24);
 			}
 		}
@@ -2031,11 +2030,11 @@ void ValidateData()
 		}
 		if (md.mProc == MI_Chain) {
 			assert(md.mdPrSpeed == missiledata[MIS_CHAIN].mdPrSpeed);
-			assert(misfiledata[md.mFileNum].mfAnimFAmt == 1);
+			assert(n == 1);
 		}
 		if (md.mProc == MI_Elemental) {
 			assert(md.mdPrSpeed == missiledata[MIS_ELEMENTAL].mdPrSpeed);
-			assert(misfiledata[md.mFileNum].mfAnimFAmt == NUM_DIRS);
+			assert(n == NUM_DIRS);
 		}
 		if (md.mProc == MI_Mage) {
 			assert(md.mdPrSpeed == missiledata[MIS_MAGE].mdPrSpeed);
@@ -2054,10 +2053,10 @@ void ValidateData()
 			assert(md.mFileNum == MFILE_BLUEXBK);
 		if (md.mProc == MI_Guardian) {
 			assert(md.mFileNum == MFILE_GUARD);
-			assert(misfiledata[md.mFileNum].mfAnimFAmt == 3);
+			assert(n == 3);
 		}
 		if (md.mProc == MI_Portal) {
-			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
+			assert(n == 2);
 			assert(misfiledata[md.mFileNum].mfAnimFrameLen == 1);
 #ifdef DEBUG_ASSETS
 			assert(mAnimLen[0] == MIA_PORTAL_LENGTH);
@@ -2074,13 +2073,13 @@ void ValidateData()
 		}
 		if (md.mProc == MI_ExtExp) {
 #ifdef DEBUG_ASSETS
-			for (int j = 0; j < misfiledata[md.mFileNum].mfAnimFAmt; j++) {
+			for (int j = 0; j < n; j++) {
 				assert(mAnimLen[j] == MIA_SHATTER1_LENGTH);
 			}
 #endif
 		}
 		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
-			assert(misfiledata[md.mFileNum].mfAnimFAmt == 2);
+			assert(n == 2);
 		}
 		if ((md.mProc == MI_Acidpud || md.mProc == MI_Flash2) != misfiledata[md.mFileNum].mfPreFlag)
 			app_fatal("Missile %d wont render correctly due to misconfigured preflag.", i);
