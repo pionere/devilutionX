@@ -119,6 +119,13 @@ typedef struct CelImageBuf {
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelImageBuf;
 
+typedef struct CelAnimBuf {
+	uint16_t caWidth;
+	BYTE caFrameCnt;
+	BYTE caAlign;
+	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
+} CelAnimBuf;
+
 typedef struct TRNFileData {
 	const char* trnName;
 } TRNFileData;

@@ -281,7 +281,7 @@ static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
 	}
 	nCel = mis->_miAnimFrame;
 #if DEBUG_MODE
-	int frames = LOAD_LE32(pCelBuff);
+	int frames = (mis->_miType == MIS_RHINO || mis->_miType == MIS_CHARGE) ? LOAD_LE32(pCelBuff) : reinterpret_cast<const CelAnimBuf*>(pCelBuff)->caFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Missile frame %d of %d, type %d", nCel, frames, mis->_miType);
 	}

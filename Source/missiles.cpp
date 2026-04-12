@@ -26,8 +26,7 @@ MissileStruct missile[MAXMISSILES];
 int nummissiles;
 
 // container for live data of missile-animations
-static BYTE* misanimdata[NUM_MFILE + 1][16] = { { 0 } };
-static int misanimdim[NUM_MFILE][2] = { 0 };
+static CelAnimBuf* misanimdata[NUM_MFILE + 1][16] = { { 0 } };
 
 // TODO: merge XDirAdd/YDirAdd, offset_x/offset_y, bxadd/byadd, pathxdir/pathydir, plrxoff2/plryoff2, trm3x/trm3y
 /** Maps from direction to X-offset. */
@@ -1461,7 +1460,7 @@ static void SyncMissAnim(int mi)
 	mis = &missile[mi];
 	animtype = mis->_miFileNum;
 	dir = mis->_miDir;
-	mis->_miAnimData = misanimdata[animtype][dir];
+	mis->_miAnimData = reinterpret_cast<const BYTE*>(misanimdata[animtype][dir]);
 	mfd = &misfiledata[animtype];
 	static_assert(offsetof(MissileStruct, _miAnimFlag) == offsetof(MissileStruct, _miDrawFlag) + 1, "SyncMissAnim uses DWORD-memcpy to optimize performance I.");
 	static_assert(offsetof(MissileStruct, _miLightFlag) == offsetof(MissileStruct, _miDrawFlag) + 2, "SyncMissAnim uses DWORD-memcpy to optimize performance II.");
@@ -1471,9 +1470,12 @@ static void SyncMissAnim(int mi)
 	static_assert(offsetof(MisFileData, mfPreFlag) == offsetof(MisFileData, mfDrawFlag) + 3, "SyncMissAnim uses DWORD-memcpy to optimize performance VI.");
 	*(uint32_t*)&mis->_miDrawFlag = *(uint32_t*)&mfd->mfDrawFlag;
 	mis->_miAnimFrameLen = mfd->mfAnimFrameLen;
-	mis->_miAnimLen = mis->_miAnimData != NULL ? LOAD_LE32(mis->_miAnimData) : 0;
-	mis->_miAnimWidth = misanimdim[animtype][0];
-	mis->_miAnimXOffset = misanimdim[animtype][1];
+	if (mis->_miAnimData != NULL) {
+		const CelAnimBuf* anim = reinterpret_cast<const CelAnimBuf*>(mis->_miAnimData);
+		mis->_miAnimLen = anim->caFrameCnt;
+		mis->_miAnimWidth = anim->caWidth;
+		mis->_miAnimXOffset = (mis->_miAnimWidth - TILE_WIDTH) >> 1;
+	}
 }
 
 static void SyncRhinoAnim(int mi)
@@ -1531,7 +1533,7 @@ static void LoadMissileGFX(BYTE midx)
 	char pszName[DATA_ARCHIVE_MAX_PATH];
 	BYTE trn[NUM_COLORS];
 	int i, n;
-	BYTE** mad;
+	CelAnimBuf** mad;
 	const char* name;
 	const char* fmt;
 	const MisFileData* mfd;
@@ -1546,14 +1548,17 @@ static void LoadMissileGFX(BYTE midx)
 	for (i = 0; i < n; i++) {
 		snprintf(pszName, sizeof(pszName), fmt, name, i + 1);
 		assert(mad[i] == NULL);
-		mad[i] = LoadFileInMem(pszName);
+		mad[i] = reinterpret_cast<CelAnimBuf*>(LoadFileInMem(pszName));
 	}
-	misanimdim[midx][0] = Cl2Width(mad[0]);
-	misanimdim[midx][1] = (misanimdim[midx][0] - TILE_WIDTH) >> 1;
 	if (LoadTrnWithMem(mfd->mfAnimTrans, trn)) {
 		for (i = 0; i < n; i++) {
-			Cl2ApplyTrans(mad[i], trn);
+			Cl2ApplyTrans(reinterpret_cast<BYTE*>(mad[i]), trn);
 		}
+	}
+	// convert BYTE* to CelAnimBuf*
+	for (i = 0; i < n; i++) {
+		mad[i]->caFrameCnt = LOAD_LE32(mad[i]);
+		mad[i]->caWidth = Cl2Width(reinterpret_cast<const BYTE*>(mad[i]));
 	}
 }
 
@@ -1683,7 +1688,7 @@ void InitMissileGFX(int mitype)
 
 static void FreeMissileGFX(int midx)
 {
-	BYTE** mad;
+	CelAnimBuf** mad;
 	int n, i;
 
 	n = misfiledata[midx].mfAnimFAmt;
