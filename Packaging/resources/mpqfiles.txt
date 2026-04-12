@@ -50,6 +50,7 @@ Missiles\Acidbf10.CL2
 Missiles\Acidbf11.CL2
 Missiles\Acidspla.CL2
 Missiles\Bigexp.CL2
+Missiles\Blodburs.CL2
 Missiles\Greenexp.CL2
 Missiles\Magicexp.CL2
 Missiles\Scbsexpb.CL2

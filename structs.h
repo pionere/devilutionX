@@ -120,9 +120,9 @@ typedef struct CelImageBuf {
 } CelImageBuf;
 
 typedef struct CelAnimBuf {
-	uint16_t caWidth;
-	BYTE caFrameCnt;
-	BYTE caAlign;
+	uint16_t caWidth;      // width of the animation
+	BYTE caFrameCnt;       // number of frames
+	BYTE caFrameLen;       // Tick length of each frame in the current animation
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelAnimBuf;
 
@@ -530,8 +530,7 @@ typedef struct MisFileData {
 	BOOLEAN mfAnimFlag;
 	BOOLEAN mfLightFlag;
 	BOOLEAN mfPreFlag;
-	BYTE mfAnimFrameLen;
-	ALIGNMENT(3, 2)
+	ALIGNMENT64(3)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");

@@ -75,7 +75,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		for (k = 0; k < sl; k++)
 			mind += mind >> 3;
 
-		mind *= MIA_BLUEXFR_LENGTH * misfiledata[MFILE_BLUEXFR].mfAnimFrameLen;
+		mind *= MIA_BLUEXFR_LENGTH * MIA_BLUEXFR_DELAY;
 		maxd = mind << 3;
 		mind >>= 6;
 		maxd >>= 6;
@@ -199,7 +199,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		mind = magic;
 		maxd = magic + (sl << 4);
 
-		k = MIA_INFERNO_LENGTH * misfiledata[MFILE_INFERNO].mfAnimFrameLen;
+		k = MIA_INFERNO_LENGTH * MIA_INFERNO_DELAY;
 		mind *= k;
 		maxd *= k;
 		mind >>= 6 - 2;
@@ -241,7 +241,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		mind = (magic >> 3) + 7 * sl + 1;
 		maxd = (magic >> 3) + 8 * sl + 1;
 
-		k = MIA_WIND_LENGTH * misfiledata[MFILE_WIND].mfAnimFrameLen;
+		k = MIA_WIND_LENGTH * MIA_WIND_DELAY;
 		k = ((k + 1) << (-3 + 5)) / 16;
 		mind = mind * k;
 		maxd = maxd * k;
@@ -1469,10 +1469,10 @@ static void SyncMissAnim(int mi)
 	static_assert(offsetof(MisFileData, mfLightFlag) == offsetof(MisFileData, mfDrawFlag) + 2, "SyncMissAnim uses DWORD-memcpy to optimize performance V.");
 	static_assert(offsetof(MisFileData, mfPreFlag) == offsetof(MisFileData, mfDrawFlag) + 3, "SyncMissAnim uses DWORD-memcpy to optimize performance VI.");
 	*(uint32_t*)&mis->_miDrawFlag = *(uint32_t*)&mfd->mfDrawFlag;
-	mis->_miAnimFrameLen = mfd->mfAnimFrameLen;
 	if (mis->_miAnimData != NULL) {
 		const CelAnimBuf* anim = reinterpret_cast<const CelAnimBuf*>(mis->_miAnimData);
 		mis->_miAnimLen = anim->caFrameCnt;
+		mis->_miAnimFrameLen = anim->caFrameLen;
 		mis->_miAnimWidth = anim->caWidth;
 		mis->_miAnimXOffset = (mis->_miAnimWidth - TILE_WIDTH) >> 1;
 	}
@@ -1557,8 +1557,11 @@ static void LoadMissileGFX(BYTE midx)
 	}
 	// convert BYTE* to CelAnimBuf*
 	for (i = 0; i < n; i++) {
+		CelMetaInfo mi;
+		LoadCelMetaInfo(reinterpret_cast<const BYTE*>(mad[i]), mi);
 		mad[i]->caFrameCnt = LOAD_LE32(mad[i]);
 		mad[i]->caWidth = Cl2Width(reinterpret_cast<const BYTE*>(mad[i]));
+		mad[i]->caFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
 	}
 }
 
@@ -3962,10 +3965,10 @@ void MI_Acidpud(int mi)
 			mis->_miDelFlag = TRUE;
 			return;
 		} else {
-			mis->_miRange = MIA_ACIDPUD1_LENGTH * misfiledata[MFILE_ACIDPUD].mfAnimFrameLen;
+			mis->_miRange = MIA_ACIDPUD1_LENGTH * MIA_ACIDPUD_DELAY;
 			SetMissAnim(mi, 1);
 			// assert(mis->_miAnimLen == MIA_ACIDPUD1_LENGTH);
-			// assert(mis->_miAnimFrameLen == misfiledata[MFILE_ACIDPUD].mfAnimFrameLen);
+			// assert(mis->_miAnimFrameLen == MIA_ACIDPUD_DELAY);
 		}
 	}
 	PutMissileF(mi, BFLAG_MISSILE_PRE);
@@ -3993,7 +3996,7 @@ void MI_Firewall(int mi)
 			// assert(mis->_miAnimLen == MIA_FIREWAL_LENGTH);
 			// assert(mis->_miAnimFrameLen == 1);
 			if (mis->_miAnimFrame == MIA_FIREWAL_LENGTH) {
-				// && mis->_miAnimCnt == misfiledata[MFILE_FIREWAL].mfAnimFrameLen - 1
+				// && mis->_miAnimCnt == MIA_FIREWAL_DELAY - 1
 				// start 'stand' after spawn
 				SetMissAnim(mi, 1);
 				// assert(mis->_miAnimLen == MIA_FIREWAL1_LENGTH);
@@ -4284,8 +4287,8 @@ void MI_BloodBoil(int mi)
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimLen == MIA_BLODBURS_LENGTH);
-	// assert(mis->_miAnimFrameLen == misfiledata[MFILE_BLODBURS].mfAnimFrameLen);
-	if (mis->_miRange == misfiledata[MFILE_BLODBURS].mfAnimFrameLen * MIA_BLODBURS_LENGTH / 2)
+	// assert(mis->_miAnimFrameLen == MIA_BLODBURS_DELAY);
+	if (mis->_miRange == MIA_BLODBURS_DELAY * MIA_BLODBURS_LENGTH / 2)
 		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE /* MICM_BLOCK_WALL */);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
@@ -4349,7 +4352,7 @@ void MI_Portal(int mi)
 		// assert(mis->_miAnimLen == MIA_PORTAL_LENGTH);
 		// assert(mis->_miAnimFrameLen == 1);
 		if (mis->_miAnimFrame == MIA_PORTAL_LENGTH
-		 /*&& mis->_miAnimCnt == misfiledata[MFILE_PORTAL].mfAnimFrameLen - 1*/) {
+		 /*&& mis->_miAnimCnt == MIA_PORTAL_DELAY - 1*/) {
 			SetMissAnim(mi, 1);
 		}
 	}
@@ -4376,7 +4379,7 @@ void MI_Flash(int mi)
 	// assert(mis->_miAnimLen == MIA_BLUEXFR_LENGTH);
 	// assert(mis->_miAnimFrameLen == 1);
 	if (mis->_miAnimFrame == MIA_BLUEXFR_LENGTH
-	 /*&& mis->_miAnimCnt == misfiledata[MFILE_BLUEXFR].mfAnimFrameLen - 1*/) {
+	 /*&& mis->_miAnimCnt == MIA_BLUEXFR_DELAY - 1*/) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -4391,7 +4394,7 @@ void MI_Flash2(int mi)
 	// assert(mis->_miAnimLen == MIA_BLUEXBK_LENGTH);
 	// assert(mis->_miAnimFrameLen == 1);
 	if (mis->_miAnimFrame == MIA_BLUEXBK_LENGTH
-	 /*&& mis->_miAnimCnt == misfiledata[MFILE_BLUEXBK].mfAnimFrameLen - 1*/) {
+	 /*&& mis->_miAnimCnt == MIA_BLUEXBK_DELAY - 1*/) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -4424,9 +4427,9 @@ void MI_Meteor(int mi)
 	mis = &missile[mi];
 
 	if (mis->_miFileNum != MFILE_FIREBA) {
-		// assert(misfiledata[MFILE_FIREBA].mfAnimFrameLen == 1);
+		// assert(MIA_FIREBA_DELAY == 1);
 		if (mis->_miAnimFrame == 3
-		 /*&& mis->_miAnimCnt == misfiledata[MFILE_FIREBA].mfAnimFrameLen - 1*/) {
+		 /*&& mis->_miAnimCnt == MIA_FIREBA_DELAY - 1*/) {
 			mis->_miyoff -= MET_SHIFT_UP / MET_STEPS_UP;
 			mis->_mixoff += MET_SHIFT_X / MET_STEPS_UP;
 			if (mis->_miyoff < -MET_SHIFT_UP) {
@@ -4476,12 +4479,12 @@ void MI_Guardian(int mi)
 		// assert(mis->_miAnimLen == MIA_GUARD_LENGTH);
 		// assert(mis->_miAnimFrameLen == 1);
 		if (mis->_miAnimFrame == MIA_GUARD_LENGTH
-		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen - 1
+		 // && mis->_miAnimCnt == MIA_GUARD_DELAY - 1
 		 && mis->_miAnimAdd >= 0) {
 			// start stand after spawn
 			SetMissAnim(mi, 1);
 		} else if (mis->_miAnimFrame == 1
-		 // && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen - 1
+		 // && mis->_miAnimCnt == MIA_GUARD_DELAY - 1
 		 && mis->_miAnimAdd < 0) {
 			// done after collapse
 			mis->_miDelFlag = TRUE; // + AddUnLight
@@ -4520,7 +4523,7 @@ collapse:
 		// start stand after fire, or collapse if this was the last shot
 		// assert(mis->_miAnimFrameLen == 1);
 		if (mis->_miAnimFrame == 1
-		 /* && mis->_miAnimCnt == misfiledata[MFILE_GUARD].mfAnimFrameLen - 1*/) {
+		 /* && mis->_miAnimCnt == MIA_GUARD_DELAY - 1*/) {
 			if (mis->_miRange <= 0)
 				goto collapse;
 			SetMissAnim(mi, 1);
@@ -4660,8 +4663,8 @@ void MI_Acidsplat(int mi)
 
 	mis = &missile[mi];
 	// assert(mis->_miAnimLen == MIA_ACIDSPLA_LENGTH);
-	// assert(mis->_miAnimFrameLen == misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen);
-	/*if (mis->_miRange == MIA_ACIDSPLA_LENGTH * misfiledata[MFILE_ACIDSPLA].mfAnimFrameLen) {
+	// assert(mis->_miAnimFrameLen == MIA_ACIDSPLA_DELAY);
+	/*if (mis->_miRange == MIA_ACIDSPLA_LENGTH * MIA_ACIDSPLA_DELAY) {
 		mis->_mix++;
 		mis->_miy++;
 		mis->_miyoff -= TILE_HEIGHT;
@@ -5040,10 +5043,10 @@ void MI_Cbolt(int mi)
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
 			mis->_miFileNum = MFILE_LGHNING;
-			mis->_miRange = MIA_LGHNING_LENGTH * misfiledata[MFILE_LGHNING].mfAnimFrameLen;
+			mis->_miRange = MIA_LGHNING_LENGTH * MIA_LGHNING_DELAY;
 			SetMissAnim(mi, 0);
 			// assert(mis->_miAnimLen == MIA_LGHNING_LENGTH);
-			// assert(mis->_miAnimFrameLen == misfiledata[MFILE_LGHNING].mfAnimFrameLen);
+			// assert(mis->_miAnimFrameLen == MIA_LGHNING_DELAY);
 		}
 		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
 	}
