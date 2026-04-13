@@ -221,7 +221,7 @@ typedef enum filenames {
 //	FILE_ITEM_LARMOR,
 //	FILE_ITEM_WSHIELD,
 //	FILE_ITEM_SCROLL,
-	FILE_ITEM_FEAR,
+//	FILE_ITEM_FEAR,
 //	FILE_ITEM_FBRAIN,
 //	FILE_ITEM_FMUSH,
 //	FILE_ITEM_INNSIGN,
@@ -434,7 +434,7 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_ITEM_LARMOR*/// "Items\\LArmor.CEL",
 /*FILE_ITEM_WSHIELD*///"Items\\WShield.CEL",
 /*FILE_ITEM_SCROLL*/// "Items\\Scroll.CEL",
-/*FILE_ITEM_FEAR*/     "Items\\FEar.CEL",
+/*FILE_ITEM_FEAR*///   "Items\\FEar.CEL",
 /*FILE_ITEM_FBRAIN*/// "Items\\FBrain.CEL",
 /*FILE_ITEM_FMUSH*///  "Items\\FMush.CEL",
 /*FILE_ITEM_INNSIGN*///"Items\\Innsign.CEL",
@@ -7846,7 +7846,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 #if 0
 	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) ? 128 : 160;
 #else
-	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_FEAR) ? 128 : 160;
+	int FRAME_HEIGHT = 160;
 #endif
 
 	DWORD* srcHeaderCursor = (DWORD*)celBuf;
@@ -7872,9 +7872,6 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 		// - shift crown, larmor, wshield (-12;0), ear (-16;0)
 #if 0
 		if (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) {
-#else
-		if (fileIndex == FILE_ITEM_FEAR) {
-#endif
 			// check if it is already done
 			if (i == 0) {
 				for (int y = 0; y < FRAME_HEIGHT; y++) {
@@ -7892,7 +7889,6 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 				}
 			}
 		}
-#if 0
 		// - shift mace (+2;-2)
 		if (fileIndex == FILE_ITEM_MACE) {
 			// check if it is already done
@@ -8964,7 +8960,7 @@ static BYTE* patchFile(int index, size_t *dwLen)
 //	case FILE_ITEM_LARMOR:
 //	case FILE_ITEM_WSHIELD:
 //	case FILE_ITEM_SCROLL:
-	case FILE_ITEM_FEAR:
+//	case FILE_ITEM_FEAR:
 //	case FILE_ITEM_FBRAIN:
 //	case FILE_ITEM_FMUSH:
 //	case FILE_ITEM_INNSIGN:

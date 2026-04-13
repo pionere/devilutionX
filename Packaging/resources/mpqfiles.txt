@@ -15,7 +15,9 @@ Items\Bldstn.CEL
 Items\CrownF.CEL
 Items\DurIcons.CEL
 Items\Fanvil.CEL
+Items\FBook.CEL
 Items\FBrain.CEL
+Items\FEar.CEL
 Items\FLazStaf.CEL
 Items\FMush.CEL
 Items\GoldFlip.CEL
@@ -26,6 +28,7 @@ Items\Ring.CEL
 Items\Rock.CEL
 Items\Scroll.CEL
 Items\Staff.CEL
+Items\SwrdFlip.CEL
 Items\WShield.CEL
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
