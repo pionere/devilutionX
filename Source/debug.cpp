@@ -1686,20 +1686,33 @@ void ValidateData()
 			app_fatal("Missing base type for '%s' %d.", ui.UIName, i);
 	}
 #endif // DEBUG_DATA
-	assert(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].iAnimLen == 10); // required by ProcessItems
 #ifdef DEBUG_DATA
 	for (i = 0; i < NUM_IFILE; i++) {
 		const ItemFileData& id = itemfiledata[i];
+		if (id.idSFX >= NUM_SFXS)
+			app_fatal("Invalid idSFX %d for %s (%d)", id.idSFX, id.ifName, i);
+		if (id.iiSFX >= NUM_SFXS)
+			app_fatal("Invalid iiSFX %d for %s (%d)", id.iiSFX, id.ifName, i);
+#ifdef DEBUG_ASSETS
+		char pszName[DATA_ARCHIVE_MAX_PATH];
+		const char* name;
+		snprintf(pszName, sizeof(pszName), "Items\\%s.CEL", id.ifName);
+		BYTE* mad = LoadFileInMem(pszName);
+		assert(mad != NULL);
+		int animlen = LOAD_LE32(mad);
+		CelMetaInfo mi;
+		LoadCelMetaInfo(mad, mi);
+		int animframelen = mi.cmiAnimDelay;
+		mem_free_dbg(mad);
+		if (animframelen > 1) {
+			app_fatal("Unsupported item-anim delay for %s (%d)", id.ifName, i); // see ITEM_ANIM_DELAY
+		}
 		if (id.idSFX != SFX_NONE) {
-			if (id.idSFX >= NUM_SFXS)
-				app_fatal("Invalid idSFX %d for %s (%d)", id.idSFX, id.ifName, i);
-			if ((id.iAnimLen >> 1) < 2)
-				app_fatal("Too short iAnimLen %d for %s (%d)", id.iAnimLen, id.ifName, i); // required by ProcessItems
+			if ((animlen >> 1) < 2)
+				app_fatal("Too short iAnimLen %d for %s (%d)", animlen, id.ifName, i); // required by ProcessItems
 		}
-		if (id.iiSFX != SFX_NONE) {
-			if (id.iiSFX >= NUM_SFXS)
-				app_fatal("Invalid iiSFX %d for %s (%d)", id.iiSFX, id.ifName, i);
-		}
+		assert(i != ItemCAnimTbl[ICURS_MAGIC_ROCK] || animlen == 10); // required by ProcessItems
+#endif
 	}
 	// objects
 	for (i = 0; i < NUM_OFILE_TYPES; i++) {
