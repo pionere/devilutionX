@@ -1772,9 +1772,7 @@ static int DrawDurIcon4Item(ItemStruct* pItem, int x)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	if (pItem->_iDurability > 2)
-		c += 8;
-	CelDraw(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c);
+	CelDrawTrnTbl(x, SCREEN_Y + SCREEN_HEIGHT - 8, pDurIconCels, c, SkillTrns[pItem->_iDurability > 2 ? RSPLTYPE_ABILITY : RSPLTYPE_CHARGES]);
 	return x - DURICON_WIDTH - 8;
 }
 

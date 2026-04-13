@@ -11,6 +11,7 @@ Data\SpellBk.CEL
 Data\Quest.CEL
 Data\TextBox.CEL
 Data\TouchBtn.CEL
+Items\DurIcons.CEL
 Items\Rock.CEL
 Levels\L1Data\Banner1.DUN
 Levels\L1Data\Banner2.DUN
