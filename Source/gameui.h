@@ -19,9 +19,6 @@ extern "C" {
 #define TILE_WIDTH     (64 * ASSET_MPL)
 #define TILE_HEIGHT    (32 * ASSET_MPL)
 
-#define ITEM_ANIM_WIDTH   (96 * ASSET_MPL)
-#define ITEM_ANIM_XOFFSET ((ITEM_ANIM_WIDTH - TILE_WIDTH) / 2)
-
 #define BORDER_LEFT    TILE_WIDTH
 // maximum of
 //  1. min(height of a player, CEL_BLOCK_HEIGHT) + 1 (outline)  = (~80 * ASSET_MPL, 32) + 1  = 33 -- cl2_render

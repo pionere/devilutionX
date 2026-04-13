@@ -1031,9 +1031,9 @@ static void drawFloor(int pn, int sx, int sy)
  */
 static void DrawItem(int ii, int sx, int sy)
 {
-	int nCel;
+	int nCel, nWidth;
 	const ItemStruct* is;
-	const BYTE* pCelBuff;
+	const CelAnimBuf* pCelBuff;
 	// assert(ii > 0);
 	ii--;
 
@@ -1047,16 +1047,18 @@ static void DrawItem(int ii, int sx, int sy)
 	}
 	nCel = is->_iAnimFrame;
 #if DEBUG_MODE
-	int frames = ((const CelImageBuf*)pCelBuff)->ciFrameCnt;
+	int frames = pCelBuff->caFrameCnt;
 	if (nCel < 1 || frames > 50 || nCel > frames) {
 		dev_fatal("Draw Item \"%d\": frame %d of %d, type %d, curs %d", is->_iIdx, nCel, frames, is->_itype, is->_iCurs);
 	}
 #endif
-	sx -= ITEM_ANIM_XOFFSET; //is->_iAnimXOffset;
+	nWidth = pCelBuff->caWidth;
+	sx -= (nWidth - TILE_WIDTH) >> 1;
+	// sx -= is->_iAnimXOffset;
 	if (ii == pcursitem) {
-		CelClippedDrawOutline(ICOL_BLUE, sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH); // is->_iAnimWidth);
+		CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nCel, nWidth);
 	}
-	CelClippedDrawLightTbl(sx, sy, pCelBuff, nCel, ITEM_ANIM_WIDTH, light_trn_index); //is->_iAnimWidth);
+	CelClippedDrawLightTbl(sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nCel, nWidth, light_trn_index);
 }
 
 /**

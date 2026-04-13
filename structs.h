@@ -275,7 +275,7 @@ typedef struct ItemStruct {
 	BYTE _iSelFlag;
 	BYTE _iSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN _iAnimFlag;
-	const BYTE* _iAnimData;  // PSX name -> ItemFrame
+	const CelAnimBuf* _iAnimData;
 	//unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
 	unsigned _iAnimLen;      // Number of frames in current animation

@@ -13,7 +13,7 @@ DEVILUTION_BEGIN_NAMESPACE
 int itemactive[MAXITEMS];
 /** Contains the items on ground in the current game. */
 ItemStruct items[MAXITEMS + 1];
-BYTE* itemanims[NUM_IFILE];
+static CelAnimBuf* itemanims[NUM_IFILE];
 int numitems;
 
 #if DEV_MODE
@@ -104,7 +104,13 @@ void InitItemGFX()
 	for (i = 0; i < NUM_IFILE; i++) {
 		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", itemfiledata[i].ifName);
 		assert(itemanims[i] == NULL);
-		itemanims[i] = LoadFileInMem(filestr);
+		itemanims[i] = reinterpret_cast<CelAnimBuf*>(LoadFileInMem(filestr));
+		// CelMetaInfo mi;
+		// LoadCelMetaInfo(reinterpret_cast<const BYTE*>(itemanims[i]), mi);
+		itemanims[i]->caFrameCnt = LOAD_LE32(itemanims[i]);
+		itemanims[i]->caWidth = CelClippedWidth(reinterpret_cast<const BYTE*>(itemanims[i]));
+		// itemanims[i]->caFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
+		itemanims[i]->caFrameLen = ITEM_ANIM_DELAY;
 	}
 }
 
@@ -2247,10 +2253,10 @@ void RespawnItem(int ii, bool FlipFlag)
 	is = &items[ii];
 	it = ItemCAnimTbl[is->_iCurs];
 	is->_iAnimData = itemanims[it];
-	is->_iAnimLen = itemfiledata[it].iAnimLen;
+	is->_iAnimLen = is->_iAnimData->caFrameCnt;
 	//is->_iAnimFrameLen = ITEM_ANIM_DELAY;
-	//is->_iAnimWidth = ITEM_ANIM_WIDTH;
-	//is->_iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) / 2;
+	//is->_iAnimWidth = is->_iAnimData->caWidth;
+	//is->_iAnimXOffset = 0;
 	//is->_iPostDraw = FALSE;
 	if (FlipFlag) {
 		is->_iAnimFrame = 1;
@@ -2349,8 +2355,8 @@ void SyncItemAnim(int ii)
 	items[ii]._iAnimData = itemanims[ItemCAnimTbl[items[ii]._iCurs]];
 #if 0
 	items[ii]._iAnimFrameLen = ITEM_ANIM_DELAY;
-	items[ii]._iAnimWidth = ITEM_ANIM_WIDTH;
-	items[ii]._iAnimXOffset = (ITEM_ANIM_WIDTH - TILE_WIDTH) >> 1;
+	items[ii]._iAnimWidth = items[ii]._iAnimData->caWidth;
+	items[ii]._iAnimXOffset = 0;
 #endif
 }
 
