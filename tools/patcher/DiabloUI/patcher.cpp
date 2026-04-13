@@ -213,21 +213,21 @@ typedef enum filenames {
 	FILE_MIS_HOLY16,
 	FILE_MIS_MAGBALL2,
 	FILE_ITEM_ARMOR2,
-	FILE_ITEM_GOLDFLIP,
-	FILE_ITEM_MACE,
-	FILE_ITEM_STAFF,
-	FILE_ITEM_RING,
-	FILE_ITEM_CROWNF,
-	FILE_ITEM_LARMOR,
-	FILE_ITEM_WSHIELD,
-	FILE_ITEM_SCROLL,
+//	FILE_ITEM_GOLDFLIP,
+//	FILE_ITEM_MACE,
+//	FILE_ITEM_STAFF,
+//	FILE_ITEM_RING,
+//	FILE_ITEM_CROWNF,
+//	FILE_ITEM_LARMOR,
+//	FILE_ITEM_WSHIELD,
+//	FILE_ITEM_SCROLL,
 	FILE_ITEM_FEAR,
-	FILE_ITEM_FBRAIN,
-	FILE_ITEM_FMUSH,
-	FILE_ITEM_INNSIGN,
-	FILE_ITEM_BLDSTN,
-	FILE_ITEM_FANVIL,
-	FILE_ITEM_FLAZSTAF,
+//	FILE_ITEM_FBRAIN,
+//	FILE_ITEM_FMUSH,
+//	FILE_ITEM_INNSIGN,
+//	FILE_ITEM_BLDSTN,
+//	FILE_ITEM_FANVIL,
+//	FILE_ITEM_FLAZSTAF,
 #ifdef HELLFIRE
 	FILE_ITEM_TEDDYS1,
 	FILE_ITEM_COWS1,
@@ -426,21 +426,21 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MIS_HOLY16*/    "Missiles\\Holy16.CL2",
 /*FILE_MIS_MAGBALL2*/  "Missiles\\Magball2.CL2",
 /*FILE_ITEM_ARMOR2*/   "Items\\Armor2.CEL",
-/*FILE_ITEM_GOLDFLIP*/ "Items\\GoldFlip.CEL",
-/*FILE_ITEM_MACE*/     "Items\\Mace.CEL",
-/*FILE_ITEM_STAFF*/    "Items\\Staff.CEL",
-/*FILE_ITEM_RING*/     "Items\\Ring.CEL",
-/*FILE_ITEM_CROWNF*/   "Items\\CrownF.CEL",
-/*FILE_ITEM_LARMOR*/   "Items\\LArmor.CEL",
-/*FILE_ITEM_WSHIELD*/  "Items\\WShield.CEL",
-/*FILE_ITEM_SCROLL*/   "Items\\Scroll.CEL",
+/*FILE_ITEM_GOLDFLIP*///"Items\\GoldFlip.CEL",
+/*FILE_ITEM_MACE*///   "Items\\Mace.CEL",
+/*FILE_ITEM_STAFF*///  "Items\\Staff.CEL",
+/*FILE_ITEM_RING*///   "Items\\Ring.CEL",
+/*FILE_ITEM_CROWNF*/// "Items\\CrownF.CEL",
+/*FILE_ITEM_LARMOR*/// "Items\\LArmor.CEL",
+/*FILE_ITEM_WSHIELD*///"Items\\WShield.CEL",
+/*FILE_ITEM_SCROLL*/// "Items\\Scroll.CEL",
 /*FILE_ITEM_FEAR*/     "Items\\FEar.CEL",
-/*FILE_ITEM_FBRAIN*/   "Items\\FBrain.CEL",
-/*FILE_ITEM_FMUSH*/    "Items\\FMush.CEL",
-/*FILE_ITEM_INNSIGN*/  "Items\\Innsign.CEL",
-/*FILE_ITEM_BLDSTN*/   "Items\\Bldstn.CEL",
-/*FILE_ITEM_FANVIL*/   "Items\\Fanvil.CEL",
-/*FILE_ITEM_FLAZSTAF*/ "Items\\FLazStaf.CEL",
+/*FILE_ITEM_FBRAIN*/// "Items\\FBrain.CEL",
+/*FILE_ITEM_FMUSH*///  "Items\\FMush.CEL",
+/*FILE_ITEM_INNSIGN*///"Items\\Innsign.CEL",
+/*FILE_ITEM_BLDSTN*/// "Items\\Bldstn.CEL",
+/*FILE_ITEM_FANVIL*/// "Items\\Fanvil.CEL",
+/*FILE_ITEM_FLAZSTAF*///"Items\\FLazStaf.CEL",
 #ifdef HELLFIRE
 /*FILE_ITEM_TEDDYS1*/  "Items\\teddys1.CEL",
 /*FILE_ITEM_COWS1*/    "Items\\cows1.CEL",
@@ -7843,7 +7843,11 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 {
 	constexpr BYTE TRANS_COLOR = 1;
 	constexpr int FRAME_WIDTH = 96;
+#if 0
 	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) ? 128 : 160;
+#else
+	int FRAME_HEIGHT = (fileIndex == FILE_ITEM_FEAR) ? 128 : 160;
+#endif
 
 	DWORD* srcHeaderCursor = (DWORD*)celBuf;
 	int srcCelEntries = SwapLE32(srcHeaderCursor[0]);
@@ -7866,7 +7870,11 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 
 		// center frames
 		// - shift crown, larmor, wshield (-12;0), ear (-16;0)
+#if 0
 		if (fileIndex == FILE_ITEM_CROWNF || fileIndex == FILE_ITEM_FEAR || fileIndex == FILE_ITEM_LARMOR || fileIndex == FILE_ITEM_WSHIELD) {
+#else
+		if (fileIndex == FILE_ITEM_FEAR) {
+#endif
 			// check if it is already done
 			if (i == 0) {
 				for (int y = 0; y < FRAME_HEIGHT; y++) {
@@ -7884,6 +7892,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 				}
 			}
 		}
+#if 0
 		// - shift mace (+2;-2)
 		if (fileIndex == FILE_ITEM_MACE) {
 			// check if it is already done
@@ -8044,6 +8053,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 				gpBuffer[49 + 140 * BUFFER_WIDTH] = 0;
 			}
 		}
+#endif
 		// - shift armor (0;-2)
 		if (fileIndex == FILE_ITEM_ARMOR2) {
 			// check if it is already done
@@ -8128,6 +8138,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 			}
 		}
 #endif
+#if 0
 		// reduce gold stack
 		if (fileIndex == FILE_ITEM_GOLDFLIP) {
 			// check if it is already done
@@ -8206,7 +8217,7 @@ static BYTE* patchFloorItems(int fileIndex, BYTE* celBuf, size_t* celLen)
 				gpBuffer[43 + 156 * BUFFER_WIDTH] = TRANS_COLOR; // (was color204
 			}
 		}
-
+#endif
 		// write to the new CEL file
 		dstHeaderCursor[0] = SwapLE32((DWORD)((size_t)dstDataCursor - (size_t)resCelBuf));
 		dstHeaderCursor++;
@@ -8945,21 +8956,21 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = patchMagball(buf, dwLen);
 	} break;
 	case FILE_ITEM_ARMOR2:
-	case FILE_ITEM_GOLDFLIP:
-	case FILE_ITEM_MACE:
-	case FILE_ITEM_STAFF:
-	case FILE_ITEM_RING:
-	case FILE_ITEM_CROWNF:
-	case FILE_ITEM_LARMOR:
-	case FILE_ITEM_WSHIELD:
-	case FILE_ITEM_SCROLL:
+//	case FILE_ITEM_GOLDFLIP:
+//	case FILE_ITEM_MACE:
+//	case FILE_ITEM_STAFF:
+//	case FILE_ITEM_RING:
+//	case FILE_ITEM_CROWNF:
+//	case FILE_ITEM_LARMOR:
+//	case FILE_ITEM_WSHIELD:
+//	case FILE_ITEM_SCROLL:
 	case FILE_ITEM_FEAR:
-	case FILE_ITEM_FBRAIN:
-	case FILE_ITEM_FMUSH:
-	case FILE_ITEM_INNSIGN:
-	case FILE_ITEM_BLDSTN:
-	case FILE_ITEM_FANVIL:
-	case FILE_ITEM_FLAZSTAF:
+//	case FILE_ITEM_FBRAIN:
+//	case FILE_ITEM_FMUSH:
+//	case FILE_ITEM_INNSIGN:
+//	case FILE_ITEM_BLDSTN:
+//	case FILE_ITEM_FANVIL:
+//	case FILE_ITEM_FLAZSTAF:
 #ifdef HELLFIRE
 	case FILE_ITEM_TEDDYS1:
 	case FILE_ITEM_COWS1:
