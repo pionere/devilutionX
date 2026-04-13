@@ -241,13 +241,6 @@ static void InitMonsterGFX(int midx)
 		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
 	//}
 
-	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
-	if (mtype == MT_GOLEM) {
-		copy_pod(monAnims[MA_STAND].maAnimData, monAnims[MA_WALK].maAnimData);
-		monAnims[MA_STAND].maFrames = monAnims[MA_WALK].maFrames;
-		monAnims[MA_STAND].maFrameLen = monAnims[MA_WALK].maFrameLen;
-	}
-
 	cmon->cmWidth = Cl2Width(monAnims[0].maAnimData[0]);
 	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
 }

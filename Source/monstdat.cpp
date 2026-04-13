@@ -190,7 +190,7 @@ const MonFileData monfiledata[NUM_MOFILE] = {
 /*MOFILE_BLACK*/    {    2120, "Monsters\\Black\\Black%c.CL2",     "Monsters\\Black\\Black%c%d.wav",    { 2, 1, 1, 1, 1, 0 }, FALSE,              8,        0, ALIGN },
 /*MOFILE_SUCC*/     {     980, "Monsters\\Succ\\Scbs%c.CL2",       "Monsters\\Succ\\Scbs%c%d.wav",      { 1, 1, 1, 1, 1, 0 }, FALSE,             10,        0, ALIGN },
 /*MOFILE_MAGE*/     {    2000, "Monsters\\Mage\\Mage%c.CL2",       "Monsters\\Mage\\Mage%c%d.wav",      { 1, 1, 1, 1, 1, 1 }, FALSE,              8,        0, ALIGN }, // moImage = 1311 ?
-/*MOFILE_GOLEM*/    {     386, "Monsters\\Golem\\Golem%c.CL2",     "Monsters\\Golem\\Golm%c%d.wav",     { 0, 1, 1, 0, 1, 1 }, FALSE,              7,        0, ALIGN },
+/*MOFILE_GOLEM*/    {     386, "Monsters\\Golem\\Golem%c.CL2",     "Monsters\\Golem\\Golm%c%d.wav",     { 1, 1, 1, 0, 1, 1 }, FALSE,              7,        0, ALIGN },
 /*MOFILE_DIABLO*/   {    2000, "Monsters\\Diablo\\Diablo%c.CL2",   "Monsters\\Diablo\\Diablo%c%d.wav",  { 1, 1, 1, 1, 1, 1 }, TRUE,               4,       11, ALIGN }, // moImage = 3389 ?
 /*MOFILE_DARKMAGE*///{    1060, "Monsters\\DarkMage\\Dmage%c.CL2",  "Monsters\\DarkMage\\Dmag%c%d.wav",  { 1, 1, 1, 1, 1, 1 }, FALSE,              8,        0, ALIGN },
 #ifdef HELLFIRE

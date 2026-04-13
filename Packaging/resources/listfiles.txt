@@ -887,6 +887,7 @@ Monsters\GoatMace\Gray.TRN
 Monsters\GoatMace\Red.TRN
 Monsters\Golem\Golema.CL2
 Monsters\Golem\Golemd.CL2
+Monsters\Golem\Golemn.CL2
 Monsters\Golem\Golems.CL2
 Monsters\Golem\Golemw.CL2
 Monsters\Golem\Golma1.wav
