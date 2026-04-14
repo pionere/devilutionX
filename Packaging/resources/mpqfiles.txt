@@ -17,6 +17,15 @@ Items\DurIcons.CEL
 Items\Fanvil.CEL
 Items\FBook.CEL
 Items\FBrain.CEL
+Items\FBttle.CEL
+Items\FBttleBB.CEL
+Items\FBttleBL.CEL
+Items\FBttleBR.CEL
+Items\FBttleBY.CEL
+Items\FBttleDB.CEL
+Items\FBttleDY.CEL
+Items\FBttleOR.CEL
+Items\FBttleWH.CEL
 Items\FEar.CEL
 Items\FLazStaf.CEL
 Items\FMush.CEL
