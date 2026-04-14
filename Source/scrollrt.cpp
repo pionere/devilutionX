@@ -594,7 +594,7 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 	nGfxCel = os->_oGfxFrame;
 	nAnimCel = os->_oAnimFrame;
 #if DEBUG_MODE
-	int frames = ((const CelImageBuf*)pCelBuff)->ciFrameCnt;
+	int frames = LOAD_LE32(pCelBuff);
 	if (nGfxCel > frames) {
 		dev_fatal("Draw Object Gfx: frame %d of %d, type %d", nGfxCel, frames, os->_otype);
 	}
