@@ -1031,7 +1031,7 @@ static void drawFloor(int pn, int sx, int sy)
  */
 static void DrawItem(int ii, int sx, int sy)
 {
-	int nCel, nWidth;
+	int nGfxCel, nAnimCel, nWidth;
 	const ItemStruct* is;
 	const CelAnimBuf* pCelBuff;
 	// assert(ii > 0);
@@ -1045,20 +1045,34 @@ static void DrawItem(int ii, int sx, int sy)
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Item \"%d\": NULL Cel Buffer", is->_iIdx);
 	}
-	nCel = is->_iAnimFrame;
+	nGfxCel = is->_iGfxFrame;
+	nAnimCel = is->_iAnimFrame;
 #if DEBUG_MODE
-	int frames = pCelBuff->caFrameCnt;
-	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Item \"%d\": frame %d of %d, type %d, curs %d", is->_iIdx, nCel, frames, is->_itype, is->_iCurs);
+	int frames = pCelBuff->caFrameCnt + 1;
+	if (nGfxCel > frames) {
+		dev_fatal("Draw Item \"%d\" Gfx: frame %d of %d, type %d, curs %d", is->_iIdx, nGfxCel, frames, is->_itype, is->_iCurs);
+	}
+	if (nAnimCel > frames) {
+		dev_fatal("Draw Item \"%d\" Anim: frame %d of %d, type %d, curs %d", is->_iIdx, nAnimCel, frames, is->_itype, is->_iCurs);
 	}
 #endif
 	nWidth = pCelBuff->caWidth;
 	sx -= (nWidth - TILE_WIDTH) >> 1;
 	// sx -= is->_iAnimXOffset;
 	if (ii == pcursitem) {
-		CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nCel, nWidth);
+		if (nGfxCel > 0) {
+			CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nGfxCel, nWidth);
+		}
+		// if (nAnimCel > 0) {
+		//	CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nAnimCel, nWidth);
+		// }
 	}
-	CelClippedDrawLightTbl(sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nCel, nWidth, light_trn_index);
+	if (nGfxCel > 0) {
+		CelClippedDrawLightTbl(sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nGfxCel, nWidth, light_trn_index);
+	}
+	if (nAnimCel > 0) {
+		CelClippedDrawLightTbl(sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nAnimCel, nWidth, light_trn_index);
+	}
 }
 
 /**

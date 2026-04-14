@@ -277,8 +277,9 @@ typedef struct ItemStruct {
 	const CelAnimBuf* _iAnimData;
 	//unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
-	unsigned _iAnimLen;      // Number of frames in current animation
+	unsigned _iAnimLen;      // Number of frames in current animation -- unused
 	unsigned _iAnimFrame;    // Current frame of animation.
+	unsigned _iGfxFrame;     // the base frame of graphics
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
 	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
@@ -303,7 +304,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(16, 14)
+	ALIGNMENT(15, 14)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1215,6 +1216,7 @@ typedef struct LSaveItemStruct {
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
+	LE_UINT32 viGfxFrame;     // the base frame of graphics
 	// LE_INT32 viPostDraw;
 } LSaveItemStruct;
 

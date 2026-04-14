@@ -55,18 +55,19 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iAnimCnt = savedItem->viAnimCnt;
 	is->_iAnimLen = savedItem->viAnimLen;
 	is->_iAnimFrame = savedItem->viAnimFrame;
+	is->_iGfxFrame = savedItem->viGfxFrame;
 	// is->_iPostDraw = savedItem->viPostDraw;
 #elif INTPTR_MAX != INT32_MAX
 	static_assert(offsetof(ItemStruct, _iAnimFlag) + sizeof(is->_iAnimFlag) - offsetof(ItemStruct, _iMagical) ==
 		offsetof(LSaveItemStruct, viAnimFlag) + sizeof(savedItem->viAnimFlag) - offsetof(LSaveItemStruct, viMagical), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct I.");
 	memcpy(&is->_iMagical, &savedItem->viMagical, offsetof(LSaveItemStruct, viAnimFlag) + sizeof(savedItem->viAnimFlag) - offsetof(LSaveItemStruct, viMagical));
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iAnimCnt) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(savedItem->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct II.");
-	memcpy(&is->_iAnimCnt, &savedItem->viAnimCnt, offsetof(LSaveItemStruct, viAnimFrame) + sizeof(savedItem->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iAnimCnt) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(savedItem->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct II.");
+	memcpy(&is->_iAnimCnt, &savedItem->viAnimCnt, offsetof(LSaveItemStruct, viGfxFrame) + sizeof(savedItem->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt));
 #else
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(savedItem->viAnimFrame) - offsetof(LSaveItemStruct, viMagical), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
-	memcpy(&is->_iMagical, &savedItem->viMagical, offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(savedItem->viGfxFrame) - offsetof(LSaveItemStruct, viMagical), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
+	memcpy(&is->_iMagical, &savedItem->viMagical, offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	src += sizeof(LSaveItemStruct);
 
@@ -839,18 +840,19 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viAnimCnt = is->_iAnimCnt;
 	itemSave->viAnimLen = is->_iAnimLen;
 	itemSave->viAnimFrame = is->_iAnimFrame;
+	itemSave->viGfxFrame = is->_iGfxFrame;
 	// itemSave->viPostDraw = is->_iPostDraw;
 #elif INTPTR_MAX != INT32_MAX
 	static_assert(offsetof(ItemStruct, _iAnimFlag) + sizeof(is->_iAnimFlag) - offsetof(ItemStruct, _iMagical) ==
 		offsetof(LSaveItemStruct, viAnimFlag) + sizeof(itemSave->viAnimFlag) - offsetof(LSaveItemStruct, viMagical), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct I.");
 	memcpy(&itemSave->viMagical, &is->_iMagical, offsetof(LSaveItemStruct, viAnimFlag) + sizeof(itemSave->viAnimFlag) - offsetof(LSaveItemStruct, viMagical));
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iAnimCnt) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(itemSave->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct II.");
-	memcpy(&itemSave->viAnimCnt, &is->_iAnimCnt, offsetof(LSaveItemStruct, viAnimFrame) + sizeof(itemSave->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iAnimCnt) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(itemSave->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct II.");
+	memcpy(&itemSave->viAnimCnt, &is->_iAnimCnt, offsetof(LSaveItemStruct, viGfxFrame) + sizeof(itemSave->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt));
 #else
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(itemSave->viAnimFrame) - offsetof(LSaveItemStruct, viMagical), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
-	memcpy(&itemSave->viMagical, &is->_iMagical, offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(itemSave->viGfxFrame) - offsetof(LSaveItemStruct, viMagical), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
+	memcpy(&itemSave->viMagical, &is->_iMagical, offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	dest += sizeof(LSaveItemStruct);
 

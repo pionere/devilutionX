@@ -103,14 +103,22 @@ void InitItemGFX()
 
 	for (i = 0; i < NUM_IFILE; i++) {
 		snprintf(filestr, sizeof(filestr), "Items\\%s.CEL", itemfiledata[i].ifName);
+		BYTE* anim = LoadFileInMem(filestr);
+		CelMetaInfo mi;
+		LoadCelMetaInfo(anim, mi);
+		unsigned width = CelClippedWidth(anim);
+		unsigned frameCnt = LOAD_LE32(anim);
 		assert(itemanims[i] == NULL);
-		itemanims[i] = reinterpret_cast<CelAnimBuf*>(LoadFileInMem(filestr));
-		// CelMetaInfo mi;
-		// LoadCelMetaInfo(reinterpret_cast<const BYTE*>(itemanims[i]), mi);
-		itemanims[i]->caFrameCnt = LOAD_LE32(itemanims[i]);
-		itemanims[i]->caWidth = CelClippedWidth(reinterpret_cast<const BYTE*>(itemanims[i]));
-		// itemanims[i]->caFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
-		itemanims[i]->caFrameLen = ITEM_ANIM_DELAY;
+		itemanims[i] = reinterpret_cast<CelAnimBuf*>(anim);
+		//itemanims[i]->caFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
+		//assert(ITEM_ANIM_DELAY == itemanims[i]->caFrameLen);
+		static_assert(ITEM_ANIM_DELAY == 1, "InitItemGFX ignores anim-delay setting");
+		// assert(mi.cmiAnimDelay <= 1);
+		itemanims[i]->caWidth = width;
+		// use caFrameLen to store the 'action frame' of the animation
+		itemanims[i]->caFrameLen = mi.cmiActionFrames == 0 ? frameCnt : *(reinterpret_cast<const BYTE*>(itemanims[i]) + mi.cmiActionFrames);
+		// use last frame for the ground graphics
+		itemanims[i]->caFrameCnt = frameCnt - 1;
 	}
 }
 
@@ -2248,33 +2256,29 @@ void PlaceQuestItemInArea(int idx, int areasize)
 void RespawnItem(int ii, bool FlipFlag)
 {
 	ItemStruct* is;
-	int it;
+	const CelAnimBuf* anim;
 
 	is = &items[ii];
-	it = ItemCAnimTbl[is->_iCurs];
-	is->_iAnimData = itemanims[it];
-	is->_iAnimLen = is->_iAnimData->caFrameCnt;
+	anim = itemanims[ItemCAnimTbl[is->_iCurs]];
+	is->_iAnimData = anim;
+	//is->_iAnimLen = anim->caFrameCnt;
 	//is->_iAnimFrameLen = ITEM_ANIM_DELAY;
-	//is->_iAnimWidth = is->_iAnimData->caWidth;
+	//is->_iAnimWidth = anim->caWidth;
 	//is->_iAnimXOffset = 0;
 	//is->_iPostDraw = FALSE;
+	is->_iSelFlag = FlipFlag ? 0 : 1;
 	if (FlipFlag) {
-		is->_iAnimFrame = 1;
 		is->_iAnimFlag = TRUE;
-		// assert(gbGameLogicProgress < GLP_ITEMS_DONE);
+		is->_iAnimFrame = 1;
+		is->_iGfxFrame = anim->caFrameLen > 1 ? 0 : (anim->caFrameCnt + 1);
+		// assert(gbGameLogicProgress < GLP_ITEMS_DONE || deltaload);
 		is->_iAnimCnt = -1;
-		is->_iSelFlag = 0;
 	} else {
-		is->_iAnimFrame = is->_iAnimLen;
-		is->_iAnimFlag = is->_iCurs == ICURS_MAGIC_ROCK;
-		is->_iSelFlag = 1;
+		is->_iAnimFlag = anim->caFrameCnt > anim->caFrameLen;
+		is->_iAnimFrame = anim->caFrameCnt > anim->caFrameLen ? anim->caFrameLen : 0;
+		is->_iGfxFrame = anim->caFrameCnt + 1;
+		//is->_iAnimCnt = -1;
 	}
-
-	/*if (is->_iCurs == ICURS_MAGIC_ROCK) {
-		is->_iSelFlag = 1;
-		PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
-	} else if (is->_iCurs == ICURS_TAVERN_SIGN || is->_iCurs == ICURS_ANVIL_OF_FURY)
-		is->_iSelFlag = 1;*/
 }
 
 void DeleteItem(int ii)
@@ -2325,24 +2329,28 @@ void ProcessItems()
 			if (is->_iAnimCnt >= ITEM_ANIM_DELAY) {
 				is->_iAnimCnt = 0;
 				is->_iAnimFrame++;
-				if (is->_iCurs != ICURS_MAGIC_ROCK) {
-					if (is->_iAnimFrame == is->_iAnimLen >> 1)
+				const CelAnimBuf* anim = is->_iAnimData;
+				if (is->_iSelFlag == 0) {
+					// emit drop sfx at the middle of the animation (or right away if the animation is short)
+					if (is->_iAnimFrame == (anim->caFrameLen >> 1) || (is->_iAnimFrame == 2 && anim->caFrameLen <= 3)) {
 						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ix, is->_iy);
-
-					if (is->_iAnimFrame >= is->_iAnimLen) {
-						is->_iAnimFrame = is->_iAnimLen;
-						is->_iAnimFlag = FALSE;
+					}
+					// switch to ground graphics at the end of the drop animation
+					if (is->_iAnimFrame >= anim->caFrameLen) {
+#if 0
 						is->_iSelFlag = 1;
+						is->_iAnimFlag = anim->caFrameLen > anim->caFrameCnt;
+						is->_iAnimFrame = anim->caFrameLen > anim->caFrameCnt ? anim->caFrameLen : 0;
+						is->_iGfxFrame = anim->caFrameCnt + 1;
+#else
+						RespawnItem(itemactive[i], false);
+						// is->_iAnimCnt = 0;
+#endif
 					}
 				} else {
-					// magic rock is just dropped
-					if (is->_iSelFlag == 0) {
-						is->_iSelFlag = 1;
-						// assert(is->_iAnimFrame == 2);
-						PlaySfxLoc(itemfiledata[ItemCAnimTbl[ICURS_MAGIC_ROCK]].idSFX, is->_ix, is->_iy);
-					// magic rock dropped on the floor
-					} else if (is->_iAnimFrame == 11)
-						is->_iAnimFrame = 1;
+					if (is->_iAnimFrame > anim->caFrameCnt) {
+						is->_iAnimFrame = anim->caFrameLen;
+					}
 				}
 			}
 		}

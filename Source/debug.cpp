@@ -1711,7 +1711,6 @@ void ValidateData()
 			if ((animlen >> 1) < 2)
 				app_fatal("Too short iAnimLen %d for %s (%d)", animlen, id.ifName, i); // required by ProcessItems
 		}
-		assert(i != ItemCAnimTbl[ICURS_MAGIC_ROCK] || animlen == 10); // required by ProcessItems
 #endif
 	}
 	// objects
