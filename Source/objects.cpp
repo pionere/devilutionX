@@ -1840,13 +1840,17 @@ static void Obj_FlameTrap(int oi)
 	}
 }*/
 
+typedef struct POS8 {
+	int8_t x;
+	int8_t y;
+} POS8;
 static void Obj_Trap(int oi)
 {
 	ObjectStruct *os, *on;
 	int i, dir, trigNum;
-	const POS32* trigArea;
-	const POS32 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
-	const POS32 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
+	const POS8* trigArea;
+	const POS8 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
+	const POS8 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
 
 	int sx, sy, dx, dy, x, y;
 
@@ -2317,7 +2321,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 			mtype = 3;
 #endif
 		}
-		mtype = random_(0, mtype);
+		mtype = random_low(0, mtype);
 		switch (mtype) {
 		case 0:
 			mtype = MIS_ARROW;
@@ -2518,7 +2522,7 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 	os = &objects[oi];
 	if (!(os->_oModeFlags & OMF_ACTIVE))
 		return;
-	if (!deltaload && pnum != -1) { // TODO: possible desync of player-items?
+	if (!deltaload && pnum >= 0) { // TODO: possible desync of player-items?
 		if (numitems >= MAXITEMS)
 			return;
 		if (!PlrHasStorageItem(pnum, IDI_BLDSTONE, &iv))
