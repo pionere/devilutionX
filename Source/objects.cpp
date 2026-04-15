@@ -2315,11 +2315,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		if (currLvl._dType == DTYPE_CATACOMBS) {
 			mtype = 2;
 		} else {
-#ifdef HELLFIRE
 			mtype = 4;
-#else
-			mtype = 3;
-#endif
 		}
 		mtype = random_low(0, mtype);
 		switch (mtype) {
@@ -2332,11 +2328,9 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		case 2:
 			mtype = MIS_LIGHTNOVAC;
 			break;
-#ifdef HELLFIRE
 		case 3:
 			mtype = MIS_FIRERING;
 			break;
-#endif
 		default:
 			ASSUME_UNREACHABLE
 			break;

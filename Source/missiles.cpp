@@ -1883,7 +1883,7 @@ int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis->_miLid = AddLight(sx, sy, 8);
 	return MIRES_DONE;
 }*/
-
+#endif
 int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	int tx, ty, j, mitype;
@@ -1905,7 +1905,6 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 	return MIRES_DELETE;
 }
-#endif
 
 int AddDone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
