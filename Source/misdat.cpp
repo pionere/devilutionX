@@ -76,7 +76,7 @@ const MissileData missiledata[] = {
 /*MIS_ETHEREALIZE*///{ NULL,            NULL,           0,                                             MISR_NONE,      MFILE_ETHRSHLD, LS_ETHEREAL, SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_BLEED*/        { &AddBleed,       &MI_Bleed,      MIF_AREA | MIF_DOT,                            MISR_NONE,      MFILE_BLODBURS, SFX_NONE,    SFX_NONE,           1,        1,         0,      16, ALIGN32 },
 /*MIS_EXAPOCA*///    { &AddApocaExp,    &MI_ApocaExp,   0,                                             MISR_NONE,      MFILE_NEWEXP,   SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
-/*MIS_FIRERING*/     { &AddRingC,       &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
+/*MIS_FIRERINGC*/    { &AddRingC,       &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_FIREWALLC*/    { &AddWallC,       &MI_WallC,      MIF_SHROUD,                                    MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_FIREWALL*/     { &AddFirewall,    &MI_Firewall,   MIF_SHROUD | MIF_AREA | MIF_DOT,               MISR_FIRE,      MFILE_FIREWAL,  LS_WALLLOOP, SFX_NONE,           1,        1,         0,       0, ALIGN32 }, // miSFX was LS_FIRIMP2
 /*MIS_FIREWAVEC*/    { &AddFireWaveC,   &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     LS_FLAMWAVE, SFX_NONE,           1,        1,         0,       0, ALIGN32 },

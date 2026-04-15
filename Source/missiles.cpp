@@ -1656,7 +1656,7 @@ void InitMissileGFX(int mitype)
 	//	LoadMissileGFX(MFILE_MINILTNG);
 	// }
 #ifdef HELLFIRE
-	// if (mitype == MIS_FIRERING) {
+	// if (mitype == MIS_FIRERINGC) {
 	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWALL)
 	// }
 	// if (mitype == MIS_RUNEFIRE) {
@@ -1889,7 +1889,7 @@ int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	int tx, ty, j, mitype;
 	const int8_t* cr;
 	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
-	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERING ? MIS_FIREWALL : MIS_LIGHTWALL;
+	mitype = MIS_FIREWALL; //mis->_miType == MIS_FIRERINGC ? MIS_FIREWALL : MIS_LIGHTWALL;
 
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddRingC expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 3, "AddRingC uses CrawlTable/CrawlNum radius 3.");

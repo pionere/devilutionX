@@ -2329,7 +2329,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 			mtype = MIS_LIGHTNOVAC;
 			break;
 		case 3:
-			mtype = MIS_FIRERING;
+			mtype = MIS_FIRERINGC;
 			break;
 		default:
 			ASSUME_UNREACHABLE
