@@ -166,6 +166,7 @@ static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], BYTE tra
 			as = &anims[i];
 			if (as->maFrames > 0) {
 				for (j = 0; j < lengthof(as->maAnimData); j++) {
+					if (j != 0 && (as->maAnimData[j] == as->maAnimData[0])) continue; // apply trn only once to unidirectional/incomplete animations
 					Cl2ApplyTrans(as->maAnimData[j], trn);
 				}
 			}
@@ -198,14 +199,15 @@ static void InitMonsterGFX(int midx)
 			assert(cmon->cmAnimData[anim] == NULL);
 			cmon->cmAnimData[anim] = celBuf;
 
-			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
-				LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(monAnims[anim].maAnimData));
-			} else {
-				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
-					monAnims[anim].maAnimData[i] = celBuf;
+			LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(monAnims[anim].maAnimData));
+			int animLen = LOAD_LE32(monAnims[anim].maAnimData[0]);
+			for (i = 1; i < lengthof(monAnims[anim].maAnimData); i++) {
+				if (LOAD_LE32(monAnims[anim].maAnimData[i]) != animLen) {
+					// overwrite unidirectional/incomplete animations
+					monAnims[anim].maAnimData[i] = monAnims[anim].maAnimData[0];
 				}
 			}
-			monAnims[anim].maFrames = LOAD_LE32(monAnims[anim].maAnimData[0]);
+			monAnims[anim].maFrames = animLen;
 #if !USE_PATCH
 			if (cmon->cmFileNum == MOFILE_ACID && anim == MA_DEATH) {
 				monAnims[anim].maFrames = 24 - 8;
