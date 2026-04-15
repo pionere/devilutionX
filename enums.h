@@ -3246,6 +3246,7 @@ typedef enum object_proc_func {
 	OPF_PRSPLT,
 	OPF_CIRCLE,
 	OPF_BCROSS,
+	OPF_SUN,
 #if FLICKER_LIGHT
 	OPF_LIGHT,
 #endif
@@ -3378,6 +3379,7 @@ typedef enum _object_id {
 	OBJ_LAZSTAND,
 	//OBJ_SLAINHERO,
 	OBJ_SIGNCHEST,
+	OBJ_SUN,
 #ifdef HELLFIRE
 	OBJ_L5LDOOR,
 	OBJ_L5RDOOR,

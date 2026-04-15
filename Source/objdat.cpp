@@ -301,6 +301,7 @@ const ObjectData objectdata[NUM_OBJECTS] = {
 /*OBJ_LAZSTAND*/     { OFILE_LZSTAND,  0,                                         THEME_NONE,              Q_BETRAYER,          2,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         3, FALSE,    OTM_NONE,  ALIGN },
 /*OBJ_SLAINHERO*///  { OFILE_DECAP,    DTM_CAVES,                                 THEME_NONE,              Q_INVALID,           2,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    OTM_NONE,  ALIGN },
 /*OBJ_SIGNCHEST*/    { OFILE_CHEST3,   0,                                         THEME_NONE,              Q_BANNER,            1,            0, OPF_NONE,   OMF_FLOOR | OMF_ACTIVE, TRUE,      ODT_NONE,         1, FALSE,    OTM_NONE,  ALIGN },
+/*OBJ_SUN*/          { OFILE_TRAPHOLE, DTM_TOWN,                                  THEME_NONE,              Q_INVALID,           0,            0, OPF_SUN,    OMF_NONE,               TRUE,      ODT_NONE,         0, FALSE,    OTM_NONE,  ALIGN },
 #ifdef HELLFIRE
 /*OBJ_L5LDOOR*/      { OFILE_L5DOOR,   DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           1,            0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_LEFT,         3, FALSE,    OTM_DOOR,  ALIGN },
 /*OBJ_L5RDOOR*/      { OFILE_L5DOOR,   DTM_CRYPT,                                 THEME_NONE,              Q_INVALID,           3,            0, OPF_DOOR,   OMF_ACTIVE,             FALSE,     ODT_RIGHT,        3, FALSE,    OTM_DOOR,  ALIGN },

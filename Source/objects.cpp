@@ -437,6 +437,7 @@ static void ObjAddDunObjs(int x1, int y1, int x2, int y2)
 #endif
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
+		AddObject(OBJ_SUN, 56, 64);
 		return;
 	case DTYPE_CATHEDRAL:
 		wdoor = OBJ_L1LDOOR;
@@ -1357,6 +1358,14 @@ static void AddTorturedFemaleBody(int oi)
 	os->_oGfxFrame = RandRange(1, 3);
 }
 
+static void AddSun(int oi)
+{
+	ObjectStruct* os;
+
+	os = &objects[oi];
+	os->_oVar1 = MAXDARKNESS; // SUN_RISE
+}
+
 int AddObject(int type, int ox, int oy)
 {
 	int oi, realType;
@@ -1925,6 +1934,33 @@ static void Obj_BCrossDamage(int oi)
 	}
 }
 
+static void Obj_Sun(int oi)
+{
+	ObjectStruct* os;
+	int hour, daytime, c;
+
+	hour = ((gdwGameLogicTurn + glSeedTbl[2]) >> (4 + 6 + 4));
+
+	os = &objects[oi];
+	daytime = (hour >> 3) & 7;
+	if (daytime == 0) {
+		c = hour & 7;
+	} else if (daytime < 3) {
+		c = 8;
+	} else if (daytime < 4) {
+		c = 8 - (hour & 7);
+	} else {
+		c = 0;
+	}
+
+	if (c != os->_oVar1) { // SUN_RISE
+		os->_oVar1 = c;
+		memset(dLight, c, sizeof(dLight));
+		SavePreLighting();
+		RedoLightAndVision();
+	}
+}
+
 static void (*const OiProc[])(int i) = {
 	// clang-format off
 /*OPF_NONE*/        NULL,
@@ -1934,6 +1970,7 @@ static void (*const OiProc[])(int i) = {
 /*OPF_PRSPLT*/      &Obj_Plate,
 /*OPF_CIRCLE*/      &Obj_Circle,
 /*OPF_BCROSS*/      &Obj_BCrossDamage,
+/*OPF_SUN*/         &Obj_Sun,
 #if FLICKER_LIGHT
 /*OPF_LIGHT*/       &Obj_Light,
 #endif
