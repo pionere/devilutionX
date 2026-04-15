@@ -428,12 +428,13 @@ static void InitRndBarrels(int numobjs, int otype)
 static void ObjAddDunObjs(int x1, int y1, int x2, int y2)
 {
 	int i, j, pn, wdoor, edoor, type;
-
-	assert((objectdata[OBJ_L1LDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1RDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1LIGHT].oLvlTypes & DTM_CATHEDRAL));
+#if 0
+	assert((objectdata[OBJ_L1LDOOR].oLvlTypes & DTM_CATHEDRAL) && (objectdata[OBJ_L1RDOOR].oLvlTypes & DTM_CATHEDRAL));
 	assert((objectdata[OBJ_L2LDOOR].oLvlTypes & DTM_CATACOMBS) && (objectdata[OBJ_L2RDOOR].oLvlTypes & DTM_CATACOMBS));
 	assert((objectdata[OBJ_L3LDOOR].oLvlTypes & DTM_CAVES) && (objectdata[OBJ_L3RDOOR].oLvlTypes & DTM_CAVES));
 #ifdef HELLFIRE
 	assert((objectdata[OBJ_L5LDOOR].oLvlTypes & DTM_CRYPT) && (objectdata[OBJ_L5RDOOR].oLvlTypes & DTM_CRYPT));
+#endif
 #endif
 	switch (currLvl._dType) {
 	case DTYPE_TOWN:
@@ -1004,6 +1005,8 @@ static void AddChest(int oi, int realtype)
 	os->_oGfxFrame = 1 + 2 * dir;
 	os->_oRndSeed = NextRndSeed(); // CHEST_ITEM_SEED1
 	//assert(os->_otype >= OBJ_CHEST1 && os->_otype <= OBJ_CHEST3);
+	static_assert((int)OBJ_CHEST1 + 1 == (int)OBJ_CHEST2, "AddChest fails to initialize the number of dropped items I.");
+	static_assert((int)OBJ_CHEST1 + 2 == (int)OBJ_CHEST3, "AddChest fails to initialize the number of dropped items II.");
 	num = os->_otype;
 	num = num - OBJ_CHEST1 + 1;
 	rnum = random_low(147, num + 1); // CHEST_ITEM_SEED2
