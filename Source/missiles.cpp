@@ -207,7 +207,8 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		break;
 	case SPL_GOLEM:
 		sl = sl * 4 + (magic >> 6);
-		sl = sl > 0 ? sl - 1 : 0;
+		// sl++;
+		// sl--; -- see PreSpawnGolem
 		k = monsterdata[MT_GOLEM].mLevel;
 		sl = k + sl;
 		mind = sl * monsterdata[MT_GOLEM].mMinDamage / k;
@@ -2850,6 +2851,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	level = spllvl * 4 + (plx(misource)._pMagic >> 6);
+	level++; // ensure it is positive
 	static_assert(MAX_MINIONS == MAX_PLRS, "AddGolem requires that owner of a monster has the same id as the monster itself.");
 	mon = &monsters[misource];
 	if (mon->_mmode > MM_INGAME_LAST) {

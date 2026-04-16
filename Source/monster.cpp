@@ -5114,7 +5114,8 @@ void PreSpawnGolem(int mnum, int level)
 
 	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
 
-	int lvlBonus = level > 0 ? level - 1 : 0;
+	// assert(level > 0);
+	int lvlBonus = level - 1;
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RESERVED;
