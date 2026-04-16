@@ -1357,7 +1357,7 @@ static void SetScrollSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
-	is->_iMinMag = sd->sMinMag > 20 ? sd->sMinMag - 20 : 0;
+	is->_iMinMag = sd->sMinMag > SCRL_MAG ? sd->sMinMag - SCRL_MAG : 0;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
 	is->_iIvalue = sd->sStaffCost;
