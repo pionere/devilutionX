@@ -793,16 +793,12 @@ void InitControlPan()
 	assert(pSpellBkCel == NULL);
 	pSpellBkCel = CelLoadImage("Data\\SpellBk.CEL", SPANEL_WIDTH);
 	assert(pSBkIconCels == NULL);
-	pSBkIconCels = CelLoadImage("Data\\SpellI2.CEL", SBOOK_CELWIDTH);
+	pSBkIconCels = CelLoadImage("Data\\SkillsBk.CEL", SBOOK_CELWIDTH);
 	assert(pSpellCels == NULL);
 #if ASSET_MPL == 1
 	pSpellCels = pSBkIconCels;
 #else
-#ifdef HELLFIRE
-	pSpellCels = CelLoadImage("Data\\SpelIcon.CEL", SPLICON_WIDTH);
-#else
-	pSpellCels = CelLoadImage("CtrlPan\\SpelIcon.CEL", SPLICON_WIDTH);
-#endif // HELLFIRE
+	pSpellCels = CelLoadImage("Data\\Skills.CEL", SPLICON_WIDTH);
 #endif // ASSET_MPL == 1
 	assert(pMapIconCels == NULL);
 	pMapIconCels = CelLoadImage("Data\\MapIcon.CEL", CAMICON_WIDTH);

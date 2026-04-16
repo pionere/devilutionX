@@ -86,11 +86,10 @@ extern "C" {
 #define SPLICON_OVERX  4
 #define SPLICON_OVERY  4
 #endif
+#define SPLICONLAST    47
 #ifdef HELLFIRE
-#define SPLICONLAST    52
 #define SPLBOOKTABS    7
 #else
-#define SPLICONLAST    43
 #define SPLBOOKTABS    6
 #endif
 

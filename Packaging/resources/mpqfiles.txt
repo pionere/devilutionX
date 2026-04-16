@@ -7,6 +7,8 @@ Data\Inv\Belt.CEL
 Data\Inv\Inv.CEL
 Data\MapIcon.CEL
 Data\MedTextS.CEL
+Data\Skills.CEL
+Data\SkillsBk.CEL
 Data\SpellBk.CEL
 Data\Quest.CEL
 Data\TextBox.CEL

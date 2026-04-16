@@ -7,53 +7,33 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#ifdef HELLFIRE
-#define ICN_BLK 45
-#define ICN_ATK 48
-#define ICN_SWP 32
-#define ICN_RTK 48
-#define ICN_RPB 19
-#define ICN_RAS 25
-#define ICN_CHR 34
-#else
-#define ICN_BLK 19
-#define ICN_ATK 22
-#define ICN_SWP 32
-#define ICN_RTK 22
-#define ICN_RPB 17
-#define ICN_RAS 25
-#define ICN_CHR 34
-#endif
-
 /*
-	reused icons :  4
-	unused icons :	// hellfire only
-					51 - SPL_MANA/MAGI
-					50 - SPL_JESTER
-					43 - SPL_WARP
-					44 - SPL_SEARCH
+	reused icons :  4, 5, 22, 25
+					// hellfire
+					26, 29
+	unused icons :	35
 */
 
 /*
  * Data related to each spell ID.
- * sIcon: spelicon.cel frame number.
+ * sIcon: skills/skillsbk.cel frame number.
  */
 const SpellData spelldata[NUM_SPELLS] = {
 	// clang-format off
 //                    sManaCost, sType,             sIcon, sNameText,         sBookLvl, sStaffLvl, sScrollLvl, sSkillFlags,     scCurs,           spCurs,             sUseFlags,                    sMinInt, sSFX,        sMissile,        sManaAdj, sMinMana, sStaffMin, sStaffMax, sBookCost, sStaffCost, 
 /*SPL_NULL*/        {         0, 0,                    27, NULL,              SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_MELEE | SFLAG_RANGED,         0, 0,           0,                      0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_WALK*/        {         0, STYPE_NONE,           28, "Walk",            SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_ANY,                          0, 0,           0,                      0,        0,         0,         0,         0,          0, ALIGN64 },
-/*SPL_BLOCK*/       {         0, STYPE_NONE,      ICN_BLK, "Block",           SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_BLOCK,        0, 0,           0,                      0,        0,         0,         0,         0,          0, ALIGN64 },
-/*SPL_ATTACK*/      {         0, STYPE_NONE,      ICN_ATK, "Attack",          SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,        0, 0,           0,                      0,        0,         0,         0,         0,          0, ALIGN64 },
+/*SPL_BLOCK*/       {         0, STYPE_NONE,           43, "Block",           SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_BLOCK,        0, 0,           0,                      0,        0,         0,         0,         0,          0, ALIGN64 },
+/*SPL_ATTACK*/      {         0, STYPE_NONE,           22, "Attack",          SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,        0, 0,           0,                      0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_WHIPLASH*/    {         2, STYPE_NONE,           20, "Whiplash",               1,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,        0, 0,           0,                      0,        2,         0,         0,      1000,          0, ALIGN64 },
 /*SPL_WALLOP*/      {         6, STYPE_NONE,           33, "Wallop",                 2,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,        0, 0,           0,                      0,        6,         0,         0,      1500,          0, ALIGN64 },
-/*SPL_SWIPE*/       {         2, STYPE_NONE,      ICN_SWP, "Swipe",                  6,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,        0, 0,           0,                      0,        2,         0,         0,      8000,          0, ALIGN64 },
-/*SPL_RATTACK*/     {         0, STYPE_NONE,      ICN_RTK, "Ranged Attack",   SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_ARROW,              0,        0,         0,         0,         0,          0, ALIGN64 },
-/*SPL_POINT_BLANK*/ {         2, STYPE_NONE,      ICN_RPB, "Point Blank",            4,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_PBARROW,            0,        2,         0,         0,      5000,          0, ALIGN64 },
-/*SPL_FAR_SHOT*/    {         2, STYPE_NONE,      ICN_RAS, "Far Shot",               8,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_ASARROW,            0,        2,         0,         0,     10000,          0, ALIGN64 },
+/*SPL_SWIPE*/       {         2, STYPE_NONE,           32, "Swipe",                  6,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_MELEE,        0, 0,           0,                      0,        2,         0,         0,      8000,          0, ALIGN64 },
+/*SPL_RATTACK*/     {         0, STYPE_NONE,           44, "Ranged Attack",   SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_ARROW,              0,        0,         0,         0,         0,          0, ALIGN64 },
+/*SPL_POINT_BLANK*/ {         2, STYPE_NONE,           17, "Point Blank",            4,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_PBARROW,            0,        2,         0,         0,      5000,          0, ALIGN64 },
+/*SPL_FAR_SHOT*/    {         2, STYPE_NONE,           25, "Far Shot",               8,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_ASARROW,            0,        2,         0,         0,     10000,          0, ALIGN64 },
 /*SPL_PIERCE_SHOT*/ {         2, STYPE_NONE,           20, "Pierce Shot",           14,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_PCARROW,            0,        2,         0,         0,     16000,          0, ALIGN64 },
 /*SPL_MULTI_SHOT*/  {         8, STYPE_NONE,            9, "Multi Shot",            16,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON | SFLAG_RANGED,       0, 0,           MIS_MLARROW,            0,        8,         0,         0,     20000,          0, ALIGN64 },
-/*SPL_CHARGE*/      {         2, STYPE_MAGIC,     ICN_CHR, "Charge",                10,  SPELL_NA,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                      0, 0,           MIS_CHARGE,             0,        2,         0,         0,     12000,          0, ALIGN64 },
+/*SPL_CHARGE*/      {         2, STYPE_MAGIC,          34, "Charge",                10,  SPELL_NA,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                      0, 0,           MIS_CHARGE,             0,        2,         0,         0,     12000,          0, ALIGN64 },
 /*SPL_RAGE*/        {         7, STYPE_MAGIC,          23, "Rage",                   2,  SPELL_NA,          4, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_RAGE,                         0, IS_CAST6,    MIS_RAGE,               2,        2,         0,         0,      1500,        100, ALIGN64 },
 /*SPL_FIREBOLT*/    {         6, STYPE_FIRE,            1, "Firebolt",               1,         2,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     15, IS_CAST2,    MIS_FIREBOLT,           1,        3,        40,        80,      1000,         20, ALIGN64 },
 /*SPL_CBOLT*/       {         6, STYPE_LIGHTNING,      39, "Charged Bolt",           1,         2,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     25, IS_CAST2,    MIS_CBOLTC,             1,        4,        40,        80,      1000,         20, ALIGN64 },
@@ -73,7 +53,7 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_POISON*/      {        22, STYPE_MAGIC,          25, "Poison",                18,        28,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     70, IS_CAST2,    MIS_POISON,             1,       18,        30,        70,     24500,         30, ALIGN64 },
 /*SPL_WIND*/        {        24, STYPE_MAGIC,          22, "Wind",                  10,        18,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     44, IS_CAST2,    MIS_WIND,               2,       12,        40,        80,     12500,         35, ALIGN64 },
 /*SPL_SHROUD*/      {        28, STYPE_MAGIC,          19, "Shroud",                20,        28,         18, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     36, IS_CAST2,    MIS_SHROUD,             1,       18,        20,        60,     20500,         80, ALIGN64 },
-/*SPL_SWAMP*/       {        21, STYPE_MAGIC,           4, "Swamp",                 30,        40,         24, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     36, IS_CAST2,    MIS_SWAMPC,             1,       16,        20,        60,     18500,         70, ALIGN64 },
+/*SPL_SWAMP*/       {        21, STYPE_MAGIC,          46, "Swamp",                 30,        40,         24, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     36, IS_CAST2,    MIS_SWAMPC,             1,       16,        20,        60,     18500,         70, ALIGN64 },
 /*SPL_PULSE*/       {        18, STYPE_LIGHTNING,       4, "Pulse",                 16,        22,         16, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     66, IS_CAST2,    MIS_PULSE,              1,       14,        20,        48,     12000,         50, ALIGN64 },
 /*SPL_GUARDIAN*/    {        50, STYPE_FIRE,           18, "Guardian",               9,        16,         12, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     61, IS_CAST2,    MIS_GUARDIAN,           4,       30,        16,        32,     14000,         90, ALIGN64 },
 /*SPL_GOLEM*/       {       100, STYPE_FIRE,           21, "Golem",                 11,        18,         10, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     81, IS_CAST2,    MIS_GOLEM,             10,       60,        16,        32,     18000,        200, ALIGN64 },
@@ -98,7 +78,7 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_WHITTLE*/     {         0, STYPE_MAGIC,          29, "Staff Whittle",   SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_RECHARGE,    SFLAG_ANY,                          0, IS_CAST6,    MIS_OPITEM,             0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_LIGHTWALL*/// {        28, STYPE_LIGHTNING,      46, "Lightning Wall",         3,         4,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     27, IS_CAST4,    MIS_LIGHTWALLC,         3,       16,         8,        16,      6000,        400, ALIGN64 },
 /*SPL_IMMOLAT *///  {        60, STYPE_FIRE,           47, "Immolation",            14,        20,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     87, IS_CAST2,    MIS_FIRENOVAC,          5,       35,        16,        32,     21000,       1300, ALIGN64 },
-/*SPL_FIRERING*/    {        28, STYPE_FIRE,           49, "Ring of Fire",           5,        10,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     27, IS_CAST2,    MIS_FIRERINGC,          3,       16,         8,        20,      6000,         80, ALIGN64 },
+/*SPL_FIRERING*/    {        28, STYPE_FIRE,           45, "Ring of Fire",           5,        10,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     27, IS_CAST2,    MIS_FIRERINGC,          3,       16,         8,        20,      6000,         80, ALIGN64 },
 /*SPL_RUNEFIRE*/    {         0, STYPE_FIRE,           15, "Fire",            SPELL_NA,  SPELL_NA,          1, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_TELEPORT,    SFLAG_DUNGEON,                      0, IS_CAST8,    MIS_RUNEFIRE,           0,        0,         0,         0,         0,        100, ALIGN64 },
 /*SPL_RUNELIGHT*/   {         0, STYPE_LIGHTNING,       3, "Lightning",       SPELL_NA,  SPELL_NA,          3, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_TELEPORT,    SFLAG_DUNGEON,                     13, IS_CAST8,    MIS_RUNELIGHT,          0,        0,         0,         0,         0,        200, ALIGN64 },
 /*SPL_RUNENOVA*/    {         0, STYPE_LIGHTNING,      11, "Nova",            SPELL_NA,  SPELL_NA,          7, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_TELEPORT,    SFLAG_DUNGEON,                     42, IS_CAST8,    MIS_RUNENOVA,           0,        0,         0,         0,         0,        400, ALIGN64 },

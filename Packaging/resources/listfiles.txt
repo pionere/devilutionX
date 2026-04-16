@@ -6,7 +6,7 @@ _CtrlPan\P8But2.CEL
 _CtrlPan\Panel8.CEL
 _CtrlPan\Panel8bu.CEL
 CtrlPan\SmalText.CEL
-CtrlPan\SpelIcon.CEL
+_CtrlPan\SpelIcon.CEL
 _CtrlPan\TalkButt.CEL
 _CtrlPan\TalkPanl.CEL
 _CtrlPan\TalkPnl.CEL
@@ -29,10 +29,12 @@ Data\option.CEL
 Data\PentSpin.CEL
 Data\PentSpn2.CEL
 Data\Quest.CEL
-Data\SpelIcon.CEL
+Data\Skills.CEL
+Data\SkillsBk.CEL
+_Data\SpelIcon.CEL
 Data\SpellBk.CEL
 _Data\SpellBkB.CEL
-Data\SpellI2.CEL
+_Data\SpellI2.CEL
 _Data\Square.CEL
 Data\TextBox.CEL
 _Data\TextBox2.CEL
