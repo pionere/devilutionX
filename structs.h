@@ -2188,7 +2188,7 @@ typedef struct SpellData {
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
 	BYTE sUseFlags; // the required flags(SFLAG*) to use the skill
-	BYTE sMinInt;
+	BYTE sMinMag;
 	BYTE sSFX;     // _sfx_id
 	BYTE sMissile; // missile_id
 	BYTE sManaAdj;
