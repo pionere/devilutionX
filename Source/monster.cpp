@@ -5144,7 +5144,6 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
-	level = level * 4 + (plx(mnum)._pMagic >> 6);
 	PreSpawnGolem(mnum, level);
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;

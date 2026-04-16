@@ -2845,10 +2845,11 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MonsterStruct* mon;
-	int tx, ty, i, j;
+	int level, tx, ty, i, j;
 	const int8_t* cr;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
+	level = spllvl * 4 + (plx(misource)._pMagic >> 6);
 	static_assert(MAX_MINIONS == MAX_PLRS, "AddGolem requires that owner of a monster has the same id as the monster itself.");
 	mon = &monsters[misource];
 	if (mon->_mmode > MM_INGAME_LAST) {
@@ -2861,7 +2862,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (PosOkActor(tx, ty) && LineClear(sx, sy, tx, ty)) {
-					SpawnGolem(misource, tx, ty, spllvl);
+					SpawnGolem(misource, tx, ty, level);
 					return MIRES_DELETE;
 				}
 			}
