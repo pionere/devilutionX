@@ -574,7 +574,7 @@ void ValidateData()
 		int j = 0;
 		int minscatts[MAX_LVLMTYPES] = { 0 };
 		int mintypes[MAX_LVLMTYPES];
-		int imgtot = monsterdata[monsterdata[MT_GOLEM].moFileNum].moFileNum;
+		int imgtot = 0;
 		for ( ; j < lengthof(AllLevels[i].dMonTypes); j++) {
 			int mtype = AllLevels[i].dMonTypes[j];
 			if (mtype == MT_INVALID)

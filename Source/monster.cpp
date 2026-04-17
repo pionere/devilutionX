@@ -423,7 +423,7 @@ void InitLvlMonsters()
 	numSkelTypes = 0;
 	numGoatTypes = 0;
 	numUniqAnims = 0;
-	monstimgtot = MAX_LVLMIMAGE - monfiledata[monsterdata[MT_GOLEM].moFileNum].moImage;
+	monstimgtot = MAX_LVLMIMAGE;
 	totalmonsters = MAXMONSTERS;
 
 	// reset monsters
