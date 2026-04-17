@@ -805,6 +805,9 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 		dLvl = lvl - (4 * sl);
 		xp = (exp * dLvl) >> shr; // / (8 * n);
 
+		xp -= 16 * spelldata[sn].sBookLvl;
+		if (xp <= 0) xp = 1;
+
 		xp += plr._pSkillExp[sn];
 		if (xp > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
 			xp = SkillExpLvlsTbl[MAXSPLLEVEL] - 1;
