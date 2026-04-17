@@ -574,10 +574,15 @@ void ValidateData()
 		int j = 0;
 		int minscatts[MAX_LVLMTYPES] = { 0 };
 		int mintypes[MAX_LVLMTYPES];
+		int imgtot = monsterdata[monsterdata[MT_GOLEM].moFileNum].moFileNum;
 		for ( ; j < lengthof(AllLevels[i].dMonTypes); j++) {
-			if (AllLevels[i].dMonTypes[j] == MT_INVALID)
+			int mtype = AllLevels[i].dMonTypes[j];
+			if (mtype == MT_INVALID)
 				break;
-			int mfn = monsterdata[AllLevels[i].dMonTypes[j]].moFileNum;
+			int mfn = monsterdata[mtype].moFileNum;
+			if (monfiledata[mfn].moImage > MAX_LVLMIMAGE - imgtot) {
+				app_fatal("Monster type %d on level %d does not fit to the limit (%d). Complexity is %d.", mtype, i, MAX_LVLMIMAGE - imgtot, monfiledata[mfn].moImage);
+			}
 			for (int k = 0; k < MAX_LVLMTYPES; k++) {
 				int moi = monfiledata[mfn].moImage;
 				if (minscatts[k] < moi) {
@@ -597,9 +602,6 @@ void ValidateData()
 				}
 			}
 		}
-		int imgtot = monsterdata[monsterdata[MT_GOLEM].moFileNum].moFileNum;
-		if (i != DLV_TOWN && i < NUM_STDLVLS && minscatts[0] > MAX_LVLMIMAGE - imgtot)
-			app_fatal("Monster types on level %d do not fit to the limit (%d). Lowest complexity is %d.", i, MAX_LVLMIMAGE - imgtot, minscatts[0]);
 		int k = 0;
 		for ( ; k < MAX_LVLMTYPES - 2; k++) {
 			if (minscatts[k] == 0)
