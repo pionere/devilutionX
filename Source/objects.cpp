@@ -2675,17 +2675,17 @@ static void HelpLvlPlayers(int lvl, unsigned mask, int flags)
 void SyncShrineCmd(int pnum, BYTE type, int seed)
 {
 	ItemStruct* pi;
-	int i, cnt, r, lvl;
+	int i, cnt, r, level, lvl;
 
 	SetRndSeed(seed);
 
-	lvl = plr._pDunLevel;
+	level = plr._pDunLevel;
+	lvl = level < NUM_FIXLVLS ? AllLevels[level].dLevel : gDynLevels[level - NUM_FIXLVLS]._dnLevel;
 
 	switch (type) {
 	case SHRINE_HIDDEN:
 		// SetRndSeed(seed);
 		cnt = 0;
-		lvl = lvl < NUM_FIXLVLS ? AllLevels[lvl].dLevel : gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++) {
 			if (pi->_itype != ITYPE_NONE
@@ -2761,7 +2761,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	case SHRINE_SHIMMERING:
 	case SHRINE_CRYPTIC:
-		HelpLvlPlayers(lvl, 1 << pnum, 2);
+		HelpLvlPlayers(level, 1 << pnum, 2);
 		break;
 	case SHRINE_ELDRITCH:
 		// SetRndSeed(seed);
@@ -2773,16 +2773,16 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 			ConvertPotion(pi);
 		break;
 	case SHRINE_EERIE:
-		HelpLvlPlayers(lvl, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 2);
+		HelpLvlPlayers(level, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 2);
 		break;
 	case SHRINE_SPOOKY:
-		HelpLvlPlayers(lvl, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 3);
+		HelpLvlPlayers(level, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 3);
 		break;
 	case SHRINE_QUIET:
-		HelpLvlPlayers(lvl, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 1);
+		HelpLvlPlayers(level, ((1 << MAX_PLRS) - 1) & ~(1 << pnum), 1);
 		break;
 	case SHRINE_DIVINE:
-		HelpLvlPlayers(lvl, 1 << pnum, 3);
+		HelpLvlPlayers(level, 1 << pnum, 3);
 		break;
 	case SHRINE_SACRED:
 		AddRaiseSkill(pnum, SPL_CBOLT);
@@ -2792,7 +2792,6 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		break;
 	case SHRINE_SPIRITUAL:
 		// SetRndSeed(seed);
-		lvl = lvl < NUM_FIXLVLS ? AllLevels[lvl].dLevel : gDynLevels[lvl - NUM_FIXLVLS]._dnLevel;
 		// assert(lvl != 0);
 		pi = plr._pInvList;
 		for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
@@ -2819,7 +2818,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		//		pi->_iIdentified = TRUE; // belt items can't be magical?
 		break;
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, plr._pLevel, 512 * lvl);
+		AddPlrExperience(pnum, plr._pLevel, 512 * level);
 		break;
 	case SHRINE_MURPHYS:
 		// SetRndSeed(seed);
