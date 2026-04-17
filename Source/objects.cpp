@@ -2818,7 +2818,7 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 		//		pi->_iIdentified = TRUE; // belt items can't be magical?
 		break;
 	case SHRINE_SPARKLING:
-		AddPlrExperience(pnum, plr._pLevel, 512 * level);
+		AddPlrExperience(pnum, lvl, 500);
 		break;
 	case SHRINE_MURPHYS:
 		// SetRndSeed(seed);
