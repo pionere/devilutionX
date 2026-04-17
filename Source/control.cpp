@@ -1500,7 +1500,7 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 		break;
 	}
 
-	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (skd.type != SDT_NONE ? 1 : 0);
+	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (skd.type != SDT_NONE ? (skd.type != SDT_SUMMON ? 1 : 2) : 0);
 
 	wh = BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT/2 + headerLinesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH;
 	wh += linesOfSkillDetails ? (SKILLDETAILS_LINE_HEIGHT/2 + linesOfSkillDetails * SKILLDETAILS_LINE_HEIGHT + SKILLDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH) : 0;
@@ -1548,6 +1548,9 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 			copy_cstr(tempstr, "\?\?");
 		} else {
 			switch (skd.type) {
+			case SDT_SUMMON:
+				snprintf(tempstr, sizeof(tempstr), "HP: %d", skd.v2);
+				PrintSkillString(x, y, tempstr, col);
 			case SDT_DAMAGE:
 				const char* fmt;
 				if (skd.v0 == skd.v1) {

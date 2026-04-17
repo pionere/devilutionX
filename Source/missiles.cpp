@@ -46,7 +46,7 @@ static const BYTE BloodBoilLocs[][2] = {
 
 void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 {
-	int k, type, magic, mind, maxd;
+	int k, type, magic, mind, maxd, v2;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
@@ -205,15 +205,20 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		mind >>= 6 - 2;
 		maxd >>= 6 - 2;
 		break;
-	case SPL_GOLEM:
+	case SPL_GOLEM: {
+		type = SDT_SUMMON;
 		sl = sl * 4 + (magic >> 6);
 		// sl++;
-		// sl--; -- see PreSpawnGolem
-		k = monsterdata[MT_GOLEM].mLevel;
-		sl = k + sl;
-		mind = sl * monsterdata[MT_GOLEM].mMinDamage / k;
-		maxd = sl * monsterdata[MT_GOLEM].mMaxDamage / k;
-		break;
+		// sl--; -- lvlBonus (PreSpawnGolem)
+		const MonsterData &monData = monsterdata[MT_GOLEM];
+		k = monData.mLevel; // baseLvl
+		sl = k + sl;        // monLvl
+		// calculate damage
+		mind = sl * monData.mMinDamage / k;
+		maxd = sl * monData.mMaxDamage / k;
+		// calculate hp
+		v2 = sl * monData.mMinHP / k;
+	} break;
 	case SPL_ELEMENTAL:
 		mind = (magic >> 3) + 2 * sl + 4;
 		maxd = (magic >> 3) + 4 * sl + 20;
@@ -274,6 +279,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	// if (type != SDT_NONE) {
 		skd->v0 = mind;
 		skd->v1 = maxd;
+		skd->v2 = v2;
 	// }
 }
 
