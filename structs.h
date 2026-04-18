@@ -839,6 +839,11 @@ typedef struct UniqMonData {
 static_warning((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align UniqMonData to power of 2 for better performance.");
 #endif
 
+typedef struct MinionMonData {
+	int mtype; // _monster_id
+	MonsterAI mAI;
+} MinionMonData;
+
 //////////////////////////////////////////////////
 // objects
 //////////////////////////////////////////////////
@@ -1642,6 +1647,7 @@ typedef struct TCmdMonstSummon {
 typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE goMonLevel;
+	BYTE goMonType;
 	BYTE goX;
 	BYTE goY;
 	BYTE goDunLevel;
@@ -1970,7 +1976,7 @@ typedef struct DDJunk {
 	// DDPortal jPortals[MAXPORTAL];
 	// DDQuest jQuests[NUM_QUESTS];
 	// DDDynLevel[NUM_DYNLVLS]
-	BYTE jGolems[MAX_MINIONS];
+	BYTE jGolems[MAX_MINIONS][2]; // level and type of the minion
 } DDJunk;
 
 typedef struct LDLevel {

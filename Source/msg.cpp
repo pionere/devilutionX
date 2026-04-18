@@ -690,14 +690,17 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 {
 	DDMonster* pD;
-	BYTE bLevel;
+	BYTE bLevel, bType;
 
 	if (!IsMultiGame)
 		return;
 
 	bLevel = pG->goMonLevel;
 	net_assert(bLevel != 0);
-	gsDeltaData.ddJunk.jGolems[mnum] = bLevel;
+	gsDeltaData.ddJunk.jGolems[mnum][0] = bLevel;
+	bType = pG->goMonType;
+	net_assert(bType < NUM_MMTYPES);
+	gsDeltaData.ddJunk.jGolems[mnum][1] = bType;
 
 	bLevel = pG->goDunLevel;
 	net_assert(bLevel < NUM_LEVELS);
@@ -1035,8 +1038,8 @@ void DeltaLoadLevel()
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		// load monsters
 		for (i = 0; i < MAX_MINIONS; i++) {
-			if (gsDeltaData.ddJunk.jGolems[i] != 0)
-				PreSpawnGolem(i, gsDeltaData.ddJunk.jGolems[i]);
+			if (gsDeltaData.ddJunk.jGolems[i][0] != 0)
+				PreSpawnGolem(i, gsDeltaData.ddJunk.jGolems[i][0], gsDeltaData.ddJunk.jGolems[i][1]);
 		}
 
 		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].monster;
@@ -1962,7 +1965,7 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGolem(BYTE x, BYTE y, BYTE lvl)
+void NetSendCmdGolem(BYTE x, BYTE y, BYTE lvl, BYTE type)
 {
 	TCmdGolem cmd;
 
@@ -1970,6 +1973,7 @@ void NetSendCmdGolem(BYTE x, BYTE y, BYTE lvl)
 	cmd.goX = x;
 	cmd.goY = y;
 	cmd.goMonLevel = lvl;
+	cmd.goMonType = type;
 	cmd.goDunLevel = currLvl._dLevelIdx;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));

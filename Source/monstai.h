@@ -32,6 +32,7 @@ void MAI_Garg(int mnum);
 void MAI_RoundRanged(int mnum);
 void MAI_RoundRanged2(int mnum);
 void MAI_Golem(int mnum);
+void MAI_BldGolem(int mnum);
 void MAI_SkelKing(int mnum);
 void MAI_Rhino(int mnum);
 void MAI_Counselor(int mnum);

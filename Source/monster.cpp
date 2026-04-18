@@ -8,6 +8,8 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define WORK_LVLMTYPE (MAX_LVLMTYPES - 1)
+
 /* Limit the number of monsters to be placed. */
 int totalmonsters;
 /* Limit the number of (scattered) monster-types on the current level by the required resources (In CRYPT the values are not valid). */
@@ -17,7 +19,7 @@ int nummonsters;
 /* The data of the monsters on the current level. */
 MonsterStruct monsters[MAXMONSTERS];
 /* Monster types on the current level. */
-MapMonData mapMonTypes[MAX_LVLMTYPES + 1];
+MapMonData mapMonTypes[MAX_LVLMTYPES];
 /* The number of monster types on the current level. */
 int nummtypes;
 
@@ -139,6 +141,7 @@ static void (*const AiProc[])(int i) = {
 /*AI_FIREMAN*///    &MAI_Fireman,
 /*AI_GARBUD*/       &MAI_Garbud,
 /*AI_GOLUM*/        &MAI_Golem,
+/*AI_BLDGOLUM*/     &MAI_BldGolem,
 /*AI_ZHAR*/         &MAI_Zhar,
 /*AI_SNOTSPIL*/     &MAI_SnotSpil,
 /*AI_SNAKE*/        &MAI_Snake,
@@ -836,14 +839,14 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	uniqm = &uniqMonData[uniqindex];
 	// initialize unique-gfx
 	if (uniqm->muTrans != TRN_NONE) {
-		mapMonTypes[MAX_LVLMTYPES].cmFileNum = mon->_mFileNum;
-		mapMonTypes[MAX_LVLMTYPES].cmType = mon->_mType;
-		InitMonsterGFX(MAX_LVLMTYPES);
+		mapMonTypes[WORK_LVLMTYPE].cmFileNum = mon->_mFileNum;
+		mapMonTypes[WORK_LVLMTYPE].cmType = mon->_mType;
+		InitMonsterGFX(WORK_LVLMTYPE);
 		// assert(mon->_mType != MT_GOLEM);
-		InitMonsterTRN(mapMonTypes[MAX_LVLMTYPES].cmAnims, uniqm->muTrans);
+		InitMonsterTRN(mapMonTypes[WORK_LVLMTYPE].cmAnims, uniqm->muTrans);
 	} else {
 		for (anim = 0; anim < NUM_MON_ANIM; anim++)
-			mapMonTypes[MAX_LVLMTYPES].cmAnimData[anim] = mapMonTypes[mon->_mMTidx].cmAnimData[anim];
+			mapMonTypes[WORK_LVLMTYPE].cmAnimData[anim] = mapMonTypes[mon->_mMTidx].cmAnimData[anim];
 	}
 
 	anim = numUniqAnims++;
@@ -852,8 +855,8 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	MonAnimStruct* uam = uniqAnims[anim];
 
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		BYTE* celBuf = mapMonTypes[MAX_LVLMTYPES].cmAnimData[anim];
-		mapMonTypes[MAX_LVLMTYPES].cmAnimData[anim] = NULL;
+		BYTE* celBuf = mapMonTypes[WORK_LVLMTYPE].cmAnimData[anim];
+		mapMonTypes[WORK_LVLMTYPE].cmAnimData[anim] = NULL;
 		umAnimData[anim] = celBuf;
 		uam[anim].maFrameLen = mon->_mAnims[anim].maFrameLen;
 		uam[anim].maFrames = mon->_mAnims[anim].maFrames;
@@ -3887,6 +3890,38 @@ void MAI_Golem(int mnum)
 	}
 }
 
+void MAI_BldGolem(int mnum)
+{
+	MonsterStruct* mon;
+	int mhp, php;
+
+	MAI_Golem(mnum);
+
+	mon = &monsters[mnum];
+	for (int i = (mon->_mLevel - monsterdata[MT_BLDGOLEM].mLevel) >> 4; i >= 0; i--) {
+		mhp = mon->_mhitpoints * plx(mnum)._pMaxHP;
+		php = mon->_mmaxhp * plx(mnum)._pHitPoints;
+		if (mhp == php) break;
+		if (mhp > php) {
+			if (php != 0 && mon->_mhitpoints > (1 << 6)) {
+				mon->_mhitpoints -= 1;
+				// PlrIncHp(mnum, 1);
+				plx(mnum)._pHitPoints += 1;
+				plx(mnum)._pHPBase += 1;
+			}
+		} else {
+			if (mhp != 0 && plx(mnum)._pHitPoints > (1 << 6)) {
+				// PlrDecHp(mnum, 1, DMGTYPE_UNKNOWN);
+				plx(mnum)._pHitPoints -= 1;
+				plx(mnum)._pHPBase -= 1;
+				mon->_mhitpoints += 1;
+			}
+		}
+		if (mnum == mypnum)
+			gbRedrawFlags |= REDRAW_RECALC_HP;
+	}
+}
+
 void MAI_SkelKing(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
@@ -5105,11 +5140,13 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
-void PreSpawnGolem(int mnum, int level)
+void PreSpawnGolem(int mnum, int level, int type)
 {
 	MonsterStruct* mon;
+	const MinionMonData &mmData = minionMonData[type];
+	const MonsterData &monData = monsterdata[mmData.mtype];
 
-	int mtidx = AddMonsterType(MT_GOLEM, FALSE);
+	int mtidx = AddMonsterType(mmData.mtype, FALSE);
 	mapMonTypes[mtidx].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 
 	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
@@ -5119,25 +5156,26 @@ void PreSpawnGolem(int mnum, int level)
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RESERVED;
-	// mon->_mAI.aiInt = monsterdata[MT_GOLEM].mAI.aiInt + lvlBonus / 16;
-	mon->_mHit = monsterdata[MT_GOLEM].mHit + lvlBonus * 5 / 2;
-	// mon->_mHit2 = monsterdata[MT_GOLEM].mHit2 + lvlBonus * 5 / 2;
-	// mon->_mMagic = monsterdata[MT_GOLEM].mMagic + lvlBonus * 5 / 2;
-	mon->_mEvasion = monsterdata[MT_GOLEM].mEvasion + lvlBonus * 5 / 2;
-	mon->_mArmorClass = monsterdata[MT_GOLEM].mArmorClass + lvlBonus * 5 / 2;
+	mon->_mAI = mmData.mAI;
+	// mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
+	mon->_mHit = monData.mHit + lvlBonus * 5 / 2;
+	// mon->_mHit2 = monData.mHit2 + lvlBonus * 5 / 2;
+	// mon->_mMagic = monData.mMagic + lvlBonus * 5 / 2;
+	mon->_mEvasion = monData.mEvasion + lvlBonus * 5 / 2;
+	mon->_mArmorClass = monData.mArmorClass + lvlBonus * 5 / 2;
 
-	int baseLvl = monsterdata[MT_GOLEM].mLevel;
+	int baseLvl = monData.mLevel;
 	int monLvl = baseLvl + lvlBonus;
 	mon->_mLevel = monLvl;
-	mon->_mmaxhp = (monLvl * monsterdata[MT_GOLEM].mMinHP / baseLvl) << 6;
+	mon->_mmaxhp = (monLvl * monData.mMinHP / baseLvl) << 6;
 	mon->_mExp = 0; // monLvl * mon->_mExp / baseLvl;
-	mon->_mMinDamage = monLvl * monsterdata[MT_GOLEM].mMinDamage / baseLvl;
-	mon->_mMaxDamage = monLvl * monsterdata[MT_GOLEM].mMaxDamage / baseLvl;
-	// mon->_mMinDamage2 = monLvl * monsterdata[MT_GOLEM].mMinDamage2 / baseLvl;
-	// mon->_mMaxDamage2 = monLvl * monsterdata[MT_GOLEM].mMaxDamage2 / baseLvl;
+	mon->_mMinDamage = monLvl * monData.mMinDamage / baseLvl;
+	mon->_mMaxDamage = monLvl * monData.mMaxDamage / baseLvl;
+	// mon->_mMinDamage2 = monLvl * monData.mMinDamage2 / baseLvl;
+	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-void SpawnGolem(int mnum, int x, int y, int level)
+void SpawnGolem(int mnum, int x, int y, int level, int type)
 {
 	MonsterStruct* mon;
 
@@ -5145,7 +5183,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
 	}
-	PreSpawnGolem(mnum, level);
+	PreSpawnGolem(mnum, level, type);
 	mon = &monsters[mnum];
 	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
@@ -5153,7 +5191,7 @@ void SpawnGolem(int mnum, int x, int y, int level)
 	ActivateSpawn(mnum, x, y, DIR_S);
 	PlaySfxLoc(LS_GOLUM, x, y);
 	if (mnum == mypnum)
-		NetSendCmdGolem(x, y, level);
+		NetSendCmdGolem(x, y, level, type);
 }
 
 bool CanTalkToMonst(int mnum)

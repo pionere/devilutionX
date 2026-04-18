@@ -205,12 +205,13 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		mind >>= 6 - 2;
 		maxd >>= 6 - 2;
 		break;
-	case SPL_GOLEM: {
+	case SPL_GOLEM:
+	case SPL_BLDGOLEM: {
 		type = SDT_SUMMON;
 		sl = sl * 4 + (magic >> 6);
 		// sl++;
 		// sl--; -- lvlBonus (PreSpawnGolem)
-		const MonsterData &monData = monsterdata[MT_GOLEM];
+		const MonsterData &monData = monsterdata[minionMonData[sn == SPL_GOLEM ? MMT_GOLEM : MMT_BLDGOLEM].mtype];
 		k = monData.mLevel; // baseLvl
 		sl = k + sl;        // monLvl
 		// calculate damage
@@ -2870,7 +2871,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (PosOkActor(tx, ty) && LineClear(sx, sy, tx, ty)) {
-					SpawnGolem(misource, tx, ty, level);
+					SpawnGolem(misource, tx, ty, level, missile[mi]._miType == MIS_GOLEM ? MMT_GOLEM : MMT_BLDGOLEM);
 					return MIRES_DELETE;
 				}
 			}
@@ -2878,11 +2879,15 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		return MIRES_FAIL_DELETE;
 	}
 
-	/*missile[mi]._misx = */missile[mi]._mix = mon->_mx;
-	/*missile[mi]._misy = */missile[mi]._miy = mon->_my;
-	missile[mi]._miMaxDam = mon->_mhitpoints;
-	missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
-	CheckSplashColFull(mi);
+	if (mon->_mType == MT_GOLEM) {
+		/*missile[mi]._misx = */missile[mi]._mix = mon->_mx;
+		/*missile[mi]._misy = */missile[mi]._miy = mon->_my;
+		missile[mi]._miMaxDam = mon->_mhitpoints;
+		missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
+		CheckSplashColFull(mi);
+	} else {
+		PlrIncHp(misource, mon->_mhitpoints);
+	}
 
 	MonKill(misource, misource);
 	return MIRES_DELETE;

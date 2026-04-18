@@ -24,7 +24,7 @@ extern "C" {
 
 extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
-extern MapMonData mapMonTypes[MAX_LVLMTYPES + 1];
+extern MapMonData mapMonTypes[MAX_LVLMTYPES];
 /* The number of monster types on the current level. */
 extern int nummtypes;
 /* The number of monster types scattered on the current level. */
@@ -79,8 +79,8 @@ void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
 void TalktoMonster(int mnum, int pnum);
-void PreSpawnGolem(int mnum, int level);
-void SpawnGolem(int mnum, int x, int y, int level);
+void PreSpawnGolem(int mnum, int level, int type);
+void SpawnGolem(int mnum, int x, int y, int level, int type);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool* ret);
 void MonCallToArms(int mnum);

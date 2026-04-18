@@ -603,7 +603,7 @@ void ValidateData()
 			}
 		}
 		int k = 0;
-		for ( ; k < MAX_LVLMTYPES - 2; k++) {
+		for ( ; k < MAX_LVLMTYPES - (lengthof(minionMonData) - 1); k++) {
 			if (minscatts[k] == 0)
 				break;
 			imgtot += minscatts[k];
