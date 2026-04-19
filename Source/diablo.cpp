@@ -292,10 +292,7 @@ static void ValidateSkill(PlrSkillUse* skill)
 {
 	int8_t result = SPLFROM_INVALID_TYPE;
 	int sn = skill->_suSkill;
-	if (sn == SPL_NULL) {
-		return;
-	}
-	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
+	if (sn != SPL_NULL && (spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
 		switch (skill->_suType) {
 		case RSPLTYPE_ABILITY:
 			// assert(spelldata[sn].sManaCost == 0);
