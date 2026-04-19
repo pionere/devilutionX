@@ -87,11 +87,6 @@ extern "C" {
 #define SPLICON_OVERY  4
 #endif
 #define SPLICONLAST    47
-#ifdef HELLFIRE
-#define SPLBOOKTABS    7
-#else
-#define SPLBOOKTABS    6
-#endif
 
 #define INV_SLOT_SIZE_PX 28
 #define BELT_WIDTH       60

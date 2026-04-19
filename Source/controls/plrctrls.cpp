@@ -615,21 +615,6 @@ static void InvMove(int dir)
 	SetCursorPos(x, y);
 }
 
-static void SpellBookMove(int dir)
-{
-	static AxisDirectionRepeater repeater;
-	dir = repeater.Get(dir);
-	if (dir == DIR_NONE) return;
-	if (dir == DIR_S || dir == DIR_N) return;
-	if (DirLeft(dir)) {
-		if (guBooktab > 0)
-			guBooktab--;
-	} else {
-		if (guBooktab < SPLBOOKTABS - 1)
-			guBooktab++;
-	}
-}
-
 static void WalkInDir(int dir)
 {
 	if (dir == DIR_NONE) {
@@ -682,7 +667,7 @@ static HandleLeftStickOrDPadFn GetLeftStickOrDPadGameUIHandler()
 		switch (gaActiveWindows[gnNumActiveWindows - 1]) {
 		case WND_INV:   return &InvMove;
 		case WND_CHAR:  return myplr._pStatPts > 0 ? &AttrIncBtnSnap : NULL;
-		case WND_BOOK:  return &SpellBookMove;
+		case WND_BOOK:  return NULL;
 		case WND_TEAM:  return NULL;
 		case WND_QUEST: return &QuestLogMove;
 		default: ASSUME_UNREACHABLE; break;

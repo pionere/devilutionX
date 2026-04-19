@@ -67,8 +67,6 @@ int gnDragWndY;
 static CelImageBuf* pSpellBkCel;
 /** SpellBook icons CEL */
 static CelImageBuf* pSBkIconCels;
-/** The current tab in the Spell-Book. */
-unsigned guBooktab;
 /** Specifies whether the LevelUp button is displayed. */
 bool gbLvlUp;
 /** Specifies whether the LevelUp button is pressed. */
@@ -789,7 +787,6 @@ void InitControlPan()
 	gbRedrawFlags = REDRAW_RECALC_FLASKS; // | REDRAW_DRAW_ALL;
 	gbLvlUp = false;
 	gbSkillListFlag = false;
-	guBooktab = 0;
 	assert(pSpellBkCel == NULL);
 	pSpellBkCel = CelLoadImage("Data\\SpellBk.CEL", SPANEL_WIDTH);
 	assert(pSBkIconCels == NULL);
