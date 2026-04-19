@@ -3931,12 +3931,10 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		*(uint64_t*)buf = plx(i)._pMemSkills;
 		buf += sizeof(uint64_t);
-		*(uint64_t*)buf = plx(i)._pInvSkills;
-		buf += sizeof(uint64_t);
 
 		//LogErrorF("Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
-		assert((size_t)buf - (size_t)plrdata == 211);
-		NetSendChunk(plrdata, 211); // (size_t)buf - (size_t)plrdata);
+		assert((size_t)buf - (size_t)plrdata == 209);
+		NetSendChunk(plrdata, 209); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes II.
 		buf = &plrdata[1];
@@ -3991,7 +3989,6 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		BYTE _pIBaseHitBonus; // indicator whether the base BonusToHit of the items is positive/negative/neutral
 		BYTE _pICritChance; // 200 == 100%
 		BYTE _pIBlockChance;
-		uint64_t _pISpells; // Bitmask of staff spell
 		unsigned _pIFlags;
 		BYTE _pIWalkSpeed;
 		BYTE _pIRecoverySpeed;
@@ -4248,9 +4245,6 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 
 		if (plx(i)._pMemSkills != *(const uint64_t*)src)
 			PrintPlrMismatch64("MemSkills", plx(i)._pMemSkills, *(const uint64_t*)src, pnum, i);
-		src += sizeof(uint64_t);
-		if (plx(i)._pInvSkills != *(const uint64_t*)src)
-			PrintPlrMismatch64("InvSkills", plx(i)._pInvSkills, *(const uint64_t*)src, pnum, i);
 		src += sizeof(uint64_t);
 		break;
 	case 2: // skill data

@@ -137,7 +137,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 		pr->_pSkillExp[i] = savedPlr->vpSkillExp[i];
 
 	pr->_pMemSkills = savedPlr->vpMemSkills;
-	pr->_pInvSkills = savedPlr->vpInvSkills;
 	memcpy(pr->_pName, savedPlr->vpName, lengthof(pr->_pName));
 
 	pr->_pBaseStr = savedPlr->vpBaseStr;
@@ -198,7 +197,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
-	tbuff += 8; // _pISpells
 	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
@@ -922,7 +920,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 		plrSave->vpSkillExp[i] = pr->_pSkillExp[i];
 
 	plrSave->vpMemSkills = pr->_pMemSkills;
-	plrSave->vpInvSkills = pr->_pInvSkills;
 	memcpy(plrSave->vpName, pr->_pName, lengthof(plrSave->vpName));
 
 	plrSave->vpBaseStr = pr->_pBaseStr;
@@ -984,7 +981,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
-	tbuff += 8; // _pISpells
 	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum

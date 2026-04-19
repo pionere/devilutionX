@@ -853,16 +853,12 @@ void CalcPlrScrolls(int pnum)
 {
 	uint64_t mask = InvGetScrolls(pnum);
 
-	plr._pInvSkills = mask;
-
 	ValidateActionSkills(pnum, RSPLTYPE_INV, mask);
 }
 
 void CalcPlrCharges(int pnum)
 {
 	uint64_t mask = InvGetCharges(pnum);
-
-	plr._pISpells = mask;
 
 	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, mask);
 }
