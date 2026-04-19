@@ -206,12 +206,18 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		maxd >>= 6 - 2;
 		break;
 	case SPL_GOLEM:
-	case SPL_BLDGOLEM: {
+	case SPL_BLDGOLEM:
+	case SPL_SKELAX:
+	case SPL_SKELBW: {
 		type = SDT_SUMMON;
 		sl = sl * 4 + (magic >> 6);
 		// sl++;
 		// sl--; -- lvlBonus (PreSpawnGolem)
-		const MonsterData &monData = monsterdata[minionMonData[sn == SPL_GOLEM ? MMT_GOLEM : MMT_BLDGOLEM].mtype];
+		static_assert((int)MMT_GOLEM == 0, "GetSkillDetails expects ordered SPL/MMT enums I.");
+		static_assert((int)MMT_BLDGOLEM == (int)SPL_BLDGOLEM - (int)SPL_GOLEM, "GetSkillDetails expects ordered SPL/MMT enums II.");
+		static_assert((int)MMT_SKELAX == (int)SPL_SKELAX - (int)SPL_GOLEM, "GetSkillDetails expects ordered SPL/MMT enums III.");
+		static_assert((int)MMT_SKELBW == (int)SPL_SKELBW - (int)SPL_GOLEM, "GetSkillDetails expects ordered SPL/MMT enums IV.");
+		const MonsterData &monData = monsterdata[minionMonData[sn - SPL_GOLEM].mtype];
 		k = monData.mLevel; // baseLvl
 		sl = k + sl;        // monLvl
 		// calculate damage
@@ -1053,8 +1059,8 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	}
 	misource = mis->_miSource;
 	// assert(misource == -1 || ((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS));
-	//if ((unsigned)misource < MAX_MINIONS && plx(misource)._pTeam == plr._pTeam)
-	//	return false; // minion vs. player
+	if ((unsigned)misource < MAX_MINIONS && plx(misource)._pTeam == plr._pTeam)
+		return false; // minion vs. player
 	if (plr._pInvincible) {
 		return false;
 	}
@@ -2871,7 +2877,11 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
 				if (PosOkActor(tx, ty) && LineClear(sx, sy, tx, ty)) {
-					SpawnGolem(misource, tx, ty, level, missile[mi]._miType == MIS_GOLEM ? MMT_GOLEM : MMT_BLDGOLEM);
+					static_assert((int)MMT_GOLEM == 0, "AddGolem expects ordered MIS/MMT enums I.");
+					static_assert((int)MMT_BLDGOLEM == (int)MIS_BLDGOLEM - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums II.");
+					static_assert((int)MMT_SKELAX == (int)MIS_SKELAX - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums III.");
+					static_assert((int)MMT_SKELBW == (int)MIS_SKELBW - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums IV.");
+					SpawnGolem(misource, tx, ty, level, missile[mi]._miType - MIS_GOLEM);
 					return MIRES_DELETE;
 				}
 			}
@@ -2885,8 +2895,11 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		missile[mi]._miMaxDam = mon->_mhitpoints;
 		missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
 		CheckSplashColFull(mi);
-	} else {
+	} else if (mon->_mType == MT_BLDGOLEM) {
 		PlrIncHp(misource, mon->_mhitpoints);
+	} else {
+		// assert(mon->_mType == MIS_SKELAX || mon->_mType == MIS_SKELBW);
+		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_LIGHTNOVAC, micaster, misource, (mon->_mLevel * mon->_mhitpoints) / (4 * mon->_mmaxhp));
 	}
 
 	MonKill(misource, misource);

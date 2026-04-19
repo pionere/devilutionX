@@ -8,7 +8,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /*
-	reused icons :  4, 5, 22, 25
+	reused icons :  4, 5, 9, 20, 22, 23, 25, 28, 31
 					// hellfire
 					26, 29
 */
@@ -58,6 +58,8 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_GUARDIAN*/    {        50, STYPE_FIRE,           18, "Guardian",               9,        16,         12, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     61, IS_CAST2,    MIS_GUARDIAN,           4,       30,        16,        32,     14000,         90, ALIGN64 },
 /*SPL_GOLEM*/       {       100, STYPE_FIRE,           21, "Golem",                 11,        18,         10, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     81, IS_CAST2,    MIS_GOLEM,             10,       60,        16,        32,     18000,        200, ALIGN64 },
 /*SPL_BLDGOLEM*/    {       100, STYPE_MAGIC,          35, "Blood Golem",           16,        24,         18, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     81, IS_CAST2,    MIS_BLDGOLEM,           8,       60,        16,        32,     22000,        240, ALIGN64 },
+/*SPL_SKELAX*/      {       100, STYPE_LIGHTNING,      25, "Skeleton",              12,        20,         14, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     81, IS_CAST2,    MIS_SKELAX,            10,       50,        16,        32,     20000,        220, ALIGN64 },
+/*SPL_SKELBW*/      {       100, STYPE_LIGHTNING,      31, "Corpse Bow",            14,        22,         16, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     81, IS_CAST2,    MIS_SKELBW,             9,       50,        16,        32,     21000,        230, ALIGN64 },
 /*SPL_STONE*/       {        60, STYPE_MAGIC,           8, "Stone Curse",            6,        10,          6, SDFLAG_TARGETED, CURSOR_TELEPORT,  CURSOR_NONE,        SFLAG_DUNGEON,                     51, IS_CAST2,    MIS_STONE,              4,       40,         8,        16,     12000,        160, ALIGN64 },
 /*SPL_INFRA*/       {         0, STYPE_MAGIC,           9, "Infravision",     SPELL_NA,  SPELL_NA,          8, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     43, IS_CAST8,    MIS_INFRA,              0,        0,         0,         0,         0,        600, ALIGN64 },
 /*SPL_MANASHIELD*/  {        33, STYPE_MAGIC,          13, "Mana Shield",            6,        10,          8, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_ANY,                         25, IS_CAST2,    MIS_MANASHIELD,         0,       33,         4,        10,     16000,        120, ALIGN64 },

@@ -142,6 +142,8 @@ static void (*const AiProc[])(int i) = {
 /*AI_GARBUD*/       &MAI_Garbud,
 /*AI_GOLUM*/        &MAI_Golem,
 /*AI_BLDGOLUM*/     &MAI_BldGolem,
+/*AI_MINIONAX*/     &MAI_MinionAx,
+/*AI_MINIONBW*/     &MAI_MinionBw,
 /*AI_ZHAR*/         &MAI_Zhar,
 /*AI_SNOTSPIL*/     &MAI_SnotSpil,
 /*AI_SNAKE*/        &MAI_Snake,
@@ -3512,6 +3514,53 @@ void MAI_Ranged(int mnum)
 	}
 }
 
+/*
+ * AI for monsters using special or standard ranged attacks.
+ * Attempts to keep distance from the target, but tries to follow it if its out of sight or too far (8 subtiles).
+ *
+ * @param mnum: the id of the monster
+ * @param aiParam1: the missile type to be launched at the end of the attack animation.
+ * @param aiParam2: whether the monster should use its special attack
+ */
+static void MAI_RangedDist(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	int md;
+	if (MON_RELAXED || MON_ACTIVE)
+		return;
+
+	MonEnemyInfo(mnum);
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+		MonstCheckDoors(mon->_mx, mon->_my);
+	mon->_mdir = currEnemyInfo._meLastDir;
+	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || (mon->_menemy < 0)*/) {
+		bool walking = false;
+		if (currEnemyInfo._meRealDist < 4) {
+			if (random_(119, 100) < (76 + 8 * mon->_mAI.aiInt))
+				walking = MonCallWalk(mnum, OPPOSITE(mon->_mdir));
+		}
+		if (!walking) {
+			md = std::max(1, 20 - mon->_mAI.aiInt);
+			md = random_low(118, md); // STAND_PREV_MODE
+			if (md == 0 || mon->_mVar1 == MM_DELAY) {
+				if (currEnemyInfo._meRealDist <= 8 && EnemyInLine(mnum)) {
+					if (mon->_mAI.aiParam2)
+						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+					else
+						MonStartRAttack(mnum, mon->_mAI.aiParam1);
+				} else if (currEnemyInfo._meRealDist >= 4
+				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
+					MonDestWalk(mnum);
+				}
+			} else {
+				MonStartDelay(mnum, md + 1);
+			}
+		}
+	} else {
+		MonDestWalk(mnum);
+	}
+}
+
 #ifdef HELLFIRE
 static void MonConsumeCorpse(MonsterStruct* mon)
 {
@@ -3835,25 +3884,21 @@ void MAI_RoundRanged2(int mnum)
 	}
 }
 
-void MAI_Golem(int mnum)
+static void MAI_Minion(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int md, ld, i;
+	bool (*Check)(int, int, int);
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
-	assert(mon->_msquelch == SQUELCH_MAX);
-	if (MON_HAS_ENEMY) {
-		MAI_Cleaver(mnum);
-		if (mon->_mmode != MM_STAND)
-			return;
-	}
+	Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
+	if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
+		MonstCheckDoors(mon->_mx, mon->_my);
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		// go to the player
 		int8_t path[MAX_PATH_LENGTH];
-		assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
-		if (FindPath(PosOkMonst3, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, path) > 1) {
+		if (FindPath(Check, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, path) > 1) {
 			md = path[0];
 			MonCallWalk(mnum, md);
 			return;
@@ -3863,9 +3908,6 @@ void MAI_Golem(int mnum)
 		mon->_mgoalvar1 = 0; // MOVE_DIRECTION
 	}
 	// follow the gaze of the player
-	assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
-	// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
-	MonstCheckDoors(mon->_mx, mon->_my);
 	ld = mon->_mdir;
 	md = plx(mnum)._pdir;
 	if (MonCallWalk(mnum, md)) {
@@ -3888,6 +3930,19 @@ void MAI_Golem(int mnum)
 			break;
 		}
 	}
+}
+
+void MAI_Golem(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	if (MON_ACTIVE)
+		return;
+	assert(mon->_msquelch == SQUELCH_MAX);
+	if (MON_HAS_ENEMY) {
+		MAI_Cleaver(mnum);
+	}
+	MAI_Minion(mnum);
 }
 
 void MAI_BldGolem(int mnum)
@@ -3920,6 +3975,30 @@ void MAI_BldGolem(int mnum)
 		if (mnum == mypnum)
 			gbRedrawFlags |= REDRAW_RECALC_HP;
 	}
+}
+
+void MAI_MinionAx(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	if (MON_ACTIVE)
+		return;
+	if (MON_HAS_ENEMY) {
+		MAI_SkelSd(mnum);
+	}
+	MAI_Minion(mnum);
+}
+
+void MAI_MinionBw(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	if (MON_ACTIVE)
+		return;
+	if (MON_HAS_ENEMY) {
+		MAI_RangedDist(mnum);
+	}
+	MAI_Minion(mnum);
 }
 
 void MAI_SkelKing(int mnum)

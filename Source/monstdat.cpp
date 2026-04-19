@@ -525,6 +525,8 @@ const MinionMonData minionMonData[NUM_MMTYPES] = {
 //                  mtype,        mAI.aiType
 /*MMT_GOLEM*/      { MT_GOLEM,    { AI_GOLUM,           0, 0,               0      } },
 /*MMT_BLDGOLEM*/   { MT_BLDGOLEM, { AI_BLDGOLUM,        0, 0,               0      } },
+/*MMT_SKELAX*/     { MT_TSKELAX,  { AI_MINIONAX,        0, 0,               0      } },
+/*MMT_SKELBW*/     { MT_TSKELBW,  { AI_MINIONBW,        0, MIS_ARROW,       FALSE  } },
 };
 
 DEVILUTION_END_NAMESPACE

@@ -67,7 +67,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAX_TOWNERS              16
 #define STORE_TOWNERS            8
 // the maxiumum number of monster-types per level (base scattered types + reserved for setpieces + [reserved for minions | unique monster])
-#define MAX_LVLMTYPES            (7 + 2 + 3)
+#define MAX_LVLMTYPES            (7 + 2 + 4)
 // controller to restrict the number of scattered monster-types on a level
 #define MAX_LVLMIMAGE            3600
 // the maximum number of unique monster on a level

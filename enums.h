@@ -2109,6 +2109,8 @@ typedef enum missile_id {
 	MIS_GUARDIAN,
 	MIS_GOLEM,
 	MIS_BLDGOLEM,
+	MIS_SKELAX,
+	MIS_SKELBW,
 	//MIS_ETHEREALIZE,
 	MIS_BLEED,
 	//MIS_EXAPOCA,
@@ -2326,6 +2328,8 @@ typedef enum _monster_ai {
 	AI_GARBUD,
 	AI_GOLUM,
 	AI_BLDGOLUM,
+	AI_MINIONAX,
+	AI_MINIONBW,
 	AI_ZHAR,
 	AI_SNOTSPIL,
 	AI_SNAKE,
@@ -2591,6 +2595,8 @@ typedef enum _uniq_monsterid {
 typedef enum _minion_monsterid {
 	MMT_GOLEM,
 	MMT_BLDGOLEM,
+	MMT_SKELAX,
+	MMT_SKELBW,
 	NUM_MMTYPES
 } _minion_monsterid;
 
@@ -4158,6 +4164,8 @@ typedef enum spell_id {
 	SPL_GUARDIAN,
 	SPL_GOLEM,
 	SPL_BLDGOLEM,
+	SPL_SKELAX,
+	SPL_SKELBW,
 	SPL_STONE,
 	SPL_INFRA,
 	SPL_MANASHIELD,
