@@ -51,9 +51,10 @@ int8_t SpellSourceInv(int sn)
 
 int8_t SpellSourceEquipment(int sn)
 {
-	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_INVALID_SOURCE, "SpellSourceEquipment expects the INV indices to be distinct from SPLFROM_INVALID_SOURCE.");
-	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_MANA, "SpellSourceEquipment expects the INV indices to be distinct from SPL_MANA.");
-	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_ABILITY, "SpellSourceEquipment expects the INV indices to be distinct from SPLFROM_ABILITY.");
+	static_assert(!SPLFROM_INVALID(INVITEM_BODY_FIRST), "SpellSourceEquipment expects the BODY indices to be distinct from SPLFROM_INVALID I.");
+	static_assert(!SPLFROM_INVALID(INVITEM_BODY_LAST), "SpellSourceEquipment expects the BODY indices to be distinct from SPLFROM_INVALID II.");
+	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_MANA || (int)INVITEM_BODY_LAST < (int)SPLFROM_MANA, "SpellSourceEquipment expects the BODY indices to be distinct from SPL_MANA.");
+	static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_BODY_LAST < (int)SPLFROM_MANA, "SpellSourceEquipment expects the BODY indices to be distinct from SPLFROM_ABILITY.");
 
 	int idx = InvGetChargeIdx(mypnum, sn);
 	return idx != INVITEM_NONE ? idx : SPLFROM_INVALID_SOURCE;
