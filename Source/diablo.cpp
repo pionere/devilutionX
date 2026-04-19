@@ -288,39 +288,6 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static void ValidateSkill(PlrSkillUse* skill)
-{
-	int8_t result = SPLFROM_INVALID_TYPE;
-	int sn = skill->_suSkill;
-	if (sn != SPL_NULL && (spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		switch (skill->_suType) {
-		case RSPLTYPE_ABILITY:
-			// assert(spelldata[sn].sManaCost == 0);
-			result = SPLFROM_ABILITY;
-			break;
-		case RSPLTYPE_SPELL:
-			result = SpellSourceMem(sn);
-			break;
-		case RSPLTYPE_INV:
-			result = SpellSourceInv(sn);
-			break;
-		case RSPLTYPE_CHARGES:
-			result = SpellSourceEquipment(sn);
-			break;
-		case RSPLTYPE_INVALID:
-			result = SPLFROM_INVALID_TYPE;
-			break;
-		default:
-			result = SPLFROM_ABILITY;
-			ASSUME_UNREACHABLE
-			break;
-		}
-	}
-	if (SPLFROM_INVALID(result)) {
-		skill->_suSkill = SPL_NULL;
-	}
-	skill->_suType = (BYTE)result;
-}
 #if HAS_TOUCHPAD
 static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionVector)
 {
@@ -447,9 +414,9 @@ static void ActionBtnCmd(bool altSkill)
 	if (bShift)
 		skill._psMove._suSkill = SPL_NULL;
 	else
-		ValidateSkill(&skill._psMove);
+		SpellCheck(&skill._psMove);
 
-	ValidateSkill(&skill._psAttack);
+	SpellCheck(&skill._psAttack);
 #if HAS_TOUCHPAD
 	{
 		RECT_AREA32 actionVector;

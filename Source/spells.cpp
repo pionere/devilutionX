@@ -32,7 +32,7 @@ int GetManaAmount(int pnum, int sn)
 	return ma;
 }
 
-int8_t SpellSourceInv(int sn)
+static int8_t SpellSourceInv(int sn)
 {
 
 	static_assert(!SPLFROM_INVALID(INVITEM_INV_FIRST), "SpellSourceInv expects the INV indices to be distinct from SPLFROM_INVALID I.");
@@ -49,7 +49,7 @@ int8_t SpellSourceInv(int sn)
 	return idx != INVITEM_NONE ? idx : SPLFROM_INVALID_SOURCE;
 }
 
-int8_t SpellSourceEquipment(int sn)
+static int8_t SpellSourceEquipment(int sn)
 {
 	static_assert(!SPLFROM_INVALID(INVITEM_BODY_FIRST), "SpellSourceEquipment expects the BODY indices to be distinct from SPLFROM_INVALID I.");
 	static_assert(!SPLFROM_INVALID(INVITEM_BODY_LAST), "SpellSourceEquipment expects the BODY indices to be distinct from SPLFROM_INVALID II.");
@@ -64,6 +64,40 @@ int8_t SpellSourceMem(int sn)
 {
 	int pnum = mypnum;
 	return plr._pSkillLvl[sn] > 0 ? (plr._pMana >= GetManaAmount(pnum, sn) ? SPLFROM_MANA : SPLFROM_INVALID_MANA) : SPLFROM_INVALID_LEVEL;
+}
+
+void SpellCheck(PlrSkillUse* skill)
+{
+	int8_t result = SPLFROM_INVALID_TYPE;
+	int sn = skill->_suSkill;
+	if (sn != SPL_NULL && (spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
+		switch (skill->_suType) {
+		case RSPLTYPE_ABILITY:
+			// assert(spelldata[sn].sManaCost == 0);
+			result = SPLFROM_ABILITY;
+			break;
+		case RSPLTYPE_SPELL:
+			result = SpellSourceMem(sn);
+			break;
+		case RSPLTYPE_INV:
+			result = SpellSourceInv(sn);
+			break;
+		case RSPLTYPE_CHARGES:
+			result = SpellSourceEquipment(sn);
+			break;
+		case RSPLTYPE_INVALID:
+			result = SPLFROM_INVALID_TYPE;
+			break;
+		default:
+			result = SPLFROM_ABILITY;
+			ASSUME_UNREACHABLE
+			break;
+		}
+	}
+	if (SPLFROM_INVALID(result)) {
+		skill->_suSkill = SPL_NULL;
+	}
+	skill->_suType = (BYTE)result;
 }
 
 DEVILUTION_END_NAMESPACE
