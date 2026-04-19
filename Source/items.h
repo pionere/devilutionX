@@ -32,7 +32,6 @@ void FreeItemGFX();
 void InitLvlItems();
 void InitItems();
 void CalcPlrItemVals(int pnum, bool Loadgfx);
-void CalcPlrSpells(int pnum);
 void CalcPlrScrolls(int pnum);
 void CalcPlrCharges(int pnum);
 void ItemStatOk(int pnum, ItemStruct* is);

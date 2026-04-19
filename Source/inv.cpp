@@ -1790,7 +1790,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvlBase[sn]]) {
 			IncreasePlrSkillLvl(pnum, sn);
 		}
-		// CalcPlrSpells(pnum);
 		sn = SPL_INVALID;
 		break;
 	case IMISC_SPECELIX:

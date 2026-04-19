@@ -830,7 +830,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		gbRedrawFlags = REDRAW_RECALC_FLASKS; // gbRedrawFlags |= REDRAW_RECALC_FLASKS | REDRAW_SPELL_ICON;
 }
 
-void CalcPlrSpells(int pnum)
+static void CalcPlrSpells(int pnum)
 {
 	PlayerStruct* p;
 
