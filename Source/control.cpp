@@ -191,8 +191,7 @@ static const BYTE* GetSpellTrans(PlrSkillUse skill)
 
 static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 {
-	ItemStruct* pi;
-	int t = COL_WHITE, v, mv;
+	int t = COL_WHITE, v;
 
 	switch (skill._suType) {
 	case RSPLTYPE_ABILITY:
@@ -211,38 +210,16 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 		}
 		break;
 	case RSPLTYPE_INV:
-		v = 0;
-		pi = myplr._pInvList;
-		for (t = NUM_INV_GRID_ELEM; t > 0; t--, pi++) {
-			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == skill._suSkill) {
-				// assert(pi->_iUsable);
-				v += pi->_iDurability; // STACK
-			}
-		}
-		pi = myplr._pSpdList;
-		for (t = MAXBELTITEMS; t > 0; t--, pi++) {
-			if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == skill._suSkill) {
-				// assert(pi->_iUsable);
-				v += pi->_iDurability; // STACK
-			}
-		}
+		v = InvGetScrollNum(mypnum, skill._suSkill);
 		snprintf(tempstr, sizeof(tempstr), "%d", v);
 		break;
 	case RSPLTYPE_CHARGES:
 		if (myplr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
-			break;
+		} else {
+			INTPAIR chg = InvGetChargeNum(mypnum, skill._suSkill);
+			snprintf(tempstr, sizeof(tempstr), "%d/%d", chg.v0, chg.v1);
 		}
-		v = 0;
-		mv = 0;
-		pi = myplr._pInvBody;
-		for (t = NUM_INVLOC; t > 0; t--, pi++) {
-			if (pi->_itype != ITYPE_NONE && pi->_iSpell == skill._suSkill && pi->_iStatFlag) {
-				v += pi->_iCharges;
-				mv += pi->_iMaxCharges;
-			}
-		}
-		snprintf(tempstr, sizeof(tempstr), "%d/%d", v, mv);
 		break;
 	case RSPLTYPE_INVALID:
 		return;

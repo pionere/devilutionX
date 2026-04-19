@@ -75,6 +75,11 @@ typedef void (*WNDPROC)(const Dvl_Event*);
 // control
 //////////////////////////////////////////////////
 
+typedef struct INTPAIR {
+	int v0;
+	int v1;
+} INTPAIR;
+
 typedef struct POS32 {
 	int x;
 	int y;
