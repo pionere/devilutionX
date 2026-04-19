@@ -1090,8 +1090,8 @@ void CreatePlrItems(int pnum)
 	CreateBaseItem(pi, IDI_GOLD);
 	SetGoldItemValue(pi, 100);
 	plr._pGold = 100;
-
-	CalcPlrItemVals(pnum, false);
+	// commented out, because it is not necessary (see CreatePlayer)
+	// CalcPlrInv(pnum, false);
 }
 
 /**
