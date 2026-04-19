@@ -101,20 +101,24 @@ static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #endif
 };
 
-static BYTE GetSpellTrans(PlrSkillUse skill)
+static const BYTE* GetSpellTrans(PlrSkillUse skill)
 {
 	int pnum = mypnum;
+	BYTE st;
 	if (skill._suSkill == SPL_NULL || (spelldata[skill._suSkill].sUseFlags & plr._pSkillFlags) != spelldata[skill._suSkill].sUseFlags)
-		return RSPLTYPE_INVALID;
-	if (skill._suType == RSPLTYPE_SPELL)
-		return CheckSpell(pnum, skill._suSkill) ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
+		st = RSPLTYPE_INVALID;
+	else if (skill._suType == RSPLTYPE_SPELL)
+		st = CheckSpell(pnum, skill._suSkill) ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 #ifdef HELLFIRE
-	if (skill._suType != RSPLTYPE_INV)
-		return skill._suType;
-	return SPELL_RUNE(skill._suSkill) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
+	else if (skill._suType != RSPLTYPE_INV)
+		st = skill._suType;
+	else
+		st = SPELL_RUNE(skill._suSkill) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
 #else
-	return skill._suType;
+	else
+		st = skill._suType;
 #endif
+	return &SkillTrns[st][0];
 }
 
 /*static void SetSpellTrans(BYTE st)
@@ -252,10 +256,10 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 static void DrawSkillIcon(int pnum, PlrSkillUse skill, BYTE offset)
 {
 	int y;
-	int st = GetSpellTrans(skill);
+	const BYTE* st = GetSpellTrans(skill);
 	y = SCREEN_Y + SCREEN_HEIGHT - 1 - offset;
 	CelDrawTrnTbl(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, pSpellCels,
-		spelldata[skill._suSkill].sIcon, SkillTrns[st]);
+		spelldata[skill._suSkill].sIcon, st);
 	DrawSpellIconOverlay(PANEL_X + PANEL_WIDTH - SPLICON_WIDTH, y, skill);
 }
 
@@ -378,11 +382,11 @@ void SpeakSpellText(PlrSkillUse skill)
 static void DrawSkillListIcon(int x, int y, PlrSkillUse listSkill)
 {
 	int lx, ly;
-	BYTE st;
+	const BYTE* st;
 	bool selected;
 
 	st = GetSpellTrans(listSkill);
-	CelDrawTrnTbl(x, y, pSpellCels, spelldata[listSkill._suSkill].sIcon, SkillTrns[st]);
+	CelDrawTrnTbl(x, y, pSpellCels, spelldata[listSkill._suSkill].sIcon, st);
 
 	lx = x - SCREEN_X;
 	ly = y - SCREEN_Y - SPLICON_HEIGHT;
@@ -395,8 +399,8 @@ static void DrawSkillListIcon(int x, int y, PlrSkillUse listSkill)
 	}
 
 	if (selected) {
-		//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
-		CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
+		//CelDrawTrnTbl(x, y, pSpellCels, c, st);
+		CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, st);
 
 		currSkill = listSkill;
 
@@ -1828,10 +1832,11 @@ void DrawSpellBook()
 			skill = &myplr._pAltSkillHotKey[i - lengthof(myplr._pSkillHotKey)];
 		}
 
-		int sn, st;
+		int sn;
+		const BYTE* st;
 		sn = skill->_psAttack._suType != RSPLTYPE_INVALID ? skill->_psAttack._suSkill : SPL_INVALID;
 		st = GetSpellTrans(skill->_psAttack);
-		CelDrawTrnTbl(sx, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, SkillTrns[st]);
+		CelDrawTrnTbl(sx, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, st);
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			sx - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
 			SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
@@ -1842,7 +1847,7 @@ void DrawSpellBook()
 
 		sn = skill->_psMove._suType != RSPLTYPE_INVALID ? skill->_psMove._suSkill : SPL_INVALID;
 		st = GetSpellTrans(skill->_psMove);
-		CelDrawTrnTbl(sx + SBOOK_CELWIDTH, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, SkillTrns[st]);
+		CelDrawTrnTbl(sx + SBOOK_CELWIDTH, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, st);
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
 			sx + SBOOK_CELWIDTH - SCREEN_X, yp - SCREEN_Y - SBOOK_CELHEIGHT,
 			SBOOK_CELWIDTH, SBOOK_CELHEIGHT)) {
