@@ -1911,6 +1911,24 @@ int InvGetScrollNum(int pnum, int sn)
 	return v;
 }
 
+int InvGetScrollIdx(int pnum, int sn)
+{
+	ItemStruct* pi;
+	int i;
+
+	pi = plr._pInvList;
+	for (i = 0; i < NUM_INV_GRID_ELEM; i++, pi++) {
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn)
+			return INVITEM_INV_FIRST + i;
+	}
+	pi = plr._pSpdList;
+	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iSpell == sn)
+			return INVITEM_BELT_FIRST + i;
+	}
+	return INVITEM_NONE;
+}
+
 uint64_t InvGetCharges(int pnum)
 {
 	ItemStruct* pi;
@@ -1939,6 +1957,19 @@ INTPAIR InvGetChargeNum(int pnum, int sn)
 		}
 	}
 	return result;
+}
+
+int InvGetChargeIdx(int pnum, int sn)
+{
+	ItemStruct* pi;
+	int i;
+
+	pi = plr._pInvBody;
+	for (i = 0; i < NUM_INVLOC; i++, pi++) {
+		if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iCharges > 0)
+			return INVITEM_BODY_FIRST + i;
+	}
+	return INVITEM_NONE;
 }
 
 void CalculateGold(int pnum)

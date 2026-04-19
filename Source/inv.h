@@ -49,8 +49,10 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 uint64_t InvGetScrolls(int pnum);
 int InvGetScrollNum(int pnum, int sn);
+int InvGetScrollIdx(int pnum, int sn);
 uint64_t InvGetCharges(int pnum);
 INTPAIR InvGetChargeNum(int pnum, int sn);
+int InvGetChargeIdx(int pnum, int sn);
 void CalculateGold(int pnum);
 
 #ifdef __cplusplus
