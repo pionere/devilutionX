@@ -442,11 +442,11 @@ void DrawSkillList()
 			//c = SPLICONLAST + 4;
 			break;
 		case RSPLTYPE_INV:
-			mask = plr._pInvSkills;
+			mask = InvGetScrolls(pnum);
 			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
-			mask = plr._pISpells;
+			mask = InvGetCharges(pnum);
 			//c = SPLICONLAST + 2;
 			break;
 		default:
