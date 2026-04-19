@@ -60,9 +60,10 @@ int8_t SpellSourceEquipment(int sn)
 	return idx != INVITEM_NONE ? idx : SPLFROM_INVALID_SOURCE;
 }
 
-bool CheckSpell(int pnum, int sn)
+int8_t SpellSourceMem(int sn)
 {
-	return plr._pSkillLvl[sn] > 0 && plr._pMana >= GetManaAmount(pnum, sn);
+	int pnum = mypnum;
+	return plr._pSkillLvl[sn] > 0 ? (plr._pMana >= GetManaAmount(pnum, sn) ? SPLFROM_MANA : SPLFROM_INVALID_MANA) : SPLFROM_INVALID_LEVEL;
 }
 
 DEVILUTION_END_NAMESPACE

@@ -26,7 +26,7 @@ extern "C" {
 int GetManaAmount(int pnum, int sn);
 int8_t SpellSourceInv(int sn);
 int8_t SpellSourceEquipment(int sn);
-bool CheckSpell(int pnum, int sn);
+int8_t SpellSourceMem(int sn);
 
 inline void IncreasePlrSkillLvl(int pnum, int sn)
 {

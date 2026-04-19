@@ -302,12 +302,7 @@ static void ValidateSkill(PlrSkillUse* skill)
 			result = SPLFROM_ABILITY;
 			break;
 		case RSPLTYPE_SPELL:
-			if (myplr._pMana < GetManaAmount(mypnum, sn))
-				result = SPLFROM_INVALID_MANA;
-			else if (myplr._pSkillLvl[sn] > 0)
-				result = SPLFROM_MANA;
-			else
-				result = SPLFROM_INVALID_LEVEL;
+			result = SpellSourceMem(sn);
 			break;
 		case RSPLTYPE_INV:
 			result = SpellSourceInv(sn);

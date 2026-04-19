@@ -108,7 +108,7 @@ static const BYTE* GetSpellTrans(PlrSkillUse skill)
 	if (skill._suSkill == SPL_NULL || (spelldata[skill._suSkill].sUseFlags & plr._pSkillFlags) != spelldata[skill._suSkill].sUseFlags)
 		st = RSPLTYPE_INVALID;
 	else if (skill._suType == RSPLTYPE_SPELL)
-		st = CheckSpell(pnum, skill._suSkill) ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
+		st = !SPLFROM_INVALID(SpellSourceMem(skill._suSkill)) ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
 #ifdef HELLFIRE
 	else if (skill._suType != RSPLTYPE_INV)
 		st = skill._suType;
