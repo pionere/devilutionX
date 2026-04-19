@@ -24,7 +24,6 @@ extern "C" {
 #endif
 
 int GetManaAmount(int pnum, int sn);
-int8_t SpellSourceMem(int sn);
 void SpellCheck(PlrSkillUse* skill);
 
 inline void IncreasePlrSkillLvl(int pnum, int sn)

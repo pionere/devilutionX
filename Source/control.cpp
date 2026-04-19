@@ -103,21 +103,16 @@ static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 
 static const BYTE* GetSpellTrans(PlrSkillUse skill)
 {
-	int pnum = mypnum;
-	BYTE st;
-	if (skill._suSkill == SPL_NULL || (spelldata[skill._suSkill].sUseFlags & plr._pSkillFlags) != spelldata[skill._suSkill].sUseFlags)
-		st = RSPLTYPE_INVALID;
-	else if (skill._suType == RSPLTYPE_SPELL)
-		st = !SPLFROM_INVALID(SpellSourceMem(skill._suSkill)) ? RSPLTYPE_SPELL : RSPLTYPE_INVALID;
+	BYTE type = skill._suType;
+	SpellCheck(&skill);
+	BYTE st = RSPLTYPE_INVALID;
+	if (!SPLFROM_INVALID(skill._suType)) {
+		st = type;
 #ifdef HELLFIRE
-	else if (skill._suType != RSPLTYPE_INV)
-		st = skill._suType;
-	else
-		st = SPELL_RUNE(skill._suSkill) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
-#else
-	else
-		st = skill._suType;
+		if (type == RSPLTYPE_INV)
+			st = SPELL_RUNE(skill._suSkill) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
 #endif
+	}
 	return &SkillTrns[st][0];
 }
 
