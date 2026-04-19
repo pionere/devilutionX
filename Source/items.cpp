@@ -851,20 +851,8 @@ static void CalcPlrSpells(int pnum)
 
 void CalcPlrScrolls(int pnum)
 {
-	ItemStruct* pi;
-	int i;
-	uint64_t mask = 0;
+	uint64_t mask = InvGetScrolls(pnum);
 
-	pi = plr._pInvList;
-	for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++) {
-		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
-			mask |= SPELL_MASK(pi->_iSpell);
-	}
-	pi = plr._pSpdList;
-	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
-		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
-			mask |= SPELL_MASK(pi->_iSpell);
-	}
 	plr._pInvSkills = mask;
 
 	ValidateActionSkills(pnum, RSPLTYPE_INV, mask);
@@ -872,15 +860,8 @@ void CalcPlrScrolls(int pnum)
 
 void CalcPlrCharges(int pnum)
 {
-	ItemStruct* pi;
-	int i;
-	uint64_t mask = 0;
+	uint64_t mask = InvGetCharges(pnum);
 
-	pi = plr._pInvBody;
-	for (i = NUM_INVLOC; i > 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0 && pi->_iSpell != NULL*/ && pi->_iStatFlag)
-			mask |= SPELL_MASK(pi->_iSpell);
-	}
 	plr._pISpells = mask;
 
 	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, mask);

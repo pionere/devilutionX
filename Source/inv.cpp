@@ -1870,6 +1870,39 @@ bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)
 	return true;
 }
 
+uint64_t InvGetScrolls(int pnum)
+{
+	ItemStruct* pi;
+	int i;
+	uint64_t mask = 0;
+
+	pi = plr._pInvList;
+	for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++) {
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
+			mask |= SPELL_MASK(pi->_iSpell);
+	}
+	pi = plr._pSpdList;
+	for (i = MAXBELTITEMS; i != 0; i--, pi++) {
+		if (pi->_itype == ITYPE_MISC && (pi->_iMiscId == IMISC_SCROLL || pi->_iMiscId == IMISC_RUNE) && pi->_iStatFlag)
+			mask |= SPELL_MASK(pi->_iSpell);
+	}
+	return mask;
+}
+
+uint64_t InvGetCharges(int pnum)
+{
+	ItemStruct* pi;
+	int i;
+	uint64_t mask = 0;
+
+	pi = plr._pInvBody;
+	for (i = NUM_INVLOC; i > 0; i--, pi++) {
+		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0 && pi->_iSpell != NULL*/ && pi->_iStatFlag)
+			mask |= SPELL_MASK(pi->_iSpell);
+	}
+	return mask;
+}
+
 void CalculateGold(int pnum)
 {
 	ItemStruct* pi;
