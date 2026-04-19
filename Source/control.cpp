@@ -375,15 +375,46 @@ void SpeakSpellText(PlrSkillUse skill)
 	}
 }
 #endif
+static void DrawSkillListIcon(int x, int y, PlrSkillUse listSkill)
+{
+	int lx, ly;
+	BYTE st;
+	bool selected;
+
+	st = GetSpellTrans(listSkill);
+	CelDrawTrnTbl(x, y, pSpellCels, spelldata[listSkill._suSkill].sIcon, SkillTrns[st]);
+
+	lx = x - SCREEN_X;
+	ly = y - SCREEN_Y - SPLICON_HEIGHT;
+	selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
+	if (targetSkill._suSkill != SPL_INVALID) {
+		selected = targetSkill == listSkill;
+		if (selected) {
+			SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
+		}
+	}
+
+	if (selected) {
+		//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
+		CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
+
+		currSkill = listSkill;
+
+		DrawSpellIconOverlay(x, y, listSkill);
+
+		DrawSkillIconHotKey(x, y, listSkill, SPLICON_OVERX, myplr._pSkillHotKey);
+
+		DrawSkillIconHotKey(x, y, listSkill, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), myplr._pAltSkillHotKey);
+	}
+}
+
 void DrawSkillList()
 {
-	int pnum = mypnum, i, j, x, y, sx, /*c,*/ st, lx, ly;
+	int pnum = mypnum, i, j, x, y, sx;
 	uint64_t mask;
-	bool selected;
 #if SCREEN_READER_INTEGRATION
 	PlrSkillUse prevSkill = currSkill;
 #endif
-	PlrSkillUse plrSkill = targetSkill;
 	currSkill._suSkill = SPL_INVALID;
 	sx = SCREEN_CENTERX(SPLICON_WIDTH * SPLROWICONLS);
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
@@ -433,31 +464,8 @@ void DrawSkillList()
 			plrSkills[numPlrSkills] = listSkill;
 			numPlrSkills++;
 
-			st = GetSpellTrans(listSkill);
-			CelDrawTrnTbl(x, y, pSpellCels, spelldata[j].sIcon, SkillTrns[st]);
+			DrawSkillListIcon(x, y, listSkill);
 
-			lx = x - SCREEN_X;
-			ly = y - SCREEN_Y - SPLICON_HEIGHT;
-			selected = POS_IN_RECT(MousePos.x, MousePos.y, lx, ly, SPLICON_WIDTH, SPLICON_HEIGHT);
-			if (plrSkill._suSkill != SPL_INVALID) {
-				selected = plrSkill == listSkill;
-				if (selected) {
-					SetCursorPos(lx + SPLICON_WIDTH / 2, ly + SPLICON_HEIGHT / 2);
-				}
-			}
-
-			if (selected) {
-				//CelDrawTrnTbl(x, y, pSpellCels, c, SkillTrns[st]);
-				CelDrawTrnTbl(x, y, pSpellCels, SPLICONLAST, SkillTrns[st]);
-
-				currSkill = listSkill;
-
-				DrawSpellIconOverlay(x, y, listSkill);
-
-				DrawSkillIconHotKey(x, y, listSkill, SPLICON_OVERX, plr._pSkillHotKey);
-
-				DrawSkillIconHotKey(x, y, listSkill, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), plr._pAltSkillHotKey);
-			}
 			x -= SPLICON_WIDTH;
 			if (x == sx - SPLICON_WIDTH) {
 				x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
