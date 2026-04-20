@@ -46,20 +46,6 @@ void SpellCheck(PlrSkillUse* skill)
 		case RSPLTYPE_SPELL:
 			result = plr._pSkillLvl[sn] > 0 ? (plr._pMana >= GetManaAmount(pnum, sn) ? SPLFROM_MANA : SPLFROM_INVALID_MANA) : SPLFROM_INVALID_LEVEL;
 			break;
-		case RSPLTYPE_INV:
-			result = InvGetScrollIdx(pnum, sn);
-			static_assert(!SPLFROM_INVALID(INVITEM_INV_FIRST), "SpellCheck expects the INV indices to be distinct from SPLFROM_INVALID I.");
-			static_assert(!SPLFROM_INVALID(INVITEM_INV_LAST), "SpellCheck expects the INV indices to be distinct from SPLFROM_INVALID II.");
-			static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_MANA || (int)INVITEM_INV_LAST < (int)SPLFROM_MANA, "SpellCheck expects the INV indices to be distinct from SPL_MANA.");
-			static_assert((int)INVITEM_INV_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_INV_LAST < (int)SPLFROM_ABILITY, "SpellCheck expects the INV indices to be distinct from SPLFROM_ABILITY.");
-
-			static_assert(!SPLFROM_INVALID(INVITEM_BELT_FIRST), "SpellCheck expects the BELT indices to be distinct from SPLFROM_INVALID I.");
-			static_assert(!SPLFROM_INVALID(INVITEM_BELT_LAST), "SpellCheck expects the BELT indices to be distinct from SPLFROM_INVALID II.");
-			static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_MANA || (int)INVITEM_BELT_LAST < (int)SPLFROM_MANA, "SpellCheck expects the BELT indices to be distinct from SPL_MANA.");
-			static_assert((int)INVITEM_BELT_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_BELT_LAST < (int)SPLFROM_ABILITY, "SpellCheck expects the BELT indices to be distinct from SPLFROM_ABILITY.");
-			if ((BYTE)result == INVITEM_NONE)
-				result = SPLFROM_INVALID_SOURCE;
-			break;
 		case RSPLTYPE_CHARGES:
 			result = InvGetChargeIdx(pnum, sn);
 			static_assert(!SPLFROM_INVALID(INVITEM_BODY_FIRST), "SpellCheck expects the BODY indices to be distinct from SPLFROM_INVALID I.");

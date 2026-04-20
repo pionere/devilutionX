@@ -452,7 +452,6 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 			}
 			xx -= 10 + sx;
 		}
-		CalcPlrScrolls(pnum);
 	}
 	return done;
 }
@@ -621,7 +620,6 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 		if (plr._pSpdList[i]._itype == ITYPE_NONE) {
 			if (saveflag) {
 				copy_pod(plr._pSpdList[i], *is);
-				CalcPlrScrolls(pnum);
 				//gbRedrawFlags |= REDRAW_SPEED_BAR;
 			}
 			return true;
@@ -1092,7 +1090,6 @@ void InvPasteBeltItem(int pnum, BYTE r)
 			cn = CURSOR_HAND;
 	}
 
-	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
 		PlaySfx(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
@@ -1234,7 +1231,6 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		bLoc -= INVITEM_BELT_FIRST;
 		// assert(bLoc < MAXBELTITEMS);
 		plr._pSpdList[bLoc]._itype = ITYPE_NONE;
-		CalcPlrScrolls(pnum);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 }
@@ -1262,8 +1258,6 @@ void SyncPlrStorageRemove(int pnum, int iv)
 		}
 		xx -= 10 + sx;
 	}
-
-	CalcPlrScrolls(pnum);
 }
 
 /**

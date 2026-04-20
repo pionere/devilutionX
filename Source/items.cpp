@@ -849,13 +849,6 @@ static void CalcPlrSpells(int pnum)
 	}
 }
 
-void CalcPlrScrolls(int pnum)
-{
-	uint64_t mask = InvGetScrolls(pnum);
-
-	ValidateActionSkills(pnum, RSPLTYPE_INV, mask);
-}
-
 void CalcPlrCharges(int pnum)
 {
 	uint64_t mask = InvGetCharges(pnum);
@@ -935,7 +928,6 @@ void CalcPlrInv(int pnum, bool Loadgfx)
 	//if (pnum == mypnum) {
 		CalcPlrSpells(pnum);
 		//CalcPlrBookVals(pnum);
-		CalcPlrScrolls(pnum);
 		//CalcPlrCharges(pnum);
 	//}
 }

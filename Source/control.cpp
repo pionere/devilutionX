@@ -108,10 +108,6 @@ static const BYTE* GetSpellTrans(PlrSkillUse skill)
 	BYTE st = RSPLTYPE_INVALID;
 	if (!SPLFROM_INVALID(skill._suType)) {
 		st = type;
-#ifdef HELLFIRE
-		if (type == RSPLTYPE_INV)
-			st = SPELL_RUNE(skill._suSkill) ? RSPLTYPE_RUNE : RSPLTYPE_SCROLL;
-#endif
 	}
 	return &SkillTrns[st][0];
 }
@@ -203,10 +199,6 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 			copy_cstr(tempstr, "X");
 			t = COL_RED;
 		}
-		break;
-	case RSPLTYPE_INV:
-		v = InvGetScrollNum(mypnum, skill._suSkill);
-		snprintf(tempstr, sizeof(tempstr), "%d", v);
 		break;
 	case RSPLTYPE_CHARGES:
 		if (myplr._pHasUnidItem) {
@@ -336,9 +328,6 @@ void SpeakSpellText(PlrSkillUse skill)
 		case RSPLTYPE_SPELL:
 			msg = " skill";
 			break;
-		case RSPLTYPE_INV:
-			msg = " from inventory";
-			break;
 		case RSPLTYPE_CHARGES:
 			msg = " from equipment";
 			break;
@@ -398,12 +387,11 @@ void DrawSkillList()
 	//y = SCREEN_CENTERY(190) + 190;
 	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
 	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
-	static_assert(RSPLTYPE_INV == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
-	static_assert(RSPLTYPE_CHARGES == 3, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 4.");
+	static_assert(RSPLTYPE_CHARGES == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
 	const PlrSkillUse empty = { SPL_NULL, 1 };
 	PlrSkillUse plrSkills[NUM_SPELLS * 2];
 	unsigned numPlrSkills = 0;
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 3; i++) {
 		switch (i) {
 		case RSPLTYPE_ABILITY:
 			mask = SPELL_MASK(plrAbility) | SPL_ABI_MASK;
@@ -412,10 +400,6 @@ void DrawSkillList()
 		case RSPLTYPE_SPELL:
 			mask = plr._pMemSkills;
 			//c = SPLICONLAST + 4;
-			break;
-		case RSPLTYPE_INV:
-			mask = InvGetScrolls(pnum);
-			//c = SPLICONLAST + 1;
 			break;
 		case RSPLTYPE_CHARGES:
 			mask = InvGetCharges(pnum);
@@ -791,12 +775,8 @@ void InitControlPan()
 	}*/
 	LoadTrnWithMem(TRN_PLR_NONE, SkillTrns[RSPLTYPE_ABILITY]);
 	LoadTrnWithMem(TRN_PLR_BLUE, SkillTrns[RSPLTYPE_SPELL]);
-	LoadTrnWithMem(TRN_PLR_RED, SkillTrns[RSPLTYPE_SCROLL]);
 	LoadTrnWithMem(TRN_PLR_ORANGE, SkillTrns[RSPLTYPE_CHARGES]);
 	LoadTrnWithMem(TRN_PLR_GRAY, SkillTrns[RSPLTYPE_INVALID]);
-#ifdef HELLFIRE
-	LoadTrnWithMem(TRN_PLR_CORAL, SkillTrns[RSPLTYPE_RUNE]);
-#endif
 	assert(pGoldDropCel == NULL);
 	pGoldDropCel = CelLoadImage("CtrlPan\\Golddrop.cel", GOLDDROP_WIDTH);
 	gbDropGoldIndex = INVITEM_NONE;
@@ -1467,9 +1447,6 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 			src = "Spell (Unusable)";
 		}
 		mana = GetManaAmount(pnum, sn) >> 6;
-		break;
-	case RSPLTYPE_INV:
-		src = SPELL_RUNE(sn) ? "Rune" : "Scroll";
 		break;
 	case RSPLTYPE_CHARGES:
 		src = "Equipment";
