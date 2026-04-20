@@ -1594,6 +1594,16 @@ void InitMissileGFX(int mitype)
 	if (midx > NUM_FIXMFILE) {
 		LoadMissileGFX(midx);
 	}
+	// if (mitype == MIS_ARROW) {
+	//	LoadMissileGFX(MFILE_FARROW);
+	//	LoadMissileGFX(MFILE_LARROW);
+	//	LoadMissileGFX(MFILE_MARROW);
+	//	LoadMissileGFX(MFILE_PARROW);
+	//	LoadMissileGFX(MFILE_MAGBLOS);  // InitMissileGFX(MIS_EXFIRE)
+	//	LoadMissileGFX(MFILE_MINILTNG); // InitMissileGFX(MIS_EXLGHT)
+	//	LoadMissileGFX(MFILE_MAGICEXP); // InitMissileGFX(MIS_EXMAGIC)
+	//	LoadMissileGFX(MFILE_GREENEXP); // InitMissileGFX(MIS_EXACID)
+	// }
 	// if (mitype == MIS_FIREBOLT) {
 	//	LoadMissileGFX(MFILE_MAGBLOS); // InitMissileGFX(MIS_EXFIRE)
 	// }
@@ -1642,6 +1652,9 @@ void InitMissileGFX(int mitype)
 	// }
 	// if (mitype == MIS_STONE) {
 	//	LoadMissileGFX(MFILE_SHATTER1); // InitMissileGFX(MIS_EXSTONE)
+	// }
+	// if (mitype == MIS_SKELAX || mitype == MIS_SKELBW) {
+	//	LoadMissileGFX(MFILE_LGHNING); // InitMissileGFX(MIS_LIGHTNOVAC)
 	// }
 	// if (mitype == MIS_FIREWALLC) {
 	//	LoadMissileGFX(MFILE_FIREWAL); // InitMissileGFX(MIS_FIREWALL)
