@@ -844,7 +844,6 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		mapMonTypes[WORK_LVLMTYPE].cmFileNum = mon->_mFileNum;
 		mapMonTypes[WORK_LVLMTYPE].cmType = mon->_mType;
 		InitMonsterGFX(WORK_LVLMTYPE);
-		// assert(mon->_mType != MT_GOLEM);
 		InitMonsterTRN(mapMonTypes[WORK_LVLMTYPE].cmAnims, uniqm->muTrans);
 	} else {
 		for (anim = 0; anim < NUM_MON_ANIM; anim++)
@@ -862,7 +861,6 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		umAnimData[anim] = celBuf;
 		uam[anim].maFrameLen = mon->_mAnims[anim].maFrameLen;
 		uam[anim].maFrames = mon->_mAnims[anim].maFrames;
-		// assert(mon->_mType != MT_GOLEM);
 		if (celBuf != NULL)
 			LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(uam[anim].maAnimData));
 	}
@@ -3938,7 +3936,7 @@ void MAI_Golem(int mnum)
 
 	if (MON_ACTIVE)
 		return;
-	assert(mon->_msquelch == SQUELCH_MAX);
+	// assert(mon->_msquelch == SQUELCH_MAX);
 	if (MON_HAS_ENEMY) {
 		MAI_Cleaver(mnum);
 	}
@@ -5230,8 +5228,8 @@ void PreSpawnGolem(int mnum, int level, int type)
 
 	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
 
-	// assert(level > 0);
-	int lvlBonus = level - 1;
+	assert(level > 0);
+	unsigned lvlBonus = level - 1;
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RESERVED;
