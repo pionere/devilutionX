@@ -219,10 +219,13 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 	static_assert(lengthof(plx(0)._pSkillLvlBase) == sizeof(plr._pMemSkills) * 8, "Parallel check of _pMemSkills and _pSkillLvlBase does not work in UnPackPlayer.");
 	for (i = sizeof(plr._pMemSkills) * 8 - 1; i >= 0; i--) {
 		if (plr._pMemSkills & SPELL_MASK(i)) {
-			net_assert(i < NUM_SPELLS && spelldata[i].sBookLvl != SPELL_NA);
+			// net_assert(i < NUM_SPELLS && spelldata[i].sBookLvl != SPELL_NA);
+			if (i >= NUM_SPELLS || spelldata[i].sBookLvl == SPELL_NA)
+				plr._pMemSkills &= ~SPELL_MASK(i);
 			net_assert(plr._pSkillLvlBase[i] <= MAXSPLLEVEL);
 		} else {
-			net_assert(plr._pSkillLvlBase[i] == 0);
+			// net_assert(plr._pSkillLvlBase[i] == 0);
+			plr._pSkillLvlBase[i] = 0;
 		}
 	}
 	// check if the items conform to the wielding rules
