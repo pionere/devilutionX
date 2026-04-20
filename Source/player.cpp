@@ -2464,7 +2464,6 @@ static void CheckNewPath(int pnum)
 static void ValidatePlayer(int pnum)
 {
 	ItemStruct* pi;
-	uint64_t msk;
 	int gt, i;
 
 	//if (plr._pLevel > MAXCHARLEVEL)
@@ -2542,8 +2541,8 @@ static void ValidatePlayer(int pnum)
 		EventPlrMsg("Gold %d vs calcGold %d of %d", plr._pGold, gt, pnum);
 	}
 	//assert(plr._pGold == gt);
-
-	msk = 0;
+#if !INET_MODE
+	uint64_t msk = 0;
 	for (i = 1; i < NUM_SPELLS; i++) {
 		if (spelldata[i].sBookLvl != SPELL_NA) {
 			msk |= SPELL_MASK(i);
@@ -2554,6 +2553,7 @@ static void ValidatePlayer(int pnum)
 	}
 	//plr._pMemSkills &= msk;
 	assert((plr._pMemSkills & ~msk) == 0);
+#endif
 }
 #endif
 
