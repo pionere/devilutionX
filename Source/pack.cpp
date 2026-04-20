@@ -218,8 +218,12 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 	net_assert(plr._pTeam < MAX_PLRS);
 	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);
 	for (i = 0; i < NUM_SPELLS; i++) {
-		if (plr._pMemSkills & SPELL_MASK(i))
+		if (plr._pMemSkills & SPELL_MASK(i)) {
 			net_assert(spelldata[i].sBookLvl != SPELL_NA);
+			net_assert(plr._pSkillLvlBase[i] <= MAXSPLLEVEL);
+		} else {
+			net_assert(plr._pSkillLvlBase[i] == 0);
+		}
 	}
 	// check if the items conform to the wielding rules
 	for (i = 0; i < MAXBELTITEMS; i++) {
