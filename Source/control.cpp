@@ -312,8 +312,7 @@ static void DrawSkillIconHotKey(int x, int y, PlrSkillUse skill, int offset, con
 			col = COL_BLUE;
 		else
 			continue;
-		snprintf(tempstr, sizeof(tempstr), "#%d", i + 1);
-		PrintGameStr(x + offset, y - SPLICON_HEIGHT + SMALL_FONT_HEIGHT + SPLICON_OVERY, tempstr, col);
+		PrintGameStr(x + offset + (offset == SPLICON_OVERX ? 0 : 6), y - SPLICON_HEIGHT + SMALL_FONT_HEIGHT + SPLICON_OVERY + i * 6, "*", col);
 	}
 }
 #if SCREEN_READER_INTEGRATION
