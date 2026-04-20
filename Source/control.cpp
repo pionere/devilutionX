@@ -301,18 +301,26 @@ void DrawSkillIcons()
 	}
 }
 
-static void DrawSkillIconHotKey(int x, int y, PlrSkillUse skill, int offset, const PlrSkillStruct (&hotkey)[4])
+static void DrawSkillIconHotKeys(int x, int y, PlrSkillUse skill)
 {
-	int i, col;
-	if (skill._suSkill == SPL_NULL) return;
-	for (i = 0; i < 4; i++) {
-		if (hotkey[i]._psAttack == skill)
-			col = COL_GOLD;
-		else if (hotkey[i]._psMove == skill)
-			col = COL_BLUE;
-		else
-			continue;
-		PrintGameStr(x + offset + (offset == SPLICON_OVERX ? 0 : 6), y - SPLICON_HEIGHT + SMALL_FONT_HEIGHT + SPLICON_OVERY + i * 6, "*", col);
+	const PlrSkillStruct* hotkey = myplr._pSkillHotKey;
+	int offset = SPLICON_OVERX, i, col;
+restart:
+	if (skill._suSkill != SPL_NULL) {
+		for (i = 0; i < 4; i++) {
+			if (hotkey[i]._psAttack == skill)
+				col = COL_GOLD;
+			else if (hotkey[i]._psMove == skill)
+				col = COL_BLUE;
+			else
+				continue;
+			PrintGameStr(x + offset, y - SPLICON_HEIGHT + SMALL_FONT_HEIGHT + SPLICON_OVERY + i * 6, "*", col);
+		}
+	}
+	if (offset == SPLICON_OVERX) {
+		offset = SPLICON_WIDTH - (7 + SPLICON_OVERX);
+		hotkey += myplr._pAltSkillHotKey - myplr._pSkillHotKey;
+		goto restart;
 	}
 }
 #if SCREEN_READER_INTEGRATION
@@ -366,9 +374,7 @@ static void DrawSkillListIcon(int x, int y, PlrSkillUse listSkill)
 
 		DrawSpellIconOverlay(x, y, listSkill);
 
-		DrawSkillIconHotKey(x, y, listSkill, SPLICON_OVERX, myplr._pSkillHotKey);
-
-		DrawSkillIconHotKey(x, y, listSkill, SPLICON_WIDTH - (6 + 7 + SPLICON_OVERX), myplr._pAltSkillHotKey);
+		DrawSkillIconHotKeys(x, y, listSkill);
 	}
 }
 
