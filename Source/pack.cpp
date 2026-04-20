@@ -216,10 +216,10 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 	net_assert(plr._pExperience < PlrExpLvlsTbl[plr._pLevel]);
 	net_assert(plr._pDunLevel < NUM_LEVELS);
 	net_assert(plr._pTeam < MAX_PLRS);
-	net_assert((plr._pMemSkills & ~(SPELL_MASK(NUM_SPELLS) - 1)) == 0);
-	for (i = 0; i < NUM_SPELLS; i++) {
+	static_assert(lengthof(plx(0)._pSkillLvlBase) == sizeof(plr._pMemSkills) * 8, "Parallel check of _pMemSkills and _pSkillLvlBase does not work in UnPackPlayer.");
+	for (i = sizeof(plr._pMemSkills) * 8 - 1; i >= 0; i--) {
 		if (plr._pMemSkills & SPELL_MASK(i)) {
-			net_assert(spelldata[i].sBookLvl != SPELL_NA);
+			net_assert(i < NUM_SPELLS && spelldata[i].sBookLvl != SPELL_NA);
 			net_assert(plr._pSkillLvlBase[i] <= MAXSPLLEVEL);
 		} else {
 			net_assert(plr._pSkillLvlBase[i] == 0);
