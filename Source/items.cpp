@@ -2496,9 +2496,10 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
-static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t ci, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
+static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
 {
 	int32_t seed = pi->_iSeed;
+	uint16_t ci = lvl | CF_CRAFTED;
 	int ac = -1;
 	while (true) {
 		SetRndSeed(seed);
@@ -2542,7 +2543,6 @@ static void DoClean(ItemStruct* pi, bool whittle)
 	ci = (pi->_iCreateInfo & CF_LEVEL);
 	if (ci > ll)
 		ci--;
-	ci |= CF_CRAFTED;
 
 	CraftItem(pi, idx, ci, spell, IPL_INVALID, 0);
 }
@@ -2770,7 +2770,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 	}
 
 	idx = pi->_iIdx;
-	ci = (pi->_iCreateInfo & CF_LEVEL) | CF_CRAFTED;
+	ci = pi->_iCreateInfo & CF_LEVEL;
 	spell = pi->_iSpell;
 
 	CraftItem(pi, idx, ci, spell, targetPowerFrom, targetPowerTo);
