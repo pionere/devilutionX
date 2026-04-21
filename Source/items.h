@@ -32,7 +32,6 @@ void FreeItemGFX();
 void InitLvlItems();
 void InitItems();
 void CalcPlrItemVals(int pnum, bool Loadgfx);
-void CalcPlrCharges(int pnum);
 void ItemStatOk(int pnum, ItemStruct* is);
 void CalcPlrInv(int pnum, bool Loadgfx);
 void CreateBaseItem(ItemStruct* is, int idata);

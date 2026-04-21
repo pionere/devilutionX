@@ -263,28 +263,6 @@ inline static BYTE BaseCastSpeed(unsigned flags)
 	return res;
 }
 
-static void ValidateActionSkill(PlrSkillStruct &skill, BYTE type, uint64_t mask)
-{
-	if (skill._psAttack._suType == type && !(mask & SPELL_MASK(skill._psAttack._suSkill))) {
-		skill._psAttack = { SPL_NULL, 0 };
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-	if (skill._psMove._suType == type && !(mask & SPELL_MASK(skill._psMove._suSkill))) {
-		skill._psMove = { SPL_NULL, 0 };
-		//gbRedrawFlags |= REDRAW_SPELL_ICON;
-	}
-}
-
-static void ValidateActionSkills(int pnum, BYTE type, uint64_t mask)
-{
-	PlayerStruct* p;
-
-	p = &plr;
-	// check if the current RSplType is a valid/allowed spell
-	ValidateActionSkill(p->_pMainSkill, type, mask);
-	ValidateActionSkill(p->_pAltSkill, type, mask);
-}
-
 void CalcPlrItemVals(int pnum, bool Loadgfx)
 {
 	ItemStruct* pi;
@@ -810,7 +788,6 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	CalcPlrCharges(pnum);
 	if (plr._pmode == PM_DEATH || plr._pmode == PM_DYING) {
 		PlrSetHp(pnum, 0);
 		PlrSetMana(pnum, 0);
@@ -847,13 +824,6 @@ static void CalcPlrSpells(int pnum)
 		if (p->_pAltSkill._psAttack._suSkill == SPL_ATTACK)
 			p->_pAltSkill._psAttack._suSkill = SPL_RATTACK;
 	}
-}
-
-void CalcPlrCharges(int pnum)
-{
-	uint64_t mask = InvGetCharges(pnum);
-
-	ValidateActionSkills(pnum, RSPLTYPE_CHARGES, mask);
 }
 
 static void CalcItemReqs(int pnum)
