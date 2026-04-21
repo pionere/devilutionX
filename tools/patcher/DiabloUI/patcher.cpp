@@ -189,17 +189,17 @@ typedef enum filenames {
 	FILE_MON_UNRAVN,
 	FILE_MON_UNRAVW,
 #endif // HELLFIRE
-	FILE_MIS_FIREBA2,
-	FILE_MIS_FIREBA3,
-	FILE_MIS_FIREBA5,
-	FILE_MIS_FIREBA6,
-	FILE_MIS_FIREBA8,
-	FILE_MIS_FIREBA9,
-	FILE_MIS_FIREBA10,
-	FILE_MIS_FIREBA11,
-	FILE_MIS_FIREBA12,
-	FILE_MIS_FIREBA15,
-	FILE_MIS_FIREBA16,
+	// FILE_MIS_FIREBA2,
+	// FILE_MIS_FIREBA3,
+	// FILE_MIS_FIREBA5,
+	// FILE_MIS_FIREBA6,
+	// FILE_MIS_FIREBA8,
+	// FILE_MIS_FIREBA9,
+	// FILE_MIS_FIREBA10,
+	// FILE_MIS_FIREBA11,
+	// FILE_MIS_FIREBA12,
+	// FILE_MIS_FIREBA15,
+	// FILE_MIS_FIREBA16,
 	FILE_MIS_HOLY2,
 	FILE_MIS_HOLY3,
 	FILE_MIS_HOLY5,
@@ -402,17 +402,17 @@ static const char* const filesToPatch[NUM_FILENAMES] = {
 /*FILE_MON_UNRAVN*/    "Monsters\\Unrav\\Unravn.CL2",
 /*FILE_MON_UNRAVW*/    "Monsters\\Unrav\\Unravw.CL2",
 #endif // HELLFIRE
-/*FILE_MIS_FIREBA2*/   "Missiles\\Fireba2.CL2",
-/*FILE_MIS_FIREBA3*/   "Missiles\\Fireba3.CL2",
-/*FILE_MIS_FIREBA5*/   "Missiles\\Fireba5.CL2",
-/*FILE_MIS_FIREBA6*/   "Missiles\\Fireba6.CL2",
-/*FILE_MIS_FIREBA8*/   "Missiles\\Fireba8.CL2",
-/*FILE_MIS_FIREBA9*/   "Missiles\\Fireba9.CL2",
-/*FILE_MIS_FIREBA10*/  "Missiles\\Fireba10.CL2",
-/*FILE_MIS_FIREBA11*/  "Missiles\\Fireba11.CL2",
-/*FILE_MIS_FIREBA12*/  "Missiles\\Fireba12.CL2",
-/*FILE_MIS_FIREBA15*/  "Missiles\\Fireba15.CL2",
-/*FILE_MIS_FIREBA16*/  "Missiles\\Fireba16.CL2",
+/*FILE_MIS_FIREBA2*/// "Missiles\\Fireba2.CL2",
+/*FILE_MIS_FIREBA3*/// "Missiles\\Fireba3.CL2",
+/*FILE_MIS_FIREBA5*/// "Missiles\\Fireba5.CL2",
+/*FILE_MIS_FIREBA6*/// "Missiles\\Fireba6.CL2",
+/*FILE_MIS_FIREBA8*/// "Missiles\\Fireba8.CL2",
+/*FILE_MIS_FIREBA9*/// "Missiles\\Fireba9.CL2",
+/*FILE_MIS_FIREBA10*///"Missiles\\Fireba10.CL2",
+/*FILE_MIS_FIREBA11*///"Missiles\\Fireba11.CL2",
+/*FILE_MIS_FIREBA12*///"Missiles\\Fireba12.CL2",
+/*FILE_MIS_FIREBA15*///"Missiles\\Fireba15.CL2",
+/*FILE_MIS_FIREBA16*///"Missiles\\Fireba16.CL2",
 /*FILE_MIS_HOLY2*/     "Missiles\\Holy2.CL2",
 /*FILE_MIS_HOLY3*/     "Missiles\\Holy3.CL2",
 /*FILE_MIS_HOLY5*/     "Missiles\\Holy5.CL2",
@@ -7632,11 +7632,11 @@ static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 			// test if the animation is already patched
 			int nn = 0, x, y;
 			switch (index) {
-			case FILE_MIS_FIREBA2:  nn = 1; x = 41; y = 66; break;
-			case FILE_MIS_FIREBA3:  nn = 2; x = 37; y = 65; break;
-			case FILE_MIS_FIREBA11: nn = 4; x = 49; y = 54; break;
-			case FILE_MIS_FIREBA15: nn = 2; x = 55; y = 63; break;
-			case FILE_MIS_FIREBA16: nn = 1; x = 54; y = 66; break;
+			// case FILE_MIS_FIREBA2:  nn = 1; x = 41; y = 66; break;
+			// case FILE_MIS_FIREBA3:  nn = 2; x = 37; y = 65; break;
+			// case FILE_MIS_FIREBA11: nn = 4; x = 49; y = 54; break;
+			// case FILE_MIS_FIREBA15: nn = 2; x = 55; y = 63; break;
+			// case FILE_MIS_FIREBA16: nn = 1; x = 54; y = 66; break;
 
 			case FILE_MIS_HOLY2:  nn = 1; x = 41; y = 66; break;
 			case FILE_MIS_HOLY3:  nn = 2; x = 37; y = 65; break;
@@ -7653,7 +7653,7 @@ static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 				int i = n - 1;
 				int dx = 0, dy = 0;
 				switch (index) {
-				case FILE_MIS_FIREBA2:
+				// case FILE_MIS_FIREBA2:
 				case FILE_MIS_HOLY2:
 					switch (i + 1) {
 					case 1:
@@ -7664,21 +7664,21 @@ static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 					case 14: dx = 1; dy = 0; break;
 					}
 					break;
-				case FILE_MIS_FIREBA3:
+				// case FILE_MIS_FIREBA3:
 				case FILE_MIS_HOLY3:
 					if (i + 1 == 2) {
 						dx = 3;
 						dy = 0;
 					}
 					break;
-				case FILE_MIS_FIREBA5:
+				// case FILE_MIS_FIREBA5:
 				case FILE_MIS_HOLY5:
 					if (i + 1 == 6) {
 						gpBuffer[0 + BUFFER_WIDTH * 57] = TRANS_COLOR;
 						gpBuffer[0 + BUFFER_WIDTH * 58] = TRANS_COLOR;
 					}
 					break;
-				case FILE_MIS_FIREBA6:
+				// case FILE_MIS_FIREBA6:
 				case FILE_MIS_HOLY6:
 					if (i + 1 == 10 || i + 1 == 11) {
 						for (int y = 63; y < 68; y++) {
@@ -7688,27 +7688,27 @@ static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 						}
 					}
 					break;
-				case FILE_MIS_FIREBA8:
+				// case FILE_MIS_FIREBA8:
 				case FILE_MIS_HOLY8:
 					if (i + 1 == 2) {
 						gpBuffer[37 + BUFFER_WIDTH * 59] = TRANS_COLOR;
 						gpBuffer[37 + BUFFER_WIDTH * 60] = TRANS_COLOR;
 					}
 					break;
-				case FILE_MIS_FIREBA9:
+				// case FILE_MIS_FIREBA9:
 				case FILE_MIS_HOLY9:
 					if (i + 1 == 5) {
 						gpBuffer[49 + BUFFER_WIDTH * 42] = TRANS_COLOR;
 					}
 					break;
-				case FILE_MIS_FIREBA10:
+				// case FILE_MIS_FIREBA10:
 				case FILE_MIS_HOLY10:
 					if (i + 1 == 2) {
 						gpBuffer[58 + BUFFER_WIDTH * 59] = TRANS_COLOR;
 						gpBuffer[58 + BUFFER_WIDTH * 60] = TRANS_COLOR;
 					}
 					break;
-				case FILE_MIS_FIREBA11:
+				// case FILE_MIS_FIREBA11:
 				case FILE_MIS_HOLY11:
 					switch (i + 1) {
 					case 4: dx = 0; dy = 1; break;
@@ -7720,7 +7720,7 @@ static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 					case 10: dx = 0; dy = -1; break;
 					}
 					break;
-				case FILE_MIS_FIREBA12:
+				// case FILE_MIS_FIREBA12:
 				case FILE_MIS_HOLY12:
 					if (i + 1 == 5) {
 						for (int y = 66; y < 72; y++) {
@@ -7730,14 +7730,14 @@ static BYTE* patchFireba(int index, BYTE* cl2Buf, size_t *dwLen)
 						}
 					}
 					break;
-				case FILE_MIS_FIREBA15:
+				// case FILE_MIS_FIREBA15:
 				case FILE_MIS_HOLY15:
 					if (i + 1 == 2) {
 						dx = -3;
 						dy = 0;
 					}
 					break;
-				case FILE_MIS_FIREBA16:
+				// case FILE_MIS_FIREBA16:
 				case FILE_MIS_HOLY16:
 					switch (i + 1) {
 					case 1:
@@ -8922,17 +8922,17 @@ static BYTE* patchFile(int index, size_t *dwLen)
 		buf = patchUnrav(index, buf, dwLen);
 	} break;
 #endif // HELLFIRE
-	case FILE_MIS_FIREBA2:
-	case FILE_MIS_FIREBA3:
-	case FILE_MIS_FIREBA5:
-	case FILE_MIS_FIREBA6:
-	case FILE_MIS_FIREBA8:
-	case FILE_MIS_FIREBA9:
-	case FILE_MIS_FIREBA10:
-	case FILE_MIS_FIREBA11:
-	case FILE_MIS_FIREBA12:
-	case FILE_MIS_FIREBA15:
-	case FILE_MIS_FIREBA16:
+	// case FILE_MIS_FIREBA2:
+	// case FILE_MIS_FIREBA3:
+	// case FILE_MIS_FIREBA5:
+	// case FILE_MIS_FIREBA6:
+	// case FILE_MIS_FIREBA8:
+	// case FILE_MIS_FIREBA9:
+	// case FILE_MIS_FIREBA10:
+	// case FILE_MIS_FIREBA11:
+	// case FILE_MIS_FIREBA12:
+	// case FILE_MIS_FIREBA15:
+	// case FILE_MIS_FIREBA16:
 	case FILE_MIS_HOLY2:
 	case FILE_MIS_HOLY3:
 	case FILE_MIS_HOLY5:
