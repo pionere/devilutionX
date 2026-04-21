@@ -517,9 +517,9 @@ static int GetDirection16(int x1, int y1, int x2, int y2)
 	const int(&DeltaDir)[4] = DeltaDirs[(dx < 0) ^ (dy < 0)];
 	if (3 * adx <= (ady << 1)) {
 		//dir += DeltaDir[5 * adx < ady ? 4 : 3];
-		dir += DeltaDir[5 * adx < ady ? 3 : 2];
+		dir += DeltaDir[5 * adx <= ady ? 3 : 2]; // HACK: using <= instead of < to select a better gfx-frame for [-1;-5] and its mirrors
 	} else if (3 * ady <= (adx << 1)) {
-		dir += DeltaDir[5 * ady < adx ? 0 : 1];
+		dir += DeltaDir[5 * ady <= adx ? 0 : 1]; // HACK: using <= instead of < to select a better gfx-frame for [-1;-5] and its mirrors
 	} // else
 	//	dir += DeltaDir[2];
 	return dir & 15;
