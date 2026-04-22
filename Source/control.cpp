@@ -382,6 +382,8 @@ void DrawSkillList()
 {
 	int pnum = mypnum, i, j, x, y, sx;
 	uint64_t mask;
+	constexpr int BASE_ABILITIES = 4;
+	constexpr int SPLROWICONLS = NUM_INVLOC + 1 + BASE_ABILITIES + 1;
 #if SCREEN_READER_INTEGRATION
 	PlrSkillUse prevSkill = currSkill;
 #endif
@@ -390,64 +392,56 @@ void DrawSkillList()
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
 	//y = SCREEN_CENTERY(190) + 190;
-	static_assert(RSPLTYPE_ABILITY == 0, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 1.");
-	static_assert(RSPLTYPE_SPELL == 1, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 2.");
-	static_assert(RSPLTYPE_CHARGES == 2, "Looping over the spell-types in DrawSkillList relies on ordered, indexed enum values 3.");
-	const PlrSkillUse empty = { SPL_NULL, 1 };
-	PlrSkillUse plrSkills[NUM_SPELLS * 2];
-	unsigned numPlrSkills = 0;
-	for (i = 0; i < 3; i++) {
-		switch (i) {
-		case RSPLTYPE_ABILITY:
-			mask = SPELL_MASK(plrAbility) | SPL_ABI_MASK;
-			//c = SPLICONLAST + 3;
-			break;
-		case RSPLTYPE_SPELL:
-			mask = plr._pMemSkills;
-			//c = SPLICONLAST + 4;
-			break;
-		case RSPLTYPE_CHARGES:
-			mask = InvGetCharges(pnum);
-			//c = SPLICONLAST + 2;
-			break;
-		default:
-			ASSUME_UNREACHABLE
-			break;
-		}
-		for (j = 0; mask != 0 && j < NUM_SPELLS; j++) {
-			if (j == SPL_NULL) {
-				if (i != 0)
-					continue;
-			} else {
-				if (!(mask & 1)) {
-					mask >>= 1;
-					continue;
-				}
-				mask >>= 1;
-			}
-			const PlrSkillUse listSkill = { (BYTE)j, (BYTE)i };
-			plrSkills[numPlrSkills] = listSkill;
+	static_assert(RSPLTYPE_ABILITY != 1, "The empty entry is the same as the deselect option in DrawSkillList");
+	constexpr PlrSkillUse empty = { SPL_NULL, 1 };
+	PlrSkillUse plrSkills[SPLROWICONLS + NUM_SPELLS];
+	unsigned numPlrSkills;
+	// add (deselect option and) the standard abilities
+	constexpr PlrSkillUse firstPlrSkills[] = { { SPL_NULL, RSPLTYPE_ABILITY }, { SPL_WALK, RSPLTYPE_ABILITY }, { SPL_ATTACK, RSPLTYPE_ABILITY }, { SPL_RATTACK, RSPLTYPE_ABILITY }, { SPL_BLOCK, RSPLTYPE_ABILITY },
+					empty, empty, empty, empty, empty, empty, empty, empty};
+	static_assert(lengthof(firstPlrSkills) == SPLROWICONLS, "The first row is not properly initialized in DrawSkillList");
+	memcpy(plrSkills, firstPlrSkills, sizeof(firstPlrSkills));
+	// add ability skill
+	plrSkills[1 + BASE_ABILITIES] = { plrAbility, (BYTE)RSPLTYPE_ABILITY };
+	// add skills from equipment
+	numPlrSkills = 0;
+	for (i = 0; i < NUM_INVLOC; i++) {
+		const ItemStruct* pi = &plr._pInvBody[i];
+		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0*/ && pi->_iSpell != SPL_NULL && pi->_iStatFlag /*&& plr._pMagic >= spelldata[pi->_iSpell].sMinMag*/) {
+			const PlrSkillUse listSkill = { (BYTE)pi->_iSpell, (BYTE)RSPLTYPE_CHARGES };
+
 			numPlrSkills++;
-
-			DrawSkillListIcon(x, y, listSkill);
-
-			x -= SPLICON_WIDTH;
-			if (x == sx - SPLICON_WIDTH) {
-				x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
-				y -= SPLICON_HEIGHT;
-			}
-		}
-		if (j != 0 && x != sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH) {
-			x -= SPLICON_WIDTH;
-			if (x == sx - SPLICON_WIDTH) {
-				x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
-				y -= SPLICON_HEIGHT;
-			} else {
-				plrSkills[numPlrSkills] = empty;
-				numPlrSkills++;
-			}
+			plrSkills[SPLROWICONLS - numPlrSkills] = listSkill;
 		}
 	}
+	// add learned skills
+	numPlrSkills = SPLROWICONLS;
+	{
+		mask = plr._pMemSkills;
+		for (j = 0; mask != 0 && j < NUM_SPELLS; mask >>= 1, j++) {
+			if (!(mask & 1)) {
+				continue;
+			}
+
+			const PlrSkillUse listSkill = { (BYTE)j, (BYTE)RSPLTYPE_SPELL };
+			plrSkills[numPlrSkills] = listSkill;
+			numPlrSkills++;
+		}
+	}
+	// draw the skills
+	for (i = 0; i < numPlrSkills; i++) {
+		const PlrSkillUse listSkill = plrSkills[i];
+		if (listSkill != empty) {
+			// c = SPLICONLAST + listSkill._suType == RSPLTYPE_ABILITY ? 3 : (listSkill._suType == RSPLTYPE_SPELL ? 4 : 2);
+			DrawSkillListIcon(x, y, listSkill);
+		}
+		x -= SPLICON_WIDTH;
+		if (x == sx - SPLICON_WIDTH) {
+			x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
+			y -= SPLICON_HEIGHT;
+		}
+	}
+	// move the cursor if requested
 	if (deltaSkillPos.x != 0 || deltaSkillPos.y != 0) {
 		targetSkill = { SPL_NULL, 0 };
 
