@@ -123,6 +123,15 @@ Missiles\Holy6.CL2
 Missiles\Holy7.CL2
 Missiles\Holy8.CL2
 Missiles\Holy9.CL2
+Missiles\Larrow1.CL2
+Missiles\Larrow10.CL2
+Missiles\Larrow11.CL2
+Missiles\Larrow12.CL2
+Missiles\Larrow13.CL2
+Missiles\Larrow14.CL2
+Missiles\Larrow15.CL2
+Missiles\Larrow16.CL2
+Missiles\Larrow9.CL2
 Missiles\Magicexp.CL2
 Missiles\Scbsexpb.CL2
 Missiles\Scbsexpc.CL2
