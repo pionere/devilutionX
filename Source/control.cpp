@@ -103,11 +103,10 @@ static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 
 static const BYTE* GetSpellTrans(PlrSkillUse skill)
 {
-	BYTE type = skill._suType;
 	SpellCheck(&skill);
 	BYTE st = RSPLTYPE_INVALID;
-	if (!SPLFROM_INVALID(skill._suType)) {
-		st = type;
+	if (!SPLFROM_INVALID(skill._suFrom)) {
+		st = skill._suFrom == SPLFROM_ABILITY ? RSPLTYPE_ABILITY : (skill._suFrom == SPLFROM_MANA ? RSPLTYPE_SPELL : RSPLTYPE_CHARGES);
 	}
 	return &SkillTrns[st][0];
 }
@@ -183,16 +182,19 @@ static const BYTE* GetSpellTrans(PlrSkillUse skill)
 static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 {
 	int t = COL_WHITE, v;
+	int sn = skill._suSkill;
 
-	switch (skill._suType) {
-	case RSPLTYPE_ABILITY:
+	if (sn == SPL_NULL)
 		return;
-	case RSPLTYPE_SPELL:
+	switch (skill._suFrom) {
+	case SPLFROM_ABILITY:
+		return;
+	case SPLFROM_MANA:
 		if (myplr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 			break;
 		}
-		v = myplr._pSkillLvl[skill._suSkill];
+		v = myplr._pSkillLvl[sn];
 		if (v > 0) {
 			snprintf(tempstr, sizeof(tempstr), "l%02d", v);
 		} else {
@@ -200,19 +202,21 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 			t = COL_RED;
 		}
 		break;
-	case RSPLTYPE_CHARGES:
+	case SPLFROM_INVALID_TYPE:
+		return;
+	default: {
 		if (myplr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 		} else {
-			INTPAIR chg = InvGetChargeNum(mypnum, skill._suSkill);
-			snprintf(tempstr, sizeof(tempstr), "%d/%d", chg.v0, chg.v1);
+			const ItemStruct* pi = &myplr._pInvBody[skill._suFrom];
+			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iStatFlag) {
+				snprintf(tempstr, sizeof(tempstr), "%d/%d", pi->_iCharges, pi->_iMaxCharges);
+			} else {
+				copy_cstr(tempstr, "X");
+				t = COL_RED;
+			}
 		}
-		break;
-	case RSPLTYPE_INVALID:
-		return;
-	default:
-		ASSUME_UNREACHABLE
-		return;
+	} break;
 	}
 	PrintJustifiedString(x, y, x + SPLICON_WIDTH, tempstr, t, FONT_KERN_SMALL);
 }
@@ -328,18 +332,16 @@ void SpeakSpellText(PlrSkillUse skill)
 {
 	if (skill._suSkill < NUM_SPELLS && skill._suSkill != SPL_NULL) {
 		const char* msg;
-		switch (skill._suType) {
-		case RSPLTYPE_ABILITY:
+		switch (skill._suFrom) {
+		case SPLFROM_ABILITY:
 			msg = " ability";
 			break;
-		case RSPLTYPE_SPELL:
+		case SPLFROM_MANA:
 			msg = " skill";
 			break;
-		case RSPLTYPE_CHARGES:
+		default:
 			msg = " from equipment";
 			break;
-		default:
-			ASSUME_UNREACHABLE
 		}
 		char text[128];
 		snprintf(text, lengthof(text), "%s%s", spelldata[skill._suSkill].sNameText, msg);
@@ -392,23 +394,23 @@ void DrawSkillList()
 	x = sx + SPLICON_WIDTH * SPLROWICONLS - SPLICON_WIDTH;
 	y = SCREEN_Y + SCREEN_HEIGHT - (128 + 17);
 	//y = SCREEN_CENTERY(190) + 190;
-	static_assert(RSPLTYPE_ABILITY != 1, "The empty entry is the same as the deselect option in DrawSkillList");
-	constexpr PlrSkillUse empty = { SPL_NULL, 1 };
+	static_assert(SPLFROM_ABILITY != 0, "The empty entry is the same as the deselect option in DrawSkillList");
+	constexpr PlrSkillUse empty = { SPL_NULL, 0 };
 	PlrSkillUse plrSkills[SPLROWICONLS + NUM_SPELLS];
 	unsigned numPlrSkills;
 	// add (deselect option and) the standard abilities
-	constexpr PlrSkillUse firstPlrSkills[] = { { SPL_NULL, RSPLTYPE_ABILITY }, { SPL_WALK, RSPLTYPE_ABILITY }, { SPL_ATTACK, RSPLTYPE_ABILITY }, { SPL_RATTACK, RSPLTYPE_ABILITY }, { SPL_BLOCK, RSPLTYPE_ABILITY },
+	constexpr PlrSkillUse firstPlrSkills[] = { { SPL_NULL, SPLFROM_ABILITY }, { SPL_WALK, SPLFROM_ABILITY }, { SPL_ATTACK, SPLFROM_ABILITY }, { SPL_RATTACK, SPLFROM_ABILITY }, { SPL_BLOCK, SPLFROM_ABILITY },
 					empty, empty, empty, empty, empty, empty, empty, empty};
 	static_assert(lengthof(firstPlrSkills) == SPLROWICONLS, "The first row is not properly initialized in DrawSkillList");
 	memcpy(plrSkills, firstPlrSkills, sizeof(firstPlrSkills));
 	// add ability skill
-	plrSkills[1 + BASE_ABILITIES] = { plrAbility, (BYTE)RSPLTYPE_ABILITY };
+	plrSkills[1 + BASE_ABILITIES] = { plrAbility, SPLFROM_ABILITY };
 	// add skills from equipment
 	numPlrSkills = 0;
 	for (i = 0; i < NUM_INVLOC; i++) {
 		const ItemStruct* pi = &plr._pInvBody[i];
 		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0*/ && pi->_iSpell != SPL_NULL && pi->_iStatFlag /*&& plr._pMagic >= spelldata[pi->_iSpell].sMinMag*/) {
-			const PlrSkillUse listSkill = { (BYTE)pi->_iSpell, (BYTE)RSPLTYPE_CHARGES };
+			const PlrSkillUse listSkill = { (BYTE)pi->_iSpell, (int8_t)i };
 
 			numPlrSkills++;
 			plrSkills[SPLROWICONLS - numPlrSkills] = listSkill;
@@ -423,7 +425,7 @@ void DrawSkillList()
 				continue;
 			}
 
-			const PlrSkillUse listSkill = { (BYTE)(j + 1), (BYTE)RSPLTYPE_SPELL };
+			const PlrSkillUse listSkill = { (BYTE)(j + 1), SPLFROM_MANA };
 			plrSkills[numPlrSkills] = listSkill;
 			numPlrSkills++;
 		}
@@ -432,7 +434,7 @@ void DrawSkillList()
 	for (i = 0; i < numPlrSkills; i++) {
 		const PlrSkillUse listSkill = plrSkills[i];
 		if (listSkill != empty) {
-			// c = SPLICONLAST + listSkill._suType == RSPLTYPE_ABILITY ? 3 : (listSkill._suType == RSPLTYPE_SPELL ? 4 : 2);
+			// c = SPLICONLAST + listSkill._suFrom == SPLFROM_ABILITY ? 3 : (listSkill._suFrom == SPLFROM_MANA ? 4 : 2);
 			DrawSkillListIcon(x, y, listSkill);
 		}
 		x -= SPLICON_WIDTH;
@@ -1434,11 +1436,11 @@ static void DrawSkillDetails()
 	lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
 	GetSkillDetails(sn, lvl, &skd);
 	mana = 0;
-	switch (skill._suType) {
-	case RSPLTYPE_ABILITY:
+	switch (skill._suFrom) {
+	case SPLFROM_ABILITY:
 		src = "Ability";
 		break;
-	case RSPLTYPE_SPELL:
+	case SPLFROM_MANA:
 		if (lvl < 0) { // SPLLVL_UNDEF
 			src = "Spell";
 			break;
@@ -1450,14 +1452,11 @@ static void DrawSkillDetails()
 		}
 		mana = GetManaAmount(pnum, sn) >> 6;
 		break;
-	case RSPLTYPE_CHARGES:
+	default:
 		src = "Equipment";
 		break;
-	//case RSPLTYPE_INVALID:
+	//case SPLFROM_INVALID_TYPE:
 	//	break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
 	}
 
 	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (skd.type != SDT_NONE ? (skd.type != SDT_SUMMON ? 1 : 2) : 0);
@@ -1489,7 +1488,7 @@ static void DrawSkillDetails()
 	y += BOXBORDER_WIDTH + SKILLDETAILS_LINE_HEIGHT / 2 + SKILLDETAILS_LINE_HEIGHT - 1;
 
 	// print the name of the skill
-	PrintSkillString(x, y, spelldata[skill._suSkill].sNameText, skill._suType == RSPLTYPE_SPELL ? COL_BLUE : (skill._suType == RSPLTYPE_ABILITY ? COL_GOLD : COL_WHITE));
+	PrintSkillString(x, y, spelldata[skill._suSkill].sNameText, skill._suFrom == SPLFROM_MANA ? COL_BLUE : (skill._suFrom == SPLFROM_ABILITY ? COL_GOLD : COL_WHITE));
 
 	// print the source of the skill
 	snprintf(tempstr, sizeof(tempstr), src, lvl);
@@ -1785,7 +1784,7 @@ void DrawSpellBook()
 
 		int sn;
 		const BYTE* st;
-		sn = skill->_psAttack._suType != RSPLTYPE_INVALID ? skill->_psAttack._suSkill : SPL_INVALID;
+		sn = skill->_psAttack._suFrom != SPLFROM_INVALID_TYPE ? skill->_psAttack._suSkill : SPL_INVALID;
 		st = GetSpellTrans(skill->_psAttack);
 		CelDrawTrnTbl(sx, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, st);
 		if (POS_IN_RECT(MousePos.x, MousePos.y,
@@ -1796,7 +1795,7 @@ void DrawSpellBook()
 		if (sn != SPL_INVALID && spelldata[sn].sNameText != NULL)
 			PrintGameStr(sx + 2 * SBOOK_CELWIDTH + SBOOK_X_OFFSET, yp - ((SBOOK_CELHEIGHT - 2 * SBOOK_LINE_HEIGHT) / 2 + SBOOK_LINE_HEIGHT), spelldata[sn].sNameText, COL_WHITE);
 
-		sn = skill->_psMove._suType != RSPLTYPE_INVALID ? skill->_psMove._suSkill : SPL_INVALID;
+		sn = skill->_psMove._suFrom != SPLFROM_INVALID_TYPE ? skill->_psMove._suSkill : SPL_INVALID;
 		st = GetSpellTrans(skill->_psMove);
 		CelDrawTrnTbl(sx + SBOOK_CELWIDTH, yp, pSBkIconCels, sn != SPL_INVALID ? spelldata[sn].sIcon : SPLICONLAST, st);
 		if (POS_IN_RECT(MousePos.x, MousePos.y,

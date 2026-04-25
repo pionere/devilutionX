@@ -1863,8 +1863,7 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 			return;
 		plr._pMemSkills &= ~SPELL_MASK(ii);
 		plr._pSkillLvlBase[ii] = 0;
-		// ValidateActionSkills(pnum, RSPLTYPE_SPELL, ~SPELL_MASK(ii));
-		const PlrSkillUse su = { (BYTE)ii, RSPLTYPE_SPELL };
+		const PlrSkillUse su = { (BYTE)ii, SPLFROM_MANA };
 		RemovePlrSkill(plr._pMainSkill, su);
 		RemovePlrSkill(plr._pAltSkill, su);
 		for (int i = 0; i < lengthof(plr._pSkillHotKey); i++) {

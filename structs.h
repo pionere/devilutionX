@@ -341,8 +341,8 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Ali
 #endif
 
 typedef struct PlrSkillUse {
-	BYTE _suSkill; // spell_id
-	BYTE _suType;  // spell_type
+	BYTE _suSkill;   // spell_id
+	int8_t _suFrom;  // spell_from_type
 	bool operator==(const PlrSkillUse & oval) const {
 		//return _suSkill == oval._suSkill && _suType == oval._suType;
 		return *(uint16_t*)&_suSkill == *(uint16_t*)&oval._suSkill;

@@ -571,7 +571,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 	//plr._pNextExper = PlrExpLvlsTbl[1];
 	plr._pLightRad = 10;
 
-	//plr._pMainSkill = { { SPL_ATTACK, RSPLTYPE_ABILITY } , { SPL_WALK, RSPLTYPE_ABILITY } };
+	//plr._pMainSkill = { { SPL_ATTACK, SPLFROM_ABILITY } , { SPL_WALK, SPLFROM_ABILITY } };
 	//plr._pAltSkill = { { SPL_NULL, 0 } , SPL_NULL, 0 } };
 	static_assert((int)SPL_NULL == 0, "CreatePlayer fails to initialize the skillhotkeys I.");
 	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pSkillHotKey) == sizeof(plr._pSkillHotKey) + sizeof(plr._pAltSkillHotKey) + sizeof(plr._pSkillSwapKey),

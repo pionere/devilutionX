@@ -38,36 +38,27 @@ void SpellCheck(PlrSkillUse* skill)
 	int sn = skill->_suSkill;
 	int pnum = mypnum;
 	if (sn != SPL_NULL && (spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		switch (skill->_suType) {
-		case RSPLTYPE_ABILITY:
+		result = skill->_suFrom;
+		switch (result) {
+		case SPLFROM_ABILITY:
 			// assert(spelldata[sn].sManaCost == 0);
-			result = SPLFROM_ABILITY;
 			break;
-		case RSPLTYPE_SPELL:
+		case SPLFROM_MANA:
 			result = plr._pSkillLvl[sn] > 0 ? (plr._pMana >= GetManaAmount(pnum, sn) ? SPLFROM_MANA : SPLFROM_INVALID_MANA) : SPLFROM_INVALID_LEVEL;
 			break;
-		case RSPLTYPE_CHARGES:
-			result = InvGetChargeIdx(pnum, sn);
-			static_assert(!SPLFROM_INVALID(INVITEM_BODY_FIRST), "SpellCheck expects the BODY indices to be distinct from SPLFROM_INVALID I.");
-			static_assert(!SPLFROM_INVALID(INVITEM_BODY_LAST), "SpellCheck expects the BODY indices to be distinct from SPLFROM_INVALID II.");
-			static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_MANA || (int)INVITEM_BODY_LAST < (int)SPLFROM_MANA, "SpellCheck expects the BODY indices to be distinct from SPL_MANA.");
-			static_assert((int)INVITEM_BODY_FIRST > (int)SPLFROM_ABILITY || (int)INVITEM_BODY_LAST < (int)SPLFROM_MANA, "SpellCheck expects the BODY indices to be distinct from SPLFROM_ABILITY.");
-			if ((BYTE)result == INVITEM_NONE)
+		case SPLFROM_INVALID_TYPE:
+			break;
+		default: {
+			const ItemStruct* pi = &plr._pInvBody[result];
+			if (pi->_itype == ITYPE_NONE || pi->_iSpell != sn || !pi->_iStatFlag)
 				result = SPLFROM_INVALID_SOURCE;
-			break;
-		case RSPLTYPE_INVALID:
-			result = SPLFROM_INVALID_TYPE;
-			break;
-		default:
-			result = SPLFROM_ABILITY;
-			ASSUME_UNREACHABLE
-			break;
+		} break;
 		}
 	}
 	if (SPLFROM_INVALID(result)) {
 		skill->_suSkill = SPL_NULL;
 	}
-	skill->_suType = (BYTE)result;
+	skill->_suFrom = result;
 }
 
 DEVILUTION_END_NAMESPACE
