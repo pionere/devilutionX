@@ -1417,8 +1417,9 @@ static BYTE PrintPlrDamage(int mind, int maxd, BYTE skillflag)
 	return col;
 }
 
-static void DrawSkillDetails(const PlrSkillUse &skill)
+static void DrawSkillDetails()
 {
+	const PlrSkillUse &skill = currSkill;
 	const int headerLinesOfSkillDetails = 2;
 	int x, y, wh;
 	int linesOfSkillDetails;
@@ -1428,6 +1429,8 @@ static void DrawSkillDetails(const PlrSkillUse &skill)
 	const char* src;
 	pnum = mypnum;
 	sn = skill._suSkill;
+	if (sn == SPL_NULL || sn >= NUM_SPELLS)
+		return;
 	lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
 	GetSkillDetails(sn, lvl, &skd);
 	mana = 0;
@@ -1568,9 +1571,7 @@ void DrawInfoStr()
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
 		DrawHealthBar(p->_pHitPoints, p->_pMaxHP, pos.x, pos.y + TOOLTIP2_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (gbSkillListFlag) {
-		if (currSkill._suSkill != SPL_INVALID && currSkill._suSkill != SPL_NULL) {
-			DrawSkillDetails(currSkill);
-		}
+		DrawSkillDetails();
 	} else if (gbCampaignMapFlag != CMAP_NONE) {
 		if (currCamEntry.ceIndex == 0)
 			return;
@@ -1621,6 +1622,8 @@ void DrawInfoStr()
 		if (si != NULL) {
 			DrawItemDetails(si);
 		}
+	} else if (pcurswnd == WND_BOOK) {
+		DrawSkillDetails();
 	}
 }
 
