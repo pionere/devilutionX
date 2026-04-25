@@ -205,7 +205,7 @@ static void InitMonsterGFX(int midx)
 			cmon->cmAnimData[anim] = celBuf;
 
 			LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(monAnims[anim].maAnimData));
-			int animLen = LOAD_LE32(monAnims[anim].maAnimData[0]);
+			auto animLen = LOAD_LE32(monAnims[anim].maAnimData[0]);
 			for (i = 1; i < lengthof(monAnims[anim].maAnimData); i++) {
 				if (LOAD_LE32(monAnims[anim].maAnimData[i]) != animLen) {
 					// overwrite unidirectional/incomplete animations
