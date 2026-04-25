@@ -217,7 +217,7 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 	PrintJustifiedString(x, y, x + SPLICON_WIDTH, tempstr, t, FONT_KERN_SMALL);
 }
 
-static void DrawSkillIcon(int pnum, PlrSkillUse skill, BYTE offset)
+static void DrawSkillIcon(PlrSkillUse skill, BYTE offset)
 {
 	int y;
 	const BYTE* st = GetSpellTrans(skill);
@@ -256,10 +256,10 @@ void DrawSkillIcons()
 
 	pnum = mypnum;
 	skill = plr._pMainSkill._psAttack._suSkill == SPL_NULL ? plr._pMainSkill._psMove : plr._pMainSkill._psAttack;
-	DrawSkillIcon(pnum, skill, 0);
+	DrawSkillIcon(skill, 0);
 
 	skill = plr._pAltSkill._psAttack._suSkill == SPL_NULL ? plr._pAltSkill._psMove : plr._pAltSkill._psAttack;
-	DrawSkillIcon(pnum, skill, SPLICON_WIDTH);
+	DrawSkillIcon(skill, SPLICON_WIDTH);
 
 	const char* str;
 	unsigned numchar;
