@@ -382,7 +382,7 @@ static void DrawSkillListIcon(int x, int y, PlrSkillUse listSkill)
 
 void DrawSkillList()
 {
-	int pnum = mypnum, i, j, x, y, sx;
+	int pnum = mypnum, i, x, y, sx;
 	uint64_t mask;
 	constexpr int BASE_ABILITIES = 4;
 	constexpr int SPLROWICONLS = NUM_INVLOC + 1 + BASE_ABILITIES + 1;
@@ -420,12 +420,12 @@ void DrawSkillList()
 	numPlrSkills = SPLROWICONLS;
 	{
 		mask = plr._pMemSkills;
-		for (j = 0; mask != 0 && j < NUM_SPELLS; mask >>= 1, j++) {
+		for (i = 0; mask != 0 && i < NUM_SPELLS; mask >>= 1, i++) {
 			if (!(mask & 1)) {
 				continue;
 			}
 
-			const PlrSkillUse listSkill = { (BYTE)(j + 1), SPLFROM_MANA };
+			const PlrSkillUse listSkill = { (BYTE)(i + 1), SPLFROM_MANA };
 			plrSkills[numPlrSkills] = listSkill;
 			numPlrSkills++;
 		}
