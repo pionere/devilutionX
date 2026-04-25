@@ -423,7 +423,7 @@ void DrawSkillList()
 				continue;
 			}
 
-			const PlrSkillUse listSkill = { (BYTE)j, (BYTE)RSPLTYPE_SPELL };
+			const PlrSkillUse listSkill = { (BYTE)(j + 1), (BYTE)RSPLTYPE_SPELL };
 			plrSkills[numPlrSkills] = listSkill;
 			numPlrSkills++;
 		}
