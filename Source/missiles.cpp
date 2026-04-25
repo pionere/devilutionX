@@ -46,11 +46,11 @@ static const BYTE BloodBoilLocs[][2] = {
 
 void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 {
-	int k, type, magic, mind, maxd, v2;
+	int k, magic, mind, maxd;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
-	type = SDT_DAMAGE;
+	skd->type = SDT_DAMAGE;
 	magic = myplr._pMagic;
 #ifdef HELLFIRE
 	if (SPELL_RUNE(sn))
@@ -60,15 +60,15 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_FIREBOLT:
 	case SPL_GUARDIAN:
 		k = (magic >> 3) + sl;
-		mind = k + 1;
-		maxd = k + 10;
+		skd->v0 = k + 1;
+		skd->v1 = k + 10;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNELIGHT:
 #endif
 	case SPL_LIGHTNING:
-		mind = 1;
-		maxd = ((magic + (sl << 3)) * (6 + (sl >> 1))) >> 3;
+		skd->v0 = 1;
+		skd->v1 = ((magic + (sl << 3)) * (6 + (sl >> 1))) >> 3;
 		break;
 	case SPL_FLASH:
 		mind = magic >> 1;
@@ -79,11 +79,13 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		maxd = mind << 3;
 		mind >>= 6;
 		maxd >>= 6;
+		skd->v0 = mind;
+		skd->v1 = maxd;
 		break;
 	case SPL_PULSE:
 		k = (magic >> 2) + (sl << 2);
-		mind = k * 3 / 4u;
-		maxd = k * 5 / 2u;
+		skd->v0 = k * 3 / 4u;
+		skd->v1 = k * 5 / 2u;
 		break;
 	case SPL_NULL:
 	case SPL_WALK:
@@ -113,32 +115,33 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_WHITTLE:
 	case SPL_RUNESTONE:
 #endif
-		type = SDT_NONE;
+		skd->type = SDT_NONE;
 		break;
 	case SPL_ATTACK:
 	case SPL_WHIPLASH:
 	case SPL_WALLOP:
 	case SPL_SWIPE:
-		type = SDT_DAMAGE_MELEE;
+		skd->type = SDT_DAMAGE_MELEE;
 		switch (sn) {
 		case SPL_ATTACK:
-			mind = maxd = 128; break;
+			mind = 128; break;
 		case SPL_WHIPLASH:
-			mind = maxd = (128 * (24 + sl)) >> 6; break;
+			mind = (128 * (24 + sl)) >> 6; break;
 		case SPL_WALLOP:
-			mind = maxd = (128 * (112 + sl)) >> 6; break;
+			mind = (128 * (112 + sl)) >> 6; break;
 		case SPL_SWIPE:
-			mind = maxd = (128 * (48 + sl)) >> 6; break;
+			mind = (128 * (48 + sl)) >> 6; break;
 		default:
 			ASSUME_UNREACHABLE
 		}
+		skd->v0 = skd->v1 = mind;
 		break;
 	case SPL_RATTACK:
 	case SPL_POINT_BLANK:
 	case SPL_FAR_SHOT:
 	case SPL_PIERCE_SHOT:
 	case SPL_MULTI_SHOT:
-		type = SDT_DAMAGE_RANGED;
+		skd->type = SDT_DAMAGE_RANGED;
 		switch (sn) {
 		case SPL_RATTACK:
 			mind = maxd = 128; break;
@@ -153,13 +156,15 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		default:
 			ASSUME_UNREACHABLE
 		}
+		skd->v0 = mind;
+		skd->v1 = maxd;
 		break;
 #ifdef HELLFIRE
 	case SPL_FIRERING:
 #endif
 	case SPL_FIREWALL:
-		mind = ((magic >> 3) + sl + 5) << (-3 + 5);
-		maxd = ((magic >> 3) + sl * 2 + 10) << (-3 + 5);
+		skd->v0 = ((magic >> 3) + sl + 5) << (-3 + 5);
+		skd->v1 = ((magic >> 3) + sl * 2 + 10) << (-3 + 5);
 		break;
 	case SPL_FIREBALL:
 		mind = (magic >> 2) + 10;
@@ -168,32 +173,34 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 			mind += mind >> 3;
 			maxd += maxd >> 3;
 		}
+		skd->v0 = mind;
+		skd->v1 = maxd;
 		break;
 	case SPL_METEOR:
-		mind = (magic >> 2) + (sl << 3) + 40;
-		maxd = (magic >> 2) + (sl << 4) + 40;
+		skd->v0 = (magic >> 2) + (sl << 3) + 40;
+		skd->v1 = (magic >> 2) + (sl << 4) + 40;
 		break;
 	case SPL_BLOODBOIL:
-		mind = (magic >> 2) + (sl << 2) + 10;
-		maxd = (magic >> 2) + (sl << 3) + 10;
+		skd->v0 = (magic >> 2) + (sl << 2) + 10;
+		skd->v1 = (magic >> 2) + (sl << 3) + 10;
 		break;
 	case SPL_CHAIN:
-		mind = 1;
-		maxd = magic;
+		skd->v0 = 1;
+		skd->v1 = magic;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNEWAVE:
 #endif
 	case SPL_WAVE:
-		mind = ((magic >> 3) + 2 * sl + 1) * 4;
-		maxd = ((magic >> 3) + 4 * sl + 2) * 4;
+		skd->v0 = ((magic >> 3) + 2 * sl + 1) * 4;
+		skd->v1 = ((magic >> 3) + 4 * sl + 2) * 4;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNENOVA:
 #endif
 	case SPL_NOVA:
-		mind = 1;
-		maxd = (magic >> 1) + (sl << 5);
+		skd->v0 = 1;
+		skd->v1 = (magic >> 1) + (sl << 5);
 		break;
 	case SPL_INFERNO:
 		mind = magic;
@@ -204,12 +211,14 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		maxd *= k;
 		mind >>= 6 - 2;
 		maxd >>= 6 - 2;
+		skd->v0 = mind;
+		skd->v1 = maxd;
 		break;
 	case SPL_GOLEM:
 	case SPL_BLDGOLEM:
 	case SPL_SKELAX:
 	case SPL_SKELBW: {
-		type = SDT_SUMMON;
+		skd->type = SDT_SUMMON;
 		sl = sl * 4 + (magic >> 6);
 		// sl++;
 		// sl--; -- lvlBonus (PreSpawnGolem)
@@ -221,10 +230,10 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		k = monData.mLevel; // baseLvl
 		sl = k + sl;        // monLvl
 		// calculate damage
-		mind = sl * monData.mMinDamage / k;
-		maxd = sl * monData.mMaxDamage / k;
+		skd->v0 = sl * monData.mMinDamage / k;
+		skd->v1 = sl * monData.mMaxDamage / k;
 		// calculate hp
-		v2 = sl * monData.mMinHP / k;
+		skd->v2 = sl * monData.mMinHP / k;
 	} break;
 	case SPL_ELEMENTAL:
 		mind = (magic >> 3) + 2 * sl + 4;
@@ -233,22 +242,23 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 			mind += mind >> 3;
 			maxd += maxd >> 3;
 		}
+		skd->v0 = mind;
+		skd->v1 = maxd;
 		break;
 	case SPL_CBOLT:
-		mind = 1;
-		maxd = (magic >> 2) + (sl << 2);
+		skd->v0 = 1;
+		skd->v1 = (magic >> 2) + (sl << 2);
 		break;
 	case SPL_HBOLT:
-		mind = (magic >> 2) + sl;
-		maxd = mind + 9;
+		skd->v0 = (magic >> 2) + sl;
+		skd->v1 = skd->v0 + 9;
 		break;
 	case SPL_FLARE:
-		mind = (magic * (sl + 1)) >> 3;
-		maxd = mind;
+		skd->v0 = skd->v1 = (magic * (sl + 1)) >> 3;
 		break;
 	case SPL_POISON:
-		mind = ((magic >> 4) + sl + 2) << (-3 + 5);
-		maxd = ((magic >> 4) + sl + 4) << (-3 + 5);
+		skd->v0 = ((magic >> 4) + sl + 2) << (-3 + 5);
+		skd->v1 = ((magic >> 4) + sl + 4) << (-3 + 5);
 		break;
 	case SPL_WIND:
 		mind = (magic >> 3) + 7 * sl + 1;
@@ -256,13 +266,13 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 
 		k = MIA_WIND_LENGTH * MIA_WIND_DELAY;
 		k = ((k + 1) << (-3 + 5)) / 16;
-		mind = mind * k;
-		maxd = maxd * k;
+		skd->v0 = mind * k;
+		skd->v1 = maxd * k;
 		break;
 #ifdef HELLFIRE
 	/*case SPL_LIGHTWALL:
-		mind = 1;
-		maxd = ((magic >> 1) + sl) << (-3 + 5);
+		skd->v0 = 1;
+		skd->v1 = ((magic >> 1) + sl) << (-3 + 5);
 		break;
 	case SPL_IMMOLAT:
 		mind = 1 + (magic >> 3);
@@ -271,23 +281,18 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 			mind += mind >> 3;
 			maxd += maxd >> 3;
 		}
+		skd->v0 = mind;
+		skd->v1 = maxd;
 		break;*/
 	case SPL_RUNEFIRE:
-		mind = 1 + (magic >> 1) + 16 * sl;
-		maxd = 1 + (magic >> 1) + 32 * sl;
+		skd->v0 = 1 + (magic >> 1) + 16 * sl;
+		skd->v1 = 1 + (magic >> 1) + 32 * sl;
 		break;
 #endif
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-
-	skd->type = type;
-	// if (type != SDT_NONE) {
-		skd->v0 = mind;
-		skd->v1 = maxd;
-		skd->v2 = v2;
-	// }
 }
 
 void RemovePortalMissile(int pnum)
