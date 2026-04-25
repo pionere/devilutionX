@@ -1578,6 +1578,9 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_TNUDEW:
 			AddTorturedFemaleBody(oi);
 			break;
+		case OBJ_SUN:
+			AddSun(oi);
+			break;
 #ifdef HELLFIRE
 		case OBJ_L5BOOK:
 			AddL5StoryBook(oi);
@@ -3560,6 +3563,9 @@ void OperateObject(int pnum, int oi, bool TeleFlag)
 	case OBJ_GOATSHRINE:
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, sendmsg);
+		break;
+	case OBJ_BOOK1:
+		OperateBook1(oi, sendmsg);
 		break;
 	case OBJ_BOOK2:
 		OperateBook2(oi, sendmsg);
