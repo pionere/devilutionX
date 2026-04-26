@@ -1408,23 +1408,6 @@ static void SetStaffSpell(ItemStruct* is, unsigned lvl)
 	is->_iIvalue += v;
 }
 
-static int GetItemSpell()
-{
-	int ns, bs;
-	BYTE ss[NUM_SPELLS];
-
-	ns = 0;
-	for (bs = 0; bs < NUM_SPELLS; bs++) {
-		if (spelldata[bs].sManaCost != 0) { // TODO: use sSkillFlags ?
-			// assert(!IsMultiGame || bs != SPL_RESURRECT);
-			ss[ns] = bs;
-			ns++;
-		}
-	}
-	// assert(ns > 0);
-	return ss[random_low(19, ns)];
-}
-
 static void GetItemAttrs(int ii, int idata, unsigned lvl)
 {
 	ItemStruct* is;
@@ -1503,7 +1486,7 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	case IPL_CRITP:
 		break;
 	case IPL_SKILLLVL:
-		ias->asValue1 = GetItemSpell();
+		ias->asValue1 = GetBookSpell(is->_iCreateInfo & CF_LEVEL);
 		break;
 	case IPL_SKILLLEVELS:
 		break;
