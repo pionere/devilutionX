@@ -1613,7 +1613,7 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	return r;
 }
 
-static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygood)
+static void GetItemPower(ItemStruct* is, unsigned lvl, BYTE range, int flgs, bool onlygood)
 {
 	int nl, v;
 	int va = 0, vm = 0;
@@ -1622,9 +1622,9 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 	BYTE affix;
 	BOOLEAN good;
 
-	// assert(items[ii]._iMagical == ITEM_QUALITY_NORMAL);
-	if (flgs != PLT_MISC) // items[ii]._itype != ITYPE_RING && items[ii]._itype != ITYPE_AMULET)
-		lvl = lvl > AllItemList[items[ii]._iIdx].iMinMLvl ? lvl - AllItemList[items[ii]._iIdx].iMinMLvl : 0;
+	// assert(is->_iMagical == ITEM_QUALITY_NORMAL);
+	if (flgs != PLT_MISC) // is->_itype != ITYPE_RING && is->_itype != ITYPE_AMULET)
+		lvl = lvl > AllItemList[is->_iIdx].iMinMLvl ? lvl - AllItemList[is->_iIdx].iMinMLvl : 0;
 
 	// select affixes (3: both, 2: prefix, 1: suffix)
 	v = random_(23, 128);
@@ -1649,10 +1649,10 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 		if (nl != 0) {
 			// assert(nl <= 0x7FFF);
 			pres = l[random_low(23, nl)];
-			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
-			items[ii]._iUnidentified = TRUE;
+			is->_iMagical = ITEM_QUALITY_MAGIC;
+			is->_iUnidentified = TRUE;
 			v = SaveItemPower(
-			    &items[ii],
+			    is,
 			    pres->PLPower,
 			    pres->PLParam1,
 			    pres->PLParam2);
@@ -1674,10 +1674,10 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 		if (nl != 0) {
 			// assert(nl <= 0x7FFF);
 			sufs = l[random_low(23, nl)];
-			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
-			items[ii]._iUnidentified = TRUE;
+			is->_iMagical = ITEM_QUALITY_MAGIC;
+			is->_iUnidentified = TRUE;
 			v = SaveItemPower(
-			    &items[ii],
+			    is,
 			    sufs->PLPower,
 			    sufs->PLParam1,
 			    sufs->PLParam2);
@@ -1686,13 +1686,13 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 		}
 	}
 	// prefix or suffix added -> recalculate the value of the item
-	if (items[ii]._iMagical == ITEM_QUALITY_MAGIC) {
-		if (items[ii]._iMiscId != IMISC_MAP) {
+	if (is->_iMagical == ITEM_QUALITY_MAGIC) {
+		if (is->_iMiscId != IMISC_MAP) {
 			v = vm;
 			if (v >= 0) {
-				v *= items[ii]._ivalue;
+				v *= is->_ivalue;
 			} else {
-				v = items[ii]._ivalue / -v;
+				v = is->_ivalue / -v;
 			}
 			v += va;
 			if (v <= 0) {
@@ -1700,24 +1700,25 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			}
 		} else {
 			v = 6;
-			for (unsigned i = 0; i < items[ii]._iNumAffixes; i++) {
-				const ItemAffixStruct* ias = &items[ii]._iAffixes[i];
+			for (unsigned i = 0; i < is->_iNumAffixes; i++) {
+				const ItemAffixStruct* ias = &is->_iAffixes[i];
 				if (ias->asPower == IMP_AREAMOD) {
 					v -= ias->asValue0;
 				}
 			}
 			v = ((1 << MAXCAMPAIGNSIZE) - 1) >> v;
-			items[ii]._ivalue = v;
+			is->_ivalue = v;
 		}
-		items[ii]._iIvalue = v;
+		is->_iIvalue = v;
 	}
 }
 
 static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool allowspells)
 {
 	int flgs;
+	ItemStruct* is = &items[ii];
 
-	switch (items[ii]._itype) {
+	switch (is->_itype) {
 	case ITYPE_MISC:
 		if (items[ii]._iMiscId != IMISC_MAP)
 			return;
@@ -1749,7 +1750,7 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
 		if (allowspells && random_(17, 4) != 0) {
-			SetStaffSpell(&items[ii], lvl);
+			SetStaffSpell(is, lvl);
 			if (random_(51, 2) != 0)
 				return;
 			flgs |= PLT_CHRG;
@@ -1766,7 +1767,7 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 		return;
 	}
 
-	GetItemPower(ii, lvl, range, flgs, onlygood);
+	GetItemPower(is, lvl, range, flgs, onlygood);
 }
 
 static int RndDropItem(bool func(const ItemData& item, void* arg), void* arg, unsigned lvl)
