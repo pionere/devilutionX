@@ -2408,8 +2408,8 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 				PlrDecMana(pnum, ma);
 			}
 		} else if (sf == SPLFROM_ABILITY) {
-			uint64_t mask = SPELL_MASK(plrAbility) | (SPL_ABI_MASK & ~SPELL_MASK(SPL_WALK));
-			net_check(mask & SPELL_MASK(sn), false);
+			constexpr uint64_t mask = SPL_ABI_MASK & ~SPELL_MASK(SPL_WALK);
+			net_check(sn == plrAbility || (mask & SPELL_MASK(sn)), false);
 		} else {
 			net_check((BYTE)sf < NUM_INVELEM, false);
 			if (!SyncUseItem(pnum, sf, sn))
