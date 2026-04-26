@@ -1646,6 +1646,9 @@ void ValidateData()
 			} else if (pow == IPL_DUR) {
 				if (GetUniqueItemParamA(ui, n) <= -100 || GetUniqueItemParamB(ui, n) > 200)
 					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is -100..200)", n, ui.UIName, i);
+			} else if (pow == IPL_SETSKILL) {
+				if (paramA < 0 || paramA == SPL_NULL || paramA >= NUM_SPELLS)
+					app_fatal("Invalid UIParam%d set for '%s' %d. (expected range is 1..%d)", n, ui.UIName, i, NUM_SPELLS - 1);
 			} else if (pow == IPL_REQSTR) {
 				for (int n = 0; n < NUM_IDI; n++) {
 					if (AllItemList[n].iUniqType == ui.UIUniqType) {
