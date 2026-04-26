@@ -1382,15 +1382,13 @@ static BYTE GetStaffSpell(unsigned lvl)
 	return ss[random_low(18, ns)];
 }
 
-static void SetStaffSpell(int ii, unsigned lvl)
+static void SetStaffSpell(ItemStruct* is, unsigned lvl)
 {
 	const SpellData* sd;
-	ItemStruct* is;
 	int bs, v;
 
 	bs = GetStaffSpell(lvl);
 
-	is = &items[ii];
 	sd = &spelldata[bs];
 
 	is->_iSpell = bs;
@@ -1753,7 +1751,7 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
 		if (allowspells && random_(17, 4) != 0) {
-			SetStaffSpell(ii, lvl);
+			SetStaffSpell(&items[ii], lvl);
 			if (random_(51, 2) != 0)
 				return;
 			flgs |= PLT_CHRG;
