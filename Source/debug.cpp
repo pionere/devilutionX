@@ -632,7 +632,6 @@ void ValidateData()
 	assert(objectdata[OBJ_TORCHL2].oLvlTypes & lvlMask); // required by SyncPedestal
 	}
 	// monsters
-	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	assert(monsterdata[MT_GBAT].mAI.aiType == AI_BAT); // required by MAI_Bat
 #ifdef HELLFIRE
 	assert(missiledata[MIS_HORKDMN].mFileNum == MFILE_SPAWNS); // required by MAI_Horkdemon/InitMonsterGFX
@@ -642,8 +641,8 @@ void ValidateData()
 		const MonsterData& md = monsterdata[i];
 		if (strlen(md.mName) > sizeof(infostr) - 1)
 			app_fatal("Too long name for %s, %d (maximum is %d).", md.mName, i, sizeof(infostr)); // required by DrawInfoStr
-		if ((md.mAI.aiType == AI_GOLUM || md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
-			app_fatal("AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", md.mName, i);
+		if ((md.mAI.aiType == AI_SKELKING) && !(md.mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("AI_SKELKING always check the doors (%s, %d)", md.mName, i);
 		if ((md.mAI.aiType == AI_FALLEN || md.mAI.aiType == AI_SNAKE || md.mAI.aiType == AI_SNEAK || md.mAI.aiType == AI_SKELBOW) && (md.mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("AI_FALLEN,  AI_SNAKE, AI_SNEAK and AI_SKELBOW never check the doors (%s, %d)", md.mName, i);
 #ifdef HELLFIRE
@@ -781,12 +780,10 @@ void ValidateData()
 			app_fatal("Invalid mLevel %d for %s (%d). Too high to set the level of item-drop.", md.mLevel, md.mName, i);
 		if (md.moFileNum == MOFILE_DIABLO && !(md.mFlags & MFLAG_NOCORPSE))
 			app_fatal("MOFILE_DIABLO does not have corpse animation but MFLAG_NOCORPSE is not set for %s (%d).", md.mName, i);
-		if (md.moFileNum == MOFILE_GOLEM && i != MT_GOLEM)
-			app_fatal("Animation is not initialized properly for %s (%d).", md.mName, i); // required by InitMonsterGFX
 		if (lengthof(monfiledata) <= md.moFileNum)
 			app_fatal("Invalid moFileNum %d for %s (%d). Must not be more than %d.", md.mLevel, md.mName, i, lengthof(monfiledata));
 		const MonFileData& mfd = monfiledata[md.moFileNum];
-		if (mfd.moAnimFrameLen[MA_STAND] == 0 && i != MT_GOLEM) {
+		if (mfd.moAnimFrameLen[MA_STAND] == 0) {
 			app_fatal("Missing stand animation for %s (%d).", md.mName, i); // required by InitMonster, etc...
 		}
 		if (mfd.moAnimFrameLen[MA_WALK] == 0) {
@@ -933,9 +930,9 @@ void ValidateData()
 		for (int n = 0; n < NUM_MTYPES; n++) {
 			const MonsterData& msd = monsterdata[n];
 			if (msd.moFileNum != i) continue;
-			if (IsSkel(n) || n == MT_GOLEM || MonsterAiSpecial(msd.mAI, i)) {
+			if (IsSkel(n) || MonsterAiSpecial(msd.mAI, i)) {
 				if (md.moAnimFrameLen[MA_SPECIAL] == 0)
-					app_fatal("Missing special animation for monster %s (%d)", msd.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
+					app_fatal("Missing special animation for monster %s (%d)", msd.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SyncRhinoAnim
 				spUsed = true;
 			}
 		}
@@ -944,7 +941,7 @@ void ValidateData()
 			if (monsterdata[um.mtype].moFileNum != i) continue;
 			if (MonsterAiSpecial(um.mAI, i)) {
 				if (md.moAnimFrameLen[MA_SPECIAL] == 0)
-					app_fatal("Missing special animation for unique monster %s (%d)", um.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SpawnGolem, SyncRhinoAnim
+					app_fatal("Missing special animation for unique monster %s (%d)", um.mName, n); // required by MAI_*, SpawnSkeleton, ActivateSpawn, SyncRhinoAnim
 				spUsed = true;
 			}
 		}
@@ -957,10 +954,14 @@ void ValidateData()
 		if (mmd.mtype >= NUM_MTYPES) {
 			app_fatal("Invalid monster type %d set for minion monster %d.", mmd.mtype, i);
 		}
-		if (monsterdata[mmd.mtype].mFlags & MFLAG_CAN_BLEED) {
+		const MonsterData& msd = monsterdata[mmd.mtype];
+		if (monfiledata[msd.moFileNum].moAnimFrameLen[MA_SPECIAL] == 0) {
+			app_fatal("Missing special animation for minion monster %d", i); // required by SpawnGolem/ActivateSpawn
+		}
+		if (msd.mFlags & MFLAG_CAN_BLEED) {
 			app_fatal("Minion monster type %d set for minion monster %d can bleed, but it is not handled.", mmd.mtype, i); // required by AddBleed, MI_Bleed and MonHitByMon
 		}
-		if (monsterdata[mmd.mtype].mFlags & MFLAG_KNOCKBACK) {
+		if (msd.mFlags & MFLAG_KNOCKBACK) {
 			app_fatal("Minion monster type %d set for minion monster %d can knock back, but it is not handled.", mmd.mtype, i); // required by MonHitByMon
 		}
 	}
@@ -1022,8 +1023,8 @@ void ValidateData()
 			if (AllLevels[lvl].dMonTypes[j] == MT_INVALID)
 				app_fatal("Useless unique monster %s (%d)", um.mName, i);
 		}
-		if ((um.mAI.aiType == AI_GOLUM || um.mAI.aiType == AI_SKELKING) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
-			app_fatal("Unique AI_GOLUM and AI_SKELKING always check the doors (%s, %d)", um.mName, i);
+		if ((um.mAI.aiType == AI_SKELKING) && !(monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
+			app_fatal("Unique AI_SKELKING always check the doors (%s, %d)", um.mName, i);
 		if ((um.mAI.aiType == AI_FALLEN || um.mAI.aiType == AI_SNAKE || um.mAI.aiType == AI_SNEAK || um.mAI.aiType == AI_SKELBOW) && (monsterdata[um.mtype].mFlags & MFLAG_CAN_OPEN_DOOR))
 			app_fatal("Unique AI_FALLEN, AI_CLEAVER, AI_SNAKE, AI_SNEAK, AI_SKELBOW and AI_FAT never check the doors (%s, %d)", um.mName, i);
 #ifdef HELLFIRE
