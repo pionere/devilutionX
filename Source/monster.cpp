@@ -5224,7 +5224,6 @@ void PreSpawnGolem(int mnum, int level, int type)
 	const MonsterData &monData = monsterdata[mmData.mtype];
 
 	int mtidx = AddMonsterType(mmData.mtype, FALSE);
-	mapMonTypes[mtidx].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 
 	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
 
@@ -5233,6 +5232,8 @@ void PreSpawnGolem(int mnum, int level, int type)
 
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RESERVED;
+	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+	mon->_mSelFlag = 0;
 	mon->_mAI = mmData.mAI;
 	// mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
 	mon->_mHit = monData.mHit + lvlBonus * 5 / 2;
