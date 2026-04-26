@@ -939,6 +939,11 @@ void SetItemSData(ItemStruct* is, int idata)
 	if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL) {
 		is->_iCharges = BASESTAFFCHARGES;
 		is->_iMaxCharges = is->_iCharges;
+
+		// assert(is->_iNumAffixes == 0);
+		is->_iAffixes[0].asPower = IPL_SETSKILL;
+		is->_iAffixes[0].asValue0 = is->_iSpell;
+		is->_iNumAffixes = 1;
 	}
 
 	static_assert(ITEM_QUALITY_NORMAL == 0, "Zero-fill expects ITEM_QUALITY_NORMAL == 0.");
@@ -1385,6 +1390,11 @@ static void GetStaffSpell(int ii, unsigned lvl)
 	is->_iCharges = RandRangeLow(sd->sStaffMin, sd->sStaffMax);
 	is->_iMaxCharges = is->_iCharges;
 
+	// assert(is->_iNumAffixes == 0);
+	is->_iAffixes[0].asPower = IPL_SETSKILL;
+	is->_iAffixes[0].asValue0 = bs;
+	is->_iNumAffixes = 1;
+
 	is->_iMinMag = sd->sMinMag;
 	v = is->_iCharges * sd->sStaffCost;
 	is->_ivalue += v;
@@ -1565,6 +1575,8 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 		is->_iMinStr += r;
 		break;
 	case IPL_SETSKILL:
+		ias->asValue0 = param1;
+
 		is->_iSpell = param1;
 		is->_iCharges = param2;
 		is->_iMaxCharges = param2;
@@ -2946,7 +2958,7 @@ static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 		copy_cstr(tempstr, "altered requirements");
 		break;
 	case IPL_SETSKILL:
-		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%s (%d/%d)", spelldata[ias->asValue0].sNameText, is->_iCharges, is->_iMaxCharges);
 		break;
 	case IPL_ONEHAND:
 		copy_cstr(tempstr, "one handed sword");
@@ -3284,9 +3296,6 @@ static int LinesOfItemDetails(const ItemStruct* is)
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
 			result++;
 		}
-		if (is->_iMaxCharges != 0) {
-			result++;
-		}
 	} else if (is->_iClass == ICLASS_ARMOR) {
 		result++;
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
@@ -3361,10 +3370,6 @@ void DrawItemDetails(const ItemStruct* is)
 		PrintItemString(x, y);
 		if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
 			snprintf(tempstr, sizeof(tempstr), "Durability: %d/%d", is->_iDurability, is->_iMaxDur);
-			PrintItemString(x, y);
-		}
-		if (is->_iMaxCharges != 0) {
-			snprintf(tempstr, sizeof(tempstr), "Charges: %d/%d", is->_iCharges, is->_iMaxCharges);
 			PrintItemString(x, y);
 		}
 	} else if (is->_iClass == ICLASS_ARMOR) {
