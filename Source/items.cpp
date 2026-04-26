@@ -1564,7 +1564,7 @@ static int SaveItemPower(int ii, int power, int param1, int param2)
 	case IPL_REQSTR:
 		is->_iMinStr += r;
 		break;
-	case IPL_SPELL:
+	case IPL_SETSKILL:
 		is->_iSpell = param1;
 		is->_iCharges = param2;
 		is->_iMaxCharges = param2;
@@ -2945,7 +2945,7 @@ static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 	case IPL_REQSTR:
 		copy_cstr(tempstr, "altered requirements");
 		break;
-	case IPL_SPELL:
+	case IPL_SETSKILL:
 		snprintf(tempstr, sizeof(tempstr), "%d %s charges", is->_iMaxCharges, spelldata[is->_iSpell].sNameText);
 		break;
 	case IPL_ONEHAND:
