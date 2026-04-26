@@ -2809,16 +2809,16 @@ void SyncShrineCmd(int pnum, BYTE type, int seed)
 	case SHRINE_GLIMMERING:
 		pi = plr._pInvBody;
 		for (i = NUM_INVLOC; i != 0; i--, pi++)
-			if (pi->_iMagical != ITEM_QUALITY_NORMAL)
-				pi->_iIdentified = TRUE;
+			// if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+				pi->_iUnidentified = FALSE;
 		pi = plr._pInvList;
 		for (i = NUM_INV_GRID_ELEM; i > 0; i--, pi++)
-			if (pi->_iMagical != ITEM_QUALITY_NORMAL)
-				pi->_iIdentified = TRUE;
+			// if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+				pi->_iUnidentified = FALSE;
 		//pi = plr._pSpdList;
 		//for (i = MAXBELTITEMS; i != 0; i--, pi++)
 		//	if (pi->_iMagical != ITEM_QUALITY_NORMAL)
-		//		pi->_iIdentified = TRUE; // belt items can't be magical?
+		//		pi->_iUnidentified = FALSE; // belt items can't be magical?
 		break;
 	case SHRINE_SPARKLING:
 		AddPlrExperience(pnum, lvl, 500);

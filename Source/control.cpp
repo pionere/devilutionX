@@ -2184,7 +2184,7 @@ void InitCampaignMap(int cii)
 
 	control_setmaplevel(lengthof(camEntries) / 2, lengthof(camEntries[0]) / 2, lvl, dlvl);
 
-	gbCampaignMapFlag = is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
+	gbCampaignMapFlag = /*is->_iMagical == ITEM_QUALITY_NORMAL ||*/ !is->_iUnidentified ? CMAP_IDENTIFIED : CMAP_UNIDENTIFIED;
 }
 
 /*

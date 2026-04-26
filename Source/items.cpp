@@ -275,7 +275,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	int i;
 
-	BOOL idi = TRUE; // items are identified
+	BOOLEAN idi = FALSE; // there is an unidentfied item
 
 	int asb = 0;    // bonus to attack speed
 	int tac = 0;    // armor class
@@ -337,7 +337,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			cdmodp = 0;
 
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
-				idi &= pi->_iIdentified;
+				idi |= pi->_iUnidentified;
 				btohit += pi->_iPLToHit;
 
 				madd += pi->_iPLMag;
@@ -528,7 +528,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 		}
 	}
 
-	plr._pHasUnidItem = !idi;
+	plr._pHasUnidItem = idi;
 	plr._pIAbsAnyHit = absAnyHit << 6;
 	plr._pIAbsPhyHit = absPhyHit << 6;
 	plr._pILifeSteal = lifesteal;
@@ -843,7 +843,7 @@ static void CalcItemReqs(int pnum)
 	for (i = 0; i < NUM_INVLOC; i++, pi++) {
 		if (pi->_itype != ITYPE_NONE) {
 			pi->_iStatFlag = TRUE;
-			//if (pi->_iIdentified) {
+			//if (!pi->_iUnidentified) {
 				sa += pi->_iPLStr;
 				ma += pi->_iPLMag;
 				da += pi->_iPLDex;
@@ -862,7 +862,7 @@ recheck:
 			continue;
 		if (pi->_iStatFlag) {
 			pi->_iStatFlag = FALSE;
-			//if (pi->_iIdentified) {
+			//if (!pi->_iUnidentified) {
 				sa -= pi->_iPLStr;
 				ma -= pi->_iPLMag;
 				da -= pi->_iPLDex;
@@ -1635,6 +1635,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			// assert(nl <= 0x7FFF);
 			pres = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
+			items[ii]._iUnidentified = TRUE;
 			v = SaveItemPower(
 			    ii,
 			    pres->PLPower,
@@ -1659,6 +1660,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			// assert(nl <= 0x7FFF);
 			sufs = l[random_low(23, nl)];
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
+			items[ii]._iUnidentified = TRUE;
 			v = SaveItemPower(
 			    ii,
 			    sufs->PLPower,
@@ -1882,6 +1884,7 @@ static void GetUniqueItem(int ii, int uid)
 
 	items[ii]._iUid = uid;
 	items[ii]._iMagical = ITEM_QUALITY_UNIQUE;
+	items[ii]._iUnidentified = TRUE;
 	// items[ii]._iCreateInfo |= CF_UNIQUE;
 }
 
@@ -2425,7 +2428,7 @@ static void DoIdentify(int pnum, int cii)
 {
 	ItemStruct* pi = PlrItem(pnum, cii);
 
-	pi->_iIdentified = TRUE;
+	pi->_iUnidentified = FALSE;
 	// assert(plr._pmode != PM_DEATH);
 	CalcPlrInv(pnum, true);
 }
@@ -2775,7 +2778,7 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 
 	CraftItem(pi, idx, ci, spell, targetPowerFrom, targetPowerTo);
 
-	pi->_iIdentified = TRUE;
+	pi->_iUnidentified = FALSE;
 	CalcPlrInv(pnum, true);
 }
 
@@ -3054,7 +3057,7 @@ const char* ItemName(const ItemStruct* is)
 	if (is->_iIdx == IDI_EAR) {
 		snprintf(tempstr, sizeof(tempstr), "%s%s", name, is->_iPlrName);
 		name = tempstr;
-	} else if (is->_iMagical == ITEM_QUALITY_UNIQUE && is->_iIdentified)
+	} else if (is->_iMagical == ITEM_QUALITY_UNIQUE && !is->_iUnidentified)
 		name = UniqueItemList[is->_iUid].UIName;
 	else if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL) {
 		snprintf(tempstr, sizeof(tempstr), "%s of %s", name, spelldata[is->_iSpell].sNameText);
@@ -3270,7 +3273,7 @@ static int LinesOfItemDetails(const ItemStruct* is)
 {
 	int result = 0;
 
-	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
+	if (/*is->_iMagical != ITEM_QUALITY_NORMAL && */is->_iUnidentified) {
 		result++;
 		return result;
 	}
@@ -3342,7 +3345,7 @@ void DrawItemDetails(const ItemStruct* is)
 	PrintItemString(x, y, ItemName(is), ItemColor(is));
 	y += twoLines ? ITEMDETAILS_LINE_HEIGHT + ITEMDETAILS_LINE_HEIGHT/2 + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2 : (ITEMDETAILS_LINE_HEIGHT + BOXBORDER_WIDTH + ITEMDETAILS_LINE_HEIGHT/2);
 
-	if (is->_iMagical != ITEM_QUALITY_NORMAL && !is->_iIdentified) {
+	if (/*is->_iMagical != ITEM_QUALITY_NORMAL && */is->_iUnidentified) {
 		copy_cstr(tempstr, "Not Identified");
 		PrintItemString(x, y);
 		return;

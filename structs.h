@@ -289,7 +289,7 @@ typedef struct ItemStruct {
 	//int _iAnimXOffset;
 	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
 	BOOLEAN _iStatFlag;
-	BOOLEAN _iIdentified;
+	BOOLEAN _iUnidentified;
 	BYTE _iNumAffixes;
 	BYTE _iUid; // unique_item_indexes
 	int _ivalue;

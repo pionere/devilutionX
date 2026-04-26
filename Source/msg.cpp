@@ -875,7 +875,7 @@ void PackPkItem(PkItemStruct* dest, const ItemStruct* src)
 		dest->dwSeed = src->_iSeed;
 		dest->wIndx = src->_iIdx;
 		dest->wCI = src->_iCreateInfo;
-		dest->bId = src->_iIdentified;
+		dest->bId = src->_iUnidentified;
 		dest->bDur = src->_iDurability;
 		dest->bMDur = src->_iMaxDur;
 		dest->bCh = src->_iCharges;
@@ -978,7 +978,7 @@ void UnPackPkItem(const PkItemStruct* src)
 		} else if (idx == IDI_CAMPAIGNMAP) {
 			items[MAXITEMS]._ivalue = src->wValue;
 		}
-		items[MAXITEMS]._iIdentified = src->bId;
+		items[MAXITEMS]._iUnidentified = src->bId;
 		items[MAXITEMS]._iDurability = src->bDur;
 		items[MAXITEMS]._iMaxDur = src->bMDur;
 		items[MAXITEMS]._iCharges = src->bCh;
@@ -4280,7 +4280,7 @@ static BYTE* SendItem(const ItemStruct* is, BYTE* dst)
 	dst += sizeof(BYTE);
 	*(BYTE*)dst = is->_iy;
 	dst += sizeof(BYTE);
-	*(BOOLEAN*)dst = is->_iIdentified;
+	*(BOOLEAN*)dst = is->_iUnidentified;
 	dst += sizeof(BOOLEAN);
 
 	*(INT*)dst = is->_iCharges;
@@ -4387,8 +4387,8 @@ static const BYTE* CheckItem(const ItemStruct* is, const BYTE* src, int pnum, in
 	//	PrintItemMismatch(is, "x", is->_iy, *(const BYTE*)src, sp, pnum, loc, subloc);
 	//}
 	src += sizeof(BYTE);
-	if (!none && !placeholder && is->_iIdentified != *(const BOOLEAN*)src) {
-		PrintItemMismatch(is, "iden", is->_iIdentified, *(const BOOLEAN*)src, sp, pnum, loc, subloc);
+	if (!none && !placeholder && is->_iUnidentified != *(const BOOLEAN*)src) {
+		PrintItemMismatch(is, "unid", is->_iUnidentified, *(const BOOLEAN*)src, sp, pnum, loc, subloc);
 	}
 	src += sizeof(BOOLEAN);
 

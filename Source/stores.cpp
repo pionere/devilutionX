@@ -357,8 +357,8 @@ static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
 
 static void AddStoreHoldItemBuy(ItemStruct* is, int i)
 {
-	if (is->_iMagical != ITEM_QUALITY_NORMAL)
-		is->_iIdentified = TRUE;
+	// if (is->_iMagical != ITEM_QUALITY_NORMAL)
+		is->_iUnidentified = FALSE;
 
 	AddStoreHoldItem(is, i, is->_iIvalue);
 }
@@ -467,7 +467,7 @@ static void AddStoreSell(const ItemStruct* is, int i)
 {
 	int value;
 
-	value = (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified) ? is->_iIvalue : is->_ivalue;
+	value = (/*is->_iMagical != ITEM_QUALITY_NORMAL && */!is->_iUnidentified) ? is->_iIvalue : is->_ivalue;
 	value >>= 3;
 	if (value == 0)
 		value = 1;
@@ -729,7 +729,7 @@ static void S_StartBoy()
 	if (boyitem._itype != ITYPE_NONE) {
 		AddSText(0, STORE_PEGBOY_GOSSIP1, true, talkname[TOWN_PEGBOY], COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
-		if (!boyitem._iIdentified) {
+		if (boyitem._iUnidentified) {
 			static_assert(STORE_PEGBOY_PRICE == 50, "Hardcoded boy price is 50.");
 			AddSText(0, 14, true, "but it will cost 50 gold", COL_GOLD, false);
 			AddSText(0, 16, true, "just to take a look. ", COL_GOLD, false);
@@ -790,8 +790,8 @@ static void S_StartStory()
 static bool IdItemOk(const ItemStruct* is)
 {
 	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER
-		&& is->_iMagical != ITEM_QUALITY_NORMAL
-		&& !is->_iIdentified;
+		// && is->_iMagical != ITEM_QUALITY_NORMAL
+		&& is->_iUnidentified;
 }
 
 static void AddStoreHoldId(const ItemStruct* is, int i)
@@ -1266,7 +1266,7 @@ void DrawStore()
 				{
 					int dx, dy = STORE_LINE_HEIGHT - 3 * INV_SLOT_SIZE_PX;
 					int linesOfItemDetails = 0;
-					if (is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified) {
+					if (/*is->_iMagical == ITEM_QUALITY_NORMAL || */!is->_iUnidentified) {
 						if (is->_iClass == ICLASS_WEAPON || is->_iClass == ICLASS_ARMOR) {
 							linesOfItemDetails++;
 							if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
@@ -1812,8 +1812,8 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		// assert(ii == MAXITEMS);
 		pi = &items[MAXITEMS];
 		// TODO: validate price?
-		if (pi->_iMagical != ITEM_QUALITY_NORMAL)
-			pi->_iIdentified = TRUE;
+		// if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+			pi->_iUnidentified = FALSE;
 		ItemStatOk(pnum, pi);
 		if (!StoreAutoPlace(pnum, pi, false) || !TakePlrsMoney(pnum, price))
 			return;
@@ -1830,9 +1830,8 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		if (!TakePlrsMoney(pnum, STORE_ID_PRICE))
 			return;
 		pi = PlrItem(pnum, ii);
-		if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
-			pi->_iIdentified = TRUE;
-		}
+		// if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+			pi->_iUnidentified = FALSE;
 		lastshold = STORE_IDSHOW;
 		break;
 	case STORE_SREPAIR:
@@ -2055,7 +2054,7 @@ static void S_BoyEnter()
 			// stextxhold = stextselx;
 			stextvhold = stextsidx;
 			stextshold = STORE_PEGBOY;
-			if (boyitem._iIdentified) {
+			if (!boyitem._iUnidentified) {
 				StartStore(STORE_PBUY);
 			} else if (myplr._pGold < STORE_PEGBOY_PRICE) {
 				StartStore(STORE_NOMONEY);
@@ -2116,7 +2115,7 @@ static void StoryIdItem(int i)
 	} else {
 		i = INVITEM_BODY_FIRST - (i + 1);
 	}
-	storeitem._iIdentified = TRUE;
+	storeitem._iUnidentified = FALSE;
 	SendStoreCmd1(i, STORE_SIDENTIFY, STORE_ID_PRICE);
 }
 
