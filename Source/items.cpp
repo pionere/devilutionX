@@ -1467,13 +1467,11 @@ static int PLVal(const AffixData* affix, int pv)
 	return rv;
 }
 
-static int SaveItemPower(int ii, int power, int param1, int param2)
+static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 {
-	ItemStruct* is;
 	ItemAffixStruct* ias;
 	int r2;
 
-	is = &items[ii];
 	ias = &is->_iAffixes[is->_iNumAffixes];
 	is->_iNumAffixes++;
 	ias->asPower = power;
@@ -1654,7 +1652,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iUnidentified = TRUE;
 			v = SaveItemPower(
-			    ii,
+			    &items[ii],
 			    pres->PLPower,
 			    pres->PLParam1,
 			    pres->PLParam2);
@@ -1679,7 +1677,7 @@ static void GetItemPower(int ii, unsigned lvl, BYTE range, int flgs, bool onlygo
 			items[ii]._iMagical = ITEM_QUALITY_MAGIC;
 			items[ii]._iUnidentified = TRUE;
 			v = SaveItemPower(
-			    ii,
+			    &items[ii],
 			    sufs->PLPower,
 			    sufs->PLParam1,
 			    sufs->PLParam2);
@@ -1880,29 +1878,30 @@ static int CheckUnique(int ii, unsigned lvl, unsigned quality)
 static void GetUniqueItem(int ii, int uid)
 {
 	const UniqItemData* ui;
+	ItemStruct* is = &items[ii];
 
 	ui = &UniqueItemList[uid];
-	SaveItemPower(ii, ui->UIPower1, ui->UIParam1a, ui->UIParam1b);
+	SaveItemPower(is, ui->UIPower1, ui->UIParam1a, ui->UIParam1b);
 
 	if (ui->UIPower2 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower2, ui->UIParam2a, ui->UIParam2b);
+		SaveItemPower(is, ui->UIPower2, ui->UIParam2a, ui->UIParam2b);
 	if (ui->UIPower3 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower3, ui->UIParam3a, ui->UIParam3b);
+		SaveItemPower(is, ui->UIPower3, ui->UIParam3a, ui->UIParam3b);
 	if (ui->UIPower4 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower4, ui->UIParam4a, ui->UIParam4b);
+		SaveItemPower(is, ui->UIPower4, ui->UIParam4a, ui->UIParam4b);
 	if (ui->UIPower5 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower5, ui->UIParam5a, ui->UIParam5b);
+		SaveItemPower(is, ui->UIPower5, ui->UIParam5a, ui->UIParam5b);
 	if (ui->UIPower6 != IPL_INVALID) {
-		SaveItemPower(ii, ui->UIPower6, ui->UIParam6a, ui->UIParam6b);
+		SaveItemPower(is, ui->UIPower6, ui->UIParam6a, ui->UIParam6b);
 	}}}}}
 
-	items[ii]._iCurs = ui->UICurs;
-	items[ii]._iIvalue = ui->UIValue;
+	is->_iCurs = ui->UICurs;
+	is->_iIvalue = ui->UIValue;
 
-	items[ii]._iUid = uid;
-	items[ii]._iMagical = ITEM_QUALITY_UNIQUE;
-	items[ii]._iUnidentified = TRUE;
-	// items[ii]._iCreateInfo |= CF_UNIQUE;
+	is->_iUid = uid;
+	is->_iMagical = ITEM_QUALITY_UNIQUE;
+	is->_iUnidentified = TRUE;
+	// is->_iCreateInfo |= CF_UNIQUE;
 }
 
 static void ItemRndDur(int ii)
