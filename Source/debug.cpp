@@ -1791,6 +1791,7 @@ void ValidateData()
 	assert(spelldata[SPL_FIREBOLT].sBookLvl != SPELL_NA); // required by SyncShrineCmd
 	assert(spelldata[SPL_CBOLT].sBookLvl != SPELL_NA);    // required by SyncShrineCmd
 	assert(spelldata[SPL_HBOLT].sBookLvl != SPELL_NA);    // required by SyncShrineCmd
+	assert(spelldata[SPL_RESURRECT].sBookLvl == SPELL_NA); // required by GetBookSpell
 	assert(SFX_VALID(spelldata[SPL_DISARM].sSFX)); // required by On_DISARMXY
 	assert(SFX_VALID(spelldata[SPL_TELEKINESIS].sSFX)); // required by DoTelekinesis
 	assert(spelldata[SPL_RESURRECT].sManaCost == 0); // required by GetItemSpell

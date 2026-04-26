@@ -1225,8 +1225,8 @@ BYTE GetBookSpell(unsigned lvl)
 
 	ns = 0;
 	for (bs = 0; bs < NUM_SPELLS; bs++) {
-		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl
-		 && (IsMultiGame || bs != SPL_RESURRECT)) {
+		if (spelldata[bs].sBookLvl != SPELL_NA && lvl >= spelldata[bs].sBookLvl) {
+			// assert(IsMultiGame || bs != SPL_RESURRECT);
 			ss[ns] = bs;
 			ns++;
 		}
