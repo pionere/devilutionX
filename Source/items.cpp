@@ -1361,13 +1361,11 @@ static void SetRuneSpell(ItemStruct* is, unsigned lvl)
 }
 #endif
 
-static void GetStaffSpell(int ii, unsigned lvl)
+static BYTE GetStaffSpell(unsigned lvl)
 {
-	const SpellData* sd;
-	ItemStruct* is;
 	static_assert((int)NUM_SPELLS < UCHAR_MAX, "GetStaffSpell stores spell-ids in BYTEs.");
 	BYTE ss[NUM_SPELLS];
-	int bs, ns, v;
+	int bs, ns;
 
 	if (lvl < STAFF_MIN)
 		lvl = STAFF_MIN;
@@ -1381,7 +1379,16 @@ static void GetStaffSpell(int ii, unsigned lvl)
 		}
 	}
 	// assert(ns > 0);
-	bs = ss[random_low(18, ns)];
+	return ss[random_low(18, ns)];
+}
+
+static void SetStaffSpell(int ii, unsigned lvl)
+{
+	const SpellData* sd;
+	ItemStruct* is;
+	int bs, v;
+
+	bs = GetStaffSpell(lvl);
 
 	is = &items[ii];
 	sd = &spelldata[bs];
@@ -1746,7 +1753,7 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 	case ITYPE_STAFF:
 		flgs = PLT_STAFF;
 		if (allowspells && random_(17, 4) != 0) {
-			GetStaffSpell(ii, lvl);
+			SetStaffSpell(ii, lvl);
 			if (random_(51, 2) != 0)
 				return;
 			flgs |= PLT_CHRG;
