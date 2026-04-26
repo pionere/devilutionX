@@ -447,9 +447,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 						asb += ias->asValue0;
 						break;
 					case IPL_FASTRECOVER:
-						static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized SaveItemPower depends simple flag-like hit-recovery modifiers.");
-						static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers I.");
-						static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "SaveItemPower depends on ordered hit-recovery modifiers II.");
+						static_assert((ISPL_FASTRECOVER & (ISPL_FASTRECOVER - 1)) == 0, "Optimized CalcPlrItemVals depends simple flag-like hit-recovery modifiers.");
+						static_assert(ISPL_FASTRECOVER == ISPL_FASTERRECOVER / 2, "CalcPlrItemVals depends on ordered hit-recovery modifiers I.");
+						static_assert(ISPL_FASTERRECOVER == ISPL_FASTESTRECOVER / 2, "CalcPlrItemVals depends on ordered hit-recovery modifiers II.");
 						// assert((unsigned)(ias->asValue0 - 1) < 3);
 						iflgs |= ISPL_FASTRECOVER << (ias->asValue0 - 1);
 						break;
@@ -475,16 +475,16 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 						iflgs |= ISPL_LIFETOMANA;
 						break;
 					case IPL_FASTCAST:
-						static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized SaveItemPower depends simple flag-like cast-speed modifiers.");
-						static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers I.");
-						static_assert(ISPL_FASTERCAST == ISPL_FASTESTCAST / 2, "SaveItemPower depends on ordered cast-speed modifiers II.");
+						static_assert((ISPL_FASTCAST & (ISPL_FASTCAST - 1)) == 0, "Optimized CalcPlrItemVals depends simple flag-like cast-speed modifiers.");
+						static_assert(ISPL_FASTCAST == ISPL_FASTERCAST / 2, "CalcPlrItemVals depends on ordered cast-speed modifiers I.");
+						static_assert(ISPL_FASTERCAST == ISPL_FASTESTCAST / 2, "CalcPlrItemVals depends on ordered cast-speed modifiers II.");
 						// assert((unsigned)(ias->asValue0 - 1) < 3);
 						iflgs |= ISPL_FASTCAST << (ias->asValue0 - 1);
 						break;
 					case IPL_FASTWALK:
-						static_assert((ISPL_FASTWALK & (ISPL_FASTWALK - 1)) == 0, "Optimized SaveItemPower depends simple flag-like walk-speed modifiers.");
-						static_assert(ISPL_FASTWALK == ISPL_FASTERWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers I.");
-						static_assert(ISPL_FASTERWALK == ISPL_FASTESTWALK / 2, "SaveItemPower depends on ordered walk-speed modifiers II.");
+						static_assert((ISPL_FASTWALK & (ISPL_FASTWALK - 1)) == 0, "Optimized CalcPlrItemVals depends simple flag-like walk-speed modifiers.");
+						static_assert(ISPL_FASTWALK == ISPL_FASTERWALK / 2, "CalcPlrItemVals depends on ordered walk-speed modifiers I.");
+						static_assert(ISPL_FASTERWALK == ISPL_FASTESTWALK / 2, "CalcPlrItemVals depends on ordered walk-speed modifiers II.");
 						// assert((unsigned)(ias->asValue0 - 1) < 3);
 						iflgs |= ISPL_FASTWALK << (ias->asValue0 - 1);
 						break;
