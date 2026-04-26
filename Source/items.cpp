@@ -769,6 +769,8 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pIBlockChance = (plr._pSkillFlags & SFLAG_BLOCK) ? btoblk + std::min(sadd, dadd) : 0;
 
 	static_assert(SPL_NULL == 0, "CalcPlrItemVals expects SPL_NULL == 0.");
+	static_assert(lengthof(plx(0)._pSkillLvlBase) >= NUM_SPELLS, "Base skill-level can not be read from PlayerStruct._pSkillLvlBase");
+	static_assert(lengthof(plx(0)._pSkillLvl) >= NUM_SPELLS, "Calculated skill-level can not be stored in PlayerStruct._pSkillLvl");
 	for (i = 1; i < NUM_SPELLS; i++) {
 		skillLvl = 0;
 		//if (plr._pMemSkills & SPELL_MASK(i)) {

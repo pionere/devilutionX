@@ -779,7 +779,9 @@ static void AddPlrSkillExp(int pnum, int lvl, unsigned exp)
 	BYTE shr, sn, sl;
 	unsigned xp, dLvl;
 	BYTE skills[NUM_SPELLS];
-
+	static_assert(lengthof(plx(0)._pSkillLvlBase) >= NUM_SPELLS, "Base skill-level can not be stored in PlayerStruct._pSkillLvlBase");
+	static_assert(lengthof(plx(0)._pSkillActivity) >= NUM_SPELLS, "Skill-activity can not be stored in PlayerStruct._pSkillActivity");
+	static_assert(lengthof(plx(0)._pSkillExp) >= NUM_SPELLS, "Skill-experience can not be stored in PlayerStruct._pSkillExp");
 	// collect the active skills below a level limit
 	lvl += 8;
 	for (i = 0; i < NUM_SPELLS; i++) {

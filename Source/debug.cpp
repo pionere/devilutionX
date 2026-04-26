@@ -1868,6 +1868,14 @@ void ValidateData()
 		if (sd.sBookLvl != SPELL_NA) {
 			if (i >= sizeof(plx(0)._pMemSkills) * 8)
 				app_fatal("Skill index for %s (%d) is to high to be stored in PlayerStruct._pMemSkills.", sd.sNameText, i);
+			if (i >= lengthof(plx(0)._pSkillActivity))
+				app_fatal("Skill index for %s (%d) is to high to be stored in PlayerStruct._pSkillActivity", sd.sNameText, i);
+			if (i >= lengthof(plx(0)._pSkillLvlBase))
+				app_fatal("Skill index for %s (%d) is to high to be stored in PlayerStruct._pSkillLvlBase", sd.sNameText, i);
+			if (i >= lengthof(plx(0)._pSkillLvl))
+				app_fatal("Skill index for %s (%d) is to high to be stored in PlayerStruct._pSkillLvl", sd.sNameText, i);
+			if (i >= lengthof(plx(0)._pSkillExp))
+				app_fatal("Skill index for %s (%d) is to high to be stored in PlayerStruct._pSkillExp", sd.sNameText, i);
 			if (sd.sType != STYPE_NONE && sd.sType != STYPE_FIRE && sd.sType != STYPE_MAGIC && sd.sType != STYPE_LIGHTNING)
 				app_fatal("Invalid sType %d for %s (%d)", sd.sType, sd.sNameText, i);
 			if (sd.sBookLvl < BOOK_MIN)
