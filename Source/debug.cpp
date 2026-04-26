@@ -632,8 +632,6 @@ void ValidateData()
 	assert(objectdata[OBJ_TORCHL2].oLvlTypes & lvlMask); // required by SyncPedestal
 	}
 	// monsters
-	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK)); // required by MonHitByMon
-	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED)); // required by MonHitByMon and MonHitByPlr
 	assert(monsterdata[MT_GOLEM].mSelFlag == 0); // required by CheckCursMove
 	assert(monsterdata[MT_GBAT].mAI.aiType == AI_BAT); // required by MAI_Bat
 #ifdef HELLFIRE
@@ -901,6 +899,14 @@ void ValidateData()
 				app_fatal("Bad mMagicRes2 %d (%d) for %s (%d): worse than mMagicRes %d.", md.mMagicRes2, j, md.mName, i, md.mMagicRes);
 			}
 		}
+//		if (md.mFlags & MFLAG_KNOCKBACK) {
+//			for (int j = 0; j < lengthof(minionMonData); j++) {
+//				const MinionMonData& mmd = minionMonData[j];
+//				if (!(monsterdata[mmd.mtype].mFlags & MFLAG_NOGETHIT)) {
+//					app_fatal("Minion monster type %d set for minion monster %d can be knocked back by monster %s (%d), but it is not handled.", mmd.mtype, j, md.mName, i); // required by MonHitByMon
+//				}
+//			}
+//		}
 	}
 	for (i = 0; i < NUM_MOFILE; i++) {
 		const MonFileData& md = monfiledata[i];
@@ -944,6 +950,18 @@ void ValidateData()
 		}
 		if (md.moAnimFrameLen[MA_SPECIAL] != 0 && !spUsed) {
 			app_fatal("Unused special animation for %s (%d)", md.moGfxFile, i);
+		}
+	}
+	for (i = 0; i < lengthof(minionMonData); i++) {
+		const MinionMonData& mmd = minionMonData[i];
+		if (mmd.mtype >= NUM_MTYPES) {
+			app_fatal("Invalid monster type %d set for minion monster %d.", mmd.mtype, i);
+		}
+		if (monsterdata[mmd.mtype].mFlags & MFLAG_CAN_BLEED) {
+			app_fatal("Minion monster type %d set for minion monster %d can bleed, but it is not handled.", mmd.mtype, i); // required by AddBleed, MI_Bleed and MonHitByMon
+		}
+		if (monsterdata[mmd.mtype].mFlags & MFLAG_KNOCKBACK) {
+			app_fatal("Minion monster type %d set for minion monster %d can knock back, but it is not handled.", mmd.mtype, i); // required by MonHitByMon
 		}
 	}
 #endif
