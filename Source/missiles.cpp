@@ -1495,13 +1495,11 @@ static void SyncMissAnim(int mi)
 	}
 }
 
-static void SyncRhinoAnim(int mi)
+static void SyncRhinoAnim(MissileStruct* mis)
 {
-	MissileStruct* mis;
 	MonsterStruct* mon;
 	MonAnimStruct* anim;
 
-	mis = &missile[mi];
 	assert(mis->_miAnimFlag);
 
 	mon = &monsters[mis->_miSource];
@@ -1517,13 +1515,11 @@ static void SyncRhinoAnim(int mi)
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 }
 
-static void SyncChargeAnim(int mi)
+static void SyncChargeAnim(MissileStruct* mis)
 {
-	MissileStruct* mis;
 	int pnum;
 	PlrAnimStruct* anim;
 
-	mis = &missile[mi];
 	assert(mis->_miAnimFlag);
 
 	pnum = mis->_miSource;
@@ -2702,7 +2698,7 @@ int AddRhino(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	monsters[misource]._mmode = MM_CHARGE;
 	mis = &missile[mi];
 	mis->_miDir = midir;
-	SyncRhinoAnim(mi);
+	SyncRhinoAnim(mis);
 	//PutMissile(mi);
 	return MIRES_DONE;
 }
@@ -2740,7 +2736,7 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miVar1 = dx;
 	mis->_miVar2 = dy;
 	mis->_miAnimAdd = aa;
-	SyncChargeAnim(mi);
+	SyncChargeAnim(mis);
 	if (pnum == mypnum) {
 		// assert(ScrollInfo._sdx == 0);
 		// assert(ScrollInfo._sdy == 0);
@@ -5213,15 +5209,17 @@ void ProcessMissiles()
 
 void SyncMissilesAnim()
 {
+	MissileStruct* mis;
 	int i, mi;
 
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
 		SyncMissAnim(mi);
-		if (missile[mi]._miType == MIS_RHINO) {
-			SyncRhinoAnim(mi);
-		} else if (missile[mi]._miType == MIS_CHARGE) {
-			SyncChargeAnim(mi);
+		mis = &missile[mi];
+		if (mis->_miType == MIS_RHINO) {
+			SyncRhinoAnim(mis);
+		} else if (mis->_miType == MIS_CHARGE) {
+			SyncChargeAnim(mis);
 		}
 	}
 }
