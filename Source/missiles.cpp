@@ -4794,7 +4794,8 @@ void MI_Shroud(int mi)
 				mis->_miRange -= mv;
 				if (mis->_miRange < 0)
 					break;
-				bmis->_miRange = -1;
+				// let firewalls live for one tick otherwise BFLAG_HAZARD might not be removed, or it could cause desync
+				bmis->_miRange = (bmis->_miType == MIS_FIREWALL || bmis->_miType == MIS_FIREWAVE) ? 0 : -1;
 			}
 		}
 		PutMissile(mi);

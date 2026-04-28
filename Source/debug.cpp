@@ -2128,8 +2128,10 @@ void ValidateData()
 			assert(md.mAddProc == AddBloodBoil);
 			// assert(md.mFileNum == MFILE_BLODBURS);
 		}
-		if (md.mProc == MI_Firewall || md.mProc == MI_FireWave)
+		if (md.mProc == MI_Firewall || md.mProc == MI_FireWave) {
 			assert(md.mFileNum == MFILE_FIREWAL);
+			assert(i == MIS_FIREWALL || i == MIS_FIREWAVE); // required by LevelDeltaLoad, MI_Shroud
+		}
 		if (md.mProc == MI_Flash)
 			assert(md.mFileNum == MFILE_BLUEXFR);
 		if (md.mProc == MI_Flash2)

@@ -1760,7 +1760,7 @@ void LevelDeltaLoad()
 
 		// PutMissile(mi); - unnecessary, since it is just a gfx
 		// PutMissileF(mi, BFLAG_HAZARD)
-		if (mis->_miType == MIS_FIREWALL) {
+		if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
 			dMissile[mis->_mix][mis->_miy] = /*dMissile[mis->_mix][mis->_miy] == 0 ? mi + 1 :*/ MIS_MULTI;
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
 		}
