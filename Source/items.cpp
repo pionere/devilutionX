@@ -2649,7 +2649,7 @@ void DoAbility(int pnum, int8_t from, BYTE cii)
 
 	// TODO: add to Abilities table in player.cpp?
 	if (from != SPLFROM_ABILITY) {
-		if (SyncUseItem(pnum, from, SPL_IDENTIFY))
+		if (SyncUseItem(pnum, from) == SPL_IDENTIFY)
 			DoIdentify(pnum, cii);
 		return;
 	}

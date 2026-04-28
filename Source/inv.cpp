@@ -1718,9 +1718,10 @@ void InvUseItem(int cii)
 	}
 }
 
-bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
+int SyncUseItem(int pnum, BYTE cii)
 {
 	ItemStruct* is;
+	int sn;
 
 	// assert(plr._pmode != PM_DEATH);
 	// assert(cii < NUM_INVELEM);
@@ -1728,17 +1729,18 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	is = PlrItem(pnum, cii);
 
 	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
-		return false;
+		return SPL_NULL;
 
+	sn = is->_iSpell;
 	if (cii < INVITEM_INV_FIRST) {
-		if (is->_iSpell != sn || is->_iCharges <= 0)
-			return false;
+		if (is->_iCharges <= 0)
+			return SPL_NULL;
 		is->_iCharges--;
-		return true;
+		return sn;
 	}
 
 	if (!is->_iUsable)
-		return false;
+		return SPL_NULL;
 
 	// use the item
 	// commented out because iSeed of the STACK is not regenerated
@@ -1768,12 +1770,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 #ifdef HELLFIRE
 	case IMISC_RUNE:
 #endif
-		if (is->_iSpell != sn)
-			return false;
-		sn = SPL_INVALID;
 		break;
 	case IMISC_BOOK:
-		sn = is->_iSpell;
 		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
 		if (plr._pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
@@ -1783,7 +1781,6 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvlBase[sn]]) {
 			IncreasePlrSkillLvl(pnum, sn);
 		}
-		sn = SPL_INVALID;
 		break;
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
@@ -1801,14 +1798,14 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_OILCLEAN:
 	case IMISC_MAP:
 		// should not happen, only if the player is reckless...
-		return false;
+		return SPL_NULL;
 	default:
 		ASSUME_UNREACHABLE
 	}
 	// consume the item
 	if (--is->_iDurability <= 0) // STACK
 		SyncPlrItemRemove(pnum, cii);
-	return sn == SPL_INVALID;
+	return sn;
 }
 
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)

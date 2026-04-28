@@ -2412,7 +2412,8 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 			net_check(sn == plrAbility || (mask & SPELL_MASK(sn)), false);
 		} else {
 			net_check((BYTE)sf < NUM_INVELEM, false);
-			if (!SyncUseItem(pnum, sf, sn))
+			sn = SyncUseItem(pnum, sf);
+			if (sn == SPL_NULL)
 				return false;
 		}
 		plr._pDestParam3 = sn;
@@ -3164,7 +3165,7 @@ static unsigned On_USEPLRITEM(const TCmd* pCmd, int pnum)
 
 		net_check_cmd(cii < NUM_INVELEM);
 
-		SyncUseItem(pnum, cii, SPL_INVALID);
+		SyncUseItem(pnum, cii);
 	}
 
 	return sizeof(*cmd);
