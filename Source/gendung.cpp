@@ -1310,10 +1310,7 @@ void DRLG_LoadSP(int idx, BYTE bv)
 
 static void DRLG_InitFlags()
 {
-	BYTE c;
-
-	c = currLvl._dType == DTYPE_TOWN ? BFLAG_VISIBLE : 0;
-	memset(dFlags, c, sizeof(dFlags));
+	memset(dFlags, 0, sizeof(dFlags));
 
 	if (!currLvl._dSetLvl) {
 		for (int i = lengthof(pWarps) - 1; i >= 0; i--) {
@@ -1399,6 +1396,16 @@ void InitLvlMap()
 	memset(dObject, 0, sizeof(dObject));
 	memset(dItem, 0, sizeof(dItem));
 	memset(dMissile, 0, sizeof(dMissile));
+}
+
+void FinishLvlMap()
+{
+	BYTE c;
+	// reset BFLAG_MON_PROTECT/BFLAG_OBJ_PROTECT flags, initialize visible town
+	c = currLvl._dType == DTYPE_TOWN ? BFLAG_VISIBLE : 0;
+	memset(dFlags, c, sizeof(dFlags));
+
+	SavePreLighting();
 }
 
 /**
