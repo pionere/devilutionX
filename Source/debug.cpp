@@ -1290,7 +1290,7 @@ void ValidateData()
 		for (int ii = 0; ii < lengthof(pres->PLRanges); ii++) {
 			for (int n = pres->PLRanges[ii].from; n <= pres->PLRanges[ii].to; n++) {
 				int cnt = pres->PLDouble ? 2 : 1;
-				if (pres->PLIType & PLT_MISC)
+				if (pres->PLIType & PLT_JEWEL)
 					rnddrops[n][ii][0] += cnt;
 				if (pres->PLIType & PLT_BOW)
 					rnddrops[n][ii][1] += cnt;
@@ -1423,7 +1423,7 @@ void ValidateData()
 		for (int ii = 0; ii < lengthof(sufs->PLRanges); ii++) {
 			for (int n = sufs->PLRanges[ii].from; n <= sufs->PLRanges[ii].to; n++) {
 				int cnt = sufs->PLDouble ? 2 : 1;
-				if (sufs->PLIType & PLT_MISC)
+				if (sufs->PLIType & PLT_JEWEL)
 					rnddrops[n][ii][0] += cnt;
 				if (sufs->PLIType & PLT_BOW)
 					rnddrops[n][ii][1] += cnt;

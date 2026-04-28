@@ -545,7 +545,7 @@ typedef enum item_affix_range {
 } item_affix_range;
 
 typedef enum affix_item_type {
-	PLT_MISC   = 1 << 0,
+	PLT_JEWEL  = 1 << 0,
 	PLT_BOW    = 1 << 1,
 	PLT_STAFF  = 1 << 2,
 	PLT_CHRG   = 1 << 3,
