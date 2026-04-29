@@ -3940,8 +3940,8 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		buf += sizeof(uint64_t);
 
 		//LogErrorF("Player skill-data I. %d", (size_t)buf - (size_t)plrdata);
-		assert((size_t)buf - (size_t)plrdata == 209);
-		NetSendChunk(plrdata, 209); // (size_t)buf - (size_t)plrdata);
+		assert((size_t)buf - (size_t)plrdata == 203);
+		NetSendChunk(plrdata, 203); // (size_t)buf - (size_t)plrdata);
 
 		// skill attributes II.
 		buf = &plrdata[1];
