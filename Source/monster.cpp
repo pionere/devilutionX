@@ -2002,11 +2002,9 @@ void MonHitByMon(int defm, int offm, int dam, int dir)
 	}
 	dmon = &monsters[defm];
 	// assert(dmon->_mmode != MM_DEATH);
-	if ((unsigned)offm < MAX_MINIONS) {
-		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
-		if (offm == mypnum) {
-			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
-		}
+	static_assert(MAX_MINIONS == MAX_PLRS, "MonHitByMon requires that owner of a monster has the same id as the monster itself.");
+	if (/*defm >= MAX_MINIONS && (*/offm == mypnum/* || offm < 0)*/) {
+		NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
 	}
 	PlayMonSfx(defm, MS_GOTHIT);
 	if (dmon->_mmode != MM_STONE) {
