@@ -2132,6 +2132,11 @@ void ValidateData()
 			assert(md.mFileNum == MFILE_FIREWAL);
 			assert(i == MIS_FIREWALL || i == MIS_FIREWAVE); // required by LevelDeltaLoad, MI_Shroud
 		}
+#ifdef HELLFIRE
+		if (md.mProc == MI_Rune) {
+			assert(i >= MIS_RUNEFIRE && i <= MIS_RUNESTONE); // required by LevelDeltaLoad
+		}
+#endif
 		if (md.mProc == MI_Flash)
 			assert(md.mFileNum == MFILE_BLUEXFR);
 		if (md.mProc == MI_Flash2)
