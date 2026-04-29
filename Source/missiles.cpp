@@ -311,12 +311,14 @@ void RemovePortalMissile(int pnum)
 /*
  * Check if an active (missile-)entity can be placed at the given position.
  */
-static bool PosOkMissile(int x, int y)
+static bool PosOkMissile(int x, int y, int sx, int sy)
 {
 	if (!PosOkActor(x, y))
 		return false;
 	// nSolidTable is checked -> ignore the few additional tiles from nMissileTable
-	return (dMissile[x][y] /*| nMissileTable[dPiece[x][y]]*/) == 0;
+	if ((dMissile[x][y] /*| nMissileTable[dPiece[x][y]]*/) != 0)
+		return false;
+	return LineClear(sx, sy, x, y);
 }
 
 /*
@@ -1784,7 +1786,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			if (PosOkMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				static_assert(MAX_LIGHT_RAD >= 8, "PlaceRune needs at least light-radius of 8.");
@@ -2440,7 +2442,7 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			if (PosOkMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				//mis->_misx = tx;
@@ -2849,7 +2851,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			if (PosOkMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				mis->_misx = tx;
