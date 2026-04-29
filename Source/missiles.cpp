@@ -311,14 +311,17 @@ void RemovePortalMissile(int pnum)
 /*
  * Check if an active (missile-)entity can be placed at the given position.
  */
-static bool PosOkMissile(int x, int y, int sx, int sy)
+static bool PlaceMissile(int x, int y, int sx, int sy)
 {
 	if (!PosOkActor(x, y))
 		return false;
 	// nSolidTable is checked -> ignore the few additional tiles from nMissileTable
-	if ((dMissile[x][y] /*| nMissileTable[dPiece[x][y]]*/) != 0)
+	if (!LineClear(sx, sy, x, y))
 		return false;
-	return LineClear(sx, sy, x, y);
+	if (dFlags[x][y] & BFLAG_MIS_ACTIVE)
+		return false;
+	dFlags[x][y] |= BFLAG_MIS_ACTIVE;
+	return true;
 }
 
 /*
@@ -1786,7 +1789,7 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty, sx, sy)) {
+			if (PlaceMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				static_assert(MAX_LIGHT_RAD >= 8, "PlaceRune needs at least light-radius of 8.");
@@ -2442,7 +2445,7 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty, sx, sy)) {
+			if (PlaceMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				//mis->_misx = tx;
@@ -2851,7 +2854,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMissile(tx, ty, sx, sy)) {
+			if (PlaceMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
 				mis->_misx = tx;
@@ -4104,7 +4107,7 @@ void MI_HorkSpawn(int mi)
 		mis->_mitxoff += mis->_mixvel;
 		mis->_mityoff += mis->_miyvel;
 		GetMissilePos(mis);
-		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy) || PosOkMissile(mis->_mix, mis->_miy)) {
+		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy) || PosOkMis2(mis->_mix, mis->_miy)) {
 		// if (PosOkMonster(mis->_miSource, mis->_mix, mis->_miy)) {
 			PutMissile(mi);
 			return;
@@ -4165,6 +4168,7 @@ void MI_Rune(int mi)
 	}
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
+		dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
 		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
@@ -4523,6 +4527,7 @@ void MI_Guardian(int mi)
 		 // && mis->_miAnimCnt == MIA_GUARD_DELAY - 1
 		 && mis->_miAnimAdd < 0) {
 			// done after collapse
+			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
 			mis->_miDelFlag = TRUE; // + AddUnLight
 			return;
 		}
@@ -4799,6 +4804,7 @@ void MI_Shroud(int mi)
 		PutMissile(mi);
 		return;
 	}
+	dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
 	mis->_miDelFlag = TRUE;
 }
 
