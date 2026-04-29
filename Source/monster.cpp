@@ -5267,7 +5267,7 @@ void SpawnGolem(int mnum, int x, int y, int level, int type)
 	ActivateSpawn(mnum, x, y, DIR_S);
 	PlaySfxLoc(LS_GOLUM, x, y);
 	if (mnum == mypnum)
-		NetSendCmdGolem(x, y, level, type);
+		NetSendCmdGolem(/*x, y, */level, type);
 }
 
 bool CanTalkToMonst(int mnum)

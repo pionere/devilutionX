@@ -696,12 +696,11 @@ static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 		return;
 
 	bLevel = pG->goMonLevel;
-	net_assert(bLevel != 0);
 	gsDeltaData.ddJunk.jGolems[mnum][0] = bLevel;
 	bType = pG->goMonType;
 	net_assert(bType < NUM_MMTYPES);
 	gsDeltaData.ddJunk.jGolems[mnum][1] = bType;
-
+#if 0
 	bLevel = pG->goDunLevel;
 	net_assert(bLevel < NUM_LEVELS);
 
@@ -715,6 +714,7 @@ static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 	static_assert(MLEADER_NONE == 0, "delta_awake_golem expects _mleaderflag to be set by zerofill.");
 	// pD->dmleaderflag = MLEADER_NONE;
 	pD->dmhitpoints = monsters[mnum]._mmaxhp;
+#endif
 }
 
 static void delta_leave_sync(BYTE bLevel)
@@ -1971,17 +1971,18 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGolem(BYTE x, BYTE y, BYTE lvl, BYTE type)
+void NetSendCmdGolem(/*BYTE x, BYTE y, */BYTE lvl, BYTE type)
 {
 	TCmdGolem cmd;
 
 	cmd.bCmd = CMD_AWAKEGOLEM;
-	cmd.goX = x;
-	cmd.goY = y;
 	cmd.goMonLevel = lvl;
 	cmd.goMonType = type;
+#if 0
+	cmd.goX = x;
+	cmd.goY = y;
 	cmd.goDunLevel = currLvl._dLevelIdx;
-
+#endif
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 

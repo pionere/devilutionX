@@ -1650,9 +1650,11 @@ typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE goMonLevel;
 	BYTE goMonType;
+#if 0
 	BYTE goX;
 	BYTE goY;
 	BYTE goDunLevel;
+#endif
 } TCmdGolem;
 
 typedef struct TCmdShrine {
