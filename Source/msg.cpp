@@ -552,10 +552,10 @@ static void delta_monster_corpse(const TCmdBParam2* pCmd)
 		return;
 
 	bLevel = pCmd->bParam1;
-	net_assert(bLevel < NUM_LEVELS);
+	net_check(bLevel < NUM_LEVELS);
 	// commented out, because dmCmd must be already set at this point
-	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	net_assert(pCmd->bParam2 < MAXMONSTERS);
+	// net_check(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	net_check(pCmd->bParam2 < MAXMONSTERS);
 	mon = &gsDeltaData.ddLevel[bLevel].lvMonster[pCmd->bParam2];
 	if (mon->dmCmd == DCMD_MON_DEAD)
 		mon->dmCmd = DCMD_MON_DESTROYED;
@@ -570,14 +570,14 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 		return;
 
 	bLevel = pCmd->mnParam1.bParam1;
-	net_assert(bLevel < NUM_LEVELS);
+	net_check(bLevel < NUM_LEVELS);
 #ifdef HELLFIRE
-	net_assert(bLevel == SL_SKELKING || bLevel == DLV_NEST3);
+	net_check(bLevel == SL_SKELKING || bLevel == DLV_NEST3);
 #else
-	net_assert(bLevel == SL_SKELKING);
+	net_check(bLevel == SL_SKELKING);
 #endif
-	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	net_assert(pCmd->mnMnum >= MAX_MINIONS && pCmd->mnMnum < MAXMONSTERS);
+	net_check(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	net_check(pCmd->mnMnum >= MAX_MINIONS && pCmd->mnMnum < MAXMONSTERS);
 	mon = &gsDeltaData.ddLevel[bLevel].lvMonster[pCmd->mnMnum];
 	if (mon->dmCmd == DCMD_MON_ACTIVE)
 		return;
@@ -634,11 +634,11 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 		return;
 
 	bLevel = mon->mdLevel;
-	net_assert(bLevel < NUM_LEVELS);
-	net_assert(mon->mdMnum < MAXMONSTERS);
+	net_check(bLevel < NUM_LEVELS);
+	net_check(mon->mdMnum < MAXMONSTERS);
 
 	// commented out, because these changes are ineffective unless dmCmd is already set
-	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	// net_check(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = &gsDeltaData.ddLevel[bLevel].lvMonster[mon->mdMnum];
 	static_assert(MAX_PLRS < 8, "delta_monster_hp uses BYTE mask for pnum.");
 	pD->dmWhoHit |= 1 << pnum;
@@ -661,15 +661,15 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	assert(IsMultiGame);
 
 	bLevel = pHdr->bLevel;
-	net_assert(bLevel < NUM_LEVELS);
+	net_check(bLevel < NUM_LEVELS);
 
-	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	net_check(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pDLvlMons = gsDeltaData.ddLevel[bLevel].lvMonster;
 
 	pbBuf = (const BYTE*)&pHdr[1];
 	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
 		pSync = (TSyncMonster*)pbBuf;
-		net_assert(pSync->nmndx < MAXMONSTERS);
+		net_check(pSync->nmndx < MAXMONSTERS);
 		pD = &pDLvlMons[pSync->nmndx];
 		static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_sync_monster expects ordered DCMD_MON_ enum I.");
 		static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_sync_monster expects ordered DCMD_MON_ enum II.");
@@ -684,7 +684,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 		}
 		pbBuf += sizeof(TSyncMonster);
 	}
-	net_assert(wLen == 0);
+	net_check(wLen == 0);
 }
 
 static void delta_awake_golem(const TCmdGolem* pG, int mnum)
@@ -698,13 +698,13 @@ static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 	bLevel = pG->goMonLevel;
 	gsDeltaData.ddJunk.jGolems[mnum][0] = bLevel;
 	bType = pG->goMonType;
-	net_assert(bType < NUM_MMTYPES);
+	net_check(bType < NUM_MMTYPES);
 	gsDeltaData.ddJunk.jGolems[mnum][1] = bType;
 #if 0
 	bLevel = pG->goDunLevel;
-	net_assert(bLevel < NUM_LEVELS);
+	net_check(bLevel < NUM_LEVELS);
 
-	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	net_check(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	pD = &gsDeltaData.ddLevel[bLevel].lvMonster[mnum];
 	pD->dmCmd = DCMD_MON_ACTIVE;
 	pD->dmx = pG->goX;
