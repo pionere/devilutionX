@@ -1950,7 +1950,7 @@ typedef struct DDItem {
 
 typedef struct DDLevel {
 	DDItem item[MAXITEMS];
-	DDObject object[MAXOBJECTS];
+	DDObject lvObject[MAXOBJECTS];
 	DDMonster lvMonster[MAXMONSTERS];
 } DDLevel;
 

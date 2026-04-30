@@ -200,8 +200,8 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 	}
 
 	// export objects
-	memcpy(dst, gsDeltaData.ddLevel[bLevel].object, sizeof(gsDeltaData.ddLevel[bLevel].object));
-	dst += sizeof(gsDeltaData.ddLevel[bLevel].object);
+	memcpy(dst, gsDeltaData.ddLevel[bLevel].lvObject, sizeof(gsDeltaData.ddLevel[bLevel].lvObject));
+	dst += sizeof(gsDeltaData.ddLevel[bLevel].lvObject);
 
 	// export monsters
 	mon = gsDeltaData.ddLevel[bLevel].lvMonster;
@@ -256,12 +256,12 @@ static void DeltaImportLevel()
 	}
 	// import objects
 	for (i = 0; i < MAXOBJECTS; i++) {
-		static_assert(sizeof(gsDeltaData.ddLevel[bLvl].object) == sizeof(src[i]) * MAXOBJECTS, "Validation in DeltaImportLevel does not work with DDObject");
+		static_assert(sizeof(gsDeltaData.ddLevel[bLvl].lvObject) == sizeof(src[i]) * MAXOBJECTS, "Validation in DeltaImportLevel does not work with DDObject");
 		BYTE cmd = src[i];
 		net_assert(cmd == DCMD_INVALID || cmd == CMD_OPERATEOBJ || cmd == CMD_DOOROPEN || cmd == CMD_DOORCLOSE || cmd == CMD_TRAPDISABLE);
 	}
-	memcpy(gsDeltaData.ddLevel[bLvl].object, src, sizeof(gsDeltaData.ddLevel[bLvl].object));
-	src += sizeof(gsDeltaData.ddLevel[bLvl].object);
+	memcpy(gsDeltaData.ddLevel[bLvl].lvObject, src, sizeof(gsDeltaData.ddLevel[bLvl].lvObject));
+	src += sizeof(gsDeltaData.ddLevel[bLvl].lvObject);
 
 	// import monsters
 	mon = gsDeltaData.ddLevel[bLvl].lvMonster;
@@ -737,7 +737,7 @@ static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
 	net_assert(oi < MAXOBJECTS);
 
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	gsDeltaData.ddLevel[bLevel].object[oi].bCmd = bCmd;
+	gsDeltaData.ddLevel[bLevel].lvObject[oi].bCmd = bCmd;
 }
 
 static void delta_reserve_items(const TCmdJoinLevel* cmd)
@@ -1114,7 +1114,7 @@ void DeltaLoadLevel()
 		DeltaLoadAutomap(gsDeltaData.ddLocal[currLvl._dLevelIdx]);
 
 		// load objects
-		dstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].object;
+		dstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvObject;
 		for (i = 0; i < MAXOBJECTS; i++, dstr++) {
 			if (dstr->bCmd != DCMD_INVALID) {
 				switch (dstr->bCmd) {
