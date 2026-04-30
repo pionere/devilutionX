@@ -2254,10 +2254,10 @@ void MonSyncKill(int mnum, int x, int y, int pnum)
 	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
 		RemoveMonFromMap(mnum);
 		//dMonster[x][y] = mnum + 1;
-		//monsters[mnum]._mx = x;
-		//monsters[mnum]._my = y;
-		monsters[mnum]._moldx = x;
-		monsters[mnum]._moldy = y;
+		monsters[mnum]._mx = x;
+		monsters[mnum]._my = y;
+		//monsters[mnum]._moldx = x;
+		//monsters[mnum]._moldy = y;
 	}
 
 	MonInitKill(mnum, pnum, false);
