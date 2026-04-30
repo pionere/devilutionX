@@ -2251,7 +2251,7 @@ void MonSyncKill(int mnum, int x, int y, int pnum)
 	 || (monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
 		return;
 	}
-	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
+	if (monsters[mnum]._mx != x || monsters[mnum]._my != y) {
 		RemoveMonFromMap(mnum);
 		//dMonster[x][y] = mnum + 1;
 		monsters[mnum]._mx = x;
