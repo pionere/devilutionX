@@ -1755,7 +1755,6 @@ void FreeMonMissileGFX()
 void InitMissiles()
 {
 	int i;
-	BYTE* pTmp;
 
 	nummissiles = 0;
 
@@ -5220,11 +5219,25 @@ void SyncMissilesAnim()
 	for (i = 0; i < nummissiles; i++) {
 		mi = missileactive[i];
 		SyncMissAnim(mi);
+		// PutMissile(mi); - unnecessary, since it is just a gfx
 		mis = &missile[mi];
 		if (mis->_miType == MIS_RHINO) {
 			SyncRhinoAnim(mis);
 		} else if (mis->_miType == MIS_CHARGE) {
 			SyncChargeAnim(mis);
+		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
+			// PutMissileF(mi, BFLAG_HAZARD)
+			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
+		} else if (mis->_miType == MIS_GUARDIAN || mis->_miType == MIS_SHROUD
+#ifdef HELLFIRE
+			|| (mis->_miType >= MIS_RUNEFIRE && mis->_miType <= MIS_RUNESTONE)
+#endif
+			) {
+			dFlags[mis->_mix][mis->_miy] |= BFLAG_MIS_ACTIVE;
+		//} else if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
+		//	// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
+		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
+		//}
 		}
 	}
 }
