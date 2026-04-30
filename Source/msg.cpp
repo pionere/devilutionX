@@ -728,15 +728,18 @@ static void delta_leave_sync(BYTE bLevel)
 	memcpy(&gsDeltaData.ddLocal[bLevel].automapsv, dFlags, sizeof(dFlags));
 }
 
-static void delta_sync_object(int oi, BYTE bCmd, BYTE bLevel)
+static void delta_sync_object(BYTE bCmd, const TCmdParam1* cmd, int pnum)
 {
 	if (!IsMultiGame)
 		return;
 
-	net_assert(bLevel < NUM_LEVELS);
-	net_assert(oi < MAXOBJECTS);
+	int oi = cmd->wParam1;
+	BYTE bLevel = plr._pDunLevel;
 
-	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
+	net_check(bLevel < NUM_LEVELS);
+	net_check(oi < MAXOBJECTS);
+
+	net_check(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	gsDeltaData.ddLevel[bLevel].lvObject[oi].bCmd = bCmd;
 }
 
@@ -2980,7 +2983,7 @@ static unsigned On_DOOROPEN(const TCmd* pCmd, int pnum)
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncDoorOpen(cmd->wParam1);
-	delta_sync_object(cmd->wParam1, CMD_DOOROPEN, plr._pDunLevel);
+	delta_sync_object(CMD_DOOROPEN, cmd, pnum);
 
 	return sizeof(*cmd);
 }
@@ -2991,7 +2994,7 @@ static unsigned On_DOORCLOSE(const TCmd* pCmd, int pnum)
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncDoorClose(cmd->wParam1);
-	delta_sync_object(cmd->wParam1, CMD_DOORCLOSE, plr._pDunLevel);
+	delta_sync_object(CMD_DOORCLOSE, cmd, pnum);
 
 	return sizeof(*cmd);
 }
@@ -3002,7 +3005,7 @@ static unsigned On_TRAPDISABLE(const TCmd* pCmd, int pnum)
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapDisable(cmd->wParam1);
-	delta_sync_object(cmd->wParam1, CMD_TRAPDISABLE, plr._pDunLevel);
+	delta_sync_object(CMD_TRAPDISABLE, cmd, pnum);
 
 	return sizeof(*cmd);
 }
@@ -3013,7 +3016,7 @@ static unsigned On_TRAPDISABLE(const TCmd* pCmd, int pnum)
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapOpen(cmd->wParam1);
-	delta_sync_object(cmd->wParam1, CMD_TRAPOPEN, plr._pDunLevel);
+	delta_sync_object(CMD_TRAPOPEN, cmd, pnum);
 
 	return sizeof(*cmd);
 }
@@ -3024,7 +3027,7 @@ static unsigned On_TRAPCLOSE(const TCmd* pCmd, int pnum)
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncTrapClose(cmd->wParam1);
-	delta_sync_object(cmd->wParam1, CMD_TRAPCLOSE, plr._pDunLevel);
+	delta_sync_object(CMD_TRAPCLOSE, cmd, pnum);
 
 	return sizeof(*cmd);
 }*/
@@ -3035,7 +3038,7 @@ static unsigned On_OPERATEOBJ(const TCmd* pCmd, int pnum)
 
 	//if (pnum != mypnum && currLvl._dLevelIdx == plr._pDunLevel)
 	//	SyncOpObject(pnum, cmd->wParam1);
-	delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr._pDunLevel);
+	delta_sync_object(CMD_OPERATEOBJ, cmd, pnum);
 
 	return sizeof(*cmd);
 }
@@ -4458,7 +4461,7 @@ static unsigned On_BLOODPASS(const TCmd* pCmd, int pnum)
 	const TCmdParam1* cmd = (const TCmdParam1*)pCmd;
 
 	if (SyncBloodPass(pnum, cmd->wParam1))
-		delta_sync_object(cmd->wParam1, CMD_OPERATEOBJ, plr._pDunLevel);
+		delta_sync_object(CMD_OPERATEOBJ, cmd, pnum);
 
 	return sizeof(*cmd);
 }
