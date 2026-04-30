@@ -108,7 +108,7 @@ static void msg_mask_monhit(int pnum)
 	mask = ~(1 << pnum);
 	for (i = 0; i < NUM_LEVELS; i++) {
 		for (j = 0; j < MAXMONSTERS; j++) {
-			gsDeltaData.ddLevel[i].monster[j].dmWhoHit &= mask;
+			gsDeltaData.ddLevel[i].lvMonster[j].dmWhoHit &= mask;
 		}
 	}
 }
@@ -204,8 +204,8 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 	dst += sizeof(gsDeltaData.ddLevel[bLevel].object);
 
 	// export monsters
-	mon = gsDeltaData.ddLevel[bLevel].monster;
-	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].monster); i++, mon++) {
+	mon = gsDeltaData.ddLevel[bLevel].lvMonster;
+	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].lvMonster); i++, mon++) {
 		if (mon->dmCmd == DCMD_MON_INVALID) {
 			*dst = DCMD_MON_INVALID;
 			dst++;
@@ -264,7 +264,7 @@ static void DeltaImportLevel()
 	src += sizeof(gsDeltaData.ddLevel[bLvl].object);
 
 	// import monsters
-	mon = gsDeltaData.ddLevel[bLvl].monster;
+	mon = gsDeltaData.ddLevel[bLvl].lvMonster;
 	for (i = 0; i < MAXMONSTERS; i++, mon++) {
 		// net_assert(*src < NUM_DCMD_MON);
 		if (*src == DCMD_MON_INVALID) {
@@ -556,7 +556,7 @@ static void delta_monster_corpse(const TCmdBParam2* pCmd)
 	// commented out, because dmCmd must be already set at this point
 	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	net_assert(pCmd->bParam2 < MAXMONSTERS);
-	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->bParam2];
+	mon = &gsDeltaData.ddLevel[bLevel].lvMonster[pCmd->bParam2];
 	if (mon->dmCmd == DCMD_MON_DEAD)
 		mon->dmCmd = DCMD_MON_DESTROYED;
 }
@@ -578,7 +578,7 @@ static void delta_monster_summon(const TCmdMonstSummon* pCmd)
 #endif
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	net_assert(pCmd->mnMnum >= MAX_MINIONS && pCmd->mnMnum < MAXMONSTERS);
-	mon = &gsDeltaData.ddLevel[bLevel].monster[pCmd->mnMnum];
+	mon = &gsDeltaData.ddLevel[bLevel].lvMonster[pCmd->mnMnum];
 	if (mon->dmCmd == DCMD_MON_ACTIVE)
 		return;
 	assert(mon->dmCmd == DCMD_MON_DEAD || mon->dmCmd == DCMD_MON_DESTROYED || mon->dmCmd == DCMD_MON_INVALID);
@@ -611,7 +611,7 @@ static BYTE delta_kill_monster(const TCmdMonstKill* mon)
 	net_assert(mnum < MAXMONSTERS);
 
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
+	pD = &gsDeltaData.ddLevel[bLevel].lvMonster[mnum];
 	static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "delta_kill_monster expects ordered DCMD_MON_ enum I.");
 	static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "delta_kill_monster expects ordered DCMD_MON_ enum II.");
 	if (pD->dmCmd >= DCMD_MON_DEAD)
@@ -639,7 +639,7 @@ static void delta_monster_hp(const TCmdMonstDamage* mon, int pnum)
 
 	// commented out, because these changes are ineffective unless dmCmd is already set
 	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	pD = &gsDeltaData.ddLevel[bLevel].monster[mon->mdMnum];
+	pD = &gsDeltaData.ddLevel[bLevel].lvMonster[mon->mdMnum];
 	static_assert(MAX_PLRS < 8, "delta_monster_hp uses BYTE mask for pnum.");
 	pD->dmWhoHit |= 1 << pnum;
 	// In vanilla code the value was discarded if hp was higher than the current one.
@@ -664,7 +664,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	net_assert(bLevel < NUM_LEVELS);
 
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	pDLvlMons = gsDeltaData.ddLevel[bLevel].monster;
+	pDLvlMons = gsDeltaData.ddLevel[bLevel].lvMonster;
 
 	pbBuf = (const BYTE*)&pHdr[1];
 	for (wLen = pHdr->wLen; wLen >= sizeof(TSyncMonster); wLen -= sizeof(TSyncMonster)) {
@@ -705,7 +705,7 @@ static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 	net_assert(bLevel < NUM_LEVELS);
 
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	pD = &gsDeltaData.ddLevel[bLevel].monster[mnum];
+	pD = &gsDeltaData.ddLevel[bLevel].lvMonster[mnum];
 	pD->dmCmd = DCMD_MON_ACTIVE;
 	pD->dmx = pG->goX;
 	pD->dmy = pG->goY;
@@ -1042,7 +1042,7 @@ void DeltaLoadLevel()
 				PreSpawnGolem(i, gsDeltaData.ddJunk.jGolems[i][0], gsDeltaData.ddJunk.jGolems[i][1]);
 		}
 
-		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].monster;
+		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvMonster;
 		for (i = 0; i < MAXMONSTERS; i++, mstr++) {
 			if (mstr->dmCmd != DCMD_MON_INVALID) {
 				mon = &monsters[i];
@@ -3738,7 +3738,7 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mAnimWidth,
 	mon->_mAnimXOffset);
 		// clang-format on
-		DDMonster* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].monster[mnum];
+		DDMonster* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].lvMonster[mnum];
 		if (mstr->dmCmd != DCMD_MON_INVALID) {
 			// clang-format off
 			LogErrorF("delta ",

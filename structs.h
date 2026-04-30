@@ -1951,7 +1951,7 @@ typedef struct DDItem {
 typedef struct DDLevel {
 	DDItem item[MAXITEMS];
 	DDObject object[MAXOBJECTS];
-	DDMonster monster[MAXMONSTERS];
+	DDMonster lvMonster[MAXMONSTERS];
 } DDLevel;
 
 typedef struct DDDynLevel {
