@@ -1949,7 +1949,7 @@ typedef struct DDItem {
 } DDItem;
 
 typedef struct DDLevel {
-	DDItem item[MAXITEMS];
+	DDItem lvItem[MAXITEMS];
 	DDObject lvObject[MAXOBJECTS];
 	DDMonster lvMonster[MAXMONSTERS];
 } DDLevel;

@@ -183,8 +183,8 @@ static BYTE* DeltaExportLevel(BYTE bLevel, BYTE* dst)
 	dst++;
 
 	// export items
-	item = gsDeltaData.ddLevel[bLevel].item;
-	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].item); i++, item++) {
+	item = gsDeltaData.ddLevel[bLevel].lvItem;
+	for (i = 0; i < lengthof(gsDeltaData.ddLevel[bLevel].lvItem); i++, item++) {
 		static_assert(sizeof(item->bCmd) == sizeof(*dst), "bCmd member of DDItem does not fit to DeltaExportLevel");
 		*dst = item->bCmd;
 		dst++;
@@ -237,7 +237,7 @@ static void DeltaImportLevel()
 	net_assert(gsDeltaData.ddLevelPlrs[bLvl] != 0);
 
 	// import items
-	item = gsDeltaData.ddLevel[bLvl].item;
+	item = gsDeltaData.ddLevel[bLvl].lvItem;
 	for (i = 0; i < MAXITEMS; i++, item++) {
 		net_assert(*src <= DCMD_ITM_DROPPED);
 		static_assert(sizeof(item->bCmd) == sizeof(*src), "bCmd member of DDItem does not fit to DeltaImportLevel");
@@ -750,7 +750,7 @@ static void delta_reserve_items(const TCmdJoinLevel* cmd)
 	bLevel = cmd->lLevel;
 	// net_assert(bLevel < NUM_LEVELS);
 
-	pD = gsDeltaData.ddLevel[bLevel].item;
+	pD = gsDeltaData.ddLevel[bLevel].lvItem;
 	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	n = cmd->iFloorItems;
 	net_assert(n < MAXITEMS);
@@ -773,7 +773,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 	bLevel = pI->bLevel;
 	net_assert(bLevel < NUM_LEVELS);
 
-	pD = gsDeltaData.ddLevel[bLevel].item;
+	pD = gsDeltaData.ddLevel[bLevel].lvItem;
 	// net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID || !pI->item.PkItemEq(pD->item))
@@ -800,7 +800,7 @@ static bool delta_get_item(const TCmdGItem* pI)
 	if (pI->fromFloor) {
 		int n = pI->fromFloor - 1;
 		net_assert(n < MAXITEMS);
-		pD = gsDeltaData.ddLevel[bLevel].item;
+		pD = gsDeltaData.ddLevel[bLevel].lvItem;
 		pD = &pD[n];
 		if (pD->bCmd == DCMD_ITM_SPAWNED) {
 			pD->bCmd = DCMD_ITM_TAKEN;
@@ -825,7 +825,7 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 
 	net_assert(bLevel < NUM_LEVELS);
 	net_assert(gsDeltaData.ddLevelPlrs[bLevel] != 0);
-	pD = gsDeltaData.ddLevel[bLevel].item;
+	pD = gsDeltaData.ddLevel[bLevel].lvItem;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd != DCMD_INVALID
 		 && pD->item.PkItemEq(*pItem)) {
@@ -839,7 +839,7 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 		}
 	}
 
-	pD = gsDeltaData.ddLevel[bLevel].item;
+	pD = gsDeltaData.ddLevel[bLevel].lvItem;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID || pD->bCmd == DCMD_ITM_TAKEN) {
 			pD->bCmd = pD->bCmd == DCMD_INVALID ? DCMD_ITM_DROPPED : DCMD_ITM_MOVED;
@@ -900,7 +900,7 @@ void DeltaAddItem(int ii)
 	is = &items[ii];
 	is->_iSpawnIdx = ii + 1;
 	// reserve the delta entry
-	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
+	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvItem;
 	pD = &pD[ii];
 	if (pD->bCmd == DCMD_INVALID) {
 		pD->bCmd = DCMD_ITM_SPAWNED;
@@ -914,7 +914,7 @@ void DeltaAddItem(int ii)
 		}
 	}
 
-	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
+	pD = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvItem;
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID) {
 			pD->bCmd = DCMD_ITM_SPAWNED;
@@ -1147,7 +1147,7 @@ void DeltaLoadLevel()
 
 	// load items last, because they depend on the object state
 	//  I. remove items
-	itm = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
+	itm = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvItem;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
 			assert(items[i]._iSpawnIdx == i + 1);
@@ -1156,7 +1156,7 @@ void DeltaLoadLevel()
 		}
 	}
 	//  II. place items
-	itm = gsDeltaData.ddLevel[currLvl._dLevelIdx].item;
+	itm = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvItem;
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_DROPPED || itm->bCmd == DCMD_ITM_MOVED) {
 			UnPackPkItem(&itm->item);
