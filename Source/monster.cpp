@@ -2247,8 +2247,12 @@ void MonSyncKill(int mnum, int x, int y, int pnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonSyncKill: Invalid monster %d", mnum);
 	}
+#if 0
 	if (monsters[mnum]._mmode == MM_DEATH || monsters[mnum]._mmode > MM_INGAME_LAST
 	 || (monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
+#else
+	if (monsters[mnum]._mhitpoints == 0 || monsters[mnum]._mmode > MM_INGAME_LAST) {
+#endif
 		return;
 	}
 	if (monsters[mnum]._mx != x || monsters[mnum]._my != y) {
