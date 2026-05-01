@@ -5233,7 +5233,7 @@ void PreSpawnGolem(int mnum, int level, int type)
 	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 	mon->_mSelFlag = 0;
 	mon->_mAI = mmData.mAI;
-	// mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
+	mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
 	mon->_mHit = monData.mHit + lvlBonus * 5 / 2;
 	// mon->_mHit2 = monData.mHit2 + lvlBonus * 5 / 2;
 	// mon->_mMagic = monData.mMagic + lvlBonus * 5 / 2;
