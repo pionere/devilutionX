@@ -2066,6 +2066,8 @@ static void MonDiabloDeath(int mnum)
 		//if (mon->_msquelch == 0)
 		//	continue;
 		mon->_mhitpoints = 0;
+		// if (mnum < MAX_MINIONS)
+			AddUnVision(mon->_mvid);
 		if (mon->_mmode != MM_STONE) {
 			NewMonsterAnim(i, MA_DEATH, mon->_mdir);
 			mon->_mmode = MM_DEATH;

@@ -1109,6 +1109,8 @@ void DeltaLoadLevel()
 				monInGame = mon->_mmode <= MM_INGAME_LAST;
 				if (monInGame) {
 					mon->_mmode = i >= MAX_MINIONS ? MM_UNUSED : MM_RESERVED;
+					// if (mnum < MAX_MINIONS)
+						AddUnVision(mon->_mvid);
 					RemoveMonFromMap(i);
 				}
 			}

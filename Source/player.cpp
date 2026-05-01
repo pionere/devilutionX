@@ -745,6 +745,7 @@ void RemoveLvlPlayer(int pnum)
 		if (monsters[pnum]._mmode <= MM_INGAME_LAST && monsters[pnum]._mhitpoints != 0) {
 			// MonKill(pnum, pnum); -- killing is not enough in case of a single player game, because dMonster is not cleared
 			monsters[pnum]._mmode = MM_RESERVED;
+			AddUnVision(monsters[pnum]._mvid);
 			RemoveMonFromMap(pnum);
 		}
 	}
