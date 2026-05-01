@@ -2353,20 +2353,26 @@ static void PlrDoDeath(int pnum)
 static int MakePlrPath(int pnum, int xx, int yy, bool endspace)
 {
 	int md = -1;
-	int8_t path[MAX_PATH_LENGTH];
+	int8_t walkdir;
 
 	if (!endspace || PosOkPlayer(pnum, xx, yy))
-		md = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, path);
+		md = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, &walkdir);
 	if (md < 0) {
 		return md;
 	}
-
+#if 0
 	if (md != 0 && !endspace) {
 		md--;
 	}
 
 	path[md] = DIR_NONE;
 	return path[0];
+#else
+	if (md == 0 || (md == 1 && !endspace)) {
+		walkdir = DIR_NONE;
+	}
+	return walkdir;
+#endif
 }
 
 static void CheckNewPath(int pnum)

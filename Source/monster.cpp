@@ -2905,7 +2905,7 @@ static bool MonCallWalk(int mnum, int md)
 static bool MonDestWalk(int mnum)
 {
 	MonsterStruct* mon;
-	int8_t path[MAX_PATH_LENGTH];
+	int8_t walkdir;
 	bool (*Check)(int, int, int);
 	int md;
 
@@ -2914,9 +2914,9 @@ static bool MonDestWalk(int mnum)
 		Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 			MonstCheckDoors(mon->_mx, mon->_my);
-		md = FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, path);
+		md = FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, &walkdir);
 		if (md > 0) { // found path to the enemy -> go
-			md = path[0];
+			md = walkdir;
 		} else if (md != 0) { // could not find path to the enemy -> just go in its generic direction
 			md = currEnemyInfo._meLastDir;
 		} else { // enemy disappeared -> walk around randomly
@@ -3899,9 +3899,9 @@ static void MAI_Minion(int mnum)
 		MonstCheckDoors(mon->_mx, mon->_my);
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		// go to the player
-		int8_t path[MAX_PATH_LENGTH];
-		if (FindPath(Check, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, path) > 1) {
-			md = path[0];
+		int8_t walkdir;
+		if (FindPath(Check, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, &walkdir) > 1) {
+			md = walkdir;
 			MonCallWalk(mnum, md);
 			return;
 		}
