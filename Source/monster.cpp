@@ -5243,7 +5243,7 @@ void PreSpawnGolem(int mnum, int level, int type)
 	int baseLvl = monData.mLevel;
 	int monLvl = baseLvl + lvlBonus;
 	mon->_mLevel = monLvl;
-	mon->_mmaxhp = (monLvl * monData.mMinHP / baseLvl) << 6;
+	mon->_mhitpoints = mon->_mmaxhp = (monLvl * monData.mMinHP / baseLvl) << 6;
 	mon->_mExp = 0; // monLvl * mon->_mExp / baseLvl;
 	mon->_mMinDamage = monLvl * monData.mMinDamage / baseLvl;
 	mon->_mMaxDamage = monLvl * monData.mMaxDamage / baseLvl;
@@ -5261,7 +5261,6 @@ void SpawnGolem(int mnum, int x, int y, int level, int type)
 	}
 	PreSpawnGolem(mnum, level, type);
 	mon = &monsters[mnum];
-	mon->_mhitpoints = mon->_mmaxhp;
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
 	// assert((mon->_mFlags & (MFLAG_NOCORPSE | MFLAG_NODROP)) == (MFLAG_NOCORPSE | MFLAG_NODROP));
 	ActivateSpawn(mnum, x, y, DIR_S);
