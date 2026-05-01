@@ -728,9 +728,9 @@ static_warning((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align Ma
 typedef struct MonsterStruct {
 	int _mmode; // MON_MODE
 	unsigned _msquelch;
-	BYTE _mMTidx;
-	BYTE _mpathcount; // unused
-	BYTE _mAlign_1;   // unused
+	BYTE _mMTidx;  // monster type index of mapMonTypes
+	BYTE _mMType;  // minion-monster type
+	BYTE _mMLevel; // minion-monster level
 	BYTE _mgoal;
 	int _mgoalvar1;
 	int _mgoalvar2;
@@ -1309,8 +1309,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmmode; // MON_MODE
 	LE_UINT32 vmsquelch;
 	BYTE vmMTidx;
-	BYTE vmpathcount; // unused
-	BYTE vmAlign_1;   // unused
+	BYTE vmMType;  // minion-monster type
+	BYTE vmMLevel; // minion-monster level
 	BYTE vmgoal;
 	LE_INT32 vmgoalvar1;
 	LE_INT32 vmgoalvar2;
@@ -1822,9 +1822,9 @@ typedef struct TSyncLvlMonster {
 	LE_UINT16 smMnum;
 	BYTE smMode; /* MON_MODE */
 	LE_UINT32 smSquelch;
-	//BYTE _mMTidx;
-	//BYTE smPathcount; // unused
-	//BYTE smAlign_1;   // unused
+//	BYTE _mMTidx;  // monster type index of mapMonTypes
+	BYTE smMType;  // minion-monster type
+	BYTE smMLevel; // minion-monster level
 	BYTE smGoal;
 	LE_INT32 smGoalvar1;
 	LE_INT32 smGoalvar2;

@@ -438,8 +438,8 @@ void InitLvlMonsters()
 		monsters[i]._msquelch = 0;
 		// reset _mMTidx value to simplify SyncMonsterAnim (loadsave.cpp)
 		monsters[i]._mMTidx = 0;
-		monsters[i]._mpathcount = 0;
-		monsters[i]._mAlign_1 = 0;
+		monsters[i]._mMType = 0;
+		monsters[i]._mMLevel = 0;
 		monsters[i]._mgoal = MGOAL_NORMAL;
 		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
 		// reset _muniqanim to simplify InitTownerInfo (towner.cpp)
@@ -640,8 +640,8 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	//mon->_mVar7 = 0;
 	//mon->_mVar8 = 0;
 	mon->_msquelch = 0;
-	mon->_mpathcount = 0;
-	mon->_mAlign_1 = 0;
+	//mon->_mMType = 0;	-- should be set before use
+	//mon->_mMLevel = 0;
 	mon->_mgoal = MGOAL_NORMAL;
 	//mon->_mgoalvar1 = 0;	-- should be set before use
 	//mon->_mgoalvar2 = 0;
@@ -5222,13 +5222,14 @@ void PreSpawnGolem(int mnum, int level, int type)
 	const MonsterData &monData = monsterdata[mmData.mtype];
 
 	int mtidx = AddMonsterType(mmData.mtype, FALSE);
-
 	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
 
-	assert(level > 0);
-	unsigned lvlBonus = level - 1;
+	assert((unsigned)level <= UINT8_MAX);
+	unsigned lvlBonus = level;
 
 	mon = &monsters[mnum];
+	mon->_mMType = type;
+	mon->_mMLevel = level;
 	mon->_mmode = MM_RESERVED;
 	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 	mon->_mSelFlag = 0;
@@ -5262,11 +5263,8 @@ void SpawnGolem(int mnum, int x, int y, int level, int type)
 	PreSpawnGolem(mnum, level, type);
 	mon = &monsters[mnum];
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
-	// assert((mon->_mFlags & (MFLAG_NOCORPSE | MFLAG_NODROP)) == (MFLAG_NOCORPSE | MFLAG_NODROP));
 	ActivateSpawn(mnum, x, y, DIR_S);
 	PlaySfxLoc(LS_GOLUM, x, y);
-	if (mnum == mypnum)
-		NetSendCmdGolem(/*x, y, */level, type);
 }
 
 bool CanTalkToMonst(int mnum)

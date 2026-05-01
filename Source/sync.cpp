@@ -32,9 +32,9 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 	remsize -= sizeof(*pHdr);
 
 	idx = sync_mnum;
-	for (i = 0; i < MAXMONSTERS; i++) {
+	for (i = 0; i < MAXMONSTERS - MAX_MINIONS; i++) {
 		if (++idx >= MAXMONSTERS) {
-			idx = 0;
+			idx = MAX_MINIONS;
 		}
 		mon = &monsters[idx];
 		if (mon->_msquelch != 0 && mon->_mhitpoints != 0) {
@@ -70,7 +70,7 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 
 void InitSync()
 {
-	sync_mnum = 16 * mypnum;
+	sync_mnum = MAX_MINIONS + 16 * mypnum;
 }
 
 DEVILUTION_END_NAMESPACE

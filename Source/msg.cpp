@@ -1040,13 +1040,15 @@ void DeltaLoadLevel()
 	deltaload = true;
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		// load monsters
+#if 0
 		for (i = 0; i < MAX_MINIONS; i++) {
 			if (gsDeltaData.ddJunk.jGolems[i][0] != 0)
 				PreSpawnGolem(i, gsDeltaData.ddJunk.jGolems[i][0], gsDeltaData.ddJunk.jGolems[i][1]);
 		}
-
+#endif
 		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvMonster;
-		for (i = 0; i < MAXMONSTERS; i++, mstr++) {
+		mstr += MAX_MINIONS;
+		for (i = MAX_MINIONS; i < MAXMONSTERS; i++, mstr++) {
 			if (mstr->dmCmd != DCMD_MON_INVALID) {
 				mon = &monsters[i];
 				monInGame = mon->_mmode <= MM_INGAME_LAST;
@@ -1102,7 +1104,7 @@ void DeltaLoadLevel()
 		}
 		// ensure the level of Diablo is empty after she is defeated
 		if (currLvl._dLevelIdx == DLV_HELL4 && quests[Q_DIABLO]._qactive == QUEST_DONE) {
-			for (i = 0; i < MAXMONSTERS; i++) {
+			for (i = MAX_MINIONS; i < MAXMONSTERS; i++) {
 				mon = &monsters[i];
 				monInGame = mon->_mmode <= MM_INGAME_LAST;
 				if (monInGame) {
@@ -1334,8 +1336,8 @@ void LevelDeltaExport()
 			tmon->smMnum = static_cast<uint16_t>(mnum);
 			tmon->smMode = mon->_mmode;
 			tmon->smSquelch = mon->_msquelch;
-			//tmon->smPathcount = mon->_mpathcount; // unused
-			//tmon->smAlign_1 = mon->_mAlign_1;     // unused
+			tmon->smMType = mon->_mMType;
+			tmon->smMLevel = mon->_mMLevel;
 			tmon->smGoal = mon->_mgoal;
 			tmon->smGoalvar1 = mon->_mgoalvar1;
 			tmon->smGoalvar2 = mon->_mgoalvar2;
@@ -1583,6 +1585,9 @@ void LevelDeltaLoad()
 		if (mnum >= MAXMONSTERS)
 			break;
 
+		if (mnum < MAX_MINIONS)
+			PreSpawnGolem(mnum, tmon->smMLevel, tmon->smMType);
+
 		mon = &monsters[mnum];
 		// RemoveMonFromMap(mnum);
 		if (dMonster[mon->_mx][mon->_my] == mnum + 1)
@@ -1592,8 +1597,8 @@ void LevelDeltaLoad()
 
 		mon->_mmode = tmon->smMode;
 		mon->_msquelch = tmon->smSquelch;
-		//mon->_mpathcount = tmon->smPathcount;
-		//mon->_mAlign_1 = tmon->smAlign_1;
+		//mon->_mMType = tmon->smMType;
+		//mon->_mMLevel = tmon->smMLevel;
 		mon->_mgoal = tmon->smGoal;
 		mon->_mgoalvar1 = tmon->smGoalvar1;
 		mon->_mgoalvar2 = tmon->smGoalvar2;

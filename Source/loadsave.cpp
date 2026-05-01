@@ -253,8 +253,8 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_msquelch = savedMon->vmsquelch;
 
 	mon->_mMTidx = savedMon->vmMTidx;
-	mon->_mpathcount = savedMon->vmpathcount; // unused
-	mon->_mAlign_1 = savedMon->vmAlign_1;     // unused
+	mon->_mMType = savedMon->vmMType;
+	mon->_mMLevel = savedMon->vmMLevel;
 	mon->_mgoal = savedMon->vmgoal;
 
 	mon->_mgoalvar1 = savedMon->vmgoalvar1;
@@ -1040,8 +1040,8 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmsquelch = mon->_msquelch;
 
 	monSave->vmMTidx = mon->_mMTidx;
-	monSave->vmpathcount = mon->_mpathcount; // unused
-	monSave->vmAlign_1 = mon->_mAlign_1;     // unused
+	monSave->vmMType = mon->_mMType;
+	monSave->vmMLevel = mon->_mMLevel;
 	monSave->vmgoal = mon->_mgoal;
 
 	monSave->vmgoalvar1 = mon->_mgoalvar1;
