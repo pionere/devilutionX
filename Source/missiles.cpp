@@ -2892,7 +2892,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					static_assert((int)MMT_BLDGOLEM == (int)MIS_BLDGOLEM - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums II.");
 					static_assert((int)MMT_SKELAX == (int)MIS_SKELAX - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums III.");
 					static_assert((int)MMT_SKELBW == (int)MIS_SKELBW - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums IV.");
-					SpawnMinion(misource, tx, ty, level, missile[mi]._miType - MIS_GOLEM);
+					SpawnMinion(misource, tx, ty, missile[mi]._miType - MIS_GOLEM, level);
 					return MIRES_DELETE;
 				}
 			}

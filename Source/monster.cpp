@@ -5219,7 +5219,7 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
-void PreSpawnMinion(int mnum, int level, int type)
+void PreSpawnMinion(int mnum, int type, int level)
 {
 	MonsterStruct* mon;
 	const MinionMonData &mmData = minionMonData[type];
@@ -5256,7 +5256,7 @@ void PreSpawnMinion(int mnum, int level, int type)
 	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-void SpawnMinion(int mnum, int x, int y, int level, int type)
+void SpawnMinion(int mnum, int x, int y, int type, int level)
 {
 	MonsterStruct* mon;
 
@@ -5264,7 +5264,7 @@ void SpawnMinion(int mnum, int x, int y, int level, int type)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnMinion: Invalid monster %d", mnum);
 	}
-	PreSpawnMinion(mnum, level, type);
+	PreSpawnMinion(mnum, type, level);
 	mon = &monsters[mnum];
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
 	ActivateSpawn(mnum, x, y, DIR_S);
