@@ -1043,7 +1043,7 @@ void DeltaLoadLevel()
 #if 0
 		for (i = 0; i < MAX_MINIONS; i++) {
 			if (gsDeltaData.ddJunk.jGolems[i][0] != 0)
-				PreSpawnGolem(i, gsDeltaData.ddJunk.jGolems[i][0], gsDeltaData.ddJunk.jGolems[i][1]);
+				PreSpawnMinion(i, gsDeltaData.ddJunk.jGolems[i][0], gsDeltaData.ddJunk.jGolems[i][1]);
 		}
 #endif
 		mstr = gsDeltaData.ddLevel[currLvl._dLevelIdx].lvMonster;
@@ -1586,7 +1586,7 @@ void LevelDeltaLoad()
 			break;
 
 		if (mnum < MAX_MINIONS)
-			PreSpawnGolem(mnum, tmon->smMLevel, tmon->smMType);
+			PreSpawnMinion(mnum, tmon->smMLevel, tmon->smMType);
 
 		mon = &monsters[mnum];
 		// RemoveMonFromMap(mnum);

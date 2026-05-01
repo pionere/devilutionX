@@ -221,7 +221,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->type = SDT_SUMMON;
 		sl = sl * 4 + (magic >> 6);
 		// sl++;
-		// sl--; -- lvlBonus (PreSpawnGolem)
+		// sl--; -- lvlBonus (PreSpawnMinion)
 		static_assert((int)MMT_GOLEM == 0, "GetSkillDetails expects ordered SPL/MMT enums I.");
 		static_assert((int)MMT_BLDGOLEM == (int)SPL_BLDGOLEM - (int)SPL_GOLEM, "GetSkillDetails expects ordered SPL/MMT enums II.");
 		static_assert((int)MMT_SKELAX == (int)SPL_SKELAX - (int)SPL_GOLEM, "GetSkillDetails expects ordered SPL/MMT enums III.");
@@ -2892,7 +2892,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 					static_assert((int)MMT_BLDGOLEM == (int)MIS_BLDGOLEM - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums II.");
 					static_assert((int)MMT_SKELAX == (int)MIS_SKELAX - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums III.");
 					static_assert((int)MMT_SKELBW == (int)MIS_SKELBW - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums IV.");
-					SpawnGolem(misource, tx, ty, level, missile[mi]._miType - MIS_GOLEM);
+					SpawnMinion(misource, tx, ty, level, missile[mi]._miType - MIS_GOLEM);
 					return MIRES_DELETE;
 				}
 			}

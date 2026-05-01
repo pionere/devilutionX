@@ -5215,7 +5215,7 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
-void PreSpawnGolem(int mnum, int level, int type)
+void PreSpawnMinion(int mnum, int level, int type)
 {
 	MonsterStruct* mon;
 	const MinionMonData &mmData = minionMonData[type];
@@ -5252,15 +5252,15 @@ void PreSpawnGolem(int mnum, int level, int type)
 	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-void SpawnGolem(int mnum, int x, int y, int level, int type)
+void SpawnMinion(int mnum, int x, int y, int level, int type)
 {
 	MonsterStruct* mon;
 
-	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnGolem requires that owner of a monster has the same id as the monster itself.");
+	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnMinion requires that owner of a monster has the same id as the monster itself.");
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
+		dev_fatal("SpawnMinion: Invalid monster %d", mnum);
 	}
-	PreSpawnGolem(mnum, level, type);
+	PreSpawnMinion(mnum, level, type);
 	mon = &monsters[mnum];
 	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
 	ActivateSpawn(mnum, x, y, DIR_S);
