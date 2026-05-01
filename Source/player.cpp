@@ -743,7 +743,9 @@ void RemoveLvlPlayer(int pnum)
 		RemovePlrFromMap(pnum);
 		static_assert(MAX_MINIONS == MAX_PLRS, "RemoveLvlPlayer requires that owner of a monster has the same id as the monster itself.");
 		if (monsters[pnum]._mmode <= MM_INGAME_LAST && monsters[pnum]._mhitpoints != 0) {
-			MonKill(pnum, pnum);
+			// MonKill(pnum, pnum); -- killing is not enough in case of a single player game, because dMonster is not cleared
+			monsters[pnum]._mmode = MM_RESERVED;
+			RemoveMonFromMap(pnum);
 		}
 	}
 }

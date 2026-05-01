@@ -1108,8 +1108,8 @@ void DeltaLoadLevel()
 				mon = &monsters[i];
 				monInGame = mon->_mmode <= MM_INGAME_LAST;
 				if (monInGame) {
-					RemoveMonFromMap(i);
 					mon->_mmode = i >= MAX_MINIONS ? MM_UNUSED : MM_RESERVED;
+					RemoveMonFromMap(i);
 				}
 			}
 			nummonsters = MAX_MINIONS;
