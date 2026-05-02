@@ -2480,24 +2480,6 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	return MIRES_DONE;
 }
 
-static bool CheckIfTrig(int x, int y)
-{
-	int i;
-
-	for (i = 0; i < MAXPORTAL; i++) {
-		// if (portals[i]._rlevel == DLV_TOWN)
-		//	continue;
-		if (portals[i]._rlevel == currLvl._dLevelIdx && portals[i]._rx == x && portals[i]._ry == y)
-			return true;
-	}
-
-	for (i = 0; i < numtrigs; i++) {
-		if (abs(trigs[i]._tx - x) < 2 && abs(trigs[i]._ty - y) < 2)
-			return true;
-	}
-	return false;
-}
-
 /**
  * Var3: triggered
  */
@@ -2517,7 +2499,7 @@ int AddTown(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 				tx = dx + *++cr;
 				ty = dy + *++cr;
 				assert(IN_DUNGEON_AREA(tx, ty));
-				if (PosOkActor(tx, ty) && !CheckIfTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
+				if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
 					goto done;
 				}
 			}
