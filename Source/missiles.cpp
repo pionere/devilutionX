@@ -1765,15 +1765,30 @@ void InitMissiles()
 }
 
 #ifdef HELLFIRE
-static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mirange)
+/**
+ * Var1: mitype to fire upon impact
+ * Var2: range of the rune
+ * Var3: fire timer
+ * Var4: hit counter
+ */
+int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
-	int i, j, tx, ty;
+	int mitype, mirange, i, j, tx, ty;
 	const int8_t* cr;
 	MissileStruct* mis;
 	// (micaster == MST_PLAYER || micaster == MST_OBJECT);
 	mis = &missile[mi];
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddRune expects a large enough border.");
+	switch (mis->_miType) {
+	case MIS_RUNEFIRE:  mitype = MIS_FIREEXP;    mirange = 0; break;
+	case MIS_RUNELIGHT: mitype = MIS_LIGHTNINGC; mirange = 1; break;
+	case MIS_RUNENOVA:  mitype = MIS_LIGHTNOVAC; mirange = 1; break;
+	case MIS_RUNEWAVE:  mitype = MIS_FIREWAVEC;  mirange = 1; break;
+	case MIS_RUNESTONE: mitype = MIS_STONE;      mirange = 0; break;
+	default: ASSUME_UNREACHABLE; break;
+	}
 	mis->_miVar1 = mitype;
-	mis->_miVar2 = mirange;    // trigger range
+	mis->_miVar2 = mirange;    // trigger range (RUNE_RANGE)
 	mis->_miVar3 = 16;         // delay
 	if (mis->_miCaster & MST_PLAYER) {
 		mis->_miCaster |= MST_RUNE;
@@ -1798,59 +1813,6 @@ static int PlaceRune(int mi, int sx, int sy, int dx, int dy, int mitype, int mir
 		}
 	}
 	return MIRES_FAIL_DELETE;
-}
-
-/**
- * Var1: mitype to fire upon impact
- * Var2: range of the rune
- * Var3: fire timer
- */
-int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREEXP, 0); // RUNE_RANGE
-}
-
-/**
- * Var1: mitype to fire upon impact
- * Var2: range of the rune
- * Var3: fire timer
- */
-int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddLightRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNINGC, 1); // RUNE_RANGE
-}
-
-/**
- * Var1: mitype to fire upon impact
- * Var2: range of the rune
- * Var3: fire timer
- */
-int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddNovaRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_LIGHTNOVAC, 1); // RUNE_RANGE
-}
-
-/**
- * Var1: mitype to fire upon impact
- * Var2: range of the rune
- * Var3: fire timer
- */
-int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWaveRune expects a large enough border.");
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_FIREWAVEC, 1); // RUNE_RANGE
-}
-
-/**
- * Var1: mitype to fire upon impact
- * Var2: range of the rune
- * Var3: fire timer
- */
-int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	return PlaceRune(mi, sx, sy, dx, dy, MIS_STONE, 0); // RUNE_RANGE
 }
 
 /*int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)

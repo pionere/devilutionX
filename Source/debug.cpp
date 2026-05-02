@@ -2136,6 +2136,11 @@ void ValidateData()
 		if (md.mProc == MI_Rune) {
 			assert(i >= MIS_RUNEFIRE && i <= MIS_RUNESTONE); // required by LevelDeltaLoad
 		}
+		if (md.mAddProc == AddRune) {
+			// assert(i >= MIS_RUNEFIRE && i <= MIS_RUNESTONE); // required by AddRune
+			if (i != MIS_RUNEFIRE && i != MIS_RUNELIGHT && i != MIS_RUNENOVA && i != MIS_RUNEWAVE && i != MIS_RUNESTONE)
+				app_fatal("Rune-Missile %d is not handled in AddRune.", i);
+		}
 #endif
 		if (md.mProc == MI_Flash)
 			assert(md.mFileNum == MFILE_BLUEXFR);
