@@ -645,6 +645,33 @@ static void PlacePlayer(int pnum)
 }
 
 /*
+ * Initialize player fields when entering a game.
+ */
+void InitLocalPlayer(int pnum)
+{
+	plr._pmode = PM_NEWLVL;
+	plr._pDestAction = ACTION_NONE;
+	//plr._pInvincible = TRUE; - does not matter in town
+	plr._pLvlChanging = TRUE;
+	plr._pDunLevel = DLV_TOWN;
+	plr._pTeam = pnum;
+	plr._pManaShield = 0;
+	plr._pTimer[PLTR_INFRAVISION] = 0;
+	plr._pTimer[PLTR_RAGE] = 0;
+	// reset skills
+	const PlrSkillStruct psm = { { SPL_ATTACK, SPLFROM_ABILITY }, { SPL_WALK, SPLFROM_ABILITY } };
+	const PlrSkillStruct psr = { { SPL_RATTACK, SPLFROM_ABILITY }, { SPL_WALK, SPLFROM_ABILITY } };
+	plr._pMainSkill = (plr._pSkillFlags & SFLAG_MELEE) ? psm : psr;
+	plr._pAltSkill = { { SPL_NULL, 0 }, { SPL_NULL, 0 } };
+	// recalculate _pAtkSkill and resistances (depending on the difficulty level)
+	// CalcPlrInv(pnum, false); - unnecessary, InitLvlPlayer should take care of this
+	if (plr._pHitPoints == 0)
+		PlrSetHp(pnum, (1 << 6));
+
+	assert(plr._pGFXLoad == 0);
+}
+
+/*
  * Initialize player fields at startup(unpack).
  *  - calculate derived values
  */
