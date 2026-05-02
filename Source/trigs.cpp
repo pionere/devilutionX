@@ -231,55 +231,59 @@ void InitView(int entry)
 		return;
 	}
 
-	myview.x = pWarps[type]._wx;
-	myview.y = pWarps[type]._wy;
-	type = pWarps[type]._wtype;
-	switch (type) {
+	myview = TrigEntryPos(type);
+}
+
+POS32 TrigEntryPos(int idx)
+{
+	WarpStruct &wp = pWarps[idx];
+	POS32 pos = { wp._wx, wp._wy };
+	switch (wp._wtype) {
 	case WRPT_NONE:
 		break; // should not happen
 	case WRPT_L1_UP:
-		myview.x += 1;
-		myview.y += 2;
+		pos.x += 1;
+		pos.y += 2;
 		break;
 	case WRPT_L1_DOWN:
-		myview.x += 0;
-		myview.y += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L1_SKING:
-		myview.x += 1;
-		myview.y += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L1_PWATER:
-		myview.x += 0;
-		myview.y += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L2_UP:
-		myview.x += 1;
-		myview.y += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L2_DOWN:
-		myview.x += -1;
-		myview.y += 0;
+		pos.x += -1;
+		pos.y += 0;
 		break;
 	case WRPT_L3_UP:
-		myview.x += 0;
-		myview.y += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L3_DOWN:
-		myview.x += 1;
-		myview.y += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L4_UP:
-		myview.x += 0;
-		myview.y += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L4_DOWN:
-		myview.x += 1;
-		myview.y += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L4_PENTA:
-		myview.x += 0;
-		myview.y += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_CIRCLE:
 		break;
@@ -287,6 +291,7 @@ void InitView(int entry)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	return pos;
 }
 
 static int ForceTrig()

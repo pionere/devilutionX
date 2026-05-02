@@ -1107,15 +1107,16 @@ void InitMonsters()
 #endif
 	// reserve the entry area
 	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
-		if (pWarps[i]._wx == 0)
-			continue;
 		if (i == DWARP_EXIT) // && currLvl._dLevelIdx == DLV_HELL3)
 			continue;
 		if (i == DWARP_SIDE)
 			continue;
+		if (pWarps[i]._wx == 0)
+			continue;
+		const POS32 pos = TrigEntryPos(i);
 		static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
-			DoVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15, false);
+			DoVision(pos.x + tdx[j], pos.y + tdy[j], 15, false);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
@@ -1156,14 +1157,15 @@ void InitMonsters()
 	// }
 	// revert entry/exit area reservation
 	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
-		if (pWarps[i]._wx == 0)
-			continue;
 		if (i == DWARP_EXIT) // && currLvl._dLevelIdx == DLV_HELL3)
 			continue;
 		if (i == DWARP_SIDE)
 			continue;
+		if (pWarps[i]._wx == 0)
+			continue;
+		const POS32 pos = TrigEntryPos(i);
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
-			DoUnVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15);
+			DoUnVision(pos.x + tdx[j], pos.y + tdy[j], 15);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoUnVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
