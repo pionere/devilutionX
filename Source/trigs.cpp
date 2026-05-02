@@ -532,4 +532,16 @@ void CheckTriggers()
 	}
 }
 
+bool PosOkTrig(int x, int y)
+{
+	int i;
+
+	for (i = numtrigs - 1; i >= 0; i--) {
+		if (x == trigs[i]._tx && y == trigs[i]._ty)
+			return false;
+	}
+	return true;
+
+}
+
 DEVILUTION_END_NAMESPACE

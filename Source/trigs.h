@@ -23,6 +23,7 @@ void InitTriggers();
 void InitVPEntryTrigger(bool recreate);
 void CheckTrigForce();
 void CheckTriggers();
+bool PosOkTrig(int x, int y);
 
 #ifdef __cplusplus
 }

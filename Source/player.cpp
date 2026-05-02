@@ -616,7 +616,7 @@ static void PlacePlayer(int pnum)
 		nx = plr._px + plrxoff2[i];
 		ny = plr._py + plryoff2[i];
 
-		if (PosOkActor(nx, ny) && PosOkPortal(nx, ny)) {
+		if (PosOkActor(nx, ny) && PosOkPortal(nx, ny) && PosOkTrig(nx, ny)) {
 			break;
 		}
 	}
@@ -632,7 +632,7 @@ static void PlacePlayer(int pnum)
 			for (j = (BYTE)*cr; j > 0; j--) {
 				nx = plr._px + *++cr;
 				ny = plr._py + *++cr;
-				if (PosOkActor(nx, ny) && PosOkPortal(nx, ny)) {
+				if (PosOkActor(nx, ny) && PosOkPortal(nx, ny) && PosOkTrig(nx, ny)) {
 					i = 16;
 					j = 0;
 				}
