@@ -1084,7 +1084,7 @@ static void DrawItem(int ii, int sx, int sy)
  */
 static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 {
-	if (currLvl._dType != DTYPE_TOWN)
+	if (currLvl._dType != DTYPE_TOWN || mnum < MAX_MINIONS)
 		DrawMonster(mnum, bFlag, sx, sy);
 	else
 		DrawTowner(mnum, bFlag, sx, sy);

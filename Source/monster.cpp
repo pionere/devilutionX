@@ -5265,7 +5265,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-void SpawnMinion(int mnum, int x, int y, int type, int level)
+bool SpawnMinion(int mnum, int type, int level, int hitpoints)
 {
 	MonsterStruct* mon;
 
@@ -5273,11 +5273,33 @@ void SpawnMinion(int mnum, int x, int y, int type, int level)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("SpawnMinion: Invalid monster %d", mnum);
 	}
-	PreSpawnMinion(mnum, type, level);
-	mon = &monsters[mnum];
-	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
-	ActivateSpawn(mnum, x, y, DIR_S);
-	PlaySfxLoc(LS_GOLUM, x, y);
+
+	const int pnum = mnum;
+	int i, j, dx, dy, tx, ty;
+	const int8_t* cr;
+	dx = plr._px;
+	dy = plr._py;
+	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "SpawnMinion expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "SpawnMinion uses CrawlTable/CrawlNum up to radius 5.");
+	for (i = 0; i <= 5; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(dx, dy, tx, ty)) {
+				PreSpawnMinion(mnum, type, level);
+				mon = &monsters[mnum];
+				if (hitpoints > 0)
+					mon->_mhitpoints = std::min(hitpoints, mon->_mmaxhp);
+				mon->_mvid = currLvl._dLevelIdx != DLV_TOWN ? AddVision(tx, ty, PLR_MIN_VISRAD, false) : NO_VISION;
+				ActivateSpawn(mnum, tx, ty, DIR_S);
+				PlaySfxLoc(LS_GOLUM, tx, ty);
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 bool CanTalkToMonst(int mnum)

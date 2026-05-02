@@ -686,7 +686,7 @@ static void delta_sync_monster(const TSyncHeader* pHdr)
 	}
 	net_check(wLen == 0);
 }
-
+#if 0
 static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 {
 	DDMonster* pD;
@@ -716,7 +716,7 @@ static void delta_awake_golem(const TCmdGolem* pG, int mnum)
 	pD->dmhitpoints = monsters[mnum]._mmaxhp;
 #endif
 }
-
+#endif
 static void delta_leave_sync(BYTE bLevel)
 {
 	if (bLevel == DLV_TOWN) {
@@ -1586,10 +1586,11 @@ void LevelDeltaLoad()
 		mnum = tmon->smMnum;
 		if (mnum >= MAXMONSTERS)
 			break;
-
-		if (mnum < MAX_MINIONS)
+		if (mnum < MAX_MINIONS) {
 			PreSpawnMinion(mnum, tmon->smMType, tmon->smMLevel);
-
+		} else {
+			net_assert(currLvl._dLevelIdx != DLV_TOWN);
+		}
 		mon = &monsters[mnum];
 		// RemoveMonFromMap(mnum);
 		if (dMonster[mon->_mx][mon->_my] == mnum + 1)
@@ -1696,12 +1697,10 @@ void LevelDeltaLoad()
 				net_assert(mon->_mhitpoints == 0);
 				if (dDead[mon->_mx][mon->_my] == mnum + 1)
 					dDead[mon->_mx][mon->_my] = 0;
-			} else if (mnum < MAX_MINIONS) {
+			} else if (mnum < MAX_MINIONS && currLvl._dLevelIdx != DLV_TOWN) {
 				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 			}
 		}
-		// no monsters in town at the moment. might want to allow it for minions later...
-		net_assert(currLvl._dLevelIdx != DLV_TOWN);
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}
@@ -1964,13 +1963,14 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGolem(/*BYTE x, BYTE y, */BYTE lvl, BYTE type)
+void NetSendCmdGolem(BYTE lvl, BYTE type, int hitpoints)
 {
 	TCmdGolem cmd;
 
 	cmd.bCmd = CMD_AWAKEGOLEM;
 	cmd.goMonLevel = lvl;
 	cmd.goMonType = type;
+	cmd.goMonHp = hitpoints;
 #if 0
 	cmd.goX = x;
 	cmd.goY = y;
@@ -2874,7 +2874,11 @@ static unsigned On_AWAKEGOLEM(const TCmd* pCmd, int pnum)
 {
 	const TCmdGolem* cmd = (const TCmdGolem*)pCmd;
 
-	delta_awake_golem(cmd, pnum);
+	if (currLvl._dLevelIdx == plr._pDunLevel) {
+		net_check_cmd(cmd->goMonType < NUM_MMTYPES);
+		net_check_cmd(cmd->goMonHp > 0);
+		SpawnMinion(pnum, cmd->goMonType, cmd->goMonLevel, cmd->goMonHp);
+	}
 
 	return sizeof(*cmd);
 }

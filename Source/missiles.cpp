@@ -2815,36 +2815,24 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MonsterStruct* mon;
-	int level, tx, ty, i, j;
-	const int8_t* cr;
+	int level;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	level = spllvl * 4 + (plx(misource)._pMagic >> 6);
 	static_assert(MAX_MINIONS == MAX_PLRS, "AddGolem requires that owner of a monster has the same id as the monster itself.");
 	mon = &monsters[misource];
 	if (mon->_mmode > MM_INGAME_LAST) {
-		static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddGolem expects a large enough border.");
-		static_assert(lengthof(CrawlNum) > 5, "AddGolem uses CrawlTable/CrawlNum up to radius 5.");
-		for (i = 0; i <= 5; i++) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = (BYTE)*cr; j > 0; j--) {
-				tx = dx + *++cr;
-				ty = dy + *++cr;
-				assert(IN_DUNGEON_AREA(tx, ty));
-				if (PosOkActor(tx, ty) && LineClear(sx, sy, tx, ty)) {
-					static_assert((int)MMT_GOLEM == 0, "AddGolem expects ordered MIS/MMT enums I.");
-					static_assert((int)MMT_BLDGOLEM == (int)MIS_BLDGOLEM - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums II.");
-					static_assert((int)MMT_SKELAX == (int)MIS_SKELAX - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums III.");
-					static_assert((int)MMT_SKELBW == (int)MIS_SKELBW - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums IV.");
-					SpawnMinion(misource, tx, ty, missile[mi]._miType - MIS_GOLEM, level);
-					return MIRES_DELETE;
-				}
-			}
-		}
-		return MIRES_FAIL_DELETE;
+		static_assert((int)MMT_GOLEM == 0, "AddGolem expects ordered MIS/MMT enums I.");
+		static_assert((int)MMT_BLDGOLEM == (int)MIS_BLDGOLEM - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums II.");
+		static_assert((int)MMT_SKELAX == (int)MIS_SKELAX - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums III.");
+		static_assert((int)MMT_SKELBW == (int)MIS_SKELBW - (int)MIS_GOLEM, "AddGolem expects ordered MIS/MMT enums IV.");
+		// assert(missile[mi]._miType == MIS_GOLEM || missile[mi]._miType == MIS_BLDGOLEM || missile[mi]._miType == MIS_SKELAX || missile[mi]._miType == MIS_SKELBW);
+		return SpawnMinion(misource, missile[mi]._miType - MIS_GOLEM, level) ? MIRES_DELETE : MIRES_FAIL_DELETE;
 	}
 
-	if (mon->_mType == MT_GOLEM) {
+	if (currLvl._dLevelIdx == DLV_TOWN) {
+		; // do nothing in town
+	} else if (mon->_mType == MT_GOLEM) {
 		/*missile[mi]._misx = */missile[mi]._mix = mon->_mx;
 		/*missile[mi]._misy = */missile[mi]._miy = mon->_my;
 		missile[mi]._miMaxDam = mon->_mhitpoints;

@@ -1650,6 +1650,7 @@ typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE goMonLevel;
 	BYTE goMonType;
+	LE_INT32 goMonHp;
 #if 0
 	BYTE goX;
 	BYTE goY;

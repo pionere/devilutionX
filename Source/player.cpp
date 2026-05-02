@@ -20,6 +20,10 @@ static BYTE gbGameLogicPnum;
 static unsigned _guPlrFrameSize[NUM_PGXS + 1];
 /** Whether the _guPlrFrameSize array is initalized. */
 static bool _gbPlrGfxSizeLoaded = false;
+/* The minion info for the current player from the last level. */
+static BYTE myMinionType;
+static BYTE myMinionLevel;
+static int myMinionHp = 0;
 
 /** Maps from armor animation to letter used in graphic files. */
 static const char ArmorChar[4] = {
@@ -669,6 +673,10 @@ void InitLocalPlayer(int pnum)
 		PlrSetHp(pnum, (1 << 6));
 
 	assert(plr._pGFXLoad == 0);
+
+	// reset minion
+	// assert(pnum == mypnum);
+	myMinionHp = 0;
 }
 
 /*
@@ -744,7 +752,11 @@ void InitLvlPlayer(int pnum, bool entering)
 		}
 		SyncPlrAnim(pnum);
 	}
-
+	if (pnum == mypnum && myMinionHp != 0) {
+		int hp = myMinionHp;
+		myMinionHp = 0;
+		NetSendCmdGolem(myMinionLevel, myMinionType, hp);
+	}
 	if (pnum == mypnum) {
 		plr._plid = AddLight(plr._poldx, plr._poldy, plr._pLightRad);
 	} else {
@@ -775,6 +787,9 @@ void RemoveLvlPlayer(int pnum)
 #if 0
 			if (pnum == mypnum) {
 				if (mon->_mhitpoints != 0) {
+					myMinionHp = mon->_mhitpoints;
+					myMinionType = mon->_mMType;
+					myMinionLevel = mon->_mMLevel;
 					AddUnVision(mon->_mvid);
 				}
 				mon->_mmode = MM_RESERVED;
@@ -788,6 +803,11 @@ void RemoveLvlPlayer(int pnum)
 			}
 #else
 			if (mon->_mhitpoints != 0) {
+				if (pnum == mypnum) {
+					myMinionHp = mon->_mhitpoints;
+					myMinionType = mon->_mMType;
+					myMinionLevel = mon->_mMLevel;
+				}
 				AddUnVision(mon->_mvid);
 			}
 			mon->_mmode = MM_RESERVED;

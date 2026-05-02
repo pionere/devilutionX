@@ -609,10 +609,11 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 	numitems = lms->vvnumitems;
 	src += sizeof(LSaveGameLvlMetaStruct);
 	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : (full ? MAX_MINIONS + MAX_TOWNERS : 0);
-	for (i = 0; i < moncount; i++)
+	for (i = (full ? 0 : MAX_MINIONS); i < moncount; i++)
 		src = LoadMonster(src, i, full);
-	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
+	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : MAX_MINIONS;
+	{
+		for (i = (full ? 0 : MAX_MINIONS); i < MAXMONSTERS; i++)
 			SyncMonsterAnim(i);
 	}
 	if (full) {
@@ -1367,7 +1368,7 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 	lms->vvnumitems = numitems;
 	dest += sizeof(LSaveGameLvlMetaStruct);
 	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : (full ? MAX_MINIONS + MAX_TOWNERS : 0);
-	for (i = 0; i < moncount; i++)
+	for (i = (full ? 0 : MAX_MINIONS); i < moncount; i++)
 		dest = SaveMonster(dest, i);
 	if (full) {
 		LE_SAVE_INTS(dest, missileactive, lengthof(missileactive));
@@ -1625,11 +1626,13 @@ void LoadLevel()
 	//ResyncQuests();
 	//SyncPortals();
 
-	// clear flags of the eliminated missiles
+	// clear flags of the eliminated missiles/minions
+	if (currLvl._dType != DTYPE_TOWN) {
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
 		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/ | BFLAG_MIS_ACTIVE | BFLAG_HAZARD);
+	}
 	// reload light to clear the lights of the eliminated missiles
 	LoadPreLighting();
 	// doLightning is not necessary, because it is going to be triggered

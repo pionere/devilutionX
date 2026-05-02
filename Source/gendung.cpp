@@ -1402,7 +1402,7 @@ void FinishLvlMap()
 {
 	BYTE c;
 	// reset BFLAG_MON_PROTECT/BFLAG_OBJ_PROTECT flags, initialize visible town
-	c = currLvl._dType == DTYPE_TOWN ? BFLAG_VISIBLE : 0;
+	c = currLvl._dType == DTYPE_TOWN ? (BFLAG_VISIBLE | BFLAG_ALERT) : 0;
 	memset(dFlags, c, sizeof(dFlags));
 
 	SavePreLighting();
