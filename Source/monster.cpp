@@ -4782,6 +4782,9 @@ void SyncMonsterAnim(int mnum)
 		dev_fatal("SyncMonsterAnim: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
+	if (mnum < MAX_MINIONS && mon->_mmode <= MM_INGAME_LAST) {
+		AddMonsterType(minionMonData[mon->_mMType].mtype, FALSE);
+	}
 	if ((unsigned)mon->_mMTidx >= MAX_LVLMTYPES) {
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
