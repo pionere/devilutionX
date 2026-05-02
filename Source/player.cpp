@@ -741,12 +741,31 @@ void RemoveLvlPlayer(int pnum)
 		//	// because fade-out is turned off.
 		//}
 		RemovePlrFromMap(pnum);
+		// remove minion from the map (killing is not enough in case of a single player game, because dMonster is not cleared)
 		static_assert(MAX_MINIONS == MAX_PLRS, "RemoveLvlPlayer requires that owner of a monster has the same id as the monster itself.");
-		if (monsters[pnum]._mmode <= MM_INGAME_LAST && monsters[pnum]._mhitpoints != 0) {
-			// MonKill(pnum, pnum); -- killing is not enough in case of a single player game, because dMonster is not cleared
-			monsters[pnum]._mmode = MM_RESERVED;
-			AddUnVision(monsters[pnum]._mvid);
+		MonsterStruct* mon = &monsters[pnum];
+		if (mon->_mmode <= MM_INGAME_LAST) {
+#if 0
+			if (pnum == mypnum) {
+				if (mon->_mhitpoints != 0) {
+					AddUnVision(mon->_mvid);
+				}
+				mon->_mmode = MM_RESERVED;
+				RemoveMonFromMap(pnum);
+			} else {
+				if (mon->_mhitpoints != 0) {
+					AddUnVision(mon->_mvid);
+					mon->_mmode = MM_RESERVED;
+					RemoveMonFromMap(pnum);
+				}
+			}
+#else
+			if (mon->_mhitpoints != 0) {
+				AddUnVision(mon->_mvid);
+			}
+			mon->_mmode = MM_RESERVED;
 			RemoveMonFromMap(pnum);
+#endif
 		}
 	}
 }
