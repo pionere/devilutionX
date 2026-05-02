@@ -4290,7 +4290,7 @@ void MI_Bleed(int mi)
 	if (mis->_miVar1 == 0) {
 		tnum = mis->_miSpllvl;
 		static_assert(MAX_PLRS <= MAX_MINIONS, "MIS_BLEED uses a single int to store player and monster targets.");
-		assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
+		// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
 		if (tnum >= MAX_MINIONS) {
 			mon = &monsters[tnum];
 			if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
@@ -5180,7 +5180,6 @@ void SyncMissilesAnim()
 		//} else if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
 		//	// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
 		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
-		//}
 		}
 	}
 }

@@ -1114,7 +1114,7 @@ void InitMonsters()
 		if (pWarps[i]._wx == 0)
 			continue;
 		const POS32 pos = TrigEntryPos(i);
-		static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
+		static_assert(MAX_LIGHT_RAD >= 15, "Subtile reservation in InitMonsters requires at least 15 light radius I.");
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
 			DoVision(pos.x + tdx[j], pos.y + tdy[j], 15, false);
 	}
@@ -1164,6 +1164,7 @@ void InitMonsters()
 		if (pWarps[i]._wx == 0)
 			continue;
 		const POS32 pos = TrigEntryPos(i);
+		static_assert(MAX_LIGHT_RAD >= 15, "Subtile reservation in InitMonsters requires at least 15 light radius II.");
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
 			DoUnVision(pos.x + tdx[j], pos.y + tdy[j], 15);
 	}
@@ -3899,6 +3900,7 @@ static void MAI_Minion(int mnum)
 	Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 	if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 		MonstCheckDoors(mon->_mx, mon->_my);
+	static_assert(MAX_MINIONS == MAX_PLRS, "MAI_Minion requires that owner of a monster has the same id as the monster itself.");
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		// go to the player
 		int8_t walkdir;
