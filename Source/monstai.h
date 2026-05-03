@@ -31,6 +31,7 @@ void MAI_Scav(int mnum);
 void MAI_Garg(int mnum);
 void MAI_RoundRanged(int mnum);
 void MAI_RoundRanged2(int mnum);
+void MAI_Follow(int mnum);
 void MAI_Golem(int mnum);
 void MAI_BldGolem(int mnum);
 void MAI_MinionAx(int mnum);

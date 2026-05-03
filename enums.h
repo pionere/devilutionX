@@ -2327,6 +2327,7 @@ typedef enum _monster_ai {
 	AI_SNEAK,
 	//AI_FIREMAN,
 	AI_GARBUD,
+	AI_FOLLOW,
 	AI_GOLUM,
 	AI_BLDGOLUM,
 	AI_MINIONAX,

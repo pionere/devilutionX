@@ -140,6 +140,7 @@ static void (*const AiProc[])(int i) = {
 /*AI_SNEAK*/        &MAI_Sneak,
 /*AI_FIREMAN*///    &MAI_Fireman,
 /*AI_GARBUD*/       &MAI_Garbud,
+/*AI_FOLLOW*/       &MAI_Follow,
 /*AI_GOLUM*/        &MAI_Golem,
 /*AI_BLDGOLUM*/     &MAI_BldGolem,
 /*AI_MINIONAX*/     &MAI_MinionAx,
@@ -3889,7 +3890,7 @@ void MAI_RoundRanged2(int mnum)
 	}
 }
 
-static void MAI_Minion(int mnum)
+void MAI_Follow(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int md, ld, i;
@@ -3900,7 +3901,7 @@ static void MAI_Minion(int mnum)
 	Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 	if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 		MonstCheckDoors(mon->_mx, mon->_my);
-	static_assert(MAX_MINIONS == MAX_PLRS, "MAI_Minion requires that owner of a monster has the same id as the monster itself.");
+	static_assert(MAX_MINIONS == MAX_PLRS, "MAI_Follow requires that owner of a monster has the same id as the monster itself.");
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		// go to the player
 		int8_t walkdir;
@@ -3948,7 +3949,7 @@ void MAI_Golem(int mnum)
 	if (MON_HAS_ENEMY) {
 		MAI_Cleaver(mnum);
 	}
-	MAI_Minion(mnum);
+	MAI_Follow(mnum);
 }
 
 void MAI_BldGolem(int mnum)
@@ -3992,7 +3993,7 @@ void MAI_MinionAx(int mnum)
 	if (MON_HAS_ENEMY) {
 		MAI_SkelSd(mnum);
 	}
-	MAI_Minion(mnum);
+	MAI_Follow(mnum);
 }
 
 void MAI_MinionBw(int mnum)
@@ -4004,7 +4005,7 @@ void MAI_MinionBw(int mnum)
 	if (MON_HAS_ENEMY) {
 		MAI_RangedDist(mnum);
 	}
-	MAI_Minion(mnum);
+	MAI_Follow(mnum);
 }
 
 void MAI_SkelKing(int mnum)
@@ -5233,6 +5234,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	MonsterStruct* mon;
 	const MinionMonData &mmData = minionMonData[type];
 	const MonsterData &monData = monsterdata[mmData.mtype];
+	const MonsterAI follow = { AI_FOLLOW, 0, 0, 0 };
 
 	int mtidx = AddMonsterType(mmData.mtype, FALSE);
 	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
@@ -5246,7 +5248,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	mon->_mmode = MM_RESERVED;
 	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 	mon->_mSelFlag = 0;
-	mon->_mAI = mmData.mAI;
+	mon->_mAI = currLvl._dLevelIdx != DLV_TOWN ? mmData.mAI : follow;
 	mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
 	mon->_mHit = monData.mHit + lvlBonus * 5 / 2;
 	// mon->_mHit2 = monData.mHit2 + lvlBonus * 5 / 2;
