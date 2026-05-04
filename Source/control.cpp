@@ -1442,7 +1442,7 @@ static void DrawSkillDetails()
 		break;
 	case SPLFROM_MANA:
 		if (plr._pHasUnidItem) {
-			lvl = -1; // SPLLVL_UNDEF : spllvl
+			lvl = 0; // SPLLVL_UNDEF : spllvl
 			src = "Spell";
 			break;
 		}
@@ -1506,7 +1506,7 @@ static void DrawSkillDetails()
 	}
 	if (skd.type != SDT_NONE) {
 		BYTE col = COL_WHITE;
-		if (lvl < 0) { // SPLLVL_UNDEF
+		if (lvl == 0) { // SPLLVL_UNDEF
 			copy_cstr(tempstr, "\?\?");
 		} else {
 			switch (skd.type) {
