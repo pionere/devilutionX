@@ -2415,6 +2415,7 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 			sn = SyncUseItem(pnum, sf);
 			if (sn == SPL_NULL)
 				return false;
+			slvl = 1;
 		}
 		plr._pDestParam3 = sn;
 		plr._pDestParam4 = slvl;

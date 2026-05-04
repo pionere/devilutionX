@@ -1434,18 +1434,19 @@ static void DrawSkillDetails()
 	sn = skill._suSkill;
 	if (sn == SPL_NULL || sn >= NUM_SPELLS)
 		return;
-	lvl = plr._pHasUnidItem ? -1 : plr._pSkillLvl[sn]; // SPLLVL_UNDEF : spllvl
-	GetSkillDetails(sn, lvl, &skd);
+	lvl = 1;
 	mana = 0;
 	switch (skill._suFrom) {
 	case SPLFROM_ABILITY:
 		src = "Ability";
 		break;
 	case SPLFROM_MANA:
-		if (lvl < 0) { // SPLLVL_UNDEF
+		if (plr._pHasUnidItem) {
+			lvl = -1; // SPLLVL_UNDEF : spllvl
 			src = "Spell";
 			break;
 		}
+		lvl = plr._pSkillLvl[sn];
 		if (lvl != 0) {
 			src = "Spell Level %d";
 		} else {
@@ -1459,6 +1460,7 @@ static void DrawSkillDetails()
 	//case SPLFROM_INVALID_TYPE:
 	//	break;
 	}
+	GetSkillDetails(sn, lvl, &skd);
 
 	linesOfSkillDetails = (mana != 0 ? 1 : 0) + (skd.type != SDT_NONE ? (skd.type != SDT_SUMMON ? 1 : 2) : 0);
 
