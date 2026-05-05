@@ -3057,20 +3057,18 @@ const char* ItemName(const ItemStruct* is)
 {
 	const char* name = AllItemList[is->_iIdx].iName;
 	if (is->_iIdx == IDI_EAR) {
-		snprintf(tempstr, sizeof(tempstr), "%s%s", name, is->_iPlrName);
+		snprintf(tempstr, sizeof(tempstr), "%s of %s", name, is->_iPlrName);
 		name = tempstr;
 	} else if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
 		if (!is->_iUnidentified)
 			name = UniqueItemList[is->_iUid].UIName;
-	} else if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL) {
-		snprintf(tempstr, sizeof(tempstr), "%s of %s", name, spelldata[is->_iSpell].sNameText);
-		name = tempstr;
-	} else if (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_BOOK
+	} else if ((is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL)
+		|| is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_BOOK
 #ifdef HELLFIRE
 		|| is->_iMiscId == IMISC_RUNE
 #endif
 		) {
-		snprintf(tempstr, sizeof(tempstr), "%s%s", name, spelldata[is->_iSpell].sNameText);
+		snprintf(tempstr, sizeof(tempstr), "%s of %s", name, spelldata[is->_iSpell].sNameText);
 		name = tempstr;
 	}
 	return name;
