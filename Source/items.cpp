@@ -3021,7 +3021,7 @@ static void PrintMapPower(BYTE idx, const ItemStruct* is)
 
 void PrintItemPower(BYTE plidx, const ItemStruct* is)
 {
-	if (is->_itype != ITYPE_MISC || is->_iMiscId != IMISC_MAP)
+	if (is->_iMiscId != IMISC_MAP)
 		PrintEquipmentPower(plidx, is);
 	else
 		PrintMapPower(plidx, is);
@@ -3443,12 +3443,11 @@ static int RndSmithItem(unsigned lvl)
 static bool WitchItemOk(const ItemData& item, void* arg)
 {
 	return item.itype == ITYPE_STAFF
-	 || (item.itype == ITYPE_MISC
-	  && (item.iMiscId == IMISC_SCROLL
+		|| item.iMiscId == IMISC_SCROLL
 #ifdef HELLFIRE
 		|| item.iMiscId == IMISC_RUNE
 #endif
-	   ));
+		;
 }
 
 static int RndWitchItem(unsigned lvl)
