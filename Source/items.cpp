@@ -3228,7 +3228,9 @@ static int LinesOfMiscInfo(const ItemStruct* is)
 	case IMISC_REJUV:
 	case IMISC_FULLREJUV:
 	case IMISC_MAP:
+#ifdef HELLFIRE
 	case IMISC_RUNE:
+#endif
 		result++;
 		result++;
 		break;
@@ -3410,7 +3412,10 @@ static bool WitchItemOk(const ItemData& item, void* arg)
 	return item.itype == ITYPE_STAFF
 	 || (item.itype == ITYPE_MISC
 	  && (item.iMiscId == IMISC_SCROLL
-	   || item.iMiscId == IMISC_RUNE));
+#ifdef HELLFIRE
+		|| item.iMiscId == IMISC_RUNE
+#endif
+	   ));
 }
 
 static int RndWitchItem(unsigned lvl)

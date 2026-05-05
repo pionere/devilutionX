@@ -1786,7 +1786,9 @@ int SyncUseItem(int pnum, BYTE cii)
 		RestorePlrHpVit(pnum);
 		break;
 	//case IMISC_MAPOFDOOM:
+#ifdef HELLFIRE
 	case IMISC_NOTE:
+#endif
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
 	case IMISC_OILSTR:

@@ -356,8 +356,10 @@ typedef enum item_misc_id {
 	IMISC_OILLAST = IMISC_OILCLEAN,
 	//IMISC_MAPOFDOOM,
 	IMISC_MAP,
+#ifdef HELLFIRE
 	IMISC_RUNE,
 	IMISC_NOTE,
+#endif
 	IMISC_INVALID   = -1,
 } item_misc_id;
 
