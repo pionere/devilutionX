@@ -1528,6 +1528,9 @@ static void DrawSkillDetails()
 			case SDT_DAMAGE_RANGED:
 				col = PrintPlrDamage(skd.v0, skd.v1, SFLAG_RANGED);
 				break;
+			case SDT_DURATION:
+				snprintf(tempstr, sizeof(tempstr), "Duration: %.1fs", *(double*)&skd.v0);
+				break;
 			default:
 				ASSUME_UNREACHABLE
 			}

@@ -4674,6 +4674,7 @@ typedef enum skill_details_type {
 	SDT_DAMAGE_MELEE,
 	SDT_DAMAGE_RANGED,
 	SDT_SUMMON,
+	SDT_DURATION,
 } skill_details_type;
 
 typedef enum window_active {

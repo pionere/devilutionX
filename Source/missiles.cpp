@@ -91,11 +91,6 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_WALK:
 	case SPL_BLOCK:
 	case SPL_CHARGE:
-	case SPL_RAGE:
-	case SPL_SHROUD:
-	case SPL_SWAMP:
-	case SPL_STONE:
-	case SPL_INFRA:
 	case SPL_MANASHIELD:
 	case SPL_ATTRACT:
 	case SPL_TELEKINESIS:
@@ -113,9 +108,41 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 #ifdef HELLFIRE
 	case SPL_BUCKLE:
 	case SPL_WHITTLE:
-	case SPL_RUNESTONE:
 #endif
 		skd->type = SDT_NONE;
+		break;
+	case SPL_RAGE:
+		skd->v0 = 32 * sl + 245;
+		skd->type = SDT_DURATION;
+		break;
+	case SPL_INFRA:
+		mind = 1408;
+		for (k = sl; k > 0; k--) {
+			mind += mind >> 3;
+		}
+		skd->v0 = mind;
+		skd->type = SDT_DURATION;
+		break;
+	case SPL_SHROUD:
+		skd->v0 = 32 * sl + 160;
+		skd->type = SDT_DURATION;
+		break;
+	case SPL_SWAMP:
+		skd->v0 = (lengthof(BloodBoilLocs) + sl * 2) * 8;
+		skd->type = SDT_DURATION;
+		break;
+	case SPL_STONE:
+#ifdef HELLFIRE
+	case SPL_RUNESTONE:
+#endif
+		sl = (sl + 1) << (7 + 6);
+		sl >>= 5;
+		if (sl < 15)
+			sl = 0;
+		if (sl > 239)
+			sl = 239;
+		skd->v0 = sl;
+		skd->type = SDT_DURATION;
 		break;
 	case SPL_ATTACK:
 	case SPL_WHIPLASH:
@@ -293,6 +320,9 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		ASSUME_UNREACHABLE
 		break;
 	}
+
+	if (skd->type == SDT_DURATION)
+		*(double*)&skd->v0 = skd->v0 / (double)gnTicksRate;
 }
 
 void RemovePortalMissile(int pnum)
