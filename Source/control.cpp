@@ -1514,13 +1514,7 @@ static void DrawSkillDetails()
 				snprintf(tempstr, sizeof(tempstr), "HP: %d", skd.v2);
 				PrintSkillString(x, y, tempstr, col);
 			case SDT_DAMAGE:
-				const char* fmt;
-				if (skd.v0 == skd.v1) {
-					fmt = "Damage: %d";
-				} else {
-					fmt = "Damage: %d-%d";
-				}
-				snprintf(tempstr, sizeof(tempstr), fmt, skd.v0, skd.v1);
+				snprintf(tempstr, sizeof(tempstr), skd.v0 == skd.v1 ? "Damage: %d" : "Damage: %d-%d", skd.v0, skd.v1);
 				break;
 			case SDT_DAMAGE_MELEE:
 				col = PrintPlrDamage(skd.v0, skd.v1, SFLAG_MELEE);

@@ -3084,6 +3084,28 @@ BYTE ItemColor(const ItemStruct* is)
 	return COL_GOLD;
 }
 
+static void DrawItemSkillInfo(const ItemStruct* is, int x, int& y)
+{
+	SkillDetails skd;
+	GetSkillDetails(is->_iSpell, 1, &skd);
+	switch (skd.type) {
+	case SDT_NONE: break;
+	case SDT_SUMMON:
+		snprintf(tempstr, sizeof(tempstr), "HP: %d", skd.v2);
+		PrintItemString(x, y, tempstr, COL_BLUE);
+	case SDT_DAMAGE:
+		snprintf(tempstr, sizeof(tempstr), skd.v0 == skd.v1 ? "Damage: %d" : "Damage: %d-%d", skd.v0, skd.v1);
+		PrintItemString(x, y, tempstr, COL_BLUE);
+		break;
+	case SDT_DURATION:
+		snprintf(tempstr, sizeof(tempstr), "Duration: %.1fs", *(double*)&skd.v0);
+		PrintItemString(x, y, tempstr, COL_BLUE);
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+}
+
 static void DrawItemMiscInfo(const ItemStruct* is, int x, int& y)
 {
 	const char* desc;
@@ -3116,6 +3138,7 @@ static void DrawItemMiscInfo(const ItemStruct* is, int x, int& y)
 		PrintItemString(x, y, desc);
 		break;
 	case IMISC_SCROLL:
+		DrawItemSkillInfo(is, x, y);
 	case IMISC_BOOK:
 #ifdef HELLFIRE
 	case IMISC_NOTE:
@@ -3199,6 +3222,7 @@ static void DrawItemMiscInfo(const ItemStruct* is, int x, int& y)
 	//	PrintItemString(x, y, desc);
 	//	return;
 	case IMISC_RUNE:
+		DrawItemSkillInfo(is, x, y);
 		desc = "right-click to activate, then";
 		PrintItemString(x, y, desc);
 		desc = "left-click to place";
@@ -3215,12 +3239,23 @@ static void DrawItemMiscInfo(const ItemStruct* is, int x, int& y)
 	return;
 }
 
+static int LinesOfSkillInfo(const ItemStruct* is)
+{
+	SkillDetails skd;
+	GetSkillDetails(is->_iSpell, 1, &skd);
+	return (skd.type != SDT_NONE ? (skd.type != SDT_SUMMON ? 1 : 2) : 0);
+}
+
 static int LinesOfMiscInfo(const ItemStruct* is)
 {
 	int result = 0;
 	switch (is->_iMiscId) {
 	case IMISC_NONE:
 		break;
+#ifdef HELLFIRE
+	case IMISC_RUNE:
+		result += LinesOfSkillInfo(is);
+#endif
 	case IMISC_HEAL:
 	case IMISC_FULLHEAL:
 	case IMISC_MANA:
@@ -3228,13 +3263,11 @@ static int LinesOfMiscInfo(const ItemStruct* is)
 	case IMISC_REJUV:
 	case IMISC_FULLREJUV:
 	case IMISC_MAP:
-#ifdef HELLFIRE
-	case IMISC_RUNE:
-#endif
 		result++;
 		result++;
 		break;
 	case IMISC_SCROLL:
+		result += LinesOfSkillInfo(is);
 	case IMISC_BOOK:
 #ifdef HELLFIRE
 	case IMISC_NOTE:
