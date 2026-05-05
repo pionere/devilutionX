@@ -1151,8 +1151,6 @@ void ValidateData()
 				app_fatal("Invalid iRnd value for nameless item (%d)", i);
 			continue;
 		}
-		if (strlen(ids.iName) > 32 - 1)
-			app_fatal("Too long name for %s (%d)", ids.iName, i); // required by SetItemData
 		rnddrops[0][0][0] += ids.iRnd;
 		if (i < IDI_RNDDROP_FIRST && ids.iRnd != 0)
 			app_fatal("Invalid iRnd value for %s (%d)", ids.iName, i);
