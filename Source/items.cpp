@@ -3059,9 +3059,10 @@ const char* ItemName(const ItemStruct* is)
 	if (is->_iIdx == IDI_EAR) {
 		snprintf(tempstr, sizeof(tempstr), "%s%s", name, is->_iPlrName);
 		name = tempstr;
-	} else if (is->_iMagical == ITEM_QUALITY_UNIQUE && !is->_iUnidentified)
-		name = UniqueItemList[is->_iUid].UIName;
-	else if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL) {
+	} else if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
+		if (!is->_iUnidentified)
+			name = UniqueItemList[is->_iUid].UIName;
+	} else if (is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL) {
 		snprintf(tempstr, sizeof(tempstr), "%s of %s", name, spelldata[is->_iSpell].sNameText);
 		name = tempstr;
 	} else if (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_BOOK
