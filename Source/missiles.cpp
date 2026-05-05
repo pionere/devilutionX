@@ -3395,7 +3395,7 @@ int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	int i, range;
 	// assert((micaster & MST_PLAYER) || micaster == MST_NA);
 	// assert((unsigned)misource < MAX_PLRS);
-	range = 1584;
+	range = 1408;
 	for (i = spllvl; i > 0; i--) {
 		range += range >> 3;
 	}

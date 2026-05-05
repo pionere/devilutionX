@@ -3256,7 +3256,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-		AddMissile(0, 0, 0, 0, 0, MIS_INFRA, MST_NA, pnum, currLvl._dLevel >> 1);
+		AddMissile(0, 0, 0, 0, 0, MIS_INFRA, MST_NA, pnum, 6);
 		break;
 	case OBJ_TEARFTN:
 		if (deltaload)
