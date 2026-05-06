@@ -2366,21 +2366,23 @@ int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam;
+	int magic, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
 	if (micaster == MST_MONSTER) {
 		// assert((unsigned)misource < MAXMONSTERS);
-		mindam = monsters[misource]._mLevel >> 1; // TODO: use _mSkillLvl?
-		maxdam = monsters[misource]._mLevel;
+		magic = monsters[misource]._mLevel;
+		mindam = magic << (6 - 1); // TODO: use _mSkillLvl?
+		maxdam = magic << 6;
 	} else {
 		// assert((unsigned)misource < MAX_PLRS);
-		mindam = (plx(misource)._pMagic >> 2) + (spllvl << 2) + 10;
-		maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 10;
+		magic = plx(misource)._pMagic;
+		mindam = (magic << (6 - 2)) + (spllvl << (6 + 2)) + (10 << 6);
+		maxdam = (magic << (6 - 2)) + (spllvl << (6 + 3)) + (10 << 6);
 	}
 
-	mis->_miMinDam = mindam << 6;
-	mis->_miMaxDam = maxdam << 6;
+	mis->_miMinDam = mindam;
+	mis->_miMaxDam = maxdam;
 	return MIRES_DONE;
 }
 
@@ -2592,24 +2594,25 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam, i, j, tx, ty;
+	int magic, mindam, maxdam, i, j, tx, ty;
 	const int8_t* cr;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//if (micaster & MST_PLAYER) {
-		mindam = (plx(misource)._pMagic >> 2) + (spllvl << 3) + 40;
-		maxdam = (plx(misource)._pMagic >> 2) + (spllvl << 4) + 40;
+		magic = plx(misource)._pMagic;
+		mindam = (magic << (6 - 2)) + (spllvl << (6 + 3)) + (40 << 6);
+		maxdam = (magic << (6 - 2)) + (spllvl << (6 + 4)) + (40 << 6);
 	/*} else if (micaster == MST_MONSTER) {
 		// assert((unsigned)misource < MAXMONSTERS);
-		mindam = monsters[misource]._mMinDamage;
-		maxdam = monsters[misource]._mMaxDamage;
+		mindam = monsters[misource]._mMinDamage << 6;
+		maxdam = monsters[misource]._mMaxDamage << 6;
 	} else {
-		mindam = currLvl._dLevel;
-		maxdam = currLvl._dLevel * 2;
+		mindam = currLvl._dLevel << 6;
+		maxdam = currLvl._dLevel << (6 + 1);
 	}*/
-	mis->_miMinDam = mindam << 6;
-	mis->_miMaxDam = maxdam << 6;
+	mis->_miMinDam = mindam;
+	mis->_miMaxDam = maxdam;
 
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddMeteor expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 5, "AddMeteor uses CrawlTable/CrawlNum up to radius 5.");
