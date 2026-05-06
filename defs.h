@@ -43,6 +43,8 @@
 #define DSIZEY                   80
 #define MAXDUNX                  112
 #define MAXDUNY                  112
+/** The maximum size of the theme rooms (tiles) */
+#define MAXTHEMESIZE             10
 /** The size of the quads in hell. */
 static_assert(DMAXX % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a quarter block -> requires to have a dungeon with even width.");
 #define L4BLOCKX (DMAXX / 2)
@@ -64,8 +66,12 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define MAX_CHARACTERS           99
 #define MAX_TOWNERS              16
 #define STORE_TOWNERS            8
-#define MAX_LVLMTYPES            12
-#define MAX_LVLMIMAGE            4000
+// the maxiumum number of monster-types per level (base scattered types + reserved for setpieces + [reserved for minions | unique monster])
+#define MAX_LVLMTYPES            (7 + 2 + 4)
+// controller to restrict the number of scattered monster-types on a level
+#define MAX_LVLMIMAGE            3600
+// the maximum number of unique monster on a level
+#define MAX_LVLMUNIQS            8
 
 #ifdef HELLFIRE
 #define MAXTRIGGERS              7
@@ -129,7 +135,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define OBJ_NONE                0xFF
 #define OBJ_VALID(x) ((int8_t)x >= 0)
 #define MAXPORTAL               MAX_PLRS
-#define MAXTHEMES               8
+#define MAXTHEMES               16
 #define MAXTILES                255
 #define MAXSUBTILES             1023
 #define MAXVISION               (MAX_PLRS + MAX_MINIONS)
@@ -165,6 +171,7 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define SMITH_PREMIUM_ITEMS     8
 #define SMITH_MAX_VALUE         140000
 #define SMITH_MAX_PREMIUM_VALUE 140000
+#define FORGET_MAX_COST         32000
 
 // from diablo 2 beta
 #define MAXRESIST               75
@@ -268,15 +275,23 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 #define ASSUME_UNREACHABLE assert(0);
 #endif
 
-#if INET_MODE
-#define net_assert(x) assert(x)
+#if DEBUG_MODE || DEV_MODE
+#define net_assert(x)     assert(x)
+#define net_check(x, ...) assert(x)
+#elif INET_MODE
+#define net_assert(x)     assert(x)
+#define net_check(x, ...) if (!(x)) { return __VA_ARGS__; }
 #else
-#define net_assert(x) do { (void) sizeof(x); } while(0)
+#define net_assert(x)      do { (void) sizeof(x); } while(0)
+#define net_check(x, ...)  do { (void) sizeof(x); } while(0)
 #endif
 
 #define SwapLE64 SDL_SwapLE64
 #define SwapLE32 SDL_SwapLE32
 #define SwapLE16 SDL_SwapLE16
+
+#define LOAD_LE32(dw) (SwapLE32(*((const uint32_t*)(dw))))
+#define LOAD_LE16(sw) (SwapLE16(*((const uint16_t*)(sw))))
 
 #ifdef __has_attribute
 #define DVL_HAVE_ATTRIBUTE(x) __has_attribute(x)

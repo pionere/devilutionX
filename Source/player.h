@@ -31,6 +31,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo);
 void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, unsigned exp);
+void InitLocalPlayer(int pnum);
 void InitPlayer(int pnum);
 void InitLvlPlayer(int pnum, bool entering);
 void RemoveLvlPlayer(int pnum);

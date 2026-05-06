@@ -452,7 +452,6 @@ static bool AutoPlace(int pnum, int ii, int sx, int sy, ItemStruct* is)
 			}
 			xx -= 10 + sx;
 		}
-		CalcPlrScrolls(pnum);
 	}
 	return done;
 }
@@ -621,7 +620,6 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 		if (plr._pSpdList[i]._itype == ITYPE_NONE) {
 			if (saveflag) {
 				copy_pod(plr._pSpdList[i], *is);
-				CalcPlrScrolls(pnum);
 				//gbRedrawFlags |= REDRAW_SPEED_BAR;
 			}
 			return true;
@@ -1092,7 +1090,6 @@ void InvPasteBeltItem(int pnum, BYTE r)
 			cn = CURSOR_HAND;
 	}
 
-	CalcPlrScrolls(pnum);
 	if (pnum == mypnum) {
 		PlaySfx(itemfiledata[ItemCAnimTbl[pcursicon - CURSOR_FIRSTITEM]].iiSFX);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
@@ -1234,7 +1231,6 @@ void SyncPlrItemRemove(int pnum, BYTE bLoc)
 		bLoc -= INVITEM_BELT_FIRST;
 		// assert(bLoc < MAXBELTITEMS);
 		plr._pSpdList[bLoc]._itype = ITYPE_NONE;
-		CalcPlrScrolls(pnum);
 		//gbRedrawFlags |= REDRAW_SPEED_BAR;
 	}
 }
@@ -1262,8 +1258,6 @@ void SyncPlrStorageRemove(int pnum, int iv)
 		}
 		xx -= 10 + sx;
 	}
-
-	CalcPlrScrolls(pnum);
 }
 
 /**
@@ -1370,7 +1364,7 @@ void SyncInvGetItem(int pnum, int ii)
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	//is->_iCreateInfo &= ~CF_PREGEN;
-	is->_iFloorFlag = FALSE;
+	is->_iSpawnIdx = 0;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	copy_pod(plr._pHoldItem, *is);
@@ -1401,7 +1395,7 @@ bool SyncAutoGetItem(int pnum, int ii)
 	// always mask CF_PREGEN to make life of RecreateItem easier later on
 	// otherwise this should not have an effect, since the item is already in 'delta'
 	//is->_iCreateInfo &= ~CF_PREGEN;
-	is->_iFloorFlag = FALSE;
+	is->_iSpawnIdx = 0;
 	CheckQuestItem(pnum, is);
 	ItemStatOk(pnum, is);
 	if (is->_itype == ITYPE_GOLD) {
@@ -1724,9 +1718,10 @@ void InvUseItem(int cii)
 	}
 }
 
-bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
+int SyncUseItem(int pnum, BYTE cii)
 {
 	ItemStruct* is;
+	int sn;
 
 	// assert(plr._pmode != PM_DEATH);
 	// assert(cii < NUM_INVELEM);
@@ -1734,18 +1729,18 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	is = PlrItem(pnum, cii);
 
 	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
-		return false;
+		return SPL_NULL;
 
+	sn = is->_iSpell;
 	if (cii < INVITEM_INV_FIRST) {
-		if (is->_iSpell != sn || is->_iCharges <= 0)
-			return false;
+		if (is->_iCharges <= 0)
+			return SPL_NULL;
 		is->_iCharges--;
-		CalcPlrCharges(pnum);
-		return true;
+		return sn;
 	}
 
 	if (!is->_iUsable)
-		return false;
+		return SPL_NULL;
 
 	// use the item
 	// commented out because iSeed of the STACK is not regenerated
@@ -1775,12 +1770,8 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 #ifdef HELLFIRE
 	case IMISC_RUNE:
 #endif
-		if (is->_iSpell != sn)
-			return false;
-		sn = SPL_INVALID;
 		break;
 	case IMISC_BOOK:
-		sn = is->_iSpell;
 		PlrIncMana(pnum, spelldata[sn].sManaCost << 6);
 		plr._pSkillExp[sn] += SkillExpLvlsTbl[0];
 		if (plr._pSkillExp[sn] > SkillExpLvlsTbl[MAXSPLLEVEL] - 1) {
@@ -1790,14 +1781,14 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 		if (plr._pSkillExp[sn] >= SkillExpLvlsTbl[plr._pSkillLvlBase[sn]]) {
 			IncreasePlrSkillLvl(pnum, sn);
 		}
-		// CalcPlrSpells(pnum);
-		sn = SPL_INVALID;
 		break;
 	case IMISC_SPECELIX:
 		RestorePlrHpVit(pnum);
 		break;
 	//case IMISC_MAPOFDOOM:
+#ifdef HELLFIRE
 	case IMISC_NOTE:
+#endif
 	case IMISC_OILQLTY:
 	case IMISC_OILZEN:
 	case IMISC_OILSTR:
@@ -1809,14 +1800,14 @@ bool SyncUseItem(int pnum, BYTE cii, BYTE sn)
 	case IMISC_OILCLEAN:
 	case IMISC_MAP:
 		// should not happen, only if the player is reckless...
-		return false;
+		return SPL_NULL;
 	default:
 		ASSUME_UNREACHABLE
 	}
 	// consume the item
 	if (--is->_iDurability <= 0) // STACK
 		SyncPlrItemRemove(pnum, cii);
-	return sn == SPL_INVALID;
+	return sn;
 }
 
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)

@@ -24,11 +24,11 @@ extern int numlights;
 extern int numvision;
 
 #define MAXDARKNESS     15
-#define NUM_COLOR_TRNS  MAXDARKNESS + 12
-#define COLOR_TRN_RED   MAXDARKNESS + 1
-#define COLOR_TRN_GRAY  MAXDARKNESS + 2
-#define COLOR_TRN_CORAL MAXDARKNESS + 3
-#define COLOR_TRN_UNIQ  MAXDARKNESS + 4
+#define NUM_COLOR_TRNS  (MAXDARKNESS + 1 + 3)
+#define COLOR_TRN_RED   (MAXDARKNESS + 1)
+#define COLOR_TRN_GRAY  (MAXDARKNESS + 2)
+#define COLOR_TRN_CORAL (MAXDARKNESS + 3)
+#define COLOR_TRN_UNIQ  (MAXDARKNESS + 4)
 extern BYTE ColorTrns[NUM_COLOR_TRNS][NUM_COLORS];
 
 void TraceLightSource(int x, int y, int r);

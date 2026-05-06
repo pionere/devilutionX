@@ -32,7 +32,7 @@ bool ProcessControllerMotion(const SDL_Event& event);
 bool SimulateRightStickWithDpad(const ControllerButtonEvent& ctrlEvent);
 
 // Returns direction of the left thumb stick or DPad (if allow_dpad = true).
-AxisDirection GetLeftStickOrDpadDirection(bool allow_dpad);
+int GetLeftStickOrDpadDirection(bool allow_dpad);
 
 #ifdef __cplusplus
 }

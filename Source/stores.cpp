@@ -68,6 +68,7 @@ constexpr int STORAGE_LIMIT = maxv(maxv(maxv(maxv(NUM_INV_GRID_ELEM + maxv(MAXBE
 #define STORE_BARMAID_EXIT   18
 
 #define STORE_DRUNK_GOSSIP 12
+#define STORE_DRUNK_FORGET 14
 #define STORE_DRUNK_EXIT   18
 
 //#define STORE_PRIEST_GOSSIP 12
@@ -356,8 +357,8 @@ static void AddStoreHoldItem(const ItemStruct* is, int i, int value)
 
 static void AddStoreHoldItemBuy(ItemStruct* is, int i)
 {
-	if (is->_iMagical != ITEM_QUALITY_NORMAL)
-		is->_iIdentified = TRUE;
+	// if (is->_iMagical != ITEM_QUALITY_NORMAL)
+		is->_iUnidentified = FALSE;
 
 	AddStoreHoldItem(is, i, is->_iIvalue);
 }
@@ -466,7 +467,7 @@ static void AddStoreSell(const ItemStruct* is, int i)
 {
 	int value;
 
-	value = (is->_iMagical != ITEM_QUALITY_NORMAL && is->_iIdentified) ? is->_iIvalue : is->_ivalue;
+	value = (/*is->_iMagical != ITEM_QUALITY_NORMAL && */!is->_iUnidentified) ? is->_iIvalue : is->_ivalue;
 	value >>= 3;
 	if (value == 0)
 		value = 1;
@@ -704,6 +705,9 @@ static void S_StartConfirm()
 	case STORE_SREPAIR:
 		msg = "You want this item be repaired for %d gold?";
 		break;
+	case STORE_DFORGET:
+		msg = "You want to forget this skill for %d gold?";
+		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -725,7 +729,7 @@ static void S_StartBoy()
 	if (boyitem._itype != ITYPE_NONE) {
 		AddSText(0, STORE_PEGBOY_GOSSIP1, true, talkname[TOWN_PEGBOY], COL_BLUE, true);
 		AddSText(0, 12, true, "I have something for sale,", COL_GOLD, false);
-		if (!boyitem._iIdentified) {
+		if (boyitem._iUnidentified) {
 			static_assert(STORE_PEGBOY_PRICE == 50, "Hardcoded boy price is 50.");
 			AddSText(0, 14, true, "but it will cost 50 gold", COL_GOLD, false);
 			AddSText(0, 16, true, "just to take a look. ", COL_GOLD, false);
@@ -786,8 +790,8 @@ static void S_StartStory()
 static bool IdItemOk(const ItemStruct* is)
 {
 	return is->_itype != ITYPE_NONE && is->_itype != ITYPE_PLACEHOLDER
-		&& is->_iMagical != ITEM_QUALITY_NORMAL
-		&& !is->_iIdentified;
+		// && is->_iMagical != ITEM_QUALITY_NORMAL
+		&& is->_iUnidentified;
 }
 
 static void AddStoreHoldId(const ItemStruct* is, int i)
@@ -805,6 +809,50 @@ static void StoryIdItem(const ItemStruct* is, int i)
 static void S_StartSIdentify()
 {
 	S_StartSellOrUpdate(false, StoryIdItem, "You have nothing to identify.", "Identify which item?");
+}
+
+static void S_StartDForget()
+{
+	PlayerStruct* p;
+	int i;
+
+	// S_StartSellOrUpdate
+	storenumh = 0;
+	for (i = 0; i < STORAGE_LIMIT; i++)
+		storehold[i]._itype = ITYPE_NONE;
+
+	p = &myplr;
+	for (i = 0; i < NUM_SPELLS; i++) {
+		if (p->_pMemSkills & SPELL_MASK(i)) {
+			ItemStruct* itm;
+
+			itm = &storehold[storenumh];
+			SetItemSData(itm, IDI_BOOK1);
+			itm->_iSpell = i;
+
+			const int price = FORGET_MAX_COST - spelldata[i].sBookCost;
+			itm->_iStatFlag = p->_pGold >= price;
+			itm->_iIvalue = price;
+
+			storehidx[storenumh] = i;
+			storenumh++;
+		}
+	}
+	const char* title_0 = "You are dumb already.";
+	const char* title_n = "Forget what?";
+	const char* msg;
+	gbWidePanel = true;
+	// gbRenderGold = true;
+	gbHasScroll = storenumh != 0;
+	if (storenumh == 0) {
+		msg = title_0;
+	} else {
+		// stextsidx = 0;
+		S_ScrollHold();
+
+		msg = title_n;
+	}
+	AddStoreFrame(msg);
 }
 
 static void S_StartIdShow()
@@ -895,6 +943,7 @@ static void S_StartDrunk()
 	AddSText(0, 2, true, "Farnham the Drunk", COL_GOLD, false);
 	AddSText(0, 9, true, "Would you like to:", COL_GOLD, false);
 	AddSText(0, STORE_DRUNK_GOSSIP, true, talkname[TOWN_DRUNK], COL_BLUE, true);
+	AddSText(0, STORE_DRUNK_FORGET, true, "Forget", COL_WHITE, true);
 	AddSText(0, STORE_DRUNK_EXIT, true, "Say Goodbye", COL_WHITE, true);
 	// AddSLine(5);
 }
@@ -1006,6 +1055,9 @@ void StartStore(int s)
 		break;
 	case STORE_DRUNK:
 		S_StartDrunk();
+		break;
+	case STORE_DFORGET:
+		S_StartDForget();
 		break;
 	case STORE_BARMAID:
 		S_StartBarMaid();
@@ -1214,7 +1266,7 @@ void DrawStore()
 				{
 					int dx, dy = STORE_LINE_HEIGHT - 3 * INV_SLOT_SIZE_PX;
 					int linesOfItemDetails = 0;
-					if (is->_iMagical == ITEM_QUALITY_NORMAL || is->_iIdentified) {
+					if (/*is->_iMagical == ITEM_QUALITY_NORMAL || */!is->_iUnidentified) {
 						if (is->_iClass == ICLASS_WEAPON || is->_iClass == ICLASS_ARMOR) {
 							linesOfItemDetails++;
 							if (is->_iMaxDur != DUR_INDESTRUCTIBLE) {
@@ -1383,6 +1435,10 @@ void STextESC()
 		break;
 	case STORE_ERRAND:
 		StartStore(STORE_PRIEST);
+		break;
+	case STORE_DFORGET:
+		StartStore(STORE_DRUNK);
+		stextsel = STORE_DRUNK_FORGET;
 		break;
 	case STORE_WAIT:
 		break;
@@ -1720,6 +1776,16 @@ static bool SyncSellItem(int pnum, int cii, int cost)
 	return true;
 }
 
+static void RemovePlrSkill(PlrSkillStruct &skill, const PlrSkillUse& su)
+{
+	if (skill._psAttack == su) {
+		skill._psAttack = { SPL_NULL, 0 };
+	}
+	if (skill._psMove == su) {
+		skill._psMove = { SPL_NULL, 0 };
+	}
+}
+
 void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 {
 	ItemStruct* pi;
@@ -1746,8 +1812,8 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		// assert(ii == MAXITEMS);
 		pi = &items[MAXITEMS];
 		// TODO: validate price?
-		if (pi->_iMagical != ITEM_QUALITY_NORMAL)
-			pi->_iIdentified = TRUE;
+		// if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+			pi->_iUnidentified = FALSE;
 		ItemStatOk(pnum, pi);
 		if (!StoreAutoPlace(pnum, pi, false) || !TakePlrsMoney(pnum, price))
 			return;
@@ -1764,9 +1830,8 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		if (!TakePlrsMoney(pnum, STORE_ID_PRICE))
 			return;
 		pi = PlrItem(pnum, ii);
-		if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
-			pi->_iIdentified = TRUE;
-		}
+		// if (pi->_iMagical != ITEM_QUALITY_NORMAL)
+			pi->_iUnidentified = FALSE;
 		lastshold = STORE_IDSHOW;
 		break;
 	case STORE_SREPAIR:
@@ -1790,6 +1855,21 @@ void SyncStoreCmd(int pnum, int cmd, int ii, int price)
 		//lastshold = STORE_PEGBOY;
 		lastshold = STORE_PBUY;
 		break;
+	case STORE_DFORGET: {
+		ii = price;
+		price = FORGET_MAX_COST - spelldata[price].sBookCost;
+		if (!TakePlrsMoney(pnum, price))
+			return;
+		plr._pMemSkills &= ~SPELL_MASK(ii);
+		plr._pSkillLvlBase[ii] = 0;
+		const PlrSkillUse su = { (BYTE)ii, SPLFROM_MANA };
+		RemovePlrSkill(plr._pMainSkill, su);
+		RemovePlrSkill(plr._pAltSkill, su);
+		for (int i = 0; i < lengthof(plr._pSkillHotKey); i++) {
+			RemovePlrSkill(plr._pSkillHotKey[i], su);
+			RemovePlrSkill(plr._pAltSkillHotKey[i], su);
+		}
+	} break;
 	}
 
 	CalcPlrInv(pnum, true);
@@ -1974,7 +2054,7 @@ static void S_BoyEnter()
 			// stextxhold = stextselx;
 			stextvhold = stextsidx;
 			stextshold = STORE_PEGBOY;
-			if (boyitem._iIdentified) {
+			if (!boyitem._iUnidentified) {
 				StartStore(STORE_PBUY);
 			} else if (myplr._pGold < STORE_PEGBOY_PRICE) {
 				StartStore(STORE_NOMONEY);
@@ -2035,8 +2115,13 @@ static void StoryIdItem(int i)
 	} else {
 		i = INVITEM_BODY_FIRST - (i + 1);
 	}
-	storeitem._iIdentified = TRUE;
+	storeitem._iUnidentified = FALSE;
 	SendStoreCmd1(i, STORE_SIDENTIFY, STORE_ID_PRICE);
+}
+
+static void DrunkForget(int idx)
+{
+	SendStoreCmd1(idx, STORE_DFORGET, storeitem._iSpell);
 }
 
 static void S_ConfirmEnter()
@@ -2077,6 +2162,9 @@ static void S_ConfirmEnter()
 			break;
 		case STORE_SPBUY:
 			func = SmithBuyPItem;
+			break;
+		case STORE_DFORGET:
+			func = DrunkForget;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -2154,6 +2242,11 @@ static void S_SIDEnter()
 	S_UpdateEnter(STORE_SIDENTIFY);
 }
 
+static void S_DForgetEnter()
+{
+	S_UpdateEnter(STORE_DFORGET);
+}
+
 static void S_TalkEnter()
 {
 	if (stextsel == 22) {
@@ -2227,6 +2320,9 @@ static void S_DrunkEnter()
 		stextshold = STORE_DRUNK;
 		talker = TOWN_DRUNK;
 		StartStore(STORE_GOSSIP);
+		break;
+	case STORE_DRUNK_FORGET:
+		StartStore(STORE_DFORGET);
 		break;
 	case STORE_DRUNK_EXIT:
 		stextflag = STORE_NONE;
@@ -2348,6 +2444,9 @@ void STextEnter()
 		break;
 	case STORE_DRUNK:
 		S_DrunkEnter();
+		break;
+	case STORE_DFORGET:
+		S_DForgetEnter();
 		break;
 	case STORE_TAVERN:
 		S_TavernEnter();

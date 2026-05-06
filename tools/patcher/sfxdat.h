@@ -6,10 +6,6 @@
 #ifndef __SFXDAT_H__
 #define __SFXDAT_H__
 
-#ifdef NOSOUND
-#include "engine.h"
-#endif
-
 DEVILUTION_BEGIN_NAMESPACE
 
 #ifdef __cplusplus

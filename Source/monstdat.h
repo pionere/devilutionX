@@ -16,6 +16,7 @@ extern const MonsterData monsterdata[NUM_MTYPES];
 extern const MonFileData monfiledata[NUM_MOFILE];
 extern const BYTE MonstConvTbl[128];
 extern const UniqMonData uniqMonData[];
+extern const MinionMonData minionMonData[NUM_MMTYPES];
 
 #ifdef __cplusplus
 }

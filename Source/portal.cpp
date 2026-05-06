@@ -113,7 +113,7 @@ bool PosOkPortal(int x, int y)
 		if (lvl == DLV_TOWN) {
 			if (WARPDROPX(i) == x && WARPDROPY(i) == y)
 				return false;
-		} else {
+		} else if (portals[i]._rlevel == lvl) {
 			if (portals[i]._rx == x && portals[i]._ry == y)
 				return false;
 		}

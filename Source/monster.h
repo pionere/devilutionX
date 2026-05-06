@@ -25,10 +25,16 @@ extern "C" {
 extern int nummonsters;
 extern MonsterStruct monsters[MAXMONSTERS];
 extern MapMonData mapMonTypes[MAX_LVLMTYPES];
+/* The number of monster types on the current level. */
 extern int nummtypes;
+/* The number of monster types scattered on the current level. */
+extern BYTE numScaTypes;
+/* The number of skeleton-monster types on the current level. */
 extern BYTE numSkelTypes;
 /* The number of goat-monster types on the current level. */
 extern BYTE numGoatTypes;
+/* Scattered monster types on the current level. */
+extern BYTE mapScaTypes[MAX_LVLMTYPES];
 /* Skeleton-monster types on the current level. */
 extern BYTE mapSkelTypes[MAX_LVLMTYPES];
 /* Goat-monster types on the current level. */
@@ -73,8 +79,8 @@ void SpawnSkeleton(int mnum, int x, int y, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
 void TalktoMonster(int mnum, int pnum);
-void InitGolemStats(int mnum, int level);
-void SpawnGolem(int mnum, int x, int y, int level);
+void PreSpawnMinion(int mnum, int type, int level);
+bool SpawnMinion(int mnum, int type, int level, int hitpoints = -1);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool* ret);
 void MonCallToArms(int mnum);

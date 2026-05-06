@@ -50,8 +50,6 @@ extern BYTE gaActiveWindows[NUM_WNDS];
 extern BYTE gbDragWnd;
 extern int gnDragWndX;
 extern int gnDragWndY;
-/** The current tab in the Spell-Book. */
-extern unsigned guBooktab;
 /** Specifies whether the LevelUp button is displayed. */
 extern bool gbLvlUp;
 /** Specifies whether the LevelUp button is pressed. */

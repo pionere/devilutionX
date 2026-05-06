@@ -19,9 +19,6 @@ extern "C" {
 #define TILE_WIDTH     (64 * ASSET_MPL)
 #define TILE_HEIGHT    (32 * ASSET_MPL)
 
-#define ITEM_ANIM_WIDTH   (96 * ASSET_MPL)
-#define ITEM_ANIM_XOFFSET ((ITEM_ANIM_WIDTH - TILE_WIDTH) / 2)
-
 #define BORDER_LEFT    TILE_WIDTH
 // maximum of
 //  1. min(height of a player, CEL_BLOCK_HEIGHT) + 1 (outline)  = (~80 * ASSET_MPL, 32) + 1  = 33 -- cl2_render
@@ -79,23 +76,15 @@ extern "C" {
 #if ASSET_MPL == 1
 #define SPLICON_WIDTH  37
 #define SPLICON_HEIGHT 38
-#define SPLROWICONLS   ((PANEL_WIDTH - 233) / SPLICON_WIDTH)
 #define SPLICON_OVERX  1
 #define SPLICON_OVERY  1
 #else
 #define SPLICON_WIDTH  56
 #define SPLICON_HEIGHT 56
-#define SPLROWICONLS   (PANEL_WIDTH / SPLICON_WIDTH)
 #define SPLICON_OVERX  4
 #define SPLICON_OVERY  4
 #endif
-#ifdef HELLFIRE
-#define SPLICONLAST    52
-#define SPLBOOKTABS    7
-#else
-#define SPLICONLAST    43
-#define SPLBOOKTABS    6
-#endif
+#define SPLICONLAST    47
 
 #define INV_SLOT_SIZE_PX 28
 #define BELT_WIDTH       60

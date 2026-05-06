@@ -5,10 +5,10 @@
  */
 #include "all.h"
 #include "monstai.h"
-#include "engine/render/render.h"
-#include "engine/render/cl2_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
+
+#define WORK_LVLMTYPE (MAX_LVLMTYPES - 1)
 
 /* Limit the number of monsters to be placed. */
 int totalmonsters;
@@ -24,17 +24,24 @@ MapMonData mapMonTypes[MAX_LVLMTYPES];
 int nummtypes;
 
 static_assert(MAX_LVLMTYPES <= UCHAR_MAX, "Monster-type indices are stored in a BYTE fields.");
+/* The number of monster types scattered on the current level. */
+BYTE numScaTypes;
 /* The number of skeleton-monster types on the current level. */
 BYTE numSkelTypes;
 /* The number of goat-monster types on the current level. */
 BYTE numGoatTypes;
+/* Scattered monster types on the current level. */
+BYTE mapScaTypes[MAX_LVLMTYPES];
 /* Skeleton-monster types on the current level. */
 BYTE mapSkelTypes[MAX_LVLMTYPES];
 /* Goat-monster types on the current level. */
 BYTE mapGoatTypes[MAX_LVLMTYPES];
 
-/* The next light-index to be used for the trn of a unique monster. */
-BYTE uniquetrans;
+/* The animations of the unique monsters on the current level. */
+static BYTE* uniqAnimData[MAX_LVLMUNIQS][NUM_MON_ANIM];
+static MonAnimStruct uniqAnims[MAX_LVLMUNIQS][NUM_MON_ANIM];
+/* The number of unique monsters on the current level. */
+static BYTE numUniqAnims;
 
 /** 'leader' of monsters without leaders. */
 static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE field.");
@@ -133,7 +140,11 @@ static void (*const AiProc[])(int i) = {
 /*AI_SNEAK*/        &MAI_Sneak,
 /*AI_FIREMAN*///    &MAI_Fireman,
 /*AI_GARBUD*/       &MAI_Garbud,
+/*AI_FOLLOW*/       &MAI_Follow,
 /*AI_GOLUM*/        &MAI_Golem,
+/*AI_BLDGOLUM*/     &MAI_BldGolem,
+/*AI_MINIONAX*/     &MAI_MinionAx,
+/*AI_MINIONBW*/     &MAI_MinionBw,
 /*AI_ZHAR*/         &MAI_Zhar,
 /*AI_SNOTSPIL*/     &MAI_SnotSpil,
 /*AI_SNAKE*/        &MAI_Snake,
@@ -150,30 +161,20 @@ static void (*const AiProc[])(int i) = {
 	// clang-format on
 };
 
-static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], const char* transFile)
+static inline void InitMonsterTRN(MonAnimStruct (&anims)[NUM_MON_ANIM], BYTE transFile)
 {
 	int i, j;
 	const MonAnimStruct* as;
 	BYTE trn[NUM_COLORS];
 
-	// A TRN file contains a sequence of color transitions, represented
-	// as indexes into a palette. (a 256 byte array of palette indices)
-	LoadFileWithMem(transFile, trn);
-#if !USE_PATCH
-	// patch TRN files - Monsters/*.TRN
-	BYTE *cf = trn;
-	for (i = 0; i < NUM_COLORS; i++) {
-		if (*cf == 255) {
-			*cf = 0;
-		}
-		cf++;
-	}
-#endif
-	for (i = 0; i < NUM_MON_ANIM; i++) {
-		as = &anims[i];
-		if (as->maFrames > 1) {
-			for (j = 0; j < lengthof(as->maAnimData); j++) {
-				Cl2ApplyTrans(as->maAnimData[j], trn, as->maFrames);
+	if (LoadTrnWithMem(transFile, trn)) {
+		for (i = 0; i < NUM_MON_ANIM; i++) {
+			as = &anims[i];
+			if (as->maFrames > 0) {
+				for (j = 0; j < lengthof(as->maAnimData); j++) {
+					if (j != 0 && (as->maAnimData[j] == as->maAnimData[0])) continue; // apply trn only once to unidirectional/incomplete animations
+					Cl2ApplyTrans(as->maAnimData[j], trn);
+				}
 			}
 		}
 	}
@@ -189,8 +190,6 @@ static void InitMonsterGFX(int midx)
 
 	cmon = &mapMonTypes[midx];
 	mfdata = &monfiledata[cmon->cmFileNum];
-	cmon->cmWidth = mfdata->moWidth * ASSET_MPL;
-	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
 	cmon->cmAFNum = mfdata->moAFNum;
 	cmon->cmAFNum2 = mfdata->moAFNum2;
 
@@ -198,116 +197,90 @@ static void InitMonsterGFX(int midx)
 	auto& monAnims = cmon->cmAnims;
 	// static_assert(lengthof(animletter) == lengthof(monsterdata[0].maFrames), "");
 	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
-		monAnims[anim].maFrames = mfdata->moAnimFrames[anim];
-		monAnims[anim].maFrameLen = mfdata->moAnimFrameLen[anim];
-		if (mfdata->moAnimFrames[anim] > 0) {
+		monAnims[anim].maFrames = monAnims[anim].maFrameLen = mfdata->moAnimFrameLen[anim];
+		if (mfdata->moAnimFrameLen[anim] > 0) {
 			snprintf(strBuff, sizeof(strBuff), mfdata->moGfxFile, animletter[anim]);
 
 			celBuf = LoadFileInMem(strBuff);
 			assert(cmon->cmAnimData[anim] == NULL);
 			cmon->cmAnimData[anim] = celBuf;
 
-			if (mtype != MT_GOLEM || (anim != MA_SPECIAL && anim != MA_DEATH)) {
-				LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(monAnims[anim].maAnimData));
-			} else {
-				for (i = 0; i < lengthof(monAnims[anim].maAnimData); i++) {
-					monAnims[anim].maAnimData[i] = celBuf;
+			LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(monAnims[anim].maAnimData));
+			auto animLen = LOAD_LE32(monAnims[anim].maAnimData[0]);
+			for (i = 1; i < lengthof(monAnims[anim].maAnimData); i++) {
+				if (LOAD_LE32(monAnims[anim].maAnimData[i]) != animLen) {
+					// overwrite unidirectional/incomplete animations
+					monAnims[anim].maAnimData[i] = monAnims[anim].maAnimData[0];
 				}
 			}
+			monAnims[anim].maFrames = animLen;
+#if !USE_PATCH
+			if (cmon->cmFileNum == MOFILE_ACID && anim == MA_DEATH) {
+				monAnims[anim].maFrames = 24 - 8;
+			}
+			if (cmon->cmFileNum == MOFILE_MAGMA && anim == MA_WALK) {
+				monAnims[anim].maFrames = 14 - 4;
+			}
+			if (cmon->cmFileNum == MOFILE_SCAV && anim == MA_GOTHIT) {
+				monAnims[anim].maFrames =  8 - 2;
+			}
+			if (cmon->cmFileNum == MOFILE_SKING && anim == MA_SPECIAL) {
+				monAnims[anim].maFrames = 12 - 6;
+			}
+			if (cmon->cmFileNum == MOFILE_SKING && anim == MA_WALK) {
+				monAnims[anim].maFrames =  8 - 2;
+			}
+			if (cmon->cmFileNum == MOFILE_SNAKE && anim == MA_GOTHIT) {
+				monAnims[anim].maFrames =  6 - 1;
+			}
+			if (cmon->cmFileNum == MOFILE_SKELBW && anim == MA_DEATH) {
+				monAnims[anim].maFrames = 16 - 3;
+			}
+#ifdef HELLFIRE
+			if (cmon->cmFileNum == MOFILE_UNRAV && anim == MA_ATTACK) {
+				monAnims[anim].maFrames = 18 - 6;
+			}
+#endif
+#endif
 		}
 	}
 
-	if (monsterdata[mtype].mTransFile != NULL) {
+	//if (monsterdata[mtype].mTransFile != NULL) {
 		InitMonsterTRN(monAnims, monsterdata[mtype].mTransFile);
-	}
+	//}
 
-	// copy walk animation to the stand animation of the golem (except aCelData and alignment)
-	if (mtype == MT_GOLEM) {
-		copy_pod(monAnims[MA_STAND].maAnimData, monAnims[MA_WALK].maAnimData);
-		monAnims[MA_STAND].maFrames = monAnims[MA_WALK].maFrames;
-		monAnims[MA_STAND].maFrameLen = monAnims[MA_WALK].maFrameLen;
-	}
+	cmon->cmWidth = Cl2Width(monAnims[0].maAnimData[0]);
+	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
+}
 
-	// load optional missile-gfxs
-	switch (mtype) {
-	case MT_NMAGMA:
-	case MT_YMAGMA:
-	case MT_BMAGMA:
-	case MT_WMAGMA:
-		LoadMissileGFX(MFILE_MAGBALL);
-		break;
-	/*case MT_INCIN:
-	case MT_FLAMLRD:
-	case MT_DOOMFIRE:
-	case MT_HELLBURN:
-		LoadMissileGFX(MFILE_KRULL);
-		break;*/
-	case MT_RTHIN:
-	case MT_NTHIN:
-	case MT_XTHIN:
-	case MT_GTHIN:
-		LoadMissileGFX(MFILE_THINLGHT);
-		break;
-	/*case MT_NSUCC:
-		LoadMissileGFX(MFILE_FLARE);
-		LoadMissileGFX(MFILE_FLAREEXP);
-		break;*/
-	case MT_NACID:
-	case MT_RACID:
-	case MT_BACID:
-	case MT_XACID:
+static void InitMonsterMis(int type, const MonsterAI ai)
+{
+	static_assert(sizeof(ai) <= sizeof(size_t), "Pass ai by reference to InitMonsterMis");
 #ifdef HELLFIRE
-	case MT_SPIDLORD:
+	if ((type >= MT_NACID && type <= MT_XACID) || type == MT_SPIDLORD)
+#else
+	if (type >= MT_NACID && type <= MT_XACID)
 #endif
-		LoadMissileGFX(MFILE_ACIDBF);
-		LoadMissileGFX(MFILE_ACIDSPLA);
-		LoadMissileGFX(MFILE_ACIDPUD);
-		break;
-	case MT_GSUCC:
-		LoadMissileGFX(MFILE_SCUBMISB);
-		LoadMissileGFX(MFILE_SCBSEXPB);
-		break;
-	case MT_RSUCC:
-		LoadMissileGFX(MFILE_SCUBMISD);
-		LoadMissileGFX(MFILE_SCBSEXPD);
-		break;
-	case MT_BSUCC:
-		LoadMissileGFX(MFILE_SCUBMISC);
-		LoadMissileGFX(MFILE_SCBSEXPC);
-		break;
-	case MT_SMAGE:
-	case MT_OMAGE:
-		LoadMissileGFX(MFILE_MAGEMIS);
-		LoadMissileGFX(MFILE_MAGEEXP);
-		break;
-	case MT_DIABLO:
-		LoadMissileGFX(MFILE_FIREPLAR);
-		break;
+		InitMissileGFX(MIS_ACIDPUD);
+	if (ai.aiType == AI_RANGED || ai.aiType == AI_ROUNDRANGED || ai.aiType == AI_ROUNDRANGED2 || ai.aiType == AI_COUNSLR || ai.aiType == AI_MAGE) {
+		if (ai.aiType == AI_MAGE) {
+			InitMissileGFX(MIS_MAGE);
+		}
+		// if (ai.aiType == AI_COUNSLR || ai.aiType == AI_MAGE) {
+		//	InitMissileGFX(MIS_FLASH);
+		// }
+		InitMissileGFX(ai.aiParam1);
+	// } else if (ai.aiType == AI_SKELBOW) {
+	//	InitMissileGFX(MIS_ARROW);
+	// } else if (ai.aiType == AI_FALLEN) {
+	//	InitMissileGFX(MIS_CTA);
+	// } else if (ai.aiType == AI_BAT) {
+	//	InitMissileGFX(MIS_LIGHTNING);
+	// } else if (ai.aiType == AI_FIREMAN) {
+	//	InitMissileGFX(MIS_KRULL);
 #ifdef HELLFIRE
-	case MT_SKLWING:
-	case MT_BONEDEMN:
-		LoadMissileGFX(MFILE_MS_ORA_B);
-		LoadMissileGFX(MFILE_EXORA1_B);
-		break;
-	case MT_PSYCHORB:
-		LoadMissileGFX(MFILE_MS_ORA);
-		LoadMissileGFX(MFILE_EXORA1);
-		break;
-	case MT_NECRMORB:
-		LoadMissileGFX(MFILE_MS_REB_B);
-		LoadMissileGFX(MFILE_EXYEL2_B);
-		break;
-	case MT_HORKDMN:
-		LoadMissileGFX(MFILE_SPAWNS);
-		break;
-	case MT_LICH:
-		LoadMissileGFX(MFILE_MS_ORA_A);
-		LoadMissileGFX(MFILE_EXORA1_A);
-		break;
-	case MT_ARCHLICH:
-		LoadMissileGFX(MFILE_MS_YEB_A);
-		LoadMissileGFX(MFILE_EXYEL2_A);
-		break;
+	} else if (ai.aiType == AI_HORKDMN) {
+		InitMissileGFX(MIS_HORKDMN);
 #endif
 	}
 }
@@ -395,6 +368,8 @@ static void InitMonsterStats(int midx)
 	cmon->cmMinHP = (cmon->cmMinHP * mpl) >> 1;
 	cmon->cmMaxHP = (cmon->cmMaxHP * mpl) >> 1;
 	cmon->cmExp = (cmon->cmExp * mpl) >> 1;
+
+	InitMonsterMis(cmon->cmType, cmon->cmAI);
 }
 
 static bool IsSkel(int mt)
@@ -436,6 +411,8 @@ static int AddMonsterType(int type, BOOL scatter)
 	}
 
 	if (scatter && !mapMonTypes[i].cmPlaceScatter) {
+		mapScaTypes[numScaTypes] = i;
+		numScaTypes++;
 		mapMonTypes[i].cmPlaceScatter = TRUE;
 		monstimgtot -= monfiledata[monsterdata[type].moFileNum].moImage;
 	}
@@ -448,28 +425,29 @@ void InitLvlMonsters()
 	int i;
 
 	nummtypes = 0;
+	numScaTypes = 0;
 	numSkelTypes = 0;
 	numGoatTypes = 0;
-	uniquetrans = COLOR_TRN_UNIQ;
-	monstimgtot = MAX_LVLMIMAGE - monfiledata[monsterdata[MT_GOLEM].moFileNum].moImage;
+	numUniqAnims = 0;
+	monstimgtot = MAX_LVLMIMAGE;
 	totalmonsters = MAXMONSTERS;
 
 	// reset monsters
 	for (i = 0; i < MAXMONSTERS; i++) {
-		monsters[i]._mmode = MM_UNUSED;
+		monsters[i]._mmode = i < MAX_MINIONS ? MM_RESERVED : MM_UNUSED;
 		// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
 		monsters[i]._msquelch = 0;
 		// reset _mMTidx value to simplify SyncMonsterAnim (loadsave.cpp)
 		monsters[i]._mMTidx = 0;
-		monsters[i]._mpathcount = 0;
-		monsters[i]._mAlign_1 = 0;
+		monsters[i]._mMType = 0;
+		monsters[i]._mMLevel = 0;
 		monsters[i]._mgoal = MGOAL_NORMAL;
 		// reset _muniqtype value to simplify SyncMonsterAnim (loadsave.cpp)
-		// reset _muniqtrans to simplify InitTownerInfo (towner.cpp)
+		// reset _muniqanim to simplify InitTownerInfo (towner.cpp)
 		// reset _mNameColor to simplify InitTownerInfo (towner.cpp)
 		// reset _mlid value to simplify SyncMonstersLight (loadsave.cpp), DeltaLoadLevel, SummonMonster and InitTownerInfo (towner.cpp)
 		monsters[i]._muniqtype = 0;
-		monsters[i]._muniqtrans = 0;
+		monsters[i]._muniqanim = 0;
 		monsters[i]._mNameColor = COL_WHITE;
 		monsters[i]._mlid = NO_LIGHT;
 		// reset _mleaderflag value to simplify GroupUnity
@@ -478,16 +456,8 @@ void InitLvlMonsters()
 		// monsters[i]._mpacksize = 0;
 		// monsters[i]._mvid = NO_VISION;
 	}
-	// reserve minions
+	// skip minions
 	nummonsters = MAX_MINIONS;
-	if (currLvl._dLevelIdx != DLV_TOWN) {
-		AddMonsterType(MT_GOLEM, FALSE);
-		mapMonTypes[0].cmFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
-		for (i = 0; i < MAX_MINIONS; i++) {
-			InitMonster(i, DIR_S, 0, 0, 0);
-			monsters[i]._mmode = MM_RESERVED;
-		}
-	}
 }
 
 void GetLevelMTypes()
@@ -671,8 +641,8 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	//mon->_mVar7 = 0;
 	//mon->_mVar8 = 0;
 	mon->_msquelch = 0;
-	mon->_mpathcount = 0;
-	mon->_mAlign_1 = 0;
+	//mon->_mMType = 0;	-- should be set before use
+	//mon->_mMLevel = 0;
 	mon->_mgoal = MGOAL_NORMAL;
 	//mon->_mgoalvar1 = 0;	-- should be set before use
 	//mon->_mgoalvar2 = 0;
@@ -688,7 +658,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	// mon->_mAISeed = -- should be set before use
 
 	mon->_muniqtype = 0;
-	mon->_muniqtrans = 0;
+	mon->_muniqanim = 0;
 	mon->_mNameColor = COL_WHITE;
 	mon->_mlid = NO_LIGHT;
 
@@ -860,16 +830,43 @@ static void PlaceGroup(int mtidx, int num, int leaderf, int leader)
 
 static unsigned InitUniqueMonster(int mnum, int uniqindex)
 {
-	char filestr[DATA_ARCHIVE_MAX_PATH];
 	const UniqMonData* uniqm;
 	MonsterStruct* mon;
 	unsigned baseLvl, lvlBonus, monLvl;
+	int anim;
 
 	mon = &monsters[mnum];
 	mon->_mNameColor = COL_GOLD;
 	mon->_muniqtype = uniqindex + 1;
 
 	uniqm = &uniqMonData[uniqindex];
+	// initialize unique-gfx
+	if (uniqm->muTrans != TRN_NONE) {
+		mapMonTypes[WORK_LVLMTYPE].cmFileNum = mon->_mFileNum;
+		mapMonTypes[WORK_LVLMTYPE].cmType = mon->_mType;
+		InitMonsterGFX(WORK_LVLMTYPE);
+		InitMonsterTRN(mapMonTypes[WORK_LVLMTYPE].cmAnims, uniqm->muTrans);
+	} else {
+		for (anim = 0; anim < NUM_MON_ANIM; anim++)
+			mapMonTypes[WORK_LVLMTYPE].cmAnimData[anim] = mapMonTypes[mon->_mMTidx].cmAnimData[anim];
+	}
+
+	anim = numUniqAnims++;
+	mon->_muniqanim = anim;
+	BYTE* (&umAnimData)[NUM_MON_ANIM] = uniqAnimData[anim];
+	MonAnimStruct* uam = uniqAnims[anim];
+
+	for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+		BYTE* celBuf = mapMonTypes[WORK_LVLMTYPE].cmAnimData[anim];
+		mapMonTypes[WORK_LVLMTYPE].cmAnimData[anim] = NULL;
+		umAnimData[anim] = celBuf;
+		uam[anim].maFrameLen = mon->_mAnims[anim].maFrameLen;
+		uam[anim].maFrames = mon->_mAnims[anim].maFrames;
+		if (celBuf != NULL)
+			LoadFrameGroups(celBuf, const_cast<const BYTE*(&)[8]>(uam[anim].maAnimData));
+	}
+	mon->_mAnims = uam;
+	// initialize unique-stats
 	mon->_mLevel = uniqm->muLevel;
 
 	mon->_mExp *= 2;
@@ -886,13 +883,6 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mgoal = MGOAL_TALKING;
 		mon->_mgoalvar1 = FALSE;           // TALK_INQUIRING
 		mon->_mgoalvar2 = uniqm->mtalkmsg; // TALK_MESSAGE
-	}
-
-	if (uniqm->mTrnName != NULL) {
-		snprintf(filestr, sizeof(filestr), "Monsters\\Monsters\\%s.TRN", uniqm->mTrnName);
-		LoadFileWithMem(filestr, ColorTrns[uniquetrans]);
-		static_assert(NUM_COLOR_TRNS <= UCHAR_MAX, "Color transform index stored in BYTE field.");
-		mon->_muniqtrans = uniquetrans++;
 	}
 
 	mon->_mHit += uniqm->mUnqHit;
@@ -953,6 +943,8 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 	if (flags & UMF_LIGHT) {
 		mon->_mlid = AddLight(mon->_mx, mon->_my, MON_LIGHTRAD);
 	}
+
+	InitMonsterMis(mon->_mType, mon->_mAI);
 	return flags;
 }
 
@@ -1023,7 +1015,7 @@ static void PlaceUniques()
 	int u, mt;
 
 	for (u = 0; uniqMonData[u].mtype != MT_INVALID; u++) {
-		if (uniquetrans >= NUM_COLOR_TRNS)
+		if (numUniqAnims >= MAX_LVLMUNIQS)
 			continue;
 		/*if (uniqMonData[u].muLevelIdx != currLvl._dLevelIdx)
 			continue;
@@ -1077,7 +1069,7 @@ static void SetMapMonsters(int idx)
 				} else {
 					mtype = (mtype & INT16_MAX) - 1;
 					mtidx = AddMonsterType(uniqMonData[mtype].mtype, FALSE);
-					// assert(uniquetrans < NUM_COLOR_TRNS);
+					// assert(numUniqAnims < MAX_LVLMUNIQS);
 					mnum = PlaceMonster(mtidx, i, j);
 					InitUniqueMonster(mnum, mtype);
 				}
@@ -1104,26 +1096,28 @@ static void PlaceSetMapMonsters()
 
 void InitMonsters()
 {
-	unsigned na, numplacemonsters, numscattypes;
+	unsigned na, numplacemonsters;
 	int i, j, xx, yy;
 	int mtidx;
-	int scatteridx[MAX_LVLMTYPES];
-	const int tdx[4] = { -1, -1,  2,  2 };
-	const int tdy[4] = { -1,  2, -1,  2 };
+	const int tdx[] = { 0 };
+	const int tdy[] = { 0 };
 
 #if DEBUG_MODE
 	if (IsMultiGame)
 		CheckDungeonClear();
 #endif
-	// reserve the entry/exit area
+	// reserve the entry area
 	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
+		if (i == DWARP_EXIT) // && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		if (i == DWARP_SIDE)
+			continue;
 		if (pWarps[i]._wx == 0)
 			continue;
-		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
-			continue;
-		static_assert(MAX_LIGHT_RAD >= 15, "Tile reservation in InitMonsters requires at least 15 light radius.");
+		const POS32 pos = TrigEntryPos(i);
+		static_assert(MAX_LIGHT_RAD >= 15, "Subtile reservation in InitMonsters requires at least 15 light radius I.");
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
-			DoVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15, false);
+			DoVision(pos.x + tdx[j], pos.y + tdy[j], 15, false);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
@@ -1145,17 +1139,10 @@ void InitMonsters()
 			totalmonsters = MAXMONSTERS - 10;
 		// place quest/unique monsters
 		PlaceUniques();
-		numscattypes = 0;
-		for (i = 0; i < nummtypes; i++) {
-			if (mapMonTypes[i].cmPlaceScatter) {
-				scatteridx[numscattypes] = i;
-				numscattypes++;
-			}
-		}
-		// assert(numscattypes != 0 || na == 0);
+		// assert(numScaTypes != 0 || na == 0);
 		i = currLvl._dLevelIdx;
 		while (nummonsters < totalmonsters) {
-			mtidx = scatteridx[random_low(95, numscattypes)];
+			mtidx = mapScaTypes[random_low(95, numScaTypes)];
 			if (i == DLV_CATHEDRAL1 || random_(95, 2) == 0)
 				na = 1;
 #ifdef HELLFIRE
@@ -1171,12 +1158,16 @@ void InitMonsters()
 	// }
 	// revert entry/exit area reservation
 	for (i = lengthof(pWarps) - 1; i >= 0; i--) {
+		if (i == DWARP_EXIT) // && currLvl._dLevelIdx == DLV_HELL3)
+			continue;
+		if (i == DWARP_SIDE)
+			continue;
 		if (pWarps[i]._wx == 0)
 			continue;
-		if (i == DWARP_EXIT && currLvl._dLevelIdx == DLV_HELL3)
-			continue;
+		const POS32 pos = TrigEntryPos(i);
+		static_assert(MAX_LIGHT_RAD >= 15, "Subtile reservation in InitMonsters requires at least 15 light radius II.");
 		for (j = lengthof(tdx) - 1; j >= 0; j--)
-			DoUnVision(pWarps[i]._wx + tdx[j], pWarps[i]._wy + tdy[j], 15);
+			DoUnVision(pos.x + tdx[j], pos.y + tdy[j], 15);
 	}
 	// if (currLvl._dLevelIdx == DLV_HELL3) {
 	//	DoUnVision(quests[Q_BETRAYER]._qtx + 2, quests[Q_BETRAYER]._qty + 2, 4, false);
@@ -1986,20 +1977,21 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 		NetSendCmdMonstDamage(mnum, mon->_mhitpoints);
 	}
 	PlayMonSfx(mnum, MS_GOTHIT);
-	// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-	if (mon->_mType != MT_GOLEM && mon->_mmode != MM_STONE) {
+	if (mon->_mmode != MM_STONE) {
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
-		knockback = (hitflags & ISPL_KNOCKBACK) != 0;
-		stun = (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp;
-		if (knockback || stun) {
-			MonStopWalk(mnum);
-			if (knockback)
-				MonGetKnockback(mnum, dir);
-			if (stun && mon->_mType == MT_NBAT)
-				dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
-			MonStartGetHit(mnum, OPPOSITE(dir));
+		if (!(mon->_mFlags & MFLAG_NOGETHIT)) {
+			knockback = (hitflags & ISPL_KNOCKBACK) != 0;
+			stun = (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp;
+			if (knockback || stun) {
+				MonStopWalk(mnum);
+				if (knockback)
+					MonGetKnockback(mnum, dir);
+				if (stun && mon->_mType == MT_NBAT)
+					dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
+				MonStartGetHit(mnum, OPPOSITE(dir));
+			}
 		}
 	}
 }
@@ -2014,23 +2006,22 @@ void MonHitByMon(int defm, int offm, int dam, int dir)
 	}
 	dmon = &monsters[defm];
 	// assert(dmon->_mmode != MM_DEATH);
-	if ((unsigned)offm < MAX_MINIONS) {
-		static_assert(MAX_MINIONS == MAX_PLRS, "M2MStartHit requires that owner of a monster has the same id as the monster itself.");
-		if (offm == mypnum) {
-			NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
-		}
+	static_assert(MAX_MINIONS == MAX_PLRS, "MonHitByMon requires that owner of a monster has the same id as the monster itself.");
+	if (/*defm >= MAX_MINIONS && (*/offm == mypnum/* || offm < 0)*/) {
+		NetSendCmdMonstDamage(defm, dmon->_mhitpoints);
 	}
 	PlayMonSfx(defm, MS_GOTHIT);
-	// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-	if (dmon->_mType != MT_GOLEM && dmon->_mmode != MM_STONE) {
+	if (dmon->_mmode != MM_STONE) {
 		// TODO: implement monster vs. monster knockback & bleed?
-		//       assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_KNOCKBACK));
-		stun = (dam << 2) >= dmon->_mmaxhp;
-		if (stun) {
-			MonStopWalk(defm);
-			if (/*stun && */dmon->_mType == MT_NBAT && offm >= 0)
-				dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
-			MonStartGetHit(defm, OPPOSITE(dir));
+		//       assert(!(monsterdata[MT_GOLEM].mFlags & (MFLAG_KNOCKBACK | MFLAG_CAN_BLEED)));
+		if (!(dmon->_mFlags & MFLAG_NOGETHIT)) {
+			stun = (dam << 2) >= dmon->_mmaxhp;
+			if (stun) {
+				MonStopWalk(defm);
+				if (/*stun && */dmon->_mType == MT_NBAT && offm >= 0)
+					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
+				MonStartGetHit(defm, OPPOSITE(dir));
+			}
 		}
 	}
 }
@@ -2079,6 +2070,8 @@ static void MonDiabloDeath(int mnum)
 		//if (mon->_msquelch == 0)
 		//	continue;
 		mon->_mhitpoints = 0;
+		// if (mnum < MAX_MINIONS)
+			AddUnVision(mon->_mvid);
 		if (mon->_mmode != MM_STONE) {
 			NewMonsterAnim(i, MA_DEATH, mon->_mdir);
 			mon->_mmode = MM_DEATH;
@@ -2260,17 +2253,21 @@ void MonSyncKill(int mnum, int x, int y, int pnum)
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonSyncKill: Invalid monster %d", mnum);
 	}
+#if 0
 	if (monsters[mnum]._mmode == MM_DEATH || monsters[mnum]._mmode > MM_INGAME_LAST
 	 || (monsters[mnum]._mmode == MM_STONE && monsters[mnum]._mhitpoints == 0)) {
+#else
+	if (monsters[mnum]._mhitpoints == 0 || monsters[mnum]._mmode > MM_INGAME_LAST) {
+#endif
 		return;
 	}
-	if (dMonster[x][y] == 0 || abs(dMonster[x][y]) == mnum + 1) {
+	if (monsters[mnum]._mx != x || monsters[mnum]._my != y) {
 		RemoveMonFromMap(mnum);
 		//dMonster[x][y] = mnum + 1;
-		//monsters[mnum]._mx = x;
-		//monsters[mnum]._my = y;
-		monsters[mnum]._moldx = x;
-		monsters[mnum]._moldy = y;
+		monsters[mnum]._mx = x;
+		monsters[mnum]._my = y;
+		//monsters[mnum]._moldx = x;
+		//monsters[mnum]._moldy = y;
 	}
 
 	MonInitKill(mnum, pnum, false);
@@ -2743,6 +2740,7 @@ static void MonWalkDir(int mnum, int md)
 	if (monsters[mnum]._mType == MT_FLESTHNG)
 		PlayMonSfx(mnum, MS_SPECIAL);
 #endif
+	// assert(monsters[mnum]._mAnimFrameLen == 1);
 	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
@@ -2911,7 +2909,7 @@ static bool MonCallWalk(int mnum, int md)
 static bool MonDestWalk(int mnum)
 {
 	MonsterStruct* mon;
-	int8_t path[MAX_PATH_LENGTH];
+	int8_t walkdir;
 	bool (*Check)(int, int, int);
 	int md;
 
@@ -2920,9 +2918,9 @@ static bool MonDestWalk(int mnum)
 		Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
 		if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
 			MonstCheckDoors(mon->_mx, mon->_my);
-		md = FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, path);
+		md = FindPath(Check, mnum, mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty, &walkdir);
 		if (md > 0) { // found path to the enemy -> go
-			md = path[0];
+			md = walkdir;
 		} else if (md != 0) { // could not find path to the enemy -> just go in its generic direction
 			md = currEnemyInfo._meLastDir;
 		} else { // enemy disappeared -> walk around randomly
@@ -3522,6 +3520,53 @@ void MAI_Ranged(int mnum)
 	}
 }
 
+/*
+ * AI for monsters using special or standard ranged attacks.
+ * Attempts to keep distance from the target, but tries to follow it if its out of sight or too far (8 subtiles).
+ *
+ * @param mnum: the id of the monster
+ * @param aiParam1: the missile type to be launched at the end of the attack animation.
+ * @param aiParam2: whether the monster should use its special attack
+ */
+static void MAI_RangedDist(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	int md;
+	if (MON_RELAXED || MON_ACTIVE)
+		return;
+
+	MonEnemyInfo(mnum);
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+		MonstCheckDoors(mon->_mx, mon->_my);
+	mon->_mdir = currEnemyInfo._meLastDir;
+	if (mon->_msquelch >= SQUELCH_MAX - 1 /* || (mon->_menemy < 0)*/) {
+		bool walking = false;
+		if (currEnemyInfo._meRealDist < 4) {
+			if (random_(119, 100) < (76 + 8 * mon->_mAI.aiInt))
+				walking = MonCallWalk(mnum, OPPOSITE(mon->_mdir));
+		}
+		if (!walking) {
+			md = std::max(1, 20 - mon->_mAI.aiInt);
+			md = random_low(118, md); // STAND_PREV_MODE
+			if (md == 0 || mon->_mVar1 == MM_DELAY) {
+				if (currEnemyInfo._meRealDist <= 8 && EnemyInLine(mnum)) {
+					if (mon->_mAI.aiParam2)
+						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+					else
+						MonStartRAttack(mnum, mon->_mAI.aiParam1);
+				} else if (currEnemyInfo._meRealDist >= 4
+				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
+					MonDestWalk(mnum);
+				}
+			} else {
+				MonStartDelay(mnum, md + 1);
+			}
+		}
+	} else {
+		MonDestWalk(mnum);
+	}
+}
+
 #ifdef HELLFIRE
 static void MonConsumeCorpse(MonsterStruct* mon)
 {
@@ -3845,26 +3890,23 @@ void MAI_RoundRanged2(int mnum)
 	}
 }
 
-void MAI_Golem(int mnum)
+void MAI_Follow(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int md, ld, i;
+	bool (*Check)(int, int, int);
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
-	assert(mon->_msquelch == SQUELCH_MAX);
-	if (MON_HAS_ENEMY) {
-		MAI_Cleaver(mnum);
-		if (mon->_mmode != MM_STAND)
-			return;
-	}
+	Check = (mon->_mFlags & MFLAG_CAN_OPEN_DOOR) != 0 ? PosOkMonst3 : PosOkMonst;
+	if (mon->_mFlags & MFLAG_CAN_OPEN_DOOR)
+		MonstCheckDoors(mon->_mx, mon->_my);
+	static_assert(MAX_MINIONS == MAX_PLRS, "MAI_Follow requires that owner of a monster has the same id as the monster itself.");
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		// go to the player
-		int8_t path[MAX_PATH_LENGTH];
-		assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
-		if (FindPath(PosOkMonst3, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, path) > 1) {
-			md = path[0];
+		int8_t walkdir;
+		if (FindPath(Check, mnum, mon->_mx, mon->_my, plx(mnum)._px, plx(mnum)._py, &walkdir) > 1) {
+			md = walkdir;
 			MonCallWalk(mnum, md);
 			return;
 		}
@@ -3873,9 +3915,6 @@ void MAI_Golem(int mnum)
 		mon->_mgoalvar1 = 0; // MOVE_DIRECTION
 	}
 	// follow the gaze of the player
-	assert(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_OPEN_DOOR);
-	// assert(mon->_mFlags & MFLAG_CAN_OPEN_DOOR);
-	MonstCheckDoors(mon->_mx, mon->_my);
 	ld = mon->_mdir;
 	md = plx(mnum)._pdir;
 	if (MonCallWalk(mnum, md)) {
@@ -3898,6 +3937,75 @@ void MAI_Golem(int mnum)
 			break;
 		}
 	}
+}
+
+void MAI_Golem(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	if (MON_ACTIVE)
+		return;
+	// assert(mon->_msquelch == SQUELCH_MAX);
+	if (MON_HAS_ENEMY) {
+		MAI_Cleaver(mnum);
+	}
+	MAI_Follow(mnum);
+}
+
+void MAI_BldGolem(int mnum)
+{
+	MonsterStruct* mon;
+	int mhp, php;
+
+	MAI_Golem(mnum);
+
+	mon = &monsters[mnum];
+	for (int i = (mon->_mLevel - monsterdata[MT_BLDGOLEM].mLevel) >> 4; i >= 0; i--) {
+		mhp = mon->_mhitpoints * plx(mnum)._pMaxHP;
+		php = mon->_mmaxhp * plx(mnum)._pHitPoints;
+		if (mhp == php) break;
+		if (mhp > php) {
+			if (php != 0 && mon->_mhitpoints > (1 << 6)) {
+				mon->_mhitpoints -= 1;
+				// PlrIncHp(mnum, 1);
+				plx(mnum)._pHitPoints += 1;
+				plx(mnum)._pHPBase += 1;
+			}
+		} else {
+			if (mhp != 0 && plx(mnum)._pHitPoints > (1 << 6)) {
+				// PlrDecHp(mnum, 1, DMGTYPE_UNKNOWN);
+				plx(mnum)._pHitPoints -= 1;
+				plx(mnum)._pHPBase -= 1;
+				mon->_mhitpoints += 1;
+			}
+		}
+		if (mnum == mypnum)
+			gbRedrawFlags |= REDRAW_RECALC_HP;
+	}
+}
+
+void MAI_MinionAx(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	if (MON_ACTIVE)
+		return;
+	if (MON_HAS_ENEMY) {
+		MAI_SkelSd(mnum);
+	}
+	MAI_Follow(mnum);
+}
+
+void MAI_MinionBw(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+
+	if (MON_ACTIVE)
+		return;
+	if (MON_HAS_ENEMY) {
+		MAI_RangedDist(mnum);
+	}
+	MAI_Follow(mnum);
 }
 
 void MAI_SkelKing(int mnum)
@@ -4639,13 +4747,28 @@ void ProcessMonsters()
 
 void FreeMonsters()
 {
-	int i, j;
-
+	int i, anim, j;
 	for (i = 0; i < nummtypes; i++) {
-		for (j = 0; j < NUM_MON_ANIM; j++) {
-			MemFreeDbg(mapMonTypes[i].cmAnimData[j]);
+		for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+			for (j = 0; j < numUniqAnims; j++) {
+				if (uniqAnimData[j][anim] == mapMonTypes[i].cmAnimData[anim]) {
+					uniqAnimData[j][anim] = NULL;
+				}
+			}
+			MemFreeDbg(mapMonTypes[i].cmAnimData[anim]);
 		}
 	}
+	for (i = 0; i < numUniqAnims; i++) {
+		for (anim = 0; anim < NUM_MON_ANIM; anim++) {
+			MemFreeDbg(uniqAnimData[i][anim]);
+		}
+	}
+
+	// nummtypes = 0;
+	// numScaTypes = 0;
+	// numSkelTypes = 0;
+	// numGoatTypes = 0;
+	// numUniqAnims = 0;
 
 	FreeMonMissileGFX();
 	FreeMonsterSFX();
@@ -4662,20 +4785,25 @@ void SyncMonsterAnim(int mnum)
 		dev_fatal("SyncMonsterAnim: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
+	if (mnum < MAX_MINIONS && mon->_mmode <= MM_INGAME_LAST) {
+		AddMonsterType(minionMonData[mon->_mMType].mtype, FALSE);
+	}
 	if ((unsigned)mon->_mMTidx >= MAX_LVLMTYPES) {
 		dev_fatal("SyncMonsterAnim: Invalid monster type %d for %d", mon->_mMTidx, mnum);
 	}
 	mmdata = &mapMonTypes[mon->_mMTidx];
 	mon->_mType = mmdata->cmType;
-	mon->_mAnims = mmdata->cmAnims;
 	mon->_mAnimWidth = mmdata->cmWidth;
 	mon->_mAnimXOffset = mmdata->cmXOffset;
 	mon->_mAFNum = mmdata->cmAFNum;
 	mon->_mAFNum2 = mmdata->cmAFNum2;
-	if (mon->_muniqtype != 0)
+	if (mon->_muniqtype != 0) {
 		mon->_mName = uniqMonData[mon->_muniqtype - 1].mName;
-	else
+		mon->_mAnims = uniqAnims[mon->_muniqanim];
+	} else {
 		mon->_mName = monsterdata[mon->_mType].mName;
+		mon->_mAnims = mmdata->cmAnims;
+	}
 
 	mode = mon->_mmode;
 	if (mode == MM_STONE)
@@ -5101,50 +5229,79 @@ void TalktoMonster(int mnum, int pnum)
 	}
 }
 
-void InitGolemStats(int mnum, int level)
+void PreSpawnMinion(int mnum, int type, int level)
 {
 	MonsterStruct* mon;
+	const MinionMonData &mmData = minionMonData[type];
+	const MonsterData &monData = monsterdata[mmData.mtype];
+	const MonsterAI follow = { AI_FOLLOW, 0, 0, 0 };
+
+	int mtidx = AddMonsterType(mmData.mtype, FALSE);
+	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
+
+	assert((unsigned)level <= UINT8_MAX);
+	unsigned lvlBonus = level;
 
 	mon = &monsters[mnum];
-	int lvlBonus = level > 0 ? level - 1 : 0;
+	mon->_mMType = type;
+	mon->_mMLevel = level;
+	mon->_mmode = MM_RESERVED;
+	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
+	mon->_mSelFlag = 0;
+	mon->_mAI = currLvl._dLevelIdx != DLV_TOWN ? mmData.mAI : follow;
+	mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
+	mon->_mHit = monData.mHit + lvlBonus * 5 / 2;
+	// mon->_mHit2 = monData.mHit2 + lvlBonus * 5 / 2;
+	// mon->_mMagic = monData.mMagic + lvlBonus * 5 / 2;
+	mon->_mEvasion = monData.mEvasion + lvlBonus * 5 / 2;
+	mon->_mArmorClass = monData.mArmorClass + lvlBonus * 5 / 2;
 
-	// mon->_mAI.aiInt = monsterdata[MT_GOLEM].mAI.aiInt + lvlBonus / 16;
-	mon->_mHit = monsterdata[MT_GOLEM].mHit + lvlBonus * 5 / 2;
-	// mon->_mHit2 = monsterdata[MT_GOLEM].mHit2 + lvlBonus * 5 / 2;
-	// mon->_mMagic = monsterdata[MT_GOLEM].mMagic + lvlBonus * 5 / 2;
-	mon->_mEvasion = monsterdata[MT_GOLEM].mEvasion + lvlBonus * 5 / 2;
-	mon->_mArmorClass = monsterdata[MT_GOLEM].mArmorClass + lvlBonus * 5 / 2;
-
-	int baseLvl = monsterdata[MT_GOLEM].mLevel;
+	int baseLvl = monData.mLevel;
 	int monLvl = baseLvl + lvlBonus;
 	mon->_mLevel = monLvl;
-	mon->_mmaxhp = (monLvl * monsterdata[MT_GOLEM].mMinHP / baseLvl) << 6;
+	mon->_mhitpoints = mon->_mmaxhp = (monLvl * monData.mMinHP / baseLvl) << 6;
 	mon->_mExp = 0; // monLvl * mon->_mExp / baseLvl;
-	mon->_mMinDamage = monLvl * monsterdata[MT_GOLEM].mMinDamage / baseLvl;
-	mon->_mMaxDamage = monLvl * monsterdata[MT_GOLEM].mMaxDamage / baseLvl;
-	// mon->_mMinDamage2 = monLvl * monsterdata[MT_GOLEM].mMinDamage2 / baseLvl;
-	// mon->_mMaxDamage2 = monLvl * monsterdata[MT_GOLEM].mMaxDamage2 / baseLvl;
+	mon->_mMinDamage = monLvl * monData.mMinDamage / baseLvl;
+	mon->_mMaxDamage = monLvl * monData.mMaxDamage / baseLvl;
+	// mon->_mMinDamage2 = monLvl * monData.mMinDamage2 / baseLvl;
+	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-void SpawnGolem(int mnum, int x, int y, int level)
+bool SpawnMinion(int mnum, int type, int level, int hitpoints)
 {
 	MonsterStruct* mon;
 
-	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnGolem requires that owner of a monster has the same id as the monster itself.");
+	static_assert(MAX_MINIONS == MAX_PLRS, "SpawnMinion requires that owner of a monster has the same id as the monster itself.");
 	if ((unsigned)mnum >= MAXMONSTERS) {
-		dev_fatal("SpawnGolem: Invalid monster %d", mnum);
+		dev_fatal("SpawnMinion: Invalid monster %d", mnum);
 	}
-	InitMonster(mnum, DIR_S, 0, 0, 0); // reset goal, enemy (+last)
-	level = level * 4 + (plx(mnum)._pMagic >> 6);
-	InitGolemStats(mnum, level);
-	mon = &monsters[mnum];
-	mon->_mhitpoints = mon->_mmaxhp;
-	mon->_mvid = AddVision(x, y, PLR_MIN_VISRAD, false);
-	// assert((mon->_mFlags & (MFLAG_NOCORPSE | MFLAG_NODROP)) == (MFLAG_NOCORPSE | MFLAG_NODROP));
-	ActivateSpawn(mnum, x, y, DIR_S);
-	PlaySfxLoc(LS_GOLUM, x, y);
-	if (mnum == mypnum)
-		NetSendCmdGolem(x, y, level);
+
+	const int pnum = mnum;
+	int i, j, dx, dy, tx, ty;
+	const int8_t* cr;
+	dx = plr._px;
+	dy = plr._py;
+	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "SpawnMinion expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 5, "SpawnMinion uses CrawlTable/CrawlNum up to radius 5.");
+	for (i = 0; i <= 5; i++) {
+		cr = &CrawlTable[CrawlNum[i]];
+		for (j = (BYTE)*cr; j > 0; j--) {
+			tx = dx + *++cr;
+			ty = dy + *++cr;
+			assert(IN_DUNGEON_AREA(tx, ty));
+			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(dx, dy, tx, ty)) {
+				PreSpawnMinion(mnum, type, level);
+				mon = &monsters[mnum];
+				if (hitpoints > 0)
+					mon->_mhitpoints = std::min(hitpoints, mon->_mmaxhp);
+				mon->_mvid = currLvl._dLevelIdx != DLV_TOWN ? AddVision(tx, ty, PLR_MIN_VISRAD, false) : NO_VISION;
+				ActivateSpawn(mnum, tx, ty, DIR_S);
+				PlaySfxLoc(LS_GOLUM, tx, ty);
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 bool CanTalkToMonst(int mnum)

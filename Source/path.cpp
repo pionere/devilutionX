@@ -307,8 +307,8 @@ static PATHNODE* PathPopNode()
 
 /**
  * find the shortest path from (sx,sy) to (dx,dy), using PosOk(PosOkArg,x,y) to
- * check that each step is a valid position. Store the step directions (see
- * path_directions) in path, which must have room for MAX_PATH_LENGTH steps
+ * check that each step is a valid position. Store the step direction (see
+ * path_directions) in path
  * @return the length of the path or -1 if there is none
  */
 int FindPath(bool (*PosOk)(int, int, int), int PosOkArg, int sx, int sy, int dx, int dy, int8_t* path)
