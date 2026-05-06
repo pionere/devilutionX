@@ -1601,25 +1601,28 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 
 static void AddItemAffix(const AffixData *pres, int flgs, BYTE range, unsigned lvl, BOOLEAN good, ItemStruct* is, INTPAIR& valmod)
 {
-	int nl, v;
-	const AffixData* l[ITEM_RNDAFFIX_MAX];
-	nl = 0;
+	int v, tw = 0;
+	std::pair<const AffixData*, int> lw[ITEM_RNDAFFIX_MAX];
+	std::pair<const AffixData*, int>* lwp = &lw[0];
 	for ( ; pres->PLPower != IPL_INVALID; pres++) {
 		if ((flgs & pres->PLIType)
 			&& pres->PLRanges[range].from <= lvl && pres->PLRanges[range].to >= lvl
 			// && (!onlygood || pres->PLOk)) {
 			&& (good <= pres->PLOk)) {
-			l[nl] = pres;
-			nl++;
-			if (pres->PLDouble) {
-				l[nl] = pres;
-				nl++;
-			}
+			tw += pres->PLRnd;
+			lwp->first = pres;
+			lwp->second = tw;
+			lwp++;
 		}
 	}
-	if (nl != 0) {
-		// assert(nl <= 0x7FFF);
-		pres = l[random_low(23, nl)];
+	if (tw != 0) {
+		// assert(tw <= 0x7FFF);
+		tw = random_low(23, tw);
+		lwp = &lw[0];
+		while (tw >= lwp->second) {
+			lwp++;
+		}
+		pres = lwp->first;
 		is->_iMagical = ITEM_QUALITY_MAGIC;
 		is->_iUnidentified = TRUE;
 		v = SaveItemPower(

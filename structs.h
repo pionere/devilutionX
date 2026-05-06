@@ -157,7 +157,7 @@ typedef struct AffixData {
 	int PLParam2;
 	RANGE PLRanges[NUM_IARS];
 	int PLIType; // affix_item_type
-	BOOLEAN PLDouble;
+	BYTE PLRnd;
 	BOOLEAN PLOk;
 	int PLMinVal;
 	int PLMaxVal;
