@@ -1141,7 +1141,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-xboxone.zip'
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - name: Checkout

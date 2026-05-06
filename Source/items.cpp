@@ -1246,6 +1246,7 @@ static void SetBookSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
+
 	is->_iMinMag = sd->sMinMag;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sBookCost;
@@ -1303,6 +1304,7 @@ static void SetScrollSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
+
 	is->_iMinMag = sd->sMinMag > SCRL_MAG ? sd->sMinMag - SCRL_MAG : 0;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
@@ -1340,26 +1342,17 @@ static void SetRuneSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
+
 	is->_iMinMag = sd->sMinMag;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
 	is->_iIvalue = sd->sStaffCost;
-	switch (sd->sType) {
-	case STYPE_FIRE:
-		bs = ICURS_RUNE_OF_FIRE;
-		break;
-	case STYPE_LIGHTNING:
-		bs = ICURS_RUNE_OF_LIGHTNING;
-		break;
-	case STYPE_MAGIC:
-	// case STYPE_NONE:
-		bs = ICURS_RUNE_OF_STONE;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	is->_iCurs = bs;
+
+	static_assert(ICURS_RUNE_OF_WAVE == ICURS_RUNE_OF_FIRE + SPL_RUNEWAVE - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums I.");
+	static_assert(ICURS_RUNE_OF_LIGHTNING == ICURS_RUNE_OF_FIRE + SPL_RUNELIGHT - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums II.");
+	static_assert(ICURS_RUNE_OF_NOVA == ICURS_RUNE_OF_FIRE + SPL_RUNENOVA - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums III.");
+	static_assert(ICURS_RUNE_OF_STONE == ICURS_RUNE_OF_FIRE + SPL_RUNESTONE - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums IV.");
+	is->_iCurs = ICURS_RUNE_OF_FIRE + bs - SPL_RUNEFIRE;
 }
 #endif
 
@@ -1562,6 +1555,14 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	case IPL_REQSTR:
 		is->_iMinStr += r;
 		break;
+	case IPL_SKILL:
+		param1 = GetStaffSpell(is->_iCreateInfo & CF_LEVEL);
+		param2 = RandRangeLow(spelldata[param1].sStaffMin, spelldata[param1].sStaffMax);
+
+		r2 = param2 * spelldata[param1].sStaffCost;
+		is->_ivalue += r2;
+		is->_iIvalue += r2;
+		/* fall-through */
 	case IPL_SETSKILL:
 		ias->asValue0 = param1;
 
@@ -1598,12 +1599,46 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	return r;
 }
 
+static void AddItemAffix(const AffixData *pres, int flgs, BYTE range, unsigned lvl, BOOLEAN good, ItemStruct* is, INTPAIR& valmod)
+{
+	int v, tw = 0;
+	std::pair<const AffixData*, int> lw[ITEM_RNDAFFIX_MAX];
+	std::pair<const AffixData*, int>* lwp = &lw[0];
+	for ( ; pres->PLRnd != 0; pres++) {
+		if ((flgs & pres->PLIType)
+			&& pres->PLRanges[range].from <= lvl && pres->PLRanges[range].to >= lvl
+			// && (!onlygood || pres->PLOk)) {
+			&& (good <= pres->PLOk)) {
+			tw += pres->PLRnd;
+			lwp->first = pres;
+			lwp->second = tw;
+			lwp++;
+		}
+	}
+	if (tw != 0) {
+		// assert(tw <= 0x7FFF);
+		tw = random_low(23, tw);
+		lwp = &lw[0];
+		while (tw >= lwp->second) {
+			lwp++;
+		}
+		pres = lwp->first;
+		is->_iMagical = ITEM_QUALITY_MAGIC;
+		is->_iUnidentified = TRUE;
+		v = SaveItemPower(
+			is,
+			pres->PLPower,
+			pres->PLParam1,
+			pres->PLParam2);
+		valmod.v1 += PLVal(pres, v);
+		valmod.v0 += pres->PLMultVal;
+	}
+}
+
 static void GetItemPower(ItemStruct* is, unsigned lvl, BYTE range, int flgs, bool onlygood)
 {
-	int nl, v;
-	int va = 0, vm = 0;
-	const AffixData *pres, *sufs;
-	const AffixData* l[ITEM_RNDAFFIX_MAX];
+	int v;
+	INTPAIR valmod = { 0 , 0 };
 	BYTE affix;
 	BOOLEAN good;
 
@@ -1617,69 +1652,21 @@ static void GetItemPower(ItemStruct* is, unsigned lvl, BYTE range, int flgs, boo
 	static_assert(TRUE > FALSE, "GetItemPower assumes TRUE is greater than FALSE.");
 	good = (onlygood || random_(0, 3) != 0) ? TRUE : FALSE;
 	if (affix >= 2) {
-		nl = 0;
-		for (pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
-			if ((flgs & pres->PLIType)
-			 && pres->PLRanges[range].from <= lvl && pres->PLRanges[range].to >= lvl
-			// && (!onlygood || pres->PLOk)) {
-			 && (good <= pres->PLOk)) {
-				l[nl] = pres;
-				nl++;
-				if (pres->PLDouble) {
-					l[nl] = pres;
-					nl++;
-				}
-			}
-		}
-		if (nl != 0) {
-			// assert(nl <= 0x7FFF);
-			pres = l[random_low(23, nl)];
-			is->_iMagical = ITEM_QUALITY_MAGIC;
-			is->_iUnidentified = TRUE;
-			v = SaveItemPower(
-			    is,
-			    pres->PLPower,
-			    pres->PLParam1,
-			    pres->PLParam2);
-			va += PLVal(pres, v);
-			vm += pres->PLMultVal;
-		}
+		AddItemAffix(PL_Prefix, flgs, range, lvl, good, is, valmod);
 	}
 	if (affix & 1) {
-		nl = 0;
-		for (sufs = PL_Suffix; sufs->PLPower != IPL_INVALID; sufs++) {
-			if ((sufs->PLIType & flgs)
-			    && sufs->PLRanges[range].from <= lvl && sufs->PLRanges[range].to >= lvl
-			   // && (!onlygood || sufs->PLOk)) {
-			    && (good <= sufs->PLOk)) {
-				l[nl] = sufs;
-				nl++;
-			}
-		}
-		if (nl != 0) {
-			// assert(nl <= 0x7FFF);
-			sufs = l[random_low(23, nl)];
-			is->_iMagical = ITEM_QUALITY_MAGIC;
-			is->_iUnidentified = TRUE;
-			v = SaveItemPower(
-			    is,
-			    sufs->PLPower,
-			    sufs->PLParam1,
-			    sufs->PLParam2);
-			va += PLVal(sufs, v);
-			vm += sufs->PLMultVal;
-		}
+		AddItemAffix(PL_Suffix, flgs, range, lvl, good, is, valmod);
 	}
 	// prefix or suffix added -> recalculate the value of the item
-	if (is->_iMagical == ITEM_QUALITY_MAGIC) {
+	if (is->_iMagical != ITEM_QUALITY_NORMAL) {
 		if (is->_iMiscId != IMISC_MAP) {
-			v = vm;
+			v = valmod.v0;
 			if (v >= 0) {
 				v *= is->_ivalue;
 			} else {
 				v = is->_ivalue / -v;
 			}
-			v += va;
+			v += valmod.v1;
 			if (v <= 0) {
 				v = 1;
 			}
@@ -2501,7 +2488,7 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
-static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
+static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, BYTE targetPowerFrom, BYTE targetPowerTo)
 {
 	int32_t seed = pi->_iSeed;
 	uint16_t ci = lvl | CF_CRAFTED;
@@ -2514,8 +2501,7 @@ static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYT
 		if (ac == nac) {
 			RecreateItem(seed, idx, ci);
 			// assert(items[MAXITEMS]._iIdx == idx);
-			if (items[MAXITEMS]._iSpell == spell
-			 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_NORMAL)
+			if (((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_NORMAL)
 			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_MAGIC &&
 				   ((items[MAXITEMS]._iAffixes[0].asPower >= targetPowerFrom && items[MAXITEMS]._iAffixes[0].asPower <= targetPowerTo)
 					|| (items[MAXITEMS]._iNumAffixes >= 2 && items[MAXITEMS]._iAffixes[1].asPower >= targetPowerFrom && items[MAXITEMS]._iAffixes[1].asPower <= targetPowerTo)))))
@@ -2530,26 +2516,20 @@ static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYT
 
 static void DoClean(ItemStruct* pi, bool whittle)
 {
-	int spell;
 	uint16_t ci, idx, ll;
 
-	spell = pi->_iSpell;
 	idx = pi->_iIdx;
 
 	if (whittle) {
 		if (idx == IDI_SORCSTAFF)
 			idx = IDI_DROPSHSTAFF;
-		spell = SPL_NULL;
 	}
 	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemList[idx].iMinMLvl : 0;
-	if (spell != SPL_NULL && spelldata[spell].sStaffLvl > ll) {
-		ll = spelldata[spell].sStaffLvl;
-	}
-	ci = (pi->_iCreateInfo & CF_LEVEL);
+	ci = pi->_iCreateInfo & CF_LEVEL;
 	if (ci > ll)
 		ci--;
 
-	CraftItem(pi, idx, ci, spell, IPL_INVALID, 0);
+	CraftItem(pi, idx, ci, IPL_INVALID, 0);
 }
 
 #ifdef HELLFIRE
@@ -2682,7 +2662,7 @@ void DoAbility(int pnum, int8_t from, BYTE cii)
 void DoOil(int pnum, int8_t from, BYTE cii)
 {
 	ItemStruct *pi, *is;
-	int oilType, spell;
+	int oilType;
 	uint16_t idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
@@ -2776,9 +2756,8 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 
 	idx = pi->_iIdx;
 	ci = pi->_iCreateInfo & CF_LEVEL;
-	spell = pi->_iSpell;
 
-	CraftItem(pi, idx, ci, spell, targetPowerFrom, targetPowerTo);
+	CraftItem(pi, idx, ci, targetPowerFrom, targetPowerTo);
 
 	pi->_iUnidentified = FALSE;
 	CalcPlrInv(pnum, true);
@@ -2947,6 +2926,7 @@ static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 	case IPL_REQSTR:
 		copy_cstr(tempstr, "altered requirements");
 		break;
+	case IPL_SKILL:
 	case IPL_SETSKILL:
 		snprintf(tempstr, sizeof(tempstr), "%s (%d/%d)", spelldata[ias->asValue0].sNameText, is->_iCharges, is->_iMaxCharges);
 		break;

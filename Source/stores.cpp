@@ -575,7 +575,7 @@ static void S_StartWitch()
 	AddSText(0, STORE_WITCH_GOSSIP, true, talkname[TOWN_WITCH], COL_BLUE, true);
 	AddSText(0, STORE_WITCH_BUY, true, "Buy items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_SELL, true, "Sell items", COL_WHITE, true);
-	AddSText(0, STORE_WITCH_RECHARGE, true, "Recharge staves", COL_WHITE, true);
+	AddSText(0, STORE_WITCH_RECHARGE, true, "Recharge items", COL_WHITE, true);
 	AddSText(0, STORE_WITCH_EXIT, true, "Leave the shack", COL_WHITE, true);
 	// AddSLine(5);
 }
