@@ -1555,6 +1555,14 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	case IPL_REQSTR:
 		is->_iMinStr += r;
 		break;
+	case IPL_SKILL:
+		param1 = GetStaffSpell(is->_iCreateInfo & CF_LEVEL);
+		param2 = RandRangeLow(spelldata[param1].sStaffMin, spelldata[param1].sStaffMax);
+
+		r2 = param2 * spelldata[param1].sStaffCost;
+		is->_ivalue += r2;
+		is->_iIvalue += r2;
+		/* fall-through */
 	case IPL_SETSKILL:
 		ias->asValue0 = param1;
 
@@ -2915,6 +2923,7 @@ static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 	case IPL_REQSTR:
 		copy_cstr(tempstr, "altered requirements");
 		break;
+	case IPL_SKILL:
 	case IPL_SETSKILL:
 		snprintf(tempstr, sizeof(tempstr), "%s (%d/%d)", spelldata[ias->asValue0].sNameText, is->_iCharges, is->_iMaxCharges);
 		break;

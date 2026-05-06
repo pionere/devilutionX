@@ -519,6 +519,7 @@ typedef enum item_effect_type {
 	IPL_SETDAM,
 	IPL_SETDUR,
 	IPL_REQSTR,
+	IPL_SKILL,
 	IPL_SETSKILL,
 	IPL_ONEHAND,
 	IPL_ALLRESZERO,

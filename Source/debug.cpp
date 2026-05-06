@@ -1594,8 +1594,11 @@ void ValidateData()
 					app_fatal("Invalid UIParam%d set for '%s' %d. (range is not set)", n, ui.UIName, i);
 
 				for (int m = n + 1; m <= 6; m++) {
-					if (GetUniqueItemPower(ui, m) == pow)
+					const BYTE bpow = GetUniqueItemPower(ui, m);
+					if (bpow == pow)
 						app_fatal("SaveItemPower does not support the same affix multiple times on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
+					if ((pow == IPL_SKILL || pow == IPL_SETSKILL) && (bpow == IPL_SKILL || bpow == IPL_SETSKILL))
+						app_fatal("SaveItemPower does not support the IPL_(SET)SKILL affixes multiple times on '%s' %d, %dvs%d.", ui.UIName, i, n, m);
 				}
 			} else {
 				if (n == 1)
