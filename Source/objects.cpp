@@ -3079,9 +3079,9 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		break;
 #ifdef HELLFIRE
 	case SHRINE_SOLAR: { // BUGFIX: missiles are not added/handled by the delta info...
-		static_assert(MIS_RUNEFIRE + 1 == MIS_RUNELIGHT, "SHRINE_SOLAR expects runes in a given order I.");
-		static_assert(MIS_RUNEFIRE + 2 == MIS_RUNENOVA, "SHRINE_SOLAR expects runes in a given order II.");
-		static_assert(MIS_RUNEFIRE + 3 == MIS_RUNEWAVE, "SHRINE_SOLAR expects runes in a given order III.");
+		static_assert(MIS_RUNEWAVE > MIS_RUNEFIRE && MIS_RUNEWAVE < MIS_RUNEFIRE + 4, "SHRINE_SOLAR expects runes in a given order I.");
+		static_assert(MIS_RUNELIGHT > MIS_RUNEFIRE && MIS_RUNELIGHT < MIS_RUNEFIRE + 4, "SHRINE_SOLAR expects runes in a given order II.");
+		static_assert(MIS_RUNENOVA > MIS_RUNEFIRE && MIS_RUNENOVA < MIS_RUNEFIRE + 4, "SHRINE_SOLAR expects runes in a given order III.");
 		static_assert(DBORDERX >= 3 && DBORDERY >= 3, "SHRINE_SOLAR expects a large enough border.");
 		static_assert(lengthof(CrawlNum) > 3, "OperateShrine uses CrawlTable/CrawlNum radius 3.");
 		const int8_t* cr = &CrawlTable[CrawlNum[3]];

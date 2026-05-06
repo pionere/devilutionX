@@ -1347,22 +1347,12 @@ static void SetRuneSpell(ItemStruct* is, unsigned lvl)
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
 	is->_iIvalue = sd->sStaffCost;
-	switch (sd->sType) {
-	case STYPE_FIRE:
-		bs = ICURS_RUNE_OF_FIRE;
-		break;
-	case STYPE_LIGHTNING:
-		bs = ICURS_RUNE_OF_LIGHTNING;
-		break;
-	case STYPE_MAGIC:
-	// case STYPE_NONE:
-		bs = ICURS_RUNE_OF_STONE;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	is->_iCurs = bs;
+
+	static_assert(ICURS_RUNE_OF_WAVE == ICURS_RUNE_OF_FIRE + SPL_RUNEWAVE - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums I.");
+	static_assert(ICURS_RUNE_OF_LIGHTNING == ICURS_RUNE_OF_FIRE + SPL_RUNELIGHT - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums II.");
+	static_assert(ICURS_RUNE_OF_NOVA == ICURS_RUNE_OF_FIRE + SPL_RUNENOVA - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums III.");
+	static_assert(ICURS_RUNE_OF_STONE == ICURS_RUNE_OF_FIRE + SPL_RUNESTONE - SPL_RUNEFIRE, "SetRuneSpell requires ordered ICURS_RUNE_/SPL_RUNE enums IV.");
+	is->_iCurs = ICURS_RUNE_OF_FIRE + bs - SPL_RUNEFIRE;
 }
 #endif
 
