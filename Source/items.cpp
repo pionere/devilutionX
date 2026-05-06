@@ -2501,7 +2501,7 @@ static void DoRecharge(int pnum, int cii)
 	}
 }
 
-static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYTE targetPowerFrom, BYTE targetPowerTo)
+static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, BYTE targetPowerFrom, BYTE targetPowerTo)
 {
 	int32_t seed = pi->_iSeed;
 	uint16_t ci = lvl | CF_CRAFTED;
@@ -2514,8 +2514,7 @@ static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYT
 		if (ac == nac) {
 			RecreateItem(seed, idx, ci);
 			// assert(items[MAXITEMS]._iIdx == idx);
-			if (items[MAXITEMS]._iSpell == spell
-			 && ((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_NORMAL)
+			if (((targetPowerFrom == IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_NORMAL)
 			  || (targetPowerFrom != IPL_INVALID && items[MAXITEMS]._iMagical == ITEM_QUALITY_MAGIC &&
 				   ((items[MAXITEMS]._iAffixes[0].asPower >= targetPowerFrom && items[MAXITEMS]._iAffixes[0].asPower <= targetPowerTo)
 					|| (items[MAXITEMS]._iNumAffixes >= 2 && items[MAXITEMS]._iAffixes[1].asPower >= targetPowerFrom && items[MAXITEMS]._iAffixes[1].asPower <= targetPowerTo)))))
@@ -2530,26 +2529,20 @@ static void CraftItem(ItemStruct* pi, uint16_t idx, uint16_t lvl, int spell, BYT
 
 static void DoClean(ItemStruct* pi, bool whittle)
 {
-	int spell;
 	uint16_t ci, idx, ll;
 
-	spell = pi->_iSpell;
 	idx = pi->_iIdx;
 
 	if (whittle) {
 		if (idx == IDI_SORCSTAFF)
 			idx = IDI_DROPSHSTAFF;
-		spell = SPL_NULL;
 	}
 	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemList[idx].iMinMLvl : 0;
-	if (spell != SPL_NULL && spelldata[spell].sStaffLvl > ll) {
-		ll = spelldata[spell].sStaffLvl;
-	}
 	ci = (pi->_iCreateInfo & CF_LEVEL);
 	if (ci > ll)
 		ci--;
 
-	CraftItem(pi, idx, ci, spell, IPL_INVALID, 0);
+	CraftItem(pi, idx, ci, IPL_INVALID, 0);
 }
 
 #ifdef HELLFIRE
@@ -2682,7 +2675,7 @@ void DoAbility(int pnum, int8_t from, BYTE cii)
 void DoOil(int pnum, int8_t from, BYTE cii)
 {
 	ItemStruct *pi, *is;
-	int oilType, spell;
+	int oilType;
 	uint16_t idx, ci;
 	BYTE targetPowerFrom, targetPowerTo;
 
@@ -2776,9 +2769,8 @@ void DoOil(int pnum, int8_t from, BYTE cii)
 
 	idx = pi->_iIdx;
 	ci = pi->_iCreateInfo & CF_LEVEL;
-	spell = pi->_iSpell;
 
-	CraftItem(pi, idx, ci, spell, targetPowerFrom, targetPowerTo);
+	CraftItem(pi, idx, ci, targetPowerFrom, targetPowerTo);
 
 	pi->_iUnidentified = FALSE;
 	CalcPlrInv(pnum, true);
