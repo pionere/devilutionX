@@ -80,7 +80,7 @@ int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
 void TalktoMonster(int mnum, int pnum);
 void PreSpawnMinion(int mnum, int type, int level);
-bool SpawnMinion(int mnum, int type, int level, int hitpoints = -1);
+bool SpawnMinion(int mnum, int x, int y, int type, int level, int hitpoints = -1);
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool* ret);
 void MonCallToArms(int mnum);

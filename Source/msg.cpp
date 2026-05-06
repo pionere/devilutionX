@@ -2878,7 +2878,7 @@ static unsigned On_AWAKEGOLEM(const TCmd* pCmd, int pnum)
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
 		net_check_cmd(cmd->goMonType < NUM_MMTYPES);
 		net_check_cmd(cmd->goMonHp > 0);
-		SpawnMinion(pnum, cmd->goMonType, cmd->goMonLevel, cmd->goMonHp);
+		SpawnMinion(pnum, 0, 0, cmd->goMonType, cmd->goMonLevel, cmd->goMonHp);
 	}
 
 	return sizeof(*cmd);

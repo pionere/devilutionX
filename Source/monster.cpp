@@ -5267,7 +5267,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-bool SpawnMinion(int mnum, int type, int level, int hitpoints)
+bool SpawnMinion(int mnum, int dx, int dy, int type, int level, int hitpoints)
 {
 	MonsterStruct* mon;
 
@@ -5277,10 +5277,15 @@ bool SpawnMinion(int mnum, int type, int level, int hitpoints)
 	}
 
 	const int pnum = mnum;
-	int i, j, dx, dy, tx, ty;
+	int sx, sy, i, j, tx, ty;
 	const int8_t* cr;
-	dx = plr._px;
-	dy = plr._py;
+	sx = plr._px;
+	sy = plr._py;
+	if (hitpoints > 0) {
+		// respawning a minion -> place it next to the player
+		dx = sx;
+		dy = sy;
+	}
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "SpawnMinion expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 5, "SpawnMinion uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
@@ -5289,7 +5294,7 @@ bool SpawnMinion(int mnum, int type, int level, int hitpoints)
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(dx, dy, tx, ty)) {
+			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				PreSpawnMinion(mnum, type, level);
 				mon = &monsters[mnum];
 				if (hitpoints > 0)
