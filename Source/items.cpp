@@ -1246,6 +1246,7 @@ static void SetBookSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
+
 	is->_iMinMag = sd->sMinMag;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sBookCost;
@@ -1303,6 +1304,7 @@ static void SetScrollSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
+
 	is->_iMinMag = sd->sMinMag > SCRL_MAG ? sd->sMinMag - SCRL_MAG : 0;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
@@ -1340,6 +1342,7 @@ static void SetRuneSpell(ItemStruct* is, unsigned lvl)
 
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
+
 	is->_iMinMag = sd->sMinMag;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
@@ -2538,7 +2541,7 @@ static void DoClean(ItemStruct* pi, bool whittle)
 			idx = IDI_DROPSHSTAFF;
 	}
 	ll = (pi->_itype != ITYPE_RING && pi->_itype != ITYPE_AMULET) ? AllItemList[idx].iMinMLvl : 0;
-	ci = (pi->_iCreateInfo & CF_LEVEL);
+	ci = pi->_iCreateInfo & CF_LEVEL;
 	if (ci > ll)
 		ci--;
 
