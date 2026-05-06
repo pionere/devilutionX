@@ -1604,7 +1604,7 @@ static void AddItemAffix(const AffixData *pres, int flgs, BYTE range, unsigned l
 	int v, tw = 0;
 	std::pair<const AffixData*, int> lw[ITEM_RNDAFFIX_MAX];
 	std::pair<const AffixData*, int>* lwp = &lw[0];
-	for ( ; pres->PLPower != IPL_INVALID; pres++) {
+	for ( ; pres->PLRnd != 0; pres++) {
 		if ((flgs & pres->PLIType)
 			&& pres->PLRanges[range].from <= lvl && pres->PLRanges[range].to >= lvl
 			// && (!onlygood || pres->PLOk)) {

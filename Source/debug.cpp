@@ -1283,7 +1283,7 @@ void ValidateData()
 #endif
 	memset(rnddrops, 0, sizeof(rnddrops));
 	i = 0;
-	for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++, i++) {
+	for (const AffixData* pres = PL_Prefix; pres->PLRnd != 0; pres++, i++) {
 		const BYTE pow = pres->PLPower;
 		for (int ii = 0; ii < lengthof(pres->PLRanges); ii++) {
 			for (int n = pres->PLRanges[ii].from; n <= pres->PLRanges[ii].to; n++) {
@@ -1442,7 +1442,7 @@ void ValidateData()
 	}
 	memset(rnddrops, 0, sizeof(rnddrops));
 	const AffixData* sufs = PL_Suffix;
-	for (i = 0; sufs->PLPower != IPL_INVALID; sufs++, i++) {
+	for (i = 0; sufs->PLRnd != 0; sufs++, i++) {
 		const BYTE pow = sufs->PLPower;
 		for (int ii = 0; ii < lengthof(sufs->PLRanges); ii++) {
 			for (int n = sufs->PLRanges[ii].from; n <= sufs->PLRanges[ii].to; n++) {
@@ -1535,7 +1535,7 @@ void ValidateData()
 				app_fatal("PLParam too high for %d. suffix (power:%d, pparam2:%d)", i, sufs->PLPower, sufs->PLParam2);
 			}
 		}
-		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Prefix; pres->PLRnd != 0; pres++) {
 			if ((sufs->PLIType & pres->PLIType) == 0)
 				continue;
 			if (sufs->PLPower == pres->PLPower) {
@@ -1596,7 +1596,7 @@ void ValidateData()
 #if DEV_MODE
 	for (i = 1; i < MAXCHARLEVEL; i++) {
 		int a = 0, b = 0, c = 0, w = 0;
-		for (const AffixData* pres = PL_Prefix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Prefix; pres->PLRnd != 0; pres++) {
 			if (pres->PLRanges[IAR_SHOP].to >= i + 8 && pres->PLRanges[IAR_SHOP].from <= i + 8 && pres->PLOk) {
 				c++;
 			}
@@ -1610,7 +1610,7 @@ void ValidateData()
 			}
 		}
 		int as = 0, bs = 0, cs = 0, ws = 0;
-		for (const AffixData* pres = PL_Suffix; pres->PLPower != IPL_INVALID; pres++) {
+		for (const AffixData* pres = PL_Suffix; pres->PLRnd != 0; pres++) {
 			if (pres->PLRanges[IAR_SHOP].to >= i + 8 && pres->PLRanges[IAR_SHOP].from <= i + 8 && pres->PLOk) {
 				cs++;
 			}

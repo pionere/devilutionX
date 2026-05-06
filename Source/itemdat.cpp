@@ -353,7 +353,7 @@ const AffixData PL_Prefix[] = {
 /*crystalline*/  {     1, TRUE,  IMP_SETLVL,            76,       90, 70 - 64,  ILVLMAX,  0,       ILVLMAX,       0, ILVLMAX,   PLT_MAP                                                          ,        0,        0,         1 },
 /*num area   */  {     1, TRUE,  IMP_AREAMOD,           -2,       -1,       0,  ILVLMAX,  0,       ILVLMAX,       0, ILVLMAX,   PLT_MAP                                                          ,        0,        0,         1 },
 /*crystalline*/  {     2, TRUE,  IMP_AREAMOD,            1,        6,       0,  ILVLMAX,  0,       ILVLMAX,       0, ILVLMAX,   PLT_MAP                                                          ,        0,        0,         1 },
-                 {     1, FALSE, IPL_INVALID,            0,        0,       0,        0,  0,       0,             0, 0,         0                                                                ,        0,        0,         0 },
+                 {     0, FALSE, IPL_INVALID,            0,        0,       0,        0,  0,       0,             0, 0,         0                                                                ,        0,        0,         0 },
 	// clang-format on
 };
 
@@ -476,7 +476,7 @@ const AffixData PL_Suffix[] = {
 /*stability*/     {     1, TRUE,  IPL_FASTRECOVER,           2,        2,       10, ILVLMAX,  10,      ILVLMAX,      10, ILVLMAX,   PLT_ARMO | PLT_SHLD |                                   PLT_JEWEL,     4000,     4000,         4 },
 /*harmony*/       {     1, TRUE,  IPL_FASTRECOVER,           3,        3,       20, ILVLMAX,  20,      ILVLMAX,      20, ILVLMAX,   PLT_ARMO |                                              PLT_JEWEL,     8000,     8000,         8 },
 /*blocking*/      {     1, TRUE,  IPL_FASTBLOCK,             1,        1,        5, ILVLMAX,  5,       ILVLMAX,       5, ILVLMAX,              PLT_SHLD                                              ,     4000,     4000,         4 },
-/* */             {     1, FALSE, IPL_INVALID,               0,        0,        0, 0,        0,       0,             0, 0,         0                                                                ,        0,        0,         0 },
+/* */             {     0, FALSE, IPL_INVALID,               0,        0,        0, 0,        0,       0,             0, 0,         0                                                                ,        0,        0,         0 },
 	// clang-format on
 };
 
