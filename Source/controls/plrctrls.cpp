@@ -1009,12 +1009,14 @@ void PerformSecondaryAction()
 		return;
 	}
 
-	if (pcursicon >= CURSOR_FIRSTITEM) {
-		TryDropItem();
+	if (pcursicon != CURSOR_HAND) {
+		if (pcursicon >= CURSOR_FIRSTITEM) {
+			TryDropItem();
+		} else {
+			NewCursor(CURSOR_HAND);
+		}
 		return;
 	}
-	if (pcursicon > CURSOR_HAND)
-		NewCursor(CURSOR_HAND);
 
 	if (gbInvflag) {
 		CtrlUseInvItem();
