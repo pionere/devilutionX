@@ -3447,7 +3447,7 @@ void MAI_Round(int mnum)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
+			if (mon->_mgoalvar1++ < 2 * dist/* || !MonDirOK(mnum, md)*/) {
 				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3791,7 +3791,7 @@ void MAI_RoundRanged(int mnum)
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
-			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) { // MOVE_DISTANCE
+			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum)/*|| !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) { // MOVE_DISTANCE
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3854,7 +3854,7 @@ void MAI_RoundRanged2(int mnum)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) {
+			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum)/* || !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) {
 				if (v < 5 * (mon->_mAI.aiInt + 16))
 					MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
