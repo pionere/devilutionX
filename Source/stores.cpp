@@ -2361,7 +2361,8 @@ static void S_ErrandEnter()
 {
 	switch (stextsel) {
 	case STORE_ERRAND_YES:
-		NetSendCmdCreateLvl(GetRndSeed(), myplr._pLevel, DTYPE_TOWN);
+		static_assert(MAX_MINIONS == MAX_PLRS, "S_ErrandEnter requires that owner of a monster has the same id as the monster itself.");
+		NetSendCmdCreateLvl(monsters[mypnum]._mAISeed /* NextRndSeed() */, myplr._pLevel, DTYPE_TOWN); // use player-specific seed to prevent collision in multiplayer games
 		stextflag = STORE_NONE;
 		break;
 	case STORE_ERRAND_NO:

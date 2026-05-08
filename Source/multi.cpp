@@ -173,11 +173,11 @@ void multi_rnd_seeds()
 	int32_t seed;
 
 	gdwGameLogicTurn++;
-	if (!IsMultiGame)
-		return;
+	// if (!IsMultiGame) -- generate seed (for store fix items, errands, etc...)
+	//	return;
 	seed = (gdwGameLogicTurn >> 8) | (gdwGameLogicTurn << 24); // _rotr(gdwGameLogicTurn, 8)
 	SetRndSeed(seed);
-	for (i = 0; i < MAXMONSTERS; i++, seed++)
+	for (i = MAXMONSTERS - 1; i >= 0; i--, seed++)
 		monsters[i]._mAISeed = seed;
 }
 
