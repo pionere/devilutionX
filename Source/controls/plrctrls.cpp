@@ -875,6 +875,10 @@ void UseBeltItem(bool manaItem)
 	int i, n = -1;
 	ItemStruct* pi;
 
+	if (stextflag != STORE_NONE || pcursicon != CURSOR_HAND) {
+		return;
+	}
+
 	pi = &myplr._pSpdList[0];
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
 		const int id = pi->_iMiscId;

@@ -1024,14 +1024,10 @@ void InputBtnDown(int transKey)
 		PerformSpellAction();
 		break;
 	case ACT_CTRL_USE_HP:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			UseBeltItem(false);
-		}
+		UseBeltItem(false);
 		break;
 	case ACT_CTRL_USE_MP:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			UseBeltItem(true);
-		}
+		UseBeltItem(true);
 		break;
 #endif
 	default:
