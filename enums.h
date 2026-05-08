@@ -2620,8 +2620,8 @@ typedef enum _monster_flag {
 	MFLAG_CAN_BLEED       = 0x0800,
 	MFLAG_NODROP          = 0x1000,
 	// MFLAG_NOHEAL          = 0x1000,
-	MFLAG_KNOCKBACK       = 0x00010000,
-	// TODO: ensure the high word does not conflict and matches with ISPL_HITFLAGS
+	MFLAG_KNOCKBACK       = ISPL_KNOCKBACK,
+	MFLAG_BLEED           = ISPL_BLEED,
 } _monster_flag;
 
 typedef enum _uniq_monster_flag {

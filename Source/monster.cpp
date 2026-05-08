@@ -1979,7 +1979,7 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 	PlayMonSfx(mnum, MS_GOTHIT);
 	if (mon->_mmode != MM_STONE) {
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
-		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
+		 && random_(47, 64) < (((hitflags & ISPL_BLEED)) ? 8 : 1))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
 		if (!(mon->_mFlags & MFLAG_NOGETHIT)) {
 			knockback = (hitflags & ISPL_KNOCKBACK) != 0;
