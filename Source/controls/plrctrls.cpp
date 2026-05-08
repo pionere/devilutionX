@@ -875,9 +875,10 @@ void UseBeltItem(bool manaItem)
 	int i, n = -1;
 	ItemStruct* pi;
 
-	if (stextflag != STORE_NONE || pcursicon != CURSOR_HAND) {
+	if (stextflag != STORE_NONE || pcursicon >= CURSOR_FIRSTITEM) {
 		return;
 	}
+	NewCursor(CURSOR_HAND); // reset previous cursor
 
 	pi = &myplr._pSpdList[0];
 	for (i = 0; i < MAXBELTITEMS; i++, pi++) {
@@ -889,13 +890,13 @@ void UseBeltItem(bool manaItem)
 			if (pi->_iStatFlag) {
 				// assert(pi->_iUsable);
 				InvUseItem(INVITEM_BELT_FIRST + i);
-				break;
+				return;
 			}
 			n = i;
 		}
 	}
 	// add sfx if only unusable (due to _iStatFlag) items were found
-	if (i >= MAXBELTITEMS && n >= 0) {
+	if (n >= 0) {
 		InvUseItem(INVITEM_BELT_FIRST + n);
 	}
 }
