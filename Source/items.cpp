@@ -3761,6 +3761,24 @@ void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 	//if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
+
+void SpawnRune(int sn, int x, int y/*, bool sendmsg*/)
+{
+	int idx;
+	unsigned lvl;
+
+	lvl = spelldata[sn].sScrollLvl;
+
+	while (true) {
+		idx = RndTypeItem(ITYPE_MISC, IMISC_RUNE, lvl);
+		SetupItem(MAXITEMS, idx, NextRndSeed(), lvl, CFDQ_GOOD);
+		if (items[MAXITEMS]._iSpell == sn)
+			break;
+	}
+	GetSuperItemSpace(x, y, MAXITEMS);
+	//if (sendmsg)
+		NetSendCmdSpawnItem(true);
+}
 #endif
 
 void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)

@@ -54,7 +54,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	magic = myplr._pMagic;
 #ifdef HELLFIRE
 	if (SPELL_RUNE(sn))
-		sl += myplr._pDexterity >> 3;
+		sl += myplr._pDexterity >> 4;
 #endif
 	switch (sn) {
 	case SPL_FIREBOLT:
@@ -68,7 +68,10 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 #endif
 	case SPL_LIGHTNING:
 		skd->v0 = 1;
-		skd->v1 = ((magic + (sl << 3)) * (6 + (sl >> 1))) >> 3;
+		magic <<= 1;
+		magic++;
+		sl <<= 5;
+		skd->v1 = 3 * (magic * sl) / (magic + sl);
 		break;
 	case SPL_FLASH:
 		mind = magic >> 1;
@@ -219,15 +222,21 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_RUNEWAVE:
 #endif
 	case SPL_WAVE:
-		skd->v0 = ((magic >> 3) + 2 * sl + 1) * 4;
-		skd->v1 = ((magic >> 3) + 4 * sl + 2) * 4;
+		magic >>= 4;
+		magic++;
+		mind = 32 * (magic * sl) / (magic + sl);
+		skd->v0 = mind;
+		skd->v1 = mind + sl * 4;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNENOVA:
 #endif
 	case SPL_NOVA:
 		skd->v0 = 1;
-		skd->v1 = (magic >> 1) + (sl << 5);
+		magic <<= 2;
+		magic++;
+		sl <<= 6;
+		skd->v1 = (magic * sl) / (magic + sl);
 		break;
 	case SPL_INFERNO:
 		mind = magic;
@@ -312,8 +321,12 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v1 = maxd;
 		break;*/
 	case SPL_RUNEFIRE:
-		skd->v0 = 1 + (magic >> 1) + 16 * sl;
-		skd->v1 = 1 + (magic >> 1) + 32 * sl;
+		// magic >>= 0;
+		magic++;
+		sl <<= 4;
+		mind = 1 + 8 * (magic * sl) / (magic + sl);
+		skd->v0 = mind;
+		skd->v1 = mind + (sl >> 2);
 		break;
 #endif
 	default:
@@ -1820,13 +1833,14 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	mis->_miVar1 = mitype;
 	mis->_miVar2 = mirange;    // trigger range (RUNE_RANGE)
 	mis->_miVar3 = 16;         // delay
+	// mis->_miVar4 = 0;       // number of hits
 	if (mis->_miCaster & MST_PLAYER) {
 		mis->_miCaster |= MST_RUNE;
-		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 3;
+		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 4;
 	}
-	mis->_miRange = 16 + 1584; // delay + ttl (48 * 17 + 48 * 16)
-	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "PlaceRune expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 9, "PlaceRune uses CrawlTable/CrawlNum up to radius 9.");
+	mis->_miRange = 16 + 816; // delay + ttl (48 * 9 + 48 * 8)
+	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "AddRune expects a large enough border.");
+	static_assert(lengthof(CrawlNum) > 9, "AddRune uses CrawlTable/CrawlNum up to radius 9.");
 	for (i = 0; i <= 9; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
@@ -1836,7 +1850,7 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 			if (PlaceMissile(tx, ty, sx, sy)) {
 				mis->_mix = tx;
 				mis->_miy = ty;
-				static_assert(MAX_LIGHT_RAD >= 8, "PlaceRune needs at least light-radius of 8.");
+				static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
 				mis->_miLid = AddLight(tx, ty, 8);
 				return MIRES_DONE;
 			}
@@ -1867,14 +1881,18 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam, dam;
+	int magic, mindam, maxdam, dam;
 	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
 
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
-		mindam = 1 + (plx(misource)._pMagic >> 1) + 16 * spllvl;
-		maxdam = 1 + (plx(misource)._pMagic >> 1) + 32 * spllvl;
+		magic = plx(misource)._pMagic;
+		magic >>= 0;
+		magic++;
+		spllvl <<= 4;
+		mindam = 1 + 8 * (magic * spllvl) / (magic + spllvl);
+		maxdam = mindam + (spllvl >> 2);
 		dam = RandRange(mindam, maxdam);
 	} else {
 		dam = currLvl._dLevel;
@@ -2076,12 +2094,16 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam;
+	int magic, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mindam = 1;
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
-		maxdam = (plx(misource)._pMagic >> 1) + (spllvl << 5);
+		magic = plx(misource)._pMagic;
+		magic <<= 2;
+		magic++;
+		spllvl <<= 6;
+		maxdam = (magic * spllvl) / (magic + spllvl);
 	} else {
 		maxdam = 6 + currLvl._dLevel;
 	}
@@ -2299,7 +2321,7 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam, range;
+	int magic, mindam, maxdam, range;
 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 4, "AddLightning needs at least light-radius of 4.");
@@ -2314,8 +2336,11 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
 		mindam = 1;
-		maxdam = plx(misource)._pMagic + (spllvl << 3);
-		range = (spllvl >> 1) + 6 - 1;
+		magic = plx(misource)._pMagic;;
+		magic <<= 1;
+		magic++;
+		spllvl <<= 5;
+		maxdam = 3 * (magic * spllvl) / (magic + spllvl);
 	} else if (micaster == MST_MONSTER) {
 		// assert((unsigned)misource < MAXMONSTERS);
 		if (spllvl == 0) {
@@ -2580,8 +2605,10 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
 		magic = plx(misource)._pMagic;
-		mindam = (magic >> 3) + 2 * spllvl + 1;
-		maxdam = (magic >> 3) + 4 * spllvl + 2;
+		magic >>= 4;
+		magic++;
+		mindam = 32 * (magic * spllvl) / (magic + spllvl);
+		maxdam = mindam + spllvl * 4;
 	} else {
 		mindam = currLvl._dLevel + 1;
 		maxdam = 2 * currLvl._dLevel + 2;
@@ -4124,6 +4151,7 @@ void MI_Rune(int mi)
 			AddMissile(sx, sy, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 			mis->_miRange -= 48;
 			mis->_miVar3 = 48;
+			mis->_miVar4++;
 			break;
 		}
 	} else {
@@ -4132,6 +4160,14 @@ void MI_Rune(int mi)
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
+		if ((mis->_miCaster & MST_PLAYER) && random_(0, 512) > mis->_miVar4) {
+			static_assert(SPL_RUNELIGHT == MIS_RUNELIGHT - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums I.");
+			static_assert(SPL_RUNENOVA == MIS_RUNENOVA - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums II.");
+			static_assert(SPL_RUNEWAVE == MIS_RUNEWAVE - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums III.");
+			static_assert(SPL_RUNESTONE == MIS_RUNESTONE - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums IV.");
+			ty = mis->_miType - MIS_RUNEFIRE + SPL_RUNEFIRE;
+			SpawnRune(ty, mis->_mix, mis->_miy);
+		}
 		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
 	}
