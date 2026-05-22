@@ -88,7 +88,7 @@ static const PlrAnimType PlrAnimTypes[NUM_PGTS] = {
 	// clang-format on
 };
 /** Specifies the frame of attack and spell animation for which the action is triggered, for each player class. */
-static const BYTE PlrActFrames[NUM_CLASSES][9] = {
+static const BYTE PlrActFrames[NUM_CLASSES][NUM_WANIM_IDS] = {
 	// clang-format off
 	{  9,  9,  9,  9, 11, 10,  9,  9, 11 },
 	{ 10, 10, 10, 10,  7, 13, 10, 10, 11 },

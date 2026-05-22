@@ -4754,6 +4754,7 @@ typedef enum anim_weapon_id {
 	ANIM_ID_MACE,
 	ANIM_ID_MACE_SHIELD,
 	ANIM_ID_STAFF,
+	NUM_WANIM_IDS
 } anim_weapon_id;
 
 typedef enum anim_armor_id {
