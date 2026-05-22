@@ -2189,8 +2189,9 @@ typedef struct SkillDetails {
 
 typedef struct SpellData {
 	BYTE sManaCost;
-	BYTE sType; // magic_type
-	BYTE sIcon; // index of the spellbook icon (Data\\SpellI2.CEL)
+	BYTE sType;   // magic_type
+	BYTE sAction; // action_id
+	BYTE sIcon;   // index of the spellbook icon (Data\\SpellI2.CEL)
 	const char* sNameText;
 	BYTE sBookLvl;   // minimum level for books
 	BYTE sStaffLvl;  // minimum level for staves

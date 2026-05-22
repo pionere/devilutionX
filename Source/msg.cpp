@@ -2613,9 +2613,9 @@ static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
 		y = cmd->y;
 
 		net_check_cmd(IN_ACTIVE_AREA(x, y));
-		net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
+		// net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
-		plr._pDestAction = spelldata[sn].sType != STYPE_NONE ? ACTION_SPELL : ((spelldata[sn].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACK : ACTION_ATTACK);
+		plr._pDestAction = spelldata[sn].sAction;
 		plr._pDestParam1 = x;
 		plr._pDestParam2 = y;
 		// plr._pDestParam3 = sn;                  // spell/skill
@@ -2719,9 +2719,11 @@ static unsigned On_SKILLMON(const TCmd* pCmd, int pnum)
 		mnum = cmd->msMnum;
 
 		net_check_cmd(mnum < MAXMONSTERS);
-		net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
+		// net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
-		plr._pDestAction = spelldata[sn].sType != STYPE_NONE ? ACTION_SPELLMON : ((spelldata[sn].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKMON : ACTION_ATTACKMON);
+		static_assert(ACTION_SPELLMON + ACTION_RATTACK - ACTION_SPELL == ACTION_RATTACKMON, "On_SKILLMON expects ordered action-ids I.");
+		static_assert(ACTION_SPELLMON + ACTION_ATTACK - ACTION_SPELL == ACTION_ATTACKMON, "On_SKILLMON expects ordered action-ids II.");
+		plr._pDestAction = ACTION_SPELLMON + spelldata[sn].sAction - ACTION_SPELL;
 		plr._pDestParam1 = mnum;                // target id
 		// plr._pDestParam3 = sn;                  // attack spell/skill
 		// plr._pDestParam4 = (BYTE)cmd->msu.from; // attack skill-level (set in CheckPlrSkillUse)
@@ -2740,9 +2742,11 @@ static unsigned On_SKILLPLR(const TCmd* pCmd, int pnum)
 		tnum = cmd->psPnum;
 
 		net_check_cmd(tnum < MAX_PLRS);
-		net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
+		// net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
-		plr._pDestAction = spelldata[sn].sType != STYPE_NONE ? ACTION_SPELLPLR : ((spelldata[sn].sUseFlags & SFLAG_RANGED) ? ACTION_RATTACKPLR : ACTION_ATTACKPLR);
+		static_assert(ACTION_SPELLPLR + ACTION_RATTACK - ACTION_SPELL == ACTION_RATTACKPLR, "On_SKILLPLR expects ordered action-ids I.");
+		static_assert(ACTION_SPELLPLR + ACTION_ATTACK - ACTION_SPELL == ACTION_ATTACKPLR, "On_SKILLPLR expects ordered action-ids II.");
+		plr._pDestAction = ACTION_SPELLPLR + spelldata[sn].sAction - ACTION_SPELL;
 		plr._pDestParam1 = tnum;                // target id
 		// plr._pDestParam3 = sn;                  // attack spell/skill
 		// plr._pDestParam4 = (BYTE)cmd->psu.from; // attack skill-level (set in CheckPlrSkillUse)
