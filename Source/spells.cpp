@@ -37,7 +37,7 @@ void SpellCheck(PlrSkillUse* skill)
 	int8_t result = SPLFROM_INVALID_TYPE;
 	int sn = skill->_suSkill;
 	int pnum = mypnum;
-	if (sn != SPL_NULL && (spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
+	if (sn != SPL_NULL && (spelldata[sn].sUseFlags & plr._pSkillFlags) == spelldata[sn].sUseFlags) {
 		result = skill->_suFrom;
 		switch (result) {
 		case SPLFROM_ABILITY:
