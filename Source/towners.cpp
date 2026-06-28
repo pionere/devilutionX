@@ -321,7 +321,7 @@ static void InitFarmer()
 	InitTownerInfo(numtowners, "Lester the farmer", TOWN_FARMER, TPOS_FARMER, 7);
 	InitTownerAnim(numtowners, "Towners\\Farmer\\Farmrn2.CEL");
 #if !USE_PATCH
-	monsters[numtowners].mAnimFrameLen = 3;              // TNR_ANIM_FRAME_LEN
+	monsters[numtowners]._mAnimFrameLen = 3;              // TNR_ANIM_FRAME_LEN
 #endif
 	numtowners++;
 }
@@ -334,7 +334,7 @@ static void InitCowFarmer()
 	pAnimFile = quests[Q_JERSEY]._qactive != QUEST_DONE ? "Towners\\Farmer\\cfrmrn2.CEL" : "Towners\\Farmer\\mfrmrn2.CEL";
 	InitTownerAnim(numtowners, pAnimFile);
 #if !USE_PATCH
-	monsters[numtowners].mAnimFrameLen = 3;              // TNR_ANIM_FRAME_LEN
+	monsters[numtowners]._mAnimFrameLen = 3;              // TNR_ANIM_FRAME_LEN
 #endif
 	numtowners++;
 }
@@ -347,7 +347,7 @@ static void InitGirl()
 	pAnimFile = quests[Q_GIRL]._qactive != QUEST_DONE ? "Towners\\Girl\\Girlw1.CEL" : "Towners\\Girl\\Girls1.CEL";
 	InitTownerAnim(numtowners, pAnimFile);
 #if !USE_PATCH
-	monsters[numtowners].mAnimFrameLen = 6;              // TNR_ANIM_FRAME_LEN
+	monsters[numtowners]._mAnimFrameLen = 6;              // TNR_ANIM_FRAME_LEN
 #endif
 	numtowners++;
 }
