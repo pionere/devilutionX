@@ -150,7 +150,13 @@ if(PS5)
 endif()
 
 if(ANDROID)
-  include(android_defs)
+  if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Android")
+    # Natively compiling on Android, e.g. Termux.
+    include(android_termux_defs)
+  else()
+    # Cross-compiling for Android.
+    include(android_defs)
+  endif()
 endif()
 
 if(IOS)
@@ -671,7 +677,7 @@ if(NINTENDO_3DS)
   set(BIN_TARGET ${BIN_TARGET}.elf)
 endif()
 
-if(ANDROID)
+if(ANDROID AND NOT TERMUX)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 elseif(UWP_LIB)
   add_library(${BIN_TARGET} STATIC ${devilutionx_SRCS})
@@ -778,7 +784,7 @@ if(CREATE_PATCHER)
     list(APPEND devil_patcher_SRCS tools/patcher/platform/nxdk/nxdk_paths.cpp)
   endif()
 
-  if(ANDROID)
+  if(ANDROID AND NOT TERMUX)
     add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
   elseif(UWP_LIB)
     add_library(${DEVIL_PATCHER} STATIC ${devil_patcher_SRCS})
@@ -956,6 +962,7 @@ foreach(
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
+  TERMUX
 )
 if(${def_name})
   list(APPEND def_list ${def_name})
@@ -1836,6 +1843,7 @@ foreach(
   MACOSX_STANDALONE_APP_BUNDLE
   GPERF
   GPERF_HEAP_FIRST_GAME_ITERATION
+  TERMUX
 )
   # Get the padding
   string(LENGTH ${def_name} _OPTLEN)

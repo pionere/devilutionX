@@ -308,6 +308,22 @@ In Android Studio, go to "Build -> Make Project" or use the shortcut Ctrl+F9
 You can find the compiled APK in `/android-project/app/build/outputs/apk/`
 </details>
 
+<details><summary>Android Termux</summary>
+
+### Installing dependencies on Debian and Ubuntu
+
+```
+pkg i which getconf cmake gettext libsodium sdl2 sdl2-image zlib bzip2 fmt
+```
+
+### Compiling
+
+```bash
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX"
+cmake --build build -j $(nproc)
+```
+</details>
+
 <details><summary>Nintendo Switch</summary>
 
 ### Installing dependencies
