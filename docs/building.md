@@ -319,7 +319,7 @@ pkg i which getconf cmake gettext libsodium sdl2 sdl2-image zlib bzip2 fmt
 ### Compiling
 
 ```bash
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$PREFIX"
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j $(nproc)
 ```
 </details>
