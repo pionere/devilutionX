@@ -21,18 +21,27 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
-        sudo Packaging/windows/mingw9x-prep.sh
+        sudo apt-get install -y cmake build-essential flex bison pkg-config patch gettext dpkg-dev curl xz-utils bzip2 git
 
-    - name: Show winbaseh
-      #run: cat /usr/share/mingw-w64/include/winbase.h
-      run: cat /usr/i686-w64-mingw32/include/SDL/SDL_stdinc.h
-      shell: bash
+    #- name: Cache mingw9x toolchain
+    #  id: cache-mingw9x
+    #  uses: actions/cache@v4
+    #  with:
+    #    path: /opt/mingw9x
+    #    key: mingw9x-toolchain-${{ hashFiles('Packaging/windows/mingw9x-prep.sh', 'Packaging/windows/mingw9x-gcc.patch') }}
 
-    - name: Show minwinbaseh
-      run: cat /usr/i686-w64-mingw32/include/SDL/SDL.h
-      shell: bash
+    - name: Build mingw9x toolchain
+      #if: steps.cache-mingw9x.outputs.cache-hit != 'true'
+      run: sudo Packaging/windows/mingw9x-prep.sh
+
+    #- name: Show winbaseh
+    #  #run: cat /usr/share/mingw-w64/include/winbase.h
+    #  run: cat /usr/i686-w64-mingw32/include/SDL/SDL_stdinc.h
+    #  shell: bash
+
+    #- name: Show minwinbaseh
+    #  run: cat /usr/i686-w64-mingw32/include/SDL/SDL.h
+    #  shell: bash
 
     - name: Configure CMake
       shell: bash
