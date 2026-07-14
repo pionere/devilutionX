@@ -31,5 +31,5 @@ Installation instructions can be found on the [Installing](/docs/installing.md) 
 
 ## Resources
 
-* Discord: https://discord.gg/YQKCAYQ
+* Discord: https://discord.gg/devilutionx-518540764754608128
 * GitHub: https://github.com/diasurgical/devilutionX

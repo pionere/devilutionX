@@ -75,5 +75,5 @@ The following represents the full list of applicable settings.
 
 ## Resources
 
-* Discord: https://discord.gg/YQKCAYQ
+* Discord: https://discord.gg/devilutionx-518540764754608128
 * GitHub: https://github.com/diasurgical/devilutionX
