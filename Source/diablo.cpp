@@ -910,7 +910,8 @@ void InputBtnDown(int transKey)
 	case ACT_ITEM5:
 	case ACT_ITEM6:
 	case ACT_ITEM7:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+		if (stextflag == STORE_NONE && pcursicon < CURSOR_FIRSTITEM) {
+			NewCursor(CURSOR_HAND); // reset previous cursor
 			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "InputBtnDown expects a continuous assignment of ACT_ITEMx 1.");
 			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "InputBtnDown expects a continuous assignment of ACT_ITEMx 2.");
 			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "InputBtnDown expects a continuous assignment of ACT_ITEMx 3.");
@@ -1024,14 +1025,10 @@ void InputBtnDown(int transKey)
 		PerformSpellAction();
 		break;
 	case ACT_CTRL_USE_HP:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			UseBeltItem(false);
-		}
+		UseBeltItem(false);
 		break;
 	case ACT_CTRL_USE_MP:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			UseBeltItem(true);
-		}
+		UseBeltItem(true);
 		break;
 #endif
 	default:

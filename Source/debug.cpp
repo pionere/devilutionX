@@ -1899,6 +1899,24 @@ void ValidateData()
 	for (i = 0; i < NUM_SPELLS; i++) {
 		const SpellData& sd = spelldata[i];
 		SkillDetails skd;
+		if (i == SPL_NULL) {
+			; // ignore
+		} else if (sd.sType != STYPE_NONE) {
+			if (sd.sAction != ACTION_SPELL)
+				app_fatal("Invalid action type set for %s (%d) must be %d.", sd.sNameText, i, ACTION_SPELL);
+		} else if (sd.sUseFlags & SFLAG_RANGED) {
+			if (sd.sAction != ACTION_RATTACK)
+				app_fatal("Invalid action type set for %s (%d) must be %d.", sd.sNameText, i, ACTION_RATTACK);
+		} else if (sd.sUseFlags & SFLAG_BLOCK) {
+			if (sd.sAction != ACTION_BLOCK)
+				app_fatal("Invalid action type set for %s (%d) must be %d.", sd.sNameText, i, ACTION_BLOCK);
+		} else if (sd.sUseFlags & SFLAG_MELEE) {
+			if (sd.sAction != ACTION_ATTACK)
+				app_fatal("Invalid action type set for %s (%d) must be %d.", sd.sNameText, i, ACTION_ATTACK);
+		} else {
+			if (i != SPL_WALK)
+				app_fatal("Type and UseFlags are not set for %s (%d).", sd.sNameText, i);
+		}
 		if (sd.sNameText != NULL) {
 			int w = GetSmallStringWidth(sd.sNameText);
 			if (w > (SKILLDETAILS_PNL_WIDTH - 2 * BOXBORDER_WIDTH))

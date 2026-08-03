@@ -100,13 +100,13 @@ const TRNFileData trnfiledata[NUM_TRNS + 1] = {
 /* TRN_UMON_WFTD */        { "WFTD" },
 
 /* TRN_PLR_STONE */        { "Stone" },
-/* TRN_PLR_BLUE */         { "Blue" },
-/* TRN_PLR_GRAY */         { "Gray" },
-/* TRN_PLR_NONE */         { "None" },
-/* TRN_PLR_ORANGE */       { "Orange" },
+/* TRN_PLR_BLUE */         { "SBlue" },
+/* TRN_PLR_GRAY */         { "SGray" },
+/* TRN_PLR_NONE */         { "SNone" },
+/* TRN_PLR_ORANGE */       { "SOrange" },
 /* TRN_PLR_CORAL */        { "Coral" },
 /* TRN_PLR_INFRA */        { "Infra" },
-/* TRN_PLR_RED */          { "Red" },
+/* TRN_PLR_RED */          { "SRed" },
 
 	// clang-format on
 };

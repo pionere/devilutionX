@@ -1979,7 +1979,7 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 	PlayMonSfx(mnum, MS_GOTHIT);
 	if (mon->_mmode != MM_STONE) {
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
-		 && ((hitflags & ISPL_BLEED) ? random_(47, 32) == 0 : random_(48, 64) == 0))
+		 && random_(47, 64) < (((hitflags & ISPL_BLEED)) ? 8 : 1))
 			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
 		if (!(mon->_mFlags & MFLAG_NOGETHIT)) {
 			knockback = (hitflags & ISPL_KNOCKBACK) != 0;
@@ -3447,7 +3447,7 @@ void MAI_Round(int mnum)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, md)) {
+			if (mon->_mgoalvar1++ < 2 * dist/* || !MonDirOK(mnum, md)*/) {
 				MonRoundWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3791,7 +3791,7 @@ void MAI_RoundRanged(int mnum)
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
-			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) { // MOVE_DISTANCE
+			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum)/*|| !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) { // MOVE_DISTANCE
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3854,7 +3854,7 @@ void MAI_RoundRanged2(int mnum)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ < 2 * dist || !MonDirOK(mnum, currEnemyInfo._meLastDir)) {
+			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum)/* || !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) {
 				if (v < 5 * (mon->_mAI.aiInt + 16))
 					MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
@@ -5267,7 +5267,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	// mon->_mMaxDamage2 = monLvl * monData.mMaxDamage2 / baseLvl;
 }
 
-bool SpawnMinion(int mnum, int type, int level, int hitpoints)
+bool SpawnMinion(int mnum, int dx, int dy, int type, int level, int hitpoints)
 {
 	MonsterStruct* mon;
 
@@ -5277,10 +5277,15 @@ bool SpawnMinion(int mnum, int type, int level, int hitpoints)
 	}
 
 	const int pnum = mnum;
-	int i, j, dx, dy, tx, ty;
+	int sx, sy, i, j, tx, ty;
 	const int8_t* cr;
-	dx = plr._px;
-	dy = plr._py;
+	sx = plr._px;
+	sy = plr._py;
+	if (hitpoints > 0) {
+		// respawning a minion -> place it next to the player
+		dx = sx;
+		dy = sy;
+	}
 	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "SpawnMinion expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 5, "SpawnMinion uses CrawlTable/CrawlNum up to radius 5.");
 	for (i = 0; i <= 5; i++) {
@@ -5289,7 +5294,7 @@ bool SpawnMinion(int mnum, int type, int level, int hitpoints)
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(dx, dy, tx, ty)) {
+			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				PreSpawnMinion(mnum, type, level);
 				mon = &monsters[mnum];
 				if (hitpoints > 0)

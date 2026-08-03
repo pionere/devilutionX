@@ -2,7 +2,7 @@
 
 ## Installation
 
-1. Download and unzip [devilutionx-xbox-one.zip](https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-xbox-one.zip).
+1. Download and unzip [diablo-nightly-xboxone.zip](https://github.com/pionere/devilutionX/releases/download/devilx-nightly/diablo-nightly-xboxone.zip).
 2. In Xbox Device Portal click on `Add` button located at `Home/My games & apps`
 3. In the first popup - called `Deploy or Install Application` choose `devilutionX..appx` and then click `Next`
 4. In the second popup - called `Choose any necessary dependencies` choose `Microsoft.VCLibs..appx` and then click `Start`
@@ -36,5 +36,5 @@ Launch `DevilutionX` from the Dev Mode home.
 
 ## Resources
 
-* Discord: https://discord.gg/YQKCAYQ
-* GitHub: https://github.com/diasurgical/devilutionX
+* Discord: https://discord.gg/devilutionx-518540764754608128
+* GitHub: https://github.com/pionere/devilutionX
