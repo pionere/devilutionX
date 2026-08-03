@@ -451,3 +451,10 @@ Brewfile.lock.json
 # GPerf heap profile dumps
 *.heap
 *.mo
+
+# UWP copied assets
+uwp-project/Assets/data
+uwp-project/Assets/fonts
+uwp-project/Assets/gendata
+uwp-project/Assets/ui_art
+!uwp-project/devilutionX_TemporaryKey.pfx

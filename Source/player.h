@@ -12,12 +12,13 @@ DEVILUTION_BEGIN_NAMESPACE
 #define plr            players[pnum]
 #define plx(x)         players[x]
 #define PLR_WALK_SHIFT 8
+#define plrAbility     Abilities[plr._pClass]
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern int mypnum;
+extern NONETCONST int mypnum;
 extern PlayerStruct players[MAX_PLRS];
 extern bool gbLvlLoad;
 
@@ -30,6 +31,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo);
 void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, unsigned exp);
+void InitLocalPlayer(int pnum);
 void InitPlayer(int pnum);
 void InitLvlPlayer(int pnum, bool entering);
 void RemoveLvlPlayer(int pnum);

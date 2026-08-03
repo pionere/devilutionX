@@ -47,7 +47,7 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
 	is->_iMagical = savedItem->viMagical;
 	is->_iSelFlag = savedItem->viSelFlag;
-	is->_iFloorFlag = savedItem->viFloorFlag;
+	is->_iSpawnIdx = savedItem->viSpawnIdx;
 	is->_iAnimFlag = savedItem->viAnimFlag;
 
 	// is->_iAnimData = savedItem->viAnimDataAlign
@@ -55,18 +55,19 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iAnimCnt = savedItem->viAnimCnt;
 	is->_iAnimLen = savedItem->viAnimLen;
 	is->_iAnimFrame = savedItem->viAnimFrame;
+	is->_iGfxFrame = savedItem->viGfxFrame;
 	// is->_iPostDraw = savedItem->viPostDraw;
 #elif INTPTR_MAX != INT32_MAX
 	static_assert(offsetof(ItemStruct, _iAnimFlag) + sizeof(is->_iAnimFlag) - offsetof(ItemStruct, _iMagical) ==
 		offsetof(LSaveItemStruct, viAnimFlag) + sizeof(savedItem->viAnimFlag) - offsetof(LSaveItemStruct, viMagical), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct I.");
 	memcpy(&is->_iMagical, &savedItem->viMagical, offsetof(LSaveItemStruct, viAnimFlag) + sizeof(savedItem->viAnimFlag) - offsetof(LSaveItemStruct, viMagical));
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iAnimCnt) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(savedItem->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct II.");
-	memcpy(&is->_iAnimCnt, &savedItem->viAnimCnt, offsetof(LSaveItemStruct, viAnimFrame) + sizeof(savedItem->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iAnimCnt) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(savedItem->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct II.");
+	memcpy(&is->_iAnimCnt, &savedItem->viAnimCnt, offsetof(LSaveItemStruct, viGfxFrame) + sizeof(savedItem->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt));
 #else
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(savedItem->viAnimFrame) - offsetof(LSaveItemStruct, viMagical), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
-	memcpy(&is->_iMagical, &savedItem->viMagical, offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(savedItem->viGfxFrame) - offsetof(LSaveItemStruct, viMagical), "LoadItem uses memcpy to load the LSaveItemStruct in ItemStruct.");
+	memcpy(&is->_iMagical, &savedItem->viMagical, offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	src += sizeof(LSaveItemStruct);
 
@@ -125,30 +126,9 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_plid = savedPlr->vplid;
 	pr->_pvid = savedPlr->vpvid;
 
-	pr->_pAtkSkill = savedPlr->vpAtkSkill;
-	pr->_pAtkSkillType = savedPlr->vpAtkSkillType;
-	pr->_pMoveSkill = savedPlr->vpMoveSkill;
-	pr->_pMoveSkillType = savedPlr->vpMoveSkillType;
-
-	pr->_pAltAtkSkill = savedPlr->vpAltAtkSkill;
-	pr->_pAltAtkSkillType = savedPlr->vpAltAtkSkillType;
-	pr->_pAltMoveSkill = savedPlr->vpAltMoveSkill;
-	pr->_pAltMoveSkillType = savedPlr->vpAltMoveSkillType;
-
-	memcpy(pr->_pAtkSkillHotKey, savedPlr->vpAtkSkillHotKey, lengthof(pr->_pAtkSkillHotKey));
-	memcpy(pr->_pAtkSkillTypeHotKey, savedPlr->vpAtkSkillTypeHotKey, lengthof(pr->_pAtkSkillTypeHotKey));
-	memcpy(pr->_pMoveSkillHotKey, savedPlr->vpMoveSkillHotKey, lengthof(pr->_pMoveSkillHotKey));
-	memcpy(pr->_pMoveSkillTypeHotKey, savedPlr->vpMoveSkillTypeHotKey, lengthof(pr->_pMoveSkillTypeHotKey));
-
-	memcpy(pr->_pAltAtkSkillHotKey, savedPlr->vpAltAtkSkillHotKey, lengthof(pr->_pAltAtkSkillHotKey));
-	memcpy(pr->_pAltAtkSkillTypeHotKey, savedPlr->vpAltAtkSkillTypeHotKey, lengthof(pr->_pAltAtkSkillTypeHotKey));
-	memcpy(pr->_pAltMoveSkillHotKey, savedPlr->vpAltMoveSkillHotKey, lengthof(pr->_pAltMoveSkillHotKey));
-	memcpy(pr->_pAltMoveSkillTypeHotKey, savedPlr->vpAltMoveSkillTypeHotKey, lengthof(pr->_pAltMoveSkillTypeHotKey));
-
-	memcpy(pr->_pAltAtkSkillSwapKey, savedPlr->vpAltAtkSkillSwapKey, lengthof(pr->_pAltAtkSkillSwapKey));
-	memcpy(pr->_pAltAtkSkillTypeSwapKey, savedPlr->vpAltAtkSkillTypeSwapKey, lengthof(pr->_pAltAtkSkillTypeSwapKey));
-	memcpy(pr->_pAltMoveSkillSwapKey, savedPlr->vpAltMoveSkillSwapKey, lengthof(pr->_pAltMoveSkillSwapKey));
-	memcpy(pr->_pAltMoveSkillTypeSwapKey, savedPlr->vpAltMoveSkillTypeSwapKey, lengthof(pr->_pAltMoveSkillTypeSwapKey));
+	static_assert(offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(pr->_pAltSkillSwapKey) ==
+		offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey), "memcpy failes to load the skills of the player");
+	memcpy(&pr->_pMainSkill, &savedPlr->vpMainSkill, offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(savedPlr->vpAltSkillSwapKey));
 
 	memcpy(pr->_pSkillLvlBase, savedPlr->vpSkillLvlBase, lengthof(pr->_pSkillLvlBase));
 	memcpy(pr->_pSkillActivity, savedPlr->vpSkillActivity, lengthof(pr->_pSkillActivity));
@@ -157,8 +137,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 		pr->_pSkillExp[i] = savedPlr->vpSkillExp[i];
 
 	pr->_pMemSkills = savedPlr->vpMemSkills;
-	pr->_pAblSkills = savedPlr->vpAblSkills;
-	pr->_pInvSkills = savedPlr->vpInvSkills;
 	memcpy(pr->_pName, savedPlr->vpName, lengthof(pr->_pName));
 
 	pr->_pBaseStr = savedPlr->vpBaseStr;
@@ -219,7 +197,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
-	tbuff += 8; // _pISpells
 	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
@@ -276,8 +253,8 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_msquelch = savedMon->vmsquelch;
 
 	mon->_mMTidx = savedMon->vmMTidx;
-	mon->_mpathcount = savedMon->vmpathcount; // unused
-	mon->_mAlign_1 = savedMon->vmAlign_1;     // unused
+	mon->_mMType = savedMon->vmMType;
+	mon->_mMLevel = savedMon->vmMLevel;
 	mon->_mgoal = savedMon->vmgoal;
 
 	mon->_mgoalvar1 = savedMon->vmgoalvar1;
@@ -318,7 +295,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_mAISeed = savedMon->vmAISeed;
 
 	mon->_muniqtype = savedMon->vmuniqtype;
-	mon->_muniqtrans = savedMon->vmuniqtrans;
+	mon->_muniqanim = savedMon->vmuniqanim;
 	mon->_mNameColor = savedMon->vmNameColor;
 	mon->_mlid = savedMon->vmlid;
 
@@ -364,7 +341,7 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	memcpy(&mon->_mFileNum, &savedMon->vmFileNum, (offsetof(MonsterStruct, _mExp) + sizeof(mon->_mExp)) - offsetof(MonsterStruct, _mFileNum));
 #else
 	// preserve AnimData, AnimFrameLen and Name members for towners to prevent the need for SyncTownerAnim
-	BYTE* tmpAnimData = mon->_mAnimData;
+	const BYTE* tmpAnimData = mon->_mAnimData;
 	int tmpAnimFrameLen = mon->_mAnimFrameLen;
 	const char* tmpName = mon->_mName;
 
@@ -488,6 +465,7 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oProc = savedObj->voProc;
 	os->_oModeFlags = savedObj->voModeFlags;
 
+	os->_oGfxFrame = savedObj->voGfxFrame;
 	// os->_oAnimData = savedObj->voAnimDataAlign;
 	os->_oAnimFrameLen = savedObj->voAnimFrameLen;
 	os->_oAnimCnt = savedObj->voAnimCnt;
@@ -499,7 +477,7 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oSolidFlag = savedObj->voSolidFlag;
 	os->_oBreak = savedObj->voBreak;
 	os->_oTrapChance = savedObj->voTrapChance;
-	os->_oAlign = savedObj->voAlign;
+	os->_oUniqAnim = savedObj->voUniqAnim;
 
 	os->_oMissFlag = savedObj->voMissFlag;
 	os->_oDoorFlag = savedObj->voDoorFlag;
@@ -517,8 +495,8 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oVar7 = savedObj->voVar7;
 	os->_oVar8 = savedObj->voVar8;
 #elif INTPTR_MAX != INT32_MAX
-	static_assert(offsetof(LSaveObjectStruct, voAnimDataAlign) == offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct I.");
-	memcpy(os, savedObj, offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags));
+	static_assert(offsetof(LSaveObjectStruct, voAnimDataAlign) == offsetof(ObjectStruct, _oGfxFrame) + sizeof(os->_oGfxFrame), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct I.");
+	memcpy(os, savedObj, offsetof(ObjectStruct, _oGfxFrame) + sizeof(os->_oGfxFrame));
 	static_assert((offsetof(LSaveObjectStruct, voVar8) + sizeof(savedObj->voVar8)) - offsetof(LSaveObjectStruct, voAnimFrameLen)
 		== (offsetof(ObjectStruct, _oVar8) + sizeof(os->_oVar8)) - offsetof(ObjectStruct, _oAnimFrameLen), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct II.");
 	static_assert(sizeof(LSaveObjectStruct) - offsetof(LSaveObjectStruct, voAnimFrameLen) == sizeof(ObjectStruct) - offsetof(ObjectStruct, _oAnimFrameLen) - sizeof(os->alignment), "LoadObject uses memcpy to load the LSaveObjectStruct in ObjectStruct III.");
@@ -631,10 +609,11 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 	numitems = lms->vvnumitems;
 	src += sizeof(LSaveGameLvlMetaStruct);
 	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : (full ? MAX_MINIONS + MAX_TOWNERS : 0);
-	for (i = 0; i < moncount; i++)
+	for (i = (full ? 0 : MAX_MINIONS); i < moncount; i++)
 		src = LoadMonster(src, i, full);
-	if (currLvl._dType != DTYPE_TOWN) {
-		for (i = 0; i < MAXMONSTERS; i++)
+	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : MAX_MINIONS;
+	{
+		for (i = (full ? 0 : MAX_MINIONS); i < MAXMONSTERS; i++)
 			SyncMonsterAnim(i);
 	}
 	if (full) {
@@ -704,7 +683,7 @@ void LoadGame()
 	LSaveGameHeaderStruct* ghs;
 	LSaveGameMetaStruct* gms;
 	BYTE *fileBuff, *tbuff;
-	int _ViewX, _ViewY;
+	POS32 _View;
 	int32_t _CurrSeed;
 
 	// TODO: UIDisconnectGame() ?
@@ -731,8 +710,8 @@ void LoadGame()
 		gDynLevels[i]._dnType = ghs->vhDynLvls[i].vdType;
 	}
 	// load player-data
-	_ViewX = ghs->vhViewX;
-	_ViewY = ghs->vhViewY;
+	_View.x = ghs->vhViewX;
+	_View.y = ghs->vhViewY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ScrollInfo._sxoff = ghs->vhScrollXOff;
@@ -771,8 +750,7 @@ void LoadGame()
 	// assert(mypnum == 0);
 	EnterLevel(plx(0)._pDunLevel);
 	LoadGameLevel(ENTRY_LOAD);
-	ViewX = _ViewX;
-	ViewY = _ViewY;
+	myview = _View;
 	ResyncQuests();
 	// load level-data
 	tbuff = LoadLevelData(tbuff, true);
@@ -853,7 +831,7 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 
 	itemSave->viMagical = is->_iMagical;
 	itemSave->viSelFlag = is->_iSelFlag;
-	itemSave->viFloorFlag = is->_iFloorFlag;
+	itemSave->viSpawnIdx = is->_iSpawnIdx;
 	itemSave->viAnimFlag = is->_iAnimFlag;
 
 	// itemSave->viAnimDataAlign = is->_iAnimData;
@@ -861,18 +839,19 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viAnimCnt = is->_iAnimCnt;
 	itemSave->viAnimLen = is->_iAnimLen;
 	itemSave->viAnimFrame = is->_iAnimFrame;
+	itemSave->viGfxFrame = is->_iGfxFrame;
 	// itemSave->viPostDraw = is->_iPostDraw;
 #elif INTPTR_MAX != INT32_MAX
 	static_assert(offsetof(ItemStruct, _iAnimFlag) + sizeof(is->_iAnimFlag) - offsetof(ItemStruct, _iMagical) ==
 		offsetof(LSaveItemStruct, viAnimFlag) + sizeof(itemSave->viAnimFlag) - offsetof(LSaveItemStruct, viMagical), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct I.");
 	memcpy(&itemSave->viMagical, &is->_iMagical, offsetof(LSaveItemStruct, viAnimFlag) + sizeof(itemSave->viAnimFlag) - offsetof(LSaveItemStruct, viMagical));
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iAnimCnt) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(itemSave->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct II.");
-	memcpy(&itemSave->viAnimCnt, &is->_iAnimCnt, offsetof(LSaveItemStruct, viAnimFrame) + sizeof(itemSave->viAnimFrame) - offsetof(LSaveItemStruct, viAnimCnt));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iAnimCnt) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(itemSave->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct II.");
+	memcpy(&itemSave->viAnimCnt, &is->_iAnimCnt, offsetof(LSaveItemStruct, viGfxFrame) + sizeof(itemSave->viGfxFrame) - offsetof(LSaveItemStruct, viAnimCnt));
 #else
-	static_assert(offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical) ==
-		offsetof(LSaveItemStruct, viAnimFrame) + sizeof(itemSave->viAnimFrame) - offsetof(LSaveItemStruct, viMagical), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
-	memcpy(&itemSave->viMagical, &is->_iMagical, offsetof(ItemStruct, _iAnimFrame) + sizeof(is->_iAnimFrame) - offsetof(ItemStruct, _iMagical));
+	static_assert(offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical) ==
+		offsetof(LSaveItemStruct, viGfxFrame) + sizeof(itemSave->viGfxFrame) - offsetof(LSaveItemStruct, viMagical), "SaveItem uses memcpy to store the ItemStruct in LSaveItemStruct.");
+	memcpy(&itemSave->viMagical, &is->_iMagical, offsetof(ItemStruct, _iGfxFrame) + sizeof(is->_iGfxFrame) - offsetof(ItemStruct, _iMagical));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 	dest += sizeof(LSaveItemStruct);
 
@@ -931,30 +910,9 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vplid = pr->_plid;
 	plrSave->vpvid = pr->_pvid;
 
-	plrSave->vpAtkSkill = pr->_pAtkSkill;
-	plrSave->vpAtkSkillType = pr->_pAtkSkillType;
-	plrSave->vpMoveSkill = pr->_pMoveSkill;
-	plrSave->vpMoveSkillType = pr->_pMoveSkillType;
-
-	plrSave->vpAltAtkSkill = pr->_pAltAtkSkill;
-	plrSave->vpAltAtkSkillType = pr->_pAltAtkSkillType;
-	plrSave->vpAltMoveSkill = pr->_pAltMoveSkill;
-	plrSave->vpAltMoveSkillType = pr->_pAltMoveSkillType;
-
-	memcpy(plrSave->vpAtkSkillHotKey, pr->_pAtkSkillHotKey, lengthof(plrSave->vpAtkSkillHotKey));
-	memcpy(plrSave->vpAtkSkillTypeHotKey, pr->_pAtkSkillTypeHotKey, lengthof(plrSave->vpAtkSkillTypeHotKey));
-	memcpy(plrSave->vpMoveSkillHotKey, pr->_pMoveSkillHotKey, lengthof(plrSave->vpMoveSkillHotKey));
-	memcpy(plrSave->vpMoveSkillTypeHotKey, pr->_pMoveSkillTypeHotKey, lengthof(plrSave->vpMoveSkillTypeHotKey));
-
-	memcpy(plrSave->vpAltAtkSkillHotKey, pr->_pAltAtkSkillHotKey, lengthof(plrSave->vpAltAtkSkillHotKey));
-	memcpy(plrSave->vpAltAtkSkillTypeHotKey, pr->_pAltAtkSkillTypeHotKey, lengthof(plrSave->vpAltAtkSkillTypeHotKey));
-	memcpy(plrSave->vpAltMoveSkillHotKey, pr->_pAltMoveSkillHotKey, lengthof(plrSave->vpAltMoveSkillHotKey));
-	memcpy(plrSave->vpAltMoveSkillTypeHotKey, pr->_pAltMoveSkillTypeHotKey, lengthof(plrSave->vpAltMoveSkillTypeHotKey));
-
-	memcpy(plrSave->vpAltAtkSkillSwapKey, pr->_pAltAtkSkillSwapKey, lengthof(plrSave->vpAltAtkSkillSwapKey));
-	memcpy(plrSave->vpAltAtkSkillTypeSwapKey, pr->_pAltAtkSkillTypeSwapKey, lengthof(plrSave->vpAltAtkSkillTypeSwapKey));
-	memcpy(plrSave->vpAltMoveSkillSwapKey, pr->_pAltMoveSkillSwapKey, lengthof(plrSave->vpAltMoveSkillSwapKey));
-	memcpy(plrSave->vpAltMoveSkillTypeSwapKey, pr->_pAltMoveSkillTypeSwapKey, lengthof(plrSave->vpAltMoveSkillTypeSwapKey));
+	static_assert(offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey) ==
+		offsetof(LSavePlayerStruct, vpAltSkillSwapKey) - offsetof(LSavePlayerStruct, vpMainSkill) + sizeof(plrSave->vpAltSkillSwapKey), "memcpy failes to save the skills of the player");
+	memcpy(&plrSave->vpMainSkill, &plr._pMainSkill, offsetof(PlayerStruct, _pAltSkillSwapKey) - offsetof(PlayerStruct, _pMainSkill) + sizeof(pr->_pAltSkillSwapKey));
 
 	memcpy(plrSave->vpSkillLvlBase, pr->_pSkillLvlBase, lengthof(plrSave->vpSkillLvlBase));
 	memcpy(plrSave->vpSkillActivity, pr->_pSkillActivity, lengthof(plrSave->vpSkillActivity));
@@ -963,8 +921,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 		plrSave->vpSkillExp[i] = pr->_pSkillExp[i];
 
 	plrSave->vpMemSkills = pr->_pMemSkills;
-	plrSave->vpAblSkills = pr->_pAblSkills;
-	plrSave->vpInvSkills = pr->_pInvSkills;
 	memcpy(plrSave->vpName, pr->_pName, lengthof(plrSave->vpName));
 
 	plrSave->vpBaseStr = pr->_pBaseStr;
@@ -1026,7 +982,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	tbuff += 4; // _pMana
 	tbuff += 4; // _pMaxMana
 	tbuff += 64; // _pSkillLvl
-	tbuff += 8; // _pISpells
 	tbuff += 1; // _pSkillFlags
 	tbuff += 1; // _pInfraFlag
 	tbuff += 1; // _pgfxnum
@@ -1086,8 +1041,8 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmsquelch = mon->_msquelch;
 
 	monSave->vmMTidx = mon->_mMTidx;
-	monSave->vmpathcount = mon->_mpathcount; // unused
-	monSave->vmAlign_1 = mon->_mAlign_1;     // unused
+	monSave->vmMType = mon->_mMType;
+	monSave->vmMLevel = mon->_mMLevel;
 	monSave->vmgoal = mon->_mgoal;
 
 	monSave->vmgoalvar1 = mon->_mgoalvar1;
@@ -1128,7 +1083,7 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmAISeed = mon->_mAISeed;
 
 	monSave->vmuniqtype = mon->_muniqtype;
-	monSave->vmuniqtrans = mon->_muniqtrans;
+	monSave->vmuniqanim = mon->_muniqanim;
 	monSave->vmNameColor = mon->_mNameColor;
 	monSave->vmlid = mon->_mlid;
 
@@ -1277,6 +1232,7 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voProc = os->_oProc;
 	objSave->voModeFlags = os->_oModeFlags;
 
+	objSave->voGfxFrame = os->_oGfxFrame;
 	//objSave->voAnimDataAlign = os->_oAnimData;
 	objSave->voAnimFrameLen = os->_oAnimFrameLen;
 	objSave->voAnimCnt = os->_oAnimCnt;
@@ -1288,7 +1244,7 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voSolidFlag = os->_oSolidFlag;
 	objSave->voBreak = os->_oBreak;
 	objSave->voTrapChance = os->_oTrapChance;
-	objSave->voAlign = os->_oAlign;
+	objSave->voUniqAnim = os->_oUniqAnim;
 
 	objSave->voMissFlag = os->_oMissFlag;
 	objSave->voDoorFlag = os->_oDoorFlag;
@@ -1306,8 +1262,8 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voVar7 = os->_oVar7;
 	objSave->voVar8 = os->_oVar8;
 #elif INTPTR_MAX != INT32_MAX
-	static_assert(offsetof(LSaveObjectStruct, voAnimDataAlign) == offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct I.");
-	memcpy(objSave, os, offsetof(ObjectStruct, _oModeFlags) + sizeof(os->_oModeFlags));
+	static_assert(offsetof(LSaveObjectStruct, voAnimDataAlign) == offsetof(ObjectStruct, _oGfxFrame) + sizeof(os->_oGfxFrame), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct I.");
+	memcpy(objSave, os, offsetof(ObjectStruct, _oGfxFrame) + sizeof(os->_oGfxFrame));
 	static_assert((offsetof(LSaveObjectStruct, voVar8) + sizeof(objSave->voVar8)) - offsetof(LSaveObjectStruct, voAnimFrameLen)
 		== (offsetof(ObjectStruct, _oVar8) + sizeof(os->_oVar8)) - offsetof(ObjectStruct, _oAnimFrameLen), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct II.");
 	static_assert(sizeof(LSaveObjectStruct) - offsetof(LSaveObjectStruct, voAnimFrameLen) == sizeof(ObjectStruct) - offsetof(ObjectStruct, _oAnimFrameLen) - sizeof(os->alignment), "SaveObject uses memcpy to store the ObjectStruct in LSaveObjectStruct III.");
@@ -1412,7 +1368,7 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 	lms->vvnumitems = numitems;
 	dest += sizeof(LSaveGameLvlMetaStruct);
 	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : (full ? MAX_MINIONS + MAX_TOWNERS : 0);
-	for (i = 0; i < moncount; i++)
+	for (i = (full ? 0 : MAX_MINIONS); i < moncount; i++)
 		dest = SaveMonster(dest, i);
 	if (full) {
 		LE_SAVE_INTS(dest, missileactive, lengthof(missileactive));
@@ -1535,8 +1491,8 @@ void SaveGame()
 	}
 	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data
-	ghs->vhViewX = ViewX;
-	ghs->vhViewY = ViewY;
+	ghs->vhViewX = myview.x;
+	ghs->vhViewY = myview.y;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ghs->vhScrollXOff = ScrollInfo._sxoff;
@@ -1670,11 +1626,13 @@ void LoadLevel()
 	//ResyncQuests();
 	//SyncPortals();
 
-	// clear flags of the eliminated missiles
+	// clear flags of the eliminated missiles/minions
+	if (currLvl._dType != DTYPE_TOWN) {
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
-		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/);
+		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/ | BFLAG_MIS_ACTIVE | BFLAG_HAZARD);
+	}
 	// reload light to clear the lights of the eliminated missiles
 	LoadPreLighting();
 	// doLightning is not necessary, because it is going to be triggered

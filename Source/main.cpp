@@ -13,6 +13,9 @@
 #include "platform/vita/network.h"
 #include "platform/vita/random.hpp"
 #endif
+#ifdef NXDK
+#include <nxdk/mount.h>
+#endif
 #ifdef RUN_TESTS
 #include <gtest/gtest.h>
 #endif
@@ -52,6 +55,9 @@ extern "C" int main(int argc, char** argv)
 	scePowerSetArmClockFrequency(444);
 	vita_enable_network();
 	randombytes_vitarandom_init();
+#endif
+#ifdef NXDK
+	nxMountDrive('E', "\\Device\\Harddisk0\\Partition1\\");
 #endif
 #ifdef GPERF_HEAP_MAIN
 	HeapProfilerStart("main");

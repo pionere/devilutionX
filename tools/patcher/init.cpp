@@ -35,7 +35,7 @@ static HANDLE init_test_access(const char* mpq_name, unsigned fileIndex)
 	HANDLE archive;
 #if defined(__3DS__) || defined(__SWITCH__)
 	const char* paths[3] = { GetBasePath(), GetPrefPath(), "romfs:/" };
-#elif defined(__unix__) && !defined(__ANDROID__)
+#elif defined(__unix__) && (!defined(__ANDROID__) || defined(TERMUX))
 	const char* paths[4] = { GetBasePath(), GetPrefPath(),
 		"/usr/share/diasurgical/devilutionx/",
 		"/usr/local/share/diasurgical/devilutionx/" };

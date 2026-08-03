@@ -36,8 +36,7 @@ void InvPasteBeltItem(int pnum, BYTE r);
 void InvCutItem(int pnum, BYTE cii, bool bShift);
 void SyncPlrItemRemove(int pnum, BYTE cii);
 void SyncPlrStorageRemove(int pnum, int cii);
-void CheckInvClick();
-void CheckBeltClick();
+void CheckInvBeltClick(bool altAction, BYTE wnd);
 void SyncInvGetItem(int pnum, int ii);
 void InvGetItem(int pnum, int ii);
 bool SyncAutoGetItem(int pnum, int ii);
@@ -46,7 +45,7 @@ void SyncSplitGold(int pnum, int cii, int value);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();
 void InvUseItem(int cii);
-bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
+int SyncUseItem(int pnum, BYTE cii);
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 void CalculateGold(int pnum);
 

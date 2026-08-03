@@ -105,7 +105,7 @@ cmake_configure() {
 }
 
 cmake_build() {
-	cmake --build "$BUILD_DIR" -j "$(getconf _NPROCESSORS_ONLN)"
+	cmake --build "$BUILD_DIR" -j "$(getconf _NPROCESSORS_ONLN)" --config Release
 }
 
 strip_bin() {

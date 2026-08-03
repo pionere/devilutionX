@@ -10,7 +10,7 @@ const buffer_t& packet::encrypted_data() const
 	return encrypted_buffer;
 }
 
-#if DEV_MODE || INET_MODE
+#if DEV_MODE || INET_MODE || DEBUG_MODE
 bool packet::validate()
 {
 	size_t size = decrypted_buffer.size();

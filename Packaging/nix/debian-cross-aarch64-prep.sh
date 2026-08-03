@@ -20,9 +20,10 @@ fi
 
 
 PACKAGES=(
-  cmake git
-  libsdl2-dev:arm64 libsodium-dev:arm64
-  libbz2-dev:arm64 libspeechd-dev:arm64
+  cmake git tar
+  #libsdl2-dev:arm64
+  libsodium-dev:arm64
+  libspeechd-dev:arm64
 )
 
 if (( $# < 1 )) || [[ "$1" != --no-gcc ]]; then

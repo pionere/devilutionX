@@ -8,6 +8,8 @@ on:
 
 env:
   buildDir: '${{ github.workspace }}/build'
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
   # Check if there was a commit in 24hours
@@ -17,7 +19,9 @@ jobs:
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
@@ -105,15 +109,17 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DSCREEN_READER_INTEGRATION=ON -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-scr-x64.zip'
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     # Download and build vcpkg, without installing any port. If content is cached already, it is a no-op.
     - name: Create Build Environment
-      uses: lukka/run-vcpkg@v11.5
+      uses: lukka/run-vcpkg@v11.6
       with:
-        vcpkgGitCommitId: 'b91c3336aee7f32412508f7dd351ae2cabdb8819'
+        vcpkgGitCommitId: '40f3c709db80acf154ac4b17a1f83c564ebd022e'
         #setupOnly: true
     # Now that vcpkg is installed, it is being used to run with the desired arguments.
     #- name: Install Required Packages
@@ -126,17 +132,17 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
     # Execute the build (-j 2 : with two cores).
-      run: cmake --build . -j 2 --target package --config Release
+      run: cmake --build . -j 2 --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -159,30 +165,31 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x86.zip'
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 pkg-config-mingw-w64-i686 dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw-prep.sh
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cmake --build build -j $(nproc) --target package
+      run: cmake --build build -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -205,30 +212,31 @@ jobs:
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mingw-x64.zip'
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 libz-mingw-w64-dev dpkg-dev wget git sudo &&
-        sudo rm /usr/x86_64-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 pkg-config-mingw-w64-x86-64 dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw-prep64.sh
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE="Release" -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
+      run: cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc64.toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      run: cmake --build build -j $(nproc) --target package
+      run: cmake --build build -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: build/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -252,30 +260,30 @@ jobs:
             artifact: 'hellfire-nightly-mingw-w9x.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw9x-prep.sh
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingw9x.toolchain.cmake -DTARGET_PLATFORM=windows9x
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
-      run: cmake --build . -j $(nproc) --target package
+      run: cmake --build . -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -299,30 +307,30 @@ jobs:
             artifact: 'hellfire-nightly-mingw-wx.zip'
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools libz-mingw-w64-dev gettext dpkg-dev wget git sudo &&
-        sudo rm /usr/i686-w64-mingw32/lib/libz.dll.a &&
+        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools dpkg-dev wget git sudo &&
         sudo Packaging/windows/mingw-prep.sh
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
 
     - name: Build
       working-directory: ${{ env.buildDir }}
       shell: bash
-      run: cmake --build . -j $(nproc) --target package
+      run: cmake --build . -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: ${{ env.buildDir }}/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -347,9 +355,11 @@ jobs:
             appimage: 'hellfire-nightly-x86_64-linux-gnu.appimage'
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: Packaging/nix/debian-host-prep.sh
@@ -364,11 +374,9 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      env:
-        CMAKE_BUILD_TYPE: ${{github.event_name == 'release' && 'Release' || 'RelWithDebInfo'}}
       run: |
-        cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.CMAKE_BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
-        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
+        cmake -S. -Bbuild ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
+        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package --config ${{env.BUILD_TYPE}}
 
     - name: Package
       run: Packaging/nix/LinuxReleasePackaging.sh && mv devilutionx.tar.xz devilutionx-x86_64-linux-gnu.tar.xz
@@ -376,16 +384,16 @@ jobs:
     - name: Package AppImage
       run: Packaging/nix/AppImage.sh && mv devilutionx.appimage devilutionx-x86_64-linux-gnu.appimage
 
-    - name: Upload Package
+    - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: devilutionx-x86_64-linux-gnu.tar.xz
         name: ${{ matrix.artifact }}
 
     - name: Upload AppImage
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: devilutionx-x86_64-linux-gnu.appimage
         name: ${{ matrix.appimage }}
@@ -408,9 +416,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -419,12 +428,10 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
-      env:
-        CMAKE_BUILD_TYPE: ${{github.event_name == 'release' && 'Release' || 'RelWithDebInfo'}}
       run: |
         cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/aarch64-linux-gnu.toolchain.cmake \
-          ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.CMAKE_BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
-        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package
+          ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=/usr -DCPACK=ON && \
+        cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target package --config ${{env.BUILD_TYPE}}
 
     - name: Package
       run: Packaging/nix/LinuxReleasePackaging.sh && mv devilutionx.tar.xz devilutionx-aarch64.tar.xz
@@ -433,9 +440,9 @@ jobs:
     # - name: Package AppImage
     #   run: Packaging/nix/AppImage.sh && mv devilutionx.appimage devilutionx-aarch64.appimage
 
-    - name: Upload Package
+    - name: Upload
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: devilutionx-aarch64.tar.xz
         name: ${{ matrix.artifact }}
@@ -454,11 +461,13 @@ jobs:
           - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-mac.dmg'
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: brew bundle install
@@ -466,20 +475,69 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DMACOSX_STANDALONE_APP_BUNDLE=ON -D CMAKE_OSX_DEPLOYMENT_TARGET=10.12 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
       # Execute the build (-j 2 : with two cores).
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --target package --config ${{env.BUILD_TYPE}}
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: ${{ env.buildDir }}/devilutionx.dmg
         name: ${{ matrix.artifact }}
+
+  build_mac_arm:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-Mac-Arm
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-mac-arm.dmg'
+          - name: hellfire
+            cmakeargs: '-DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-mac-arm.dmg'
+    runs-on: macos-14
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-tags: true
+      #  fetch-depth: 0
+
+    - name: Create Build Environment
+      run: brew bundle install
+
+    #- name: Cache CMake build folder
+    #  uses: actions/cache@v4
+    #  with:
+    #    path: build
+    #    key: ${{ github.workflow }}-v1-${{ github.sha }}
+    #    restore-keys: ${{ github.workflow }}-v1-
+
+    #- name: Clean previous DMG
+    #  working-directory: ${{github.workspace}}
+    #  run: rm -f build/*.dmg
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: |
+        cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DMACOSX_STANDALONE_APP_BUNDLE=ON ${{ matrix.cmakeargs }} && \
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --target package --config ${{env.BUILD_TYPE}}
+
+    - name: Upload
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ env.buildDir }}/devilutionx.dmg
+        name: ${{ matrix.artifact }}
+
   # iOS-builds
   build_ios:
     needs: build_check
@@ -495,24 +553,26 @@ jobs:
           - name: hellfire
             cmakeargs: '-DHELLFIRE=ON'
             artifact: 'hellfire-nightly-ios.ipa'
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
       shell: bash
       working-directory: ${{github.workspace}}
-      run: cmake -S. -Bbuild -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/ios.toolchain.cmake -DENABLE_BITCODE=0 -DPLATFORM=OS64 -D CMAKE_OSX_DEPLOYMENT_TARGET=9.0 ${{ matrix.cmakeargs }}
 
     - name: Build
       working-directory: ${{github.workspace}}
       shell: bash
       run: >
-        cmake --build build -j $(sysctl -n hw.physicalcpu) --config Release &&
+        cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}} &&
         cd build &&
         rm -rf Payload devilutionx.ipa &&
         mkdir Payload &&
@@ -521,7 +581,7 @@ jobs:
 
     # Upload the created artifact
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         path: ${{ env.buildDir }}/devilutionx.ipa
         name: ${{ matrix.artifact }}
@@ -544,9 +604,10 @@ jobs:
     environment: android
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -554,7 +615,7 @@ jobs:
         sudo apt-get install -y gettext
 
     - name: set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -580,6 +641,8 @@ jobs:
 
     - name: Build
       working-directory: ${{github.workspace}}
+      #env:
+      #  GRADLE_ASSEMBLE: ${{env.BUILD_TYPE == 'Release' && 'assembleRelease' || 'assembleDebug'}}
       shell: bash
       run: cd android-project && ./gradlew assembleRelease -Pcmakearg0="${{ matrix.cmakearg0 }}" -Pcmakearg1="${{ matrix.cmakearg1 }}" -Pcmakearg2="${{ matrix.cmakearg2 }}"
 
@@ -599,8 +662,8 @@ jobs:
       shell: bash
       run: mv ${{steps.sign_app.outputs.signedFile}} android-project/app/build/outputs/apk/release/devilutionx.apk
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         #name: devilutionx-debug.apk
         #path: android-project/app/build/outputs/apk/debug/app-debug.apk
@@ -626,9 +689,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-10-22.tar.xz -o gcw0-toolchain.tar.xz &&
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-gcw0-toolchain.2021-03-10.tar.xz -o gcw0-toolchain.tar.xz &&
@@ -648,8 +712,8 @@ jobs:
       env:
         TOOLCHAIN: /opt/gcw0-toolchain
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: build-rg350/devilutionx-rg350.opk
@@ -672,9 +736,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-10-22.tar.xz -o lepus-toolchain.tar.xz &&
     # curl -L http://od.abstraction.se/opendingux/toolchain/opendingux-lepus-toolchain.2021-03-11.tar.xz -o lepus-toolchain.tar.xz &&
@@ -694,8 +759,8 @@ jobs:
       env:
         TOOLCHAIN: /opt/lepus-toolchain
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: build-lepus/devilutionx-lepus.opk
@@ -718,9 +783,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
      #sudo apt-get install -y curl git smpq &&
      #curl -L https://github.com/retrofw/buildroot/releases/download/2018.02.11/mipsel-linux-uclibc_x64.tar.gz -o retrofw-toolchain.tar.xz &&
@@ -742,8 +808,8 @@ jobs:
       env:
         TOOLCHAIN: /opt/retrofw-toolchain
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         #name: devilutionx-retrofw.opk.zip
         name: ${{ matrix.artifact }}
@@ -767,9 +833,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -791,8 +858,8 @@ jobs:
       shell: bash
       run: Packaging/ps4/build.sh "${{ matrix.cmakeargs }}"
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: build-ps4/devilutionx-ps4.pkg
@@ -815,9 +882,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -833,8 +901,8 @@ jobs:
       shell: bash
       run: Packaging/ps5/build.sh "${{ matrix.cmakeargs }}"
 
-    - name: Upload-Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         path: build-ps5/devilutionx.zip
         name: ${{ matrix.artifact }}
@@ -858,9 +926,10 @@ jobs:
     container: vitasdk/vitasdk:latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: apk add cmake ninja
@@ -872,10 +941,10 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=${VITASDK}/share/vita.toolchain.cmake
 
     - name: Build
-      run: cmake --build build -j $(sysctl -n hw.physicalcpu)
+      run: cmake --build build -j $(sysctl -n hw.physicalcpu) --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: build/devilutionx.vpk
@@ -902,9 +971,10 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     #- name: Install dependencies
     #  run: |
@@ -933,16 +1003,16 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/3DS.cmake
 
     - name: Build DevilutionX
-      run: cmake --build build -j$(nproc)
+      run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: build/devilutionx.3dsx
 
     - name: Upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.cia }}
         path: build/devilutionx.cia
@@ -966,9 +1036,10 @@ jobs:
     container: devkitpro/devkita64:latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     #- name: Install dependencies
     #  shell: bash
@@ -988,17 +1059,120 @@ jobs:
     - name: Configure CMake
       run: |
         cmake -S . -B build \
-          -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
-          -D CMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{ matrix.cmakeargs }} \
+          -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/Switch.cmake
 
     - name: Build DevilutionX
-      run: cmake --build build -j$(nproc)
+      run: cmake --build build -j$(nproc) --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx.nro
+
+  # xbox-builds
+  build_xbox:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-XBOX
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-xbox.zip'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-xbox.zip'
+    runs-on: ubuntu-24.04
+    env:
+      NXDK_DIR: /opt/nxdk
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-tags: true
+        #fetch-depth: 0
+
+    - name: Create Build Environment
+      run: sudo apt-get update && sudo apt-get install -y clang llvm lld bison flex cmake git
+
+    - name: Clone NXDK Repo
+      shell: bash
+      run: git clone --recursive --depth 1 https://github.com/XboxDev/nxdk.git "$NXDK_DIR"
+    #- name: Clone NXDK Repo
+    #  uses: actions/checkout@v7
+    #  with:
+    #    repository: XboxDev/nxdk
+    #    path: "$NXDK_DIR"
+
+    - name: Build NXDK
+      shell: bash
+      run: PATH="${NXDK_DIR}/bin:$PATH" make -j $(nproc) -C "$NXDK_DIR" NXDK_ONLY=1 LTO=1 all cxbe
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: cmake -S. -Bbuild-xbox ${{ matrix.cmakeargs }} -DNXDK=ON -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/opt/nxdk/share/toolchain-nxdk.cmake
+
+    - name: Build
+      working-directory: ${{github.workspace}}
+      shell: bash
+      run: cmake --build build-xbox -j $(nproc) --target package --config ${{env.BUILD_TYPE}}
+
+    - name: Upload
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.artifact }}
+        path: build-xbox/devilutionx.zip
+
+  build_xboxone:
+    needs: build_check
+    if: ${{ needs.build_check.outputs.should_run != 'false' }}
+    name: Nightly-XBOXONE
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: diablo
+            cmakeargs: ''
+            artifact: 'diablo-nightly-xboxone.zip'
+          - name: hellfire
+            cmakeargs: '-DHELLFIRE=ON'
+            artifact: 'hellfire-nightly-xboxone.zip'
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-tags: true
+        #fetch-depth: 0
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v3
+      with:
+        msbuild-architecture: x64
+
+    - name: Configure git
+      shell: cmd
+      run: |
+        git config --global core.filemode false
+        git config --global core.autocrlf false
+
+    - name: Build
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: |
+        Packaging\xbox-one\build.bat ${{ matrix.cmakeargs }}
+
+    - name: Upload
+      if: ${{ !env.ACT }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.artifact }}
+        path: ${{ env.buildDir }}/devilutionx.zip
 
   # amiga-builds
   build_amiga:
@@ -1019,9 +1193,10 @@ jobs:
     container: amigadev/crosstools:m68k-amigaos-gcc10
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
-        fetch-depth: 0
+        fetch-tags: true
+      #  fetch-depth: 0
 
     - name: Create Build Environment
       run: |
@@ -1038,360 +1213,386 @@ jobs:
           -DM68K_FPU=hard
 
     - name: Build DevilutionX
-      run: cmake --build build
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
-    - name: Upload Package
-      uses: actions/upload-artifact@v4
+    - name: Upload
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.artifact }}
         path: ./build/devilutionx
 
   # Releases
   release:
-    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_amiga]
+    needs: [build_check, build_msvc, build_mingw, build_mingw_x64, build_w98, build_linux64, build_aarch, build_mac, build_ios, build_android, build_rg350, build_lepus, build_retrofw, build_ps4, build_ps5, build_vita, build_n3ds, build_switch, build_xbox, build_xboxone]
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     #runs-on: windows-latest
     runs-on: ubuntu-latest
     steps:
     # Windows-builds (x86)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-mini-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mini-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-mini-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mini-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-server-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-server-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-server-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-server-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x86.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-mingw-x86.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x86.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-mingw-w9x.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-w9x.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-mingw-w9x.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-w9x.zip
 
     # Windows-builds (x64)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-hd2-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-hd2-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-hd2-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-hd2-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mingw-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-mingw-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-mini-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-mini-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-mini-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-mini-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-server-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-server-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-server-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-server-x64.zip
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-scr-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-scr-x64.zip
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-scr-x64.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-scr-x64.zip
 
     # Linux-builds (x64)
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-x86_64-linux-gnu.tar.xz
     - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/diablo-nightly-x86_64-linux-gnu.tar.xz
 
     - name: Download a diablo artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-x86_64-linux-gnu.appimage
     - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/diablo-nightly-x86_64-linux-gnu.appimage
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-x86_64-linux-gnu.tar.xz
     - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.tar.xz ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnu.tar.xz
 
     - name: Download a hellfire artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-x86_64-linux-gnu.appimage
     - run: mv ${{github.workspace}}/devilutionx-x86_64-linux-gnu.appimage ${{github.workspace}}/hellfire-nightly-x86_64-linux-gnu.appimage
 
     # Aarch64-builds (x64)
     - name: Download a diablo aarch64-artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-aarch64.tar.xz
     - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
 
     - name: Download a hellfire aarch64-artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-aarch64.tar.xz
     - run: mv ${{github.workspace}}/devilutionx-aarch64.tar.xz ${{github.workspace}}/hellfire-nightly-aarch64.tar.xz
 
     # Mac-builds
     - name: Download a diablo mac-artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/diablo-nightly-mac.dmg
 
     - name: Download a hellfire mac-artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-mac.dmg
     - run: mv ${{github.workspace}}/devilutionx.dmg ${{github.workspace}}/hellfire-nightly-mac.dmg
 
     # iOS-builds
     - name: Download a diablo iOS artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/diablo-nightly-ios.ipa
 
     - name: Download a hellfire iOS artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-ios.ipa
     - run: mv ${{github.workspace}}/devilutionx.ipa ${{github.workspace}}/hellfire-nightly-ios.ipa
 
     # Android-builds
     - name: Download a diablo android artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-android.apk
     - run: mv ${{github.workspace}}/devilutionx.apk ${{github.workspace}}/diablo-nightly-android.apk
 
     - name: Download a hellfire android artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-android.apk
     - run: mv ${{github.workspace}}/devilutionx.apk ${{github.workspace}}/hellfire-nightly-android.apk
 
     # rg350-builds
     - name: Download a diablo rg350 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/diablo-nightly-rg350.opk
 
     - name: Download a hellfire rg350 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-rg350.opk
     - run: mv ${{github.workspace}}/devilutionx-rg350.opk ${{github.workspace}}/hellfire-nightly-rg350.opk
 
     # lepus-builds
     - name: Download a diablo lepus artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/diablo-nightly-lepus.opk
 
     - name: Download a hellfire lepus artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-lepus.opk
     - run: mv ${{github.workspace}}/devilutionx-lepus.opk ${{github.workspace}}/hellfire-nightly-lepus.opk
 
     # retrofw-builds
     - name: Download a diablo retrofw artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/diablo-nightly-retrofw.opk
 
     - name: Download a hellfire retrofw artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-retrofw.opk
     - run: mv ${{github.workspace}}/devilutionx-retrofw.opk ${{github.workspace}}/hellfire-nightly-retrofw.opk
 
     # ps4-builds
     - name: Download a diablo ps4 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/diablo-nightly-ps4.pkg
 
     - name: Download a hellfire ps4 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-ps4.pkg
     - run: mv ${{github.workspace}}/devilutionx-ps4.pkg ${{github.workspace}}/hellfire-nightly-ps4.pkg
 
     # ps5-builds
     - name: Download a diablo ps5 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-ps5.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-ps5.zip
 
     - name: Download a hellfire ps5 artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-ps5.zip
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-ps5.zip
 
     # vita-builds
     - name: Download a diablo vita artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-vita.vpk
     - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vita.vpk
 
     - name: Download a hellfire vita artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-vita.vpk
     - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/hellfire-nightly-vita.vpk
 
     # n3ds-builds
     - name: Download a diablo n3ds artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-3ds.3dsx
     - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/diablo-nightly-3ds.3dsx
 
     - name: Download a diablo n3ds artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-3ds.cia
     - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/diablo-nightly-3ds.cia
 
     - name: Download a hellfire n3ds artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-3ds.3dsx
     - run: mv ${{github.workspace}}/devilutionx.3dsx ${{github.workspace}}/hellfire-nightly-3ds.3dsx
 
     - name: Download a hellfire n3ds artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-3ds.cia
     - run: mv ${{github.workspace}}/devilutionx.cia ${{github.workspace}}/hellfire-nightly-3ds.cia
 
     # switch-builds
     - name: Download a diablo switch artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: diablo-nightly-switch.nro
     - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/diablo-nightly-switch.nro
 
     - name: Download a hellfire switch artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: hellfire-nightly-switch.nro
     - run: mv ${{github.workspace}}/devilutionx.nro ${{github.workspace}}/hellfire-nightly-switch.nro
 
-    # amiga-builds
-    - name: Download a diablo amiga artifact
-      uses: actions/download-artifact@v4
+    # xbox-builds
+    - name: Download a diablo xbox artifact
+      uses: actions/download-artifact@v8
       with:
-        name: diablo-nightly-amiga
-    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/diablo-nightly-amiga
+        name: diablo-nightly-xbox.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-xbox.zip
 
-    - name: Download a hellfire amiga artifact
-      uses: actions/download-artifact@v4
+    - name: Download a hellfire xbox artifact
+      uses: actions/download-artifact@v8
       with:
-        name: hellfire-nightly-amiga
-    - run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/hellfire-nightly-amiga
+        name: hellfire-nightly-xbox.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-xbox.zip
+
+    # xboxone-builds
+    - name: Download a diablo xboxone artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: diablo-nightly-xboxone.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/diablo-nightly-xboxone.zip
+
+    - name: Download a hellfire xboxone artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: hellfire-nightly-xboxone.zip
+    - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-xboxone.zip
+
+    # amiga-builds
+    #- name: Download a diablo amiga artifact
+    #  uses: actions/download-artifact@v8
+    #  with:
+    #    name: diablo-nightly-amiga
+    #- run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/diablo-nightly-amiga
+
+    #- name: Download a hellfire amiga artifact
+    #  uses: actions/download-artifact@v8
+    #  with:
+    #    name: hellfire-nightly-amiga
+    #- run: mv ${{github.workspace}}/devilutionx ${{github.workspace}}/hellfire-nightly-amiga
 
     # release notes
     - name: Create release notes
@@ -1457,9 +1658,13 @@ jobs:
         echo '<td align=center><code>Nintendo Switch</code></td>'                                                                          >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-switch.nro">switch.nro</a></td>'           >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
-        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-amiga">amiga</a></td>'                       >> RELEASE_NOTE.md
-        echo '<td align=center><code>Amiga</code></td>'                                                                                    >> RELEASE_NOTE.md
-        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-amiga">amiga</a></td>'                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-xbox.zip">xbox.zip</a></td>'                 >> RELEASE_NOTE.md
+        echo '<td align=center><code>XBOX</code></td>'                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-xbox.zip">xbox.zip</a></td>'               >> RELEASE_NOTE.md
+        echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-xboxone.zip">xboxone.zip</a></td>'           >> RELEASE_NOTE.md
+        echo '<td align=center><code>XBOXONE/SERIES</code></td>'                                                                           >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-xboxone.zip">xboxone.zip</a></td>'         >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-x64.zip">x64.zip</a> <sup><a href="#fn-1" id="user-content-fnref-1" data-footnote-ref="">1</a></sup></td>'   >> RELEASE_NOTE.md
         echo '<td rowspan=5 align=center><code>Windows x64</code></td>'                                                                                                                                    >> RELEASE_NOTE.md
@@ -1520,8 +1725,9 @@ jobs:
       with:
         delete_release: true
         tag_name: devilx-nightly
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+      #env:
+      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Sleep a bit to let GitHub recover from the shock of tag-delete
     #  run: Start-Sleep -s 60
@@ -1531,7 +1737,7 @@ jobs:
       shell: bash
 
     - name: Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: devilx-nightly
         body_path: ${{ github.workspace }}/RELEASE_NOTE.md
@@ -1553,7 +1759,8 @@ jobs:
           ${{github.workspace}}/diablo-nightly-3ds.3dsx
           ${{github.workspace}}/diablo-nightly-3ds.cia
           ${{github.workspace}}/diablo-nightly-switch.nro
-          ${{github.workspace}}/diablo-nightly-amiga
+          ${{github.workspace}}/diablo-nightly-xbox.zip
+          ${{github.workspace}}/diablo-nightly-xboxone.zip
           ${{github.workspace}}/diablo-nightly-x64.zip
           ${{github.workspace}}/diablo-nightly-mingw-x64.zip
           ${{github.workspace}}/diablo-nightly-hd2-x64.zip
@@ -1578,7 +1785,8 @@ jobs:
           ${{github.workspace}}/hellfire-nightly-3ds.3dsx
           ${{github.workspace}}/hellfire-nightly-3ds.cia
           ${{github.workspace}}/hellfire-nightly-switch.nro
-          ${{github.workspace}}/hellfire-nightly-amiga
+          ${{github.workspace}}/hellfire-nightly-xbox.zip
+          ${{github.workspace}}/hellfire-nightly-xboxone.zip
           ${{github.workspace}}/hellfire-nightly-x64.zip
           ${{github.workspace}}/hellfire-nightly-mingw-x64.zip
           ${{github.workspace}}/hellfire-nightly-hd2-x64.zip

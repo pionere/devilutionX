@@ -63,6 +63,8 @@ typedef struct ButtonStruct {
 	char buLabel;
 
 	bool buPressed;
+	int buPressX;
+	int buPressY;
 	SDL_FingerID buFinger[MAX_GAMEPAD_FINGERS];
 } ButtonStruct;
 
@@ -88,29 +90,33 @@ static void init_virtual_gamepad()
 {
 	// load default gamepad
 #if VIRTUAL_GAMEPAD
-	gaButtons[0][0] = { 67,   0, 137, DVL_VK_LEFT,  1, 'L', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */ };
-	gaButtons[0][1] = { 67, 137, 137, DVL_VK_RIGHT, 1, 'R', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[0][2] = { 67,  70,  67, DVL_VK_UP,    1, 'U', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[0][3] = { 67,  70, 207, DVL_VK_DOWN,  1, 'D', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[0][0] = { 67,   0, 137, DVL_VK_LEFT,  1, 'L', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[0][1] = { 67, 137, 137, DVL_VK_RIGHT, 1, 'R', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[0][2] = { 67,  70,  67, DVL_VK_UP,    1, 'U', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[0][3] = { 67,  70, 207, DVL_VK_DOWN,  1, 'D', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
 
-	gaButtons[0][4] = { 67, -67,  67, DVL_VK_RETURN, 10, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[0][5] = { 67, -67, 207, DVL_VK_ESCAPE,  9, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[0][4] = { 67, -67,  67, DVL_VK_RETURN, 10, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[0][5] = { 67, -67, 207, DVL_VK_ESCAPE,  9, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
 
-	gaButtons[1][0] = { 67,   0,  67, DVL_VK_A, 1, 'A', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][1] = { 67,  70,  67, DVL_VK_S, 1, 'S', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][2] = { 67,   0, 137, DVL_VK_D, 1, 'D', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][3] = { 67,  70, 137, DVL_VK_F, 1, 'F', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][0] = { 67,   0, 207, DVL_VK_LSHIFT, 6, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][1] = { 67,   0, 277, DVL_VK_LMENU,  5, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
 
-	gaButtons[1][4] = { 67,-137,  67, DVL_VK_Q, 1, 'Q', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][5] = { 67, -67,  67, DVL_VK_W, 1, 'W', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][6] = { 67,-137, 137, DVL_VK_E, 1, 'E', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][7] = { 67, -67, 137, DVL_VK_R, 1, 'R', false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][2] = { 67, -67, 207, DVL_VK_RSHIFT, 6, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][3] = { 67, -67, 277, DVL_VK_ESCAPE, 9, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
 
-	gaButtons[1][8] = { 67,   0, 207, DVL_VK_LSHIFT, 6, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][9] = { 67,   0, 277, DVL_VK_LMENU,  5, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+	gaButtons[1][4] = { 67,-137,  67, DVL_VK_Q, 1, 'Q', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][5] = { 67, -67,  67, DVL_VK_W, 1, 'W', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][6] = { 67,-137, 137, DVL_VK_E, 1, 'E', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][7] = { 67, -67, 137, DVL_VK_R, 1, 'R', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
 
-	gaButtons[1][10] = { 67, -67, 207, DVL_VK_RSHIFT, 6, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
-	gaButtons[1][11] = { 67, -67, 277, DVL_VK_ESCAPE, 9, 0, false, { 0, 0 }/*false, { NO_TOUCH, NO_TOUCH } */};
+#if 1
+	gaButtons[1][8] = { 133, 2, 135, -DVL_VK_LBUTTON, 11, 0, false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+#else
+	gaButtons[1][8] = { 67,   0,  67, DVL_VK_A, 1, 'A', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][9] = { 67,  70,  67, DVL_VK_S, 1, 'S', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][10] = { 67,   0, 137, DVL_VK_D, 1, 'D', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+	gaButtons[1][11] = { 67,  70, 137, DVL_VK_F, 1, 'F', false, 0, 0, { 0, 0 }/*false, 0, 0,, { NO_TOUCH, NO_TOUCH } */ };
+#endif
 #endif
 	for (int i = 0; i < 2; i++) {
 		// overwrite gamepad from config
@@ -472,7 +478,13 @@ static bool preprocess_gamepad_down(ButtonStruct* btn, SDL_Event* event)
 			}
 			if (numFingersDown == 0) {
 				btn->buPressed = true;
-				SetKeyPressEvent(event, DVL_WM_KEYDOWN, btn->buVkCode);
+				int vkCode = btn->buVkCode;
+				if (vkCode < 0) {
+					vkCode = -vkCode;
+					btn->buPressX = x;
+					btn->buPressY = y;
+				}
+				SetKeyPressEvent(event, DVL_WM_KEYDOWN, vkCode);
 			}
 			return true;
 		}
@@ -503,6 +515,14 @@ static ButtonStruct* preprocess_gamepad_button(ButtonStruct* btn, SDL_Event* eve
 static bool preprocess_gamepad_motion(ButtonStruct* btn, SDL_Event* event)
 {
 	btn = preprocess_gamepad_button(btn, event);
+	if (btn != NULL /*&& btn->buVkCode < 0*/) {
+		// update pressX/Y
+		int x, y;
+		TouchToLogical(event, x, y);
+
+		btn->buPressX = x;
+		btn->buPressY = y;
+	}
 	return btn != NULL;
 }
 
@@ -525,7 +545,11 @@ static bool preprocess_gamepad_up(ButtonStruct* btn, SDL_Event* event)
 		btn->buPressed = numFingersDown != 0;
 
 		if (numFingersDown == 0) {
-			SetKeyPressEvent(event, DVL_WM_KEYUP, btn->buVkCode);
+			int vkCode = btn->buVkCode;
+			if (vkCode < 0) {
+				vkCode = -vkCode;
+			}
+			SetKeyPressEvent(event, DVL_WM_KEYUP, vkCode);
 		}
 
 	}
@@ -612,6 +636,30 @@ static void PreprocessEvents(SDL_Event* event)
 void handle_touch(SDL_Event* event)
 {
 	PreprocessEvents(event);
+}
+
+bool TryActionDirCmd(bool altSkill, RECT_AREA32& vec)
+{
+	int transKey = altSkill ? ACT_ALTACT : ACT_ACT;
+	ButtonStruct* btn = gaButtons[gbRunGame ? 1 : 0];
+	bool result = false;
+	while (true) {
+		if (btn->buSize == 0) {
+			break;
+		}
+		if (btn->buPressed && btn->buVkCode < 0) {
+			extern BYTE WMButtonInputTransTbl[];
+			if (WMButtonInputTransTbl[-btn->buVkCode] == transKey) {
+				vec.x1 = btn->buPressX - (btn->buPosX + btn->buSize / 2);
+				vec.y1 = btn->buPressY - (btn->buPosY - btn->buSize / 2);
+				vec.x2 = btn->buSize / 2;
+				result = true;
+				break;
+			}
+		}
+		btn++;
+	}
+	return result;
 }
 
 void DrawGamepad()
