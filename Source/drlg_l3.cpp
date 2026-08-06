@@ -2364,6 +2364,7 @@ void DRLG_L3InitTransVals()
 
 static void DRLG_L3()
 {
+	int i;
 	bool doneflag;
 
 	do {
@@ -2380,7 +2381,8 @@ static void DRLG_L3()
 				} while (!doneflag);
 				DRLG_L3FillSingles();
 				// DRLG_L3Edges(); - Commented out because it is no longer necessary
-			} while (DRLG_L3GetArea() < 600 || !DRLG_L3Lockout());
+				i = DRLG_L3GetArea();
+			} while (i < 700 || i > 900 || !DRLG_L3Lockout());
 			DRLG_L3MakeMegas();
 			memset(drlgFlags, 0, sizeof(drlgFlags));
 			if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
@@ -2549,7 +2551,7 @@ static void DRLG_L3()
 		// assert(currLvl._dType == DTYPE_CAVES);
 		FixL3HallofHeroes();
 		DRLG_L3River();
-		DRLG_PlaceThemeRooms(5, 10, themeTiles, 0);
+		DRLG_PlaceThemeRooms(5, MAXTHEMESIZE, themeTiles, 0);
 
 		DRLG_L3Wood();
 		//DRLG_L3PlaceRndSet(L3LTITE1, 20); - commented out because of a graphical glitch

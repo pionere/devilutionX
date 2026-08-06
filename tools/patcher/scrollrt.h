@@ -12,6 +12,18 @@ DEVILUTION_BEGIN_NAMESPACE
 extern "C" {
 #endif
 
+/**
+ * @brief Shifting the view area along the logical grid
+ *        Note: this won't allow you to shift between even and odd rows
+ * @param horizontal Shift the screen left or right
+ * @param vertical Shift the screen up or down
+ */
+#define SHIFT_GRID(x, y, horizontal, vertical) \
+	{                                          \
+		x += (vertical) + (horizontal);        \
+		y += (vertical) - (horizontal);        \
+	}
+
 void ClearCursor();
 #if DEBUG_MODE
 void ScrollView();

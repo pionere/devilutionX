@@ -13,16 +13,12 @@ extern "C" {
 #endif
 
 #ifdef HELLFIRE
-int AddFireRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
-int AddLightRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
-int AddNovaRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
-int AddWaveRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
-int AddStoneRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
+int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 //int AddLightwall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
-int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 //int AddFireball2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 #endif
+int AddRingC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddDone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
@@ -79,6 +75,8 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 int AddManashield(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddInfra(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
+int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
+int AddCallToArms(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 void MI_Dummy(int mi);
 void MI_Arrow(int mi);
 void MI_AsArrow(int mi);
@@ -127,6 +125,7 @@ void MI_InfernoC(int mi);
 //void MI_FireTrap(int mi);
 void MI_Cbolt(int mi);
 void MI_Elemental(int mi);
+void MI_Pulse(int mi);
 
 #ifdef __cplusplus
 }

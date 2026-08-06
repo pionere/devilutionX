@@ -43,7 +43,6 @@ void UseBeltItem(bool manaItem);
 // Open chests, doors, pickup items.
 void PerformSecondaryAction();
 void PerformSpellAction();
-void StoreSpellCoords();
 
 #ifdef __cplusplus
 }

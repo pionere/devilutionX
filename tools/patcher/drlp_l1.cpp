@@ -258,7 +258,7 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 /* 13 */{ 152 - 1, 5, MET_TRANSPARENT }, // blocks subsequent calls
 
 /* 14 */{ 23 - 1, 0, -1 },
-/* 15 */{ 270 - 1, 0, MET_TRANSPARENT },
+/* 15 */{ /*270*/ - 1, 0, -1/*MET_TRANSPARENT*/ },
 
 /* 16 */{ 407 - 1, 0, MET_TRANSPARENT }, // mask door
 
@@ -288,9 +288,9 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	const unsigned blockSize = BLOCK_SIZE_L1;
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
-		// if (micro.subtileIndex < 0) {
-		// 	continue;
-		// }
+		if (micro.subtileIndex < 0) {
+			continue;
+		}
 		unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 		if ((SwapLE16(pSubtiles[index]) & 0xFFF) == 0) {
 			return celBuf; // frame is empty -> assume it is already done
@@ -307,10 +307,10 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 	unsigned xx = 0, yy = MICRO_HEIGHT - 1;
 	for (int i = 0; i < lengthof(micros); i++) {
 		const CelMicro &micro = micros[i];
-		// if (micro.subtileIndex >= 0) {
+		if (micro.subtileIndex >= 0) {
 			unsigned index = MICRO_IDX(micro.subtileIndex, blockSize, micro.microIndex);
 			RenderMicro(&gpBuffer[xx + yy * BUFFER_WIDTH], SwapLE16(pSubtiles[index]), DMT_NONE);
-		// }
+		}
 		yy += MICRO_HEIGHT;
 		if (yy == (DRAW_HEIGHT + 1) * MICRO_HEIGHT - 1) {
 			yy = MICRO_HEIGHT - 1;
@@ -395,6 +395,7 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 			}
 		}
 	}
+#if 0
 	// remove shadow from 270[0] using 23[0]
 	for (int i = 15; i < 16; i++) {
 		for (int x = 22; x < 29; x++) {
@@ -408,6 +409,7 @@ static BYTE* patchCathedralFloorCel(const BYTE* minBuf, size_t minLen, BYTE* cel
 			}
 		}
 	}
+#endif
 	// mask 407[0]
 	for (int i = 16; i < 17; i++) {
 		for (int x = 0; x < MICRO_WIDTH; x++) {
@@ -1905,7 +1907,15 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	// ReplaceMcr(400, 6, 1, 6);
 	// ReplaceMcr(406, 6, 1, 6);
 	// ReplaceMcr(410, 6, 1, 6);
-
+#if 0
+	// let L1Braz to draw the pole
+	Blk2Mcr(270, 2);
+	Blk2Mcr(270, 4);
+	Blk2Mcr(270, 3);
+	Blk2Mcr(270, 5);
+	ReplaceMcr(270, 0, 23, 0);
+	ReplaceMcr(270, 1, 23, 1);
+#endif
 	// eliminate micros of unused subtiles
 	// Blk2Mcr(39, 311 ...),
 	Blk2Mcr(15, 0);
@@ -2261,7 +2271,7 @@ void DRLP_L1_PatchMin(BYTE* buf)
 	Blk2Mcr(449, 5);
 	Blk2Mcr(449, 7);
 	const int unusedSubtiles[] = {
-		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 212, 220, 250, 253, 267, 268, 273, 275, 276, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
+		18, 19, 71, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 113, 117, 119, 120, 121, 122, 125, 200, 212, 220, 250, 253, 267, 268, 270, 273, 275, 276, 278, 280, 281, 282, 303, 305, 316, 318, 329, 331, 341, 405, 430, 432, 435, 436, 440
 	};
 	for (int n = 0; n < lengthof(unusedSubtiles); n++) {
 		for (int i = 0; i < blockSize; i++) {
@@ -2309,7 +2319,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	// pTiles[(130 - 1) * 4 + 0] = SwapLE16(23 - 1); // 275
 	pTiles[(133 - 1) * 4 + 0] = SwapLE16(23 - 1); // 282
 	pTiles[(137 - 1) * 4 + 0] = SwapLE16(23 - 1); // 293
-	pTiles[(128 - 1) * 4 + 1] = SwapLE16(2 - 1);  // 271
+	// pTiles[(128 - 1) * 4 + 1] = SwapLE16(2 - 1);  // 271
 	pTiles[(134 - 1) * 4 + 1] = SwapLE16(2 - 1);  // 285
 	pTiles[(136 - 1) * 4 + 1] = SwapLE16(2 - 1);  // 290
 	// pTiles[(42 - 1) * 4 + 2] = SwapLE16(12 - 1);
@@ -2318,7 +2328,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(59 - 1) * 4 + 2] = SwapLE16(7 - 1);   // 116
 	pTiles[(60 - 1) * 4 + 2] = SwapLE16(7 - 1);   // 120
 	pTiles[(62 - 1) * 4 + 2] = SwapLE16(7 - 1);   // 125
-	pTiles[(128 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 272
+	// pTiles[(128 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 272
 	// pTiles[(129 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 273
 	pTiles[(136 - 1) * 4 + 2] = SwapLE16(7 - 1);  // 291
 	pTiles[(58 - 1) * 4 + 3] = SwapLE16(4 - 1);   // 113
@@ -2511,7 +2521,7 @@ void DRLP_L1_PatchTil(BYTE* buf)
 	pTiles[(46 - 1) * 4 + 3] = SwapLE16(302 - 1);
 	// eliminate subtiles of unused tiles
 	const int unusedTiles[] = {
-		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/*43, 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 119, 120, 129, 130, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
+		30, 31, 34,/* 38,*/ 39, 40, 41, 42,/*43, 44,*/ 45, 79, 82, 86, 87, 88, 89, 90, 91, 92, 93, 95, 96, 119, 120, 128, 129, 130, 177, 178, 179, 180, 181, 182, 183, 184, 185, 187, 188, 189, 190, 191, 192, 195, 197, 198, 199, 200, 201, 202, 203, 204, 205
 	};
 	constexpr int blankSubtile = 74;
 	for (int n = 0; n < lengthof(unusedTiles); n++) {

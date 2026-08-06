@@ -16,9 +16,7 @@ char *IOSGetPrefPath()
 		str = [str stringByAppendingString:@"/"];
 		base = [str fileSystemRepresentation];
 	}
-	char *copy = malloc(strlen(base) + 1);
-	strcpy(copy, base);
-	return copy;
+	return strdup(base);
 }
 
 #ifdef __cplusplus

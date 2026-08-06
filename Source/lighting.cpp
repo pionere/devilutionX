@@ -832,9 +832,9 @@ void InitLighting()
 	//double fs, fa;
 
 	LoadFileWithMem("Levels\\TownData\\Town.TRS", ColorTrns[0]);
-	LoadFileWithMem("PlrGFX\\Infra.TRN", ColorTrns[COLOR_TRN_RED]);
-	LoadFileWithMem("PlrGFX\\Stone.TRN", ColorTrns[COLOR_TRN_GRAY]);
-	LoadFileWithMem("PlrGFX\\Coral.TRN", ColorTrns[COLOR_TRN_CORAL]);
+	LoadTrnWithMem(TRN_PLR_INFRA, ColorTrns[COLOR_TRN_RED]);
+	LoadTrnWithMem(TRN_PLR_STONE, ColorTrns[COLOR_TRN_GRAY]);
+	LoadTrnWithMem(TRN_PLR_CORAL, ColorTrns[COLOR_TRN_CORAL]);
 
 	/*tbl = ColorTrns[COLOR_TRN_CORAL];
 	for (i = 0; i < 8; i++) {

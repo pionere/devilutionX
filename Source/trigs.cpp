@@ -157,37 +157,29 @@ void InitView(int entry)
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		if (entry == ENTRY_MAIN) {
 			// New game
-			ViewX = 65 + DBORDERX;
-			ViewY = 58 + DBORDERY;
+			myview = { 65 + DBORDERX, 58 + DBORDERY };
 		//} else if (entry == ENTRY_PREV) { // Cathedral
-		//	ViewX = 15 + DBORDERX;
-		//	ViewY = 21 + DBORDERY;
+		//	myview = { 15 + DBORDERX, 21 + DBORDERY };
 		} else if (entry == ENTRY_TWARPUP) {
 			switch (gbTWarpFrom) {
 			case TWARP_CATHEDRAL:
-				ViewX = 15 + DBORDERX;
-				ViewY = 21 + DBORDERY;
+				myview = { 15 + DBORDERX, 21 + DBORDERY };
 				break;
 			case TWARP_CATACOMB:
-				ViewX = 39 + DBORDERX;
-				ViewY = 12 + DBORDERY;
+				myview = { 39 + DBORDERX, 12 + DBORDERY };
 				break;
 			case TWARP_CAVES:
-				ViewX = 8 + DBORDERX;
-				ViewY = 59 + DBORDERY;
+				myview = { 8 + DBORDERX, 59 + DBORDERY };
 				break;
 			case TWARP_HELL:
-				ViewX = 30 + DBORDERX;
-				ViewY = 70 + DBORDERY;
+				myview = { 30 + DBORDERX, 70 + DBORDERY };
 				break;
 #ifdef HELLFIRE
 			case TWARP_CRYPT:
-				ViewX = 26 + DBORDERX;
-				ViewY = 15 + DBORDERY;
+				myview = { 26 + DBORDERX, 15 + DBORDERY };
 				break;
 			case TWARP_NEST:
-				ViewX = 69 + DBORDERX;
-				ViewY = 52 + DBORDERY;
+				myview = { 69 + DBORDERX, 52 + DBORDERY };
 				break;
 #endif
 			default:
@@ -196,8 +188,7 @@ void InitView(int entry)
 			}
 		} else if (entry == ENTRY_RETOWN) {
 			// Restart in Town
-			ViewX = 63 + DBORDERX;
-			ViewY = 70 + DBORDERY;
+			myview = { 63 + DBORDERX, 70 + DBORDERY };
 		}
 		return;
 	}
@@ -219,11 +210,11 @@ void InitView(int entry)
 			// return from the betrayer side-map - TODO: better solution?
 			assert(currLvl._dLevelIdx == DLV_HELL3);
 			type = DWARP_EXIT;
-			ViewX = pWarps[type]._wx;
-			ViewY = pWarps[type]._wy;
+			myview.x = pWarps[type]._wx;
+			myview.y = pWarps[type]._wy;
 			assert(pWarps[type]._wtype == WRPT_L4_PENTA);
-			ViewX += -2;
-			ViewY += -2;
+			myview.x += -2;
+			myview.y += -2;
 			return;
 		}
 		break;
@@ -240,55 +231,59 @@ void InitView(int entry)
 		return;
 	}
 
-	ViewX = pWarps[type]._wx;
-	ViewY = pWarps[type]._wy;
-	type = pWarps[type]._wtype;
-	switch (type) {
+	myview = TrigEntryPos(type);
+}
+
+POS32 TrigEntryPos(int idx)
+{
+	WarpStruct &wp = pWarps[idx];
+	POS32 pos = { wp._wx, wp._wy };
+	switch (wp._wtype) {
 	case WRPT_NONE:
 		break; // should not happen
 	case WRPT_L1_UP:
-		ViewX += 1;
-		ViewY += 2;
+		pos.x += 1;
+		pos.y += 2;
 		break;
 	case WRPT_L1_DOWN:
-		ViewX += 0;
-		ViewY += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L1_SKING:
-		ViewX += 1;
-		ViewY += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L1_PWATER:
-		ViewX += 0;
-		ViewY += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L2_UP:
-		ViewX += 1;
-		ViewY += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L2_DOWN:
-		ViewX += -1;
-		ViewY += 0;
+		pos.x += -1;
+		pos.y += 0;
 		break;
 	case WRPT_L3_UP:
-		ViewX += 0;
-		ViewY += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L3_DOWN:
-		ViewX += 1;
-		ViewY += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L4_UP:
-		ViewX += 0;
-		ViewY += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_L4_DOWN:
-		ViewX += 1;
-		ViewY += 0;
+		pos.x += 1;
+		pos.y += 0;
 		break;
 	case WRPT_L4_PENTA:
-		ViewX += 0;
-		ViewY += 1;
+		pos.x += 0;
+		pos.y += 1;
 		break;
 	case WRPT_CIRCLE:
 		break;
@@ -296,6 +291,7 @@ void InitView(int entry)
 		ASSUME_UNREACHABLE
 		break;
 	}
+	return pos;
 }
 
 static int ForceTrig()
@@ -534,6 +530,18 @@ void CheckTriggers()
 		NetSendCmdNewLvl(fom, lvl);
 		numtrigs = 0; // prevent triggering again
 	}
+}
+
+bool PosOkTrig(int x, int y)
+{
+	int i;
+
+	for (i = numtrigs - 1; i >= 0; i--) {
+		if (x == trigs[i]._tx && y == trigs[i]._ty)
+			return false;
+	}
+	return true;
+
 }
 
 DEVILUTION_END_NAMESPACE

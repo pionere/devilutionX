@@ -45,7 +45,7 @@ SDL_CreateRGBSurfaceWithFormatFrom(void* pixels,
 }
 #endif
 
-#if !SDL_VERSION_ATLEAST(2, 0, 10)
+#if !SDL_VERSION_ATLEAST(2, 0, 10) && !defined(NXDK)
 typedef enum
 {
 	SDL_TOUCH_DEVICE_INVALID = -1,

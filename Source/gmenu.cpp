@@ -6,10 +6,8 @@
 #include "all.h"
 #include "engine/render/cel_render.h"
 #include "engine/render/text_render.h"
-
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-#include "controls/axis_direction.h"
-#include "controls/controller_motion.h"
+#include "plrctrls.h"
 #endif
 
 DEVILUTION_BEGIN_NAMESPACE
@@ -50,24 +48,18 @@ void InitGMenu()
 
 static void gmenu_up_down(bool isDown)
 {
-	int i, n;
+	int n, dn;
 
 	assert(gmenu_is_active());
 
 	_gbMouseNavigation = false;
 	n = guCurrItemIdx;
-	for (i = 0; i < guCurrentMenuSize; i++) {
-		if (isDown) {
-			if (++n >= guCurrentMenuSize)
-				n = 0;
-		} else {
-			if (--n < 0)
-				n = guCurrentMenuSize - 1;
-		}
-		if (gpCurrentMenu[n].dwFlags & GMF_ENABLED)
-			break;
-	}
-	if (n != guCurrItemIdx) {
+	dn = isDown ? 1 : guCurrentMenuSize - 1;
+	do {
+		n += dn;
+		n %= guCurrentMenuSize;
+	} while (!(gpCurrentMenu[n].dwFlags & GMF_ENABLED));
+	/*if (n != guCurrItemIdx) */{
 		guCurrItemIdx = n;
 		PlaySfx(IS_TITLEMOV);
 	}
@@ -110,10 +102,6 @@ static void gmenu_left_right(bool isRight)
 
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)())
 {
-	// pause game if not in the main menu
-	if (gbRunGame) {
-		diablo_pause_game(pItem != NULL);
-	}
 	_gbMouseNavigation = false;
 	gpCurrentMenu = pItem;
 	guCurrentMenuSize = nItems;
@@ -193,18 +181,6 @@ static void gmenu_draw_menu_item(int i, int y)
 		CelDraw(x + pos, y - 10 - SLIDER_BORDER, gpOptionCel, 1);
 	}
 }
-
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-void CheckMenuMove()
-{
-	// assert(gmenu_is_active());
-	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
-	if (move_dir.x != AxisDirectionX_NONE)
-		gmenu_left_right(move_dir.x == AxisDirectionX_RIGHT);
-	if (move_dir.y != AxisDirectionY_NONE)
-		gmenu_up_down(move_dir.y == AxisDirectionY_DOWN);
-}
-#endif
 
 void gmenu_update()
 {

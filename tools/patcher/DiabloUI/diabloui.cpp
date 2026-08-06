@@ -285,10 +285,12 @@ static void UiSetText(const char* inBuf)
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static void HandleMenuMove()
 {
-	const AxisDirection move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
-	if (move_dir.y == AxisDirectionY_UP) {
+	const int move_dir = axisDirRepeater.Get(GetLeftStickOrDpadDirection(true));
+	if (move_dir == DIR_NONE) return;
+	if (move_dir == DIR_W || move_dir == DIR_E) return;
+	if (move_dir > DIR_W && move_dir < DIR_E) {
 		UiFocusUp();
-	} else if (move_dir.y == AxisDirectionY_DOWN) {
+	} else {
 		UiFocusDown();
 	}
 }

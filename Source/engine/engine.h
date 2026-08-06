@@ -2,8 +2,6 @@
  * @file engine.h
  *
  *  of basic engine helper functions:
- * - Sprite blitting
- * - Drawing
  * - Angle calculation
  * - RNG
  * - Memory allocation
@@ -13,91 +11,7 @@
 #ifndef __ENGINE_H__
 #define __ENGINE_H__
 
-//#include "appfat.h"
-
 DEVILUTION_BEGIN_NAMESPACE
-
-#define CEL_BLOCK_HEIGHT      32
-
-inline const BYTE* CelGetFrameStart(const BYTE* pCelBuff, int nCel)
-{
-	const uint32_t* pFrameTable;
-
-	pFrameTable = (const uint32_t*)pCelBuff;
-
-	return &pCelBuff[SwapLE32(pFrameTable[nCel])];
-}
-
-inline const BYTE* CelGetFrame(const BYTE* pCelBuff, int nCel, int* nDataSize)
-{
-	const uint32_t* pFrameTable;
-	uint32_t nCellStart;
-
-	pFrameTable = (const uint32_t*)&pCelBuff[nCel * 4];
-	nCellStart = SwapLE32(pFrameTable[0]);
-	*nDataSize = SwapLE32(pFrameTable[1]) - nCellStart;
-	return &pCelBuff[nCellStart];
-}
-
-inline const BYTE* CelGetFrameClipped(const BYTE* pCelBuff, int nCel, int* nDataSize, int* sy)
-{
-	int dy, startblock, endblock, headerSize;
-	uint16_t nDataStart, nDataEnd;
-	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
-	// check if it is too high on the screen
-	dy = *sy - SCREEN_Y;
-	if (dy < 0) {
-		*nDataSize = 0;
-		return pRLEBytes;
-	}
-	// limit blocks to the top of the screen
-	endblock = ((unsigned)dy / CEL_BLOCK_HEIGHT + 1) * 2;
-	// limit blocks to the bottom of the screen
-	startblock = 0;
-	dy = dy - (SCREEN_HEIGHT + CEL_BLOCK_HEIGHT);
-	if (dy >= 0) {
-		startblock = ((unsigned)dy / CEL_BLOCK_HEIGHT + 1) * 2;
-		*sy -= startblock * (CEL_BLOCK_HEIGHT / 2);
-	}
-	
-	// check if it is too down on the screen
-	headerSize = SwapLE16(*(const uint16_t*)(&pRLEBytes[0]));
-	if (startblock >= headerSize) {
-		*nDataSize = 0;
-		return pRLEBytes;
-	}
-
-	nDataStart = SwapLE16(*(const uint16_t*)(&pRLEBytes[startblock]));
-	if (endblock >= headerSize) {
-		nDataEnd = 0;
-	} else {
-		nDataEnd = SwapLE16(*(const uint16_t*)(&pRLEBytes[endblock]));
-	}
-
-	if (nDataEnd != 0) {
-		*nDataSize = nDataEnd - nDataStart;
-	} else if (nDataStart != 0) {
-		*nDataSize -= nDataStart;
-	} else {
-		*nDataSize = 0;
-	}
-
-	return &pRLEBytes[nDataStart];
-}
-
-inline const BYTE* CelGetFrameClippedAt(const BYTE* pCelBuff, int nCel, int block, int* nDataSize)
-{
-	const uint16_t* pFrameTable;
-	uint16_t nDataStart;
-	const BYTE* pRLEBytes = CelGetFrame(pCelBuff, nCel, nDataSize);
-
-	pFrameTable = (const uint16_t*)&pRLEBytes[0];
-	nDataStart = SwapLE16(pFrameTable[block]);
-	// assert(nDataStart != 0);
-	*nDataSize -= nDataStart;
-
-	return &pRLEBytes[nDataStart];
-}
 
 /* Calculate direction (DIR_) from (x1;y1) to (x2;y2) */
 int GetDirection(int x1, int y1, int x2, int y2);
@@ -111,12 +25,27 @@ int32_t NextRndSeed();
 int random_(BYTE idx, int v);
 /* Retrieve the next pseudo-random number in the range of 0 <= x < v, where v is a positive integer and less than or equal to 0x7FFF. */
 int random_low(BYTE idx, int v);
+/**
+ * @brief Multithreaded safe malloc
+ * @param dwBytes Byte size to allocate
+ */
 BYTE* DiabloAllocPtr(size_t dwBytes);
+/**
+ * @brief Multithreaded safe memfree
+ * @param p Memory pointer to free
+ */
 void mem_free_dbg(void* p);
 #define MemFreeDbg(p)       \
 	{                       \
 		void* p__p;         \
 		p__p = p;           \
+		p = NULL;           \
+		mem_free_dbg(p__p); \
+	}
+#define MemFreeConst(p)     \
+	{                       \
+		void* p__p;         \
+		p__p = (void*)p;    \
 		p = NULL;           \
 		mem_free_dbg(p__p); \
 	}
@@ -128,24 +57,33 @@ void mem_free_dbg(void* p);
 		mem_free_dbg(p__p[0]); \
 		mem_free_dbg(p__p);    \
 	}
-BYTE* LoadFileInMem(const char* pszName, size_t* pdwFileLen = NULL);
-void LoadFileWithMem(const char* pszName, BYTE* p);
+/**
+ * @brief Load an asset in to a buffer
+ * @param name path/name of the asset
+ * @param pdwFileLen Will be set to the size of the asset if non-NULL
+ * @return Buffer with content of the asset
+ */
+BYTE* LoadFileInMem(const char* name, size_t* pdwFileLen = NULL);
+/**
+ * @brief Load an asset in to the given buffer
+ * @param name path/name of the asset
+ * @param p Target buffer
+ */
+void LoadFileWithMem(const char* name, BYTE* p);
+/**
+ * @brief Load a translation (trn) asset in to the given buffer
+ * @param id _trn_id of the asset
+ * @param p Target buffer
+ * @return whether trn was loaded
+ */
+bool LoadTrnWithMem(BYTE id, BYTE* p);
+/*
+ * @brief Load a text-asset with line-breaks
+ * @param name path/name of the asset
+ * @param lines number of lines in the text-asset
+ * @return address of the content in memory
+ */
 char** LoadTxtFile(const char* name, int lines);
-
-/* Load .CEL file and overwrite the first (unused) uint32_t with nWidth */
-inline CelImageBuf* CelLoadImage(const char* name, uint32_t nWidth)
-{
-	CelImageBuf* res;
-
-	res = (CelImageBuf*)LoadFileInMem(name);
-#if DEBUG_MODE
-	res->ciFrameCnt = SwapLE32(*((uint32_t*)res));
-#endif
-	res->ciWidth = nWidth;
-	return res;
-}
-
-BYTE* CelMerge(BYTE* celA, size_t nDataSizeA, BYTE* celB, size_t nDataSizeB);
 
 void PlayInGameMovie(const char* pszMovie);
 /* Retrieve the next pseudo-random number in the range of minVal <= x <= maxVal, where (maxVal - minVal) is a non-negative (32bit) integer. The result is minVal if (maxVal - minVal) is negative. */
@@ -252,29 +190,10 @@ inline constexpr int lengthof(T (&array)[N])
 typedef struct CCritSect {
 	SDL_mutex* m_critsect;
 
-	CCritSect()
-	{
-		m_critsect = SDL_CreateMutex();
-		if (m_critsect == NULL) {
-			sdl_error(ERR_SDL_MUTEX_CREATE);
-		}
-	}
-	~CCritSect()
-	{
-		SDL_DestroyMutex(m_critsect);
-	}
-	void Enter()
-	{
-		if (SDL_LockMutex(m_critsect) < 0) {
-			sdl_error(ERR_SDL_MUTEX_LOCK);
-		}
-	}
-	void Leave()
-	{
-		if (SDL_UnlockMutex(m_critsect) < 0) {
-			sdl_error(ERR_SDL_MUTEX_UNLOCK);
-		}
-	}
+	CCritSect();
+	~CCritSect();
+	void Enter();
+	void Leave();
 } CCritSect;
 
 DEVILUTION_END_NAMESPACE

@@ -159,10 +159,11 @@ You can launch WSL anytime by typing wsl or ubuntu in a Command Prompt or Powers
 In a WSL terminal run these commands to get the source code for DevilutionX
 
 ```
-sudo apt install git
+sudo apt-get install git
 git clone https://github.com/pionere/devilutionx
 cd devilutionx
 ```
+
 </details>
 
 ### Installing dependencies on WSL, Debian and Ubuntu
@@ -305,6 +306,22 @@ Click "Open Existing Project" and choose "android-project" folder in DevilutionX
 Wait until Gradle sync is completed.
 In Android Studio, go to "Build -> Make Project" or use the shortcut Ctrl+F9
 You can find the compiled APK in `/android-project/app/build/outputs/apk/`
+</details>
+
+<details><summary>Android Termux</summary>
+
+### Installing dependencies on Debian and Ubuntu
+
+```
+pkg i which getconf cmake gettext libsodium sdl2 sdl2-image zlib bzip2 fmt
+```
+
+### Compiling
+
+```bash
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j $(nproc)
+```
 </details>
 
 <details><summary>Nintendo Switch</summary>
@@ -587,6 +604,34 @@ cmake --build build -j $(getconf _NPROCESSORS_ONLN)
 </details>
 
 </blockquote></details>
+
+<details><summary>Xbox One/Series</summary>
+
+### Dependencies
+
+* Windows 10+
+* CMake
+* Git
+* Visual Studio 2026 with the foloowing packages installed:
+    * C++ (v145) Universal Windows Platform tools
+    * Windows 11 SDK (10.0.26100.0)
+    * MSVC v145 - VS 2026 C++ x64/x86 build tools
+
+_Note: Visual Studio Community Edition can be used._
+
+### Building
+
+Add the following to the PATH:
+* CMake
+* GIT
+
+Run:
+```
+Packaging/xbox-one/build.bat
+```
+
+[Xbox One/Series manual](/docs/manual/platforms/xbox-one.md)
+</details>
 
 <details><summary><b>CMake build options</b></summary>
 
