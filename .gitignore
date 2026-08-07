@@ -17,6 +17,10 @@ comparer-config.toml
 
 #ignore cmake cache
 /build-*/
+
+# Work directories of Packaging/windows/mingw9x-prep.sh and mingwxp-prep.sh
+/tmp-mingw9x-prep/
+/tmp-mingwxp-prep/
 .vscode/tasks.json
 
 *.appimage

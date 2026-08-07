@@ -38,7 +38,7 @@ int gbRedrawFlags;
 Uint32 gnGamePaused;
 /** Specifies the 'dead' state of the local player (MYPLR_DEATH_MODE). */
 BYTE gbDeathflag = MDM_ALIVE;
-/** The state of the buttons for which might be repeated while held down. */
+/** The state of the buttons which might be repeated while held down. */
 unsigned gbActionBtnDown;
 /** The state of the mod-buttons. */
 unsigned gbModBtnDown;
@@ -288,47 +288,6 @@ void FreeLevelMem()
 	FreeTownerGFX();
 }
 
-static void ValidateSkill(PlrSkillUse* skill)
-{
-	int8_t result = SPLFROM_INVALID_TYPE;
-	int sn = skill->_suSkill;
-	if (sn == SPL_NULL) {
-		return;
-	}
-	if ((spelldata[sn].sUseFlags & myplr._pSkillFlags) == spelldata[sn].sUseFlags) {
-		switch (skill->_suType) {
-		case RSPLTYPE_ABILITY:
-			// assert(spelldata[sn].sManaCost == 0);
-			result = SPLFROM_ABILITY;
-			break;
-		case RSPLTYPE_SPELL:
-			if (myplr._pMana < GetManaAmount(mypnum, sn))
-				result = SPLFROM_INVALID_MANA;
-			else if (myplr._pSkillLvl[sn] > 0)
-				result = SPLFROM_MANA;
-			else
-				result = SPLFROM_INVALID_LEVEL;
-			break;
-		case RSPLTYPE_INV:
-			result = SpellSourceInv(sn);
-			break;
-		case RSPLTYPE_CHARGES:
-			result = SpellSourceEquipment(sn);
-			break;
-		case RSPLTYPE_INVALID:
-			result = SPLFROM_INVALID_TYPE;
-			break;
-		default:
-			result = SPLFROM_ABILITY;
-			ASSUME_UNREACHABLE
-			break;
-		}
-	}
-	if (SPLFROM_INVALID(result)) {
-		skill->_suSkill = SPL_NULL;
-	}
-	skill->_suType = (BYTE)result;
-}
 #if HAS_TOUCHPAD
 static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionVector)
 {
@@ -362,7 +321,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 			NetSendCmdBParam1(CMD_BLOCK, dir8);
 			return;
 		}
-		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
 		const CmdSkillUse skillUse = *((CmdSkillUse*)&skill._psAttack);
 		if (spelldata[skill._psAttack._suSkill].spCurs != CURSOR_NONE) {
@@ -376,9 +335,9 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 			return;
 		}
 	} else if (skill._psMove._suSkill == SPL_NULL) {
-		if ((int8_t)skill._psAttack._suType == SPLFROM_INVALID_MANA || (int8_t)skill._psMove._suType == SPLFROM_INVALID_MANA) {
+		if (skill._psAttack._suFrom == SPLFROM_INVALID_MANA || skill._psMove._suFrom == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
-		} else /*if ((int8_t)skill._psAttack._suType == RSPLTYPE_INVALID && (int8_t)skill._psMove._suType == RSPLTYPE_INVALID)*/ {
+		} else /*if (skill._psAttack._suFrom == SPLFROM_INVALID_TYPE && skill._psMove._suFrom == SPLFROM_INVALID_TYPE)*/ {
 			NetSendCmdBParam1(CMD_TURN, dir8);
 		}
 		return;
@@ -389,7 +348,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 
 	if (skill._psMove._suSkill != SPL_WALK) {
 		// TODO: check if tpos.x/y == _pfutx/y ?
-		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(tpos.x, tpos.y, *((CmdSkillUse*)&skill._psMove));
 		return;
@@ -455,9 +414,9 @@ static void ActionBtnCmd(bool altSkill)
 	if (bShift)
 		skill._psMove._suSkill = SPL_NULL;
 	else
-		ValidateSkill(&skill._psMove);
+		SpellCheck(&skill._psMove);
 
-	ValidateSkill(&skill._psAttack);
+	SpellCheck(&skill._psAttack);
 #if HAS_TOUCHPAD
 	{
 		RECT_AREA32 actionVector;
@@ -473,7 +432,7 @@ static void ActionBtnCmd(bool altSkill)
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
-		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse I.");
 		const CmdSkillUse skillUse = *((CmdSkillUse*)&skill._psAttack);
 		if (spelldata[skill._psAttack._suSkill].spCurs != CURSOR_NONE) {
@@ -503,9 +462,9 @@ static void ActionBtnCmd(bool altSkill)
 			return;
 		}
 	} else if (skill._psMove._suSkill == SPL_NULL) {
-		if ((int8_t)skill._psAttack._suType == SPLFROM_INVALID_MANA || (int8_t)skill._psMove._suType == SPLFROM_INVALID_MANA) {
+		if (skill._psAttack._suFrom == SPLFROM_INVALID_MANA || skill._psMove._suFrom == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
-		} else /*if ((int8_t)skill._psAttack._suType == 0 && (int8_t)skill._psMove._suType == RSPLTYPE_INVALID)*/ {
+		} else /*if (skill._psAttack._suFrom == SPLFROM_INVALID_TYPE && skill._psMove._suFrom == SPLFROM_INVALID_TYPE)*/ {
 			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}
@@ -540,7 +499,7 @@ static void ActionBtnCmd(bool altSkill)
 	}
 	if (skill._psMove._suSkill != SPL_WALK) {
 		// TODO: check if pcurspos.x/y == _pfutx/y ?
-		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suType) &&
+		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, *((CmdSkillUse*)&skill._psMove));
 		return;
@@ -682,7 +641,7 @@ static void ActionBtnDown(bool altAction)
 
 void diablo_pause_game(bool pause)
 {
-	if (!IsMultiGame && pause != (gnGamePaused != 0)) {
+	if (!IsMultiGame && gbRunGame && pause != (gnGamePaused != 0)) {
 		Uint32 now = SDL_GetTicks();
 		if (pause) {
 			if (now == 0)
@@ -951,7 +910,8 @@ void InputBtnDown(int transKey)
 	case ACT_ITEM5:
 	case ACT_ITEM6:
 	case ACT_ITEM7:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
+		if (stextflag == STORE_NONE && pcursicon < CURSOR_FIRSTITEM) {
+			NewCursor(CURSOR_HAND); // reset previous cursor
 			static_assert(ACT_ITEM0 + 1 == ACT_ITEM1, "InputBtnDown expects a continuous assignment of ACT_ITEMx 1.");
 			static_assert(ACT_ITEM1 + 1 == ACT_ITEM2, "InputBtnDown expects a continuous assignment of ACT_ITEMx 2.");
 			static_assert(ACT_ITEM2 + 1 == ACT_ITEM3, "InputBtnDown expects a continuous assignment of ACT_ITEMx 3.");
@@ -1065,14 +1025,10 @@ void InputBtnDown(int transKey)
 		PerformSpellAction();
 		break;
 	case ACT_CTRL_USE_HP:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			UseBeltItem(false);
-		}
+		UseBeltItem(false);
 		break;
 	case ACT_CTRL_USE_MP:
-		if (stextflag == STORE_NONE && pcursicon == CURSOR_HAND) {
-			UseBeltItem(true);
-		}
+		UseBeltItem(true);
 		break;
 #endif
 	default:

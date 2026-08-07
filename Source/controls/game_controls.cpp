@@ -297,7 +297,7 @@ bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action)
 	return false;
 }
 
-AxisDirection GetMoveDirection()
+int GetMoveDirection()
 {
 	return GetLeftStickOrDpadDirection(/*allow_dpad=*/!dpad_hotkeys);
 }

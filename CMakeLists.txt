@@ -150,7 +150,13 @@ if(PS5)
 endif()
 
 if(ANDROID)
-  include(android_defs)
+  if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Android")
+    # Natively compiling on Android, e.g. Termux.
+    include(android_termux_defs)
+  else()
+    # Cross-compiling for Android.
+    include(android_defs)
+  endif()
 endif()
 
 if(IOS)
@@ -250,7 +256,7 @@ else()
   set(MPQONE \"diablone.mpq\")
 endif()
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for clang-tidy
@@ -489,7 +495,6 @@ set(devilutionx_SRCS
   #Source/dthread.cpp
   Source/dx.cpp
   Source/encrypt.cpp
-  Source/engine.cpp
   Source/error.cpp
   Source/gamemenu.cpp
   Source/gameui.cpp
@@ -542,6 +547,7 @@ set(devilutionx_SRCS
   Source/towners.cpp
   #Source/track.cpp
   Source/trigs.cpp
+  Source/trndat.cpp
   Source/controls/axis_direction.cpp
   Source/controls/controller.cpp
   Source/controls/controller_motion.cpp
@@ -581,6 +587,8 @@ set(devilutionx_SRCS
   Source/dvlnet/zerotier_native.cpp
   Source/dvlnet/zerotier_lwip.cpp
   Source/dvlnet/zt_client.cpp
+  Source/engine/cel_util.cpp
+  Source/engine/engine.cpp
   Source/engine/render/cel_render.cpp
   Source/engine/render/cl2_render.cpp
   Source/engine/render/dun_render.cpp
@@ -669,7 +677,7 @@ if(NINTENDO_3DS)
   set(BIN_TARGET ${BIN_TARGET}.elf)
 endif()
 
-if(ANDROID)
+if(ANDROID AND NOT TERMUX)
   add_library(${BIN_TARGET} SHARED ${devilutionx_SRCS})
 elseif(UWP_LIB)
   add_library(${BIN_TARGET} STATIC ${devilutionx_SRCS})
@@ -706,7 +714,6 @@ if(CREATE_PATCHER)
     tools/patcher/drlp_l4.cpp
     tools/patcher/dx.cpp
     #tools/patcher/encrypt.cpp
-    tools/patcher/engine.cpp
     tools/patcher/init.cpp
     tools/patcher/lighting.cpp
     tools/patcher/main.cpp
@@ -718,6 +725,7 @@ if(CREATE_PATCHER)
     tools/patcher/sfx.cpp
     tools/patcher/sfxdat.cpp
     tools/patcher/sound.cpp
+    tools/patcher/towndat.cpp
     tools/patcher/townp.cpp
     tools/patcher/controls/axis_direction.cpp
     tools/patcher/controls/controller.cpp
@@ -739,6 +747,8 @@ if(CREATE_PATCHER)
     tools/patcher/DiabloUI/selyesno.cpp
     tools/patcher/DiabloUI/text.cpp
     #tools/patcher/DiabloUI/title.cpp
+    tools/patcher/engine/cel_util.cpp
+    tools/patcher/engine/engine.cpp
     tools/patcher/engine/render/cel_render.cpp
     tools/patcher/engine/render/cl2_render.cpp
     tools/patcher/engine/render/dun_render.cpp
@@ -774,7 +784,7 @@ if(CREATE_PATCHER)
     list(APPEND devil_patcher_SRCS tools/patcher/platform/nxdk/nxdk_paths.cpp)
   endif()
 
-  if(ANDROID)
+  if(ANDROID AND NOT TERMUX)
     add_library(${DEVIL_PATCHER} SHARED ${devil_patcher_SRCS})
   elseif(UWP_LIB)
     add_library(${DEVIL_PATCHER} STATIC ${devil_patcher_SRCS})
@@ -952,6 +962,7 @@ foreach(
   GPERF
   GPERF_HEAP_MAIN
   GPERF_HEAP_FIRST_GAME_ITERATION
+  TERMUX
 )
 if(${def_name})
   list(APPEND def_list ${def_name})
@@ -1688,7 +1699,7 @@ if(CPACK)
         RENAME "${project_name}-hellfire.png"
       )
     else()
-      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon.png"
+      install(FILES "${PROJECT_SOURCE_DIR}/Packaging/resources/icon_flat.png"
         DESTINATION "share/icons/hicolor/512x512/apps"
         RENAME "${project_name}.png"
       )
@@ -1832,6 +1843,7 @@ foreach(
   MACOSX_STANDALONE_APP_BUNDLE
   GPERF
   GPERF_HEAP_FIRST_GAME_ITERATION
+  TERMUX
 )
   # Get the padding
   string(LENGTH ${def_name} _OPTLEN)

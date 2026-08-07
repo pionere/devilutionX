@@ -29,8 +29,11 @@
 #include "../../enums.h"
 #include "../../structs.h"
 
+#include "engine/engine.h"
 #include "miniwin/miniwin.h"
 //#include "utils/thread.h"
+
+#include "engine/cel_util.h"
 
 //#include "diabloui.h"
 #include "gameui.h"
@@ -59,7 +62,6 @@
 #include "drlp_l4.h"
 //#include "dthread.h"
 #include "encrypt.h"
-#include "engine.h"
 //#include "error.h"
 //#include "gamemenu.h"
 //#include "gendung.h"

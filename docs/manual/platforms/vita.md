@@ -53,5 +53,5 @@ sdl2_controller_mapping=50535669746120436f6e74726f6c6c65,PSVita Controller,y:b0,
 
 ## Resources
 
-* Discord: https://discord.gg/YQKCAYQ
+* Discord: https://discord.gg/devilutionx-518540764754608128
 * GitHub: https://github.com/pionere/devilutionX

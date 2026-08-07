@@ -2,7 +2,7 @@ rem call VsDevCmd.bat
 
 set TargetPlatformVersion=10.0.26100.0
 set TargetPlatformMinVersion=10.0.10069.0
-set PlatformToolset=v143
+set PlatformToolset=v145
 set Platform=x64
 set Configuration=Release
 set AppVersion=1.0.0.0
@@ -15,19 +15,21 @@ cd build
 rem prepare SDL2
 rem - checkout
 git clone https://github.com/pionere/SDL.git
-git -C SDL checkout f3569f6e46a5306c1d7e0167b4d660ed8393be72
+git -C SDL checkout 09dc4ff463791b980609b0a1523e1aa5f5adf199
 rem - configure
-powershell "(Get-Content SDL\VisualC-WinRT\SDL-UWP.vcxproj ) -replace '<PreprocessorDefinitions>(.*)</PreprocessorDefinitions>','<PreprocessorDefinitions>SDL_LOCALE_DISABLED;SDL_MISC_DISABLED;SDL_POWER_DISABLED;SDL_SENSOR_DISABLED;SDL_FILE_DISABLED;SDL_AUDIO_DRIVER_DISK_DISABLED;SDL_AUDIO_DRIVER_DUMMY_DISABLED;SDL_VIDEO_DRIVER_DUMMY_DISABLED;SDL_DYN_MEMFUNCS_DISABLED;SDL_BLIT_0_DISABLED;SDL_BLIT_A_DISABLED;SDL_BLIT_N_DISABLED;SDL_BLIT_N_RGB565_DISABLED;SDL_BLIT_AUTO_DISABLED;SDL_BLIT_SLOW_DISABLED;SDL_RLE_ACCEL_DISABLED;SDL_BLIT_TRANSFORM_DISABLED;SDL_YUV_FORMAT_DISABLED;SDL_GESTURES_DISABLED;SDL_HIDAPI_DISABLED;SDL_ANALYZE_MACROS_DISABLED;SDL_ASSERTIONS_DISABLED;SDL_LOGGING_DISABLED;SDL_VERBOSE_ERROR_DISABLED;SDL_SANITIZE_ACCESS_DISABLED;${1}</PreprocessorDefinitions>' | Set-Content -encoding ASCII SDL\VisualC-WinRT\SDL-UWP.vcxproj"
+powershell "(Get-Content SDL\VisualC-WinRT\SDL-UWP.vcxproj ) -replace '<PreprocessorDefinitions>(.*)</PreprocessorDefinitions>','<PreprocessorDefinitions>SDL_LOCALE_DISABLED;SDL_MISC_DISABLED;SDL_POWER_DISABLED;SDL_SENSOR_DISABLED;SDL_FILE_DISABLED;SDL_AUDIO_DRIVER_DISK_DISABLED;SDL_AUDIO_DRIVER_DUMMY_DISABLED;SDL_VIDEO_DRIVER_DUMMY_DISABLED;SDL_DYN_MEMFUNCS_DISABLED;SDL_BLIT_0_DISABLED;SDL_BLIT_A_DISABLED;SDL_BLIT_N_DISABLED;SDL_BLIT_N_RGB565_DISABLED;SDL_BLIT_AUTO_DISABLED;SDL_BLIT_SLOW_DISABLED;SDL_RLE_ACCEL_DISABLED;SDL_BLIT_TRANSFORM_DISABLED;SDL_YUV_FORMAT_DISABLED;SDL_HAPTIC_DISABLED;SDL_GESTURES_DISABLED;SDL_ANALYZE_MACROS_DISABLED;SDL_ASSERTIONS_DISABLED;SDL_LOGGING_DISABLED;SDL_VERBOSE_ERROR_DISABLED;SDL_SANITIZE_ACCESS_DISABLED;${1}</PreprocessorDefinitions>' | Set-Content -encoding ASCII SDL\VisualC-WinRT\SDL-UWP.vcxproj"
 rem - build
 msbuild /p:%BuildParams%;ConfigurationType=StaticLibrary SDL\VisualC-WinRT\SDL-UWP.vcxproj
 if errorlevel 1 goto error
 
 rem prepare devilutionx
 rem - configure
-cmake .. -DUWP_LIB=1 -DUWP_SDL2_DIR="%CD%/SDL" -DCMAKE_BUILD_TYPE=%Platform%-%Configuration% %*
+rem cmake .. -DUWP_LIB=1 -DUWP_SDL2_DIR="%CD%/SDL" -DCMAKE_BUILD_TYPE=%Platform%-%Configuration% %*
+cmake -DUWP_LIB=1 -DUWP_SDL2_DIR="%CD%/SDL" -A %Platform% .. %*
 if errorlevel 1 goto error
 rem - build
-msbuild /p:%BuildParams% DevilutionX.sln
+rem msbuild /p:%BuildParams% DevilutionX.sln
+cmake --build . --config Release -j
 if errorlevel 1 goto error
 
 powershell "(Get-Content ..\uwp-project\Package.appxmanifest.template ) -replace '__PROJECT_VERSION__', '%AppVersion%' -replace '__PLATFORM_MIN_VERSION__','%TargetPlatformMinVersion%' -replace '__PLATFORM_MAX_VERSION__','%TargetPlatformVersion%' | Set-Content -encoding ASCII ..\uwp-project\Package.appxmanifest"

@@ -5,7 +5,7 @@
 ---
 
 [![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/pionere/devilutionX?include_prereleases)](https://github.com/pionere/devilutionX/releases)
-[![Discord Channel](https://img.shields.io/discord/518540764754608128?color=%237289DA&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/YQKCAYQ)
+[![Discord Channel](https://img.shields.io/discord/518540764754608128?color=%237289DA&logo=discord&logoColor=%23FFFFFF)](https://discord.gg/devilutionx-518540764754608128)
 <!--
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/devilutionX/total.svg)](https://github.com/diasurgical/devilutionX/releases)
 [![Codecov](https://codecov.io/gh/diasurgical/devilutionX/branch/master/graph/badge.svg)](https://codecov.io/gh/diasurgical/devilutionX)
@@ -37,7 +37,7 @@ For more detailed instructions: [Installation Instructions](./docs/installing.md
 
 # Contributing
 
-We are always looking for more people to help with [coding](docs/CONTRIBUTING.md), [documentation](https://github.com/pionere/devilutionX/wiki), testing the [latest builds](https://github.com/pionere/devilutionX/releases), spreading the word, or simply just hanging out on [the chat](https://discord.gg/YQKCAYQ).
+We are always looking for more people to help with [coding](docs/CONTRIBUTING.md), [documentation](https://github.com/pionere/devilutionX/wiki), testing the [latest builds](https://github.com/pionere/devilutionX/releases), spreading the word, or simply just hanging out on [the chat](https://discord.gg/devilutionx-518540764754608128).
 
 # Mods
 
