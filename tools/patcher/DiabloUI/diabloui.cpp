@@ -512,7 +512,7 @@ static void UiDraw(const UiImage* uiImage)
 static void UiDrawStr(const char* text, const SDL_Rect& rect, int flags)
 {
 	const SDL_Point point = { MousePos.x, MousePos.y };
-	if (SDL_PointInRect(&point, &rect)) {
+	if (!(flags & UIS_DISABLED) && SDL_PointInRect(&point, &rect)) {
 		flags |= UIS_LIGHT;
 #if SCREEN_READER_INTEGRATION
 		SpeakText(text);
