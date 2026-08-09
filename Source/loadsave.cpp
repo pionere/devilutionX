@@ -139,6 +139,8 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_pMemSkills = savedPlr->vpMemSkills;
 	memcpy(pr->_pName, savedPlr->vpName, lengthof(pr->_pName));
 
+	pr->_pBuildType = savedPlr->vpBuildType;
+
 	pr->_pBaseStr = savedPlr->vpBaseStr;
 	pr->_pBaseMag = savedPlr->vpBaseMag;
 
@@ -922,6 +924,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 
 	plrSave->vpMemSkills = pr->_pMemSkills;
 	memcpy(plrSave->vpName, pr->_pName, lengthof(plrSave->vpName));
+
+	plrSave->vpBuildType = pr->_pBuildType;
 
 	plrSave->vpBaseStr = pr->_pBaseStr;
 	plrSave->vpBaseMag = pr->_pBaseMag;
