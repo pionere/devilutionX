@@ -547,6 +547,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo)
 
 	plr._pLevel = heroinfo.hiLevel;
 	plr._pClass = heroinfo.hiClass;
+	plr._pBuildType = heroinfo.hiBuild;
 	//plr._pRank = heroinfo.hiRank;
 	copy_cstr(plr._pName, heroinfo.hiName);
 
@@ -3170,7 +3171,7 @@ void PlrDecMana(int pnum, int mana)
 
 void IncreasePlrStr(int pnum)
 {
-	int v;
+	int dv, v;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrStr: illegal player %d", pnum);
@@ -3178,28 +3179,28 @@ void IncreasePlrStr(int pnum)
 	if (plr._pStatPts <= 0)
 		return;
 	plr._pStatPts--;
-	switch (plr._pClass) {
-	case PC_WARRIOR:	v = (((plr._pBaseStr - StrengthTbl[PC_WARRIOR]) % 5) == 2) ? 3 : 2; break;
-	case PC_ROGUE:		v = 1; break;
-	case PC_SORCERER:	v = 1; break;
-#ifdef HELLFIRE
-	case PC_MONK:		v = 2; break;
-	case PC_BARD:		v = 1; break;
-	case PC_BARBARIAN:	v = 3; break;
-#endif
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
-	//plr._pStrength += v;
-	plr._pBaseStr += v;
+	// calculate the delta
+	dv = plr._pBaseStr - StrengthTbl[plr._pClass];
+
+	dv *= 2;
+	v = plr._pBuildType._pbStr;
+
+	if (v != 0 && dv % v != 0)
+		dv++; // value was rounded down last time -> increment it to round up now
+
+	dv += v;
+	// str = base strength + (bt.str * inc) / 2
+	v = StrengthTbl[plr._pClass] + dv / 2u;
+
+	//plr._pStrength = v;
+	plr._pBaseStr = v;
 
 	CalcPlrInv(pnum, true);
 }
 
 void IncreasePlrMag(int pnum)
 {
-	int v, ms;
+	int dv, v, ms;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrMag: illegal player %d", pnum);
@@ -3207,22 +3208,21 @@ void IncreasePlrMag(int pnum)
 	if (plr._pStatPts <= 0)
 		return;
 	plr._pStatPts--;
-	switch (plr._pClass) {
-	case PC_WARRIOR:	v = 1; break;
-	case PC_ROGUE:		v = 2; break;
-	case PC_SORCERER:	v = 3; break;
-#ifdef HELLFIRE
-	case PC_MONK:		v = (((plr._pBaseMag - MagicTbl[PC_MONK]) % 3) == 1) ? 2 : 1; break;
-	case PC_BARD:		v = (((plr._pBaseMag - MagicTbl[PC_BARD]) % 3) == 1) ? 2 : 1; break;
-	case PC_BARBARIAN:	v = 1; break;
-#endif
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	// calculate the delta
+	dv = plr._pBaseMag - MagicTbl[plr._pClass];
 
-	//plr._pMagic += v;
-	plr._pBaseMag += v;
+	dv *= 2;
+	v = plr._pBuildType._pbMag;
+
+	if (v != 0 && dv % v != 0)
+		dv++; // value was rounded down last time -> increment it to round up now
+
+	dv += v;
+	// mag = base magic + (bt.mag * inc) / 2
+	v = MagicTbl[plr._pClass] + dv / 2u;
+
+	//plr._pMagic = v;
+	plr._pBaseMag = v;
 
 	ms = v << (6 + 1);
 
@@ -3238,7 +3238,7 @@ void IncreasePlrMag(int pnum)
 
 void IncreasePlrDex(int pnum)
 {
-	int v;
+	int dv, v;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrDex: illegal player %d", pnum);
@@ -3246,29 +3246,28 @@ void IncreasePlrDex(int pnum)
 	if (plr._pStatPts <= 0)
 		return;
 	plr._pStatPts--;
-	switch (plr._pClass) {
-	case PC_WARRIOR:	v = (((plr._pBaseDex - DexterityTbl[PC_WARRIOR]) % 3) == 1) ? 2 : 1; break;
-	case PC_ROGUE:		v = 3; break;
-	case PC_SORCERER:	v = (((plr._pBaseDex - DexterityTbl[PC_SORCERER]) % 3) == 1) ? 2 : 1; break;
-#ifdef HELLFIRE
-	case PC_MONK:		v = 2; break;
-	case PC_BARD:		v = 3; break;
-	case PC_BARBARIAN:	v = 1; break;
-#endif
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	// calculate the delta
+	dv = plr._pBaseDex - DexterityTbl[plr._pClass];
 
-	//plr._pDexterity += v;
-	plr._pBaseDex += v;
+	dv *= 2;
+	v = plr._pBuildType._pbDex;
+
+	if (v != 0 && dv % v != 0)
+		dv++; // value was rounded down last time -> increment it to round up now
+
+	dv += v;
+	// dex = base dexterity + (bt.dex * inc) / 2
+	v = DexterityTbl[plr._pClass] + dv / 2u;
+
+	//plr._pDexterity = v;
+	plr._pBaseDex = v;
 
 	CalcPlrInv(pnum, true);
 }
 
 void IncreasePlrVit(int pnum)
 {
-	int v, ms;
+	int dv, v, ms;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("IncreasePlrVit: illegal player %d", pnum);
@@ -3276,22 +3275,21 @@ void IncreasePlrVit(int pnum)
 	if (plr._pStatPts <= 0)
 		return;
 	plr._pStatPts--;
-	switch (plr._pClass) {
-	case PC_WARRIOR:	v = 2; break;
-	case PC_ROGUE:		v = 1; break;
-	case PC_SORCERER:	v = (((plr._pBaseVit - VitalityTbl[PC_SORCERER]) % 3) == 1) ? 2 : 1; break;
-#ifdef HELLFIRE
-	case PC_MONK:		v = (((plr._pBaseVit - VitalityTbl[PC_MONK]) % 3) == 1) ? 2 : 1; break;
-	case PC_BARD:		v = (((plr._pBaseVit - VitalityTbl[PC_BARD]) % 3) == 1) ? 2 : 1; break;
-	case PC_BARBARIAN:	v = 2; break;
-#endif
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	// calculate the delta
+	dv = plr._pBaseVit - VitalityTbl[plr._pClass];
 
-	//plr._pVitality += v;
-	plr._pBaseVit += v;
+	dv *= 2;
+	v = plr._pBuildType._pbVit;
+
+	if (v != 0 && dv % v != 0)
+		dv++; // value was rounded down last time -> increment it to round up now
+
+	dv += v;
+	// vit = base vitality + (bt.vit * inc) / 2
+	v = VitalityTbl[plr._pClass] + dv / 2u;
+
+	//plr._pVitality = v;
+	plr._pBaseVit = v;
 
 	ms = v << (6 + 1);
 

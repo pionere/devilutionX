@@ -38,6 +38,7 @@ void PackPlayer(PkPlayerStruct* pPack, int pnum)
 	pPack->pRank = p->_pRank;
 	pPack->pTeam = p->_pTeam;
 	pPack->pStatPts = p->_pStatPts;
+	pPack->pBuildType = p->_pBuildType;
 	//pPack->pLightRad = p->_pLightRad;
 	//pPack->pManaShield = p->_pManaShield;
 	//pPack->pTimer[PLTR_INFRAVISION] = p->_pTimer[PLTR_INFRAVISION];
@@ -139,6 +140,7 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 	plr._pRank = pPack->pRank;
 	plr._pTeam = pPack->pTeam;
 	plr._pStatPts = pPack->pStatPts;
+	plr._pBuildType = pPack->pBuildType;
 	// plr._pLightRad = pPack->pLightRad;
 	// plr._pManaShield = pPack->pManaShield;
 	// plr._pTimer[PLTR_INFRAVISION] = pPack->pTimer[PLTR_INFRAVISION];
@@ -216,6 +218,11 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 	net_assert(plr._pExperience < PlrExpLvlsTbl[plr._pLevel]);
 	net_assert(plr._pDunLevel < NUM_LEVELS);
 	net_assert(plr._pTeam < MAX_PLRS);
+	net_assert(plr._pBuildType._pbStr <= 6);
+	net_assert(plr._pBuildType._pbMag <= 6);
+	net_assert(plr._pBuildType._pbDex <= 6);
+	net_assert(plr._pBuildType._pbVit <= 6);
+	net_assert(plr._pBuildType._pbStr + plr._pBuildType._pbMag + plr._pBuildType._pbDex + plr._pBuildType._pbVit <= 14);
 	static_assert(lengthof(plx(0)._pSkillLvlBase) == sizeof(plr._pMemSkills) * 8, "Parallel check of _pMemSkills and _pSkillLvlBase does not work in UnPackPlayer.");
 	for (i = sizeof(plr._pMemSkills) * 8 - 1; i >= 0; i--) {
 		if (plr._pMemSkills & SPELL_MASK(i)) {

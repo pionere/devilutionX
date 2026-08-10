@@ -246,7 +246,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-Win9x
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -275,7 +275,7 @@ jobs:
     #  uses: actions/cache@v4
     #  with:
     #    path: /opt/mingw9x
-    #    key: mingw9x-toolchain-${{ hashFiles('Packaging/windows/mingw9x-prep.sh', 'Packaging/windows/mingw9x-gcc.patch') }}
+    #    key: mingw9x-toolchain-${{ hashFiles('Packaging/windows/mingw9x-prep.sh', 'Packaging/windows/mingw-pre-vista-gcc.patch') }}
 
     - name: Build mingw9x toolchain
       #if: steps.cache-mingw9x.outputs.cache-hit != 'true'
@@ -303,7 +303,7 @@ jobs:
     needs: build_check
     if: ${{ needs.build_check.outputs.should_run != 'false' }}
     name: Nightly-MingW-WinXP
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -325,13 +325,23 @@ jobs:
     - name: Create Build Environment
       run: >
         sudo apt-get update &&
-        sudo apt-get install -y cmake gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-tools dpkg-dev wget git sudo &&
-        sudo Packaging/windows/mingw-prep.sh
+        sudo apt-get install -y cmake build-essential flex bison pkg-config patch gettext dpkg-dev curl xz-utils bzip2 git
+
+    #- name: Cache mingwxp toolchain
+    #  id: cache-mingwxp
+    #  uses: actions/cache@v6
+    #  with:
+    #    path: /opt/mingwxp
+    #    key: mingwxp-toolchain-${{ hashFiles('Packaging/windows/mingwxp-prep.sh', 'Packaging/windows/mingw-pre-vista-gcc.patch') }}
+
+    - name: Build mingwxp toolchain
+      #if: steps.cache-mingwxp.outputs.cache-hit != 'true'
+      run: sudo Packaging/windows/mingwxp-prep.sh
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{ env.buildDir }}
-      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwcc.toolchain.cmake -DTARGET_PLATFORM=windowsXP
+      run: cmake .. ${{ matrix.cmakeargs }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=../CMake/mingwxp.toolchain.cmake -DTARGET_PLATFORM=windowsXP
 
     - name: Build
       working-directory: ${{ env.buildDir }}
@@ -423,7 +433,7 @@ jobs:
           - name: hellfire
             cmakeargs: '-DDEVILUTIONX_SYSTEM_LIBSODIUM=OFF -DDEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-aarch64.tar.xz'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v7

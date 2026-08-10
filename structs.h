@@ -358,6 +358,13 @@ typedef struct PlrSkillStruct {
 } PlrSkillStruct;
 static_assert(sizeof(PlrSkillStruct) == 4 * sizeof(BYTE), "PlrSkillStruct is not packed tightly");
 
+typedef struct PlrBuildType {
+	BYTE _pbStr;
+	BYTE _pbMag;
+	BYTE _pbDex;
+	BYTE _pbVit;
+} PlrBuildType;
+
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
 	int _pDestAction;
@@ -408,6 +415,7 @@ typedef struct PlayerStruct {
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
 	char _pName[PLR_NAME_LEN];
+	PlrBuildType _pBuildType;
 	uint16_t _pBaseStr;
 	uint16_t _pBaseMag;
 	uint16_t _pBaseDex;
@@ -484,7 +492,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(194, 109)
+	ALIGNMENT(193, 109)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1130,6 +1138,7 @@ typedef struct PkPlayerStruct {
 	//BYTE pManaShield;
 	//LE_INT16 pTimer[NUM_PLRTIMERS];
 	LE_UINT32 pExperience;
+	PlrBuildType pBuildType;
 	LE_UINT16 pBaseStr;
 	LE_UINT16 pBaseMag;
 	LE_UINT16 pBaseDex;
@@ -1278,6 +1287,7 @@ typedef struct LSavePlayerStruct {
 	LE_UINT32 vpSkillExp[64];
 	LE_UINT64 vpMemSkills;  // Bitmask of learned skills
 	char vpName[PLR_NAME_LEN];
+	PlrBuildType vpBuildType;
 	LE_UINT16 vpBaseStr;
 	LE_UINT16 vpBaseMag;
 	LE_UINT16 vpBaseDex;
@@ -2483,6 +2493,7 @@ typedef struct _uiheroinfo {
 	BYTE hiClass;
 	BOOLEAN hiSaveFile;
 	char hiName[PLR_NAME_LEN];
+	PlrBuildType hiBuild;
 	int16_t hiStrength;
 	int16_t hiMagic;
 	int16_t hiDexterity;
