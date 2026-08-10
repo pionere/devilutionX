@@ -1,3 +1,5 @@
+# Cross-compiling for Android.
+#
 # Disable sanitizers. They're not supported out-of-the-box.
 set(ASAN OFF)
 set(UBSAN OFF)

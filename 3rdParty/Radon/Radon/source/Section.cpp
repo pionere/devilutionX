@@ -2,8 +2,6 @@
 
 #include "../include/Radon.hpp"
 
-#include <assert.h>
-
 namespace radon
 {
 #ifdef FULL

@@ -45,7 +45,7 @@ void SyncSplitGold(int pnum, int cii, int value);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();
 void InvUseItem(int cii);
-bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
+int SyncUseItem(int pnum, BYTE cii);
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 void CalculateGold(int pnum);
 

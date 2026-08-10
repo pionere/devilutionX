@@ -35,7 +35,7 @@ Launch the game
 
 ## Resources
 
-Discord: https://discord.gg/YQKCAYQ
+Discord: https://discord.gg/devilutionx-518540764754608128
 GitHub: https://github.com/pionere/devilutionX
 
 Check out the manual for what features are available and how best to take advantage of them: https://github.com/pionere/devilutionX/wiki

@@ -117,6 +117,7 @@ static void pfile_player2hero(const PlayerStruct* p, _uiheroinfo* heroinfo)
 	heroinfo->hiLevel = p->_pLevel;
 	heroinfo->hiClass = p->_pClass;
 	// heroinfo->hiSaveFile
+	heroinfo->hiBuild = p->_pBuildType;
 	heroinfo->hiStrength = p->_pStrength;
 	heroinfo->hiMagic = p->_pMagic;
 	heroinfo->hiDexterity = p->_pDexterity;

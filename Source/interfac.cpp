@@ -278,7 +278,7 @@ void LoadGameLevel(int lvldir)
 	FreeSetPieces();
 	IncProgress(); // "Missiles/Light" (10)
 	InitMissiles();
-	SavePreLighting();
+	FinishLvlMap();
 	InitView(lvldir);
 
 	IncProgress(); // "Music start" (11)
