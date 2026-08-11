@@ -109,7 +109,6 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_RECHARGE:
 	case SPL_DISARM:
 #ifdef HELLFIRE
-	case SPL_BUCKLE:
 	case SPL_WHITTLE:
 #endif
 		skd->type = SDT_NONE;
@@ -2925,12 +2924,10 @@ int AddHeal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	hp <<= 6;
 
 	switch (plx(misource)._pClass) {
-	case PC_WARRIOR: hp <<= 1;            break;
 #ifdef HELLFIRE
-	case PC_BARBARIAN:
-	case PC_MONK:    hp <<= 1;            break;
-	case PC_BARD:
+	case PC_MONK:
 #endif
+	case PC_WARRIOR: hp <<= 1;    break;
 	case PC_ROGUE: hp += hp >> 1; break;
 	case PC_SORCERER: break;
 	default:
@@ -2958,13 +2955,11 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 
 	switch (plx(misource)._pClass) {
 	case PC_WARRIOR: hp <<= 1;    break;
-#ifdef HELLFIRE
-	case PC_MONK: hp *= 3;        break;
-	case PC_BARBARIAN: hp <<= 1;  break;
-	case PC_BARD:
-#endif
 	case PC_ROGUE: hp += hp >> 1; break;
 	case PC_SORCERER: break;
+#ifdef HELLFIRE
+	case PC_MONK: hp *= 3;        break;
+#endif
 	default:
 		ASSUME_UNREACHABLE
 	}

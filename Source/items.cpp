@@ -1038,20 +1038,6 @@ void CreatePlrItems(int pnum)
 		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
 		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
 		break;
-	case PC_BARD:
-		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_BARDSWORD);
-		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_RIGHT], IDI_BARDDAGGER);
-
-		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
-		break;
-	case PC_BARBARIAN:
-		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_LEFT], IDI_BARBCLUB);
-		CreateBaseItem(&plr._pInvBody[INVLOC_HAND_RIGHT], IDI_WARRSHLD);
-
-		CreateBaseItem(&plr._pSpdList[0], IDI_HEAL);
-		CreateBaseItem(&plr._pSpdList[1], IDI_HEAL);
-		break;
 #endif
 	}
 
@@ -2543,58 +2529,6 @@ static void DoWhittle(int pnum, int cii)
 		CalcPlrInv(pnum, true);
 	}
 }
-
-/*
- * Convert a shield to a (spiked-)club.
- */
-static void BuckleItem(ItemStruct* pi)
-{
-	int seed;
-	uint16_t ci, idx;
-	BYTE magic;
-
-	ci = (pi->_iCreateInfo & CF_LEVEL);
-	seed = pi->_iSeed;
-	SetRndSeed(seed);
-	idx = (random_(111, 100) < 25 + ci) ? IDI_BARBCLUB : IDI_CLUB;
-	magic = pi->_iMagical == ITEM_QUALITY_NORMAL ? ITEM_QUALITY_NORMAL : ITEM_QUALITY_MAGIC;
-
-	ci |= CF_CRAFTED;
-	while (true) {
-		RecreateItem(seed, idx, ci);
-		assert(items[MAXITEMS]._iIdx == idx);
-		if (items[MAXITEMS]._iMagical == magic)
-			break;
-		seed = NextRndSeed();
-	}
-	items[MAXITEMS]._iDurability = std::min(pi->_iDurability, items[MAXITEMS]._iDurability);
-	//items[MAXITEMS]._iCharges = std::min(pi->_iCharges, items[MAXITEMS]._iCharges);
-	copy_pod(*pi, items[MAXITEMS]);
-}
-
-static void DoBuckle(int pnum, int cii)
-{
-	ItemStruct* pi;
-
-	if (cii >= NUM_INVLOC) {
-		return; //pi = &plr._pInvList[cii - NUM_INVLOC];
-	} else {
-		pi = &plr._pInvBody[cii];
-	}
-
-	if (pi->_itype == ITYPE_SHIELD) {
-		// move the item to the left hand
-		if (plr._pInvBody[INVITEM_HAND_LEFT]._itype == ITYPE_NONE) {
-			// assert(pi == &plr._pInvBody[INVITEM_HAND_RIGHT]);
-			copy_pod(plr._pInvBody[INVITEM_HAND_LEFT], plr._pInvBody[INVITEM_HAND_RIGHT]);
-			plr._pInvBody[INVITEM_HAND_RIGHT]._itype = ITYPE_NONE;
-			pi = &plr._pInvBody[INVITEM_HAND_LEFT];
-		}
-		BuckleItem(pi);
-		// FIXME: ensure a dead player remains dead
-		CalcPlrInv(pnum, true);
-	}
-}
 #endif
 
 ItemStruct* PlrItem(int pnum, int cii)
@@ -2645,12 +2579,6 @@ void DoAbility(int pnum, int8_t from, BYTE cii)
 #ifdef HELLFIRE
 	case PC_MONK:
 		DoWhittle(pnum, cii);
-		break;
-	case PC_BARD:
-		DoIdentify(pnum, cii);
-		break;
-	case PC_BARBARIAN:
-		DoBuckle(pnum, cii);
 		break;
 #endif
 	default:

@@ -49,20 +49,20 @@ static const char WepChar[10] = {
 static const char CharChar[NUM_CLASSES] = { 'W', 'R', 'S',
 #ifdef HELLFIRE
 //	'M', 'B', 'C'
-	'M', 'R', 'W'
+	'M',
 #endif
 };
 /** Maps from player class to the folder of graphic files. */
 static const char* const gfxClassTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #ifdef HELLFIRE
 //	"Monk", "Bard", "Barbarian"
-	"Monk", "Rogue", "Warrior"
+	"Monk",
 #endif
 };
 /** Maps from player class to the string shown to the player. */
 const char* const ClassStrTbl[NUM_CLASSES] = { "Warrior", "Rogue", "Sorceror",
 #ifdef HELLFIRE
-	"Monk", "Bard", "Barbarian"
+	"Monk",
 #endif
 };
 /*
@@ -95,8 +95,6 @@ static const BYTE PlrActFrames[NUM_CLASSES][NUM_WANIM_IDS] = {
 	{ 12,  9, 12, 12, 16, 16, 12, 12, 12 },
 #ifdef HELLFIRE
 	{  7,  7, 12, 12, 14, 14, 12, 12,  8 },
-	{ 10, 10, 10, 10, 11, 13, 10, 10, 11 },
-	{  9,  9,  9,  9, 11,  8,  8,  8, 11 },
 #endif
 	// clang-format on
 };
@@ -107,8 +105,6 @@ static const BYTE PlrSplFrames[NUM_CLASSES] = {
 	 8,
 #ifdef HELLFIRE
 	13,
-	12,
-	14
 #endif
 	// clang-format on
 };
@@ -123,8 +119,6 @@ const int StrengthTbl[NUM_CLASSES] = {
 	10,
 #ifdef HELLFIRE
 	20,
-	15,
-	35,
 #endif
 	// clang-format on
 };
@@ -136,8 +130,6 @@ const int MagicTbl[NUM_CLASSES] = {
 	30,
 #ifdef HELLFIRE
 	15,
-	20,
-	 0,
 #endif
 	// clang-format on
 };
@@ -149,8 +141,6 @@ const int DexterityTbl[NUM_CLASSES] = {
 	20,
 #ifdef HELLFIRE
 	20,
-	25,
-	10,
 #endif
 	// clang-format on
 };
@@ -162,15 +152,13 @@ const int VitalityTbl[NUM_CLASSES] = {
 	20,
 #ifdef HELLFIRE
 	25,
-	20,
-	35,
 #endif
 	// clang-format on
 };
 const BYTE Abilities[NUM_CLASSES] = {
 	SPL_REPAIR, SPL_DISARM, SPL_RECHARGE,
 #ifdef HELLFIRE
-	SPL_WHITTLE, SPL_IDENTIFY, SPL_BUCKLE,
+	SPL_WHITTLE,
 #endif
 };
 
@@ -306,11 +294,6 @@ if (plr._pClass != PC_MONK || prefix[1] == 'A' || prefix[1] == 'B')
 		plr._pAnims[gfxIdx].paFrames = LOAD_LE32(anim);
 		plr._pAnims[gfxIdx].paAnimWidth = Cl2Width(anim);
 
-#ifdef HELLFIRE
-		if (plr._pClass == PC_BARD && gfxIdx == PGX_ATTACK && (prefix[2] == 'S' || prefix[2] == 'D')) {
-			plr._pAnims[gfxIdx].paFrames = 10; // TODO: check for onehanded swords or daggers?
-		}
-#endif
 #if !USE_PATCH
 		if (plr._pClass == PC_ROGUE) {
 			// fix frame count of RHTAT and RMTAT

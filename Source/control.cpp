@@ -97,7 +97,7 @@ static POS32 deltaSkillPos;
 /** Maps from player-class to team-icon id in pSBkIconCels. */
 static const BYTE ClassIconTbl[NUM_CLASSES] = { 8, 13, 42,
 #ifdef HELLFIRE
-	41, 9, 38,
+	41,
 #endif
 };
 

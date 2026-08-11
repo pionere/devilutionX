@@ -1569,16 +1569,11 @@ static void InvAddHp(int pnum)
 	// hp = ((hp >> 1) + random_(39, hp)) << 6;
 	hp = p->_pMaxHP >> (8 - 6);
 	switch (p->_pClass) {
+	case PC_WARRIOR: hp <<= 1; break;
 #ifdef HELLFIRE
-	case PC_WARRIOR:
-	case PC_BARBARIAN: hp <<= 1; break;
-	case PC_ROGUE:
 	case PC_MONK:
-	case PC_BARD: hp += hp >> 1; break;
-#else
-	case PC_WARRIOR: hp <<= 1;    break;
-	case PC_ROGUE: hp += hp >> 1; break;
 #endif
+	case PC_ROGUE: hp += hp >> 1; break;
 	case PC_SORCERER: break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1597,15 +1592,12 @@ static void InvAddMana(int pnum)
 	// mana = ((mana >> 1) + random_(40, mana)) << 6;
 	mana = p->_pMaxMana >> (8 - 6);
 	switch (p->_pClass) {
-	case PC_WARRIOR:              break;
-	case PC_SORCERER: mana <<= 1; break;
+	case PC_WARRIOR: break;
 #ifdef HELLFIRE
-	case PC_BARBARIAN:            break;
 	case PC_MONK:
-	case PC_BARD:
 #endif
-	case PC_ROGUE:
-		mana += mana >> 1;        break;
+	case PC_ROGUE: mana += mana >> 1; break;
+	case PC_SORCERER: mana <<= 1; break;
 	default:
 		ASSUME_UNREACHABLE
 	}

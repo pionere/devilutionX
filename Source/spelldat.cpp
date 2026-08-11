@@ -10,7 +10,7 @@ DEVILUTION_BEGIN_NAMESPACE
 /*
 	reused icons :  4, 5, 9, 20, 22, 23, 25, 28, 31
 					// hellfire
-					26, 29
+					29
 */
 
 /*
@@ -77,7 +77,6 @@ const SpellData spelldata[NUM_SPELLS] = {
 /*SPL_RECHARGE*/    {         0, STYPE_MAGIC,       ACTION_SPELL,   29, "Staff Recharge",  SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_RECHARGE,    SFLAG_ANY,                          0, IS_CAST6,    MIS_OPITEM,             0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_DISARM*/      {         0, STYPE_MAGIC,       ACTION_SPELL,   37, "Trap Disarm",     SPELL_NA,  SPELL_NA,          1, SDFLAG_TARGETED, CURSOR_DISARM,    CURSOR_DISARM,      SFLAG_DUNGEON,                     20, IS_CAST6,    MIS_DISARM,             0,        0,         0,         0,         0,        150, ALIGN64 },
 #ifdef HELLFIRE
-/*SPL_BUCKLE*/      {         0, STYPE_MAGIC,       ACTION_SPELL,   26, "Shield Buckle",   SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_IDENTIFY,    SFLAG_ANY,                          0, IS_CAST6,    MIS_OPITEM,             0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_WHITTLE*/     {         0, STYPE_MAGIC,       ACTION_SPELL,   29, "Staff Whittle",   SPELL_NA,  SPELL_NA,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_RECHARGE,    SFLAG_ANY,                          0, IS_CAST6,    MIS_OPITEM,             0,        0,         0,         0,         0,          0, ALIGN64 },
 /*SPL_LIGHTWALL*/// {        28, STYPE_LIGHTNING,   ACTION_SPELL,   46, "Lightning Wall",         3,         4,   SPELL_NA, SDFLAG_TARGETED, CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     27, IS_CAST4,    MIS_LIGHTWALLC,         3,       16,         8,        16,      6000,        400, ALIGN64 },
 /*SPL_IMMOLAT *///  {        60, STYPE_FIRE,        ACTION_SPELL,   47, "Immolation",            14,        20,   SPELL_NA, 0,               CURSOR_NONE,      CURSOR_NONE,        SFLAG_DUNGEON,                     87, IS_CAST2,    MIS_FIRENOVAC,          5,       35,        16,        32,     21000,       1300, ALIGN64 },

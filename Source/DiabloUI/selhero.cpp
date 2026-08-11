@@ -88,30 +88,6 @@ static const char* SelheroGenerateName(BYTE hero_class)
 		    "Vhalit",
 		    "Vylnas",
 		    "Zhota",
-		},
-		{ // BARD (uses Rogue names)
-		    "Moreina",
-		    "Akara",
-		    "Kashya",
-		    "Flavie",
-		    "Divo",
-		    "Oriana",
-		    "Iantha",
-		    "Shikha",
-		    "Basanti",
-		    "Elexa",
-		},
-		{ // BARBARIAN
-		    "Alaric",
-		    "Barloc",
-		    "Egtheow",
-		    "Guthlaf",
-		    "Heorogar",
-		    "Hrothgar",
-		    "Oslaf",
-		    "Qual-Kehk",
-		    "Ragnar",
-		    "Ulf",
 		}
 #endif
 		// clang-format on
@@ -353,8 +329,6 @@ static void SelheroClassSelectorFocus(unsigned index)
 	case PC_SORCERER:	selhero_heroInfo.hiBuild = {  2,  6,  3,  3 }; break;
 #ifdef HELLFIRE
 	case PC_MONK:		selhero_heroInfo.hiBuild = {  4,  3,  4,  3 }; break;
-	case PC_BARD:		selhero_heroInfo.hiBuild = {  2,  3,  6,  3 }; break;
-	case PC_BARBARIAN:	selhero_heroInfo.hiBuild = {  6,  2,  2,  4 }; break;
 #endif
 	}
 
@@ -375,8 +349,6 @@ static void SelheroClassSelectorInit()
 	gUIListItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
 #ifdef HELLFIRE
 	gUIListItems.push_back(new UiListItem("Monk", PC_MONK));
-	gUIListItems.push_back(new UiListItem("Bard", PC_BARD));
-	gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 #endif
 	//assert(gUIListItems.size() == NUM_CLASSES);
 	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELHERO_LIST_TOP, 270, 26 * NUM_CLASSES };
@@ -497,24 +469,9 @@ static void SelheroBuildTypeInit()
 
 	pc = selhero_heroInfo.hiClass;
 	rp = 14 - (selhero_heroInfo.hiBuild._pbStr + selhero_heroInfo.hiBuild._pbMag + selhero_heroInfo.hiBuild._pbDex + selhero_heroInfo.hiBuild._pbVit);
-#ifdef HELLFIRE
-	const BYTE amStr = (pc == PC_ROGUE || pc == PC_BARD) ? 4 : 6;
-#else
-	const BYTE amStr = pc == PC_ROGUE ? 4 : 6;
-#endif
-	SelheroAttrSetter(sx, sy + 0 * 26, "Strength:", &SelheroStrWeightDec, &SelheroStrWeightInc, selhero_heroInfo.hiBuild._pbStr, amStr, rp);
-#ifdef HELLFIRE
-	const BYTE amMag = (pc == PC_WARRIOR || pc == PC_BARBARIAN) ? 4 : 6;
-#else
-	const BYTE amMag = pc == PC_WARRIOR ? 4 : 6;
-#endif
-	SelheroAttrSetter(sx, sy + 1 * 26, "Magic:", &SelheroMagWeightDec, &SelheroMagWeightInc, selhero_heroInfo.hiBuild._pbMag, amMag, rp);
-#ifdef HELLFIRE
-	const BYTE amDex = (pc == PC_SORCERER || pc == PC_BARD) ? 4 : 6;
-#else
-	const BYTE amDex = pc == PC_SORCERER ? 4 : 6;
-#endif
-	SelheroAttrSetter(sx, sy + 2 * 26, "Dexterity:", &SelheroDexWeightDec, &SelheroDexWeightInc, selhero_heroInfo.hiBuild._pbDex, amDex, rp);
+	SelheroAttrSetter(sx, sy + 0 * 26, "Strength:", &SelheroStrWeightDec, &SelheroStrWeightInc, selhero_heroInfo.hiBuild._pbStr, pc == PC_ROGUE ? 4 : 6, rp);
+	SelheroAttrSetter(sx, sy + 1 * 26, "Magic:", &SelheroMagWeightDec, &SelheroMagWeightInc, selhero_heroInfo.hiBuild._pbMag, pc == PC_WARRIOR ? 4 : 6, rp);
+	SelheroAttrSetter(sx, sy + 2 * 26, "Dexterity:", &SelheroDexWeightDec, &SelheroDexWeightInc, selhero_heroInfo.hiBuild._pbDex, pc == PC_SORCERER ? 4 : 6, rp);
 	SelheroAttrSetter(sx, sy + 3 * 26, "Vitality:", &SelheroVitWeightDec, &SelheroVitWeightInc, selhero_heroInfo.hiBuild._pbVit, 6, rp);
 
 	UiInitScreen(0, NULL, SelheroNameInit, SelheroClassSelectorInit);

@@ -4185,7 +4185,6 @@ typedef enum spell_id {
 	SPL_RECHARGE,
 	SPL_DISARM,
 #ifdef HELLFIRE
-	SPL_BUCKLE,
 	SPL_WHITTLE,
 	//SPL_LIGHTWALL,
 	//SPL_IMMOLAT,
@@ -4634,8 +4633,6 @@ typedef enum plr_class {
 	PC_SORCERER,
 #ifdef HELLFIRE
 	PC_MONK,
-	PC_BARD,
-	PC_BARBARIAN,
 #endif
 	NUM_CLASSES
 } plr_class;

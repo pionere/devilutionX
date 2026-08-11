@@ -2596,7 +2596,7 @@ void DoEnding()
 	const char* vicSets[NUM_CLASSES] = {
 		"gendata\\DiabVic2.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic1.smk",
 #ifdef HELLFIRE
-		"gendata\\DiabVic1.smk", "gendata\\DiabVic3.smk", "gendata\\DiabVic2.smk",
+		"gendata\\DiabVic1.smk",
 #endif
 	};
 	if (play_movie(vicSets[myplr._pClass], 0) == MPR_DONE

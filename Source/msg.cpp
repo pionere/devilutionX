@@ -2966,7 +2966,7 @@ static unsigned On_PLRDEAD(const TCmd* pCmd, int pnum)
 		const int earSets[NUM_CLASSES] = {
 				ICURS_EAR_WARRIOR, ICURS_EAR_ROGUE, ICURS_EAR_SORCERER
 #ifdef HELLFIRE
-				, ICURS_EAR_SORCERER, ICURS_EAR_ROGUE, ICURS_EAR_WARRIOR
+				, ICURS_EAR_SORCERER
 #endif
 		};
 		ear._iCurs = earSets[plr._pClass];
