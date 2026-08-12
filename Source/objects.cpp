@@ -3133,7 +3133,7 @@ static void OperateBook1(int oi, bool sendmsg)
 	if (sendmsg) {
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 		// assert(pnum == mypnum);
-		if (myplr._pMagic >= spelldata[os->_oVar7].sMinMag)
+		if (myplr._pMagic >= spelldata[os->_oVar7].sReqMag)
 			NetSendCmdBParam1(CMD_BOOK, os->_oVar7); // BOOK_SKILL
 	}
 }

@@ -1277,7 +1277,7 @@ void DrawStore()
 							linesOfItemDetails++;
 						}
 						linesOfItemDetails += is->_iNumAffixes;
-						if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+						if ((is->_iReqStr | is->_iReqMag | is->_iReqDex) != 0) {
 							linesOfItemDetails++;
 						}
 					}
@@ -1321,15 +1321,15 @@ void DrawStore()
 							PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
 							dy += STORE_LINE_HEIGHT;
 						}
-						if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+						if ((is->_iReqStr | is->_iReqMag | is->_iReqDex) != 0) {
 							int cursor = 0;
 							cat_cstr(tempstr, cursor, "Req.:");
-							if (is->_iMinStr != 0)
-								cat_str(tempstr, cursor, " %d Str", is->_iMinStr);
-							if (is->_iMinMag != 0)
-								cat_str(tempstr, cursor, " %d Mag", is->_iMinMag);
-							if (is->_iMinDex != 0)
-								cat_str(tempstr, cursor, " %d Dex", is->_iMinDex);
+							if (is->_iReqStr != 0)
+								cat_str(tempstr, cursor, " %d Str", is->_iReqStr);
+							if (is->_iReqMag != 0)
+								cat_str(tempstr, cursor, " %d Mag", is->_iReqMag);
+							if (is->_iReqDex != 0)
+								cat_str(tempstr, cursor, " %d Dex", is->_iReqDex);
 							PrintJustifiedString(dx, dy, dx + ITEMDETAILS_PNL_WIDTH, tempstr, COL_WHITE, FONT_KERN_SMALL);
 							dy += STORE_LINE_HEIGHT;
 						}

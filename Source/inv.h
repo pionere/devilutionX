@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define TWOHAND_WIELD(pp, ii) ((ii)->_iLoc == ILOC_TWOHAND && ((ii)->_itype == ITYPE_BOW || (pp)->_pBaseStr < (ii)->_iMinStr * 4))
+#define TWOHAND_WIELD(pp, ii) ((ii)->_iLoc == ILOC_TWOHAND && ((ii)->_itype == ITYPE_BOW || (pp)->_pBaseStr < (ii)->_iReqStr * 4))
 
 static_assert(NUM_INVELEM <= INT8_MAX, "INVIDX_VALID checks only the sign of the INVITEM_-value I.");
 static_assert((int8_t)INVITEM_NONE < 0, "INVIDX_VALID checks only the sign of the INVITEM_-value II.");

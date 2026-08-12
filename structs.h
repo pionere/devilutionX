@@ -221,9 +221,9 @@ typedef struct ItemData {
 	BYTE iMinDam;
 	BYTE iMaxDam;
 	BYTE iBaseCrit;
-	BYTE iMinStr;
-	BYTE iMinMag;
-	BYTE iMinDex;
+	BYTE iReqStr; // the required strength to use the item
+	BYTE iReqMag; // the required magic to use the item
+	BYTE iReqDex; // the required dexterity to use the item
 	BOOLEAN iUsable;
 	BYTE iMinAC;
 	BYTE iMaxAC;
@@ -269,9 +269,9 @@ typedef struct ItemStruct {
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	BYTE _iBaseCrit;
-	BYTE _iMinStr;
-	BYTE _iMinMag;
-	BYTE _iMinDex;
+	BYTE _iReqStr; // the required strength to use the item
+	BYTE _iReqMag; // the required magic to use the item
+	BYTE _iReqDex; // the required dexterity to use the item
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
 	BYTE _iPrePower; // item_effect_type -- unused
 	BYTE _iSufPower; // item_effect_type -- unused
@@ -1778,9 +1778,9 @@ typedef struct TSyncHeader {
 #ifdef HELLFIRE
 	LE_UINT16 wToHit;
 	LE_UINT16 wMaxDam;
-	BYTE bMinStr;
-	BYTE bMinMag;
-	BYTE bMinDex;
+	BYTE bReqStr;
+	BYTE bReqMag;
+	BYTE bReqDex;
 	BYTE bAC;
 #endif*/
 } TSyncHeader;
@@ -2210,7 +2210,7 @@ typedef struct SpellData {
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
 	BYTE sUseFlags; // the required flags(SFLAG*) to use the skill
-	BYTE sMinMag;
+	BYTE sReqMag;
 	BYTE sSFX;     // _sfx_id
 	BYTE sMissile; // missile_id
 	BYTE sManaAdj;

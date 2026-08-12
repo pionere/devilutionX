@@ -849,9 +849,9 @@ static void CalcItemReqs(int pnum)
 				sa += pi->_iPLStr;
 				ma += pi->_iPLMag;
 				da += pi->_iPLDex;
-				strReq[i] = pi->_iMinStr == 0 ? INT_MIN : pi->_iMinStr + (pi->_iPLStr > 0 ? pi->_iPLStr : 0);
-				magReq[i] = pi->_iMinMag == 0 ? INT_MIN : pi->_iMinMag + (pi->_iPLMag > 0 ? pi->_iPLMag : 0);
-				dexReq[i] = pi->_iMinDex == 0 ? INT_MIN : pi->_iMinDex + (pi->_iPLDex > 0 ? pi->_iPLDex : 0);
+				strReq[i] = pi->_iReqStr == 0 ? INT_MIN : pi->_iReqStr + (pi->_iPLStr > 0 ? pi->_iPLStr : 0);
+				magReq[i] = pi->_iReqMag == 0 ? INT_MIN : pi->_iReqMag + (pi->_iPLMag > 0 ? pi->_iPLMag : 0);
+				dexReq[i] = pi->_iReqDex == 0 ? INT_MIN : pi->_iReqDex + (pi->_iPLDex > 0 ? pi->_iPLDex : 0);
 			//}
 		}
 	}
@@ -928,9 +928,9 @@ void SetItemSData(ItemStruct* is, int idata)
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
 	is->_iBaseCrit = ids->iBaseCrit;
-	is->_iMinStr = ids->iMinStr;
-	is->_iMinMag = ids->iMinMag;
-	is->_iMinDex = ids->iMinDex;
+	is->_iReqStr = ids->iReqStr;
+	is->_iReqMag = ids->iReqMag;
+	is->_iReqDex = ids->iReqDex;
 	is->_iUsable = ids->iUsable;
 	is->_iAC = ids->iMinAC == ids->iMaxAC ? ids->iMinAC : RandRangeLow(ids->iMinAC, ids->iMaxAC);
 	is->_iDurability = ids->iUsable ? 1 : ids->iDurability; // STACK
@@ -1233,7 +1233,7 @@ static void SetBookSpell(ItemStruct* is, unsigned lvl)
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 
-	is->_iMinMag = sd->sMinMag;
+	is->_iReqMag = sd->sReqMag;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sBookCost;
 	is->_iIvalue = sd->sBookCost;
@@ -1291,7 +1291,7 @@ static void SetScrollSpell(ItemStruct* is, unsigned lvl)
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 
-	is->_iMinMag = sd->sMinMag > SCRL_MAG ? sd->sMinMag - SCRL_MAG : 0;
+	is->_iReqMag = sd->sReqMag > SCRL_MAG ? sd->sReqMag - SCRL_MAG : 0;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
 	is->_iIvalue = sd->sStaffCost;
@@ -1329,7 +1329,7 @@ static void SetRuneSpell(ItemStruct* is, unsigned lvl)
 	is->_iSpell = bs;
 	sd = &spelldata[bs];
 
-	is->_iMinMag = sd->sMinMag;
+	is->_iReqMag = sd->sReqMag;
 	// assert(is->_ivalue == 0 && is->_iIvalue == 0);
 	is->_ivalue = sd->sStaffCost;
 	is->_iIvalue = sd->sStaffCost;
@@ -1381,7 +1381,7 @@ static void SetStaffSpell(ItemStruct* is, unsigned lvl)
 	is->_iAffixes[0].asValue0 = bs;
 	is->_iNumAffixes = 1;
 
-	is->_iMinMag = sd->sMinMag;
+	is->_iReqMag = sd->sReqMag;
 	v = is->_iCharges * sd->sStaffCost;
 	is->_ivalue += v;
 	is->_iIvalue += v;
@@ -1539,7 +1539,7 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 		is->_iDurability = is->_iMaxDur = r;
 		break;
 	case IPL_REQSTR:
-		is->_iMinStr += r;
+		is->_iReqStr += r;
 		break;
 	case IPL_SKILL:
 		param1 = GetStaffSpell(is->_iCreateInfo & CF_LEVEL);
@@ -1555,7 +1555,7 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 		is->_iSpell = param1;
 		is->_iCharges = param2;
 		is->_iMaxCharges = param2;
-		is->_iMinMag = spelldata[param1].sMinMag;
+		is->_iReqMag = spelldata[param1].sReqMag;
 		break;
 	case IPL_ONEHAND:
 		is->_iLoc = ILOC_ONEHAND;
@@ -3236,7 +3236,7 @@ static int LinesOfItemDetails(const ItemStruct* is)
 	}
 	result += LinesOfBonusInfo(is);
 	result += LinesOfMiscInfo(is);
-	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+	if ((is->_iReqStr | is->_iReqMag | is->_iReqDex) != 0) {
 		result++;
 	}
 	return result;
@@ -3314,24 +3314,24 @@ void DrawItemDetails(const ItemStruct* is)
 	}
 	DrawBonusInfo(is, x, y);
 	DrawItemMiscInfo(is, x, y);
-	if ((is->_iMinStr | is->_iMinMag | is->_iMinDex) != 0) {
+	if ((is->_iReqStr | is->_iReqMag | is->_iReqDex) != 0) {
 		int cursor = 0;
 		cat_cstr(tempstr, cursor, "Req.:");
-		if (is->_iMinStr != 0)
-			cat_str(tempstr, cursor, " %d Str", is->_iMinStr);
-		if (is->_iMinMag != 0)
-			cat_str(tempstr, cursor, " %d Mag", is->_iMinMag);
-		if (is->_iMinDex != 0)
-			cat_str(tempstr, cursor, " %d Dex", is->_iMinDex);
+		if (is->_iReqStr != 0)
+			cat_str(tempstr, cursor, " %d Str", is->_iReqStr);
+		if (is->_iReqMag != 0)
+			cat_str(tempstr, cursor, " %d Mag", is->_iReqMag);
+		if (is->_iReqDex != 0)
+			cat_str(tempstr, cursor, " %d Dex", is->_iReqDex);
 		PrintItemString(x, y, tempstr, is->_iStatFlag ? COL_WHITE : COL_RED);
 	}
 }
 
 void ItemStatOk(int pnum, ItemStruct* is)
 {
-	is->_iStatFlag = plr._pStrength >= is->_iMinStr
-				  && plr._pDexterity >= is->_iMinDex
-				  && plr._pMagic >= is->_iMinMag;
+	is->_iStatFlag = plr._pStrength >= is->_iReqStr
+				  && plr._pDexterity >= is->_iReqDex
+				  && plr._pMagic >= is->_iReqMag;
 }
 
 static bool SmithItemOk(const ItemData& item, void* arg)

@@ -212,9 +212,9 @@ static bool HasUniqueItemReq(const UniqItemData& ui, BYTE pow)
 		if (ids.iUniqType == ui.UIUniqType) {
 			int minv;
 			switch (pow) {
-			case IPL_STR: minv = ids.iMinStr; break;
-			case IPL_MAG: minv = ids.iMinMag; break;
-			case IPL_DEX: minv = ids.iMinDex; break;
+			case IPL_STR: minv = ids.iReqStr; break;
+			case IPL_MAG: minv = ids.iReqMag; break;
+			case IPL_DEX: minv = ids.iReqDex; break;
 			default:ASSUME_UNREACHABLE; break;
 			}
 			if (minv + dv != 0)
