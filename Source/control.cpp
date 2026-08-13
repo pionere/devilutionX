@@ -410,7 +410,7 @@ void DrawSkillList()
 	numPlrSkills = 0;
 	for (i = 0; i < NUM_INVLOC; i++) {
 		const ItemStruct* pi = &plr._pInvBody[i];
-		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0*/ && pi->_iSpell != SPL_NULL) {
+		if (pi->_itype != ITYPE_NONE/* && pi->_iCharges > 0*/ && pi->_iSpell != SPL_NULL && !pi->_iUnidentified) {
 			const PlrSkillUse listSkill = { (BYTE)pi->_iSpell, (int8_t)i };
 
 			numPlrSkills++;
