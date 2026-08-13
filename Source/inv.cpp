@@ -1812,7 +1812,7 @@ bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)
 
 	is = PlrItem(pnum, cii);
 
-	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+	if (is->_itype == ITYPE_NONE) // || !is->_iStatFlag)
 		return false;
 
 	// if (!is->_iUsable)
