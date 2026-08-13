@@ -586,7 +586,7 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 	ItemStruct* pi;
 	int i, n;
 
-	if (is->_iLoc != ILOC_BELT || !is->_iStatFlag)
+	if (is->_iLoc != ILOC_BELT) // || !is->_iStatFlag)
 		return false;
 
 	// assert(is->_iUsable);
