@@ -2980,8 +2980,7 @@ const char* ItemName(const ItemStruct* is)
 	} else if (is->_iMagical == ITEM_QUALITY_UNIQUE) {
 		if (!is->_iUnidentified)
 			name = UniqueItemList[is->_iUid].UIName;
-	} else if ((is->_itype == ITYPE_STAFF && is->_iSpell != SPL_NULL)
-		|| is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_BOOK
+	} else if (is->_iMiscId == IMISC_SCROLL || is->_iMiscId == IMISC_BOOK
 #ifdef HELLFIRE
 		|| is->_iMiscId == IMISC_RUNE
 #endif
