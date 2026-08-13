@@ -2397,6 +2397,8 @@ static bool CheckPlrSkillUse(int pnum, const CmdSkillUse& su)
 		if (sf == SPLFROM_MANA) {
 			if (slvl == 0)
 				return false;
+			if (plr._pMagic < spelldata[sn].sReqMag)
+				return false;
 			net_check(plr._pMemSkills & SPELL_MASK(sn), false);
 			// always grant skill-activity to prevent de-sync
 			// TODO: add checks to prevent abuse?

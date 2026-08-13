@@ -44,7 +44,7 @@ void SpellCheck(PlrSkillUse* skill)
 			// assert(spelldata[sn].sManaCost == 0);
 			break;
 		case SPLFROM_MANA:
-			result = plr._pSkillLvl[sn] > 0 ? (plr._pMana >= GetManaAmount(pnum, sn) ? SPLFROM_MANA : SPLFROM_INVALID_MANA) : SPLFROM_INVALID_LEVEL;
+			result = (plr._pSkillLvl[sn] > 0 && plr._pMagic >= spelldata[sn].sReqMag) ? (plr._pMana >= GetManaAmount(pnum, sn) ? SPLFROM_MANA : SPLFROM_INVALID_MANA) : (plr._pMagic >= spelldata[sn].sReqMag ? SPLFROM_INVALID_LEVEL : SPLFROM_INVALID_MAGIC);
 			break;
 		case SPLFROM_INVALID_TYPE:
 			break;
