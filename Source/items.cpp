@@ -331,11 +331,12 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	pi = plr._pInvBody;
 	for (i = NUM_INVLOC; i != 0; i--, pi++) {
-		if (pi->_itype != ITYPE_NONE && pi->_iStatFlag) {
+		if (pi->_itype != ITYPE_NONE && plr._pStrength >= pi->_iReqStr) {
 			cac = pi->_iAC;
 			cdmod = 0;
 			cdmodp = 0;
 
+			const bool doDam = /*plr._pStrength >= pi->_iReqStr && plr._pMagic >= pi->_iReqMag */plr._pDexterity >= pi->_iReqDex;
 			if (pi->_iMagical != ITEM_QUALITY_NORMAL) {
 				idi |= pi->_iUnidentified;
 				btohit += pi->_iPLToHit;
@@ -383,20 +384,28 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 						skillLvlAdds += ias->asValue0;
 						break;
 					case IPL_FIREDAM:
-						fmin += ias->asFrom;
-						fmax += ias->asTo;
+						if (doDam) {
+							fmin += ias->asFrom;
+							fmax += ias->asTo;
+						}
 						break;
 					case IPL_LIGHTDAM:
-						lmin += ias->asFrom;
-						lmax += ias->asTo;
+						if (doDam) {
+							lmin += ias->asFrom;
+							lmax += ias->asTo;
+						}
 						break;
 					case IPL_MAGICDAM:
-						mmin += ias->asFrom;
-						mmax += ias->asTo;
+						if (doDam) {
+							mmin += ias->asFrom;
+							mmax += ias->asTo;
+						}
 						break;
 					case IPL_ACIDDAM:
-						amin += ias->asFrom;
-						amax += ias->asTo;
+						if (doDam) {
+							amin += ias->asFrom;
+							amax += ias->asTo;
+						}
 						break;
 					case IPL_ABS_ANYHIT:
 						absAnyHit += ias->asValue0;
@@ -495,7 +504,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 			tac += cac;
 			maxdam = pi->_iMaxDam;
-			if (maxdam == 0)
+			if (!doDam || maxdam == 0)
 				continue;
 			cdmodp += 100;
 			cc += pi->_iBaseCrit;
@@ -623,7 +632,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	bf = false;
 	wt = SFLAG_MELEE;
-	gfx = wLeft->_iStatFlag ? wLeft->_itype : ITYPE_NONE;
+	gfx = plr._pStrength >= wLeft->_iReqStr ? wLeft->_itype : ITYPE_NONE;
 
 	switch (gfx) {
 	case ITYPE_NONE:
@@ -661,16 +670,17 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	}
 #endif*/
 	maxdam = plr._pMaxHP >> (2 + 1 - 1); // ~1/4 hp - halved by resists, doubled by MissToPlr
-	if (wRight->_itype == ITYPE_SHIELD && wRight->_iStatFlag
+	if (wRight->_itype == ITYPE_SHIELD && plr._pStrength >= wRight->_iReqStr
 	 && (gfx == ANIM_ID_UNARMED || gfx == ANIM_ID_SWORD || gfx == ANIM_ID_MACE)) {
-		tac += ((dadd - (1 << 7)) * wRight->_iAC) >> 7;
-		bf = true;
 		static_assert((int)ANIM_ID_UNARMED + 1 == (int)ANIM_ID_UNARMED_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield I.");
 		static_assert((int)ANIM_ID_SWORD + 1 == (int)ANIM_ID_SWORD_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield II.");
 		static_assert((int)ANIM_ID_MACE + 1 == (int)ANIM_ID_MACE_SHIELD, "CalcPlrItemVals uses inc to set gfx with shield III.");
 		gfx++;
-
-		maxdam += wRight->_iAC << (6 + 2 + 1 - 1); // 4*AC - halved by resists, doubled by MissToPlr
+		bf = wRight->_iStatFlag;
+		if (bf) {
+			tac += ((dadd - (1 << 7)) * wRight->_iAC) >> 7;
+			maxdam += wRight->_iAC << (6 + 2 + 1 - 1); // 4*AC - halved by resists, doubled by MissToPlr
+		}
 	}
 	plr._pIChMinDam = maxdam >> 1;
 	plr._pIChMaxDam = maxdam;
@@ -834,8 +844,6 @@ static void CalcItemReqs(int pnum)
 	ItemStruct* pi;
 	int sa, ma, da, sc, mc, dc;
 	int strReq[NUM_INVLOC];
-	int magReq[NUM_INVLOC];
-	int dexReq[NUM_INVLOC];
 
 	sa = plr._pBaseStr;
 	ma = plr._pBaseMag;
@@ -850,8 +858,6 @@ static void CalcItemReqs(int pnum)
 				ma += pi->_iPLMag;
 				da += pi->_iPLDex;
 				strReq[i] = pi->_iReqStr == 0 ? INT_MIN : pi->_iReqStr + (pi->_iPLStr > 0 ? pi->_iPLStr : 0);
-				magReq[i] = pi->_iReqMag == 0 ? INT_MIN : pi->_iReqMag + (pi->_iPLMag > 0 ? pi->_iPLMag : 0);
-				dexReq[i] = pi->_iReqDex == 0 ? INT_MIN : pi->_iReqDex + (pi->_iPLDex > 0 ? pi->_iPLDex : 0);
 			//}
 		}
 	}
@@ -860,7 +866,7 @@ recheck:
 	for (i = 0; i < NUM_INVLOC; i++, pi++) {
 		if (pi->_itype == ITYPE_NONE)
 			continue;
-		if (sa >= strReq[i] && ma >= magReq[i] && da >= dexReq[i])
+		if (sa >= strReq[i])
 			continue;
 		if (pi->_iStatFlag) {
 			pi->_iStatFlag = FALSE;
@@ -883,6 +889,10 @@ recheck:
 
 	pi = &plr._pHoldItem;
 	ItemStatOk(pnum, pi);
+
+	pi = plr._pInvBody;
+	for (i = NUM_INVLOC; i != 0; i--, pi++)
+		ItemStatOk(pnum, pi);
 
 	pi = plr._pInvList;
 	for (i = NUM_INV_GRID_ELEM; i != 0; i--, pi++)

@@ -882,7 +882,7 @@ void InvPasteItem(int pnum, BYTE r)
 	if (!done)
 		return;
 
-	if (il != ILOC_UNEQUIPABLE && !holditem->_iStatFlag) {
+	if (il != ILOC_UNEQUIPABLE && plr._pStrength < holditem->_iReqStr) {
 		if (pnum == mypnum)
 			PlaySfx(sgSFXSets[SFXS_PLR_13][p->_pClass]);
 		return;
