@@ -46,12 +46,12 @@ static const BYTE BloodBoilLocs[][2] = {
 
 void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 {
-	int k, magic, mind, maxd;
+	int k, power, mind, maxd;
 
 	assert((unsigned)mypnum < MAX_PLRS);
 	assert((unsigned)sn < NUM_SPELLS);
 	skd->type = SDT_DAMAGE;
-	magic = myplr._pMagic;
+	power = myplr._pIPower;
 #ifdef HELLFIRE
 	if (SPELL_RUNE(sn))
 		sl += myplr._pDexterity >> 4;
@@ -59,7 +59,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	switch (sn) {
 	case SPL_FIREBOLT:
 	case SPL_GUARDIAN:
-		k = (magic >> 3) + sl;
+		k = (power >> 3) + sl;
 		skd->v0 = k + 1;
 		skd->v1 = k + 10;
 		break;
@@ -68,13 +68,13 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 #endif
 	case SPL_LIGHTNING:
 		skd->v0 = 1;
-		magic <<= 1;
-		magic++;
+		power <<= 1;
+		power++;
 		sl <<= 5;
-		skd->v1 = 3 * (magic * sl) / (magic + sl);
+		skd->v1 = 3 * (power * sl) / (power + sl);
 		break;
 	case SPL_FLASH:
-		mind = magic >> 1;
+		mind = power >> 1;
 		for (k = 0; k < sl; k++)
 			mind += mind >> 3;
 
@@ -86,7 +86,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v1 = maxd;
 		break;
 	case SPL_PULSE:
-		k = (magic >> 2) + (sl << 2);
+		k = (power >> 2) + (sl << 2);
 		skd->v0 = k * 3 / 4u;
 		skd->v1 = k * 5 / 2u;
 		break;
@@ -192,11 +192,11 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_FIRERING:
 #endif
 	case SPL_FIREWALL:
-		skd->v0 = ((magic >> 3) + sl + 5) << (-3 + 5);
-		skd->v1 = ((magic >> 3) + sl * 2 + 10) << (-3 + 5);
+		skd->v0 = ((power >> 3) + sl + 5) << (-3 + 5);
+		skd->v1 = ((power >> 3) + sl * 2 + 10) << (-3 + 5);
 		break;
 	case SPL_FIREBALL:
-		mind = (magic >> 2) + 10;
+		mind = (power >> 2) + 10;
 		maxd = mind + 10;
 		for (k = 0; k < sl; k++) {
 			mind += mind >> 3;
@@ -206,24 +206,24 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v1 = maxd;
 		break;
 	case SPL_METEOR:
-		skd->v0 = (magic >> 2) + (sl << 3) + 40;
-		skd->v1 = (magic >> 2) + (sl << 4) + 40;
+		skd->v0 = (power >> 2) + (sl << 3) + 40;
+		skd->v1 = (power >> 2) + (sl << 4) + 40;
 		break;
 	case SPL_BLOODBOIL:
-		skd->v0 = (magic >> 2) + (sl << 2) + 10;
-		skd->v1 = (magic >> 2) + (sl << 3) + 10;
+		skd->v0 = (power >> 2) + (sl << 2) + 10;
+		skd->v1 = (power >> 2) + (sl << 3) + 10;
 		break;
 	case SPL_CHAIN:
 		skd->v0 = 1;
-		skd->v1 = magic;
+		skd->v1 = power;
 		break;
 #ifdef HELLFIRE
 	case SPL_RUNEWAVE:
 #endif
 	case SPL_WAVE:
-		magic >>= 4;
-		magic++;
-		mind = 32 * (magic * sl) / (magic + sl);
+		power >>= 4;
+		power++;
+		mind = 32 * (power * sl) / (power + sl);
 		skd->v0 = mind;
 		skd->v1 = mind + sl * 4;
 		break;
@@ -232,14 +232,14 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 #endif
 	case SPL_NOVA:
 		skd->v0 = 1;
-		magic <<= 2;
-		magic++;
+		power <<= 2;
+		power++;
 		sl <<= 6;
-		skd->v1 = (magic * sl) / (magic + sl);
+		skd->v1 = (power * sl) / (power + sl);
 		break;
 	case SPL_INFERNO:
-		mind = magic;
-		maxd = magic + (sl << 4);
+		mind = power;
+		maxd = power + (sl << 4);
 
 		k = MIA_INFERNO_LENGTH * MIA_INFERNO_DELAY;
 		mind *= k;
@@ -254,7 +254,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 	case SPL_SKELAX:
 	case SPL_SKELBW: {
 		skd->type = SDT_SUMMON;
-		sl = sl * 4 + (magic >> 6);
+		sl = sl * 4 + (power >> 6);
 		// sl++;
 		// sl--; -- lvlBonus (PreSpawnMinion)
 		static_assert((int)MMT_GOLEM == 0, "GetSkillDetails expects ordered SPL/MMT enums I.");
@@ -271,8 +271,8 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v2 = sl * monData.mMinHP / k;
 	} break;
 	case SPL_ELEMENTAL:
-		mind = (magic >> 3) + 2 * sl + 4;
-		maxd = (magic >> 3) + 4 * sl + 20;
+		mind = (power >> 3) + 2 * sl + 4;
+		maxd = (power >> 3) + 4 * sl + 20;
 		for (k = 0; k < sl; k++) {
 			mind += mind >> 3;
 			maxd += maxd >> 3;
@@ -282,22 +282,22 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		break;
 	case SPL_CBOLT:
 		skd->v0 = 1;
-		skd->v1 = (magic >> 2) + (sl << 2);
+		skd->v1 = (power >> 2) + (sl << 2);
 		break;
 	case SPL_HBOLT:
-		skd->v0 = (magic >> 2) + sl;
+		skd->v0 = (power >> 2) + sl;
 		skd->v1 = skd->v0 + 9;
 		break;
 	case SPL_FLARE:
-		skd->v0 = skd->v1 = (magic * (sl + 1)) >> 3;
+		skd->v0 = skd->v1 = (power * (sl + 1)) >> 3;
 		break;
 	case SPL_POISON:
-		skd->v0 = ((magic >> 4) + sl + 2) << (-3 + 5);
-		skd->v1 = ((magic >> 4) + sl + 4) << (-3 + 5);
+		skd->v0 = ((power >> 4) + sl + 2) << (-3 + 5);
+		skd->v1 = ((power >> 4) + sl + 4) << (-3 + 5);
 		break;
 	case SPL_WIND:
-		mind = (magic >> 3) + 7 * sl + 1;
-		maxd = (magic >> 3) + 8 * sl + 1;
+		mind = (power >> 3) + 7 * sl + 1;
+		maxd = (power >> 3) + 8 * sl + 1;
 
 		k = MIA_WIND_LENGTH * MIA_WIND_DELAY;
 		k = ((k + 1) << (-3 + 5)) / 16;
@@ -307,10 +307,10 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 #ifdef HELLFIRE
 	/*case SPL_LIGHTWALL:
 		skd->v0 = 1;
-		skd->v1 = ((magic >> 1) + sl) << (-3 + 5);
+		skd->v1 = ((power >> 1) + sl) << (-3 + 5);
 		break;
 	case SPL_IMMOLAT:
-		mind = 1 + (magic >> 3);
+		mind = 1 + (power >> 3);
 		maxd = mind + 4;
 		for (k = 0; k < sl; k++) {
 			mind += mind >> 3;
@@ -320,10 +320,10 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v1 = maxd;
 		break;*/
 	case SPL_RUNEFIRE:
-		// magic >>= 0;
-		magic++;
+		// power >>= 0;
+		power++;
 		sl <<= 4;
-		mind = 1 + 8 * (magic * sl) / (magic + sl);
+		mind = 1 + 8 * (power * sl) / (power + sl);
 		skd->v0 = mind;
 		skd->v1 = mind + (sl >> 2);
 		break;
@@ -1866,7 +1866,7 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	assert((unsigned)misource < MAX_PLRS);
 	//if (misource != -1) {
 		// TODO: bring it closer to AddFirewall? (_pISplDur, adjust damage)
-		mis->_miMaxDam = ((plx(misource)._pMagic >> 1) + spllvl) << (-3 + 6);
+		mis->_miMaxDam = ((plx(misource)._pIPower >> 1) + spllvl) << (-3 + 6);
 	//} else {
 	//	mis->_miMaxDam = (20 + currLvl._dLevel) << (-2 + 6);
 	//}
@@ -1880,17 +1880,17 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 int AddFireexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam, dam;
+	int power, mindam, maxdam, dam;
 	// ((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
 
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
-		magic = plx(misource)._pMagic;
-		magic >>= 0;
-		magic++;
+		power = plx(misource)._pIPower;
+		power >>= 0;
+		power++;
 		spllvl <<= 4;
-		mindam = 1 + 8 * (magic * spllvl) / (magic + spllvl);
+		mindam = 1 + 8 * (power * spllvl) / (power + spllvl);
 		maxdam = mindam + (spllvl >> 2);
 		dam = RandRange(mindam, maxdam);
 	} else {
@@ -2014,11 +2014,11 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		// assert((unsigned)misource < MAX_PLRS);
 		switch (mis->_miType) {
 		case MIS_FIREBOLT:
-			mindam = (plx(misource)._pMagic >> 3) + spllvl + 1;
+			mindam = (plx(misource)._pIPower >> 3) + spllvl + 1;
 			maxdam = mindam + 9;
 			break;
 		case MIS_FIREBALL:
-			mindam = (plx(misource)._pMagic >> 2) + 10;
+			mindam = (plx(misource)._pIPower >> 2) + 10;
 			maxdam = mindam + 10;
 			for (i = spllvl; i > 0; i--) {
 				mindam += mindam >> 3;
@@ -2026,13 +2026,13 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			}
 			break;
 		case MIS_HBOLT:
-			mindam = (plx(misource)._pMagic >> 2) + spllvl;
+			mindam = (plx(misource)._pIPower >> 2) + spllvl;
 			maxdam = mindam + 9;
 			break;
 		case MIS_FLARE:
 			if (!plx(misource)._pInvincible)
 				PlrDecHp(misource, 50 << 6, DMGTYPE_NPC);
-			mindam = maxdam = (plx(misource)._pMagic * (spllvl + 1)) >> 3;
+			mindam = maxdam = (plx(misource)._pIPower * (spllvl + 1)) >> 3;
 			break;
 		default:
 			ASSUME_UNREACHABLE
@@ -2093,16 +2093,16 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam;
+	int power, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mindam = 1;
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
-		magic = plx(misource)._pMagic;
-		magic <<= 2;
-		magic++;
+		power = plx(misource)._pIPower;
+		power <<= 2;
+		power++;
 		spllvl <<= 6;
-		maxdam = (magic * spllvl) / (magic + spllvl);
+		maxdam = (power * spllvl) / (power + spllvl);
 	} else {
 		maxdam = 6 + currLvl._dLevel;
 	}
@@ -2120,7 +2120,7 @@ int AddLightball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam;
+	int power, mindam, maxdam;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2128,8 +2128,8 @@ int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	//if (misource != -1) {
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
-		magic = plx(misource)._pMagic;
-		mindam = (magic >> 4) + spllvl + 2;
+		power = plx(misource)._pIPower;
+		mindam = (power >> 4) + spllvl + 2;
 		maxdam = mindam + 2;
 	//} else {
 	//	mindam = 5 + currLvl._dLevel;
@@ -2148,7 +2148,7 @@ int AddPoison(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 int AddWind(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam;
+	int power, mindam, maxdam;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2156,9 +2156,9 @@ int AddWind(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	mis->_mityoff += 4 * mis->_miyvel;
 	GetMissilePos(mis);
 	//if (misource != -1) {
-		magic = plx(misource)._pMagic;
-		mindam = (magic >> 3) + 7 * spllvl + 1;
-		maxdam = (magic >> 3) + 8 * spllvl + 1;
+		power = plx(misource)._pIPower;
+		mindam = (power >> 3) + 7 * spllvl + 1;
+		maxdam = (power >> 3) + 8 * spllvl + 1;
 	//} else {
 	//	mindam = (5 + currLvl._dLevel) / 8;
 	//	maxdam = (10 + currLvl._dLevel * 2) / 8;
@@ -2283,7 +2283,7 @@ int AddRndTeleport(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam;
+	int power, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
 	mis->_miRange = 64 * spllvl + 134;
@@ -2291,9 +2291,9 @@ int AddFirewall(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 		// assert((unsigned)misource < MAX_PLRS);
 		// TODO: add support for spell duration modifier
 		// range += (plx(misource)._pISplDur * range) >> 7;
-		magic = plx(misource)._pMagic;
-		mindam = (magic >> 3) + spllvl + 5;
-		maxdam = (magic >> 3) + spllvl * 2 + 10;
+		power = plx(misource)._pIPower;
+		mindam = (power >> 3) + spllvl + 5;
+		maxdam = (power >> 3) + spllvl * 2 + 10;
 	} else {
 		mindam = 5 + currLvl._dLevel;
 		maxdam = 10 + currLvl._dLevel * 2;
@@ -2320,7 +2320,7 @@ int AddLightningC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam, range;
+	int power, mindam, maxdam, range;
 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 4, "AddLightning needs at least light-radius of 4.");
@@ -2335,11 +2335,11 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
 		mindam = 1;
-		magic = plx(misource)._pMagic;;
-		magic <<= 1;
-		magic++;
+		power = plx(misource)._pIPower;;
+		power <<= 1;
+		power++;
 		spllvl <<= 5;
-		maxdam = 3 * (magic * spllvl) / (magic + spllvl);
+		maxdam = 3 * (power * spllvl) / (power + spllvl);
 	} else if (micaster == MST_MONSTER) {
 		// assert((unsigned)misource < MAXMONSTERS);
 		if (spllvl == 0) {
@@ -2390,19 +2390,19 @@ int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 int AddBloodBoil(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam;
+	int power, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
 	if (micaster == MST_MONSTER) {
 		// assert((unsigned)misource < MAXMONSTERS);
-		magic = monsters[misource]._mLevel;
-		mindam = magic << (6 - 1); // TODO: use _mSkillLvl?
-		maxdam = magic << 6;
+		power = monsters[misource]._mLevel;
+		mindam = power << (6 - 1); // TODO: use _mSkillLvl?
+		maxdam = power << 6;
 	} else {
 		// assert((unsigned)misource < MAX_PLRS);
-		magic = plx(misource)._pMagic;
-		mindam = (magic << (6 - 2)) + (spllvl << (6 + 2)) + (10 << 6);
-		maxdam = (magic << (6 - 2)) + (spllvl << (6 + 3)) + (10 << 6);
+		power = plx(misource)._pIPower;
+		mindam = (power << (6 - 2)) + (spllvl << (6 + 2)) + (10 << 6);
+		maxdam = (power << (6 - 2)) + (spllvl << (6 + 3)) + (10 << 6);
 	}
 
 	mis->_miMinDam = mindam;
@@ -2572,7 +2572,7 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	mis = &missile[mi];
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
-		dam = plx(misource)._pMagic >> 1;
+		dam = plx(misource)._pIPower >> 1;
 		for (i = spllvl; i > 0; i--) {
 			dam += dam >> 3;
 		}
@@ -2598,15 +2598,15 @@ int AddFlash(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam;
+	int power, mindam, maxdam;
 	// assert((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	mis = &missile[mi];
 	if (misource != -1) {
 		// assert((unsigned)misource < MAX_PLRS);
-		magic = plx(misource)._pMagic;
-		magic >>= 4;
-		magic++;
-		mindam = 32 * (magic * spllvl) / (magic + spllvl);
+		power = plx(misource)._pIPower;
+		power >>= 4;
+		power++;
+		mindam = 32 * (power * spllvl) / (power + spllvl);
 		maxdam = mindam + spllvl * 4;
 	} else {
 		mindam = currLvl._dLevel + 1;
@@ -2620,15 +2620,15 @@ int AddFireWave(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, mindam, maxdam, i, j, tx, ty;
+	int power, mindam, maxdam, i, j, tx, ty;
 	const int8_t* cr;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	//if (micaster & MST_PLAYER) {
-		magic = plx(misource)._pMagic;
-		mindam = (magic << (6 - 2)) + (spllvl << (6 + 3)) + (40 << 6);
-		maxdam = (magic << (6 - 2)) + (spllvl << (6 + 4)) + (40 << 6);
+		power = plx(misource)._pIPower;
+		mindam = (power << (6 - 2)) + (spllvl << (6 + 3)) + (40 << 6);
+		maxdam = (power << (6 - 2)) + (spllvl << (6 + 4)) + (40 << 6);
 	/*} else if (micaster == MST_MONSTER) {
 		// assert((unsigned)misource < MAXMONSTERS);
 		mindam = monsters[misource]._mMinDamage << 6;
@@ -2679,7 +2679,7 @@ int AddChain(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	mis->_miVar1 = 1 + (spllvl >> 1);
 	//if (micaster & MST_PLAYER) {
 		mis->_miMinDam = 1 << 6;
-		mis->_miMaxDam = plx(misource)._pMagic << 6;
+		mis->_miMaxDam = plx(misource)._pIPower << 6;
 	//} else if (micaster == MST_MONSTER) {
 	//	// assert((unsigned)misource < MAXMONSTERS);
 	//	mindam = 1 << 6;
@@ -2877,7 +2877,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	int level;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
-	level = spllvl * 4 + (plx(misource)._pMagic >> 6);
+	level = spllvl * 4 + (plx(misource)._pIPower >> 6);
 	static_assert(MAX_MINIONS == MAX_PLRS, "AddGolem requires that owner of a monster has the same id as the monster itself.");
 	mon = &monsters[misource];
 	if (mon->_mmode > MM_INGAME_LAST) {
@@ -2998,7 +2998,7 @@ int AddHealOther(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int magic, i, mindam, maxdam;
+	int power, i, mindam, maxdam;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -3010,9 +3010,9 @@ int AddElemental(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(sx, sy, 8);
 
-	magic = plx(misource)._pMagic;
-	mindam = (magic >> 3) + 2 * spllvl + 4;
-	maxdam = (magic >> 3) + 4 * spllvl + 20;
+	power = plx(misource)._pIPower;
+	mindam = (power >> 3) + 2 * spllvl + 4;
+	maxdam = (power >> 3) + 4 * spllvl + 20;
 	for (i = spllvl; i > 0; i--) {
 		mindam += mindam >> 3;
 		maxdam += maxdam >> 3;
@@ -3151,7 +3151,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	// assert(misource != -1);
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
-		mindam = plx(misource)._pMagic;
+		mindam = plx(misource)._pIPower;
 		maxdam = mindam + (spllvl << 4);
 	} else {
 		// assert((unsigned)misource < MAXMONSTERS);
@@ -3239,7 +3239,7 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
 		mindam = 1 << 6;
-		maxdam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
+		maxdam = (plx(misource)._pIPower << (-2 + 6)) + (spllvl << (2 + 6));
 	} else {
 		// assert((unsigned)misource < MAXMONSTERS);
 		mindam = monsters[misource]._mMinDamage << 6;
@@ -3333,7 +3333,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
 		if (LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)
-		 && CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && monsters[target]._mmode <= MM_INGAME_LAST && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pMagic) {
+		 && CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && monsters[target]._mmode <= MM_INGAME_LAST && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pIPower) {
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;
@@ -3350,7 +3350,7 @@ int AddTelekinesis(int mi, int sx, int sy, int dx, int dy, int midir, int micast
 		// assert(target < MAX_PLRS);
 		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
 		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints != 0 && plx(target)._pmode != PM_BLOCK
-		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pMagic) {
+		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pIPower) {
 			// int dir = GetDirection8(plr._px, plr._py, plx(target)._px, plx(target)._py);
 			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._pdir);
 		}
@@ -3463,7 +3463,7 @@ int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	} else {
 		// assert((unsigned)misource < MAX_PLRS);
 		mindam = 1 << 6;
-		maxdam = (plx(misource)._pMagic << (-2 + 6)) + (spllvl << (2 + 6));
+		maxdam = (plx(misource)._pIPower << (-2 + 6)) + (spllvl << (2 + 6));
 	}
 	mis->_miVar1 = mindam / 4u;
 	mis->_miVar2 = maxdam / 4u;

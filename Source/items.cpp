@@ -326,6 +326,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	unsigned cc = 0; // critical hit chance
 	int btochit = 0; // bonus chance to critical hit
+	unsigned pmodp = 0; // added power
 
 	Loadgfx &= plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging;
 
@@ -503,6 +504,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			}
 
 			tac += cac;
+			pmodp += pi->_iBasePow;
 			maxdam = pi->_iMaxDam;
 			if (!doDam || maxdam == 0)
 				continue;
@@ -705,6 +707,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate bonuses
 	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
+	plr._pIPower = madd * (100 + pmodp) / 100;
 	plr._pIEvasion = dadd / 5 + 2 * plr._pLevel;
 	plr._pIAC = tac + plr._pIEvasion;
 	btohit += 50; // + plr._pLevel;

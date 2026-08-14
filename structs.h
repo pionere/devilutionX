@@ -221,6 +221,7 @@ typedef struct ItemData {
 	BYTE iMinDam;
 	BYTE iMaxDam;
 	BYTE iBaseCrit;
+	BYTE iBasePow;
 	BYTE iReqStr; // the required strength to use the item
 	BYTE iReqMag; // the required magic to use the item
 	BYTE iReqDex; // the required dexterity to use the item
@@ -269,12 +270,12 @@ typedef struct ItemStruct {
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	BYTE _iBaseCrit;
+	BYTE _iBasePow;
 	BYTE _iReqStr; // the required strength to use the item
 	BYTE _iReqMag; // the required magic to use the item
 	BYTE _iReqDex; // the required dexterity to use the item
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
 	BYTE _iPrePower; // item_effect_type -- unused
-	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
 	BYTE _iSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
@@ -462,6 +463,7 @@ typedef struct PlayerStruct {
 	int _pIPcMaxDam; // max puncture-damage (bows, daggers)
 	int _pIChMinDam; // min charge-damage (shield charge)
 	int _pIChMaxDam; // max charge-damage (shield charge)
+	int _pIPower; // magic power of the player spells
 	int _pIEvasion;
 	int _pIAC;
 	int8_t _pMagResist;
@@ -492,7 +494,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(193, 110)
+	ALIGNMENT(192, 108)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
