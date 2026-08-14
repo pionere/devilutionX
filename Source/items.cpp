@@ -602,14 +602,12 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
 
-	madd += plr._pBaseMag;
 	vadd += plr._pBaseVit;
-	madd = std::max(0, madd);
 	vadd = std::max(0, vadd);
-	// use calculated str/dex from CalcItemReqs
+	// use calculated str/dex/mag from CalcItemReqs
 	int sadd = plr._pStrength;
 	int dadd = plr._pDexterity;
-	plr._pMagic = madd;
+	madd = plr._pMagic;
 	plr._pVitality = vadd;
 	if (plr._pTimer[PLTR_RAGE] > 0) {
 		sadd += 2 * plr._pLevel;
