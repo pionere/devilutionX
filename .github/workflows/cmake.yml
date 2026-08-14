@@ -35,7 +35,7 @@ jobs:
         #run: apk --no-cache add git cmake ninja bash pkgconfig gettext
         run: |
           sudo apt-get update
-          sudo apt-get install git cmake ninja
+          sudo apt-get install git cmake ninja-build
 
       - name: Configure CMake
         run: |
