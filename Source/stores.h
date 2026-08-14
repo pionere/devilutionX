@@ -40,14 +40,11 @@ void StartStore(int s);
 const ItemStruct* CurrentStoreItem();
 void DrawStore();
 void STextESC();
-void STextUp();
-void STextDown();
-void STextRight();
-void STextLeft();
+void STextMove(int dir);
 void SyncStoreCmd(int pnum, int cmd, int ii, int price);
 bool TakePlrsMoney(int pnum, int cost);
 void STextEnter();
-void TryStoreBtnClick();
+void TryStoreBtnClick(bool altAction);
 void ReleaseStoreBtn();
 
 /* rdata */

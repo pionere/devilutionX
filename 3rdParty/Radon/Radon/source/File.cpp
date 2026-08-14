@@ -6,7 +6,6 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
-#include <assert.h>
 
 namespace radon
 {

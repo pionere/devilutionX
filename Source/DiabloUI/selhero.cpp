@@ -32,6 +32,8 @@ static void SelheroNameInit(unsigned index);
 static void SelheroNameSelect(unsigned index);
 static void SelheroListInit();
 static void SelheroClassSelectorInit();
+static void SelheroClassSelect(unsigned index);
+static void SelheroBuildTypeInit();
 
 #if defined(PREFILL_PLAYER_NAME) || defined(__3DS__) || HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 static const char* SelheroGenerateName(BYTE hero_class)
@@ -86,30 +88,6 @@ static const char* SelheroGenerateName(BYTE hero_class)
 		    "Vhalit",
 		    "Vylnas",
 		    "Zhota",
-		},
-		{ // BARD (uses Rogue names)
-		    "Moreina",
-		    "Akara",
-		    "Kashya",
-		    "Flavie",
-		    "Divo",
-		    "Oriana",
-		    "Iantha",
-		    "Shikha",
-		    "Basanti",
-		    "Elexa",
-		},
-		{ // BARBARIAN
-		    "Alaric",
-		    "Barloc",
-		    "Egtheow",
-		    "Guthlaf",
-		    "Heorogar",
-		    "Hrothgar",
-		    "Oslaf",
-		    "Qual-Kehk",
-		    "Ragnar",
-		    "Ulf",
 		}
 #endif
 		// clang-format on
@@ -345,6 +323,14 @@ static void SelheroClassSelectorFocus(unsigned index)
 	selhero_heroInfo.hiMagic = MagicTbl[index];         //defaults.dsMagic;
 	selhero_heroInfo.hiDexterity = DexterityTbl[index]; //defaults.dsDexterity;
 	selhero_heroInfo.hiVitality = VitalityTbl[index];   //defaults.dsVitality;
+	switch (index) {
+	case PC_WARRIOR:	selhero_heroInfo.hiBuild = {  5,  2,  3,  4 }; break;
+	case PC_ROGUE:		selhero_heroInfo.hiBuild = {  2,  4,  6,  2 }; break;
+	case PC_SORCERER:	selhero_heroInfo.hiBuild = {  2,  6,  3,  3 }; break;
+#ifdef HELLFIRE
+	case PC_MONK:		selhero_heroInfo.hiBuild = {  4,  3,  4,  3 }; break;
+#endif
+	}
 
 	SelheroSetStats();
 }
@@ -363,8 +349,6 @@ static void SelheroClassSelectorInit()
 	gUIListItems.push_back(new UiListItem("Sorcerer", PC_SORCERER));
 #ifdef HELLFIRE
 	gUIListItems.push_back(new UiListItem("Monk", PC_MONK));
-	gUIListItems.push_back(new UiListItem("Bard", PC_BARD));
-	gUIListItems.push_back(new UiListItem("Barbarian", PC_BARBARIAN));
 #endif
 	//assert(gUIListItems.size() == NUM_CLASSES);
 	SDL_Rect rect2 = { SELHERO_RPANEL_LEFT + (SELHERO_RPANEL_WIDTH - 270) / 2, SELHERO_LIST_TOP, 270, 26 * NUM_CLASSES };
@@ -379,7 +363,118 @@ static void SelheroClassSelectorInit()
 	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
 
 	//assert(gUIListItems.size() == NUM_CLASSES);
-	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroNameInit, SelheroClassSelectorEsc);
+	UiInitScreen(NUM_CLASSES, SelheroClassSelectorFocus, SelheroClassSelect, SelheroClassSelectorEsc);
+}
+
+static void SelheroClassSelect(unsigned index)
+{
+	SelheroBuildTypeInit();
+}
+
+static void SelheroStrWeightDec()
+{
+	selhero_heroInfo.hiBuild._pbStr--;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroStrWeightInc()
+{
+	selhero_heroInfo.hiBuild._pbStr++;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroMagWeightDec()
+{
+	selhero_heroInfo.hiBuild._pbMag--;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroMagWeightInc()
+{
+	selhero_heroInfo.hiBuild._pbMag++;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroDexWeightDec()
+{
+	selhero_heroInfo.hiBuild._pbDex--;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroDexWeightInc()
+{
+	selhero_heroInfo.hiBuild._pbDex++;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroVitWeightDec()
+{
+	selhero_heroInfo.hiBuild._pbVit--;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroVitWeightInc()
+{
+	selhero_heroInfo.hiBuild._pbVit++;
+
+	SelheroBuildTypeInit();
+}
+
+static void SelheroAttrSetter(int sx, int sy, const char* attrName, void (*decAction)(), void (*incAction)(), BYTE attrVal, BYTE attrMax, BYTE rp)
+{
+	SDL_Rect rect0 = { sx + 10, sy, SELHERO_RPANEL_WIDTH / 3 + 30, 26 };
+	gUiItems.push_back(new UiText(attrName, rect0, UIS_RIGHT | UIS_VCENTER | UIS_BIG | UIS_SILVER));
+
+	SDL_Rect rect1 = { sx + SELHERO_RPANEL_WIDTH / 3 + 30 + 25, sy, 20, 26 };
+	gUiItems.push_back(new UiTxtButton("-", decAction, rect1, UIS_HCENTER | UIS_VCENTER | UIS_BIG | (attrVal > 2 ? UIS_GOLD : (UIS_SILVER | UIS_DISABLED))));
+
+	SDL_Rect rect2 = { sx + SELHERO_RPANEL_WIDTH / 3 + 30 + 25 + 20, sy, 90, 26 };
+	const char* lbl;
+	switch (attrVal) {
+	case 2: lbl = "Poor";   break;
+	case 3: lbl = "Low";    break;
+	case 4: lbl = "Normal"; break;
+	case 5: lbl = "Good";   break;
+	case 6: lbl = "Great";  break;
+	default: ASSUME_UNREACHABLE; break;
+	}
+	gUiItems.push_back(new UiText(lbl, rect2, UIS_HCENTER | UIS_VCENTER | UIS_BIG | ((attrVal >= attrMax || rp == 0) ? UIS_LIGHT : UIS_GOLD)));
+	
+	SDL_Rect rect3 = { sx + SELHERO_RPANEL_WIDTH / 3 + 30 + 25 + 20 + 90, sy, 20, 26 };
+	gUiItems.push_back(new UiTxtButton("+", incAction, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | (attrVal < attrMax && rp != 0 ? UIS_GOLD : (UIS_SILVER | UIS_DISABLED))));
+}
+
+static void SelheroBuildTypeInit()
+{
+	int sx, sy;
+	BYTE pc, rp;
+
+	SelheroResetScreen(selconn_bMulti ? "New Multi Player Hero" : "New Single Player Hero", "Build Type");
+
+	sx = SELHERO_RPANEL_LEFT;
+	SDL_Rect rect3 = { sx, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("OK", &UiFocusNavigationSelect, rect3, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	SDL_Rect rect4 = { sx + SELHERO_RPANEL_WIDTH / 2, SELHERO_RBUTTON_TOP, SELHERO_RPANEL_WIDTH / 2, 35 };
+	gUiItems.push_back(new UiTxtButton("Cancel", &UiFocusNavigationEsc, rect4, UIS_HCENTER | UIS_VCENTER | UIS_BIG | UIS_GOLD));
+
+	sy = SELHERO_RPANEL_TOP + 35;
+
+	pc = selhero_heroInfo.hiClass;
+	rp = 14 - (selhero_heroInfo.hiBuild._pbStr + selhero_heroInfo.hiBuild._pbMag + selhero_heroInfo.hiBuild._pbDex + selhero_heroInfo.hiBuild._pbVit);
+	SelheroAttrSetter(sx, sy + 0 * 26, "Strength:", &SelheroStrWeightDec, &SelheroStrWeightInc, selhero_heroInfo.hiBuild._pbStr, pc == PC_ROGUE ? 4 : 6, rp);
+	SelheroAttrSetter(sx, sy + 1 * 26, "Magic:", &SelheroMagWeightDec, &SelheroMagWeightInc, selhero_heroInfo.hiBuild._pbMag, pc == PC_WARRIOR ? 4 : 6, rp);
+	SelheroAttrSetter(sx, sy + 2 * 26, "Dexterity:", &SelheroDexWeightDec, &SelheroDexWeightInc, selhero_heroInfo.hiBuild._pbDex, pc == PC_SORCERER ? 4 : 6, rp);
+	SelheroAttrSetter(sx, sy + 3 * 26, "Vitality:", &SelheroVitWeightDec, &SelheroVitWeightInc, selhero_heroInfo.hiBuild._pbVit, 6, rp);
+
+	UiInitScreen(0, NULL, SelheroNameInit, SelheroClassSelectorInit);
 }
 
 static void SelheroListSelect(unsigned index)
@@ -415,7 +510,7 @@ static void SelheroNameInit(unsigned index)
 	UiEdit* edit = new UiEdit("Enter Name", selhero_heroInfo.hiName, sizeof(selhero_heroInfo.hiName), rect2);
 	gUiItems.push_back(edit);
 
-	UiInitScreen(0, NULL, SelheroNameSelect, SelheroClassSelectorInit);
+	UiInitScreen(0, NULL, SelheroNameSelect, SelheroBuildTypeInit);
 	UiInitEdit(edit);
 }
 

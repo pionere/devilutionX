@@ -9,6 +9,9 @@
 #ifdef __vita__
 #include <psp2/power.h>
 #endif
+#ifdef NXDK
+#include <nxdk/mount.h>
+#endif
 
 #include "all.h"
 
@@ -27,6 +30,9 @@ extern "C" int main(int argc, char** argv)
 #endif
 #ifdef __vita__
 	scePowerSetArmClockFrequency(444);
+#endif
+#ifdef NXDK
+	nxMountDrive('E', "\\Device\\Harddisk0\\Partition1\\");
 #endif
 	const int result = dvl::DiabloMain(argc, argv);
 	return result;

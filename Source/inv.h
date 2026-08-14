@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define TWOHAND_WIELD(pp, ii) ((ii)->_iLoc == ILOC_TWOHAND && ((ii)->_itype == ITYPE_BOW || (pp)->_pBaseStr < (ii)->_iMinStr * 4))
+#define TWOHAND_WIELD(pp, ii) ((ii)->_iLoc == ILOC_TWOHAND && ((ii)->_itype == ITYPE_BOW || (pp)->_pBaseStr < (ii)->_iReqStr * 4))
 
 static_assert(NUM_INVELEM <= INT8_MAX, "INVIDX_VALID checks only the sign of the INVITEM_-value I.");
 static_assert((int8_t)INVITEM_NONE < 0, "INVIDX_VALID checks only the sign of the INVITEM_-value II.");
@@ -36,8 +36,7 @@ void InvPasteBeltItem(int pnum, BYTE r);
 void InvCutItem(int pnum, BYTE cii, bool bShift);
 void SyncPlrItemRemove(int pnum, BYTE cii);
 void SyncPlrStorageRemove(int pnum, int cii);
-void CheckInvClick();
-void CheckBeltClick();
+void CheckInvBeltClick(bool altAction, BYTE wnd);
 void SyncInvGetItem(int pnum, int ii);
 void InvGetItem(int pnum, int ii);
 bool SyncAutoGetItem(int pnum, int ii);
@@ -46,7 +45,7 @@ void SyncSplitGold(int pnum, int cii, int value);
 BYTE CheckInvItem();
 BYTE CheckInvBelt();
 void InvUseItem(int cii);
-bool SyncUseItem(int pnum, BYTE cii, BYTE sn);
+int SyncUseItem(int pnum, BYTE cii);
 bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx);
 void CalculateGold(int pnum);
 

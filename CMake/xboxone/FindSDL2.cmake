@@ -1,0 +1,18 @@
+set(SDL_BUILD_TYPE "Release")
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+  set(SDL_BUILD_TYPE "Debug")
+endif()
+
+set(SDL2_LIBRARY "${UWP_SDL2_DIR}/VisualC-WinRT/x64/${SDL_BUILD_TYPE}/SDL-UWP")
+set(SDL2_INCLUDE_DIR "${UWP_SDL2_DIR}/include")
+if(DEVILUTIONX_STATIC_SDL2)
+  add_library(SDL2_lib STATIC IMPORTED)
+  set_property(TARGET SDL2_lib PROPERTY IMPORTED_LOCATION "${SDL2_LIBRARY}/SDL2.lib")
+else()
+  add_library(SDL2_lib SHARED IMPORTED)
+  set_property(TARGET SDL2_lib PROPERTY IMPORTED_LOCATION "${SDL2_LIBRARY}/SDL2.dll")
+  set_property(TARGET SDL2_lib PROPERTY IMPORTED_IMPLIB "${SDL2_LIBRARY}/SDL2.lib")
+endif()
+target_include_directories(SDL2_lib INTERFACE ${SDL2_INCLUDE_DIR})
+add_library(SDL2::SDL2 ALIAS SDL2_lib)

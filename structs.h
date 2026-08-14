@@ -75,6 +75,11 @@ typedef void (*WNDPROC)(const Dvl_Event*);
 // control
 //////////////////////////////////////////////////
 
+typedef struct INTPAIR {
+	int v0;
+	int v1;
+} INTPAIR;
+
 typedef struct POS32 {
 	int x;
 	int y;
@@ -99,15 +104,36 @@ typedef struct RECT_AREA32 {
 	int y2;
 } RECT_AREA32;
 
+typedef struct CelMetaInfo {
+	DWORD cmiDimensions;
+	DWORD cmiDimensionsPerFrame;
+	DWORD cmiAnimOrder;
+	BYTE  cmiAnimDelay;
+	int16_t cmiAnimOffsetX;
+	int16_t cmiAnimOffsetY;
+	DWORD cmiActionFrames;
+} CelMetaInfo;
+
 typedef struct CelImageBuf {
 #if DEBUG_MODE
 	WORD ciWidth; // number of images before loaded, but overwritten with width when loaded
-	WORD ciFrameCnt; // number of images before loaded, but overwritten with width when loaded
+	WORD ciFrameCnt; // number of images
 #else
 	DWORD ciWidth; // number of images before loaded, but overwritten with width when loaded
 #endif
 	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
 } CelImageBuf;
+
+typedef struct CelAnimBuf {
+	uint16_t caWidth;      // width of the animation
+	BYTE caFrameCnt;       // number of frames
+	BYTE caFrameLen;       // Tick length of each frame in the current animation
+	BYTE imageData[32000]; // size does not matter, the struct is allocated dynamically
+} CelAnimBuf;
+
+typedef struct TRNFileData {
+	const char* trnName;
+} TRNFileData;
 
 typedef struct CampaignMapEntry {
 	BYTE ceDunType;
@@ -126,13 +152,13 @@ typedef struct RANGE {
 } RANGE;
 
 typedef struct AffixData {
+	BYTE PLRnd;
+	BOOLEAN PLOk;
 	BYTE PLPower; // item_effect_type
 	int PLParam1;
 	int PLParam2;
 	RANGE PLRanges[NUM_IARS];
 	int PLIType; // affix_item_type
-	BOOLEAN PLDouble;
-	BOOLEAN PLOk;
 	int PLMinVal;
 	int PLMaxVal;
 	int PLMultVal;
@@ -173,8 +199,7 @@ typedef struct ItemFileData {
 	const char* ifName; // Map of item type .cel file names.
 	int idSFX;          // sounds effect of dropping the item on ground (_sfx_id).
 	int iiSFX;          // sounds effect of placing the item in the inventory (_sfx_id).
-	int iAnimLen;       // item drop animation length
-	ALIGNMENT64(3)
+	ALIGNMENT32(1)
 } ItemFileData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -196,9 +221,9 @@ typedef struct ItemData {
 	BYTE iMinDam;
 	BYTE iMaxDam;
 	BYTE iBaseCrit;
-	BYTE iMinStr;
-	BYTE iMinMag;
-	BYTE iMinDex;
+	BYTE iReqStr; // the required strength to use the item
+	BYTE iReqMag; // the required magic to use the item
+	BYTE iReqDex; // the required dexterity to use the item
 	BOOLEAN iUsable;
 	BYTE iMinAC;
 	BYTE iMaxAC;
@@ -244,26 +269,27 @@ typedef struct ItemStruct {
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	BYTE _iBaseCrit;
-	BYTE _iMinStr;
-	BYTE _iMinMag;
-	BYTE _iMinDex;
+	BYTE _iReqStr; // the required strength to use the item
+	BYTE _iReqMag; // the required magic to use the item
+	BYTE _iReqDex; // the required dexterity to use the item
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
 	BYTE _iPrePower; // item_effect_type -- unused
 	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
-	BOOLEAN _iFloorFlag;
+	BYTE _iSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN _iAnimFlag;
-	BYTE* _iAnimData;        // PSX name -> ItemFrame
-	unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
+	const CelAnimBuf* _iAnimData;
+	//unsigned _iAnimFrameLen; // Tick length of each frame in the current animation
 	unsigned _iAnimCnt;      // Increases by one each game tick, counting how close we are to _iAnimFrameLen
-	unsigned _iAnimLen;      // Number of frames in current animation
+	unsigned _iAnimLen;      // Number of frames in current animation -- unused
 	unsigned _iAnimFrame;    // Current frame of animation.
+	unsigned _iGfxFrame;     // the base frame of graphics
 	//int _iAnimWidth;
 	//int _iAnimXOffset;
 	//BOOL _iPostDraw; // should be drawn during the post-phase (magic rock on the stand) -- unused
 	BOOLEAN _iStatFlag;
-	BOOLEAN _iIdentified;
+	BOOLEAN _iUnidentified;
 	BYTE _iNumAffixes;
 	BYTE _iUid; // unique_item_indexes
 	int _ivalue;
@@ -283,7 +309,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(15, 13)
+	ALIGNMENT(15, 14)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -304,7 +330,7 @@ static_warning((sizeof(PlrAnimType) & (sizeof(PlrAnimType) - 1)) == 0, "Align Pl
 #endif
 
 typedef struct PlrAnimStruct {
-	BYTE* paAnimData[NUM_DIRS];
+	const BYTE* paAnimData[NUM_DIRS];
 	unsigned paFrames;
 	int paAnimWidth;
 } PlrAnimStruct;
@@ -314,13 +340,30 @@ static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 32, "Ali
 static_warning((sizeof(PlrAnimStruct) & (sizeof(PlrAnimStruct) - 1)) == 64, "Align PlrAnimStruct closer to power of 2 for better performance.");
 #endif
 
+typedef struct PlrSkillUse {
+	BYTE _suSkill;   // spell_id
+	int8_t _suFrom;  // spell_from_type
+	bool operator==(const PlrSkillUse & oval) const {
+		//return _suSkill == oval._suSkill && _suType == oval._suType;
+		return *(uint16_t*)&_suSkill == *(uint16_t*)&oval._suSkill;
+	};
+	bool operator!=(const PlrSkillUse & oval) const {
+		return !(*this == oval);
+	};
+} PlrSkillUse;
+
 typedef struct PlrSkillStruct {
-	BYTE _psAttack;   // attack skill (spell_id)
-	BYTE _psAtkType;  // the (RSPLTYPE_)type of the attack skill
-	BYTE _psMove;     // the movement skill (spell_id)
-	BYTE _psMoveType; // the (RSPLTYPE_)type of the movement skill
+	PlrSkillUse _psAttack; // attack skill
+	PlrSkillUse _psMove;   // the movement skill
 } PlrSkillStruct;
 static_assert(sizeof(PlrSkillStruct) == 4 * sizeof(BYTE), "PlrSkillStruct is not packed tightly");
+
+typedef struct PlrBuildType {
+	BYTE _pbStr;
+	BYTE _pbMag;
+	BYTE _pbDex;
+	BYTE _pbVit;
+} PlrBuildType;
 
 typedef struct PlayerStruct {
 	int _pmode; // PLR_MODE
@@ -352,7 +395,7 @@ typedef struct PlayerStruct {
 	int _pxoff;   // Pixel X-offset from tile position where the player should be drawn
 	int _pyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	int _pdir;    // Direction faced by player (direction enum)
-	BYTE* _pAnimData;
+	const BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
 	int _pAnimCnt;        // Increases by one each game tick, counting how close we are to _pAnimFrameLen
 	unsigned _pAnimLen;   // Number of frames in current animation
@@ -371,9 +414,8 @@ typedef struct PlayerStruct {
 	BYTE _pSkillActivity[64];
 	unsigned _pSkillExp[64];
 	uint64_t _pMemSkills;  // Bitmask of learned skills
-	uint64_t _pAblSkills;  // Bitmask of abilities
-	uint64_t _pInvSkills;  // Bitmask of skills available via items in inventory (scrolls or runes)
 	char _pName[PLR_NAME_LEN];
+	PlrBuildType _pBuildType;
 	uint16_t _pBaseStr;
 	uint16_t _pBaseMag;
 	uint16_t _pBaseDex;
@@ -408,7 +450,6 @@ typedef struct PlayerStruct {
 	int _pMana;      // the current mana of the player
 	int _pMaxMana;   // the maximum mana of the player
 	BYTE _pSkillLvl[64]; // the skill levels of the player
-	uint64_t _pISpells;  // Bitmask of skills available via equipped items (staff)
 	BYTE _pSkillFlags;   // Bitmask of allowed skill-types (SFLAG_*)
 	BOOLEAN _pInfraFlag; // unused
 	BYTE _pgfxnum; // Bitmask indicating what variant of the sprite the player is using. Lower byte define weapon (anim_weapon_id) and higher values define armour (starting with anim_armor_id)
@@ -451,7 +492,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(188, 102)
+	ALIGNMENT(193, 110)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -494,17 +535,13 @@ static_warning((sizeof(MissileData) & (sizeof(MissileData) - 1)) == 0, "Align Mi
 
 typedef struct MisFileData {
 	const char* mfName;
-	const char* mfAnimTrans;
+	BYTE mfAnimTrans;
 	int mfAnimFAmt;
 	BOOLEAN mfDrawFlag;
 	BOOLEAN mfAnimFlag;
 	BOOLEAN mfLightFlag;
 	BOOLEAN mfPreFlag;
-	BYTE mfAnimFrameLen[16];
-	BYTE mfAnimLen[16];
-	int mfAnimWidth;
-	int mfAnimXOffset; // could be calculated
-	ALIGNMENT32(2)
+	ALIGNMENT64(3)
 } MisFileData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MisFileData) & (sizeof(MisFileData) - 1)) == 0, "Align MisFileData to power of 2 for better performance.");
@@ -521,7 +558,7 @@ typedef struct MissileStruct {
 	BOOLEAN _miAnimFlag;
 	BOOLEAN _miLightFlag; // use light-transformation when drawing
 	BOOLEAN _miPreFlag; // should be drawn in the pre-phase
-	BYTE* _miAnimData;
+	const BYTE* _miAnimData;
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
@@ -619,7 +656,7 @@ typedef struct MonsterData {
 	uint16_t moFileNum; // _monster_gfx_id
 	BYTE mLevel;
 	BYTE mSelFlag;
-	const char* mTransFile;
+	BYTE mTransFile;
 	const char* mName;
 	MonsterAI mAI;
 	uint16_t mMinHP;
@@ -638,7 +675,7 @@ typedef struct MonsterData {
 	uint16_t mMagicRes;  // resistances in normal and nightmare difficulties (_monster_resistance)
 	uint16_t mMagicRes2; // resistances in hell difficulty (_monster_resistance)
 	uint16_t mExp;
-	ALIGNMENT(5, 2)
+	ALIGNMENT(5, 3)
 } MonsterData;
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MonsterData) & (sizeof(MonsterData) - 1)) == 0, "Align MonsterData to power of 2 for better performance.");
@@ -648,17 +685,14 @@ typedef struct MonFileData {
 	int moImage;
 	const char* moGfxFile;
 	const char* moSndFile;
-	int moAnimFrames[NUM_MON_ANIM];
-	int moAnimFrameLen[NUM_MON_ANIM];
-	BYTE moWidth;
+	BYTE moAnimFrameLen[NUM_MON_ANIM];
 	BOOLEAN moSndSpecial;
 	BYTE moAFNum;
 	BYTE moAFNum2;
+	ALIGNMENT(2, 6)
 } MonFileData;
-#ifdef X86_32bit_COMP
+#if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 0, "Align MonFileData to power of 2 for better performance.");
-#elif defined(X86_64bit_COMP)
-static_warning((sizeof(MonFileData) & (sizeof(MonFileData) - 1)) == 64, "Align MonFileData to power of 2 for better performance.");
 #endif
 #pragma pack(push, 1)
 typedef struct MapMonData {
@@ -702,9 +736,9 @@ static_warning((sizeof(MapMonData) & (sizeof(MapMonData) - 1)) == 512, "Align Ma
 typedef struct MonsterStruct {
 	int _mmode; // MON_MODE
 	unsigned _msquelch;
-	BYTE _mMTidx;
-	BYTE _mpathcount; // unused
-	BYTE _mAlign_1;   // unused
+	BYTE _mMTidx;  // monster type index of mapMonTypes
+	BYTE _mMType;  // minion-monster type
+	BYTE _mMLevel; // minion-monster level
 	BYTE _mgoal;
 	int _mgoalvar1;
 	int _mgoalvar2;
@@ -723,7 +757,7 @@ typedef struct MonsterStruct {
 	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN _mDelFlag; // unused
-	BYTE* _mAnimData;
+	const BYTE* _mAnimData;
 	int _mAnimFrameLen; // Tick length of each frame in the current animation
 	int _mAnimCnt;   // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	int _mAnimLen;   // Number of frames in current animation
@@ -743,7 +777,7 @@ typedef struct MonsterStruct {
 	int32_t _mRndSeed;
 	int32_t _mAISeed;
 	BYTE _muniqtype;
-	BYTE _muniqtrans;
+	BYTE _muniqanim;
 	BYTE _mNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
 	BYTE _mlid;        // light id of the monster
 	BYTE _mleader;     // the leader of the monster
@@ -790,7 +824,7 @@ typedef struct MonEnemyStruct {
 typedef struct UniqMonData {
 	int mtype; // _monster_id
 	const char* mName;
-	const char* mTrnName;
+	BYTE muTrans;
 	BYTE muLevelIdx; // level-index to place the monster (dungeon_level)
 	BYTE muLevel;    // difficulty level of the monster
 	uint16_t mmaxhp;
@@ -809,42 +843,52 @@ typedef struct UniqMonData {
 	BYTE mUnqAC;   // armor class bonus
 	BYTE mQuestId; // quest_id
 	int mtalkmsg;  // _speech_id
-	ALIGNMENT(6, 2)
+	ALIGNMENT(6, 3)
 } UniqMonData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
 static_warning((sizeof(UniqMonData) & (sizeof(UniqMonData) - 1)) == 0, "Align UniqMonData to power of 2 for better performance.");
 #endif
 
+typedef struct MinionMonData {
+	int mtype; // _monster_id
+	MonsterAI mAI;
+} MinionMonData;
+
 //////////////////////////////////////////////////
 // objects
 //////////////////////////////////////////////////
 
+typedef struct {
+	BYTE oBaseType;     // _object_id
+	int8_t oTypeParam1; // direction (left: 0, right:1, random: -1)
+	int8_t oTypeParam2; // trapped (no: 0, yes: 1, random: -1) for chests, inactive (no: 0, yes: 1) for armorstands, weaponracks and books, frame index for hooked bodies
+	int8_t oTypeParam3; // unused
+} ObjTypeConv;
+
 typedef struct ObjectData {
-	BYTE ofindex;     // object_graphic_id
-	BYTE oLvlTypes;   // dungeon_type_mask
-	BYTE otheme;      // theme_id
-	BYTE oquest;      // quest_id
+	BYTE ofindex;        // object_graphic_id
+	BYTE oLvlTypes;      // dungeon_type_mask
+	BYTE otheme;         // theme_id -- unused
+	BYTE oquest;         // quest_id -- unused
 	//BYTE oAnimFlag;
-	BYTE oAnimBaseFrame; // The starting/base frame of (initially) non-animated objects
+	BYTE oBaseFrame;     // The base frame of the objects
 	//int oAnimFrameLen; // Tick length of each frame in the current animation
-	//int oAnimLen;   // Number of frames in current animation
+	//int oAnimLen;      // Number of frames in current animation
 	//int oAnimWidth;
 	//int oSFX;
 	//BYTE oSFXCnt;
-	BYTE oLightRadius;
-	int8_t oLightOffX;
-	int8_t oLightOffY;
-	BYTE oProc;       // object_proc_func
-	BYTE oModeFlags;  // object_mode_flags
+	BYTE oLightRadius;   // light radius with optional x/y offset
+	BYTE oProc;          // object_proc_func
+	BYTE oModeFlags;     // object_mode_flags
 	//BOOL oSolidFlag;
 	//BYTE oBreak;
 	BOOLEAN oMissFlag;
-	BYTE oDoorFlag;   // object_door_type
+	BYTE oDoorFlag;      // object_door_type
 	BYTE oSelFlag;
 	BYTE oPreFlag;
-	BOOLEAN oTrapFlag;
-	BYTE oAlign[1];
+	BYTE oTrapFlag;      // object_trap_mode
+	BYTE oAlign[3];
 } ObjectData;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -855,12 +899,9 @@ typedef struct ObjFileData {
 	const char* ofName;
 	int oSFX; // _sfx_id
 	BYTE oSFXCnt;
-	BYTE oAnimFlag; // object_anim_mode
-	int oAnimFrameLen; // Tick length of each frame in the current animation
-	int oAnimLen;   // Number of frames in current animation
-	int oAnimWidth;
-	BOOLEAN oSolidFlag;
-	BYTE oBreak; // object_break_mode
+	BYTE oAnimFlag;    // object_anim_mode
+	BYTE oSolidFlags;  // whether the object is solid + the additional subtiles which need to be allocated to the object
+	BYTE oBreak;       // object_break_mode
 	ALIGNMENT32(1)
 } ObjFileData;
 
@@ -877,7 +918,8 @@ typedef struct ObjectStruct {
 	BYTE _oAnimFlag;  // object_anim_mode
 	BYTE _oProc;      // object_proc_func
 	BYTE _oModeFlags; // object_mode_flags
-	BYTE* _oAnimData;
+	int _oGfxFrame;   // the base frame of graphics
+	const BYTE* _oAnimData;
 	int _oAnimFrameLen; // Tick length of each frame in the current animation
 	int _oAnimCnt;   // Increases by one each game tick, counting how close we are to _oAnimFrameLen
 	int _oAnimLen;   // Number of frames in current animation
@@ -888,7 +930,7 @@ typedef struct ObjectStruct {
 	BOOLEAN _oSolidFlag;
 	BYTE _oBreak; // object_break_mode
 	BYTE _oTrapChance;
-	BYTE _oAlign;
+	BYTE _oUniqAnim;
 	BOOLEAN _oMissFlag;
 	BYTE _oDoorFlag; // object_door_type
 	BYTE _oSelFlag;
@@ -903,7 +945,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(8, 6)
+	ALIGNMENT(7, 6)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1096,6 +1138,7 @@ typedef struct PkPlayerStruct {
 	//BYTE pManaShield;
 	//LE_INT16 pTimer[NUM_PLRTIMERS];
 	LE_UINT32 pExperience;
+	PlrBuildType pBuildType;
 	LE_UINT16 pBaseStr;
 	LE_UINT16 pBaseMag;
 	LE_UINT16 pBaseDex;
@@ -1183,13 +1226,14 @@ typedef struct LSaveItemStruct {
 	LE_INT32 viy;
 	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
-	BOOLEAN viFloorFlag;
+	BYTE viSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
 	BOOLEAN viAnimFlag;
 	int32_t viAnimDataAlign;      // PSX name -> ItemFrame
-	uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
+	//uint32_t viAnimFrameLenAlign; // Tick length of each frame in the current animation
 	LE_UINT32 viAnimCnt;      // Increases by one each game tick, counting how close we are to viAnimFrameLen
 	LE_UINT32 viAnimLen;      // Number of frames in current animation
 	LE_UINT32 viAnimFrame;    // Current frame of animation.
+	LE_UINT32 viGfxFrame;     // the base frame of graphics
 	// LE_INT32 viPostDraw;
 } LSaveItemStruct;
 
@@ -1242,9 +1286,8 @@ typedef struct LSavePlayerStruct {
 	BYTE vpSkillActivity[64];
 	LE_UINT32 vpSkillExp[64];
 	LE_UINT64 vpMemSkills;  // Bitmask of learned skills
-	LE_UINT64 vpAblSkills;  // Bitmask of abilities
-	LE_UINT64 vpInvSkills;  // Bitmask of skills available via items in inventory (scrolls or runes)
 	char vpName[PLR_NAME_LEN];
+	PlrBuildType vpBuildType;
 	LE_UINT16 vpBaseStr;
 	LE_UINT16 vpBaseMag;
 	LE_UINT16 vpBaseDex;
@@ -1276,8 +1319,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmmode; // MON_MODE
 	LE_UINT32 vmsquelch;
 	BYTE vmMTidx;
-	BYTE vmpathcount; // unused
-	BYTE vmAlign_1;   // unused
+	BYTE vmMType;  // minion-monster type
+	BYTE vmMLevel; // minion-monster level
 	BYTE vmgoal;
 	LE_INT32 vmgoalvar1;
 	LE_INT32 vmgoalvar2;
@@ -1316,7 +1359,7 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmRndSeed;
 	LE_INT32 vmAISeed;
 	BYTE vmuniqtype;
-	BYTE vmuniqtrans;
+	BYTE vmuniqanim;
 	BYTE vmNameColor;  // color of the tooltip. white: normal, blue: pack; gold: unique. (text_color)
 	BYTE vmlid;        // light id of the monster
 	BYTE vmleader;     // the leader of the monster
@@ -1401,6 +1444,7 @@ typedef struct LSaveObjectStruct {
 	BYTE voAnimFlag;
 	BYTE voProc;
 	BYTE voModeFlags;
+	INT voGfxFrame;       // the base frame of graphics
 	INT voAnimDataAlign;
 	LE_INT32 voAnimFrameLen; // Tick length of each frame in the current animation
 	LE_INT32 voAnimCnt;   // Increases by one each game tick, counting how close we are to voAnimFrameLen
@@ -1411,7 +1455,7 @@ typedef struct LSaveObjectStruct {
 	BOOLEAN voSolidFlag;
 	BYTE voBreak; // object_break_mode
 	BYTE voTrapChance;
-	BYTE voAlign;
+	BYTE voUniqAnim;
 	BOOLEAN voMissFlag;
 	BYTE voDoorFlag; // object_door_type
 	BYTE voSelFlag;
@@ -1470,6 +1514,13 @@ typedef struct LSavePortalStruct {
 typedef struct CmdSkillUse {
 	BYTE skill;
 	int8_t from;
+	bool operator==(const CmdSkillUse & oval) const {
+		//return skill == oval.skill && from == oval.from;
+		return *(uint16_t*)&skill == *(uint16_t*)&oval.skill;
+	};
+	bool operator!=(const CmdSkillUse & oval) const {
+		return !(*this == oval);
+	};
 } CmdSkillUse;
 
 typedef struct TCmd {
@@ -1608,9 +1659,13 @@ typedef struct TCmdMonstSummon {
 typedef struct TCmdGolem {
 	BYTE bCmd;
 	BYTE goMonLevel;
+	BYTE goMonType;
+	LE_INT32 goMonHp;
+#if 0
 	BYTE goX;
 	BYTE goY;
 	BYTE goDunLevel;
+#endif
 } TCmdGolem;
 
 typedef struct TCmdShrine {
@@ -1632,7 +1687,7 @@ typedef struct TCmdGItem {
 	BYTE bLevel;
 	BYTE x;
 	BYTE y;
-	BOOLEAN fromFloor;
+	BYTE fromFloor;
 	PkItemStruct item;
 } TCmdGItem;
 
@@ -1676,6 +1731,7 @@ typedef struct TCmdJoinLevel {
 	LE_INT16 lTimer1;
 	LE_INT16 lTimer2;
 	BYTE pManaShield; // TODO: remove this and from TSyncLvlPlayer and add to PkPlayerStruct?
+	BYTE iFloorItems;
 	BYTE itemsDur[NUM_INVELEM + 1];
 } TCmdJoinLevel;
 
@@ -1722,9 +1778,9 @@ typedef struct TSyncHeader {
 #ifdef HELLFIRE
 	LE_UINT16 wToHit;
 	LE_UINT16 wMaxDam;
-	BYTE bMinStr;
-	BYTE bMinMag;
-	BYTE bMinDex;
+	BYTE bReqStr;
+	BYTE bReqMag;
+	BYTE bReqDex;
 	BYTE bAC;
 #endif*/
 } TSyncHeader;
@@ -1777,9 +1833,9 @@ typedef struct TSyncLvlMonster {
 	LE_UINT16 smMnum;
 	BYTE smMode; /* MON_MODE */
 	LE_UINT32 smSquelch;
-	//BYTE _mMTidx;
-	//BYTE smPathcount; // unused
-	//BYTE smAlign_1;   // unused
+//	BYTE _mMTidx;  // monster type index of mapMonTypes
+	BYTE smMType;  // minion-monster type
+	BYTE smMLevel; // minion-monster level
 	BYTE smGoal;
 	LE_INT32 smGoalvar1;
 	LE_INT32 smGoalvar2;
@@ -1904,9 +1960,9 @@ typedef struct DDItem {
 } DDItem;
 
 typedef struct DDLevel {
-	DDItem item[MAXITEMS];
-	DDObject object[MAXOBJECTS];
-	DDMonster monster[MAXMONSTERS];
+	DDItem lvItem[MAXITEMS];
+	DDObject lvObject[MAXOBJECTS];
+	DDMonster lvMonster[MAXMONSTERS];
 } DDLevel;
 
 typedef struct DDDynLevel {
@@ -1935,7 +1991,7 @@ typedef struct DDJunk {
 	// DDPortal jPortals[MAXPORTAL];
 	// DDQuest jQuests[NUM_QUESTS];
 	// DDDynLevel[NUM_DYNLVLS]
-	BYTE jGolems[MAX_MINIONS];
+	BYTE jGolems[MAX_MINIONS][2]; // level and type of the minion
 } DDJunk;
 
 typedef struct LDLevel {
@@ -2134,10 +2190,18 @@ typedef struct TMenuItem {
 // spells
 //////////////////////////////////////////////////
 
+typedef struct SkillDetails {
+	int type; // skill_details_type
+	int v0;
+	int v1;
+	int v2;
+} SkillDetails;
+
 typedef struct SpellData {
 	BYTE sManaCost;
-	BYTE sType;
-	BYTE sIcon;
+	BYTE sType;   // magic_type
+	BYTE sAction; // action_id
+	BYTE sIcon;   // index of the spellbook icon (Data\\SpellI2.CEL)
 	const char* sNameText;
 	BYTE sBookLvl;   // minimum level for books
 	BYTE sStaffLvl;  // minimum level for staves
@@ -2146,9 +2210,9 @@ typedef struct SpellData {
 	BYTE scCurs; // cursor for scrolls/runes
 	BYTE spCurs; // cursor for spells
 	BYTE sUseFlags; // the required flags(SFLAG*) to use the skill
-	BYTE sMinInt;
-	BYTE sSFX;
-	BYTE sMissile;
+	BYTE sReqMag;
+	BYTE sSFX;     // _sfx_id
+	BYTE sMissile; // missile_id
 	BYTE sManaAdj;
 	BYTE sMinMana;
 	uint16_t sStaffMin;
@@ -2429,6 +2493,7 @@ typedef struct _uiheroinfo {
 	BYTE hiClass;
 	BOOLEAN hiSaveFile;
 	char hiName[PLR_NAME_LEN];
+	PlrBuildType hiBuild;
 	int16_t hiStrength;
 	int16_t hiMagic;
 	int16_t hiDexterity;
@@ -2671,7 +2736,7 @@ typedef struct FileCl2 {
 } FileCl2;
 
 typedef struct FileCl2Group {
-	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Data
+	int32_t dlgCelOffsets[dlgNumGroups]; // address of an entry in dlgCl2Hdr
 	FileCl2Hdr dlgCl2Hdr[dlgNumGroups];
 	FileCelFrame dlgCelFrames[dlgNumGroups * dlNumFrames];
 } FileCl2Group;

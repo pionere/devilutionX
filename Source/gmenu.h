@@ -16,16 +16,12 @@ extern TMenuItem* gpCurrentMenu;
 
 void FreeGMenu();
 void InitGMenu();
-bool gmenu_is_active();
 void gmenu_set_items(TMenuItem* pItem, int nItems, void (*gmUpdFunc)());
 void gmenu_draw();
 void gmenu_presskey(int vkey);
 void gmenu_on_mouse_move();
 void gmenu_left_mouse(bool isDown);
 void gmenu_enable(TMenuItem* pMenuItem, bool enable);
-#if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
-void CheckMenuMove();
-#endif
 void gmenu_update();
 
 /**

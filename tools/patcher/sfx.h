@@ -6,10 +6,6 @@
 #ifndef __SFX_H__
 #define __SFX_H__
 
-#ifdef NOSOUND
-#include "engine.h"
-#endif
-
 DEVILUTION_BEGIN_NAMESPACE
 
 static_assert(NUM_SFXS <= INT_MAX, "SFX_VALID checks only the sign of the SFX_-value I.");

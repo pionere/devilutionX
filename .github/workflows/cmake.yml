@@ -27,7 +27,7 @@ jobs:
     container: vitasdk/vitasdk:latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         #with:
         #  fetch-depth: 0
 
@@ -60,7 +60,7 @@ jobs:
     # Upload the created artifact
     #- name: Upload
     #  if: ${{ !env.ACT }}
-    #  uses: actions/upload-artifact@v4
+    #  uses: actions/upload-artifact@v7
     #  with:
     #    path: ${{github.workspace}}/build/devilutionx.dmg
     #    name: devilutionx.dmg
@@ -70,7 +70,7 @@ jobs:
     container: vitasdk/vitasdk:latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 

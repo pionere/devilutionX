@@ -64,7 +64,7 @@ typedef struct GameAction {
 
 bool GetGameAction(const ControllerButtonEvent& ctrlEvent, GameAction* action);
 
-AxisDirection GetMoveDirection();
+int GetMoveDirection();
 
 extern bool start_modifier_active;
 extern bool select_modifier_active;
