@@ -952,7 +952,10 @@ jobs:
       #  fetch-depth: 0
 
     - name: Create Build Environment
-      run: apk add cmake ninja
+      #run: apk add cmake ninja
+      run: |
+        sudo apt-get update
+        sudo apt-get install cmake ninja-build
 
     - name: Configure CMake
       run: |
