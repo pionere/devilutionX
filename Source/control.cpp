@@ -186,16 +186,17 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 
 	if (sn == SPL_NULL)
 		return;
+	const int pnum = mypnum;
 	switch (skill._suFrom) {
 	case SPLFROM_ABILITY:
 		return;
 	case SPLFROM_MANA:
-		if (myplr._pHasUnidItem) {
+		if (plr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 			break;
 		}
-		v = myplr._pSkillLvl[sn];
-		if (v > 0 && myplr._pMagic >= spelldata[sn].sReqMag) {
+		v = plr._pSkillLvl[sn];
+		if (v > 0 && plr._pMagic >= spelldata[sn].sReqMag) {
 			snprintf(tempstr, sizeof(tempstr), "l%02d", v);
 		} else {
 			copy_cstr(tempstr, "X");
@@ -205,11 +206,11 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 	case SPLFROM_INVALID_TYPE:
 		return;
 	default: {
-		if (myplr._pHasUnidItem) {
+		if (plr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 		} else {
-			const ItemStruct* pi = &myplr._pInvBody[skill._suFrom];
-			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iStatFlag) {
+			const ItemStruct* pi = &plr._pInvBody[skill._suFrom];
+			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && plr._pStrength >= pi->_iReqStr && plr._pMagic >= pi->_iReqMag) {
 				snprintf(tempstr, sizeof(tempstr), "%d/%d", pi->_iCharges, pi->_iMaxCharges);
 			} else {
 				copy_cstr(tempstr, "X");

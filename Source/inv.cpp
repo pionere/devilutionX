@@ -586,7 +586,7 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 	ItemStruct* pi;
 	int i, n;
 
-	if (is->_iLoc != ILOC_BELT) // || !is->_iStatFlag)
+	if (is->_iLoc != ILOC_BELT) // || !is->_iStatFlag ... /* || plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag*/)
 		return false;
 
 	// assert(is->_iUsable);
@@ -1635,7 +1635,7 @@ void InvUseItem(int cii)
 		return;
 	}
 
-	if (!is->_iStatFlag) {
+	if (!is->_iStatFlag /*plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag*/) {
 		PlaySfx(sgSFXSets[SFXS_PLR_13][plr._pClass]);
 		return;
 	}
@@ -1720,7 +1720,7 @@ int SyncUseItem(int pnum, BYTE cii)
 
 	is = PlrItem(pnum, cii);
 
-	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+	if (is->_itype == ITYPE_NONE || plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag)
 		return SPL_NULL;
 
 	sn = is->_iSpell;
@@ -1812,7 +1812,7 @@ bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)
 
 	is = PlrItem(pnum, cii);
 
-	if (is->_itype == ITYPE_NONE) // || !is->_iStatFlag)
+	if (is->_itype == ITYPE_NONE) // || !is->_iStatFlag ... plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag)
 		return false;
 
 	// if (!is->_iUsable)

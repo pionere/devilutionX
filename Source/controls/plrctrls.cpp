@@ -887,7 +887,7 @@ void UseBeltItem(bool manaItem)
 		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		 || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		 || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (pi->_iStatFlag) {
+			if (pi->_iStatFlag /*myplr._pStrength >= pi->_iReqStr && myplr._pMagic < pi->_iReqMag*/) {
 				// assert(pi->_iUsable);
 				InvUseItem(INVITEM_BELT_FIRST + i);
 				return;
