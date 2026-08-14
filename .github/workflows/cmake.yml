@@ -32,7 +32,10 @@ jobs:
         #  fetch-depth: 0
 
       - name: Install dependencies
-        run: apk --no-cache add git cmake ninja bash pkgconfig gettext
+        #run: apk --no-cache add git cmake ninja bash pkgconfig gettext
+        run: |
+          sudo apt-get update
+          sudo apt-get install git cmake ninja-build
 
       - name: Configure CMake
         run: |
@@ -76,7 +79,10 @@ jobs:
 
       #apk --no-cache add git cmake ninja bash pkgconfig gettext
       - name: Install dependencies
-        run: apk --no-cache add cmake ninja
+        #run: apk --no-cache add cmake ninja
+        run: |
+          sudo apt-get update
+          sudo apt-get install git cmake ninja-build
 
       - name: Configure CMake
         run: |
