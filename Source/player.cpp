@@ -3205,9 +3205,10 @@ void IncreasePlrMag(int pnum)
 	v = MagicTbl[plr._pClass] + dv / 2u;
 
 	//plr._pMagic = v;
+	dv = v - plr._pBaseMag;
 	plr._pBaseMag = v;
 
-	ms = v << (6 + 1);
+	ms = dv << (6 + 1);
 
 	plr._pMaxManaBase += ms;
 	//plr._pMaxMana += ms;
@@ -3272,9 +3273,10 @@ void IncreasePlrVit(int pnum)
 	v = VitalityTbl[plr._pClass] + dv / 2u;
 
 	//plr._pVitality = v;
+	dv = v - plr._pBaseVit;
 	plr._pBaseVit = v;
 
-	ms = v << (6 + 1);
+	ms = dv << (6 + 1);
 
 	plr._pHPBase += ms;
 	plr._pMaxHPBase += ms;
