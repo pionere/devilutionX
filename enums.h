@@ -482,6 +482,7 @@ typedef enum item_effect_type {
 	IPL_ACIDRES,
 	IPL_ALLRES,
 	IPL_CRITP,
+	IPL_POWMOD,
 	IPL_SKILLLVL,
 	IPL_SKILLLEVELS,
 	IPL_CHARGES,

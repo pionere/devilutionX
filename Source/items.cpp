@@ -378,6 +378,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 					case IPL_CRITP:
 						btochit += ias->asValue0;
 						break;
+					case IPL_POWMOD:
+						pmodp += ias->asValue0;
+						break;
 					case IPL_SKILLLVL:
 						skillLvlMods[ias->asValue1] += ias->asValue0;
 						break;
@@ -1474,6 +1477,7 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	case IPL_ACIDRES:
 	case IPL_ALLRES:
 	case IPL_CRITP:
+	case IPL_POWMOD:
 		break;
 	case IPL_SKILLLVL:
 		ias->asValue1 = GetBookSpell(is->_iCreateInfo & CF_LEVEL);
@@ -2743,6 +2747,9 @@ static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 	} break;
 	case IPL_CRITP:
 		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", ias->asValue0);
+		break;
+	case IPL_POWMOD:
+		snprintf(tempstr, sizeof(tempstr), "%d%% increased magic power", ias->asValue0);
 		break;
 	case IPL_SKILLLVL:
 		snprintf(tempstr, sizeof(tempstr), "%+d to %s", ias->asValue0, spelldata[ias->asValue1].sNameText);
