@@ -1924,7 +1924,10 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 		break;
 	}
 
-	dam -= plr._pIAbsAnyHit + plr._pIAbsPhyHit;
+	dam -= plr._pIAbsPhyHit;
+	if (dam < 0)
+		dam = 0;
+	dam -= plr._pIAbsAnyHit;
 	if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 		PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 	}

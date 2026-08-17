@@ -1240,9 +1240,11 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 		}
 
 		// assert(!(mis->_miFlags & MIF_DOT));
-		dam -= plr._pIAbsAnyHit;
 		// assert(mis->_miResist == MISR_SLASH || mis->_miResist == MISR_BLUNT || mis->_miResist == MISR_PUNCTURE);
 		dam -= plr._pIAbsPhyHit;
+		if (dam < 0)
+			dam = 0;
+		dam -= plr._pIAbsAnyHit;
 		if (dam > 0 && plx(offp)._pILifeSteal != 0) {
 			PlrIncHp(offp, (dam * plx(offp)._pILifeSteal) >> 7);
 		}
