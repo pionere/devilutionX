@@ -5259,7 +5259,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	int baseLvl = monData.mLevel;
 	int monLvl = baseLvl + lvlBonus;
 	mon->_mLevel = monLvl;
-	mon->_mhitpoints = mon->_mmaxhp = (monLvl * monData.mMinHP / baseLvl) << 6;
+	mon->_mhitpoints = mon->_mmaxhp = (monLvl * monData.mMaxHP / baseLvl) << 6;
 	mon->_mExp = 0; // monLvl * mon->_mExp / baseLvl;
 	mon->_mMinDamage = monLvl * monData.mMinDamage / baseLvl;
 	mon->_mMaxDamage = monLvl * monData.mMaxDamage / baseLvl;
