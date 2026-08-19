@@ -615,7 +615,7 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src = LoadMonster(src, i, full);
 	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : MAX_MINIONS;
 	{
-		for (i = (full ? 0 : MAX_MINIONS); i < MAXMONSTERS; i++)
+		for (i = (full ? 0 : MAX_MINIONS); i < moncount; i++)
 			SyncMonsterAnim(i);
 	}
 	if (full) {
