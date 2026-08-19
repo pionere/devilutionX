@@ -942,6 +942,7 @@ void SetItemSData(ItemStruct* is, int idata)
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
 	is->_iBaseCrit = ids->iBaseCrit;
+	is->_iBasePow = ids->iBasePow;
 	is->_iReqStr = ids->iReqStr;
 	is->_iReqMag = ids->iReqMag;
 	is->_iReqDex = ids->iReqDex;
