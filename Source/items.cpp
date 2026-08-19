@@ -1385,9 +1385,9 @@ static void SetStaffSpell(ItemStruct* is, unsigned lvl)
 
 	bs = GetStaffSpell(lvl);
 
+	is->_iSpell = bs;
 	sd = &spelldata[bs];
 
-	is->_iSpell = bs;
 	is->_iCharges = RandRangeLow(sd->sStaffMin, sd->sStaffMax);
 	is->_iMaxCharges = is->_iCharges;
 
