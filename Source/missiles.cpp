@@ -268,7 +268,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v0 = sl * monData.mMinDamage / k;
 		skd->v1 = sl * monData.mMaxDamage / k;
 		// calculate hp
-		skd->v2 = sl * monData.mMinHP / k;
+		skd->v2 = sl * monData.mMaxHP / k;
 	} break;
 	case SPL_ELEMENTAL:
 		mind = (power >> 3) + 2 * sl + 4;
