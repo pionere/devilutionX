@@ -879,7 +879,8 @@ static bool MissMonHitByMon(int mnum, int mi)
 		return false;
 
 	dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
-	if (dam == 0) {
+	// TODO: do this only if it's because of immunity
+	if (dam <= 0) {
 		return false;
 	}
 
@@ -887,6 +888,9 @@ static bool MissMonHitByMon(int mnum, int mi)
 		return ret;
 	}
 
+	// if (dam <= 0) {
+	//	dam = 1;
+	// }
 	mon->_mhitpoints -= dam;
 	if (mon->_mhitpoints < (1 << 6)) {
 		MonKill(mnum, misource);
@@ -1005,13 +1009,17 @@ static bool MissMonHitByPlr(int mnum, int mi)
 	} else {
 		dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
 	}
+	// TODO: do this only if it's because of immunity
 	if (dam <= 0) {
-		dam = 1;
+		return false;
 	}
 
 	if (!CheckMonsterHit(mnum, &ret))
 		return ret;
 
+	// if (dam <= 0) {
+	//	dam = 1;
+	// }
 	//if (pnum == mypnum) {
 		mon->_mhitpoints -= dam;
 	//}
@@ -1139,6 +1147,10 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	}
 
 	dam = CalcPlrDam(pnum, mis->_miResist, mis->_miMinDam, mis->_miMaxDam);
+	// no immunity at the moment
+	// if (dam <= 0) {
+	//	return false;
+	// }
 	if (!(mis->_miFlags & MIF_DOT)) {
 		dam -= plr._pIAbsAnyHit;
 		// assert(mis->_miResist != MISR_SLASH && mis->_miResist != MISR_PUNCTURE);
@@ -1277,6 +1289,10 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 				dam -= plr._pIAbsPhyHit;
 		}
 	}
+	// no immunity at the moment
+	// if (dam <= 0) {
+	//	return false;
+	// }
 
 	if (dam <= 0) {
 		dam = 1;
