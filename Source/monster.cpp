@@ -1523,9 +1523,8 @@ static int MonEnemyLastDir(int mnum)
 
 static void FixMonLocation(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
 	mon->_mfutx = mon->_moldx = mon->_mx;
@@ -1534,9 +1533,8 @@ static void FixMonLocation(int mnum)
 
 static void AssertFixMonLocation(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	assert(mon->_mxoff == 0);
 	assert(mon->_myoff == 0);
 	assert(mon->_mfutx == mon->_mx);
@@ -1711,9 +1709,8 @@ static void MonStartGetHit(int mnum, int dir)
 
 static void MonStartDelay(int mnum, int len)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	mon->_mVar2 = len; // DELAY_TICK : length of the delay
 	mon->_mmode = MM_DELAY;
 }
@@ -1723,10 +1720,9 @@ static void MonStartDelay(int mnum, int len)
  */
 static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int mx, my;
 
-	mon = &monsters[mnum];
 	mon->_mmode = MM_WALK;
 	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
 	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
@@ -1756,10 +1752,9 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
  */
 static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int dir)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int mx, my;
 
-	mon = &monsters[mnum];
 	mon->_mmode = MM_WALK2;
 	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
 	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
@@ -3712,9 +3707,8 @@ void MAI_Scav(int mnum)
 
 void MAI_Garg(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
 		if (mon->_mmode != MM_SPATTACK) {
 			// assert(mon->_mmode != MM_STONE);
@@ -4326,9 +4320,8 @@ void MAI_Mage(int mnum)
 
 void MAI_Garbud(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
 
@@ -4357,9 +4350,8 @@ void MAI_Garbud(int mnum)
 
 void MAI_Zhar(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
 
@@ -4396,9 +4388,8 @@ void MAI_Zhar(int mnum)
 
 void MAI_SnotSpil(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
 
@@ -4445,9 +4436,8 @@ void MAI_SnotSpil(int mnum)
 
 void MAI_Lazarus(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
 
@@ -4498,9 +4488,8 @@ void MAI_Lazarus(int mnum)
 
 void MAI_Lazhelp(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
 
@@ -4542,10 +4531,9 @@ void MAI_Lachdanan(int mnum)
 
 void MAI_Warlord(int mnum)
 {
-	MonsterStruct* mon;
+	MonsterStruct* mon = &monsters[mnum];
 	int pnum;
 
-	mon = &monsters[mnum];
 	if (MON_ACTIVE)
 		return;
 

@@ -879,8 +879,9 @@ static bool MissMonHitByMon(int mnum, int mi)
 		return false;
 
 	dam = CalcMonsterDam(mon->_mMagicRes, mis->_miResist, mis->_miMinDam, mis->_miMaxDam, false);
-	if (dam == 0)
+	if (dam == 0) {
 		return false;
+	}
 
 	if (!CheckMonsterHit(mnum, &ret)) {
 		return ret;
@@ -2009,18 +2010,19 @@ int AddArrow(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int i, mindam, maxdam;
+	int i, power, mindam, maxdam;
 
 	mis = &missile[mi];
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
+		power = plx(misource)._pIPower;
 		switch (mis->_miType) {
 		case MIS_FIREBOLT:
-			mindam = (plx(misource)._pIPower >> 3) + spllvl + 1;
+			mindam = (power >> 3) + spllvl + 1;
 			maxdam = mindam + 9;
 			break;
 		case MIS_FIREBALL:
-			mindam = (plx(misource)._pIPower >> 2) + 10;
+			mindam = (power >> 2) + 10;
 			maxdam = mindam + 10;
 			for (i = spllvl; i > 0; i--) {
 				mindam += mindam >> 3;
@@ -2028,13 +2030,13 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			}
 			break;
 		case MIS_HBOLT:
-			mindam = (plx(misource)._pIPower >> 2) + spllvl;
+			mindam = (power >> 2) + spllvl;
 			maxdam = mindam + 9;
 			break;
 		case MIS_FLARE:
 			if (!plx(misource)._pInvincible)
 				PlrDecHp(misource, 50 << 6, DMGTYPE_NPC);
-			mindam = maxdam = (plx(misource)._pIPower * (spllvl + 1)) >> 3;
+			mindam = maxdam = (power * (spllvl + 1)) >> 3;
 			break;
 		default:
 			ASSUME_UNREACHABLE

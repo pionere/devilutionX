@@ -156,48 +156,6 @@ static void shiftMicrosUp(int m0, int m1, int TRANS_COLOR, int DRAW_HEIGHT)
 	}
 }
 
-static void patchTownPotMin(uint16_t* pSubtiles, int potLeftSubtileRef, int potRightSubtileRef)
-{
-	const unsigned blockSize = BLOCK_SIZE_TOWN;
-	unsigned leftIndex0 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 1);
-	unsigned leftFrameRef0 = pSubtiles[leftIndex0] & 0xFFF;
-	unsigned leftIndex1 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 3);
-	unsigned leftFrameRef1 = pSubtiles[leftIndex1] & 0xFFF;
-	unsigned leftIndex2 = MICRO_IDX(potLeftSubtileRef - 1, blockSize, 5);
-	unsigned leftFrameRef2 = pSubtiles[leftIndex2] & 0xFFF;
-
-	if (leftFrameRef1 == 0 || leftFrameRef2 == 0) {
-		return; // left frames are empty -> assume it is already done
-	}
-	if (leftFrameRef0 == 0) {
-		return; // something is wrong
-	}
-
-	unsigned rightIndex0 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 0);
-	unsigned rightFrameRef0 = pSubtiles[rightIndex0] & 0xFFF;
-	unsigned rightIndex1 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 2);
-	unsigned rightFrameRef1 = pSubtiles[rightIndex1] & 0xFFF;
-	unsigned rightIndex2 = MICRO_IDX(potRightSubtileRef - 1, blockSize, 4);
-	unsigned rightFrameRef2 = pSubtiles[rightIndex2] & 0xFFF;
-
-	if (rightFrameRef1 != 0 || rightFrameRef2 != 0) {
-		return; // right frames are not empty -> assume it is already done
-	}
-	if (rightFrameRef0 == 0) {
-		return; // something is wrong
-	}
-
-	// move the frames to the right side
-	pSubtiles[rightIndex1] = pSubtiles[leftIndex1];
-	pSubtiles[rightIndex2] = pSubtiles[leftIndex2];
-	pSubtiles[leftIndex1] = 0;
-	pSubtiles[leftIndex2] = 0;
-	// convert the left floor to triangle
-	pSubtiles[leftIndex0] = (pSubtiles[leftIndex0] & 0xFFF) | (MET_RTRIANGLE << 12);
-	// convert the right floor to transparent
-	pSubtiles[rightIndex0] = (pSubtiles[rightIndex0] & 0xFFF) | (MET_TRANSPARENT << 12);
-}
-
 // patch subtiles around the pot of Adria to prevent graphical glitch when a player passes it I.
 static BYTE* patchTownPotCel(const BYTE* minBuf, size_t minLen, BYTE* celBuf, size_t* celLen)
 {

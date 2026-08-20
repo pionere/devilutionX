@@ -1544,11 +1544,11 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_WEAPONRACK:
 			AddWeaponRack(oi, realType);
 			break;
+		case OBJ_BLINDBOOK:
 		case OBJ_BLOODBOOK:
 		case OBJ_STEELTOME:
-		case OBJ_BLINDBOOK:
-		case OBJ_MYTHICBOOK:
 		case OBJ_VILEBOOK:
+		case OBJ_MYTHICBOOK:
 			AddBook(oi);
 			break;
 		case OBJ_BOOK1:
@@ -2342,6 +2342,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
+
 static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -3721,6 +3722,9 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, false);
 		break;
+	case OBJ_BOOK1:
+		OperateBook1(oi, false);
+		break;
 	case OBJ_BOOK2:
 		OperateBook2(oi, false);
 		break;
@@ -3865,10 +3869,10 @@ void SyncObjectAnim(int oi)
 	//case OBJ_CRUXL:
 		SyncCrux(os);
 		break;
-	case OBJ_MYTHICBOOK:
 	case OBJ_BLINDBOOK:
 	//case OBJ_BLOODBOOK: -- NULL_LVR_EFFECT
 	case OBJ_STEELTOME:
+	case OBJ_MYTHICBOOK:
 		SyncBookLever(os);
 		break;
 	case OBJ_PEDESTAL:
@@ -3993,11 +3997,11 @@ void GetObjectStr(int oi)
 	case OBJ_TEARFTN:
 		txt0 = "Fountain of Tears";
 		break;
+	case OBJ_BLINDBOOK:
+	case OBJ_BLOODBOOK:
+	case OBJ_STEELTOME:
 	case OBJ_VILEBOOK:
 	case OBJ_MYTHICBOOK:
-	case OBJ_BLOODBOOK:
-	case OBJ_BLINDBOOK:
-	case OBJ_STEELTOME:
 	case OBJ_STORYBOOK:
 	case OBJ_BOOK1:
 	case OBJ_BOOK2:

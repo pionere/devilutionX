@@ -37,7 +37,7 @@ void CelDrawTrnTbl(int sx, int sy, const CelImageBuf* pCelBuff, int nCel, const 
  * @brief Blit CEL sprite, and optionally use stippled-transparency or light trn, to the given buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
- * @param pCelBuff pointer to CEL-frame offsets and data with width information
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
@@ -47,7 +47,7 @@ void CelClippedDrawLightTrans(int sx, int sy, const BYTE* pCelBuff, int nCel, in
  * @brief Blit CEL sprite, and apply a given lighting/trn, to the given buffer at the given coordinates
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
- * @param pCelBuff pointer to CEL-frame offsets and data with width information
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  * @param light index of the light shade/trn to use
@@ -59,7 +59,7 @@ void CelClippedDrawLightTbl(int sx, int sy, const BYTE* pCelBuff, int nCel, int 
  * @param col color of the sprite and the outline (Color index from current palette)
  * @param sx Target buffer coordinate
  * @param sy Target buffer coordinate
- * @param pCelBuff pointer to CEL-frame offsets and data with width information
+ * @param pCelBuff pointer to CEL-frame offsets and data
  * @param nCel CEL frame number
  * @param nWidth CEL width of the frame
  */
