@@ -1561,7 +1561,7 @@ void LevelDeltaLoad()
 				plr._pVar5 *= ASSET_MPL; // WALK_YVEL : velocity of the player in the Y-direction
 				plr._pVar6 *= ASSET_MPL; // WALK_XOFF : _pxoff value in a higher range
 				plr._pVar7 *= ASSET_MPL; // WALK_YOFF : _pyoff value in a higher range
-				if (plr._pmode == PM_WALK) {
+				if (mi == PM_WALK) {
 					plr._poldx = px;
 					plr._poldy = py;
 
@@ -1669,7 +1669,7 @@ void LevelDeltaLoad()
 			my = mon->_my;
 			net_assert(IN_ACTIVE_AREA(mx, my));
 			if (mi == MM_WALK || mi == MM_WALK2) {
-				if (mon->_mmode == MM_WALK) {
+				if (mi == MM_WALK) {
 					mon->_moldx = mx;
 					mon->_moldy = my;
 
