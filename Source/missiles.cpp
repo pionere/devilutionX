@@ -2073,7 +2073,7 @@ int AddFirebolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 }
 
 /**
- * Var1: the target player
+ * Var1: the target player + 1
  * Var2: turn timer
  */
 int AddMage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
@@ -2083,7 +2083,7 @@ int AddMage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 	// assert(micaster == MST_MONSTER);
 	// assert((unsigned)misource < MAXMONSTERS);
 	mis = &missile[mi];
-	mis->_miVar1 = dPlayer[dx][dy];
+	mis->_miVar1 = abs(dPlayer[dx][dy]);
 	// mis->_miVar2 = 0;
 	mis->_miVar5 = midir; // MIS_DIR
 	mis->_miUniqTrans = MAX_BRIGHTNESS;
@@ -3812,8 +3812,7 @@ void MI_Mage(int mi)
 		}
 
 		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
-			int pnum = mis->_miVar1;
-			pnum = pnum >= 0 ? pnum - 1 : -(pnum + 1);
+			int pnum = mis->_miVar1 - 1;
 			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
 				mis->_miVar5 = GetDirection8(mis->_mix, mis->_miy, plr._px, plr._py); // MIS_DIR
 				GetMissileVel(mis, mis->_mix, mis->_miy, plr._px, plr._py, MIS_SHIFTEDVEL(missiledata[MIS_MAGE].mdPrSpeed));
