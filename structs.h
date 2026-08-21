@@ -1071,6 +1071,9 @@ typedef struct LE_INT32 {
 		return _value != oval._value;
 	};
 	operator int() const { return (int32_t)SwapLE32(_value); }
+	void operator/=(const int v) {
+		_value = SwapLE32(SwapLE32(_value) / v);
+	};
 } LE_INT32;
 
 typedef struct LE_UINT64 {
