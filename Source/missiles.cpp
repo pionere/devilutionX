@@ -3408,7 +3408,8 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 			continue; // skip player if not visible
 
 		// hit-check
-		CheckMissileCol(mi, px, py, MICM_NONE);
+		//CheckMissileCol(mi, px, py, MICM_NONE);
+		PlrMissHit(pnum, mi);
 
 		// add explosion effect
 		mis->_mix = plr._px;
