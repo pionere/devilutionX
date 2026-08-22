@@ -3472,15 +3472,15 @@ static void OperateBarrel(int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 	if (os->_otype == xotype) {
-		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
-			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
-				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, MST_NA, -1, 0);
-				mpo = dObject[xp][yp];
-				if (mpo > 0) {
-					mpo--;
-					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
-						OperateBarrel(mpo, sendmsg);
-				}
+		AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_BARRELEX, MST_NA, -1, 0);
+		for (int i = 0; i < lengthof(bxadd); i++) {
+			xp = os->_ox + bxadd[i];
+			yp = os->_oy + byadd[i];
+			mpo = dObject[xp][yp];
+			if (mpo > 0) {
+				mpo--;
+				if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
+					OperateBarrel(mpo, sendmsg);
 			}
 		}
 	} else {

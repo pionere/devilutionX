@@ -3241,7 +3241,7 @@ int AddBarrelExp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis->_miMinDam = 8 << (6 + gnDifficulty);
 	mis->_miMaxDam = 16 << (6 + gnDifficulty);
 
-	CheckMissileCol(mi, sx, sy, MICM_NONE);
+	CheckSplashColFull(mi);
 	return MIRES_DELETE;
 }
 
