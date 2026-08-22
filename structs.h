@@ -1816,8 +1816,8 @@ typedef struct TSyncLvlPlayer {
 //	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
 //	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
 //	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
-//	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
-//	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
+	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
+	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
 	BYTE spdir;    // Direction faced by player (direction enum)
 	BYTE spAnimFrame; // Current frame of animation.
 	BYTE spAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
@@ -1851,8 +1851,8 @@ typedef struct TSyncLvlMonster {
 //	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
 //	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
 //	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
-//	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
-//	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
+	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
+	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
 	BYTE smdir;        // Direction faced by monster (direction enum)
 	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy

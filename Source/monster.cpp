@@ -81,30 +81,30 @@ static MonEnemyStruct currEnemyInfo;
 // MWVel[animLen - 1] = (TILE_WIDTH << MON_WALK_SHIFT) / animLen;
 const int MWVel[24] = {
 	// clang-format off
-	(TILE_WIDTH << MON_WALK_SHIFT) / 1,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 2,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 3,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 4,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 5,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 6,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 7,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 8,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 9,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 10,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 11,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 12,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 13,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 14,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 15,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 16,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 17,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 18,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 19,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 20,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 21,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 22,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 23,
-	(TILE_WIDTH << MON_WALK_SHIFT) / 24,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 1,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 2,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 3,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 4,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 5,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 6,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 7,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 8,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 9,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 10,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 11,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 12,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 13,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 14,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 15,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 16,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 17,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 18,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 19,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 20,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 21,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 22,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 23,
+	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 24,
 	// clang-format on
 };
 /** Maps from monster action to monster animation letter. */
@@ -1758,8 +1758,8 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mmode = MM_WALK2;
 	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
 	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
-	mon->_mxoff = xoff;
-	mon->_myoff = yoff;
+	mon->_mxoff = xoff * ASSET_MPL;
+	mon->_myoff = yoff * ASSET_MPL;
 	mon->_mVar6 = xoff << MON_WALK_SHIFT; // MWALK_XOFF : _mxoff in a higher range
 	mon->_mVar7 = yoff << MON_WALK_SHIFT; // MWALK_YOFF : _myoff in a higher range
 	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
@@ -2300,8 +2300,8 @@ static bool MonDoWalk(int mnum)
 			//mon->_mVar8++;
 			mon->_mVar6 += mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
-			mon->_mxoff = mon->_mVar6 >> MON_WALK_SHIFT;
-			mon->_myoff = mon->_mVar7 >> MON_WALK_SHIFT;
+			mon->_mxoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
+			mon->_myoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			//	CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);

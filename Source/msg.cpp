@@ -1307,8 +1307,8 @@ void LevelDeltaExport()
 			//tplr->spfuty = plr._pfuty;
 			//tplr->spoldx = plr._poldx;
 			//tplr->spoldy = plr._poldy;
-			//tplr->spxoff = plr._pxoff;
-			//tplr->spyoff = plr._pyoff;
+			tplr->spxoff = plr._pxoff / ASSET_MPL;
+			tplr->spyoff = plr._pyoff / ASSET_MPL;
 			tplr->spdir = plr._pdir;
 			tplr->spAnimFrame = plr._pAnimFrame;
 			tplr->spAnimCnt = plr._pAnimCnt;
@@ -1357,8 +1357,8 @@ void LevelDeltaExport()
 			//tmon->smfuty = mon->_mfuty;
 			//tmon->smoldx = mon->_moldx;
 			//tmon->smoldy = mon->_moldy;
-			//tmon->smxoff = mon->_mxoff;
-			//tmon->smyoff = mon->_myoff;
+			tmon->smxoff = mon->_mxoff / ASSET_MPL;
+			tmon->smyoff = mon->_myoff / ASSET_MPL;
 			tmon->smdir = mon->_mdir;
 			tmon->smenemy = mon->_menemy;
 			tmon->smenemyx = mon->_menemyx;
@@ -1527,9 +1527,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		// plr._pxoff = tplr->spxoff;
-		// plr._pyoff = tplr->spyoff;
-		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
+		plr._pxoff = tplr->spxoff * ASSET_MPL;
+		plr._pyoff = tplr->spyoff * ASSET_MPL;
 		plr._pdir = tplr->spdir;
 		plr._pAnimFrame = tplr->spAnimFrame;
 		plr._pAnimCnt = tplr->spAnimCnt;
@@ -1623,9 +1622,8 @@ void LevelDeltaLoad()
 		//mon->_mfuty = tmon->smfuty;
 		//mon->_moldx = tmon->smoldx;
 		//mon->_moldy = tmon->smoldy;
-		//mon->_mxoff = tmon->smxoff;
-		//mon->_myoff = tmon->smyoff;
-		mon->_mxoff = mon->_myoff = 0;        // no need to sync these values as they are recalculated when used
+		mon->_mxoff = tmon->smxoff * ASSET_MPL;
+		mon->_myoff = tmon->smyoff * ASSET_MPL;
 		mon->_mdir = tmon->smdir;
 		mon->_menemy = tmon->smenemy;
 		mon->_menemyx = tmon->smenemyx;
