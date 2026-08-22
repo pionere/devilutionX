@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MON_WALK_SHIFT 8
+#define MON_WALK_SHIFT 16
 
 // Ticks necessary to finish the current action and add the result to the delta
 // ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_TURN_MSG_SIZE / sizeof(TSyncMonster)))
