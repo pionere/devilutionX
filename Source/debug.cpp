@@ -2152,6 +2152,14 @@ void ValidateData()
 		if (md.mAddProc == AddArrow) {
 			assert(md.mFileNum == MFILE_ARROWS);
 		}
+		if (md.mAddProc == AddBarrelExp || md.mAddProc == AddApocaC2) {
+			assert(md.miSFX == SFX_NONE);
+		}
+#ifdef HELLFIRE
+		if (md.mAddProc == AddFireexp) {
+			assert(md.miSFX == SFX_NONE);
+		}
+#endif
 		if (md.mAddProc == AddTelekinesis) {
 			for (int n = 0; n < NUM_SPELLS; n++) {
 				if (spelldata[n].sMissile == i)
@@ -2244,6 +2252,10 @@ void ValidateData()
 		}
 		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
 			assert(n == 2);
+		}
+		if (md.mProc == MI_AsArrow/* || md.mProc == MI_Poison*/ || md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_BloodBoil || md.mProc == MI_Bleed ||
+			md.mProc == MI_Flash || md.mProc == MI_Meteor || md.mProc == MI_Elemental || md.mProc == MI_Pulse) {
+			assert(md.miSFX == SFX_NONE);
 		}
 		if ((md.mProc == MI_Acidpud || md.mProc == MI_Flash2) != misfiledata[md.mFileNum].mfPreFlag)
 			app_fatal("Missile %d wont render correctly due to misconfigured preflag.", i);
