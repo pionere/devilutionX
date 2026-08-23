@@ -1323,13 +1323,6 @@ void LevelDeltaExport()
 			tplr->spVar7 = plr._pVar7;
 			tplr->spVar8 = plr._pVar8;
 
-			if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
-				tplr->spVar4 /= ASSET_MPL; // WALK_XVEL : velocity of the player in the X-direction
-				tplr->spVar5 /= ASSET_MPL; // WALK_YVEL : velocity of the player in the Y-direction
-				tplr->spVar6 /= ASSET_MPL; // WALK_XOFF : _pxoff value in a higher range
-				tplr->spVar7 /= ASSET_MPL; // WALK_YOFF : _pyoff value in a higher range
-			}
-
 			ExportItemDurabilites(pnum, tplr->spItemsDur);
 
 			dst += sizeof(TSyncLvlPlayer);
@@ -1556,10 +1549,6 @@ void LevelDeltaLoad()
 			mi = plr._pmode;
 			net_assert(mi < NUM_PLR_MODES);
 			if (mi == PM_WALK || mi == PM_WALK2) {
-				plr._pVar4 *= ASSET_MPL; // WALK_XVEL : velocity of the player in the X-direction
-				plr._pVar5 *= ASSET_MPL; // WALK_YVEL : velocity of the player in the Y-direction
-				plr._pVar6 *= ASSET_MPL; // WALK_XOFF : _pxoff value in a higher range
-				plr._pVar7 *= ASSET_MPL; // WALK_YOFF : _pyoff value in a higher range
 				if (mi == PM_WALK) {
 					plr._poldx = px;
 					plr._poldy = py;
