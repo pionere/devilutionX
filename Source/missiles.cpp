@@ -495,7 +495,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 
 	px = dx;
 	py = dy;
-	SetPlayerLoc(&plr, px, py);
+	SetPlayerLoc(pnum, px, py);
 	//PlrDoTrans(px, py);
 	dPlayer[px][py] = pnum + 1;
 	ChangeLightXY(plr._plid, px, py);
@@ -4913,7 +4913,7 @@ void MI_Charge(int mi)
 	by = mis->_miy;
 	dPlayer[bx][by] = -(pnum + 1);
 	if (plr._px != bx || plr._py != by) {
-		SetPlayerLoc(&plr, bx, by);
+		SetPlayerLoc(pnum, bx, by);
 		// assert(plr._plid == mis->_miLid);
 		ChangeLightXY(plr._plid, bx, by);
 		ChangeVisionXY(plr._pvid, bx, by);

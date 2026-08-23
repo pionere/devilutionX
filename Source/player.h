@@ -31,6 +31,7 @@ void CreatePlayer(const _uiheroinfo& heroinfo);
 void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, unsigned exp);
+void SetPlayerLoc(int pnum, int x, int y);
 void InitLocalPlayer(int pnum);
 void InitPlayer(int pnum);
 void InitLvlPlayer(int pnum, bool entering);
@@ -67,15 +68,6 @@ void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
 void DecreasePlrMaxHp(int pnum);
 void RestorePlrHpVit(int pnum);
-
-// Set each location to the input location.
-// Oldx/y could be set to an invalid value so RemovePlrFromMap could check if the player was placed on the map earlier,
-//  but it is not worth it at the moment.
-inline void SetPlayerLoc(PlayerStruct* p, int x, int y)
-{
-	p->_px = p->_pfutx = p->_poldx = x;
-	p->_py = p->_pfuty = p->_poldy = y;
-}
 
 /* data */
 

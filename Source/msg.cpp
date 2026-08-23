@@ -1579,7 +1579,7 @@ void LevelDeltaLoad()
 				}
 				net_assert(IN_DUNGEON_AREA(px, py));
 			} else {
-				// SetPlayerLoc(&plr, px, py);
+				// SetPlayerLoc(pnum, px, py);
 				plr._pfutx = plr._poldx = px;
 				plr._pfuty = plr._poldy = py;
 			}

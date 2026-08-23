@@ -131,7 +131,7 @@ void UnPackPlayer(const PkPlayerStruct* pPack, int pnum)
 	const PkItemStruct* pki;
 
 	// TODO: validate data from the internet
-	//SetPlayerLoc(&plr, pPack->px, pPack->py);
+	//SetPlayerLoc(pnum, pPack->px, pPack->py);
 	copy_cstr(plr._pName, pPack->pName);
 	plr._pLvlChanging = pPack->pLvlChanging;
 	plr._pDunLevel = pPack->pDunLevel;

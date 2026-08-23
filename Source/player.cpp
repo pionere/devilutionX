@@ -632,6 +632,15 @@ static void PlacePlayer(int pnum)
 	plr._py = ny;
 }
 
+// Set each location to the input location.
+// Oldx/y could be set to an invalid value so RemovePlrFromMap could check if the player was placed on the map earlier,
+//  but it is not worth it at the moment.
+void SetPlayerLoc(int pnum, int x, int y)
+{
+	plr._px = plr._pfutx = plr._poldx = x;
+	plr._py = plr._pfuty = plr._poldy = y;
+}
+
 /*
  * Initialize player fields when entering a game.
  */
