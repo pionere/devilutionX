@@ -38,7 +38,6 @@ void InitLvlPlayer(int pnum, bool entering);
 void RemoveLvlPlayer(int pnum);
 //void PlrClrTrans(int x, int y);
 //void PlrDoTrans(int x, int y);
-void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
 void RemovePlrFromMap(int pnum);
 bool PlrCheckBlock(int pnum, int bmod, int dir);

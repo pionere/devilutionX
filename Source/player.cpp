@@ -641,6 +641,37 @@ void SetPlayerLoc(int pnum, int x, int y)
 	plr._py = plr._pfuty = plr._poldy = y;
 }
 
+static void FixPlayerLocation(int pnum)
+{
+	plr._pxoff = 0;
+	plr._pyoff = 0;
+	SetPlayerLoc(pnum, plr._px, plr._py);
+	if (pnum == mypnum) {
+		ScrollInfo._sxoff = 0;
+		ScrollInfo._syoff = 0;
+		ScrollInfo._sdir = SDIR_NONE;
+		myview.x = plr._px; // - ScrollInfo._sdx;
+		myview.y = plr._py; // - ScrollInfo._sdy;
+	}
+}
+
+static void AssertFixPlayerLocation(int pnum)
+{
+	assert(plr._pfutx == plr._px);
+	assert(plr._poldx == plr._px);
+	assert(plr._pfuty == plr._py);
+	assert(plr._poldy == plr._py);
+	assert(plr._pxoff == 0);
+	assert(plr._pyoff == 0);
+	if (pnum == mypnum) {
+		assert(ScrollInfo._sxoff == 0);
+		assert(ScrollInfo._syoff == 0);
+		assert(ScrollInfo._sdir == SDIR_NONE);
+		assert(myview.x == plr._px); // - ScrollInfo._sdx;
+		assert(myview.y == plr._py); // - ScrollInfo._sdy;
+	}
+}
+
 /*
  * Initialize player fields when entering a game.
  */
@@ -1015,40 +1046,6 @@ void PlrDoTrans(int x, int y)
 		}
 	}
 }*/
-
-void FixPlayerLocation(int pnum)
-{
-	if ((unsigned)pnum >= MAX_PLRS) {
-		dev_fatal("FixPlayerLocation: illegal player %d", pnum);
-	}
-	plr._pxoff = 0;
-	plr._pyoff = 0;
-	SetPlayerLoc(pnum, plr._px, plr._py);
-	if (pnum == mypnum) {
-		ScrollInfo._sxoff = 0;
-		ScrollInfo._syoff = 0;
-		ScrollInfo._sdir = SDIR_NONE;
-		myview.x = plr._px; // - ScrollInfo._sdx;
-		myview.y = plr._py; // - ScrollInfo._sdy;
-	}
-}
-
-static void AssertFixPlayerLocation(int pnum)
-{
-	assert(plr._pfutx == plr._px);
-	assert(plr._poldx == plr._px);
-	assert(plr._pfuty == plr._py);
-	assert(plr._poldy == plr._py);
-	assert(plr._pxoff == 0);
-	assert(plr._pyoff == 0);
-	if (pnum == mypnum) {
-		assert(ScrollInfo._sxoff == 0);
-		assert(ScrollInfo._syoff == 0);
-		assert(ScrollInfo._sdir == SDIR_NONE);
-		assert(myview.x == plr._px); // - ScrollInfo._sdx;
-		assert(myview.y == plr._py); // - ScrollInfo._sdy;
-	}
-}
 
 static void StartStand(int pnum)
 {
