@@ -1021,10 +1021,9 @@ void FixPlayerLocation(int pnum)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("FixPlayerLocation: illegal player %d", pnum);
 	}
-	plr._pfutx = plr._poldx = plr._px;
-	plr._pfuty = plr._poldy = plr._py;
 	plr._pxoff = 0;
 	plr._pyoff = 0;
+	SetPlayerLoc(pnum, plr._px, plr._py);
 	if (pnum == mypnum) {
 		ScrollInfo._sxoff = 0;
 		ScrollInfo._syoff = 0;
