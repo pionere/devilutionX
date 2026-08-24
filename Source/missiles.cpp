@@ -3859,7 +3859,7 @@ void MI_Mage(int mi)
 void MI_Poison(int mi)
 {
 	MissileStruct* mis;
-	int tnum, pnum;
+	int tnum, pnum, zoff;
 	MonsterStruct* mon;
 
 	mis = &missile[mi];
@@ -3900,17 +3900,19 @@ void MI_Poison(int mi)
 			mis->_miy = mon->_my;
 			mis->_mixoff = mon->_mxoff;
 			mis->_miyoff = mon->_myoff;
+			zoff = 0;
 			if (mon->_mSelFlag & 4) {
 				if (mon->_mSelFlag & 2) {
-					mis->_miyoff -= 3 * TILE_HEIGHT / 4;
+					zoff -= 3 * TILE_HEIGHT / 4;
 				} else {
-					mis->_miyoff -= TILE_HEIGHT;
+					zoff -= TILE_HEIGHT;
 				}
 			} else {
 				if (mon->_mSelFlag & 2) {
-					mis->_miyoff -= TILE_HEIGHT / 2;
+					zoff -= TILE_HEIGHT / 2;
 				}
 			}
+			mis->_miyoff += zoff;
 			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 			MonMissHit(tnum, mi);
 		}
@@ -3923,7 +3925,10 @@ void MI_Poison(int mi)
 			mis->_mix = plr._px;
 			mis->_miy = plr._py;
 			mis->_mixoff = plr._pxoff;
-			mis->_miyoff = plr._pyoff - 3 * TILE_HEIGHT / 4;
+			mis->_miyoff = plr._pyoff;
+			zoff = 0;
+			zoff -= 3 * TILE_HEIGHT / 4;
+			mis->_miyoff += zoff;
 			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 			PlrMissHit(pnum, mi);
 		}
