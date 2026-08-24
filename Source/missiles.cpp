@@ -4877,7 +4877,7 @@ void MI_Rhino(int mi)
 	dMonster[bx][by] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	if (monsters[mnum]._mx != bx || monsters[mnum]._my != by) {
-		SetMonsterLoc(&monsters[mnum], bx, by);
+		SetMonsterLoc(mnum, bx, by);
 		// assert(monsters[mnum]._mvid == NO_VISION);
 		// assert(monsters[mnum]._mlid == NO_LIGHT);
 		//ChangeLightXY(monsters[mnum]._mlid, bx, by);

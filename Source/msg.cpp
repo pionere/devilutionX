@@ -1057,7 +1057,7 @@ void DeltaLoadLevel()
 					UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 					RemoveMonFromMap(i);
 				}
-				SetMonsterLoc(mon, mstr->dmx, mstr->dmy);
+				SetMonsterLoc(i, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
@@ -1677,7 +1677,7 @@ void LevelDeltaLoad()
 				// net_assert(PosOkMonster(mnum, mx, my));
 			} else {
 				// net_assert(PosOkMonster(mnum, mx, my));
-				// SetMonsterLoc(mon, mx, my);
+				// SetMonsterLoc(mnum, mx, my);
 				mon->_mfutx = mon->_moldx = mx;
 				mon->_mfuty = mon->_moldy = my;
 			}

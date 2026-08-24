@@ -47,6 +47,7 @@ void WakeNakrul();
 #endif
 void InitMonsters();
 void MonChangeMap();
+void SetMonsterLoc(int mnum, int x, int y);
 void InitMonster(int mnum, int dir, int mtidx, int x, int y);
 void AddMonster(int mtidx, int x, int y);
 void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y);
@@ -84,12 +85,6 @@ bool SpawnMinion(int mnum, int x, int y, int type, int level, int hitpoints = -1
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool* ret);
 void MonCallToArms(int mnum);
-
-inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
-{
-	mon->_mx = mon->_mfutx = mon->_moldx = x;
-	mon->_my = mon->_mfuty = mon->_moldy = y;
-}
 
 /* data */
 

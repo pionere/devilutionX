@@ -572,9 +572,9 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
-	SetMonsterLoc(mon, x, y);
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
+	SetMonsterLoc(mnum, x, y);
 	mon->_mType = cmon->cmType;
 	/*mon->_mName = cmon->cmName;
 	mon->_mFileNum = cmon->cmFileNum;
@@ -1521,14 +1521,23 @@ static int MonEnemyLastDir(int mnum)
 	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
 }
 
+// Set each location to the input location.
+void SetMonsterLoc(int mnum, int x, int y)
+{
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	mon->_mx = mon->_mfutx = mon->_moldx = x;
+	mon->_my = mon->_mfuty = mon->_moldy = y;
+}
+
 static void FixMonLocation(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
 	mon->_mxoff = 0;
 	mon->_myoff = 0;
-	mon->_mfutx = mon->_moldx = mon->_mx;
-	mon->_mfuty = mon->_moldy = mon->_my;
+	SetMonsterLoc(mnum, mon->_mx, mon->_my);
 }
 
 static void AssertFixMonLocation(int mnum)
@@ -2772,7 +2781,7 @@ static void MonWalkDir(int mnum, int md)
 static void ActivateSpawn(int mnum, int x, int y, int dir)
 {
 	dMonster[x][y] = mnum + 1;
-	SetMonsterLoc(&monsters[mnum], x, y);
+	SetMonsterLoc(mnum, x, y);
 	MonStartSpStand(mnum, dir);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 }
