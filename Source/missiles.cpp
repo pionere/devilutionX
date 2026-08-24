@@ -387,28 +387,13 @@ static bool PosOkMis2(int x, int y)
 	return true;
 }
 
-static int MisGetDistance2(int x1, int y1, int ox1, int oy1, int x2, int y2, int ox2, int oy2)
+static int GetDistance2(int gx1, int gy1, int gx2, int gy2)
 {
-	int dx1 = 0;
-	int dy1 = 0;
-	SHIFT_GRID(dy1, dx1, y1, x1);
-	dx1 *= TILE_WIDTH / 2;
-	dy1 *= TILE_WIDTH / 2;
+	int ddx = (gx1 - gx2);
+	int ddy = (gy1 - gy2);
 
-	dx1 += ox1;
-	dy1 += oy1 * (TILE_WIDTH / TILE_HEIGHT);
-
-	int dx2 = 0;
-	int dy2 = 0;
-	SHIFT_GRID(dy2, dx2, y2, x2);
-	dx2 *= TILE_WIDTH / 2;
-	dy2 *= TILE_WIDTH / 2;
-
-	dx2 += ox2;
-	dy2 += oy2 * (TILE_WIDTH / TILE_HEIGHT);
-
-	int ddx = (dx1 - dx2);
-	int ddy = (dy1 - dy2);
+	ddx >>= GRID_SHIFT;
+	ddy >>= GRID_SHIFT;
 
 	return ddx * ddx + ddy * ddy;
 }
@@ -3827,8 +3812,8 @@ void MI_Mage(int mi)
 				continue;
 			}
 			// check the distance
-			int doff = MisGetDistance2(mis->_mix, mis->_miy, mis->_mixoff, mis->_miyoff, bmis->_mix, bmis->_miy, bmis->_mixoff, bmis->_miyoff);
-			if (doff > (TILE_WIDTH * TILE_WIDTH / 8))
+			int doff = GetDistance2(mis->_migx, mis->_migy, bmis->_migx, bmis->_migy);
+			if (doff > (GRID_WIDTH >> GRID_SHIFT) * (GRID_WIDTH >> GRID_SHIFT) / 8)
 				continue;
 			// check target
 			if (mis->_miVar1 != 0 && bmis->_miVar1 != 0 && mis->_miVar1 != bmis->_miVar1)
