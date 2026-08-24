@@ -1111,67 +1111,67 @@ static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 
 /**
  * @brief Render object sprites
- * @param sx dPiece coordinate
- * @param sy dPiece coordinate
+ * @param x dPiece coordinate
+ * @param y dPiece coordinate
  * @param dx Back buffer coordinate
  * @param dy Back buffer coordinate
  */
-static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
+static void scrollrt_draw_dungeon(int x, int y, int dx, int dy)
 {
 	int mpnum;
 	BYTE bv, bFlag;
 
-	assert((unsigned)sx < MAXDUNX);
-	assert((unsigned)sy < MAXDUNY);
+	assert((unsigned)x < MAXDUNX);
+	assert((unsigned)y < MAXDUNY);
 
-	//if (dRendered[sx][sy])
+	//if (dRendered[x][y])
 	//	return;
-	//dRendered[sx][sy] = true;
+	//dRendered[x][y] = true;
 
 	gbPreFlag = TRUE;
-	bFlag = dFlags[sx][sy];
-	light_trn_index = dLight[sx][sy];
-	gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
+	bFlag = dFlags[x][y];
+	light_trn_index = dLight[x][y];
+	gbCelTransparencyActive = TransList[dTransVal[x][y]];
 
-	mpnum = dPiece[sx][sy];
+	mpnum = dPiece[x][y];
 	drawCell(mpnum, dx, dy);
 
 	if (bFlag & BFLAG_MISSILE_PRE) {
-		mpnum = dMissile[sx][sy];
+		mpnum = dMissile[x][y];
 		assert(mpnum != 0);
-		DrawMissile(mpnum, sx, sy, dx, dy);
+		DrawMissile(mpnum, x, y, dx, dy);
 	}
 
-	bv = dDead[sx][sy];
+	bv = dDead[x][y];
 	if (bv != 0)
-		DrawDeadMonster(bv, sx, sy, dx, dy);
-	mpnum = dObject[sx][sy];
+		DrawDeadMonster(bv, x, y, dx, dy);
+	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy);
-	bv = dItem[sx][sy];
+		DrawObject(mpnum, x, y, dx, dy);
+	bv = dItem[x][y];
 	if (bv != 0)
 		DrawItem(bv, dx, dy);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
-		DrawDeadPlayer(sx, sy, dx, dy);
+		DrawDeadPlayer(x, y, dx, dy);
 	}
 	gbPreFlag = FALSE;
-	mpnum = dPlayer[sx][sy];
+	mpnum = dPlayer[x][y];
 	if (mpnum > 0)
 		DrawPlayer(mpnum - 1, bFlag, dx, dy);
-	mpnum = dMonster[sx][sy];
+	mpnum = dMonster[x][y];
 	if (mpnum > 0)
 		DrawMonsterHelper(mpnum - 1, bFlag, dx, dy);
-	mpnum = dMissile[sx][sy];
+	mpnum = dMissile[x][y];
 	if (mpnum != 0)
-		DrawMissile(mpnum, sx, sy, dx, dy);
-	mpnum = dObject[sx][sy];
+		DrawMissile(mpnum, x, y, dx, dy);
+	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy);
-	//bv = dItem[sx][sy];
+		DrawObject(mpnum, x, y, dx, dy);
+	//bv = dItem[x][y];
 	//if (bv != 0)
 	//	DrawItem(bv, dx, dy);
 
-	bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
+	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
 	if (bv != 0) {
 		CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
 	}
