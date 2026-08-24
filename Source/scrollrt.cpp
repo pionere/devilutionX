@@ -1113,10 +1113,10 @@ static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
  * @brief Render object sprites
  * @param x dPiece coordinate
  * @param y dPiece coordinate
- * @param dx Back buffer coordinate
- * @param dy Back buffer coordinate
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  */
-static void scrollrt_draw_dungeon(int x, int y, int dx, int dy)
+static void scrollrt_draw_dungeon(int x, int y, int sx, int sy)
 {
 	int mpnum;
 	BYTE bv, bFlag;
@@ -1134,46 +1134,46 @@ static void scrollrt_draw_dungeon(int x, int y, int dx, int dy)
 	gbCelTransparencyActive = TransList[dTransVal[x][y]];
 
 	mpnum = dPiece[x][y];
-	drawCell(mpnum, dx, dy);
+	drawCell(mpnum, sx, sy);
 
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[x][y];
 		assert(mpnum != 0);
-		DrawMissile(mpnum, x, y, dx, dy);
+		DrawMissile(mpnum, x, y, sx, sy);
 	}
 
 	bv = dDead[x][y];
 	if (bv != 0)
-		DrawDeadMonster(bv, x, y, dx, dy);
+		DrawDeadMonster(bv, x, y, sx, sy);
 	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		DrawObject(mpnum, x, y, dx, dy);
+		DrawObject(mpnum, x, y, sx, sy);
 	bv = dItem[x][y];
 	if (bv != 0)
-		DrawItem(bv, dx, dy);
+		DrawItem(bv, sx, sy);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
-		DrawDeadPlayer(x, y, dx, dy);
+		DrawDeadPlayer(x, y, sx, sy);
 	}
 	gbPreFlag = FALSE;
 	mpnum = dPlayer[x][y];
 	if (mpnum > 0)
-		DrawPlayer(mpnum - 1, bFlag, dx, dy);
+		DrawPlayer(mpnum - 1, bFlag, sx, sy);
 	mpnum = dMonster[x][y];
 	if (mpnum > 0)
-		DrawMonsterHelper(mpnum - 1, bFlag, dx, dy);
+		DrawMonsterHelper(mpnum - 1, bFlag, sx, sy);
 	mpnum = dMissile[x][y];
 	if (mpnum != 0)
-		DrawMissile(mpnum, x, y, dx, dy);
+		DrawMissile(mpnum, x, y, sx, sy);
 	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		DrawObject(mpnum, x, y, dx, dy);
+		DrawObject(mpnum, x, y, sx, sy);
 	//bv = dItem[x][y];
 	//if (bv != 0)
-	//	DrawItem(bv, dx, dy);
+	//	DrawItem(bv, sx, sy);
 
 	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
 	if (bv != 0) {
-		CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
+		CelClippedDrawLightTrans(sx, sy, pSpecialsCel, bv, TILE_WIDTH);
 	}
 }
 
