@@ -674,6 +674,12 @@ static void GetMissileVel(MissileStruct* mis, int sx, int sy, int dx, int dy, in
 	mis->_miyvel = (dyp * (v << MIS_BASE_VELO_SHIFT)) / dr;
 }
 
+static void SetMissilePos(MissileStruct* mis, int x, int y)
+{
+	mis->_mix = x;
+	mis->_miy = y;
+}
+
 static void GetMissilePos(MissileStruct* mis)
 {
 	int mx, my, dx, dy, dqx, dqy;
@@ -696,10 +702,9 @@ static void GetMissilePos(MissileStruct* mis)
 	dqy = dy / 64;
 	//dry = dy % 64;
 
-	mis->_mix = dqx + mis->_misx;
-	mis->_miy = dqy + mis->_misy;
 	mis->_mixoff = (mx - (dqx - dqy) * 32) * ASSET_MPL;        // ((drx - dry) >> 1) * ASSET_MPL;
 	mis->_miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
+	SetMissilePos(mis, dqx + mis->_misx, dqy + mis->_misy);
 	ChangeLightScreenOff(mis->_miLid, mis->_mixoff, mis->_miyoff);
 }
 #if 0
@@ -1892,8 +1897,7 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PlaceMissile(tx, ty, sx, sy)) {
-				mis->_mix = tx;
-				mis->_miy = ty;
+				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
 				mis->_miLid = AddLight(tx, ty, 8);
 				return MIRES_DONE;
@@ -2425,8 +2429,9 @@ int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 		mis->_miSpllvl = spllvl;
 	}
 
-	mis->_mix = dx - 2;
-	mis->_miy = dy - 2;
+	// mis->_misx = dx - 2; -- unused
+	// mis->_misy = dy - 2;
+	SetMissilePos(mis, dx - 2, dy - 2);
 	mis->_miVar1 = 0;
 	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
 	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * 8;
@@ -2509,10 +2514,9 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PlaceMissile(tx, ty, sx, sy)) {
-				mis->_mix = tx;
-				mis->_miy = ty;
-				//mis->_misx = tx;
+				//mis->_misx = tx; -- unused
 				//mis->_misy = ty;
+				SetMissilePos(mis, tx, ty);
 				mis->_miRange = 32 * spllvl + 160;
 				return MIRES_DONE;
 			}
@@ -2591,8 +2595,9 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	MissileStruct* mis;
 	// assert((micaster & MST_PLAYER) || micaster == MST_NA);
 	mis = &missile[mi];
-	mis->_mix = mis->_misx = dx;
-	mis->_miy = mis->_misy = dy;
+	mis->_misx = dx;
+	mis->_misy = dy;
+	SetMissilePos(mis, dx, dy);
 	static_assert(MAX_LIGHT_RAD >= 15, "AddPortal needs at least light-radius of 15.");
 	mis->_miLid = AddLight(dx, dy, spllvl >= 0 ? 1 : 15);
 	if (spllvl >= 0) {
@@ -2697,8 +2702,7 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				mis->_misx = tx;
 				mis->_misy = ty;
-				mis->_mix = tx;
-				mis->_miy = ty;
+				SetMissilePos(mis, tx, ty);
 				// assert(mis->_miAnimLen == MIA_SHATTER1_LENGTH);
 				mis->_miAnimFrame = MIA_SHATTER1_LENGTH;
 				mis->_miAnimAdd = -1;
@@ -2903,10 +2907,9 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PlaceMissile(tx, ty, sx, sy)) {
-				mis->_mix = tx;
-				mis->_miy = ty;
 				mis->_misx = tx;
 				mis->_misy = ty;
+				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
 				mis->_miLid = AddLight(tx, ty, 1);
 				mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
@@ -2938,8 +2941,9 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		; // do nothing in town
 	} else if (mon->_mType == MT_GOLEM) {
-		/*missile[mi]._misx = */missile[mi]._mix = mon->_mx;
-		/*missile[mi]._misy = */missile[mi]._miy = mon->_my;
+		//missile[mi]._misx = mon->_mx;
+		//missile[mi]._misy = mon->_my;
+		SetMissilePos(&missile[mi], mon->_mx, mon->_my);
 		missile[mi]._miMaxDam = mon->_mhitpoints;
 		missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
 		CheckSplashColFull(mi);
@@ -3096,8 +3100,9 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
 				midir = GetDirection8(sx, sy, dx, dy);
 				midir = (midir - 2) & 7;
-				mis->_mix = tx;
-				mis->_miy = ty;
+				//mis->_misx = tx; -- unused
+				//mis->_misy = ty;
+				SetMissilePos(mis, tx, ty);
 				mis->_mixvel = XDirAdd[midir];
 				mis->_miyvel = YDirAdd[midir];
 				//mis->_miVar1 = 0;
@@ -3309,10 +3314,9 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		NetSendCmd(CMD_PLRRESURRECT);
 
 	mis = &missile[mi];
-	mis->_mix = dx;
-	mis->_miy = dy;
-	// mis->_misx = mis->_mix;
-	// mis->_misy = mis->_miy;
+	// mis->_misx = dx; -- unused
+	// mis->_misy = dy;
+	SetMissilePos(mis, dx, dy);
 	return MIRES_DONE;
 }
 
@@ -3330,8 +3334,9 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		return MIRES_FAIL_DELETE;
 
 	mis = &missile[mi];
-	mis->_mix = dx;
-	mis->_miy = dy;
+	// mis->_misx = dx; -- unused
+	// mis->_misy = dy;
+	SetMissilePos(mis, dx, dy);
 	mis->_miAnimFrame = 2;
 	mis->_miAnimAdd = 2;
 
@@ -3528,10 +3533,9 @@ int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
-				mis->_mix = tx;
-				mis->_miy = ty;
 				//mis->_misx = tx; -- unused
 				//mis->_misy = ty;
+				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
 				mis->_miLid = AddLight(tx, ty, 4);
 				return MIRES_DONE;
@@ -3570,10 +3574,9 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miCaster = micaster;
 	mis->_miSource = misource;
 	mis->_miSpllvl = spllvl;
-	mis->_mix = sx;
-	mis->_miy = sy;
 	mis->_misx = sx;
 	mis->_misy = sy;
+	SetMissilePos(mis, sx, sy);
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
 	mis->_miFlags = mds->mdFlags;
