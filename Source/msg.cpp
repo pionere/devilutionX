@@ -1309,6 +1309,8 @@ void LevelDeltaExport()
 			//tplr->spoldy = plr._poldy;
 			tplr->spxoff = plr._pxoff / ASSET_MPL;
 			tplr->spyoff = plr._pyoff / ASSET_MPL;
+			tplr->spgx = plr._pgx;
+			tplr->spgy = plr._pgy;
 			tplr->spdir = plr._pdir;
 			tplr->spAnimFrame = plr._pAnimFrame;
 			tplr->spAnimCnt = plr._pAnimCnt;
@@ -1352,6 +1354,8 @@ void LevelDeltaExport()
 			//tmon->smoldy = mon->_moldy;
 			tmon->smxoff = mon->_mxoff / ASSET_MPL;
 			tmon->smyoff = mon->_myoff / ASSET_MPL;
+			tmon->smgx = mon->_mgx;
+			tmon->smgy = mon->_mgy;
 			tmon->smdir = mon->_mdir;
 			tmon->smenemy = mon->_menemy;
 			tmon->smenemyx = mon->_menemyx;
@@ -1417,6 +1421,8 @@ void LevelDeltaExport()
 			tmis->smiyvel = mis->_miyvel;
 			tmis->smitxoff = mis->_mitxoff;
 			tmis->smityoff = mis->_mityoff;
+			tmis->smigx = mis->_migx;
+			tmis->smigy = mis->_migy;
 			// smiDir/_miDir reordered for better alignment
 			tmis->smiSpllvl = mis->_miSpllvl; // int?
 			tmis->smiSource = mis->_miSource; // int?
@@ -1522,6 +1528,8 @@ void LevelDeltaLoad()
 		// plr._poldy = tplr->spoldy;
 		plr._pxoff = tplr->spxoff * ASSET_MPL;
 		plr._pyoff = tplr->spyoff * ASSET_MPL;
+		plr._pgx = tplr->spgx;
+		plr._pgy = tplr->spgy;
 		plr._pdir = tplr->spdir;
 		plr._pAnimFrame = tplr->spAnimFrame;
 		plr._pAnimCnt = tplr->spAnimCnt;
@@ -1613,6 +1621,8 @@ void LevelDeltaLoad()
 		//mon->_moldy = tmon->smoldy;
 		mon->_mxoff = tmon->smxoff * ASSET_MPL;
 		mon->_myoff = tmon->smyoff * ASSET_MPL;
+		mon->_mgx = tmon->smgx;
+		mon->_mgy = tmon->smgy;
 		mon->_mdir = tmon->smdir;
 		mon->_menemy = tmon->smenemy;
 		mon->_menemyx = tmon->smenemyx;
@@ -1738,6 +1748,8 @@ void LevelDeltaLoad()
 		mis->_miyvel = tmis->smiyvel;
 		mis->_mitxoff = tmis->smitxoff;
 		mis->_mityoff = tmis->smityoff;
+		mis->_migx = tmis->smigx;
+		mis->_migy = tmis->smigy;
 		mis->_miDir = tmis->smiDir;
 		mis->_miSpllvl = tmis->smiSpllvl;       // int?
 		mis->_miSource = tmis->smiSource;       // int?

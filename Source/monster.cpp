@@ -1529,6 +1529,10 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon = &monsters[mnum];
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
+
+	POS32 pg = DungeonScreenToGridPos(x, y, mon->_mxoff, mon->_myoff);
+	mon->_mgx = pg.x;
+	mon->_mgy = pg.y;
 }
 
 static void FixMonLocation(int mnum)
@@ -2311,6 +2315,8 @@ static bool MonDoWalk(int mnum)
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
 			mon->_mxoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
 			mon->_myoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
+			mon->_mgx += (mon->_mVar4) >> (MON_WALK_SHIFT - GRID_SHIFT);
+			mon->_mgy += (mon->_mVar5 * (TILE_WIDTH / TILE_HEIGHT)) >> (MON_WALK_SHIFT - GRID_SHIFT);
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			//	CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);

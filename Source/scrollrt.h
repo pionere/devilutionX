@@ -24,12 +24,18 @@ extern "C" {
 		y += (vertical) - (horizontal);        \
 	}
 
+#define GRID_SHIFT (PLR_WALK_SHIFT - 5)
+static_assert((TILE_WIDTH / ASSET_MPL) / 2 == 1 << 5, "GRID_SHIFT calculation must be adjusted.");
+
+#define GRID_WIDTH (64 << GRID_SHIFT)
+
 extern POS32 myview;
 extern ScrollStruct ScrollInfo;
 extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
+POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
 void ClearCursor();
 void CalcViewportGeometry();
 #if DEBUG_MODE

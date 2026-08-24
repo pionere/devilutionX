@@ -107,6 +107,25 @@ const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 };
 #endif
 
+POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
+{
+	int gx = 0;
+	int gy = 0;
+	SHIFT_GRID(gy, gx, y, x);
+
+	gx *= GRID_WIDTH / 2;
+	gy *= GRID_WIDTH / 2;
+
+	gx += (xoff / ASSET_MPL) << GRID_SHIFT;
+	gy += ((yoff / ASSET_MPL) * (TILE_WIDTH / TILE_HEIGHT)) << GRID_SHIFT;
+
+	// gx += GRID_WIDTH / 2;
+	// gy += GRID_WIDTH / 2;
+
+	// gx += GRID_WIDTH * (MAXDUNX / 2);
+	return { gx, gy };
+}
+
 /**
  * @brief Clear cursor state
  */

@@ -115,6 +115,8 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_poldy = savedPlr->vpoldy;
 	pr->_pxoff = savedPlr->vpxoff;
 	pr->_pyoff = savedPlr->vpyoff;
+	pr->_pgx = savedPlr->vpgx;
+	pr->_pgy = savedPlr->vpgy;
 	pr->_pdir = savedPlr->vpdir;
 	// savedPlr->vpAnimDataAlign = pr->_pAnimData;
 	// savedPlr->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
@@ -270,6 +272,8 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_moldy = savedMon->vmoldy;
 	mon->_mxoff = savedMon->vmxoff;
 	mon->_myoff = savedMon->vmyoff;
+	mon->_mgx = savedMon->vmgx;
+	mon->_mgy = savedMon->vmgy;
 	mon->_mdir = savedMon->vmdir;
 	mon->_menemy = savedMon->vmenemy;
 	mon->_menemyx = savedMon->vmenemyx;
@@ -418,6 +422,8 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miyvel = savedMis->vmiyvel;
 	mis->_mitxoff = savedMis->vmitxoff;
 	mis->_mityoff = savedMis->vmityoff;
+	mis->_migx = savedMis->vmigx;
+	mis->_migy = savedMis->vmigy;
 	mis->_miDir = savedMis->vmiDir;
 	mis->_miSpllvl = savedMis->vmiSpllvl;
 	mis->_miSource = savedMis->vmiSource;
@@ -901,6 +907,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpoldy = pr->_poldy;
 	plrSave->vpxoff = pr->_pxoff;
 	plrSave->vpyoff = pr->_pyoff;
+	plrSave->vpgx = pr->_pgx;
+	plrSave->vpgy = pr->_pgy;
 	plrSave->vpdir = pr->_pdir;
 	// plrSave->vpAnimDataAlign = pr->_pAnimData;
 	// plrSave->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
@@ -1060,6 +1068,8 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmoldy = mon->_moldy;
 	monSave->vmxoff = mon->_mxoff;
 	monSave->vmyoff = mon->_myoff;
+	monSave->vmgx = mon->_mgx;
+	monSave->vmgy = mon->_mgy;
 	monSave->vmdir = mon->_mdir;
 	monSave->vmenemy = mon->_menemy;
 	monSave->vmenemyx = mon->_menemyx;
@@ -1187,6 +1197,8 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiyvel = mis->_miyvel;
 	misSave->vmitxoff = mis->_mitxoff;
 	misSave->vmityoff = mis->_mityoff;
+	misSave->vmigx = mis->_migx;
+	misSave->vmigy = mis->_migy;
 	misSave->vmiDir = mis->_miDir;
 	misSave->vmiSpllvl = mis->_miSpllvl;
 	misSave->vmiSource = mis->_miSource;

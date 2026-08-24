@@ -678,6 +678,9 @@ static void SetMissilePos(MissileStruct* mis, int x, int y)
 {
 	mis->_mix = x;
 	mis->_miy = y;
+	POS32 pg = DungeonScreenToGridPos(x, y, mis->_mixoff, mis->_miyoff);
+	mis->_migx = pg.x;
+	mis->_migy = pg.y;
 }
 
 static void GetMissilePos(MissileStruct* mis)
@@ -2480,6 +2483,8 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miy = mon->_my;
 		mis->_mixoff = mon->_mxoff;
 		mis->_miyoff = mon->_myoff;
+		mis->_migx = mon->_mgx;
+		mis->_migy = mon->_mgy;
 		mis->_miMinDam = mon->_mmaxhp >> (2 + 4);
 		mis->_miMaxDam = mon->_mmaxhp >> (1 + 4);
 	} else {
@@ -2488,6 +2493,8 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miy = plr._py;
 		mis->_mixoff = plr._pxoff;
 		mis->_miyoff = plr._pyoff;
+		mis->_migx = plr._pgx;
+		mis->_migy = plr._pgy;
 		mis->_miMinDam = plr._pMaxHP >> (2 + 4);
 		mis->_miMaxDam = plr._pMaxHP >> (1 + 4);
 	}
@@ -2540,6 +2547,8 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		mis->_miyoff = bmis->_miyoff;
 		//mis->_mitxoff = bmis->_mitxoff;
 		//mis->_mityoff = bmis->_mityoff;
+		mis->_migx = bmis->_migx;
+		mis->_migy = bmis->_migy;
 		mis->_miUniqTrans = bmis->_miUniqTrans;
 	}
 	//mis->_mixvel = 0;
@@ -2872,6 +2881,8 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				mis->_miy = mon->_my;
 				mis->_mixoff = mon->_mxoff;
 				mis->_miyoff = mon->_myoff;
+				mis->_migx = mon->_mgx;
+				mis->_migy = mon->_mgy;
 				mon->_mVar3 = mon->_mmode;
 				mon->_mmode = MM_STONE;
 				// ensure lastx/y are set when MI_Stone 'alerts' the monster
@@ -3447,6 +3458,8 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		mis->_miy = plr._py;
 		mis->_mixoff = plr._pxoff;
 		mis->_miyoff = plr._pyoff;
+		mis->_migx = plr._pgx;
+		mis->_migy = plr._pgy;
 
 		AddMissile(0, 0, mi, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
 	}
@@ -3900,6 +3913,8 @@ void MI_Poison(int mi)
 			mis->_miy = mon->_my;
 			mis->_mixoff = mon->_mxoff;
 			mis->_miyoff = mon->_myoff;
+			mis->_migx = mon->_mgx;
+			mis->_migy = mon->_mgy;
 			zoff = 0;
 			if (mon->_mSelFlag & 4) {
 				if (mon->_mSelFlag & 2) {
@@ -3913,6 +3928,7 @@ void MI_Poison(int mi)
 				}
 			}
 			mis->_miyoff += zoff;
+			mis->_migy += zoff;
 			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 			MonMissHit(tnum, mi);
 		}
@@ -3926,9 +3942,12 @@ void MI_Poison(int mi)
 			mis->_miy = plr._py;
 			mis->_mixoff = plr._pxoff;
 			mis->_miyoff = plr._pyoff;
+			mis->_migx = plr._pgx;
+			mis->_migy = plr._pgy;
 			zoff = 0;
 			zoff -= 3 * TILE_HEIGHT / 4;
 			mis->_miyoff += zoff;
+			mis->_migy += zoff;
 			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 			PlrMissHit(pnum, mi);
 		}
