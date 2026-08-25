@@ -557,13 +557,13 @@ static void scene_addTowner(int mnum, BYTE bFlag, int sx, int sy)
 static void DrawSceneTowner(const SceneEntry &entry)
 {
 	int tx = entry.scPosx;
-	int sy = entry.scPosy;
-	int mnum = entry.scIdx;
+	int ty = entry.scPosy;
+	int tnum = entry.scIdx;
 	int nCel, nWidth;
 	const BYTE* pCelBuff;
 	// assert(entry.scIdx == SCT_TOWNER);
-	// assert((unsigned)mnum < numtowners);
-	const MonsterStruct* tw = &monsters[mnum];
+	// assert((unsigned)tnum < numtowners);
+	const MonsterStruct* tw = &monsters[tnum];
 
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -571,10 +571,10 @@ static void DrawSceneTowner(const SceneEntry &entry)
 	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
-	if (mnum == pcursmonst) {
-		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
+	if (tnum == pcursmonst) {
+		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, ty, pCelBuff, nCel, nWidth);
 	}
-	CelClippedDrawLightTbl(tx, sy, pCelBuff, nCel, nWidth, 0);
+	CelClippedDrawLightTbl(tx, ty, pCelBuff, nCel, nWidth, 0);
 }
 
 /**
@@ -697,13 +697,13 @@ void scene_addDeadPlayer(int x, int y, int sx, int sy)
  * @param oi the id of the object
  * @param x dPiece coordinate
  * @param y dPiece coordinate
- * @param ox Back buffer coordinate
- * @param oy Back buffer coordinate
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
  */
-static void scene_addObject(int oi, int x, int y, int ox, int oy)
+static void scene_addObject(int oi, int x, int y, int sx, int sy)
 {
 	const ObjectStruct* os;
-	int sx, sy, xx, yy;
+	int ox, oy, xx, yy;
 	bool mainTile;
 	// assert(oi != 0);
 	if (light_trn_index >= MAXDARKNESS)
@@ -714,20 +714,20 @@ static void scene_addObject(int oi, int x, int y, int ox, int oy)
 	os = &objects[oi];
 	if (os->_oPreFlag != gbPreFlag)
 		return;
-	sx = ox - os->_oAnimXOffset;
-	sy = oy;
+	ox = sx - os->_oAnimXOffset;
+	oy = sy;
 	if (!mainTile) {
 		xx = os->_ox - x;
 		yy = os->_oy - y;
-		sx += (xx * (TILE_WIDTH / 2)) - (yy * (TILE_WIDTH / 2));
-		sy += (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
+		ox += (xx * (TILE_WIDTH / 2)) - (yy * (TILE_WIDTH / 2));
+		oy += (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
 	}
 
 	scene[numEntries].scType = SCT_OBJECT;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = sx;
-	scene[numEntries].scPosy = sy;
+	scene[numEntries].scPosx = ox;
+	scene[numEntries].scPosy = oy;
 	scene[numEntries].scIdx = oi;
 	numEntries++;
 #ifdef DEBUG
@@ -737,8 +737,8 @@ static void scene_addObject(int oi, int x, int y, int ox, int oy)
 
 static void DrawSceneObject(const SceneEntry &entry)
 {
-	int sx = entry.scPosx;
-	int sy = entry.scPosy;
+	int ox = entry.scPosx;
+	int oy = entry.scPosy;
 	int oi = entry.scIdx;
 	int nGfxCel, nAnimCel, nWidth;
 	const BYTE* pCelBuff;
@@ -766,17 +766,17 @@ static void DrawSceneObject(const SceneEntry &entry)
 #endif
 	if (oi == pcursobj) {
 		if (nGfxCel > 0) {
-			CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nGfxCel, nWidth);
+			CelClippedDrawOutline(PAL16_YELLOW + 2, ox, oy, pCelBuff, nGfxCel, nWidth);
 		}
 		if (nAnimCel > 0) {
-			CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nAnimCel, nWidth);
+			CelClippedDrawOutline(PAL16_YELLOW + 2, ox, oy, pCelBuff, nAnimCel, nWidth);
 		}
 	}
 	if (nGfxCel > 0) {
-		CelClippedDrawLightTbl(sx, sy, pCelBuff, nGfxCel, nWidth, light_trn_index);
+		CelClippedDrawLightTbl(ox, oy, pCelBuff, nGfxCel, nWidth, light_trn_index);
 	}
 	if (nAnimCel > 0) {
-		CelClippedDrawLightTbl(sx, sy, pCelBuff, nAnimCel, nWidth, light_trn_index);
+		CelClippedDrawLightTbl(ox, oy, pCelBuff, nAnimCel, nWidth, light_trn_index);
 	}
 }
 
@@ -1324,13 +1324,13 @@ static void scene_addMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 		scene_addTowner(mnum, bFlag, sx, sy);
 }
 
-static void scene_addSpecialCell(BYTE bv, int dx, int dy)
+static void scene_addSpecialCell(BYTE bv, int sx, int sy)
 {
 	scene[numEntries].scType = SCT_SPECIAL;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = gbCelTransparencyActive;
-	scene[numEntries].scPosx = dx;
-	scene[numEntries].scPosy = dy;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
 	scene[numEntries].scIdx = bv;
 	numEntries++;
 #ifdef DEBUG
