@@ -707,28 +707,25 @@ static void MoveMissile(MissileStruct* mis, int steps)
 	mis->_mityoff += mis->_miyvel * steps;
 	GetMissilePos(mis);
 }
-
 #if 0
 /**
  * Shift the missiles coordinates to place it in front of the view.
- * @param mi the missile to be shifted
+ * @param tiles the number tiles to shift with
  */
-static void ShiftMissilePos(int mi)
+static void ShiftMissilePos(MissileStruct* mis, int tiles)
 {
-	MissileStruct* mis;
 	int dx, dy, x, y;
 
-	mis = &missile[mi];
 	switch (mis->_miDir) {
 	case DIR_S:
 	case DIR_SW:
 	case DIR_SE:
-		dx = 1;
-		dy = 1;
+		dx = tiles;
+		dy = tiles;
 		break;
 	case DIR_W:
 		dx = 0;
-		dy = 1;
+		dy = tiles;
 		break;
 	case DIR_NW:
 	case DIR_N:
@@ -738,7 +735,7 @@ static void ShiftMissilePos(int mi)
 		//dy = 0;
 		//break;
 	case DIR_E:
-		dx = 1;
+		dx = tiles;
 		dy = 0;
 		break;
 	default:
@@ -4841,7 +4838,7 @@ void MI_Rhino(int mi)
 		return;
 	}
 	// restore the real coordinates
-	//GetMissilePos(mis);
+	//ShiftMissilePos(mis, -1);
 	//assert(dMonster[mis->_mix][mis->_miy] == -(mnum + 1));
 	dMonster[mis->_mix][mis->_miy] = 0;
 	MoveMissile(mis, 1);
@@ -4864,7 +4861,7 @@ void MI_Rhino(int mi)
 		// assert(monsters[mnum]._mlid == NO_LIGHT);
 		//ChangeLightXY(monsters[mnum]._mlid, bx, by);
 	}
-	//ShiftMissilePos(mi);
+	//ShiftMissilePos(mis, 1);
 	PutMissile(mi);
 }
 
@@ -4881,7 +4878,7 @@ void MI_Charge(int mi)
 	}
 	mis->_miRange += mis->_miAnimAdd; // MISRANGE (used in MissToPlr)
 	// restore the real coordinates
-	//GetMissilePos(mis);
+	//ShiftMissilePos(mis, -1);
 	dPlayer[mis->_mix][mis->_miy] = 0;
 	MoveMissile(mis, 1);
 	if (!PosOkActor(mis->_mix, mis->_miy)) {
@@ -4912,7 +4909,7 @@ void MI_Charge(int mi)
 			myview.y = by; // - ScrollInfo._sdy;
 		//}
 	}
-	//ShiftMissilePos(mi);
+	//ShiftMissilePos(mis, 1);
 	PutMissile(mi);
 }
 
@@ -4922,7 +4919,7 @@ void MI_Charge(int mi)
 	int mnum, ax, ay, bx, by, cx, cy, tnum;
 
 	mis = &missile[mi];
-	GetMissilePos(mis);
+	ShiftMissilePos(mis, -1);
 	ax = mis->_mix;
 	ay = mis->_miy;
 	MoveMissile(mis, 1);
@@ -4952,7 +4949,7 @@ void MI_Charge(int mi)
 		if (tnum > 0)
 			mis->_miVar1 = TRUE;
 	}
-	ShiftMissilePos(mi);
+	ShiftMissilePos(mis, 1);
 	PutMissile(mi);
 }*/
 
