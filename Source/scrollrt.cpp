@@ -670,7 +670,7 @@ static void DrawScenePlayer(const SceneEntry &entry)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-void scene_addDeadPlayer(int x, int y, int sx, int sy)
+static void scene_addDeadPlayer(int x, int y, int sx, int sy)
 {
 	int pnum;
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
