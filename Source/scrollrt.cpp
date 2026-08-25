@@ -421,7 +421,7 @@ static void DrawSceneMonster(const SceneEntry &entry)
 	BYTE trans = entry.scTrans;
 	int nCel, nWidth;
 	const BYTE* pCelBuff;
-	// assert(entry.scIdx == SCT_MONSTER);
+	// assert(entry.scIdx == SCT_MONSTER || entry.scIdx == SCT_DEAD_MONSTER);
 	// assert((unsigned)mnum < MAXMONSTERS);
 	const MonsterStruct* mon = &monsters[mnum];
 
@@ -477,32 +477,6 @@ static void scene_addDeadMonsterEntry(int mnum, int sx, int sy)
 #ifdef DEBUG
 	assert(numEntries <= lengthof(scene));
 #endif
-}
-
-static void DrawSceneDeadMonster(const SceneEntry &entry)
-{
-	int mx = entry.scPosx;
-	int my = entry.scPosy;
-	int mnum = entry.scIdx;
-	int nCel, nWidth;
-	const BYTE* pCelBuff;
-	// assert(entry.scIdx == SCT_DEAD_MONSTER);
-	// assert((unsigned)mnum < MAXMONSTERS);
-	const MonsterStruct* mon = &monsters[mnum];
-
-	pCelBuff = mon->_mAnimData;
-	if (pCelBuff == NULL) {
-		dev_fatal("Draw Dead Monster \"%s\": NULL Cel Buffer", mon->_mName);
-	}
-	nCel = mon->_mAnimFrame;
-#if DEBUG_MODE
-	int frames = LOAD_LE32(pCelBuff);
-	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
-	}
-#endif
-	nWidth = mon->_mAnimWidth;
-	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
 static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
@@ -1741,8 +1715,8 @@ static void DrawScene()
 		case SCT_OBJECT:       DrawSceneObject(entry);      break; // light
 		case SCT_MISSILE:      DrawSceneMissile(entry);     break;
 		case SCT_TOWNER:       DrawSceneTowner(entry);      break;
-		case SCT_MONSTER:      DrawSceneMonster(entry);     break;
-		case SCT_DEAD_MONSTER: DrawSceneDeadMonster(entry); break;
+		case SCT_MONSTER:
+		case SCT_DEAD_MONSTER: DrawSceneMonster(entry);     break;
 		case SCT_PLAYER:
 		case SCT_DEAD_PLAYER:  DrawScenePlayer(entry);      break;
 		case SCT_SPECIAL:      DrawSceneSpecial(entry);     break; // light, transp
