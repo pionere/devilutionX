@@ -17,6 +17,11 @@ DEVILUTION_BEGIN_NAMESPACE
 POS32 myview;
 ScrollStruct ScrollInfo;
 
+/* Specifies the number of entries in the scene array. */
+static unsigned numEntries;
+/* Array to contain the entities to be drawn. */
+static SceneEntry scene[(16 + 1) * (16 * 2 + 2 + 2) * 3 + MAXITEMS + MAXOBJECTS + MAXMISSILES + MAXMONSTERS + MAX_PLRS];
+
 /**
   * Container to hold the cached properties of the viewport.
   *
@@ -279,21 +284,47 @@ static void scrollrt_draw_cursor()
 
 /**
  * @brief Render a missile sprite
- * @param mis Pointer to MissileStruct struct
+ * @param mi missile index
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
+static void scene_addMissileEntry(int mi, int sx, int sy)
 {
-	int mx, my, nCel, nWidth;
+	int mx, my;
 	BYTE trans;
-	const BYTE* pCelBuff;
+	const MissileStruct* mis = &missile[mi];
 
 	if (mis->_miPreFlag != gbPreFlag)
 		return;
 
 	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
 	my = sy + mis->_miyoff;
+	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
+
+	scene[numEntries].scType = SCT_MISSILE;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = mx;
+	scene[numEntries].scPosy = my;
+	scene[numEntries].scIdx = mi;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneMissile(const SceneEntry &entry)
+{
+	int mx = entry.scPosx;
+	int my = entry.scPosy;
+	int mi = entry.scIdx;
+	BYTE trans = entry.scTrans;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_MISSILE);
+	// assert((unsigned)mi < MAXMISSILES);
+	const MissileStruct* mis = &missile[mi];
+
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
@@ -306,7 +337,6 @@ static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
 	}
 #endif
 	nWidth = mis->_miAnimWidth;
-	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
@@ -318,25 +348,25 @@ static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMissile(int mi, int x, int y, int sx, int sy)
+static void scene_addMissile(int mi, int x, int y, int sx, int sy)
 {
 	int i;
 	const MissileStruct* mis;
 
 	if (mi != MIS_MULTI) {
 		// assert((unsigned)(mi - 1) < MAXMISSILES);
-		mis = &missile[mi - 1];
 		// assert(mis->_miDrawFlag);
-		DrawMissilePrivate(mis, sx, sy);
+		scene_addMissileEntry(mi - 1, sx, sy);
 		return;
 	}
 
 	for (i = 0; i < nummissiles; i++) {
-		// assert((unsigned)missileactive[i] < MAXMISSILES);
-		mis = &missile[missileactive[i]];
+		mi = missileactive[i];
+		// assert((unsigned)mi < MAXMISSILES);
+		mis = &missile[mi];
 		if (mis->_mix != x || mis->_miy != y || !mis->_miDrawFlag)
 			continue;
-		DrawMissilePrivate(mis, sx, sy);
+		scene_addMissileEntry(mi, sx, sy);
 	}
 }
 
@@ -347,13 +377,12 @@ static void DrawMissile(int mi, int x, int y, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
 {
 	const MonsterStruct* mon;
-	int mx, my, nCel, nWidth;
+	int mx, my;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	const BYTE* pCelBuff;
 	// assert((unsigned)mnum < MAXMONSTERS);
 	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0 /* && !myplr._pInfraFlag*/)
 		return;
@@ -365,6 +394,36 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	mx = sx + mon->_mxoff - mon->_mAnimXOffset;
 	my = sy + mon->_myoff;
+	if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8))
+		trans = COLOR_TRN_RED;
+	else if (mon->_mmode == MM_STONE)
+		trans = COLOR_TRN_GRAY;
+	else
+		trans = light_trn_index;
+
+	scene[numEntries].scType = SCT_MONSTER;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = mx;
+	scene[numEntries].scPosy = my;
+	scene[numEntries].scIdx = mnum;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneMonster(const SceneEntry &entry)
+{
+	int mx = entry.scPosx;
+	int my = entry.scPosy;
+	int mnum = entry.scIdx;
+	BYTE trans = entry.scTrans;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_MONSTER);
+	// assert((unsigned)mnum < MAXMONSTERS);
+	const MonsterStruct* mon = &monsters[mnum];
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -391,28 +450,45 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
-	if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8))
-		trans = COLOR_TRN_RED;
-	else if (mon->_mmode == MM_STONE)
-		trans = COLOR_TRN_GRAY;
-	else
-		trans = light_trn_index;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
  * @brief Render a sprite of a dead monster
- * @param mon Pointer to MonsterStruct struct
+ * @param mnum monster index
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
+static void scene_addDeadMonsterEntry(int mnum, int sx, int sy)
 {
-	int mx, my, nCel, nWidth;
-	const BYTE* pCelBuff;
+	int mx, my;
+	const MonsterStruct* mon = &monsters[mnum];
 
 	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
 	my = sy /*+ mon->_myoff*/;
+
+	scene[numEntries].scType = SCT_DEAD_MONSTER;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = light_trn_index; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = mx;
+	scene[numEntries].scPosy = my;
+	scene[numEntries].scIdx = mnum;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneDeadMonster(const SceneEntry &entry)
+{
+	int mx = entry.scPosx;
+	int my = entry.scPosy;
+	int mnum = entry.scIdx;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_DEAD_MONSTER);
+	// assert((unsigned)mnum < MAXMONSTERS);
+	const MonsterStruct* mon = &monsters[mnum];
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -429,7 +505,7 @@ static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
-static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
+static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
 {
 	int i;
 	const MonsterStruct* mon;
@@ -439,8 +515,7 @@ static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
 
 	if (mnum != DEAD_MULTI) {
 		// assert((unsigned)(mnum - 1) < MAXMONSTERS);
-		mon = &monsters[mnum - 1];
-		DrawDeadMonsterHelper(mon, sx, sy);
+		scene_addDeadMonsterEntry(mnum - 1, sx, sy);
 		return;
 	}
 
@@ -448,7 +523,7 @@ static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
 		mon = &monsters[i];
 		if (mon->_mmode != MM_DEAD || mon->_mx != x || mon->_my != y)
 			continue;
-		DrawDeadMonsterHelper(mon, sx, sy);
+		scene_addDeadMonsterEntry(i, sx, sy);
 	}
 }
 
@@ -459,14 +534,37 @@ static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawTowner(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addTowner(int mnum, BYTE bFlag, int sx, int sy)
 {
 	const MonsterStruct* tw;
-	int tx, nCel, nWidth;
-	const BYTE* pCelBuff;
+	int tx;
 	// assert(mnum < numtowners);
 	tw = &monsters[mnum];
 	tx = sx - tw->_mAnimXOffset;
+
+	scene[numEntries].scType = SCT_TOWNER;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = tx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = mnum;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneTowner(const SceneEntry &entry)
+{
+	int tx = entry.scPosx;
+	int sy = entry.scPosy;
+	int mnum = entry.scIdx;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_TOWNER);
+	// assert((unsigned)mnum < numtowners);
+	const MonsterStruct* tw = &monsters[mnum];
+
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Towner \"%s\": NULL Cel Buffer", tw->_mName);
@@ -486,16 +584,48 @@ static void DrawTowner(int mnum, BYTE bFlag, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
+static void scene_addPlayer(int pnum, BYTE bFlag, int sx, int sy)
 {
-	int px, py, nCel, nWidth;
+	int px, py;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE trans;
-	const BYTE* pCelBuff;
 	// assert(pnum < MAX_PLRS);
 	if (visFlag || myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) {
 		px = sx + plr._pxoff - plr._pAnimXOffset;
 		py = sy + plr._pyoff;
+		if (pnum == mypnum) {
+			trans = 0;
+		} else if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8)) {
+			trans = COLOR_TRN_RED;
+		} else {
+			trans = light_trn_index;
+			trans = trans <= 5 ? 0 : (trans - 5);
+		}
+
+		scene[numEntries].scType = plr._pHitPoints != 0 ? SCT_PLAYER : SCT_DEAD_PLAYER;
+		scene[numEntries].scLight = light_trn_index;
+		scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+		scene[numEntries].scPosx = px;
+		scene[numEntries].scPosy = py;
+		scene[numEntries].scIdx = pnum;
+		numEntries++;
+#ifdef DEBUG
+		assert(numEntries <= lengthof(scene));
+#endif
+	}
+}
+
+static void DrawScenePlayer(const SceneEntry &entry)
+{
+	int px = entry.scPosx;
+	int py = entry.scPosy;
+	int pnum = entry.scIdx;
+	BYTE trans = entry.scTrans;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(pnum < MAX_PLRS);
+	// assert(entry.scIdx == SCT_PLAYER || entry.scIdx == SCT_DEAD_PLAYER);
+
 		pCelBuff = plr._pAnimData;
 		if (pCelBuff == NULL) {
 			dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
@@ -521,13 +651,6 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 		nWidth = plr._pAnimWidth;
 		if (pnum == pcursplr)
 			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
-		if (pnum == mypnum) {
-			trans = 0;
-		} else if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8)) {
-			trans = COLOR_TRN_RED;
-		} else {
-			trans = light_trn_index;
-			trans = trans <= 5 ? 0 : (trans - 5);
 			/*if (plr.pManaShield != 0)
 				Cl2DrawLightTbl(
 				    px + plr._pAnimXOffset - misanimdim[MFILE_MANASHLD][1],
@@ -535,9 +658,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
 				    misanimdata[MFILE_MANASHLD][0],
 				    1,
 				    misanimdim[MFILE_MANASHLD][0], trans);*/
-		}
 		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
-	}
 }
 
 /**
@@ -547,7 +668,7 @@ static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-void DrawDeadPlayer(int x, int y, int sx, int sy)
+void scene_addDeadPlayer(int x, int y, int sx, int sy)
 {
 	int pnum;
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
@@ -566,7 +687,7 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
-			DrawPlayer(pnum, dFlags[x][y], sx, sy);
+			scene_addPlayer(pnum, dFlags[x][y], sx, sy);
 		}
 	}
 }
@@ -579,12 +700,11 @@ void DrawDeadPlayer(int x, int y, int sx, int sy)
  * @param ox Back buffer coordinate
  * @param oy Back buffer coordinate
  */
-static void DrawObject(int oi, int x, int y, int ox, int oy)
+static void scene_addObject(int oi, int x, int y, int ox, int oy)
 {
 	const ObjectStruct* os;
-	int sx, sy, xx, yy, nGfxCel, nAnimCel, nWidth;
+	int sx, sy, xx, yy;
 	bool mainTile;
-	const BYTE* pCelBuff;
 	// assert(oi != 0);
 	if (light_trn_index >= MAXDARKNESS)
 		return;
@@ -602,6 +722,29 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 		sx += (xx * (TILE_WIDTH / 2)) - (yy * (TILE_WIDTH / 2));
 		sy += (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
 	}
+
+	scene[numEntries].scType = SCT_OBJECT;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = oi;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneObject(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int oi = entry.scIdx;
+	int nGfxCel, nAnimCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_OBJECT);
+	// assert((unsigned)oi < MAXOBJECTS);
+	const ObjectStruct* os = &objects[oi];
 
 	pCelBuff = os->_oAnimData;
 	if (pCelBuff == NULL) {
@@ -643,12 +786,10 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawCell(int pn, int sx, int sy)
+static void scene_addCell(int pn, int sx, int sy)
 {
-	BYTE* dst;
-	uint16_t levelCelBlock, i, limit;
-	uint16_t* pMap;
-	int tmp, mask;
+	uint16_t i, limit;
+	int tmp;
 
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return; // starting from too far to the left or right -> skip
@@ -678,6 +819,33 @@ static void drawCell(int pn, int sx, int sy)
 		if (i >= limit)
 			return; // not enough microtiles to affect the screen -> skip
 	}
+
+	scene[numEntries].scType = SCT_CELL;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = gbCelTransparencyActive;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = pn;
+	scene[numEntries].scCellIdxFrom = i;
+	scene[numEntries].scCellIdxTo = limit;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneCell(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int pn = entry.scIdx;
+	uint16_t i = entry.scCellIdxFrom;
+	uint16_t limit = entry.scCellIdxTo;
+	BYTE* dst;
+	uint16_t levelCelBlock;
+	uint16_t* pMap;
+	int tmp, mask;
+	// assert(entry.scIdx == SCT_CELL);
 	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][i];
@@ -997,24 +1165,50 @@ static void drawCell(int pn, int sx, int sy)
 	}
 }
 
+static void DrawSceneSpecial(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int nCel = entry.scIdx;
+	// assert(entry.scIdx == SCT_SPECIAL);
+	CelClippedDrawLightTrans(sx, sy, pSpecialsCel, nCel, TILE_WIDTH); // light_trn_index, gbCelTransparencyActive
+}
+
 /**
  * @brief Render a floor tiles
  * @param pn piece number
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawFloor(int pn, int sx, int sy)
+static void scene_addFloorPiece(int pn, int sx, int sy)
 {
-	BYTE *dst, tmp;
-	uint16_t levelCelBlock;
-	uint16_t* pMap;
-
 	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
 		return; // starting from too far to the left or right -> skip
 
 	if (sy < SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1)
 		return; // starting from above the top or below the bottom -> skip
 
+	scene[numEntries].scType = SCT_FLOOR;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = FALSE;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = pn;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneFloor(const SceneEntry &entry)
+{
+	BYTE *dst, tmp;
+	uint16_t levelCelBlock;
+	uint16_t* pMap;
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int pn = entry.scIdx;
+	// assert(entry.scIdx == SCT_FLOOR);
 	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][0];
@@ -1048,17 +1242,38 @@ static void drawFloor(int pn, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawItem(int ii, int sx, int sy)
+static void scene_addItem(int ii, int sx, int sy)
 {
-	int nGfxCel, nAnimCel, nWidth;
-	const ItemStruct* is;
-	const CelAnimBuf* pCelBuff;
+	//const ItemStruct* is;
 	// assert(ii > 0);
 	ii--;
 
-	is = &items[ii];
+	//is = &items[ii];
 	//if (is->_iPostDraw == gbPreFlag)
 	//	return;
+
+	scene[numEntries].scType = SCT_ITEM;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = ii;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+static void DrawSceneItem(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int ii = entry.scIdx;
+	// assert(entry.scIdx == SCT_ITEM);
+	// assert((unsigned)ii < MAXITEMS);
+	const ItemStruct* is = &items[ii];
+	int nGfxCel, nAnimCel, nWidth;
+	const CelAnimBuf* pCelBuff;
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
@@ -1101,12 +1316,26 @@ static void DrawItem(int ii, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
 {
 	if (currLvl._dType != DTYPE_TOWN || mnum < MAX_MINIONS)
-		DrawMonster(mnum, bFlag, sx, sy);
+		scene_addMonster(mnum, bFlag, sx, sy);
 	else
-		DrawTowner(mnum, bFlag, sx, sy);
+		scene_addTowner(mnum, bFlag, sx, sy);
+}
+
+static void scene_addSpecialCell(BYTE bv, int dx, int dy)
+{
+	scene[numEntries].scType = SCT_SPECIAL;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = gbCelTransparencyActive;
+	scene[numEntries].scPosx = dx;
+	scene[numEntries].scPosy = dy;
+	scene[numEntries].scIdx = bv;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
 }
 
 /**
@@ -1116,7 +1345,7 @@ static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void scrollrt_draw_dungeon(int x, int y, int sx, int sy)
+static void scene_addDungeon(int x, int y, int sx, int sy)
 {
 	int mpnum;
 	BYTE bv, bFlag;
@@ -1134,46 +1363,46 @@ static void scrollrt_draw_dungeon(int x, int y, int sx, int sy)
 	gbCelTransparencyActive = TransList[dTransVal[x][y]];
 
 	mpnum = dPiece[x][y];
-	drawCell(mpnum, sx, sy);
+	scene_addCell(mpnum, sx, sy);
 
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[x][y];
 		assert(mpnum != 0);
-		DrawMissile(mpnum, x, y, sx, sy);
+		scene_addMissile(mpnum, x, y, sx, sy);
 	}
 
 	bv = dDead[x][y];
 	if (bv != 0)
-		DrawDeadMonster(bv, x, y, sx, sy);
+		scene_addDeadMonster(bv, x, y, sx, sy);
 	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		DrawObject(mpnum, x, y, sx, sy);
+		scene_addObject(mpnum, x, y, sx, sy);
 	bv = dItem[x][y];
 	if (bv != 0)
-		DrawItem(bv, sx, sy);
+		scene_addItem(bv, sx, sy);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
-		DrawDeadPlayer(x, y, sx, sy);
+		scene_addDeadPlayer(x, y, sx, sy);
 	}
 	gbPreFlag = FALSE;
 	mpnum = dPlayer[x][y];
 	if (mpnum > 0)
-		DrawPlayer(mpnum - 1, bFlag, sx, sy);
+		scene_addPlayer(mpnum - 1, bFlag, sx, sy);
 	mpnum = dMonster[x][y];
 	if (mpnum > 0)
-		DrawMonsterHelper(mpnum - 1, bFlag, sx, sy);
+		scene_addMonsterHelper(mpnum - 1, bFlag, sx, sy);
 	mpnum = dMissile[x][y];
 	if (mpnum != 0)
-		DrawMissile(mpnum, x, y, sx, sy);
+		scene_addMissile(mpnum, x, y, sx, sy);
 	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		DrawObject(mpnum, x, y, sx, sy);
+		scene_addObject(mpnum, x, y, sx, sy);
 	//bv = dItem[x][y];
 	//if (bv != 0)
-	//	DrawItem(bv, sx, sy);
+	//	scene_addItem(bv, sx, sy);
 
 	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
 	if (bv != 0) {
-		CelClippedDrawLightTrans(sx, sy, pSpecialsCel, bv, TILE_WIDTH);
+		scene_addSpecialCell(bv, sx, sy);
 	}
 }
 
@@ -1186,11 +1415,9 @@ static void scrollrt_draw_dungeon(int x, int y, int sx, int sy)
  * @param rows Number of rows
  * @param columns Tile in a row
  */
-static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int columns)
+static void scene_addFloor(int x, int y, int sx, int sy, int rows, int columns)
 {
 	//int pn;
-
-	assert(gpBuffer != NULL);
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
@@ -1200,7 +1427,7 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
 				//if (pn != 0) {
 					//if ((microFlags[pn] & (~(TMIF_WALL_TRANS))) != (TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW))
 						light_trn_index = dLight[x][y];
-						drawFloor(dPiece[x][y], sx, sy);
+						scene_addFloorPiece(dPiece[x][y], sx, sy);
 					//}
 				//} else {
 				//	world_draw_black_tile(sx, sy);
@@ -1241,10 +1468,9 @@ static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int colum
  * @param rows Number of rows
  * @param columns Tile in a row
  */
-static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
+static void scene_addEntries(int x, int y, int sx, int sy, int rows, int columns)
 {
 	BYTE skips = 0;
-	assert(gpBuffer != NULL);
 
 	// Keep evaluating until MicroTiles can't affect screen
 	rows += MicroTileLen;
@@ -1260,13 +1486,13 @@ static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
 					// sprite screen position rather than tile position.
 					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
 					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
-						scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
+						scene_addDungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
 						skips |= 2;
 					}
 				}
 				assert(dPiece[x][y] != 0);
 				if (/*dPiece[x][y] != 0 &&*/ !(skips & 1)) {
-					scrollrt_draw_dungeon(x, y, sx, sy);
+					scene_addDungeon(x, y, sx, sy);
 				}
 			}
 			SHIFT_GRID(x, y, 1, 0);
@@ -1442,17 +1668,9 @@ void CalcViewportGeometry()
 /**
  * @brief Configure render and process screen rows
  */
-static void DrawGame()
+static void CreateScene()
 {
 	int x, y, sx, sy, columns, rows;
-
-	ClearScreenBuffer();
-
-	// Limit rendering to the view area
-	//if (!gbZoomInFlag)
-	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
-	//else
-	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT / 2)];
 
 	// Adjust by player offset and tile grid alignment
 	sx = ScrollInfo._sxoff - gsTileVp._vOffsetX;
@@ -1494,10 +1712,41 @@ static void DrawGame()
 		ASSUME_UNREACHABLE
 		break;
 	}
+	numEntries = 0;
 
-	scrollrt_drawFloor(x, y, sx, sy, rows, columns);
-	scrollrt_draw(x, y, sx, sy, rows, columns);
+	scene_addFloor(x, y, sx, sy, rows, columns);
+	scene_addEntries(x, y, sx, sy, rows, columns);
+}
 
+static void DrawScene()
+{
+	ClearScreenBuffer();
+	// Limit rendering to the view area
+	//if (!gbZoomInFlag)
+	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
+	//else
+	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT / 2)];
+
+	for (unsigned i = 0; i < numEntries; i++) {
+		const SceneEntry &entry = scene[i];
+
+		gbCelTransparencyActive = entry.scTrans;
+		light_trn_index = entry.scLight;
+		switch (entry.scType) {
+		case SCT_FLOOR:        DrawSceneFloor(entry);       break; // light
+		case SCT_CELL:         DrawSceneCell(entry);        break; // light, transp
+		case SCT_ITEM:         DrawSceneItem(entry);        break; // light
+		case SCT_OBJECT:       DrawSceneObject(entry);      break; // light
+		case SCT_MISSILE:      DrawSceneMissile(entry);     break;
+		case SCT_TOWNER:       DrawSceneTowner(entry);      break;
+		case SCT_MONSTER:      DrawSceneMonster(entry);     break;
+		case SCT_DEAD_MONSTER: DrawSceneDeadMonster(entry); break;
+		case SCT_PLAYER:
+		case SCT_DEAD_PLAYER:  DrawScenePlayer(entry);      break;
+		case SCT_SPECIAL:      DrawSceneSpecial(entry);     break; // light, transp
+		default: ASSUME_UNREACHABLE
+		}
+	}
 	// Allow rendering to the whole screen
 	//gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
 
@@ -1522,7 +1771,8 @@ static void DrawPause()
  */
 static void DrawView()
 {
-	DrawGame();
+	CreateScene();
+	DrawScene();
 	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}

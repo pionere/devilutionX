@@ -2269,6 +2269,22 @@ typedef struct ViewportStruct {
 	int _vShiftY; // Y-shift in a dPiece
 } ViewportStruct;
 
+typedef struct SceneEntry {
+	BYTE scType;
+	BYTE scLight;
+	BYTE scTrans;
+	int scIdx;
+	int scPosx;
+	int scPosy;
+	union {
+		struct {
+			int scCellIdxFrom;
+			int scCellIdxTo;
+		};
+		BYTE scPlrTrn;
+	};
+} SceneEntry;
+
 //////////////////////////////////////////////////
 // gendung
 //////////////////////////////////////////////////

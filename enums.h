@@ -3740,6 +3740,20 @@ typedef enum _draw_mask_type {
 	DMT_EMPTY,
 } _draw_mask_type;
 
+typedef enum scene_entry_type {
+	SCT_FLOOR,
+	SCT_CELL,
+	SCT_SPECIAL,
+	SCT_ITEM,
+	SCT_OBJECT,
+	SCT_MISSILE,
+	SCT_MONSTER,
+	SCT_DEAD_MONSTER,
+	SCT_PLAYER,
+	SCT_DEAD_PLAYER,
+	SCT_TOWNER,
+} scene_entry_type;
+
 typedef enum _automap_mode {
 	AMM_NONE,
 	AMM_MINI,
