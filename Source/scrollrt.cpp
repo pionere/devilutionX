@@ -195,7 +195,7 @@ static void scrollrt_draw_cursor()
 	BYTE* cCels;
 #if BACK_CURSOR
 	int i, cx, cy, cw, ch;
-	BYTE *src, *dst, *cCels;
+	BYTE *src, *dst;
 	assert(sgCursWdt == 0);
 #endif
 	if (pcursicon <= CURSOR_NONE) {
@@ -384,7 +384,7 @@ static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	// assert((unsigned)mnum < MAXMONSTERS);
-	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0 /* && !myplr._pInfraFlag*/)
+	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0/* !myplr._pInfraFlag */)
 		return;
 
 	mon = &monsters[mnum];
@@ -394,7 +394,7 @@ static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
 
 	mx = sx + mon->_mxoff - mon->_mAnimXOffset;
 	my = sy + mon->_myoff;
-	if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8))
+	if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && light_trn_index > 8))
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
 		trans = COLOR_TRN_GRAY;
@@ -537,16 +537,17 @@ static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
 static void scene_addTowner(int mnum, BYTE bFlag, int sx, int sy)
 {
 	const MonsterStruct* tw;
-	int tx;
+	int tx, ty;
 	// assert(mnum < numtowners);
 	tw = &monsters[mnum];
 	tx = sx - tw->_mAnimXOffset;
+	ty = sy;
 
 	scene[numEntries].scType = SCT_TOWNER;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
 	scene[numEntries].scPosx = tx;
-	scene[numEntries].scPosy = sy;
+	scene[numEntries].scPosy = ty;
 	scene[numEntries].scIdx = mnum;
 	numEntries++;
 #ifdef DEBUG
@@ -590,29 +591,30 @@ static void scene_addPlayer(int pnum, BYTE bFlag, int sx, int sy)
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE trans;
 	// assert(pnum < MAX_PLRS);
-	if (visFlag || myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) {
-		px = sx + plr._pxoff - plr._pAnimXOffset;
-		py = sy + plr._pyoff;
-		if (pnum == mypnum) {
-			trans = 0;
-		} else if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8)) {
-			trans = COLOR_TRN_RED;
-		} else {
-			trans = light_trn_index;
-			trans = trans <= 5 ? 0 : (trans - 5);
-		}
+	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0/* !myplr._pInfraFlag */)
+		return;
 
-		scene[numEntries].scType = plr._pHitPoints != 0 ? SCT_PLAYER : SCT_DEAD_PLAYER;
-		scene[numEntries].scLight = light_trn_index;
-		scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-		scene[numEntries].scPosx = px;
-		scene[numEntries].scPosy = py;
-		scene[numEntries].scIdx = pnum;
-		numEntries++;
-#ifdef DEBUG
-		assert(numEntries <= lengthof(scene));
-#endif
+	px = sx + plr._pxoff - plr._pAnimXOffset;
+	py = sy + plr._pyoff;
+	if (pnum == mypnum) {
+		trans = 0;
+	} else if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && light_trn_index > 8)) {
+		trans = COLOR_TRN_RED;
+	} else {
+		trans = light_trn_index;
+		trans = trans <= 5 ? 0 : (trans - 5);
 	}
+
+	scene[numEntries].scType = plr._pHitPoints != 0 ? SCT_PLAYER : SCT_DEAD_PLAYER;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = px;
+	scene[numEntries].scPosy = py;
+	scene[numEntries].scIdx = pnum;
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
 }
 
 static void DrawScenePlayer(const SceneEntry &entry)
@@ -626,39 +628,39 @@ static void DrawScenePlayer(const SceneEntry &entry)
 	// assert(pnum < MAX_PLRS);
 	// assert(entry.scIdx == SCT_PLAYER || entry.scIdx == SCT_DEAD_PLAYER);
 
-		pCelBuff = plr._pAnimData;
-		if (pCelBuff == NULL) {
-			dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
-		}
-		nCel = plr._pAnimFrame;
+	pCelBuff = plr._pAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
+	}
+	nCel = plr._pAnimFrame;
 #if DEBUG_MODE
-		int frames = LOAD_LE32(pCelBuff);
-		if (nCel < 1 || frames > 50 || nCel > frames) {
-			const char* szMode = "unknown action";
-			if (plr._pmode < lengthof(szPlrModeAssert))
-				szMode = szPlrModeAssert[plr._pmode];
-			dev_fatal(
-				"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
-				pnum,
-				plr._pName,
-				szMode,
-				plr._pmode,
-				plr._pdir,
-				nCel,
-				frames);
-		}
+	int frames = LOAD_LE32(pCelBuff);
+	if (nCel < 1 || frames > 50 || nCel > frames) {
+		const char* szMode = "unknown action";
+		if (plr._pmode < lengthof(szPlrModeAssert))
+			szMode = szPlrModeAssert[plr._pmode];
+		dev_fatal(
+			"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
+			pnum,
+			plr._pName,
+			szMode,
+			plr._pmode,
+			plr._pdir,
+			nCel,
+			frames);
+	}
 #endif
-		nWidth = plr._pAnimWidth;
-		if (pnum == pcursplr)
-			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
-			/*if (plr.pManaShield != 0)
-				Cl2DrawLightTbl(
-				    px + plr._pAnimXOffset - misanimdim[MFILE_MANASHLD][1],
-				    py,
-				    misanimdata[MFILE_MANASHLD][0],
-				    1,
-				    misanimdim[MFILE_MANASHLD][0], trans);*/
-		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
+	nWidth = plr._pAnimWidth;
+	if (pnum == pcursplr)
+		Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
+	/*if (plr.pManaShield != 0)
+		Cl2DrawLightTbl(
+		    px + plr._pAnimXOffset - misanimdim[MFILE_MANASHLD][1],
+		    py,
+		    misanimdata[MFILE_MANASHLD][0],
+		    1,
+		    misanimdim[MFILE_MANASHLD][0], trans);*/
+	Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
@@ -1244,12 +1246,12 @@ static void DrawSceneFloor(const SceneEntry &entry)
  */
 static void scene_addItem(int ii, int sx, int sy)
 {
-	//const ItemStruct* is;
+	// const ItemStruct* is;
 	// assert(ii > 0);
 	ii--;
 
-	//is = &items[ii];
-	//if (is->_iPostDraw == gbPreFlag)
+	// is = &items[ii];
+	// if (is->_iPostDraw == gbPreFlag)
 	//	return;
 
 	scene[numEntries].scType = SCT_ITEM;
