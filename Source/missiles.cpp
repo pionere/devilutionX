@@ -680,6 +680,18 @@ static void PlrSetMissilePos(int pnum, MissileStruct* mis)
 	mis->_migy = plr._pgy;
 }
 
+static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
+{
+	// mis->_misx = mon->_mx;
+	// mis->_misy = mon->_my;
+	mis->_mix = mon->_mx;
+	mis->_miy = mon->_my;
+	mis->_mixoff = mon->_mxoff;
+	mis->_miyoff = mon->_myoff;
+	mis->_migx = mon->_mgx;
+	mis->_migy = mon->_mgy;
+}
+
 static void GetMissilePos(MissileStruct* mis)
 {
 	int mx, my, dx, dy, dqx, dqy;
@@ -2478,12 +2490,7 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	if ((unsigned)spllvl >= MAX_MINIONS) {
 		// assert((unsigned)misource < MAXMONSTERS);
 		mon = &monsters[spllvl];
-		mis->_mix = mon->_mx;
-		mis->_miy = mon->_my;
-		mis->_mixoff = mon->_mxoff;
-		mis->_miyoff = mon->_myoff;
-		mis->_migx = mon->_mgx;
-		mis->_migy = mon->_mgy;
+		MonSetMissilePos(mon, mis);
 		mis->_miMinDam = mon->_mmaxhp >> (2 + 4);
 		mis->_miMaxDam = mon->_mmaxhp >> (1 + 4);
 	} else {
@@ -2871,12 +2878,7 @@ int AddStone(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 
 				MonLeaveLeader(mid);
 				mis->_miVar1 = mid;
-				mis->_mix = mon->_mx;
-				mis->_miy = mon->_my;
-				mis->_mixoff = mon->_mxoff;
-				mis->_miyoff = mon->_myoff;
-				mis->_migx = mon->_mgx;
-				mis->_migy = mon->_mgy;
+				MonSetMissilePos(mon, mis);
 				mon->_mVar3 = mon->_mmode;
 				mon->_mmode = MM_STONE;
 				// ensure lastx/y are set when MI_Stone 'alerts' the monster
@@ -3883,12 +3885,7 @@ void MI_Poison(int mi)
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
 			mis->_miRange = 0;
 		} else {
-			mis->_mix = mon->_mx;
-			mis->_miy = mon->_my;
-			mis->_mixoff = mon->_mxoff;
-			mis->_miyoff = mon->_myoff;
-			mis->_migx = mon->_mgx;
-			mis->_migy = mon->_mgy;
+			MonSetMissilePos(mon, mis);
 			zoff = 0;
 			if (mon->_mSelFlag & 4) {
 				if (mon->_mSelFlag & 2) {
