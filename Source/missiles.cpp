@@ -668,6 +668,18 @@ static void SetMissilePos(MissileStruct* mis, int x, int y)
 	mis->_migy = pg.y;
 }
 
+static void PlrSetMissilePos(int pnum, MissileStruct* mis)
+{
+	// mis->_misx = plr._px;
+	// mis->_misy = plr._py;
+	mis->_mix = plr._px;
+	mis->_miy = plr._py;
+	mis->_mixoff = plr._pxoff;
+	mis->_miyoff = plr._pyoff;
+	mis->_migx = plr._pgx;
+	mis->_migy = plr._pgy;
+}
+
 static void GetMissilePos(MissileStruct* mis)
 {
 	int mx, my, dx, dy, dqx, dqy;
@@ -2476,12 +2488,7 @@ int AddBleed(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 		mis->_miMaxDam = mon->_mmaxhp >> (1 + 4);
 	} else {
 		pnum = spllvl;
-		mis->_mix = plr._px;
-		mis->_miy = plr._py;
-		mis->_mixoff = plr._pxoff;
-		mis->_miyoff = plr._pyoff;
-		mis->_migx = plr._pgx;
-		mis->_migy = plr._pgy;
+		PlrSetMissilePos(pnum, mis);
 		mis->_miMinDam = plr._pMaxHP >> (2 + 4);
 		mis->_miMaxDam = plr._pMaxHP >> (1 + 4);
 	}
@@ -3441,12 +3448,7 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 		PlrMissHit(pnum, mi);
 
 		// add explosion effect
-		mis->_mix = plr._px;
-		mis->_miy = plr._py;
-		mis->_mixoff = plr._pxoff;
-		mis->_miyoff = plr._pyoff;
-		mis->_migx = plr._pgx;
-		mis->_migy = plr._pgy;
+		PlrSetMissilePos(pnum, mis);
 
 		AddMissile(0, 0, mi, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
 	}
@@ -3910,12 +3912,7 @@ void MI_Poison(int mi)
 		if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints == 0) {
 			mis->_miRange = 0;
 		} else {
-			mis->_mix = plr._px;
-			mis->_miy = plr._py;
-			mis->_mixoff = plr._pxoff;
-			mis->_miyoff = plr._pyoff;
-			mis->_migx = plr._pgx;
-			mis->_migy = plr._pgy;
+			PlrSetMissilePos(pnum, mis);
 			zoff = 0;
 			zoff -= 3 * TILE_HEIGHT / 4;
 			mis->_miyoff += zoff;
