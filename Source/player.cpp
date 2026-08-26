@@ -1090,10 +1090,13 @@ static void PlrChangeOffset(int pnum)
 
 	plr._pxoff = (plr._pVar6 >> PLR_WALK_SHIFT) * ASSET_MPL;
 	plr._pyoff = (plr._pVar7 >> PLR_WALK_SHIFT) * ASSET_MPL;
-
+#if PLR_WALK_SHIFT >= GRID_SHIFT
 	plr._pgx += (plr._pVar4) >> (PLR_WALK_SHIFT - GRID_SHIFT);
 	plr._pgy += (plr._pVar5 * (TILE_WIDTH / TILE_HEIGHT)) >> (PLR_WALK_SHIFT - GRID_SHIFT);
-
+#else
+	plr._pgx += (plr._pVar4) << (PLR_WALK_SHIFT - GRID_SHIFT);
+	plr._pgy += (plr._pVar5 * (TILE_WIDTH / TILE_HEIGHT)) << (PLR_WALK_SHIFT - GRID_SHIFT);
+#endif
 	// px -= plr._pxoff;
 	// py -= plr._pyoff;
 
