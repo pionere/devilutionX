@@ -297,7 +297,7 @@ static void scene_addMissileEntry(int mi, int sx, int sy)
 	if (mis->_miPreFlag != gbPreFlag)
 		return;
 
-	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
+	mx = sx + mis->_mixoff;
 	my = sy + mis->_miyoff;
 	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
 
@@ -324,6 +324,8 @@ static void DrawSceneMissile(const SceneEntry &entry)
 	// assert(entry.scIdx == SCT_MISSILE);
 	// assert((unsigned)mi < MAXMISSILES);
 	const MissileStruct* mis = &missile[mi];
+
+	mx -= mis->_miAnimXOffset;
 
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
@@ -392,7 +394,7 @@ static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
 		return;
 	}
 
-	mx = sx + mon->_mxoff - mon->_mAnimXOffset;
+	mx = sx + mon->_mxoff;
 	my = sy + mon->_myoff;
 	if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && light_trn_index > 8))
 		trans = COLOR_TRN_RED;
@@ -424,6 +426,8 @@ static void DrawSceneMonster(const SceneEntry &entry)
 	// assert(entry.scIdx == SCT_MONSTER || entry.scIdx == SCT_DEAD_MONSTER);
 	// assert((unsigned)mnum < MAXMONSTERS);
 	const MonsterStruct* mon = &monsters[mnum];
+
+	mx -= mon->_mAnimXOffset;
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -462,10 +466,10 @@ static void DrawSceneMonster(const SceneEntry &entry)
 static void scene_addDeadMonsterEntry(int mnum, int sx, int sy)
 {
 	int mx, my;
-	const MonsterStruct* mon = &monsters[mnum];
-
-	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
-	my = sy /*+ mon->_myoff*/;
+	// const MonsterStruct* mon = &monsters[mnum];
+	// assert((unsigned)mnum < MAXMONSTERS);
+	mx = sx/* + mon->_mxoff*/;
+	my = sy/* + mon->_myoff*/;
 
 	scene[numEntries].scType = SCT_DEAD_MONSTER;
 	scene[numEntries].scLight = light_trn_index;
@@ -510,12 +514,11 @@ static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
  */
 static void scene_addTowner(int mnum, BYTE bFlag, int sx, int sy)
 {
-	const MonsterStruct* tw;
 	int tx, ty;
+	// const MonsterStruct* mon = &monsters[mnum];
 	// assert(mnum < numtowners);
-	tw = &monsters[mnum];
-	tx = sx - tw->_mAnimXOffset;
-	ty = sy;
+	tx = sx/* + mon->_mxoff*/;
+	ty = sy/* + mon->_myoff*/;
 
 	scene[numEntries].scType = SCT_TOWNER;
 	scene[numEntries].scLight = light_trn_index;
@@ -539,6 +542,8 @@ static void DrawSceneTowner(const SceneEntry &entry)
 	// assert(entry.scIdx == SCT_TOWNER);
 	// assert((unsigned)tnum < numtowners);
 	const MonsterStruct* tw = &monsters[tnum];
+
+	tw -= tw->_mAnimXOffset;
 
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -568,7 +573,7 @@ static void scene_addPlayer(int pnum, BYTE bFlag, int sx, int sy)
 	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0/* !myplr._pInfraFlag */)
 		return;
 
-	px = sx + plr._pxoff - plr._pAnimXOffset;
+	px = sx + plr._pxoff;
 	py = sy + plr._pyoff;
 	if (pnum == mypnum) {
 		trans = 0;
@@ -601,6 +606,8 @@ static void DrawScenePlayer(const SceneEntry &entry)
 	const BYTE* pCelBuff;
 	// assert(pnum < MAX_PLRS);
 	// assert(entry.scIdx == SCT_PLAYER || entry.scIdx == SCT_DEAD_PLAYER);
+
+	px -= plr._pAnimXOffset;
 
 	pCelBuff = plr._pAnimData;
 	if (pCelBuff == NULL) {
@@ -690,7 +697,7 @@ static void scene_addObject(int oi, int x, int y, int sx, int sy)
 	os = &objects[oi];
 	if (os->_oPreFlag != gbPreFlag)
 		return;
-	ox = sx - os->_oAnimXOffset;
+	ox = sx;
 	oy = sy;
 	if (!mainTile) {
 		xx = os->_ox - x;
@@ -721,6 +728,8 @@ static void DrawSceneObject(const SceneEntry &entry)
 	// assert(entry.scIdx == SCT_OBJECT);
 	// assert((unsigned)oi < MAXOBJECTS);
 	const ObjectStruct* os = &objects[oi];
+
+	ox -= os->_oAnimXOffset;
 
 	pCelBuff = os->_oAnimData;
 	if (pCelBuff == NULL) {
@@ -1251,6 +1260,9 @@ static void DrawSceneItem(const SceneEntry &entry)
 	int nGfxCel, nAnimCel, nWidth;
 	const CelAnimBuf* pCelBuff;
 
+	// sx -= is->_iAnimXOffset;
+	sx -= (nWidth - TILE_WIDTH) >> 1;
+
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Item \"%d\": NULL Cel Buffer", is->_iIdx);
@@ -1267,8 +1279,6 @@ static void DrawSceneItem(const SceneEntry &entry)
 	}
 #endif
 	nWidth = pCelBuff->caWidth;
-	sx -= (nWidth - TILE_WIDTH) >> 1;
-	// sx -= is->_iAnimXOffset;
 	if (ii == pcursitem) {
 		if (nGfxCel > 0) {
 			CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nGfxCel, nWidth);
