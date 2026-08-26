@@ -120,7 +120,7 @@ POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
 
 	gx *= GRID_WIDTH / 2;
 	gy *= GRID_WIDTH / 2;
-
+	static_assert(((TILE_WIDTH / ASSET_MPL) << GRID_SHIFT) == GRID_WIDTH, "Grid position calculation must be adjusted.");
 	gx += (xoff / ASSET_MPL) << GRID_SHIFT;
 	gy += ((yoff / ASSET_MPL) * (TILE_WIDTH / TILE_HEIGHT)) << GRID_SHIFT;
 

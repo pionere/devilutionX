@@ -25,8 +25,6 @@ extern "C" {
 	}
 
 #define GRID_SHIFT (PLR_WALK_SHIFT - 5)
-static_assert((TILE_WIDTH / ASSET_MPL) / 2 == 1 << 5, "GRID_SHIFT calculation must be adjusted.");
-
 #define GRID_WIDTH (64 << GRID_SHIFT)
 
 extern POS32 myview;
