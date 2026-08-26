@@ -4475,35 +4475,45 @@ void MI_FireWave(int mi)
 void MI_Meteor(int mi)
 {
 	MissileStruct* mis;
-	int mx, my;
+	int mx, my, xoff, zoff;
 	const int MET_SHIFT_X = 16 * ASSET_MPL, MET_SHIFT_Y = 110 * ASSET_MPL, MET_SHIFT_UP = 26 * ASSET_MPL, MET_STEPS_UP = 2, MET_STEPS_DOWN = 10;
 
 	mis = &missile[mi];
 
 	if (mis->_miFileNum != MFILE_FIREBA) {
-		// assert(MIA_FIREBA_DELAY == 1);
+		// assert(mis->_miFileNum == MFILE_SHATTER1);
+		// assert(MIA_SHATTER1_DELAY == 1);
+		static_assert(MIA_SHATTER1_LENGTH >= 3, "Shatter animation is too short for MI_Meteor.");
 		if (mis->_miAnimFrame == 3
-		 /*&& mis->_miAnimCnt == MIA_FIREBA_DELAY - 1*/) {
-			mis->_miyoff -= MET_SHIFT_UP / MET_STEPS_UP;
-			mis->_mixoff += MET_SHIFT_X / MET_STEPS_UP;
-			if (mis->_miyoff < -MET_SHIFT_UP) {
+		 /*&& mis->_miAnimCnt == MIA_SHATTER1_DELAY - 1*/) {
+			if (mis->_miyoff <= -MET_SHIFT_UP) {
 				mis->_miFileNum = MFILE_FIREBA;
 				SetMissAnim(mi, 0);
-				mis->_mixoff = MET_SHIFT_X;
+				xoff = MET_SHIFT_X;
+				zoff = -MET_SHIFT_Y;
+				mis->_mixoff = xoff;
 				// -- 96: height of the sprite, 46: transparent lines on the first frame -- unnecessary, since Cl2DrawLightTbl is safe
 				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
-				mis->_miyoff = -MET_SHIFT_Y;
+				mis->_miyoff = zoff;
 				// TODO: adjust velocity based on spllvl?
 			} else {
+				// freeze the animation
+				// assert(mis->_miAnimAdd < 0);
 				mis->_miAnimFrame = 4;
+				xoff = MET_SHIFT_X / MET_STEPS_UP;
+				zoff = -(MET_SHIFT_UP / MET_STEPS_UP);
+				mis->_miyoff += zoff;
+				mis->_mixoff += xoff;
 				// mis->_miAnimCnt = 0;
 			}
 		}
 
 		PutMissile(mi);
 	} else {
-		mis->_mixoff -= MET_SHIFT_X / MET_STEPS_DOWN;
-		mis->_miyoff += MET_SHIFT_Y / MET_STEPS_DOWN;
+		xoff = -(MET_SHIFT_X / MET_STEPS_DOWN);
+		zoff = MET_SHIFT_Y / MET_STEPS_DOWN;
+		mis->_mixoff += xoff;
+		mis->_miyoff += zoff;
 		if (mis->_miyoff < 0) { // TODO: use _miRange?
 			PutMissile(mi);
 			return;
