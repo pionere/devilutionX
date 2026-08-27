@@ -2406,11 +2406,9 @@ void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag)
 		return; // -1;
 
 	ii = itemactive[numitems];
-	dItem[pos.x][pos.y] = ii + 1;
 	numitems++;
 	copy_pod(items[ii], *is);
-	items[ii]._ix = pos.x;
-	items[ii]._iy = pos.y;
+	SetItemLoc(ii, pos.x, pos.y);
 	RespawnItem(ii, flipFlag);
 	//return ii;
 }
