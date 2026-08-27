@@ -489,9 +489,6 @@ static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
 	int i;
 	const MonsterStruct* mon;
 
-	if (light_trn_index >= MAXDARKNESS)
-		return;
-
 	if (mnum != DEAD_MULTI) {
 		// assert((unsigned)(mnum - 1) < MAXMONSTERS);
 		scene_addDeadMonsterEntry(mnum - 1, sx, sy);
@@ -690,8 +687,6 @@ static void scene_addObject(int oi, int x, int y, int sx, int sy)
 	int ox, oy, xx, yy;
 	bool mainTile;
 	// assert(oi != 0);
-	if (light_trn_index >= MAXDARKNESS)
-		return;
 	mainTile = oi >= 0;
 	oi = oi >= 0 ? oi - 1 : -(oi + 1);
 	// assert((unsigned)oi < MAXOBJECTS);
