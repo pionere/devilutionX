@@ -1347,6 +1347,9 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
 	mpnum = dPiece[x][y];
 	scene_addCell(mpnum, sx, sy);
 
+	mpnum = dObject[x][y];
+	if (mpnum != 0)
+		scene_addObject(mpnum, x, y, sx, sy);
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[x][y];
 		assert(mpnum != 0);
@@ -1356,9 +1359,6 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
 	bv = dDead[x][y];
 	if (bv != 0)
 		scene_addDeadMonster(bv, x, y, sx, sy);
-	mpnum = dObject[x][y];
-	if (mpnum != 0)
-		scene_addObject(mpnum, x, y, sx, sy);
 	bv = dItem[x][y];
 	if (bv != 0)
 		scene_addItem(bv, sx, sy);
