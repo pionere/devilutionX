@@ -466,6 +466,8 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_otype = savedObj->votype;
 	os->_ox = savedObj->vox;
 	os->_oy = savedObj->voy;
+	os->_ogx = savedObj->vogx;
+	os->_ogy = savedObj->vogy;
 	os->_oSFX = savedObj->voSFX;
 
 	os->_oSFXCnt = savedObj->voSFXCnt;
@@ -1241,6 +1243,8 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->votype = os->_otype;
 	objSave->vox = os->_ox;
 	objSave->voy = os->_oy;
+	objSave->vogx = os->_ogx;
+	objSave->vogy = os->_ogy;
 	objSave->voSFX = os->_oSFX;
 
 	objSave->voSFXCnt = os->_oSFXCnt;

@@ -1435,6 +1435,9 @@ int AddObject(int type, int ox, int oy)
 	// place object
 	os->_ox = ox;
 	os->_oy = oy;
+	const POS32 dg = DungeonScreenToGridPos(ox, oy, 0, 0);
+	os->_ogx = dg.x;
+	os->_ogy = dg.y;
 	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
 	const bool ready = !nSolidTable[dPiece[ox][oy]] || !(os->_oModeFlags & OMF_FLOOR);
 	assert(dObject[ox][oy] == 0);

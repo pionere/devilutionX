@@ -921,6 +921,8 @@ typedef struct ObjectStruct {
 	int _otype; // _object_id
 	int _ox;    // Tile X-position of the object
 	int _oy;    // Tile Y-position of the object
+	int _ogx;   // Precise grid (shifted dungeon) X-position of the object
+	int _ogy;   // Precise grid (shifted dungeon) X-position of the object
 	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
 	BYTE _oAnimFlag;  // object_anim_mode
@@ -953,7 +955,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(7, 6)
+	ALIGNMENT(5, 4)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1456,6 +1458,8 @@ typedef struct LSaveObjectStruct {
 	LE_INT32 votype; // _object_id
 	LE_INT32 vox;
 	LE_INT32 voy;
+	LE_INT32 vogx;
+	LE_INT32 vogy;
 	LE_INT32 voSFX; // ssfx_id
 	BYTE voSFXCnt;
 	BYTE voAnimFlag;
