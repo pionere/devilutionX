@@ -420,6 +420,7 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miy = savedMis->vmiy;
 	mis->_mixoff = savedMis->vmixoff;
 	mis->_miyoff = savedMis->vmiyoff;
+	mis->_mizoff = savedMis->vmizoff;
 	mis->_mixvel = savedMis->vmixvel;
 	mis->_miyvel = savedMis->vmiyvel;
 	mis->_mitxoff = savedMis->vmitxoff;
@@ -1199,6 +1200,7 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiy = mis->_miy;
 	misSave->vmixoff = mis->_mixoff;
 	misSave->vmiyoff = mis->_miyoff;
+	misSave->vmizoff = mis->_mizoff;
 	misSave->vmixvel = mis->_mixvel;
 	misSave->vmiyvel = mis->_miyvel;
 	misSave->vmitxoff = mis->_mitxoff;

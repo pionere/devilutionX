@@ -578,6 +578,7 @@ typedef struct MissileStruct {
 	int _miy;     // Tile Y-position where the missile should be drawn
 	int _mixoff;  // Pixel X-offset from tile position where the missile should be drawn
 	int _miyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	int _mizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
 	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
@@ -601,7 +602,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target in case of non-DOT missiles
-	ALIGNMENT(8, 22)
+	ALIGNMENT(7, 21)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -1434,6 +1435,7 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiy;     // Tile Y-position where the missile should be drawn
 	LE_INT32 vmixoff;  // Pixel X-offset from tile position where the missile should be drawn
 	LE_INT32 vmiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 vmizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 vmixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 vmiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
 	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
@@ -1917,6 +1919,7 @@ typedef struct TSyncLvlMissile {
 	BYTE smiy;     // Tile Y-position where the missile should be drawn
 	LE_INT32 smixoff;  // Pixel X-offset from tile position where the missile should be drawn
 	LE_INT32 smiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 smizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 smixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 smiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
 	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this

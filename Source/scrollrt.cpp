@@ -326,6 +326,7 @@ static void DrawSceneMissile(const SceneEntry &entry)
 	const MissileStruct* mis = &missile[mi];
 
 	mx -= mis->_miAnimXOffset;
+	my += mis->_mizoff;
 
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {

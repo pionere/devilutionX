@@ -2393,6 +2393,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (midir >= 0) {
 		mis->_mixoff = missile[midir]._mixoff;
 		mis->_miyoff = missile[midir]._miyoff;
+		// mis->_mizoff = missile[midir]._mizoff;
 		mis->_mitxoff = missile[midir]._mitxoff;
 		mis->_mityoff = missile[midir]._mityoff;
 	}
@@ -2547,6 +2548,7 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		//mis->_misy = bmis->_miy;
 		mis->_mixoff = bmis->_mixoff;
 		mis->_miyoff = bmis->_miyoff;
+		//mis->_mizoff = bmis->_mizoff;
 		//mis->_mitxoff = bmis->_mitxoff;
 		//mis->_mityoff = bmis->_mityoff;
 		mis->_migx = bmis->_migx;
@@ -3203,6 +3205,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis->_misy = bmis->_misy;
 	mis->_mixoff = bmis->_mixoff;
 	mis->_miyoff = bmis->_miyoff;
+	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
 	// mis->_mityoff = bmis->_mityoff;
 	// assert(bmis->_miVar3 < 3);
@@ -3899,8 +3902,7 @@ void MI_Poison(int mi)
 					zoff -= TILE_HEIGHT / 2;
 				}
 			}
-			mis->_miyoff += zoff;
-			mis->_migy += (2 * zoff / ASSET_MPL) << GRID_SHIFT;
+			mis->_mizoff += zoff;
 			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 			MonMissHit(tnum, mi);
 		}
@@ -3913,8 +3915,7 @@ void MI_Poison(int mi)
 			PlrSetMissilePos(pnum, mis);
 			zoff = 0;
 			zoff -= 3 * TILE_HEIGHT / 4;
-			mis->_miyoff += zoff;
-			mis->_migy += (2 * zoff / ASSET_MPL) << GRID_SHIFT;
+			mis->_mizoff += zoff;
 			// CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 			PlrMissHit(pnum, mi);
 		}
@@ -4487,7 +4488,7 @@ void MI_Meteor(int mi)
 		static_assert(MIA_SHATTER1_LENGTH >= 3, "Shatter animation is too short for MI_Meteor.");
 		if (mis->_miAnimFrame == 3
 		 /*&& mis->_miAnimCnt == MIA_SHATTER1_DELAY - 1*/) {
-			if (mis->_miyoff <= -MET_SHIFT_UP) {
+			if (mis->_mizoff <= -MET_SHIFT_UP) {
 				mis->_miFileNum = MFILE_FIREBA;
 				SetMissAnim(mi, 0);
 				xoff = MET_SHIFT_X;
@@ -4495,9 +4496,8 @@ void MI_Meteor(int mi)
 				mis->_mixoff = xoff;
 				// -- 96: height of the sprite, 46: transparent lines on the first frame -- unnecessary, since Cl2DrawLightTbl is safe
 				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
-				mis->_miyoff = zoff;
+				mis->_mizoff = zoff;
 				mis->_migx += ((-MET_SHIFT_X / ASSET_MPL) + xoff / ASSET_MPL) << GRID_SHIFT;
-				mis->_migy += ((2 * MET_SHIFT_UP / ASSET_MPL) + 2 * zoff / ASSET_MPL) << GRID_SHIFT;
 				// TODO: adjust velocity based on spllvl?
 			} else {
 				// freeze the animation
@@ -4506,10 +4506,9 @@ void MI_Meteor(int mi)
 				// mis->_miAnimCnt = 0;
 				xoff = MET_SHIFT_X / MET_STEPS_UP;
 				zoff = -(MET_SHIFT_UP / MET_STEPS_UP);
-				mis->_miyoff += zoff;
+				mis->_mizoff += zoff;
 				mis->_mixoff += xoff;
 				mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
-				mis->_migy += (2 * zoff / ASSET_MPL) << GRID_SHIFT;
 			}
 		}
 
@@ -4518,10 +4517,9 @@ void MI_Meteor(int mi)
 		xoff = -(MET_SHIFT_X / MET_STEPS_DOWN);
 		zoff = MET_SHIFT_Y / MET_STEPS_DOWN;
 		mis->_mixoff += xoff;
-		mis->_miyoff += zoff;
+		mis->_mizoff += zoff;
 		mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
-		mis->_migy += (2 * zoff / ASSET_MPL) << GRID_SHIFT;
-		if (mis->_miyoff < 0) { // TODO: use _miRange?
+		if (mis->_mizoff < 0) { // TODO: use _miRange?
 			PutMissile(mi);
 			return;
 		}
@@ -4630,6 +4628,7 @@ void MI_Chain(int mi)
 				mis->_misy = my;
 				mis->_mixoff = 0;
 				mis->_miyoff = 0;
+				//mis->_mizoff = 0;
 				mis->_mitxoff = 0;
 				mis->_mityoff = 0;
 				// - update grid position
@@ -5195,7 +5194,7 @@ void MI_Pulse(int mi)
 	SetMissAnim(mi, 0);
 	mis->_miAnimFrame = tmp;
 	mis->_miPreFlag = dir != 0;
-	mis->_miyoff = dir != 0 ? TILE_HEIGHT/2 - ((NUM_DIRS - 1) + dir) * ASSET_MPL : 0;
+	mis->_mizoff = dir != 0 ? TILE_HEIGHT/2 - ((NUM_DIRS - 1) + dir) * ASSET_MPL : 0;
 	PutMissileF(mi, dir != 0 ? BFLAG_MISSILE_PRE : 0);
 }
 

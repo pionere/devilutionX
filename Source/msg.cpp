@@ -1417,6 +1417,7 @@ void LevelDeltaExport()
 			tmis->smiy = mis->_miy;
 			tmis->smixoff = mis->_mixoff / ASSET_MPL;
 			tmis->smiyoff = mis->_miyoff / ASSET_MPL;
+			tmis->smizoff = mis->_mizoff / ASSET_MPL;
 			tmis->smixvel = mis->_mixvel;
 			tmis->smiyvel = mis->_miyvel;
 			tmis->smitxoff = mis->_mitxoff;
@@ -1744,6 +1745,7 @@ void LevelDeltaLoad()
 		mis->_miy = tmis->smiy;
 		mis->_mixoff = tmis->smixoff * ASSET_MPL;
 		mis->_miyoff = tmis->smiyoff * ASSET_MPL;
+		mis->_mizoff = tmis->smizoff * ASSET_MPL;
 		mis->_mixvel = tmis->smixvel;
 		mis->_miyvel = tmis->smiyvel;
 		mis->_mitxoff = tmis->smitxoff;
