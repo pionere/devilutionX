@@ -4478,7 +4478,8 @@ void MI_Meteor(int mi)
 {
 	MissileStruct* mis;
 	int mx, my, xoff, zoff;
-	const int MET_SHIFT_X = 16 * ASSET_MPL, MET_SHIFT_Y = 110 * ASSET_MPL, MET_SHIFT_UP = 26 * ASSET_MPL, MET_STEPS_UP = 2, MET_STEPS_DOWN = 10;
+	const int MET_SHIFT_RIGHT = 20 * ASSET_MPL, MET_SHIFT_UP = 26 * ASSET_MPL, MET_STEPS_UP = 2;
+	const int MET_SHIFT_X = 20 * ASSET_MPL, MET_SHIFT_Y = 110 * ASSET_MPL, MET_STEPS_DOWN = 10;
 
 	mis = &missile[mi];
 
@@ -4493,21 +4494,22 @@ void MI_Meteor(int mi)
 				SetMissAnim(mi, 0);
 				xoff = MET_SHIFT_X;
 				zoff = -MET_SHIFT_Y;
-				mis->_mixoff = xoff;
+				mis->_mixoff += -MET_SHIFT_RIGHT + xoff;
 				// -- 96: height of the sprite, 46: transparent lines on the first frame -- unnecessary, since Cl2DrawLightTbl is safe
 				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
+				// mis->_mizoff += MET_SHIFT_UP + zoff;
 				mis->_mizoff = zoff;
-				mis->_migx += ((-MET_SHIFT_X / ASSET_MPL) + xoff / ASSET_MPL) << GRID_SHIFT;
+				mis->_migx += ((-MET_SHIFT_RIGHT / ASSET_MPL) + xoff / ASSET_MPL) << GRID_SHIFT;
 				// TODO: adjust velocity based on spllvl?
 			} else {
 				// freeze the animation
 				// assert(mis->_miAnimAdd < 0);
 				mis->_miAnimFrame = 4;
 				// mis->_miAnimCnt = 0;
-				xoff = MET_SHIFT_X / MET_STEPS_UP;
+				xoff = MET_SHIFT_RIGHT / MET_STEPS_UP;
 				zoff = -(MET_SHIFT_UP / MET_STEPS_UP);
-				mis->_mizoff += zoff;
 				mis->_mixoff += xoff;
+				mis->_mizoff += zoff;
 				mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
 			}
 		}
