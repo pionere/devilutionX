@@ -717,6 +717,7 @@ static void GetMissilePos(MissileStruct* mis)
 	mis->_mixoff = (mx - (dqx - dqy) * 32) * ASSET_MPL;        // ((drx - dry) >> 1) * ASSET_MPL;
 	mis->_miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
 	SetMissilePos(mis, dqx + mis->_misx, dqy + mis->_misy);
+	ChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
 	ChangeLightScreenOff(mis->_miLid, mis->_mixoff, mis->_miyoff);
 }
 
@@ -2149,11 +2150,11 @@ int AddMagmaball(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	// assert(micaster == MST_MONSTER);
 	// assert((unsigned)misource < MAXMONSTERS);
 	mis = &missile[mi];
+	mis->_miLid = AddLight(sx, sy, 8);
 	MoveMissile(mis, 4);
 	mis->_miMinDam = monsters[misource]._mMinDamage << 6;
 	mis->_miMaxDam = monsters[misource]._mMaxDamage << 6;
 	static_assert(MAX_LIGHT_RAD >= 8, "AddMagmaball needs at least light-radius of 8.");
-	mis->_miLid = AddLight(sx, sy, 8);
 	return MIRES_DONE;
 }
 
@@ -3731,7 +3732,6 @@ void MI_Firebolt(int mi)
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
-		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
 		PutMissile(mi);
 		return;
 	}
@@ -3842,7 +3842,6 @@ void MI_Mage(int mi)
 			}
 		}
 
-		CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
 		PutMissile(mi);
 		return;
 	}
@@ -4096,7 +4095,6 @@ void MI_Firewall(int mi)
 	if (mx != mis->_misx || my != mis->_misy)
 		hit = CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY);
 	if (mis->_miRange >= 0) {
-		CondChangeLightXY(mis->_miLid, mx, my);
 		PutMissile(mi);
 		return;
 	}
@@ -4469,7 +4467,6 @@ void MI_FireWave(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	CondChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
 
 	MI_Firewall(mi);
 }
@@ -5113,7 +5110,7 @@ void MI_Cbolt(int mi)
 			// assert(mis->_miAnimLen == MIA_LGHNING_LENGTH);
 			// assert(mis->_miAnimFrameLen == MIA_LGHNING_DELAY);
 		}
-		ChangeLight(mis->_miLid, mis->_mix, mis->_miy, mis->_miVar1);
+		ChangeLightRadius(mis->_miLid, mis->_miVar1);
 	}
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
@@ -5151,7 +5148,6 @@ void MI_Elemental(int mi)
 		GetMissileVel(mis, cx, cy, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_ELEMENTAL].mdPrSpeed));
 	}
 	if (hit == 0) {
-		CondChangeLightXY(mis->_miLid, cx, cy);
 		PutMissile(mi);
 		return;
 	}
