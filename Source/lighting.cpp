@@ -966,9 +966,11 @@ void ChangeLightRadius(unsigned lnum, int r)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lradius = r;
-	gbDolighting = true;
+	if (lis->_lradius != r) {
+		lis->_lradius = r;
+		lis->_lunflag = true;
+		gbDolighting = true;
+	}
 }
 
 void ChangeLightXY(unsigned lnum, int x, int y)
@@ -979,10 +981,12 @@ void ChangeLightXY(unsigned lnum, int x, int y)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	gbDolighting = true;
+	// if (lis->_lx != x || lis->_ly != y) {
+		lis->_lx = x;
+		lis->_ly = y;
+		lis->_lunflag = true;
+		gbDolighting = true;
+	// }
 }
 
 void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
@@ -1000,10 +1004,13 @@ void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	yoff = yoff / (TILE_WIDTH / MAX_OFFSET);
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lxoff = xoff;
-	lis->_lyoff = yoff;
-	gbDolighting = true;
+	// if (xoff != lis->_lxoff || yoff != lis->_lyoff) {
+		lis->_lxoff = xoff;
+		lis->_lyoff = yoff;
+		gbDolighting = true;
+		lis->_lunflag = true;
+		gbDolighting = true;
+	// }
 }
 
 /*
