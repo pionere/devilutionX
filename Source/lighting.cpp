@@ -468,13 +468,13 @@ static void DoUnLight(LightListStruct* lis)
 	lis->_lunxoff = 0;
 	if (xoff < 0) {
 		lis->_lunxoff = -1;
-	} else if (xoff >= 8) {
+	} else if (xoff >= MAX_OFFSET) {
 		lis->_lunxoff = 1;
 	}
 	lis->_lunyoff = 0;
 	if (yoff < 0) {
 		lis->_lunyoff = -1;
-	} else if (yoff >= 8) {
+	} else if (yoff >= MAX_OFFSET) {
 		lis->_lunyoff = 1;
 	}
 	lis->_lunflag = false;
@@ -996,8 +996,8 @@ void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	xoff = xsoff + 2 * ysoff;
 	yoff = 2 * ysoff - xsoff;
 
-	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
-	yoff = yoff / (TILE_WIDTH / 8);
+	xoff = xoff / (TILE_WIDTH / MAX_OFFSET); // ASSET_MPL * MAX_OFFSET ?
+	yoff = yoff / (TILE_WIDTH / MAX_OFFSET);
 
 	lis = &LightList[lnum];
 	lis->_lunflag = true;
@@ -1037,8 +1037,8 @@ void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	xoff = xsoff + 2 * ysoff;
 	yoff = 2 * ysoff - xsoff;
 
-	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
-	yoff = yoff / (TILE_WIDTH / 8);
+	xoff = xoff / (TILE_WIDTH / MAX_OFFSET); // ASSET_MPL * MAX_OFFSET ?
+	yoff = yoff / (TILE_WIDTH / MAX_OFFSET);
 	// check if offset-change is meaningful
 	if (abs(xoff - lis->_lxoff) < 3 && abs(yoff - lis->_lyoff) < 3)
 		return;
