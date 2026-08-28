@@ -1484,11 +1484,7 @@ static BYTE* SyncMonstersLight(BYTE* src)
 		lid = monsters[*(LE_INT32*)src]._mlid;
 		src += sizeof(LE_INT32);
 		assert(lid != NO_LIGHT);
-		LightListStruct lls;
-		src = LoadLight(src, &lls);
-		ChangeLightXY(lid, lls._lx, lls._ly, lls._lradius);
-		ChangeLightScreenOff(lid, lls._lxoff, lls._lyoff);
-		ChangeLightRadius(lid, lls._lradius);
+		src = LoadLight(src, &LightList[lid]);
 	}
 	return src;
 }*/
