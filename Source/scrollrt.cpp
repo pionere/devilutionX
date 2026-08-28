@@ -519,7 +519,7 @@ static void DrawSceneTowner(const SceneEntry &entry)
 	// assert((unsigned)tnum < numtowners);
 	const MonsterStruct* tw = &monsters[tnum];
 
-	tw -= tw->_mAnimXOffset;
+	tx -= tw->_mAnimXOffset;
 
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -1212,9 +1212,6 @@ static void DrawSceneItem(const SceneEntry &entry)
 	int nGfxCel, nAnimCel, nWidth;
 	const CelAnimBuf* pCelBuff;
 
-	// sx -= is->_iAnimXOffset;
-	sx -= (nWidth - TILE_WIDTH) >> 1;
-
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Item \"%d\": NULL Cel Buffer", is->_iIdx);
@@ -1231,6 +1228,8 @@ static void DrawSceneItem(const SceneEntry &entry)
 	}
 #endif
 	nWidth = pCelBuff->caWidth;
+	// sx -= is->_iAnimXOffset;
+	sx -= (nWidth - TILE_WIDTH) >> 1;
 	if (ii == pcursitem) {
 		if (nGfxCel > 0) {
 			CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nGfxCel, nWidth);
