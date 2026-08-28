@@ -146,11 +146,9 @@ static void InitTownerInfo(int tnum, const char* name, int type, int x, int y, i
 	dMonster[x][y] = tnum + 1;
 	tw->_mType = type; // TNR_TYPE
 	// set position for DrawInfoStr and FindTowner
-	tw->_mx = x;
-	tw->_my = y;
 	// set future position for CheckNewPath
-	tw->_mfutx = x;
-	tw->_mfuty = y;
+	// set grid position for scene_addTowner
+	SetMonsterLoc(tnum, x, y);
 	tw->_mgoal = MGOAL_TALKING;  // for CanTalkToMonst
 	tw->_mgoalvar1 = STORE_NONE; // TNR_STORE for TalkToTowner
 #if DEBUG_MODE || DEV_MODE

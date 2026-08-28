@@ -285,27 +285,22 @@ static void scrollrt_draw_cursor()
 /**
  * @brief Render a missile sprite
  * @param mi missile index
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addMissileEntry(int mi, int sx, int sy)
+static void scene_addMissileEntry(int mi)
 {
-	int mx, my;
 	BYTE trans;
 	const MissileStruct* mis = &missile[mi];
 
 	if (mis->_miPreFlag != gbPreFlag)
 		return;
 
-	mx = sx + mis->_mixoff;
-	my = sy + mis->_miyoff;
 	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
 
 	scene[numEntries].scType = SCT_MISSILE;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = mx;
-	scene[numEntries].scPosy = my;
+	scene[numEntries].scPosx = mis->_migx;
+	scene[numEntries].scPosy = mis->_migy;
 	scene[numEntries].scIdx = mi;
 	numEntries++;
 #ifdef DEBUG
@@ -348,10 +343,8 @@ static void DrawSceneMissile(const SceneEntry &entry)
  * @param mi id of the missile or MIS_MULTI if there are more
  * @param x dPiece coordinate
  * @param y dPiece coordinate
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addMissile(int mi, int x, int y, int sx, int sy)
+static void scene_addMissile(int mi, int x, int y)
 {
 	int i;
 	const MissileStruct* mis;
@@ -359,7 +352,7 @@ static void scene_addMissile(int mi, int x, int y, int sx, int sy)
 	if (mi != MIS_MULTI) {
 		// assert((unsigned)(mi - 1) < MAXMISSILES);
 		// assert(mis->_miDrawFlag);
-		scene_addMissileEntry(mi - 1, sx, sy);
+		scene_addMissileEntry(mi - 1);
 		return;
 	}
 
@@ -369,7 +362,7 @@ static void scene_addMissile(int mi, int x, int y, int sx, int sy)
 		mis = &missile[mi];
 		if (mis->_mix != x || mis->_miy != y || !mis->_miDrawFlag)
 			continue;
-		scene_addMissileEntry(mi, sx, sy);
+		scene_addMissileEntry(mi);
 	}
 }
 
@@ -377,13 +370,10 @@ static void scene_addMissile(int mi, int x, int y, int sx, int sy)
  * @brief Render a monster sprite
  * @param mnum Id of monster
  * @param bFlag flags to draw
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addMonster(int mnum, BYTE bFlag)
 {
 	const MonsterStruct* mon;
-	int mx, my;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	// assert((unsigned)mnum < MAXMONSTERS);
@@ -395,8 +385,6 @@ static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
 		return;
 	}
 
-	mx = sx + mon->_mxoff;
-	my = sy + mon->_myoff;
 	if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && light_trn_index > 8))
 		trans = COLOR_TRN_RED;
 	else if (mon->_mmode == MM_STONE)
@@ -407,8 +395,8 @@ static void scene_addMonster(int mnum, BYTE bFlag, int sx, int sy)
 	scene[numEntries].scType = SCT_MONSTER;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = mx;
-	scene[numEntries].scPosy = my;
+	scene[numEntries].scPosx = mon->_mgx;
+	scene[numEntries].scPosy = mon->_mgy;
 	scene[numEntries].scIdx = mnum;
 	numEntries++;
 #ifdef DEBUG
@@ -461,22 +449,17 @@ static void DrawSceneMonster(const SceneEntry &entry)
 /**
  * @brief Render a sprite of a dead monster
  * @param mnum monster index
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addDeadMonsterEntry(int mnum, int sx, int sy)
+static void scene_addDeadMonsterEntry(int mnum)
 {
-	int mx, my;
-	// const MonsterStruct* mon = &monsters[mnum];
+	const MonsterStruct* mon = &monsters[mnum];
 	// assert((unsigned)mnum < MAXMONSTERS);
-	mx = sx/* + mon->_mxoff*/;
-	my = sy/* + mon->_myoff*/;
 
 	scene[numEntries].scType = SCT_DEAD_MONSTER;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = light_trn_index; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = mx;
-	scene[numEntries].scPosy = my;
+	scene[numEntries].scPosx = mon->_mgx;
+	scene[numEntries].scPosy = mon->_mgy;
 	scene[numEntries].scIdx = mnum;
 	numEntries++;
 #ifdef DEBUG
@@ -484,14 +467,14 @@ static void scene_addDeadMonsterEntry(int mnum, int sx, int sy)
 #endif
 }
 
-static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
+static void scene_addDeadMonster(int mnum, int x, int y)
 {
 	int i;
 	const MonsterStruct* mon;
 
 	if (mnum != DEAD_MULTI) {
 		// assert((unsigned)(mnum - 1) < MAXMONSTERS);
-		scene_addDeadMonsterEntry(mnum - 1, sx, sy);
+		scene_addDeadMonsterEntry(mnum - 1);
 		return;
 	}
 
@@ -499,7 +482,7 @@ static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
 		mon = &monsters[i];
 		if (mon->_mmode != MM_DEAD || mon->_mx != x || mon->_my != y)
 			continue;
-		scene_addDeadMonsterEntry(i, sx, sy);
+		scene_addDeadMonsterEntry(i);
 	}
 }
 
@@ -507,22 +490,17 @@ static void scene_addDeadMonster(int mnum, int x, int y, int sx, int sy)
  * @brief Render a towner sprite
  * @param mnum Id of towner
  * @param bFlag flags to draw
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addTowner(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addTowner(int mnum, BYTE bFlag)
 {
-	int tx, ty;
-	// const MonsterStruct* mon = &monsters[mnum];
+	const MonsterStruct* tw = &monsters[mnum];
 	// assert(mnum < numtowners);
-	tx = sx/* + mon->_mxoff*/;
-	ty = sy/* + mon->_myoff*/;
 
 	scene[numEntries].scType = SCT_TOWNER;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = tx;
-	scene[numEntries].scPosy = ty;
+	scene[numEntries].scPosx = tw->_mgx;
+	scene[numEntries].scPosy = tw->_mgy;
 	scene[numEntries].scIdx = mnum;
 	numEntries++;
 #ifdef DEBUG
@@ -559,20 +537,15 @@ static void DrawSceneTowner(const SceneEntry &entry)
  * @brief Render a player sprite
  * @param pnum Player id
  * @param bFlag flags
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addPlayer(int pnum, BYTE bFlag, int sx, int sy)
+static void scene_addPlayer(int pnum, BYTE bFlag)
 {
-	int px, py;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE trans;
 	// assert(pnum < MAX_PLRS);
 	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0/* !myplr._pInfraFlag */)
 		return;
 
-	px = sx + plr._pxoff;
-	py = sy + plr._pyoff;
 	if (pnum == mypnum) {
 		trans = 0;
 	} else if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && light_trn_index > 8)) {
@@ -585,8 +558,8 @@ static void scene_addPlayer(int pnum, BYTE bFlag, int sx, int sy)
 	scene[numEntries].scType = plr._pHitPoints != 0 ? SCT_PLAYER : SCT_DEAD_PLAYER;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = px;
-	scene[numEntries].scPosy = py;
+	scene[numEntries].scPosx = plr._pgx;
+	scene[numEntries].scPosy = plr._pgy;
 	scene[numEntries].scIdx = pnum;
 	numEntries++;
 #ifdef DEBUG
@@ -646,10 +619,8 @@ static void DrawScenePlayer(const SceneEntry &entry)
  * @brief Render a player sprite
  * @param x dPiece coordinate
  * @param y dPiece coordinate
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addDeadPlayer(int x, int y, int sx, int sy)
+static void scene_addDeadPlayer(int x, int y)
 {
 	int pnum;
 	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
@@ -668,7 +639,7 @@ static void scene_addDeadPlayer(int x, int y, int sx, int sy)
 			}
 #endif
 			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
-			scene_addPlayer(pnum, dFlags[x][y], sx, sy);
+			scene_addPlayer(pnum, dFlags[x][y]);
 		}
 	}
 }
@@ -678,35 +649,22 @@ static void scene_addDeadPlayer(int x, int y, int sx, int sy)
  * @param oi the id of the object
  * @param x dPiece coordinate
  * @param y dPiece coordinate
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addObject(int oi, int x, int y, int sx, int sy)
+static void scene_addObject(int oi, int x, int y)
 {
 	const ObjectStruct* os;
-	int ox, oy, xx, yy;
-	bool mainTile;
 	// assert(oi != 0);
-	mainTile = oi >= 0;
 	oi = oi >= 0 ? oi - 1 : -(oi + 1);
 	// assert((unsigned)oi < MAXOBJECTS);
 	os = &objects[oi];
 	if (os->_oPreFlag != gbPreFlag)
 		return;
-	ox = sx;
-	oy = sy;
-	if (!mainTile) {
-		xx = os->_ox - x;
-		yy = os->_oy - y;
-		ox += (xx * (TILE_WIDTH / 2)) - (yy * (TILE_WIDTH / 2));
-		oy += (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
-	}
 
 	scene[numEntries].scType = SCT_OBJECT;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = ox;
-	scene[numEntries].scPosy = oy;
+	scene[numEntries].scPosx = os->_ogx;
+	scene[numEntries].scPosy = os->_ogy;
 	scene[numEntries].scIdx = oi;
 	numEntries++;
 #ifdef DEBUG
@@ -1220,24 +1178,22 @@ static void DrawSceneFloor(const SceneEntry &entry)
 /**
  * @brief Draw item for a given tile
  * @param ii id of item
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addItem(int ii, int sx, int sy)
+static void scene_addItem(int ii)
 {
-	// const ItemStruct* is;
+	const ItemStruct* is;
 	// assert(ii > 0);
 	ii--;
 
-	// is = &items[ii];
+	is = &items[ii];
 	// if (is->_iPostDraw == gbPreFlag)
 	//	return;
 
 	scene[numEntries].scType = SCT_ITEM;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = sx;
-	scene[numEntries].scPosy = sy;
+	scene[numEntries].scPosx = is->_igx;
+	scene[numEntries].scPosy = is->_igy;
 	scene[numEntries].scIdx = ii;
 	numEntries++;
 #ifdef DEBUG
@@ -1295,15 +1251,13 @@ static void DrawSceneItem(const SceneEntry &entry)
  * @brief Draw a towner or a monster depending on the level
  * @param mnum Id of monster
  * @param bFlag flags
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
  */
-static void scene_addMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addMonsterHelper(int mnum, BYTE bFlag)
 {
 	if (currLvl._dType != DTYPE_TOWN || mnum < MAX_MINIONS)
-		scene_addMonster(mnum, bFlag, sx, sy);
+		scene_addMonster(mnum, bFlag);
 	else
-		scene_addTowner(mnum, bFlag, sx, sy);
+		scene_addTowner(mnum, bFlag);
 }
 
 static void scene_addSpecialCell(BYTE bv, int sx, int sy)
@@ -1349,38 +1303,38 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
 
 	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		scene_addObject(mpnum, x, y, sx, sy);
+		scene_addObject(mpnum, x, y);
 	if (bFlag & BFLAG_MISSILE_PRE) {
 		mpnum = dMissile[x][y];
 		assert(mpnum != 0);
-		scene_addMissile(mpnum, x, y, sx, sy);
+		scene_addMissile(mpnum, x, y);
 	}
 
 	bv = dDead[x][y];
 	if (bv != 0)
-		scene_addDeadMonster(bv, x, y, sx, sy);
+		scene_addDeadMonster(bv, x, y);
 	bv = dItem[x][y];
 	if (bv != 0)
-		scene_addItem(bv, sx, sy);
+		scene_addItem(bv);
 	if (bFlag & BFLAG_DEAD_PLAYER) {
-		scene_addDeadPlayer(x, y, sx, sy);
+		scene_addDeadPlayer(x, y);
 	}
 	gbPreFlag = FALSE;
 	mpnum = dPlayer[x][y];
 	if (mpnum > 0)
-		scene_addPlayer(mpnum - 1, bFlag, sx, sy);
+		scene_addPlayer(mpnum - 1, bFlag);
 	mpnum = dMonster[x][y];
 	if (mpnum > 0)
-		scene_addMonsterHelper(mpnum - 1, bFlag, sx, sy);
+		scene_addMonsterHelper(mpnum - 1, bFlag);
 	mpnum = dMissile[x][y];
 	if (mpnum != 0)
-		scene_addMissile(mpnum, x, y, sx, sy);
+		scene_addMissile(mpnum, x, y);
 	mpnum = dObject[x][y];
 	if (mpnum != 0)
-		scene_addObject(mpnum, x, y, sx, sy);
+		scene_addObject(mpnum, x, y);
 	//bv = dItem[x][y];
 	//if (bv != 0)
-	//	scene_addItem(bv, sx, sy);
+	//	scene_addItem(bv);
 
 	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
 	if (bv != 0) {
@@ -1698,6 +1652,44 @@ static void CreateScene()
 
 	scene_addFloor(x, y, sx, sy, rows, columns);
 	scene_addEntries(x, y, sx, sy, rows, columns);
+
+	// shift positions from grid to screen
+	POS32 dp = DungeonScreenToGridPos(x, y, 0, 0);
+
+	dp.x >>= GRID_SHIFT;
+	dp.y >>= (GRID_SHIFT + 1);
+
+	static_assert(TILE_WIDTH << GRID_SHIFT == GRID_WIDTH * ASSET_MPL, "grid to screen conversion must be adjusted");
+	dp.x *= ASSET_MPL;
+	dp.y *= ASSET_MPL;
+
+	int shx = (sx - dp.x);
+	int shy = (sy - dp.y);
+
+	for (unsigned i = 0; i < numEntries; i++) {
+		SceneEntry &entry = scene[i];
+
+		switch (entry.scType) {
+		case SCT_FLOOR:        break;
+		case SCT_CELL:         break;
+		case SCT_ITEM:
+		case SCT_OBJECT:
+		case SCT_MISSILE:
+		case SCT_TOWNER:
+		case SCT_MONSTER:
+		case SCT_DEAD_MONSTER:
+		case SCT_PLAYER:
+		case SCT_DEAD_PLAYER: {
+			int gx = (entry.scPosx >> GRID_SHIFT) * ASSET_MPL;
+			int gy = (entry.scPosy >> (GRID_SHIFT + 1)) * ASSET_MPL;
+
+			entry.scPosx = gx + shx;
+			entry.scPosy = gy + shy;
+		} break;
+		case SCT_SPECIAL:      break;
+		default: ASSUME_UNREACHABLE
+		}
+	}
 }
 
 static void DrawScene()
