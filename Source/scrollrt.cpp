@@ -320,9 +320,6 @@ static void DrawSceneMissile(const SceneEntry &entry)
 	// assert((unsigned)mi < MAXMISSILES);
 	const MissileStruct* mis = &missile[mi];
 
-	mx -= mis->_miAnimXOffset;
-	my += mis->_mizoff;
-
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
@@ -335,6 +332,8 @@ static void DrawSceneMissile(const SceneEntry &entry)
 	}
 #endif
 	nWidth = mis->_miAnimWidth;
+	mx -= mis->_miAnimXOffset;
+	my += mis->_mizoff;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
@@ -416,8 +415,6 @@ static void DrawSceneMonster(const SceneEntry &entry)
 	// assert((unsigned)mnum < MAXMONSTERS);
 	const MonsterStruct* mon = &monsters[mnum];
 
-	mx -= mon->_mAnimXOffset;
-
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Monster \"%s\": NULL Cel Buffer", mon->_mName);
@@ -440,6 +437,7 @@ static void DrawSceneMonster(const SceneEntry &entry)
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
+	mx -= mon->_mAnimXOffset;
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
@@ -519,14 +517,13 @@ static void DrawSceneTowner(const SceneEntry &entry)
 	// assert((unsigned)tnum < numtowners);
 	const MonsterStruct* tw = &monsters[tnum];
 
-	tx -= tw->_mAnimXOffset;
-
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Towner \"%s\": NULL Cel Buffer", tw->_mName);
 	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
+	tx -= tw->_mAnimXOffset;
 	if (tnum == pcursmonst) {
 		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, ty, pCelBuff, nCel, nWidth);
 	}
@@ -578,8 +575,6 @@ static void DrawScenePlayer(const SceneEntry &entry)
 	// assert(pnum < MAX_PLRS);
 	// assert(entry.scIdx == SCT_PLAYER || entry.scIdx == SCT_DEAD_PLAYER);
 
-	px -= plr._pAnimXOffset;
-
 	pCelBuff = plr._pAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
@@ -603,6 +598,7 @@ static void DrawScenePlayer(const SceneEntry &entry)
 	}
 #endif
 	nWidth = plr._pAnimWidth;
+	px -= plr._pAnimXOffset;
 	if (pnum == pcursplr)
 		Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 	/*if (plr.pManaShield != 0)
@@ -683,14 +679,10 @@ static void DrawSceneObject(const SceneEntry &entry)
 	// assert((unsigned)oi < MAXOBJECTS);
 	const ObjectStruct* os = &objects[oi];
 
-	ox -= os->_oAnimXOffset;
-
 	pCelBuff = os->_oAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 	}
-
-	nWidth = os->_oAnimWidth;
 
 	nGfxCel = os->_oGfxFrame;
 	nAnimCel = os->_oAnimFrame;
@@ -703,6 +695,8 @@ static void DrawSceneObject(const SceneEntry &entry)
 		dev_fatal("Draw Object Anim: frame %d of %d, type %d", nAnimCel, frames, os->_otype);
 	}
 #endif
+	nWidth = os->_oAnimWidth;
+	ox -= os->_oAnimXOffset;
 	if (oi == pcursobj) {
 		if (nGfxCel > 0) {
 			CelClippedDrawOutline(PAL16_YELLOW + 2, ox, oy, pCelBuff, nGfxCel, nWidth);
