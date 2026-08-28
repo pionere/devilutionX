@@ -1029,8 +1029,6 @@ void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 {
 	LightListStruct* lis;
 	int xoff, yoff;
-	int lx, ly;
-	int offx, offy;
 
 	if (lnum >= MAXLIGHTS)
 		return;
@@ -1042,12 +1040,7 @@ void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
 	yoff = yoff / (TILE_WIDTH / 8);
 	// check if offset-change is meaningful
-	lx = xoff + (lis->_lx << 3);
-	ly = yoff + (lis->_ly << 3);
-	offx = lis->_lxoff + (lis->_lx << 3);
-	offy = lis->_lyoff + (lis->_ly << 3);
-
-	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
+	if (abs(xoff - lis->_lxoff) < 3 && abs(yoff - lis->_lyoff) < 3)
 		return;
 
 	lis->_lunflag = true;
