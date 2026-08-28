@@ -1025,23 +1025,6 @@ void ChangeLightXYOff(unsigned lnum, int x, int y)
 	gbDolighting = true;
 }
 
-void CondChangeLightXY(unsigned lnum, int x, int y)
-{
-	LightListStruct* lis;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	lis = &LightList[lnum];
-	if (lis->_lx == x && lis->_ly == y)
-		return;
-
-	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	gbDolighting = true;
-}
-
 void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 {
 	LightListStruct* lis;
@@ -1070,21 +1053,6 @@ void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
 	lis->_lunflag = true;
 	lis->_lxoff = xoff;
 	lis->_lyoff = yoff;
-	gbDolighting = true;
-}
-
-void ChangeLight(unsigned lnum, int x, int y, int r)
-{
-	LightListStruct* lis;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	lis->_lradius = r;
 	gbDolighting = true;
 }
 
