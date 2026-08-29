@@ -1648,10 +1648,6 @@ void LevelDeltaLoad()
 		//BYTE _mpacksize; // the number of 'pack'-monsters close to their leader
 		//BYTE _mvid; // vision id of the monster (for minions only)
 		mon->_mFlags = tmon->smFlags;
-		// move the light of the monster
-		// assert(mon->_mlid == NO_LIGHT || (LightList[mon->_mlid]._lx == mx && LightList[mon->_mlid]._ly == my));
-		//if (mon->_mlid != NO_LIGHT)
-		//	ChangeLightXY(mon->_mlid, mon->_moldx, mon->_moldy);
 		// place the monster
 		mi = mon->_mmode;
 		net_assert(mi <= MM_INGAME_LAST);
@@ -1710,6 +1706,16 @@ void LevelDeltaLoad()
 				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 			}
 		}
+		// move the light of the monster
+		// assert(mon->_mlid == NO_LIGHT);
+		// if (mon->_mlid != NO_LIGHT) {
+		//	// if (mon->_mFlags & MFLAG_HIDDEN) {
+		//	//	ChangeLightRadius(mon->_mlid, 0);
+		//	// } else {
+		//		ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
+		//		ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+		//	// }
+		// }
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}
