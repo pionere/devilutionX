@@ -1787,11 +1787,6 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mx = mon->_mfutx = mx;
 	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
-	// assert(mon->_mlid == NO_LIGHT);
-	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN)) {
-	//	ChangeLightXY(mon->_mlid, mx, my);
-	//	ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
-	//}
 }
 
 /*
@@ -2324,7 +2319,7 @@ static bool MonDoWalk(int mnum)
 #endif
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-			//	ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+			//	ChangeLightDungeonOff(mon->_mlid, mon->_mx, mon->my, mon->_mxoff, mon->_myoff);
 		//}
 		rv = false;
 	}

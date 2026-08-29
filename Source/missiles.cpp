@@ -718,8 +718,7 @@ static void GetMissilePos(MissileStruct* mis)
 	mis->_mixoff = (mx - (dqx - dqy) * 32) * ASSET_MPL;        // ((drx - dry) >> 1) * ASSET_MPL;
 	mis->_miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
 	SetMissilePos(mis, dqx + mis->_misx, dqy + mis->_misy);
-	ChangeLightXY(mis->_miLid, mis->_mix, mis->_miy);
-	ChangeLightScreenOff(mis->_miLid, mis->_mixoff, mis->_miyoff);
+	ChangeLightDungeonOff(mis->_miLid, mis->_mix, mis->_miy, mis->_mixoff, mis->_miyoff);
 }
 
 /**

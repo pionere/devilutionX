@@ -42,8 +42,7 @@ void InitLvlLighting();
 unsigned AddLight(int x, int y, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
-void ChangeLightXY(unsigned lnum, int x, int y);
-void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff);
+void ChangeLightDungeonOff(unsigned lnum, int x, int y, int xoff, int yoff);
 void ChangeLightXYOff(unsigned lnum, int x, int y);
 void ProcessLightList();
 inline void SavePreLighting()

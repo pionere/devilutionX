@@ -1713,8 +1713,7 @@ void LevelDeltaLoad()
 		//	// if (mon->_mFlags & MFLAG_HIDDEN) {
 		//	//	ChangeLightRadius(mon->_mlid, 0);
 		//	// } else {
-		//		ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
-		//		ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+		//		ChangeLightDungeonOff(mon->_mlid, mon->_mx, mon->_my, mon->_mxoff, mon->_myoff);
 		//	// }
 		// }
 		SyncMonsterAnim(mnum);
@@ -1779,7 +1778,7 @@ void LevelDeltaLoad()
 		if (tmis->smiLidRadius != 0) {
 			net_assert(tmis->smiLidRadius <= MAX_LIGHT_RAD);
 			mis->_miLid = AddLight(mis->_mix, mis->_miy, tmis->smiLidRadius);
-			ChangeLightScreenOff(mis->_miLid, mis->_mixoff, mis->_miyoff);
+			ChangeLightDungeonOff(mis->_miLid, mis->_mix, mis->_miy, mis->_mixoff, mis->_miyoff);
 		} else {
 			mis->_miLid = NO_LIGHT;
 		}

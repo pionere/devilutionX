@@ -1114,7 +1114,7 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	//if (plr._plid != NO_LIGHT)
-		ChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
+		ChangeLightDungeonOff(plr._plid, plr._px, plr._py, plr._pxoff, plr._pyoff);
 }
 
 /**
@@ -1180,10 +1180,6 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 		ScrollInfo._sxoff = -plr._pxoff;
 		ScrollInfo._syoff = -plr._pyoff;
 	}
-	//if (plr._plid != NO_LIGHT) {
-		ChangeLightXY(plr._plid, plr._px, plr._py);
-		ChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
-	//}
 }
 
 static void StartWalk(int pnum, int dir)

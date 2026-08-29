@@ -973,48 +973,33 @@ void ChangeLightRadius(unsigned lnum, int r)
 	}
 }
 
-void ChangeLightXY(unsigned lnum, int x, int y)
+void ChangeLightDungeonOff(unsigned lnum, int x, int y, int xoff, int yoff)
 {
 	LightListStruct* lis;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	lis = &LightList[lnum];
-	// if (lis->_lx != x || lis->_ly != y) {
-		lis->_lx = x;
-		lis->_ly = y;
-		lis->_lunflag = true;
-		gbDolighting = true;
-	// }
-}
-
-void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
-{
-	LightListStruct* lis;
-	int xoff, yoff;
+	int dxoff, dyoff;
 
 	if (lnum >= MAXLIGHTS)
 		return;
 	// convert screen-offset to tile-offset
-	xoff = xsoff + 2 * ysoff;
-	yoff = 2 * ysoff - xsoff;
+	dxoff = xoff + 2 * yoff;
+	dyoff = 2 * yoff - xoff;
 
-	xoff = xoff / (TILE_WIDTH / MAX_OFFSET); // ASSET_MPL * MAX_OFFSET ?
-	yoff = yoff / (TILE_WIDTH / MAX_OFFSET);
+	dxoff = dxoff / (TILE_WIDTH / MAX_OFFSET); // ASSET_MPL * MAX_OFFSET ?
+	dyoff = dyoff / (TILE_WIDTH / MAX_OFFSET);
 
 	lis = &LightList[lnum];
-	// if (xoff != lis->_lxoff || yoff != lis->_lyoff) {
-		lis->_lxoff = xoff;
-		lis->_lyoff = yoff;
-		gbDolighting = true;
+	// if (x != lis->_lx || y != lis->_ly || dxoff != lis->_lxoff || dyoff != lis->_lyoff) {
+		lis->_lx = x;
+		lis->_ly = y;
+		lis->_lxoff = dxoff;
+		lis->_lyoff = dyoff;
 		lis->_lunflag = true;
 		gbDolighting = true;
 	// }
 }
 
 /*
- * Same as ChangeLightXY, but also sets the x/y-offsets to zero.
+ * Same as ChangeLightDungeonOff, but sets the x/y-offsets to zero.
  */
 void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
