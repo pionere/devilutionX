@@ -1013,6 +1013,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
 		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 		ChangeLightXYOff(plr._plid, plr._px, plr._py);
+		ChangeVisionXY(plr._pvid, plr._px, plr._py);
 		FixPlayerLocation(pnum);
 
 		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
@@ -1072,6 +1073,7 @@ void PlrStartStand(int pnum)
 		RemovePlrFromMap(pnum);
 		dPlayer[plr._px][plr._py] = pnum + 1;
 		ChangeLightXYOff(plr._plid, plr._px, plr._py);
+		ChangeVisionXY(plr._pvid, plr._px, plr._py);
 		FixPlayerLocation(pnum);
 	} else {
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
@@ -1494,6 +1496,7 @@ static void PlrStartGetHit(int pnum, int dir)
 	plr._pVar8 = 0; // GOTHIT_TICK
 	RemovePlrFromMap(pnum);
 	ChangeLightXYOff(plr._plid, plr._px, plr._py);
+	ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	dPlayer[plr._px][plr._py] = pnum + 1;
 	FixPlayerLocation(pnum);
 }
