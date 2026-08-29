@@ -473,6 +473,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 {
 	int px, py;
 
+	// assert(plr._pxoff == 0 && plr._pyoff == 0);
 	px = plr._px;
 	py = plr._py;
 	dPlayer[px][py] = 0;
@@ -483,7 +484,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 	SetPlayerLoc(pnum, px, py);
 	//PlrDoTrans(px, py);
 	dPlayer[px][py] = pnum + 1;
-	ChangeLightXY(plr._plid, px, py);
+	ChangeLightXYOff(plr._plid, px, py);
 	ChangeVisionXY(plr._pvid, px, py);
 	if (pnum == mypnum) {
 		myview.x = px; // - ScrollInfo._sdx;
@@ -4870,7 +4871,7 @@ void MI_Rhino(int mi)
 		SetMonsterLoc(mnum, bx, by);
 		// assert(monsters[mnum]._mvid == NO_VISION);
 		// assert(monsters[mnum]._mlid == NO_LIGHT);
-		//ChangeLightXY(monsters[mnum]._mlid, bx, by);
+		//ChangeLightXYOff(monsters[mnum]._mlid, bx, by);
 	}
 	//ShiftMissilePos(mis, 1);
 	PutMissile(mi);
@@ -4903,7 +4904,7 @@ void MI_Charge(int mi)
 	if (plr._px != bx || plr._py != by) {
 		SetPlayerLoc(pnum, bx, by);
 		// assert(plr._plid == mis->_miLid);
-		ChangeLightXY(plr._plid, bx, by);
+		ChangeLightXYOff(plr._plid, bx, by);
 		ChangeVisionXY(plr._pvid, bx, by);
 		if (bx == mis->_miVar1 && by == mis->_miVar2) {
 			MissToPlr(mi, false);

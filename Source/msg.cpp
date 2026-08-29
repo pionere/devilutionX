@@ -1057,6 +1057,7 @@ void DeltaLoadLevel()
 					UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 					RemoveMonFromMap(i);
 				}
+				// assert(mon->_mxoff == 0 && mon->_myoff == 0);
 				SetMonsterLoc(i, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
 				if (mstr->dmSIdx != 0) {
@@ -1072,7 +1073,7 @@ void DeltaLoadLevel()
 #if 0 // commented out because the implementation is incomplete (e.g. what about hidden monsters)
 				// SyncMonstersLight: inline for better performance + apply to moving monsters
 				if (mon->_mlid != NO_LIGHT)
-					ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
+					ChangeLightXYOff(mon->_mlid, mon->_mx, mon->_my);
 #endif
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
