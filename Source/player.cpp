@@ -676,6 +676,13 @@ static void AssertFixPlayerLocation(int pnum)
 	}
 }
 
+static void PlrPlace(int pnum)
+{
+	FixPlayerLocation(pnum);
+	ChangeLightXYOff(plr._plid, plr._px, plr._py);
+	ChangeVisionXY(plr._pvid, plr._px, plr._py);
+}
+
 /*
  * Initialize player fields when entering a game.
  */
@@ -1012,9 +1019,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
 		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
-		ChangeLightXYOff(plr._plid, plr._px, plr._py);
-		ChangeVisionXY(plr._pvid, plr._px, plr._py);
-		FixPlayerLocation(pnum);
+		PlrPlace(pnum);
 
 		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
 	}
@@ -1072,9 +1077,7 @@ void PlrStartStand(int pnum)
 		StartStand(pnum);
 		RemovePlrFromMap(pnum);
 		dPlayer[plr._px][plr._py] = pnum + 1;
-		ChangeLightXYOff(plr._plid, plr._px, plr._py);
-		ChangeVisionXY(plr._pvid, plr._px, plr._py);
-		FixPlayerLocation(pnum);
+		PlrPlace(pnum);
 	} else {
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
 	}
@@ -1491,10 +1494,8 @@ static void PlrStartGetHit(int pnum, int dir)
 	plr._pmode = PM_GOTHIT;
 	plr._pVar8 = 0; // GOTHIT_TICK
 	RemovePlrFromMap(pnum);
-	ChangeLightXYOff(plr._plid, plr._px, plr._py);
-	ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	dPlayer[plr._px][plr._py] = pnum + 1;
-	FixPlayerLocation(pnum);
+	PlrPlace(pnum);
 }
 
 static void PlrGetKnockback(int pnum, int dir)
@@ -1512,10 +1513,8 @@ static void PlrGetKnockback(int pnum, int dir)
 			RemovePlrFromMap(pnum);
 			plr._px = newx;
 			plr._py = newy;
-			ChangeLightXYOff(plr._plid, newx, newy);
-			ChangeVisionXY(plr._pvid, newx, newy);
 			dPlayer[newx][newy] = pnum + 1;
-			FixPlayerLocation(pnum);
+			PlrPlace(pnum);
 		}
 	}
 }
@@ -1726,17 +1725,15 @@ static void PlrDoWalk(int pnum)
 		PlrChangeOffset(pnum);
 		return;
 	}
-
+	// RemovePlrFromMap(pnum);
 	dPlayer[plr._poldx][plr._poldy] = 0;
 	px = plr._pfutx;
 	py = plr._pfuty;
 
-	ChangeLightXYOff(plr._plid, px, py);
-	ChangeVisionXY(plr._pvid, px, py);
 	plr._px = px;
 	plr._py = py;
-	FixPlayerLocation(pnum);
 	dPlayer[px][py] = pnum + 1;
+	PlrPlace(pnum);
 	//PlrStartStand(pnum);
 	StartStand(pnum);
 	//ClearPlrPVars(pnum);
