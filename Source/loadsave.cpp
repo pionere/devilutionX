@@ -1450,8 +1450,10 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 /*static void RedoPlayerLight()
 {
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
+		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel) {
 			ChangeLightXY(plr._plid, plr._px, plr._py);
+			ChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff)
+		}
 	}
 }
 
