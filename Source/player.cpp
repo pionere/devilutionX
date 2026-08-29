@@ -742,6 +742,8 @@ void InitLvlPlayer(int pnum, bool entering)
 	InitPlayerGFX(pnum); // for the local player this is necessary only if switching from or to town
 	SetPlrAnims(pnum);
 
+	plr._plid = NO_LIGHT;
+	plr._pvid = NO_VISION;
 	if (entering) {
 		PlacePlayer(pnum);
 		// RemovePlrFromMap(pnum);
@@ -787,13 +789,9 @@ void InitLvlPlayer(int pnum, bool entering)
 	}
 	if (pnum == mypnum) {
 		plr._plid = AddLight(plr._poldx, plr._poldy, plr._pLightRad);
-	} else {
-		plr._plid = NO_LIGHT;
 	}
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
-	} else {
-		plr._pvid = NO_VISION;
 	}
 }
 
@@ -1014,6 +1012,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
 		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+		ChangeLightXYOff(plr._plid, plr._px, plr._py);
 		FixPlayerLocation(pnum);
 
 		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
@@ -1072,6 +1071,7 @@ void PlrStartStand(int pnum)
 		StartStand(pnum);
 		RemovePlrFromMap(pnum);
 		dPlayer[plr._px][plr._py] = pnum + 1;
+		ChangeLightXYOff(plr._plid, plr._px, plr._py);
 		FixPlayerLocation(pnum);
 	} else {
 		StartPlrKill(pnum, DMGTYPE_UNKNOWN);
@@ -1493,6 +1493,7 @@ static void PlrStartGetHit(int pnum, int dir)
 	plr._pmode = PM_GOTHIT;
 	plr._pVar8 = 0; // GOTHIT_TICK
 	RemovePlrFromMap(pnum);
+	ChangeLightXYOff(plr._plid, plr._px, plr._py);
 	dPlayer[plr._px][plr._py] = pnum + 1;
 	FixPlayerLocation(pnum);
 }
