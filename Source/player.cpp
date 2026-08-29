@@ -1112,7 +1112,7 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	//if (plr._plid != NO_LIGHT)
-		CondChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
+		ChangeLightScreenOff(plr._plid, plr._pxoff, plr._pyoff);
 }
 
 /**

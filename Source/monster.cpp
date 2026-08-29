@@ -2324,7 +2324,7 @@ static bool MonDoWalk(int mnum)
 #endif
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-			//	CondChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
+			//	ChangeLightScreenOff(mon->_mlid, mon->_mxoff, mon->_myoff);
 		//}
 		rv = false;
 	}
