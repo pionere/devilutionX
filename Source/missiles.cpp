@@ -843,7 +843,7 @@ unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxda
 int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster, int mpnum)
 {
 	int dam = fdam + ldam + mdam + adam;
-	int mtype, mx, my, mxoff, myoff, mi;
+	int mtype, mx, my, mi;
 
 	if (dam == 0) {
 		return 0;
@@ -857,21 +857,17 @@ int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster
 	if (isMonster) {
 		mx = monsters[mpnum]._mx;
 		my = monsters[mpnum]._my;
-		mxoff = monsters[mpnum]._mxoff;
-		myoff = monsters[mpnum]._myoff;
 	} else {
 		mx = plx(mpnum)._px;
 		my = plx(mpnum)._py;
-		mxoff = plx(mpnum)._pxoff;
-		myoff = plx(mpnum)._pyoff;
 	}
 	mi = AddMissile(mx, my, -1, 0, 0, mtype, MST_NA, 0, 0);
 	if (mi >= 0) {
-		missile[mi]._mixoff = mxoff;
-		missile[mi]._miyoff = myoff;
-		// SetMissilePos(&missile[mi], mx, my);
-		missile[mi]._migx += (mxoff / ASSET_MPL) << GRID_SHIFT;
-		missile[mi]._migy += ((myoff / ASSET_MPL) * (TILE_WIDTH / TILE_HEIGHT)) << GRID_SHIFT;
+		MissileStruct* mis = &missile[mi];
+		if (isMonster)
+			MonSetMissilePos(&monsters[mpnum], mis);
+		else
+			PlrSetMissilePos(mpnum, mis);
 	}
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
