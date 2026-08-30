@@ -869,7 +869,9 @@ int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster
 	if (mi >= 0) {
 		missile[mi]._mixoff = mxoff;
 		missile[mi]._miyoff = myoff;
-		missile[mi]._migy += (2 * myoff / ASSET_MPL) << GRID_SHIFT;
+		// SetMissilePos(&missile[mi], mx, my);
+		missile[mi]._migx += (mxoff / ASSET_MPL) << GRID_SHIFT;
+		missile[mi]._migy += ((myoff / ASSET_MPL) * (TILE_WIDTH / TILE_HEIGHT)) << GRID_SHIFT;
 	}
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
@@ -2392,11 +2394,15 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	static_assert(MAX_LIGHT_RAD >= 4, "AddLightning needs at least light-radius of 4.");
 	mis->_miLid = AddLight(sx, sy, 4);
 	if (midir >= 0) {
+		// mis->_mix = missile[midir]._mix;
+		// mis->_miy = missile[midir]._miy;
 		mis->_mixoff = missile[midir]._mixoff;
 		mis->_miyoff = missile[midir]._miyoff;
 		// mis->_mizoff = missile[midir]._mizoff;
-		mis->_mitxoff = missile[midir]._mitxoff;
-		mis->_mityoff = missile[midir]._mityoff;
+		// mis->_mitxoff = missile[midir]._mitxoff;
+		// mis->_mityoff = missile[midir]._mityoff;
+		mis->_migx = missile[midir]._migx;
+		mis->_migy = missile[midir]._migy;
 	}
 	range = 8 - 1;
 	if (micaster & MST_PLAYER) {
