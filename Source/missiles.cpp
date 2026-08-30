@@ -868,6 +868,7 @@ int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster
 			MonSetMissilePos(&monsters[mpnum], mis);
 		else
 			PlrSetMissilePos(mpnum, mis);
+		// assert(mis->_miLid == NO_LIGHT);
 	}
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
@@ -2399,6 +2400,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		// mis->_mityoff = missile[midir]._mityoff;
 		mis->_migx = missile[midir]._migx;
 		mis->_migy = missile[midir]._migy;
+		ChangeLightDungeonOff(mis->_miLid, sx, sy, mis->_mixoff, mis->_miyoff);
 	}
 	range = 8 - 1;
 	if (micaster & MST_PLAYER) {
@@ -4634,6 +4636,7 @@ void MI_Chain(int mi)
 				mis->_mityoff = 0;
 				// - update grid position
 				SetMissilePos(mis, mx, my);
+				ChangeLightXYOff(mis->_miLid, mx, my);
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
 				// find new target
