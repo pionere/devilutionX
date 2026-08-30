@@ -1510,18 +1510,15 @@ typedef struct LSaveQuestStruct {
 typedef struct LSaveLightListStruct {
 	LE_INT32 vlx;
 	LE_INT32 vly;
+	LE_INT32 vlxoff;
+	LE_INT32 vlyoff;
 	LE_INT32 vlunx;
 	LE_INT32 vluny;
 	BYTE vlradius;
 	BYTE vlunr;
-	int8_t vlunxoff;
-	int8_t vlunyoff;
 	BOOLEAN vldel;
 	BOOLEAN vlunflag;
-	BOOLEAN vlmine;
-	BYTE vlAlign2;
-	LE_INT32 vlxoff;
-	LE_INT32 vlyoff;
+	BOOL vlmine;
 } LSaveLightListStruct;
 
 typedef struct LSavePortalStruct {
@@ -2420,20 +2417,17 @@ typedef struct InvXY {
 //////////////////////////////////////////////////
 
 typedef struct LightListStruct {
-	int _lx;
-	int _ly;
-	int _lunx;
-	int _luny;
-	BYTE _lradius;
-	BYTE _lunr;
-	int8_t _lunxoff;
-	int8_t _lunyoff;
-	BOOLEAN _ldel;
-	BOOLEAN _lunflag;
-	BOOLEAN _lmine;
-	BYTE _lAlign2;
-	int _lxoff;
-	int _lyoff;
+	int _lx;          // Tile X-position where the vision/light center is
+	int _ly;          // Tile Y-position where the vision/light center is
+	int _lxoff;       // Tile X-offset from tile position where the vision/light center is
+	int _lyoff;       // Tile Y-offset from tile position where the vision/light center is
+	int _lunx;        // Tile X-position where the vision/light center was
+	int _luny;        // Tile Y-position where the vision/light center was
+	BYTE _lradius;    // Radius of the vision/light
+	BYTE _lunr;       // Previous radius of the vision/light
+	BOOLEAN _ldel;    // Whether the vision/light should be deleted
+	BOOLEAN _lunflag; // whether the vision/light should be restored around the source
+	BOOL _lmine;      // Whether the vision belongs to the local player
 } LightListStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

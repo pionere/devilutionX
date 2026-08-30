@@ -559,24 +559,20 @@ static BYTE* LoadLight(BYTE* src, LightListStruct* DVL_RESTRICT pLight)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	pLight->_lx = savedLight->vlx;
 	pLight->_ly = savedLight->vly;
+	pLight->_lxoff = savedLight->vlxoff;
+	pLight->_lyoff = savedLight->vlyoff;
 	pLight->_lunx = savedLight->vlunx;
 	pLight->_luny = savedLight->vluny;
 
 	pLight->_lradius = savedLight->vlradius;
 	pLight->_lunr = savedLight->vlunr;
-	pLight->_lunxoff = savedLight->vlunxoff;
-	pLight->_lunyoff = savedLight->vlunyoff;
-
 	pLight->_ldel = savedLight->vldel;
 	pLight->_lunflag = savedLight->vlunflag;
-	pLight->_lmine = savedLight->vlmine;
-	pLight->_lAlign2 = savedLight->vlAlign2;
 
-	pLight->_lxoff = savedLight->vlxoff;
-	pLight->_lyoff = savedLight->vlyoff;
+	pLight->_lmine = savedLight->vlmine;
 #else
-	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlyoff) + sizeof(savedLight->vlyoff)
-	 && offsetof(LightListStruct, _lyoff) == offsetof(LSaveLightListStruct, vlyoff), "LoadLight uses memcpy to load the LSaveLightListStruct in LightListStruct.");
+	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlmine) + sizeof(savedLight->vlmine)
+	 && offsetof(LightListStruct, _lmine) == offsetof(LSaveLightListStruct, vlmine), "LoadLight uses memcpy to load the LSaveLightListStruct in LightListStruct.");
 	memcpy(pLight, savedLight, sizeof(LSaveLightListStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 
@@ -1334,24 +1330,20 @@ static BYTE* SaveLight(BYTE* DVL_RESTRICT dest, LightListStruct* DVL_RESTRICT pL
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	lightSave->vlx = pLight->_lx;
 	lightSave->vly = pLight->_ly;
+	lightSave->vlxoff = pLight->_lxoff;
+	lightSave->vlyoff = pLight->_lyoff;
 	lightSave->vlunx = pLight->_lunx;
 	lightSave->vluny = pLight->_luny;
 
 	lightSave->vlradius = pLight->_lradius;
 	lightSave->vlunr = pLight->_lunr;
-	lightSave->vlunxoff = pLight->_lunxoff;
-	lightSave->vlunyoff = pLight->_lunyoff;
-
 	lightSave->vldel = pLight->_ldel;
 	lightSave->vlunflag = pLight->_lunflag;
-	lightSave->vlmine = pLight->_lmine;
-	lightSave->vlAlign2 = pLight->_lAlign2;
 
-	lightSave->vlxoff = pLight->_lxoff;
-	lightSave->vlyoff = pLight->_lyoff;
+	lightSave->vlmine = pLight->_lmine;
 #else
-	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlyoff) + sizeof(lightSave->vlyoff)
-	 && offsetof(LightListStruct, _lyoff) == offsetof(LSaveLightListStruct, vlyoff), "SaveLight uses memcpy to store the LightListStruct in LSaveLightListStruct.");
+	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlmine) + sizeof(lightSave->vlmine)
+	 && offsetof(LightListStruct, _lmine) == offsetof(LSaveLightListStruct, vlmine), "SaveLight uses memcpy to store the LightListStruct in LSaveLightListStruct.");
 	memcpy(lightSave, pLight, sizeof(LSaveLightListStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 
