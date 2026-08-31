@@ -91,6 +91,12 @@ static int GetDistanceRanged(int dx, int dy)
 	return sqrt(a * a + b * b);
 }
 
+static void TargetPos(int x, int y)
+{
+	pcurspos.x = x;
+	pcurspos.y = y;
+}
+
 static void FindItem()
 {
 	int mx = myplr._pfutx;
@@ -113,8 +119,7 @@ static void FindItem()
 				continue;
 			rotations = newRotations;
 			pcursitem = ii;
-			pcurspos.x = mx + xx;
-			pcurspos.y = my + yy;
+			TargetPos(mx + xx, my + yy);
 		}
 	}
 }
@@ -143,8 +148,7 @@ static void FindObject()
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
-			pcurspos.x = mx + xx;
-			pcurspos.y = my + yy;
+			TargetPos(mx + xx, my + yy);
 		}
 	}
 }
@@ -294,8 +298,7 @@ static void FindTrigger()
 		const int newDistance = GetDistance(tx, ty, 2);
 		if (newDistance < 0)
 			continue;
-		pcurspos.x = tx;
-		pcurspos.y = ty;
+		TargetPos(tx, ty);
 		pcurstrig = i;
 	}
 
@@ -312,8 +315,7 @@ static void FindTrigger()
 			const int newRotations = GetRotaryDistance(mix, miy);
 			if (distance == newDistance && rotations < newRotations)
 				continue;
-			pcurspos.x = mix;
-			pcurspos.y = miy;
+			TargetPos(mix, miy);
 			pcurstrig = MAXTRIGGERS + mi + 1;
 			distance = newDistance;
 			rotations = newRotations;
@@ -801,8 +803,7 @@ void plrctrls_after_check_curs_move()
 		pcursplr = PLR_NONE;
 		pcurstrig = TRIG_NONE;
 		// pcurswnd = WND_NONE;
-		// pcurspos.x = -1;
-		// pcurspos.y = -1;
+		// TargetPos(-1, -1);
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
 		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
@@ -912,8 +913,7 @@ static bool SpellHasActorTarget()
 		return false;
 
 	if (spl == SPL_FIREWALL && MON_VALID(pcursmonst)) {
-		pcurspos.x = monsters[pcursmonst]._mx;
-		pcurspos.y = monsters[pcursmonst]._my;
+		TargetPos(monsters[pcursmonst]._mx, monsters[pcursmonst]._my);
 	}
 
 	return PLR_VALID(pcursplr) || MON_VALID(pcursmonst);
@@ -933,8 +933,7 @@ static void UpdateSpellTarget()
 	if (player._pAltSkill._psMove._suSkill == SPL_TELEPORT)
 		range = 4;
 
-	pcurspos.x = player._pfutx + offset_x[player._pdir] * range;
-	pcurspos.y = player._pfuty + offset_y[player._pdir] * range;
+	TargetPos(player._pfutx + offset_x[player._pdir] * range, player._pfuty + offset_y[player._pdir] * range);
 }
 
 /**
@@ -942,8 +941,7 @@ static void UpdateSpellTarget()
  */
 static void TryDropItem()
 {
-	pcurspos.x = myplr._pfutx + 1;
-	pcurspos.y = myplr._pfuty;
+	TargetPos(myplr._pfutx + 1, myplr._pfuty);
 	DropItem();
 }
 
@@ -967,8 +965,7 @@ void PerformSpellAction()
 				UpdateSpellTarget();
 			} else if (pcursicon >= CURSOR_FIRSTITEM) {
 				// prepare for DropItem
-				pcurspos.x = myplr._pfutx + 1;
-				pcurspos.y = myplr._pfuty;
+				TargetPos(myplr._pfutx + 1, myplr._pfuty);
 			}
 		}
 		InputBtnDown(ACT_ALTACT);
