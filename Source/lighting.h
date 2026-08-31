@@ -40,6 +40,7 @@ void ToggleLighting();
 #endif
 void InitLvlLighting();
 unsigned AddLight(int x, int y, int r);
+unsigned AddLightGrid(int gx, int gy, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
 void ChangeLightDungeonOff(unsigned lnum, int x, int y, int xoff, int yoff);

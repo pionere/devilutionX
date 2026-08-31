@@ -924,6 +924,29 @@ unsigned AddLight(int x, int y, int r)
 	return lnum;
 }
 
+unsigned AddLightGrid(int gx, int gy, int r)
+{
+	LightListStruct* lis;
+	int lnum;
+
+	static_assert(NO_LIGHT >= MAXLIGHTS, "Handling of lights expects NO_LIGHT out of the [0..MAXLIGHTS) range");
+	lnum = NO_LIGHT;
+
+	if (numlights < MAXLIGHTS) {
+		lnum = lightactive[numlights++];
+		lis = &LightList[lnum];
+
+		ChangeLightGrid(lnum, gx, gy);
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
+		lis->_lunr = lis->_lradius = r;
+		lis->_ldel = false;
+		lis->_lunflag = false;
+	}
+
+	return lnum;
+}
+
 void AddUnLight(unsigned lnum)
 {
 	if (lnum >= MAXLIGHTS)

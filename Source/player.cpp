@@ -795,7 +795,7 @@ void InitLvlPlayer(int pnum, bool entering)
 		NetSendCmdGolem(myMinionLevel, myMinionType, hp);
 	}
 	if (pnum == mypnum) {
-		plr._plid = AddLight(plr._poldx, plr._poldy, plr._pLightRad);
+		plr._plid = AddLightGrid(plr._pgx, plr._pgy, plr._pLightRad);
 	}
 	if (currLvl._dLevelIdx != DLV_TOWN) {
 		plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
