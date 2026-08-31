@@ -44,6 +44,7 @@ void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
 void ChangeLightDungeonOff(unsigned lnum, int x, int y, int xoff, int yoff);
 void ChangeLightXYOff(unsigned lnum, int x, int y);
+void ChangeLightGrid(unsigned lnum, int gx, int gy);
 void ProcessLightList();
 inline void SavePreLighting()
 {

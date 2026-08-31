@@ -484,7 +484,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 	SetPlayerLoc(pnum, px, py);
 	//PlrDoTrans(px, py);
 	dPlayer[px][py] = pnum + 1;
-	ChangeLightXYOff(plr._plid, px, py);
+	ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
 	ChangeVisionXY(plr._pvid, px, py);
 	if (pnum == mypnum) {
 		myview.x = px; // - ScrollInfo._sdx;
@@ -718,7 +718,7 @@ static void GetMissilePos(MissileStruct* mis)
 	mis->_mixoff = (mx - (dqx - dqy) * 32) * ASSET_MPL;        // ((drx - dry) >> 1) * ASSET_MPL;
 	mis->_miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
 	SetMissilePos(mis, dqx + mis->_misx, dqy + mis->_misy);
-	ChangeLightDungeonOff(mis->_miLid, mis->_mix, mis->_miy, mis->_mixoff, mis->_miyoff);
+	ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
 }
 
 /**
@@ -2400,7 +2400,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 		// mis->_mityoff = missile[midir]._mityoff;
 		mis->_migx = missile[midir]._migx;
 		mis->_migy = missile[midir]._migy;
-		ChangeLightDungeonOff(mis->_miLid, sx, sy, mis->_mixoff, mis->_miyoff);
+		ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
 	}
 	range = 8 - 1;
 	if (micaster & MST_PLAYER) {
@@ -4636,7 +4636,7 @@ void MI_Chain(int mi)
 				mis->_mityoff = 0;
 				// - update grid position
 				SetMissilePos(mis, mx, my);
-				ChangeLightXYOff(mis->_miLid, mx, my);
+				ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
 				// find new target
@@ -4875,7 +4875,7 @@ void MI_Rhino(int mi)
 		SetMonsterLoc(mnum, bx, by);
 		// assert(monsters[mnum]._mvid == NO_VISION);
 		// assert(monsters[mnum]._mlid == NO_LIGHT);
-		//ChangeLightXYOff(monsters[mnum]._mlid, bx, by);
+		// ChangeLightGrid(monsters[mnum]._mlid, monsters[mnum]._mgx, monsters[mnum]._mgy);
 	}
 	//ShiftMissilePos(mis, 1);
 	PutMissile(mi);
@@ -4908,7 +4908,7 @@ void MI_Charge(int mi)
 	if (plr._px != bx || plr._py != by) {
 		SetPlayerLoc(pnum, bx, by);
 		// assert(plr._plid == mis->_miLid);
-		ChangeLightXYOff(plr._plid, bx, by);
+		ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
 		ChangeVisionXY(plr._pvid, bx, by);
 		if (bx == mis->_miVar1 && by == mis->_miVar2) {
 			MissToPlr(mi, false);

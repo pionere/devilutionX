@@ -7,8 +7,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
+#define BASE_LIGHT_SHIFT 3
 /* Maximum offset in a tile. */
-#define MAX_OFFSET 8
+#define MAX_OFFSET (1 << BASE_LIGHT_SHIFT)
+/* Helper defines to convert GRID-position to dungeon/light position. */
+#define LIGHT_SHIFT (16 - BASE_LIGHT_SHIFT)
+#define LIGHT_WIDTH (MAX_OFFSET << LIGHT_SHIFT)
+
 /* Maximum tile-distance till the precalculated tables are maintained. */
 #define MAX_TILE_DIST (MAX_LIGHT_RAD + 1)
 /* Maximum light-distance till the precalculated tables are maintained. */
@@ -996,6 +1001,46 @@ void ChangeLightDungeonOff(unsigned lnum, int x, int y, int xoff, int yoff)
 void ChangeLightXYOff(unsigned lnum, int x, int y)
 {
 	ChangeLightDungeonOff(lnum, x, y, 0, 0);
+}
+
+void ChangeLightGrid(unsigned lnum, int gx, int gy)
+{
+	LightListStruct* lis;
+	int dx, dy, dxoff, dyoff;
+
+	if (lnum >= MAXLIGHTS)
+		return;
+
+	POS32 dp;
+	POS32 gp = { gx, gy };
+	// convert grid-offset to tile-offset
+	dp.x = gp.x + gp.y;
+	dp.y = gp.y - gp.x;
+
+#if LIGHT_WIDTH >= GRID_WIDTH
+	dp.x *= LIGHT_WIDTH / GRID_WIDTH;
+	dp.y *= LIGHT_WIDTH / GRID_WIDTH;
+#else
+	dp.x /= GRID_WIDTH / LIGHT_WIDTH;
+	dp.y /= GRID_WIDTH / LIGHT_WIDTH;
+#endif
+	dx = dp.x >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
+	dy = dp.y >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
+	dxoff = (dp.x & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
+	dyoff = (dp.y & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
+
+	assert(MAX_LIGHT_RAD <= MAXDUNX - dx);
+	assert(MAX_LIGHT_RAD <= MAXDUNY - dy);
+	assert(MAX_LIGHT_RAD <= dx + 1);
+	assert(MAX_LIGHT_RAD <= dy + 1);
+
+	lis = &LightList[lnum];
+	lis->_lx = dx;
+	lis->_ly = dy;
+	lis->_lxoff = dxoff;
+	lis->_lyoff = dyoff;
+	lis->_lunflag = true;
+	gbDolighting = true;
 }
 
 void ProcessLightList()

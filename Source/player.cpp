@@ -679,7 +679,7 @@ static void AssertFixPlayerLocation(int pnum)
 static void PlrPlace(int pnum)
 {
 	FixPlayerLocation(pnum);
-	ChangeLightXYOff(plr._plid, plr._px, plr._py);
+	ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
 	ChangeVisionXY(plr._pvid, plr._px, plr._py);
 }
 
@@ -1117,7 +1117,7 @@ static void PlrChangeOffset(int pnum)
 	}
 
 	//if (plr._plid != NO_LIGHT)
-		ChangeLightDungeonOff(plr._plid, plr._px, plr._py, plr._pxoff, plr._pyoff);
+		ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
 }
 
 /**
@@ -2814,7 +2814,7 @@ void MissToPlr(int mi, bool hit)
 	assert(plr._pyoff == 0);
 	if (pnum == mypnum)
 		FixPlayerLocation(pnum);*/
-	//ChangeLightXYOff(plr._plid, plr._px, plr._py);
+	//ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
 	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
 	if (!hit || plr._pHitPoints == 0) {
 		PlrStartStand(pnum);
