@@ -902,28 +902,6 @@ void InitLvlLighting()
 	}
 }
 
-unsigned AddLight(int x, int y, int r)
-{
-	LightListStruct* lis;
-	int lnum;
-
-	static_assert(NO_LIGHT >= MAXLIGHTS, "Handling of lights expects NO_LIGHT out of the [0..MAXLIGHTS) range");
-	lnum = NO_LIGHT;
-
-	if (numlights < MAXLIGHTS) {
-		lnum = lightactive[numlights++];
-		ChangeLightXYOff(lnum, x, y);
-		lis = &LightList[lnum];
-		lis->_lunx = lis->_lx;
-		lis->_luny = lis->_ly;
-		lis->_lunr = lis->_lradius = r;
-		lis->_ldel = false;
-		lis->_lunflag = false;
-	}
-
-	return lnum;
-}
-
 unsigned AddLightGrid(int gx, int gy, int r)
 {
 	LightListStruct* lis;
@@ -969,61 +947,6 @@ void ChangeLightRadius(unsigned lnum, int r)
 		lis->_lunflag = true;
 		gbDolighting = true;
 	}
-}
-
-void ChangeLightDungeonOff(unsigned lnum, int x, int y, int xoff, int yoff)
-{
-	LightListStruct* lis;
-	int dx, dy, dxoff, dyoff;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	dx = x;
-	dy = y;
-	// convert screen-offset to tile-offset
-	dxoff = xoff + 2 * yoff;
-	dyoff = 2 * yoff - xoff;
-
-	dxoff = dxoff / (TILE_WIDTH / MAX_OFFSET); // ASSET_MPL * MAX_OFFSET ?
-	dyoff = dyoff / (TILE_WIDTH / MAX_OFFSET);
-
-	if (dxoff >= MAX_OFFSET) {
-		dxoff -= MAX_OFFSET;
-		dx++;
-	} else if (dxoff < 0) {
-		dxoff += MAX_OFFSET;
-		dx--;
-	}
-	if (dyoff >= MAX_OFFSET) {
-		dyoff -= MAX_OFFSET;
-		dy++;
-	} else if (dyoff < 0) {
-		dyoff += MAX_OFFSET;
-		dy--;
-	}
-	assert((unsigned)dxoff < MAX_OFFSET);
-	assert((unsigned)dyoff < MAX_OFFSET);
-	assert(MAX_LIGHT_RAD <= MAXDUNX - dx);
-	assert(MAX_LIGHT_RAD <= MAXDUNY - dy);
-	assert(MAX_LIGHT_RAD <= dx + 1);
-	assert(MAX_LIGHT_RAD <= dy + 1);
-
-	lis = &LightList[lnum];
-	lis->_lx = dx;
-	lis->_ly = dy;
-	lis->_lxoff = dxoff;
-	lis->_lyoff = dyoff;
-	lis->_lunflag = true;
-	gbDolighting = true;
-}
-
-/*
- * Same as ChangeLightDungeonOff, but sets the x/y-offsets to zero.
- */
-void ChangeLightXYOff(unsigned lnum, int x, int y)
-{
-	ChangeLightDungeonOff(lnum, x, y, 0, 0);
 }
 
 void ChangeLightGrid(unsigned lnum, int gx, int gy)
