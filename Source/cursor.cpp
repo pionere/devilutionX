@@ -571,9 +571,13 @@ void CheckCursMove()
 
 		pcurspos.x = mx;
 		pcurspos.y = my;
-		CheckTrigForce();
-		if (!TRIG_VALID(pcurstrig))
+		pcurstrig = CheckTrigForce();
+		if (TRIG_VALID(pcurstrig)) {
+			pcurspos.x = trigs[pcurstrig]._tx;
+			pcurspos.y = trigs[pcurstrig]._ty;
+		} else {
 			CheckTownPortal();
+		}
 done:
 		break;
 	case TGT_ITEM:

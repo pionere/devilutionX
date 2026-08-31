@@ -326,8 +326,12 @@ static void FindTrigger()
 	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || !TRIG_VALID(pcurstrig))
 		return; // Prefer monster/player info text
 
-	CheckTrigForce();
-	CheckTownPortal();*/
+	pcurstrig = CheckTrigForce();
+	if (TRIG_VALID(pcurstrig)) {
+		TargetPos(trigs[pcurstrig]._tx, trigs[pcurstrig]._ty);
+	} else {
+		CheckTownPortal();
+	}*/
 }
 
 static void AttrIncBtnSnap(int dir)

@@ -21,7 +21,7 @@ POS32 TrigEntryPos(int idx);
 void InitView(int entry);
 void InitTriggers();
 void InitVPEntryTrigger(bool recreate);
-void CheckTrigForce();
+int CheckTrigForce();
 void CheckTriggers();
 bool PosOkTrig(int x, int y);
 

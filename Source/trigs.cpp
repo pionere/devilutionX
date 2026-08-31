@@ -294,7 +294,7 @@ POS32 TrigEntryPos(int idx)
 	return pos;
 }
 
-static int ForceTrig()
+int CheckTrigForce()
 {
 	for (int i = numtrigs - 1; i >= 0; i--) {
 		int dx = pcurspos.x - trigs[i]._tx;
@@ -476,15 +476,6 @@ void InitTriggers()
 			InitDunTriggers();
 	} else {
 		InitSetDunTriggers();
-	}
-}
-
-void CheckTrigForce()
-{
-	pcurstrig = ForceTrig();
-	if (TRIG_VALID(pcurstrig)) {
-		pcurspos.x = trigs[pcurstrig]._tx;
-		pcurspos.y = trigs[pcurstrig]._ty;
 	}
 }
 
