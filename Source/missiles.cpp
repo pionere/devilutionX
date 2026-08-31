@@ -2957,7 +2957,7 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	} else if (mon->_mType == MT_GOLEM) {
 		//missile[mi]._misx = mon->_mx;
 		//missile[mi]._misy = mon->_my;
-		SetMissilePos(&missile[mi], mon->_mx, mon->_my);
+		MonSetMissilePos(mon, &missile[mi]);
 		missile[mi]._miMaxDam = mon->_mhitpoints;
 		missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
 		CheckSplashColFull(mi);
