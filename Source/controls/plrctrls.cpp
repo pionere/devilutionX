@@ -801,8 +801,8 @@ void plrctrls_after_check_curs_move()
 		pcursplr = PLR_NONE;
 		pcurstrig = TRIG_NONE;
 		// pcurswnd = WND_NONE;
-		pcurspos.x = -1;
-		pcurspos.y = -1;
+		// pcurspos.x = -1;
+		// pcurspos.y = -1;
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
 		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
