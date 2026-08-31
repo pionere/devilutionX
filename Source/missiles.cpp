@@ -3333,19 +3333,18 @@ int AddCbolt(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
+	int pnum;
 
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
-
-	if (spllvl == mypnum)
+	pnum = spllvl;
+	if (pnum == mypnum)
 		NetSendCmd(CMD_PLRRESURRECT);
 
 	mis = &missile[mi];
 	// mis->_misx = dx; -- unused
 	// mis->_misy = dy;
-	// mis->_mixoff = 0;
-	// mis->_miyoff = 0;
-	SetMissilePos(mis, dx, dy);
+	PlrSetMissilePos(pnum, mis);
 	return MIRES_DONE;
 }
 
