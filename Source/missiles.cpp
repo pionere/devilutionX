@@ -1916,6 +1916,10 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PlaceMissile(tx, ty, sx, sy)) {
+				// mis->_misx = tx; -- unused
+				// mis->_mity = ty;
+				// mis->_mixoff = 0;
+				// mis->_miyoff = 0;
 				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
 				mis->_miLid = AddLight(mis->_migx, mis->_migy, 8);
@@ -2528,8 +2532,10 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PlaceMissile(tx, ty, sx, sy)) {
-				//mis->_misx = tx; -- unused
-				//mis->_misy = ty;
+				// mis->_misx = tx; -- unused
+				// mis->_misy = ty;
+				// mis->_mixoff = 0;
+				// mis->_miyoff = 0;
 				SetMissilePos(mis, tx, ty);
 				mis->_miRange = 32 * spllvl + 160;
 				return MIRES_DONE;
@@ -2614,6 +2620,8 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis = &missile[mi];
 	mis->_misx = dx;
 	mis->_misy = dy;
+	// mis->_mixoff = 0;
+	// mis->_miyoff = 0;
 	SetMissilePos(mis, dx, dy);
 	static_assert(MAX_LIGHT_RAD >= 15, "AddPortal needs at least light-radius of 15.");
 	mis->_miLid = AddLight(mis->_migx, mis->_migy, spllvl >= 0 ? 1 : 15);
@@ -2719,6 +2727,8 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				mis->_misx = tx;
 				mis->_misy = ty;
+				// mis->_mixoff = 0;
+				// mis->_miyoff = 0;
 				SetMissilePos(mis, tx, ty);
 				// assert(mis->_miAnimLen == MIA_SHATTER1_LENGTH);
 				mis->_miAnimFrame = MIA_SHATTER1_LENGTH;
@@ -2923,6 +2933,8 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			if (PlaceMissile(tx, ty, sx, sy)) {
 				mis->_misx = tx;
 				mis->_misy = ty;
+				// mis->_mixoff = 0;
+				// mis->_miyoff = 0;
 				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
 				mis->_miLid = AddLight(mis->_migx, mis->_migy, 1);
@@ -2955,8 +2967,6 @@ int AddGolem(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		; // do nothing in town
 	} else if (mon->_mType == MT_GOLEM) {
-		//missile[mi]._misx = mon->_mx;
-		//missile[mi]._misy = mon->_my;
 		MonSetMissilePos(mon, &missile[mi]);
 		missile[mi]._miMaxDam = mon->_mhitpoints;
 		missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
@@ -3114,8 +3124,10 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
 				midir = GetDirection8(sx, sy, dx, dy);
 				midir = (midir - 2) & 7;
-				//mis->_misx = tx; -- unused
-				//mis->_misy = ty;
+				// mis->_misx = tx; -- unused
+				// mis->_misy = ty;
+				// mis->_mixoff = 0;
+				// mis->_miyoff = 0;
 				SetMissilePos(mis, tx, ty);
 				mis->_mixvel = XDirAdd[midir];
 				mis->_miyvel = YDirAdd[midir];
@@ -3331,6 +3343,8 @@ int AddResurrect(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	mis = &missile[mi];
 	// mis->_misx = dx; -- unused
 	// mis->_misy = dy;
+	// mis->_mixoff = 0;
+	// mis->_miyoff = 0;
 	SetMissilePos(mis, dx, dy);
 	return MIRES_DONE;
 }
@@ -3351,6 +3365,8 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis = &missile[mi];
 	// mis->_misx = dx; -- unused
 	// mis->_misy = dy;
+	// mis->_mixoff = 0;
+	// mis->_miyoff = 0;
 	SetMissilePos(mis, dx, dy);
 	mis->_miAnimFrame = 2;
 	mis->_miAnimAdd = 2;
@@ -3545,8 +3561,10 @@ int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
-				//mis->_misx = tx; -- unused
-				//mis->_misy = ty;
+				// mis->_misx = tx; -- unused
+				// mis->_misy = ty;
+				// mis->_mixoff = 0;
+				// mis->_miyoff = 0;
 				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
 				mis->_miLid = AddLight(mis->_migx, mis->_migy, 4);
