@@ -1301,14 +1301,14 @@ static void DrawTrigInfo()
 {
 	POS32 pos;
 
+	pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
 	if (pcurstrig >= MAXTRIGGERS + 1) {
 		// portal
 		MissileStruct* mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
+		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
-			pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
-			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip2(infostr, tempstr, pos.x, pos.y, COL_WHITE);
 		} else {
 			if (!currLvl._dSetLvl) {
@@ -1316,8 +1316,6 @@ static void DrawTrigInfo()
 			} else {
 				copy_cstr(infostr, "Portal back to hell");
 			}
-			pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
-			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 		}
 		return;
@@ -1393,7 +1391,6 @@ static void DrawTrigInfo()
 		}
 	}
 
-	pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
 	pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 	DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 }
