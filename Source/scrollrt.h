@@ -34,6 +34,13 @@ extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
 POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
+/*
+ * Convert grid-position to screen coordinates ignoring zoom and scrolling
+ * @param gx Precise grid (shifted dungeon) X-position
+ * @param gy Precise grid (shifted dungeon) Y-position
+ * @return the screen x/y-coordinates
+ */
+POS32 GridToScreen(int gx, int gy);
 void ClearCursor();
 void CalcViewportGeometry();
 #if DEBUG_MODE

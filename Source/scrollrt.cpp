@@ -131,6 +131,30 @@ POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
 	return { gx, gy };
 }
 
+/*
+ * Convert grid-position to screen coordinates ignoring zoom and scrolling
+ * @param gx Precise grid (shifted dungeon) X-position
+ * @param gy Precise grid (shifted dungeon) Y-position
+ * @return the screen x/y-coordinates
+ */
+POS32 GridToScreen(int gx, int gy)
+{
+	POS32 pos = { gx, gy };
+
+//	pos.x /= (GRID_WIDTH / TILE_WIDTH);
+//	pos.y /= (GRID_WIDTH / TILE_HEIGHT);
+
+	pos.x >>= GRID_SHIFT;
+	pos.y >>= GRID_SHIFT + 1;
+
+	static_assert(TILE_WIDTH << GRID_SHIFT == GRID_WIDTH * ASSET_MPL, "grid to screen conversion must be adjusted I.");
+	static_assert(TILE_HEIGHT << (GRID_SHIFT + 1) == GRID_WIDTH * ASSET_MPL, "grid to screen conversion must be adjusted II.");
+	pos.x *= ASSET_MPL;
+	pos.y *= ASSET_MPL;
+
+	return pos;
+}
+
 /**
  * @brief Clear cursor state
  */
@@ -1649,12 +1673,7 @@ static void CreateScene()
 	// shift positions from grid to screen
 	POS32 dp = DungeonScreenToGridPos(x, y, 0, 0);
 
-	dp.x >>= GRID_SHIFT;
-	dp.y >>= (GRID_SHIFT + 1);
-
-	static_assert(TILE_WIDTH << GRID_SHIFT == GRID_WIDTH * ASSET_MPL, "grid to screen conversion must be adjusted");
-	dp.x *= ASSET_MPL;
-	dp.y *= ASSET_MPL;
+	dp = GridToScreen(dp.x, dp.y);
 
 	int shx = (sx - dp.x);
 	int shy = (sy - dp.y);
@@ -1673,11 +1692,10 @@ static void CreateScene()
 		case SCT_DEAD_MONSTER:
 		case SCT_PLAYER:
 		case SCT_DEAD_PLAYER: {
-			int gx = (entry.scPosx >> GRID_SHIFT) * ASSET_MPL;
-			int gy = (entry.scPosy >> (GRID_SHIFT + 1)) * ASSET_MPL;
+			POS32 sp = GridToScreen(entry.scPosx, entry.scPosy);
 
-			entry.scPosx = gx + shx;
-			entry.scPosy = gy + shy;
+			entry.scPosx = sp.x + shx;
+			entry.scPosy = sp.y + shy;
 		} break;
 		case SCT_SPECIAL:      break;
 		default: ASSUME_UNREACHABLE
