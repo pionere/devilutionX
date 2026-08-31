@@ -1153,7 +1153,7 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
  * @param y the y index of the tile
  * @return the screen x/y-coordinates of the tile
  */
-static POS32 GetMousePos(int x, int y)
+/*static POS32 GetMousePos(int x, int y)
 {
 	POS32 pos;
 
@@ -1165,6 +1165,39 @@ static POS32 GetMousePos(int x, int y)
 
 	pos.x *= TILE_WIDTH / 2;
 	pos.y *= TILE_HEIGHT / 2;
+
+	pos.x += ScrollInfo._sxoff;
+	pos.y += ScrollInfo._syoff;
+
+	if (gbZoomInFlag) {
+		pos.x <<= 1;
+		pos.y <<= 1;
+	}
+
+	pos.x += SCREEN_WIDTH / 2u;
+	pos.y += SCREEN_HEIGHT / 2u;
+
+	return pos;
+}
+
+/*
+ * Return the screen position of the given grid-position (gx;gy).
+ *
+ * @param gx Precise grid (shifted dungeon) X-position
+ * @param gy Precise grid (shifted dungeon) Y-position
+ * @return the screen x/y-coordinates
+ */
+static POS32 GetMousePosGrid(int gx, int gy)
+{
+	POS32 pos;
+
+	POS32 dp = DungeonScreenToGridPos(myview.x, myview.y, 0, 0);
+
+
+	gx -= dp.x;
+	gy -= dp.y;
+
+	pos = GridToScreen(gx, gy);
 
 	pos.x += ScrollInfo._sxoff;
 	pos.y += ScrollInfo._syoff;
@@ -1274,7 +1307,7 @@ static void DrawTrigInfo()
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
-			pos = GetMousePos(pcurspos.x, pcurspos.y);
+			pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
 			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip2(infostr, tempstr, pos.x, pos.y, COL_WHITE);
 		} else {
@@ -1283,7 +1316,7 @@ static void DrawTrigInfo()
 			} else {
 				copy_cstr(infostr, "Portal back to hell");
 			}
-			pos = GetMousePos(pcurspos.x, pcurspos.y);
+			pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
 			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 		}
@@ -1360,7 +1393,7 @@ static void DrawTrigInfo()
 		}
 	}
 
-	pos = GetMousePos(pcurspos.x, pcurspos.y);
+	pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
 	pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 	DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 }
@@ -1541,13 +1574,13 @@ void DrawInfoStr()
 	if (ITEM_VALID(pcursitem)) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
-		pos = GetMousePos(is->_ix, is->_iy);
+		pos = GetMousePosGrid(is->_igx, is->_igy);
 		pos.y -= TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
-		pos = GetMousePos(os->_ox, os->_oy);
+		pos = GetMousePosGrid(os->_ogx, os->_ogy);
 		pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (MON_VALID(pcursmonst)) {
@@ -1555,17 +1588,13 @@ void DrawInfoStr()
 		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
 		ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
-		pos = GetMousePos(mon->_mx, mon->_my);
-		pos.x += mon->_mxoff;
-		pos.y += mon->_myoff;
+		pos = GetMousePosGrid(mon->_mgx, mon->_mgy);
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (PLR_VALID(pcursplr)) {
 		PlayerStruct* p = &players[pcursplr];
-		pos = GetMousePos(p->_px, p->_py);
-		pos.x += p->_pxoff;
-		pos.y += p->_pyoff;
+		pos = GetMousePosGrid(p->_pgx, p->_pgy);
 		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);
