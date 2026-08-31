@@ -95,6 +95,10 @@ static void TargetPos(int x, int y)
 {
 	pcurspos.x = x;
 	pcurspos.y = y;
+
+	POS32 gp = DungeonScreenToGridPos(x, y, 0, 0);
+	pcurspos.gx = gp.x;
+	pcurspos.gy = gp.y;
 }
 
 static void FindItem()

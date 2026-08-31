@@ -45,7 +45,7 @@ BYTE pcursplr;
  */
 int pcurstrig;
 /** Current highlighted tile row/column */
-POS32 pcurspos;
+GRID_POS32 pcurspos;
 /** Index of current cursor image */
 int pcursicon = CURSOR_NONE;
 /** The targeting mode (TGT_*) */
@@ -279,6 +279,8 @@ void CheckTownPortal()
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				pcurspos.x = mis->_mix;
 				pcurspos.y = mis->_miy;
+				pcurspos.gx = mis->_migx;
+				pcurspos.gy = mis->_migy;
 			}
 		}
 	}
@@ -657,6 +659,10 @@ done:
 	default:
 		ASSUME_UNREACHABLE
 	}
+
+	POS32 gp = DungeonScreenToGridPos(pcurspos.x, pcurspos.y, 0, 0);
+	pcurspos.gx = gp.x;
+	pcurspos.gy = gp.y;
 }
 
 DEVILUTION_END_NAMESPACE

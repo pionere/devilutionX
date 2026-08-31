@@ -104,6 +104,13 @@ typedef struct RECT_AREA32 {
 	int y2;
 } RECT_AREA32;
 
+typedef struct GRID_POS32 {
+	int x;
+	int y;
+	int gx;
+	int gy;
+} GRID_POS32;
+
 typedef struct CelMetaInfo {
 	DWORD cmiDimensions;
 	DWORD cmiDimensionsPerFrame;
