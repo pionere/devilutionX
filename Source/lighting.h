@@ -39,7 +39,7 @@ void InitLighting();
 void ToggleLighting();
 #endif
 void InitLvlLighting();
-unsigned AddLightGrid(int gx, int gy, int r);
+unsigned AddLight(int gx, int gy, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
 void ChangeLightGrid(unsigned lnum, int gx, int gy);

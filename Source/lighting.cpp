@@ -902,7 +902,7 @@ void InitLvlLighting()
 	}
 }
 
-unsigned AddLightGrid(int gx, int gy, int r)
+unsigned AddLight(int gx, int gy, int r)
 {
 	LightListStruct* lis;
 	int lnum;

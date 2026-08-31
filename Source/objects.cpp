@@ -1654,7 +1654,7 @@ static void Obj_Light(int oi)
 		assert(objfiledata[OFILE_L1BRAZ].oAnimFrameLen < lengthof(flickers));
 		tr = lr + flickers[os->_oAnimFrame];
 		if (os->_olid == NO_LIGHT)
-			os->_olid = AddLightGrid(os->_ogx, os->_ogy, tr);
+			os->_olid = AddLight(os->_ogx, os->_ogy, tr);
 		else {
 			if (LightList[os->_olid]._lradius != tr)
 				ChangeLightRadius(os->_olid, tr);
@@ -1789,7 +1789,7 @@ static void Obj_Door(int oi)
 			os->_oAnimFlag = OAM_LOOP;
 			//os->_oAnimFrameLen = 1;
 			static_assert(MAX_LIGHT_RAD >= 1, "ActivateTrapLine needs at least light-radius of 1.");
-			os->_olid = AddLightGrid(os->_ogx, os->_ogy, 1);
+			os->_olid = AddLight(os->_ogx, os->_ogy, 1);
 		}
 	}
 }
