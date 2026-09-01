@@ -356,7 +356,7 @@ static void DrawSceneMissile(const SceneEntry &entry)
 	}
 #endif
 	nWidth = mis->_miAnimWidth;
-	mx -= mis->_miAnimXOffset;
+	mx -= nWidth / 2u;
 	my += mis->_mizoff;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
@@ -461,7 +461,7 @@ static void DrawSceneMonster(const SceneEntry &entry)
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
-	mx -= mon->_mAnimXOffset;
+	mx -= nWidth / 2u;
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
@@ -547,7 +547,7 @@ static void DrawSceneTowner(const SceneEntry &entry)
 	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
-	tx -= tw->_mAnimXOffset;
+	tx -= nWidth / 2u;
 	if (tnum == pcursmonst) {
 		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, ty, pCelBuff, nCel, nWidth);
 	}
@@ -622,12 +622,12 @@ static void DrawScenePlayer(const SceneEntry &entry)
 	}
 #endif
 	nWidth = plr._pAnimWidth;
-	px -= plr._pAnimXOffset;
+	px -= nWidth / 2u;
 	if (pnum == pcursplr)
 		Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
 	/*if (plr.pManaShield != 0)
 		Cl2DrawLightTbl(
-		    px + plr._pAnimXOffset - misanimdim[MFILE_MANASHLD][1],
+		    px + nWidth / 2u - misanimdim[MFILE_MANASHLD][1],
 		    py,
 		    misanimdata[MFILE_MANASHLD][0],
 		    1,
@@ -720,7 +720,7 @@ static void DrawSceneObject(const SceneEntry &entry)
 	}
 #endif
 	nWidth = os->_oAnimWidth;
-	ox -= os->_oAnimXOffset;
+	ox -= nWidth / 2u;
 	if (oi == pcursobj) {
 		if (nGfxCel > 0) {
 			CelClippedDrawOutline(PAL16_YELLOW + 2, ox, oy, pCelBuff, nGfxCel, nWidth);
@@ -1246,8 +1246,7 @@ static void DrawSceneItem(const SceneEntry &entry)
 	}
 #endif
 	nWidth = pCelBuff->caWidth;
-	// sx -= is->_iAnimXOffset;
-	sx -= (nWidth - TILE_WIDTH) >> 1;
+	sx -= nWidth / 2u;
 	if (ii == pcursitem) {
 		if (nGfxCel > 0) {
 			CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nGfxCel, nWidth);
@@ -1694,7 +1693,7 @@ static void CreateScene()
 		case SCT_DEAD_PLAYER: {
 			POS32 sp = GridToScreen(entry.scPosx, entry.scPosy);
 
-			entry.scPosx = sp.x + shx;
+			entry.scPosx = sp.x + shx + TILE_WIDTH / 2;
 			entry.scPosy = sp.y + shy;
 		} break;
 		case SCT_SPECIAL:      break;
