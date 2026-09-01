@@ -4902,12 +4902,8 @@ void MissToMonst(int mi)
 		dev_fatal("MissToMonst: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	// assert(dMonster[mon->_mx][mon->_my] == 0);
-	dMonster[mon->_mx][mon->_my] = mnum + 1;
-	// assert(dPlayer[mon->_mx][mon->_my] == 0);
 	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
-	//ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
-	StartStand(mnum);
+	MonStartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
 		MonStartFadein(mnum, false);
 		return;

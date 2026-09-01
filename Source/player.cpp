@@ -2805,18 +2805,8 @@ void MissToPlr(int mi, bool hit)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("MissToPlr: illegal player %d", pnum);
 	}
-	//dPlayer[plr._px][plr._py] = pnum + 1;
-	/*assert(plr._pfutx == plr._px);
-	assert(plr._poldx == plr._px);
-	assert(plr._pfuty == plr._py);
-	assert(plr._poldy == plr._py);
-	assert(plr._pxoff == 0);
-	assert(plr._pyoff == 0);
-	if (pnum == mypnum)
-		FixPlayerLocation(pnum);*/
-	//ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
-	//ChangeVisionXY(plr._pvid, plr._px, plr._py);
-	if (!hit || plr._pHitPoints == 0) {
+	// assert(plr._pHitPoints != 0);
+	if (!hit) {
 		PlrStartStand(pnum);
 		return;
 	}

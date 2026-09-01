@@ -695,6 +695,36 @@ static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
 	mis->_migy = mon->_mgy;
 }
 
+static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
+{
+	// SetPlayerLoc(pnum, mis->_mix, mis->_miy);
+	plr._px = plr._poldx = plr._pfutx = mis->_mix;
+	plr._py = plr._poldy = plr._pfuty = mis->_miy;
+	plr._pxoff = mis->_mixoff;
+	plr._pyoff = mis->_miyoff;
+	plr._pgx = mis->_migx;
+	plr._pgy = mis->_migy;
+
+	ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
+	ChangeVisionXY(plr._pvid, plr._px, plr._py);
+}
+
+static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
+{
+	// SetMonsterLoc(pnum, mis->_mix, mis->_miy);
+	mon->_mx = mon->_moldx = mon->_mfutx = mis->_mix;
+	mon->_my = mon->_moldy = mon->_mfuty = mis->_miy;
+	mon->_mxoff = mis->_mixoff;
+	mon->_myoff = mis->_miyoff;
+	mon->_mgx = mis->_migx;
+	mon->_mgy = mis->_migy;
+
+	// assert(mon->_mvid == NO_VISION);
+	// assert(mon->_mlid == NO_LIGHT);
+	// ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
+	// ChangeVisionXY(mon->_mvid, mon->_mx, mon->my);
+}
+
 static void GetMissilePos(MissileStruct* mis)
 {
 	int mx, my, dx, dy, dqx, dqy, mix, miy, mixoff, miyoff;
@@ -4867,18 +4897,13 @@ void MI_Rhino(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
+	MisSetMonsterPos(mis, &monsters[mnum]);
 	bx = mis->_mix;
 	by = mis->_miy;
 	//assert(dMonster[bx][by] == 0);
 	//assert(dPlayer[bx][by] == 0);
 	dMonster[bx][by] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-	if (monsters[mnum]._mx != bx || monsters[mnum]._my != by) {
-		SetMonsterLoc(mnum, bx, by);
-		// assert(monsters[mnum]._mvid == NO_VISION);
-		// assert(monsters[mnum]._mlid == NO_LIGHT);
-		// ChangeLightGrid(monsters[mnum]._mlid, monsters[mnum]._mgx, monsters[mnum]._mgy);
-	}
 	//ShiftMissilePos(mis, 1);
 	PutMissile(mi);
 }
@@ -4904,24 +4929,21 @@ void MI_Charge(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
+	MisSetPlayerPos(mis, pnum);
 	bx = mis->_mix;
 	by = mis->_miy;
+	//assert(dMonster[bx][by] == 0);
+	//assert(dPlayer[bx][by] == 0);
 	dPlayer[bx][by] = -(pnum + 1);
-	if (plr._px != bx || plr._py != by) {
-		SetPlayerLoc(pnum, bx, by);
-		// assert(plr._plid == mis->_miLid);
-		ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
-		ChangeVisionXY(plr._pvid, bx, by);
-		if (bx == mis->_miVar1 && by == mis->_miVar2) {
-			MissToPlr(mi, false);
-			mis->_miDelFlag = TRUE;
-			return;
-		}
+	if (bx == mis->_miVar1 && by == mis->_miVar2) {
+		MissToPlr(mi, false);
+		mis->_miDelFlag = TRUE;
+		return;
 	}
 	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
 		assert(ScrollInfo._sdir != SDIR_NONE);
-		ScrollInfo._sxoff = -mis->_mixoff;
-		ScrollInfo._syoff = -mis->_miyoff;
+		ScrollInfo._sxoff = -plr._pxoff;
+		ScrollInfo._syoff = -plr._pyoff;
 		//if (myview.x != bx || myview.y != by) {
 			myview.x = bx; // - ScrollInfo._sdx;
 			myview.y = by; // - ScrollInfo._sdy;
