@@ -32,7 +32,6 @@ int AutoMapXOfs;
 int AutoMapYOfs;
 unsigned AmLine64;
 unsigned AmLine32;
-unsigned AmLine16;
 
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
@@ -68,7 +67,6 @@ void InitAutomapScale()
 {
 	AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 	AmLine32 = AmLine64 >> 1;
-	AmLine16 = AmLine32 >> 1;
 }
 
 /**
@@ -169,7 +167,6 @@ void AutomapZoomIn()
 		AutoMapScale += 16;
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
-		AmLine16 = AmLine32 >> 1;
 		if (gbAutomapflag == AMM_MINI) {
 			MiniMapScale = AutoMapScale;
 		} else { // if (gbAutomapflag == AMM_NORMAL) {
@@ -188,7 +185,6 @@ void AutomapZoomOut()
 		AutoMapScale -= 16;
 		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		AmLine32 = AmLine64 >> 1;
-		AmLine16 = AmLine32 >> 1;
 		if (gbAutomapflag == AMM_MINI) {
 			MiniMapScale = AutoMapScale;
 		} else { // if (gbAutomapflag == AMM_NORMAL) {
@@ -278,7 +274,7 @@ void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 	int x1, y1, x2, y2;
 
 	x1 = x - AmLine32 / 2;
-	y1 = y - AmLine16 / 2;
+	y1 = y - AmLine32 / 4;
 	x2 = x1 + AmLine64 / 2;
 	y2 = y1 + AmLine32 / 2;
 	DrawLine(x, y1, x1, y, color);
@@ -293,7 +289,7 @@ static void SearchAutomapItem()
 	int x, y;
 	int x1, y1, x2, y2, xoff, yoff;
 	int i, j;
-	unsigned d16 = AmLine16;
+	unsigned d16 = AmLine32 / 2;
 
 	x = AutoMapXOfs + myview.x;
 	y = AutoMapYOfs + myview.y;
@@ -343,7 +339,7 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 {
 	PlayerStruct* p;
 	int x, y;
-	unsigned d16 = AmLine16;
+	unsigned d16 = AmLine32 / 2;
 
 	p = &plr;
 
