@@ -155,6 +155,20 @@ POS32 GridToScreen(int gx, int gy)
 	return pos;
 }
 
+void UpdateScrollInfo(int pnum)
+{
+	if (pnum == mypnum) {
+		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
+		// int px = ScrollInfo._sxoff + myplr._pxoff, py = ScrollInfo._syoff + myplr._pyoff;
+		// if (gbActionBtnDown != 0 && (px | py) != 0 && MON_VALID(pcursmonst))
+		//	SetCursorPos(MousePos.x + px, MousePos.y + py);
+		myview.x = plr._px;
+		myview.y = plr._py;
+		ScrollInfo._sxoff = -plr._pxoff;
+		ScrollInfo._syoff = -plr._pyoff;
+	}
+}
+
 /**
  * @brief Clear cursor state
  */

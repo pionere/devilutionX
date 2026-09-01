@@ -4936,15 +4936,7 @@ void MI_Charge(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
-		assert(ScrollInfo._sdir != SDIR_NONE);
-		ScrollInfo._sxoff = -plr._pxoff;
-		ScrollInfo._syoff = -plr._pyoff;
-		//if (myview.x != bx || myview.y != by) {
-			myview.x = bx; // - ScrollInfo._sdx;
-			myview.y = by; // - ScrollInfo._sdy;
-		//}
-	}
+	UpdateScrollInfo(pnum);
 	//ShiftMissilePos(mis, 1);
 	PutMissile(mi);
 }

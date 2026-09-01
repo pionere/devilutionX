@@ -1104,16 +1104,7 @@ static void PlrChangeOffset(int pnum)
 	// px -= plr._pxoff;
 	// py -= plr._pyoff;
 
-	if (pnum == mypnum /*&& ScrollInfo._sdir != SDIR_NONE*/) {
-		assert(ScrollInfo._sdir != SDIR_NONE);
-		// ScrollInfo._sxoff += px;
-		// ScrollInfo._syoff += py;
-		ScrollInfo._sxoff = -plr._pxoff;
-		ScrollInfo._syoff = -plr._pyoff;
-		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		// if (gbActionBtnDown != 0 && (px | py) != 0 && MON_VALID(pcursmonst))
-		//	SetCursorPos(MousePos.x + px, MousePos.y + py);
-	}
+	UpdateScrollInfo(pnum);
 
 	//if (plr._plid != NO_LIGHT)
 		ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
@@ -1176,12 +1167,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
-	if (pnum == mypnum) {
-		myview.x = plr._px;
-		myview.y = plr._py;
-		ScrollInfo._sxoff = -plr._pxoff;
-		ScrollInfo._syoff = -plr._pyoff;
-	}
+	UpdateScrollInfo(pnum);
 }
 
 static void StartWalk(int pnum, int dir)
