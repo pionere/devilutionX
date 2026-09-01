@@ -1887,6 +1887,13 @@ static void MonPlace(int mnum)
 	dMonster[mx][my] = mnum + 1;
 }
 
+static void MonStartStand(int mnum)
+{
+	RemoveMonFromMap(mnum);
+	MonPlace(mnum);
+	StartStand(mnum);
+}
+
 static void MonStopWalk(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
@@ -1906,9 +1913,7 @@ static void MonStopWalk(int mnum)
 	}
 	mon->_mx = x;
 	mon->_my = y;
-	RemoveMonFromMap(mnum);
-	MonPlace(mnum);
-	StartStand(mnum);
+	MonStartStand(mnum);
 }
 
 static int MonTeleport(int mnum, int tx, int ty, int dir)
@@ -2297,6 +2302,7 @@ static bool MonDoWalk(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
+		// MonStartStand(mnum);
 		dMonster[mon->_moldx][mon->_moldy] = 0;
 		mon->_mx = mon->_mfutx;
 		mon->_my = mon->_mfuty;
