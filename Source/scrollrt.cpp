@@ -158,10 +158,11 @@ POS32 GridToScreen(int gx, int gy)
 void UpdateScrollInfo(int pnum)
 {
 	if (pnum == mypnum) {
+#if FOLLOW
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		// int px = ScrollInfo._sxoff + myplr._pxoff, py = ScrollInfo._syoff + myplr._pyoff;
-		// if (gbActionBtnDown != 0 && (px | py) != 0 && MON_VALID(pcursmonst))
-		//	SetCursorPos(MousePos.x + px, MousePos.y + py);
+		int dx = plr._px - myview.x;
+		int dy = plr._py - myview.y;
+#endif
 		myview.x = plr._px;
 		myview.y = plr._py;
 
@@ -170,6 +171,12 @@ void UpdateScrollInfo(int pnum)
 		gp.y -= plr._pgy;
 
 		POS32 sp = GridToScreen(gp.x, gp.y);
+#if FOLLOW
+		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff - sp.x, ScrollInfo._syoff - sp.y);
+		dp = GridToScreen(dp.x, dp.y);
+		if (gbActionBtnDown != 0 && (dp.x | dp.y) != 0 && MON_VALID(pcursmonst))
+			SetCursorPos(MousePos.x - dp.x, MousePos.y - dp.y);
+#endif
 		ScrollInfo._sxoff = sp.x;
 		ScrollInfo._syoff = sp.y;
 	}
