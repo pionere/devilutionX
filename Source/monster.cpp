@@ -1556,7 +1556,7 @@ static void AssertFixMonLocation(int mnum)
 	assert(mon->_moldy == mon->_my);
 }
 
-static void MonStartStand(int mnum)
+static void StartStand(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
@@ -1908,7 +1908,7 @@ static void MonStopWalk(int mnum)
 	mon->_my = y;
 	RemoveMonFromMap(mnum);
 	MonPlace(mnum);
-	MonStartStand(mnum);
+	StartStand(mnum);
 }
 
 static int MonTeleport(int mnum, int tx, int ty, int dir)
@@ -2301,7 +2301,7 @@ static bool MonDoWalk(int mnum)
 		mon->_mx = mon->_mfutx;
 		mon->_my = mon->_mfuty;
 		MonPlace(mnum);
-		MonStartStand(mnum);
+		StartStand(mnum);
 		rv = true;
 	} else {
 		//if (mon->_mAnimCnt == 0) {
@@ -2446,7 +2446,7 @@ static bool MonDoAttack(int mnum)
 		PlayMonSfx(mnum, MS_ATTACK);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 
@@ -2464,7 +2464,7 @@ static bool MonDoRAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 
@@ -2492,7 +2492,7 @@ static bool MonDoRSpAttack(int mnum)
 	}
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 
@@ -2508,7 +2508,7 @@ static bool MonDoSpAttack(int mnum)
 		MonTryH2HHit(mnum, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 
@@ -2529,7 +2529,7 @@ static bool MonDoFadein(int mnum)
 	//	ChangeLightRadius(mon->_mlid, MON_LIGHTRAD);
 	//	ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
 	//}
-	MonStartStand(mnum);
+	StartStand(mnum);
 	return true;
 }
 
@@ -2547,7 +2547,7 @@ static bool MonDoFadeout(int mnum)
 		// assert(mon->_mlid == NO_LIGHT);
 		//ChangeLightRadius(mon->_mlid, 0);
 	//}
-	MonStartStand(mnum);
+	StartStand(mnum);
 	return true;
 }
 
@@ -2582,7 +2582,7 @@ static bool MonDoTalk(int mnum)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	MonStartStand(mnum);
+	StartStand(mnum);
 	// assert(mon->_mgoal == MGOAL_TALKING);
 	mon->_mgoalvar1 = TRUE; // TALK_SPEAKING
 	if (!IsSfxStreaming(minitxtdata[mon->_mgoalvar2].sfxnr)) // TALK_MESSAGE
@@ -2593,7 +2593,7 @@ static bool MonDoTalk(int mnum)
 static bool MonDoGotHit(int mnum)
 {
 	if (monsters[mnum]._mAnimFrame == monsters[mnum]._mAnimLen) {
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 	return false;
@@ -2673,7 +2673,7 @@ static bool MonDoSpStand(int mnum)
 		PlayMonSfx(mnum, MS_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 
@@ -2715,7 +2715,7 @@ static bool MonDoCharge(int mnum)
 	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
 		//assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
 		dMonster[mon->_mx][mon->_my] = mnum + 1;
-		MonStartStand(mnum);
+		StartStand(mnum);
 		return true;
 	}
 	return false;
@@ -3392,7 +3392,7 @@ void MAI_Fallen(int mnum)
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mdir = OPPOSITE(mon->_mdir);
-			MonStartStand(mnum);
+			StartStand(mnum);
 		}
 	} else {
 		assert(mon->_mgoal == MGOAL_ATTACK);
@@ -4876,7 +4876,7 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 			// assert(dPlayer[mon->_mx][mon->_my] == 0);
 			// assert(!(mon->_mFlags & MFLAG_HIDDEN));
 			//ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
-			MonStartStand(mnum);
+			StartStand(mnum);
 		}
 	}
 }
@@ -4901,7 +4901,7 @@ void MissToMonst(int mi)
 	// assert(dPlayer[mon->_mx][mon->_my] == 0);
 	// assert(!(mon->_mFlags & MFLAG_HIDDEN));
 	//ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
-	MonStartStand(mnum);
+	StartStand(mnum);
 	/*if (mon->_mType >= MT_INCIN && mon->_mType <= MT_HELLBURN) {
 		MonStartFadein(mnum, false);
 		return;
