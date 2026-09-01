@@ -250,7 +250,7 @@ static void InitMonsterGFX(int midx)
 	//}
 
 	cmon->cmWidth = Cl2Width(monAnims[0].maAnimData[0]);
-	cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
+	// cmon->cmXOffset = (cmon->cmWidth - TILE_WIDTH) >> 1;
 }
 
 static void InitMonsterMis(int type, const MonsterAI ai)
@@ -619,7 +619,7 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 	static_assert(offsetof(MonsterStruct, _mMagicRes) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmMagicRes) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XVIII.");
 	static_assert(offsetof(MonsterStruct, _mExp) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmExp) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XX.");
 	static_assert(offsetof(MonsterStruct, _mAnimWidth) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmWidth) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXII.");
-	static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
+	// static_assert(offsetof(MonsterStruct, _mAnimXOffset) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmXOffset) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIII.");
 	static_assert(offsetof(MonsterStruct, _mAFNum) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXIV.");
 	static_assert(offsetof(MonsterStruct, _mAFNum2) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAFNum2) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXV.");
 	static_assert(offsetof(MonsterStruct, _mAlign_0) - offsetof(MonsterStruct, _mName) == offsetof(MapMonData, cmAlign_0) - offsetof(MapMonData, cmName), "InitMonster uses DWORD-memcpy to optimize performance XXVI.");
@@ -4803,7 +4803,7 @@ void SyncMonsterAnim(int mnum)
 	mmdata = &mapMonTypes[mon->_mMTidx];
 	mon->_mType = mmdata->cmType;
 	mon->_mAnimWidth = mmdata->cmWidth;
-	mon->_mAnimXOffset = mmdata->cmXOffset;
+	// mon->_mAnimXOffset = mmdata->cmXOffset;
 	mon->_mAFNum = mmdata->cmAFNum;
 	mon->_mAFNum2 = mmdata->cmAFNum2;
 	if (mon->_muniqtype != 0) {

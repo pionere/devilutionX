@@ -413,7 +413,7 @@ typedef struct PlayerStruct {
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
-	int _pAnimXOffset;
+	int _pAnimXOffset; // unused
 	unsigned _plid; // light id of the player
 	unsigned _pvid; // vision id of the player
 	PlrSkillStruct _pMainSkill; // the selected attack/movement skill for the primary action
@@ -575,7 +575,6 @@ typedef struct MissileStruct {
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
-	int _miAnimXOffset;
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
@@ -609,7 +608,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target in case of non-DOT missiles
-	ALIGNMENT(7, 21)
+	ALIGNMENT(8, 22)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -735,7 +734,7 @@ typedef struct MapMonData {
 	unsigned cmMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned cmExp;
 	int cmWidth;
-	int cmXOffset;
+	int cmAnimXOffset; // unused
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	uint16_t cmAlign_0; // unused
@@ -820,7 +819,7 @@ typedef struct MonsterStruct {
 	unsigned _mMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned _mExp;
 	int _mAnimWidth;
-	int _mAnimXOffset;
+	int _mAnimXOffset; // unused
 	BYTE _mAFNum;  // action frame number of the attack animation
 	BYTE _mAFNum2; // action frame number of the special animation
 	uint16_t _mAlign_0; // unused
@@ -945,7 +944,6 @@ typedef struct ObjectStruct {
 	int _oAnimLen;   // Number of frames in current animation
 	int _oAnimFrame; // Current frame of animation.
 	int _oAnimWidth;
-	int _oAnimXOffset;
 	//BOOL _oDelFlag;
 	BOOLEAN _oSolidFlag;
 	BYTE _oBreak; // object_break_mode
@@ -965,7 +963,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(5, 4)
+	ALIGNMENT(6, 5)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1432,7 +1430,6 @@ typedef struct LSaveMissileStruct {
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation
 	INT vmiAnimWidthAlign;
-	INT vmiAnimXOffsetAlign;
 	LE_INT32 vmiAnimCnt; // Increases by one each game tick, counting how close we are to vmiAnimFrameLen
 	LE_INT32 vmiAnimAdd;
 	LE_INT32 vmiAnimFrame; // Current frame of animation.
@@ -1485,7 +1482,6 @@ typedef struct LSaveObjectStruct {
 	LE_INT32 voAnimLen;   // Number of frames in current animation
 	LE_INT32 voAnimFrame; // Current frame of animation.
 	INT voAnimWidthAlign;
-	INT voAnimXOffsetAlign;
 	BOOLEAN voSolidFlag;
 	BYTE voBreak; // object_break_mode
 	BYTE voTrapChance;

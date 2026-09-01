@@ -1407,7 +1407,6 @@ void LevelDeltaExport()
 			//int _miAnimFrameLen;
 			//int _miAnimLen;
 			//int _miAnimWidth;
-			//int _miAnimXOffset;
 			tmis->smiAnimCnt = mis->_miAnimCnt;
 			tmis->smiAnimAdd = mis->_miAnimAdd;
 			tmis->smiAnimFrame = mis->_miAnimFrame;
@@ -3703,8 +3702,7 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	"tr:%d "
 	"xp:%d "
 	"ty:%d "
-	"w:%d "
-	"xo:%d ",
+	"w:%d ",
 			mnum,
 			mon->_mmode,
 	mon->_msquelch,
@@ -3774,8 +3772,7 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mMagicRes,
 	mon->_mExp,
 	mon->_mType,
-	mon->_mAnimWidth,
-	mon->_mAnimXOffset);
+	mon->_mAnimWidth);
 		// clang-format on
 		DDMonster* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].lvMonster[mnum];
 		if (mstr->dmCmd != DCMD_MON_INVALID) {

@@ -1641,7 +1641,6 @@ static void SyncMissAnim(int mi)
 		mis->_miAnimLen = anim->caFrameCnt;
 		mis->_miAnimFrameLen = anim->caFrameLen;
 		mis->_miAnimWidth = anim->caWidth;
-		mis->_miAnimXOffset = (mis->_miAnimWidth - TILE_WIDTH) >> 1;
 	}
 }
 
@@ -1661,7 +1660,6 @@ static void SyncRhinoAnim(MissileStruct* mis)
 	mis->_miAnimFrameLen = anim->maFrameLen;
 	mis->_miAnimLen = anim->maFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
-	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = mon->_mFileNum == MOFILE_SNAKE ? 2 : 1;
 }
 
@@ -1679,7 +1677,6 @@ static void SyncChargeAnim(MissileStruct* mis)
 	mis->_miAnimFrameLen = PlrAnimFrameLens[PGX_WALK];
 	mis->_miAnimLen = anim->paFrames;
 	mis->_miAnimWidth = anim->paAnimWidth;
-	mis->_miAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 }
 
 static void SetMissAnim(int mi, int dir)
@@ -2873,7 +2870,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miAnimFrameLen = anim->maFrameLen;
 	mis->_miAnimLen = anim->maFrames;
 	mis->_miAnimWidth = mon->_mAnimWidth;
-	mis->_miAnimXOffset = mon->_mAnimXOffset;
 	mis->_miAnimAdd = 1;
 	//mis->_miVar1 = FALSE;
 	//mis->_miVar2 = 0;

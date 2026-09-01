@@ -484,7 +484,6 @@ static void NewPlrAnim(int pnum, unsigned animIdx, int dir)
 	plr._pAnimCnt = (gbGameLogicProgress < GLP_PLAYERS_DONE && gbGameLogicPnum <= pnum) ? -1 : 0;
 	plr._pAnimFrameLen = PlrAnimFrameLens[animIdx];
 	plr._pAnimWidth = anim->paAnimWidth;
-	plr._pAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 }
 
 /*static void ClearPlrPVars(int pnum)
@@ -2997,7 +2996,6 @@ void SyncPlrAnim(int pnum)
 	p->_pAnimFrameLen = PlrAnimFrameLens[animIdx];
 	p->_pAnimLen = anim->paFrames;
 	p->_pAnimWidth = anim->paAnimWidth;
-	p->_pAnimXOffset = (anim->paAnimWidth - TILE_WIDTH) >> 1;
 	p->_pAnimData = anim->paAnimData[p->_pdir];
 }
 

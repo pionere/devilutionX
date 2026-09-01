@@ -1409,7 +1409,6 @@ int AddObject(int type, int ox, int oy)
 	LoadCelMetaInfo(os->_oAnimData, mi);
 	os->_oAnimFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
 	os->_oAnimWidth = objanimdim[ods->ofindex];
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	ofd = &objfiledata[ods->ofindex];
 	os->_oSFX = ofd->oSFX;
 	os->_oSFXCnt = ofd->oSFXCnt;
@@ -3842,7 +3841,6 @@ void SyncObjectAnim(int oi)
 #if 0
 	os->_oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
 	os->_oAnimWidth = objanimdim[ofidx];
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 #endif
 	switch (type) {
 	case OBJ_L1LDOOR:

@@ -126,7 +126,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_pAnimLen = savedPlr->vpAnimLenAlign;
 	pr->_pAnimFrame = savedPlr->vpAnimFrame;
 	pr->_pAnimWidth = savedPlr->vpAnimWidthAlign;
-	pr->_pAnimXOffset = savedPlr->vpAnimXOffsetAlign;
+	// pr->_pAnimXOffset = savedPlr->vpAnimXOffsetAlign;
 	pr->_plid = savedPlr->vplid;
 	pr->_pvid = savedPlr->vpvid;
 
@@ -364,7 +364,6 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	src += sizeof(LSaveMonsterStruct);
 
 	// Skip _mAnimWidth
-	// Skip _mAnimXOffset
 	// Skip _mAFNum
 	// Skip _mAFNum2
 	// Skip _mAlign_0
@@ -410,7 +409,6 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	// mis->_miAnimFrameLen = savedMis->vmiAnimFrameLenAlign;
 	// mis->_miAnimLen = savedMis->vmiAnimLenAlign;
 	// mis->_miAnimWidth = savedMis->vmiAnimWidthAlign;
-	// mis->_miAnimXOffset = savedMis->vmiAnimXOffsetAlign;
 	mis->_miAnimCnt = savedMis->vmiAnimCnt;
 	mis->_miAnimAdd = savedMis->vmiAnimAdd;
 	mis->_miAnimFrame = savedMis->vmiAnimFrame;
@@ -485,7 +483,6 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oAnimLen = savedObj->voAnimLen;
 	os->_oAnimFrame = savedObj->voAnimFrame;
 	os->_oAnimWidth = savedObj->voAnimWidthAlign;
-	os->_oAnimXOffset = savedObj->voAnimXOffsetAlign;
 
 	os->_oSolidFlag = savedObj->voSolidFlag;
 	os->_oBreak = savedObj->voBreak;
@@ -919,7 +916,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpAnimLenAlign = pr->_pAnimLen;
 	plrSave->vpAnimFrame = pr->_pAnimFrame;
 	plrSave->vpAnimWidthAlign = pr->_pAnimWidth;
-	plrSave->vpAnimXOffsetAlign = pr->_pAnimXOffset;
+	// plrSave->vpAnimXOffsetAlign = pr->_pAnimXOffset;
 	plrSave->vplid = pr->_plid;
 	plrSave->vpvid = pr->_pvid;
 
@@ -1152,7 +1149,6 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	dest += sizeof(LSaveMonsterStruct);
 
 	// Skip _mAnimWidth
-	// Skip _mAnimXOffset
 	// Skip _mAFNum
 	// Skip _mAFNum2
 	// Skip _mAlign_0
@@ -1186,7 +1182,6 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	// misSave->vmiAnimFrameLenAlign = mis->_miAnimFrameLen;
 	// misSave->vmiAnimLenAlign = mis->_miAnimLen;
 	// misSave->vmiAnimWidthAlign = mis->_miAnimWidth;
-	// misSave->vmiAnimXOffsetAlign = mis->_miAnimXOffset;
 	misSave->vmiAnimCnt = mis->_miAnimCnt;
 	misSave->vmiAnimAdd = mis->_miAnimAdd;
 	misSave->vmiAnimFrame = mis->_miAnimFrame;
@@ -1261,7 +1256,6 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voAnimLen = os->_oAnimLen;
 	objSave->voAnimFrame = os->_oAnimFrame;
 	objSave->voAnimWidthAlign = os->_oAnimWidth;
-	objSave->voAnimXOffsetAlign = os->_oAnimXOffset;
 
 	objSave->voSolidFlag = os->_oSolidFlag;
 	objSave->voBreak = os->_oBreak;
