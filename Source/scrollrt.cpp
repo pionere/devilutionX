@@ -164,8 +164,14 @@ void UpdateScrollInfo(int pnum)
 		//	SetCursorPos(MousePos.x + px, MousePos.y + py);
 		myview.x = plr._px;
 		myview.y = plr._py;
-		ScrollInfo._sxoff = -plr._pxoff;
-		ScrollInfo._syoff = -plr._pyoff;
+
+		POS32 gp = DungeonScreenToGridPos(myview.x, myview.y, 0, 0);
+		gp.x -= plr._pgx;
+		gp.y -= plr._pgy;
+
+		POS32 sp = GridToScreen(gp.x, gp.y);
+		ScrollInfo._sxoff = sp.x;
+		ScrollInfo._syoff = sp.y;
 	}
 }
 
