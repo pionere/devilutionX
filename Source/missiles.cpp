@@ -3236,6 +3236,8 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
 	// mis->_mityoff = bmis->_mityoff;
+	mis->_migx = bmis->_migx;
+	mis->_migy = bmis->_migy;
 	// assert(bmis->_miVar3 < 3);
 	mis->_miVar2 = (2 - bmis->_miRange) * 4;
 	// assert(misource != -1);
