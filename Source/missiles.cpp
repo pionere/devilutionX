@@ -804,8 +804,8 @@ static void ShiftMissilePos(MissileStruct* mis, int tiles)
 	if (PosOkActor(x, y)) {
 		mis->_mix += dx;
 		mis->_miy += dy;
-		mis->_mixoff += ((dy * 32) - (dx * 32)) * ASSET_MPL;
-		mis->_miyoff -= ((dy * 16) + (dx * 16)) * ASSET_MPL;
+		mis->_mixoff += (dy - dx) * (TILE_WIDTH / 2);
+		mis->_miyoff -= (dy + dx) * (TILE_HEIGHT / 2);
 	}
 }
 #endif
