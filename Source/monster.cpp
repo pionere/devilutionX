@@ -572,8 +572,6 @@ void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
 	SetMonsterLoc(mnum, x, y);
 	mon->_mType = cmon->cmType;
 	/*mon->_mName = cmon->cmName;
@@ -1529,8 +1527,10 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon = &monsters[mnum];
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
+	mon->_mxoff = 0;
+	mon->_myoff = 0;
 
-	POS32 pg = DungeonScreenToGridPos(x, y, mon->_mxoff, mon->_myoff);
+	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
 	mon->_mgx = pg.x;
 	mon->_mgy = pg.y;
 }
@@ -1539,8 +1539,6 @@ static void FixMonLocation(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
 	SetMonsterLoc(mnum, mon->_mx, mon->_my);
 }
 

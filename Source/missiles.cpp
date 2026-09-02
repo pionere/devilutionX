@@ -697,7 +697,6 @@ static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
 
 static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 {
-	// SetPlayerLoc(pnum, mis->_mix, mis->_miy);
 	plr._px = plr._poldx = plr._pfutx = mis->_mix;
 	plr._py = plr._poldy = plr._pfuty = mis->_miy;
 	plr._pxoff = mis->_mixoff;
@@ -711,7 +710,6 @@ static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 
 static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 {
-	// SetMonsterLoc(pnum, mis->_mix, mis->_miy);
 	mon->_mx = mon->_moldx = mon->_mfutx = mis->_mix;
 	mon->_my = mon->_moldy = mon->_mfuty = mis->_miy;
 	mon->_mxoff = mis->_mixoff;

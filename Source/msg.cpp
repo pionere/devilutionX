@@ -1577,7 +1577,6 @@ void LevelDeltaLoad()
 				}
 				net_assert(IN_DUNGEON_AREA(px, py));
 			} else {
-				// SetPlayerLoc(pnum, px, py);
 				plr._pfutx = plr._poldx = px;
 				plr._pfuty = plr._poldy = py;
 			}
@@ -1684,7 +1683,6 @@ void LevelDeltaLoad()
 				// net_assert(PosOkMonster(mnum, mx, my));
 			} else {
 				// net_assert(PosOkMonster(mnum, mx, my));
-				// SetMonsterLoc(mnum, mx, my);
 				mon->_mfutx = mon->_moldx = mx;
 				mon->_mfuty = mon->_moldy = my;
 			}

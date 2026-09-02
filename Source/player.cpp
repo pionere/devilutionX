@@ -638,8 +638,10 @@ void SetPlayerLoc(int pnum, int x, int y)
 {
 	plr._px = plr._pfutx = plr._poldx = x;
 	plr._py = plr._pfuty = plr._poldy = y;
+	plr._pxoff = 0;
+	plr._pyoff = 0;
 
-	POS32 pg = DungeonScreenToGridPos(x, y, plr._pxoff, plr._pyoff);
+	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
 	plr._pgx = pg.x;
 	plr._pgy = pg.y;
 }
