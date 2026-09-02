@@ -651,13 +651,7 @@ static void FixPlayerLocation(int pnum)
 	plr._pxoff = 0;
 	plr._pyoff = 0;
 	SetPlayerLoc(pnum, plr._px, plr._py);
-	if (pnum == mypnum) {
-		ScrollInfo._sxoff = 0;
-		ScrollInfo._syoff = 0;
-		ScrollInfo._sdir = SDIR_NONE;
-		myview.x = plr._px; // - ScrollInfo._sdx;
-		myview.y = plr._py; // - ScrollInfo._sdy;
-	}
+	UpdateScrollInfo(pnum);
 }
 
 static void AssertFixPlayerLocation(int pnum)
@@ -1169,7 +1163,6 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
 	plr._py = plr._pfuty = py;
 	dPlayer[px][py] = pnum + 1;
-	UpdateScrollInfo(pnum);
 }
 
 static void StartWalk(int pnum, int dir)
@@ -1218,31 +1211,7 @@ static void StartWalk(int pnum, int dir)
 
 	NewPlrAnim(pnum, PGX_WALK, dir);
 
-	if (pnum == mypnum) {
-		// assert(ScrollInfo._sdx == 0);
-		// assert(ScrollInfo._sdy == 0);
-		// assert(plr._poldx == myview.x);
-		// assert(plr._poldy == myview.y);
-		// ScrollInfo._sdx = plr._poldx - myview.x;
-		// ScrollInfo._sdy = plr._poldy - myview.y;
-
-#if DEBUG_MODE
-		for (int i = 0; i < lengthof(dir2sdir); i++)
-			assert(dir2sdir[i] == 1 + i);
-#endif
-		dir = 1 + dir; // == dir2sdir[dir];
-		/*if (!gbZoomInFlag) {
-			if (abs(ScrollInfo._sdx) >= 3 || abs(ScrollInfo._sdy) >= 3) {
-				ScrollInfo._sdir = SDIR_NONE;
-			} else {
-				ScrollInfo._sdir = dir;
-			}
-		} else if (abs(ScrollInfo._sdx) >= 2 || abs(ScrollInfo._sdy) >= 2) {
-			ScrollInfo._sdir = SDIR_NONE;
-		} else {*/
-			ScrollInfo._sdir = dir;
-		//}
-	}
+	UpdateScrollInfo(pnum);
 }
 
 static void StartAttack(int pnum)

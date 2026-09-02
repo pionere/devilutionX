@@ -179,6 +179,11 @@ void UpdateScrollInfo(int pnum)
 #endif
 		ScrollInfo._sxoff = sp.x;
 		ScrollInfo._syoff = sp.y;
+#if DEBUG_MODE
+		for (int i = 0; i < lengthof(dir2sdir); i++)
+			assert(dir2sdir[i] == 1 + i);
+#endif
+		ScrollInfo._sdir = (ScrollInfo._sxoff == 0 && ScrollInfo._syoff == 0) ? SDIR_NONE : (1 + /*OPPOSITE(*/plr._pdir/*)*/); // == dir2sdir[dir];
 	}
 }
 

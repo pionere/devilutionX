@@ -2839,11 +2839,6 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis->_miVar2 = dy;
 	mis->_miAnimAdd = aa;
 	SyncChargeAnim(mis);
-	if (pnum == mypnum) {
-		// assert(ScrollInfo._sdx == 0);
-		// assert(ScrollInfo._sdy == 0);
-		ScrollInfo._sdir = 1 + midir; // == dir2sdir[midir]
-	}
 	//mis->_miLid = mon->_mlid;
 	//PutMissile(mi);
 	return MIRES_DONE;
