@@ -30,7 +30,7 @@ BYTE NormalMapScale = MAP_SCALE_NORMAL;
 unsigned AutoMapScale;
 int AutoMapXOfs;
 int AutoMapYOfs;
-unsigned AmLine64;
+#define MAP_TILE_WIDTH ((AutoMapScale * TILE_WIDTH) / 128)
 
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
@@ -64,7 +64,6 @@ void InitAutomapOnce()
  */
 void InitAutomapScale()
 {
-	AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 }
 
 /**
@@ -163,7 +162,6 @@ void AutomapZoomIn()
 {
 	if (gbAutomapflag != AMM_NONE && AutoMapScale < MAP_SCALE_MAX) {
 		AutoMapScale += 16;
-		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		if (gbAutomapflag == AMM_MINI) {
 			MiniMapScale = AutoMapScale;
 		} else { // if (gbAutomapflag == AMM_NORMAL) {
@@ -180,7 +178,6 @@ void AutomapZoomOut()
 {
 	if (gbAutomapflag != AMM_NONE && AutoMapScale > MAP_SCALE_MIN) {
 		AutoMapScale -= 16;
-		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
 		if (gbAutomapflag == AMM_MINI) {
 			MiniMapScale = AutoMapScale;
 		} else { // if (gbAutomapflag == AMM_NORMAL) {
@@ -192,7 +189,7 @@ void AutomapZoomOut()
 
 static void DrawAutomapExtern(int sx, int sy)
 {
-	unsigned d32 = AmLine64 >> 1;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d8 = (d32 >> 2);
 
 	DrawPixel(sx, sy - d8, COLOR_DIM);
@@ -200,7 +197,7 @@ static void DrawAutomapExtern(int sx, int sy)
 
 static void DrawAutomapStairs(int sx, int sy)
 {
-	unsigned d32 = AmLine64 >> 1;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
 	DrawLine(sx - d16 + d8, sy - d16 + d4, sx + d8, sy - d16 + d4 + d8, COLOR_BRIGHT);
@@ -209,7 +206,7 @@ static void DrawAutomapStairs(int sx, int sy)
 
 static void DrawAutomapDoorDiamond(int dir, int sx, int sy)
 {
-	unsigned d32 = AmLine64 >> 1;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
 	if (dir == 0) { // WEST
@@ -248,7 +245,7 @@ void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 		break;
 	}
 
-	unsigned d32 = AmLine64 >> 1;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d16 = (d32 >> 1);
 	unsigned d8 = (d32 >> 2);
 	if (automap_type & MAT_WALL_NW) {
@@ -269,10 +266,10 @@ void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 {
 	int x1, y1, x2, y2;
 
-	x1 = x - AmLine64 / 4;
-	y1 = y - AmLine64 / 8;
-	x2 = x1 + AmLine64 / 2;
-	y2 = y1 + AmLine64 / 4;
+	x1 = x - MAP_TILE_WIDTH / 4;
+	y1 = y - MAP_TILE_WIDTH / 8;
+	x2 = x1 + MAP_TILE_WIDTH / 2;
+	y2 = y1 + MAP_TILE_WIDTH / 4;
 	DrawLine(x, y1, x1, y, color);
 	DrawLine(x, y1, x2, y, color);
 	DrawLine(x, y2, x1, y, color);
@@ -285,7 +282,7 @@ static void SearchAutomapItem()
 	int x, y;
 	int x1, y1, x2, y2, xoff, yoff;
 	int i, j;
-	unsigned d16 = AmLine64 / 4;
+	unsigned d16 = MAP_TILE_WIDTH / 4;
 
 	x = AutoMapXOfs + myview.x;
 	y = AutoMapYOfs + myview.y;
@@ -335,7 +332,7 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 {
 	PlayerStruct* p;
 	int x, y;
-	unsigned d16 = AmLine64 / 4;
+	unsigned d16 = MAP_TILE_WIDTH / 4;
 
 	p = &plr;
 
@@ -434,7 +431,7 @@ static void DrawAutomapContent()
 {
 	int sx, sy, mapx, mapy;
 	int i, j, cells;
-	unsigned d64 = AmLine64;
+	unsigned d64 = MAP_TILE_WIDTH;
 
 	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
