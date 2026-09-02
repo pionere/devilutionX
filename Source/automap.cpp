@@ -296,8 +296,8 @@ static void SearchAutomapItem()
 
 	x = AutoMapXOfs + myview.x;
 	y = AutoMapYOfs + myview.y;
-	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
+	xoff = (ScrollInfo._sxoff * (int)AutoMapScale >> (MAP_SHIFT + 1)) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
+	yoff = (ScrollInfo._syoff * (int)AutoMapScale >> (MAP_SHIFT + 1)) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {
@@ -348,8 +348,8 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 
 	x = sx;
 	y = sy;
-	x += p->_pxoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1;
-	y += p->_pyoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1;
+	x += (p->_pxoff * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	y += (p->_pyoff * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	y -= d16;
 
@@ -516,8 +516,8 @@ static void DrawAutomapContent()
 		sy -= (d64 >> 3);
 	}
 
-	sx += ((int)AutoMapScale * ScrollInfo._sxoff / MAP_GRID_WIDTH) >> 1;
-	sy += ((int)AutoMapScale * ScrollInfo._syoff / MAP_GRID_WIDTH) >> 1;
+	sx += (ScrollInfo._sxoff * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	sy += (ScrollInfo._syoff * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	// select the bottom edge of the tile
 	sy += (d64 >> 2);
