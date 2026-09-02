@@ -30,7 +30,14 @@ BYTE NormalMapScale = MAP_SCALE_NORMAL;
 unsigned AutoMapScale;
 int AutoMapXOfs;
 int AutoMapYOfs;
-#define MAP_TILE_WIDTH ((AutoMapScale * TILE_WIDTH) / 128)
+/* Specifies the tile-width at the given map-scale. (AutoMapScale * TILE_WIDTH) / 128 */
+#if TILE_WIDTH <= 128
+static_assert(128 % TILE_WIDTH == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
+#define MAP_TILE_WIDTH (AutoMapScale / (128 / TILE_WIDTH))
+#else
+static_assert(TILE_WIDTH % 128 == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
+#define MAP_TILE_WIDTH (AutoMapScale * (TILE_WIDTH / 128))
+#endif
 
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
