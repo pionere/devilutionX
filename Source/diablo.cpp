@@ -42,6 +42,8 @@ BYTE gbDeathflag = MDM_ALIVE;
 unsigned gbActionBtnDown;
 /** The state of the mod-buttons. */
 unsigned gbModBtnDown;
+/** The last walk-direction calculated from the button-presses. */
+static int gbActionBtnDir;
 /** tick counter when the last time an action was repeated because a button was held down. */
 static Uint32 guLastRBD;
 /** Specifies the speed of the game. */
@@ -1315,10 +1317,11 @@ static bool ProcessInput()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();
 #endif
-		if (gbActionBtnDown != 0 && (myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && SDL_TICKS_AFTER(SDL_GetTicks(), guLastRBD, gnTickDelay * 6)) {
+		if (gbActionBtnDown != 0 && (myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK)) {
 			// assert(gbDeathflag == MDM_ALIVE);
+			bool timeout = SDL_TICKS_AFTER(SDL_GetTicks(), guLastRBD, gnTickDelay * 6);
 			int dx = 0, dy = 0;
-			for (int i = ACT_ACT; i <= ACT_W_SE; i++) {
+			for (int i = timeout ? ACT_ACT : ACT_W_S; i <= ACT_W_SE; i++) {
 				if (gbActionBtnDown & ACTBTN_MASK(i)) {
 					if (i < ACT_W_S) {
 						gbActionBtnDown &= ~ACTBTN_MASK(i);
@@ -1331,11 +1334,13 @@ static bool ProcessInput()
 			}
 			if (dx != 0 || dy != 0) {
 				int dir = GetDirection(0, 0, dx, dy);
-				int i = ACT_W_S + dir;
-				unsigned gabd = gbActionBtnDown;
-				gbActionBtnDown = 0;
-				InputBtnDown(i);
-				gbActionBtnDown = gabd;
+				if (timeout || dir != gbActionBtnDir) {
+					int i = ACT_W_S + dir;
+					unsigned gabd = gbActionBtnDown;
+					gbActionBtnDown = 0;
+					InputBtnDown(i);
+					gbActionBtnDown = gabd;
+				}
 			}
 		}
 	}
