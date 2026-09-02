@@ -531,21 +531,13 @@ static void DrawAutomapContent()
 				if (maptype != MAT_NONE)
 					DrawAutomapTile(x, sy, maptype);
 				int pnum;
-				BYTE flags = dFlags[mapx][mapy];
-				if (flags & BFLAG_DEAD_PLAYER) {
-					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
-							DrawAutomapPlr(pnum, x, sy);
-						}
-					}
-				}
-				pnum = dPlayer[mapx][mapy];
-				if (pnum > 0) {
-					pnum--;
+				for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+					if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
 #if !INET_MODE
-					if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/)
+						if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/ || plr._pHitPoints == 0)
 #endif
-						DrawAutomapPlr(pnum, x, sy);
+							DrawAutomapPlr(pnum, x, sy);
+					}
 				}
 			}
 			SHIFT_GRID(mapx, mapy, 1, 0);
