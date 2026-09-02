@@ -19,6 +19,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define AUTOMAP_VALID (automaptype[0] == 0)
 
+#define MAP_SHIFT 7
+#define MAP_GRID_WIDTH (1 << MAP_SHIFT)
+
 static_assert(MAP_SCALE_MAX <= UCHAR_MAX, "Mapscale values are stored in one byte.");
 /** Specifies whether the automap is enabled (_automap_mode). */
 BYTE gbAutomapflag = AMM_NONE;
@@ -30,13 +33,13 @@ BYTE NormalMapScale = MAP_SCALE_NORMAL;
 unsigned AutoMapScale;
 int AutoMapXOfs;
 int AutoMapYOfs;
-/* Specifies the tile-width at the given map-scale. (AutoMapScale * TILE_WIDTH) / 128 */
-#if TILE_WIDTH <= 128
-static_assert(128 % TILE_WIDTH == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
-#define MAP_TILE_WIDTH (AutoMapScale / (128 / TILE_WIDTH))
+/* Specifies the tile-width at the given map-scale. (AutoMapScale * TILE_WIDTH) / MAP_GRID_WIDTH */
+#if TILE_WIDTH <= MAP_GRID_WIDTH
+static_assert(MAP_GRID_WIDTH % TILE_WIDTH == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
+#define MAP_TILE_WIDTH (AutoMapScale / (MAP_GRID_WIDTH / TILE_WIDTH))
 #else
-static_assert(TILE_WIDTH % 128 == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
-#define MAP_TILE_WIDTH (AutoMapScale * (TILE_WIDTH / 128))
+static_assert(TILE_WIDTH % MAP_GRID_WIDTH == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
+#define MAP_TILE_WIDTH (AutoMapScale * (TILE_WIDTH / MAP_GRID_WIDTH))
 #endif
 
 /** color used to draw the player's arrow */
@@ -293,8 +296,8 @@ static void SearchAutomapItem()
 
 	x = AutoMapXOfs + myview.x;
 	y = AutoMapYOfs + myview.y;
-	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
+	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
+	yoff = (ScrollInfo._syoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {
@@ -345,14 +348,14 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 
 	x = sx;
 	y = sy;
-	x += p->_pxoff * (int)AutoMapScale / 128 >> 1;
-	y += p->_pyoff * (int)AutoMapScale / 128 >> 1;
+	x += p->_pxoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1;
+	y += p->_pyoff * (int)AutoMapScale / MAP_GRID_WIDTH >> 1;
 
 	y -= d16;
 
-	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
-	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
-	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
+	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 4, "Make sure the automap-renderer does not have to check for clipping V.");
+	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
+	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
 
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 	if (p->_pHitPoints != 0) {
@@ -463,10 +466,10 @@ static void DrawAutomapContent()
 		mapy = DBORDERY + (DSIZEY - 2);
 	}
 
-	// assert(d64 <= (MAP_SCALE_MAX * TILE_WIDTH) / 128);
-	//static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping I."); - unnecessary, since the cells are limited to the screen
-	//static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
-	//static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
+	// assert(d64 <= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH);
+	//static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH, "Make sure the automap-renderer does not have to check for clipping I."); - unnecessary, since the cells are limited to the screen
+	//static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH, "Make sure the automap-renderer does not have to check for clipping III.");
+	//static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
 
 	// find an odd number of tiles which fits to the screen
 	// assert(SCREEN_WIDTH >= d64);
@@ -478,7 +481,7 @@ static void DrawAutomapContent()
 
 	/*if ((SCREEN_WIDTH / 2) % d64)
 		cells++;
-	if ((SCREEN_WIDTH / 2) % d64 >= (AutoMapScale << 5) / 128)
+	if ((SCREEN_WIDTH / 2) % d64 >= (AutoMapScale << 5) / MAP_GRID_WIDTH)
 		cells++;
 
 	if (ScrollInfo._sxoff + ScrollInfo._syoff)
@@ -513,8 +516,8 @@ static void DrawAutomapContent()
 		sy -= (d64 >> 3);
 	}
 
-	sx += ((int)AutoMapScale * ScrollInfo._sxoff / 128) >> 1;
-	sy += ((int)AutoMapScale * ScrollInfo._syoff / 128) >> 1;
+	sx += ((int)AutoMapScale * ScrollInfo._sxoff / MAP_GRID_WIDTH) >> 1;
+	sy += ((int)AutoMapScale * ScrollInfo._syoff / MAP_GRID_WIDTH) >> 1;
 
 	// select the bottom edge of the tile
 	sy += (d64 >> 2);
