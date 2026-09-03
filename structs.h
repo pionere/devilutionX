@@ -267,6 +267,8 @@ typedef struct ItemStruct {
 		int _iPHolder; // parent index of a placeholder entry in InvList
 	};
 	int _iy;
+	int _idx;     // Precise dungeon X-position of the item
+	int _idy;     // Precise dungeon Y-position of the item
 	int _igx;     // Precise grid (shifted dungeon) X-position of the item
 	int _igy;     // Precise grid (shifted dungeon) Y-position of the item
 	int _iCurs;   // item_cursor_graphic
@@ -319,7 +321,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(13, 12)
+	ALIGNMENT(11, 10)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -930,8 +932,10 @@ typedef struct ObjectStruct {
 	int _otype; // _object_id
 	int _ox;    // Tile X-position of the object
 	int _oy;    // Tile Y-position of the object
+	int _odx;   // Precise dungeon X-position of the object
+	int _ody;   // Precise dungeon Y-position of the object
 	int _ogx;   // Precise grid (shifted dungeon) X-position of the object
-	int _ogy;   // Precise grid (shifted dungeon) X-position of the object
+	int _ogy;   // Precise grid (shifted dungeon) Y-position of the object
 	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
 	BYTE _oAnimFlag;  // object_anim_mode
@@ -963,7 +967,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(6, 5)
+	ALIGNMENT(4, 3)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1245,6 +1249,8 @@ typedef struct LSaveItemStruct {
 	PkItemStruct viPkItem;
 	LE_INT32 vix;
 	LE_INT32 viy;
+	LE_INT32 vidx;   // Precise dungeon X-position of the item
+	LE_INT32 vidy;   // Precise dungeon Y-position of the item
 	LE_INT32 vigx;   // Precise grid (shifted dungeon) X-position of the item
 	LE_INT32 vigy;   // Precise grid (shifted dungeon) Y-position of the item
 	BYTE viMagical;  // item_quality
@@ -1468,6 +1474,8 @@ typedef struct LSaveObjectStruct {
 	LE_INT32 votype; // _object_id
 	LE_INT32 vox;
 	LE_INT32 voy;
+	LE_INT32 vodx;
+	LE_INT32 vody;
 	LE_INT32 vogx;
 	LE_INT32 vogy;
 	LE_INT32 voSFX; // ssfx_id

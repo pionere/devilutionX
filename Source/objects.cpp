@@ -1434,6 +1434,9 @@ int AddObject(int type, int ox, int oy)
 	// place object
 	os->_ox = ox;
 	os->_oy = oy;
+	const POS32 dp = DungeonScreenToDunPos(ox, oy, 0, 0);
+	os->_odx = dp.x;
+	os->_ody = dp.y;
 	const POS32 dg = DungeonScreenToGridPos(ox, oy, 0, 0);
 	os->_ogx = dg.x;
 	os->_ogy = dg.y;

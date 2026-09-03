@@ -44,6 +44,8 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	UnPackItem(&savedItem->viPkItem, is);
 	is->_ix = savedItem->vix;
 	is->_iy = savedItem->viy;
+	is->_idx = savedItem->vidx;
+	is->_idy = savedItem->vidy;
 	is->_igx = savedItem->vigx;
 	is->_igy = savedItem->vigy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
@@ -467,6 +469,8 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_otype = savedObj->votype;
 	os->_ox = savedObj->vox;
 	os->_oy = savedObj->voy;
+	os->_odx = savedObj->vodx;
+	os->_ody = savedObj->vody;
 	os->_ogx = savedObj->vogx;
 	os->_ogy = savedObj->vogy;
 	os->_oSFX = savedObj->voSFX;
@@ -833,6 +837,8 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	PackItem(&itemSave->viPkItem, is);
 	itemSave->vix = is->_ix;
 	itemSave->viy = is->_iy;
+	itemSave->vidx = is->_idx;
+	itemSave->vidy = is->_idy;
 	itemSave->vigx = is->_igx;
 	itemSave->vigy = is->_igy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
@@ -1240,6 +1246,8 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->votype = os->_otype;
 	objSave->vox = os->_ox;
 	objSave->voy = os->_oy;
+	objSave->vodx = os->_odx;
+	objSave->vody = os->_ody;
 	objSave->vogx = os->_ogx;
 	objSave->vogy = os->_ogy;
 	objSave->voSFX = os->_oSFX;
