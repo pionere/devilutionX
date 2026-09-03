@@ -44,12 +44,12 @@ void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdGItem(BYTE bCmd, BYTE ii);
 void NetSendCmdPutItem(BYTE x, BYTE y);
 void NetSendCmdSpawnItem(bool flipFlag);
-/** Use a spell on an item using from as a source.
+/** Use a spell on an item.
  * @param cii: the index of the item in the inventory
  * @param skillUse: the skill and its source to be used
  */
 void NetSendCmdItemSkill(BYTE cii, const CmdSkillUse skillUse);
-/** Use a spell/skill on a given location using from as a source.
+/** Use a spell/skill on a given location.
  * @param x: the x coordinate of the target (MAXDUNX)
  * @param y: the y coordinate of the target (MAXDUNY)
  * @param skillUse: the skill and its source to be used
@@ -62,12 +62,12 @@ void NetSendCmdLocSkill(BYTE x, BYTE y, const CmdSkillUse skillUse);
  * @param from: the source of the skill
  */
 void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, int8_t from);
-/** Use a spell/skill on a player using from as a source.
+/** Use a spell/skill on a player.
  * @param pnum: the id of the targeted player
  * @param skillUse: the skill and its source to be used
  */
 void NetSendCmdPlrSkill(int pnum, const CmdSkillUse skillUse);
-/** Use a spell/skill on a monster using from as a source.
+/** Use a spell/skill on a monster.
  * @param mnum: the id of the targeted monster
  * @param skillUse: the skill and its source to be used
  */
