@@ -27,13 +27,18 @@ extern "C" {
 #define GRID_SHIFT (PLR_WALK_SHIFT - 5)
 #define GRID_WIDTH (64 << GRID_SHIFT)
 
+#define DUN_SHIFT (16 - 6)
+#define DUN_WIDTH ((1 << 6) << DUN_SHIFT)
+
 extern POS32 myview;
 extern ScrollStruct ScrollInfo;
 extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
+POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff);
 POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
+POS32 ScreenOffset(int x, int y, int gx, int gy);
 void UpdateScrollInfo(int pnum);
 /*
  * Convert grid-position to screen coordinates ignoring zoom and scrolling

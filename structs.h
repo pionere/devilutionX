@@ -402,8 +402,8 @@ typedef struct PlayerStruct {
 	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
 	int _poldx;   // Most recent tile X-position where the player was at the start of its action
 	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
-	int _pxoff;   // Pixel X-offset from tile position where the player should be drawn
-	int _pyoff;   // Pixel Y-offset from tile position where the player should be drawn
+	int _pdx;     // Precise dungeon X-position of the player
+	int _pdy;     // Precise dungeon Y-position of the player
 	int _pgx;     // Precise grid (shifted dungeon) X-position of the player
 	int _pgy;     // Precise grid (shifted dungeon) Y-position of the player
 	int _pdir;    // Direction faced by player (direction enum)
@@ -582,13 +582,13 @@ typedef struct MissileStruct {
 	int _misy;    // Initial tile Y-position
 	int _mix;     // Tile X-position where the missile should be drawn
 	int _miy;     // Tile Y-position where the missile should be drawn
-	int _mixoff;  // Pixel X-offset from tile position where the missile should be drawn
-	int _miyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	int _midx;    // Precise dungeon X-position of the missile
+	int _midy;    // Precise dungeon Y-position of the missile
 	int _mizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
-	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
+	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy/migx/migy get updated every game tick based on this
+	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy/migx/migy get updated every game tick based on this
 	int _migx;    // Precise grid (shifted dungeon) X-position of the missile
 	int _migy;    // Precise grid (shifted dungeon) Y-position of the missile
 	int _miDir;   // The direction of the missile
@@ -764,8 +764,8 @@ typedef struct MonsterStruct {
 	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
 	int _moldx;        // Most recent tile X-position where the monster was at the start of its action
 	int _moldy;        // Most recent tile Y-position where the monster was at the start of its action
-	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
-	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
+	int _mdx;          // Precise dungeon X-position of the monster
+	int _mdy;          // Precise dungeon Y-position of the monster
 	int _mgx;          // Precise grid (shifted dungeon) X-position of the monster
 	int _mgy;          // Precise grid (shifted dungeon) Y-position of the monster
 	int _mdir;         // Direction faced by monster (direction enum)
@@ -1287,8 +1287,8 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 vpoldx;   // Most recent tile X-position where the player was at the start of its action
 	LE_INT32 vpoldy;   // Most recent tile Y-position where the player was at the start of its action
-	LE_INT32 vpxoff;   // Pixel X-offset from tile position where the player should be drawn
-	LE_INT32 vpyoff;   // Pixel Y-offset from tile position where the player should be drawn
+	LE_INT32 vpdx;     // Precise dungeon X-position of the player
+	LE_INT32 vpdy;     // Precise dungeon Y-position of the player
 	LE_INT32 vpgx;     // Precise grid (shifted dungeon) X-position of the player
 	LE_INT32 vpgy;     // Precise grid (shifted dungeon) Y-position of the player
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
@@ -1356,8 +1356,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 vmoldx;        // Most recent tile X-position where the monster was at the start of its action
 	LE_INT32 vmoldy;        // Most recent tile Y-position where the monster was at the start of its action
-	LE_INT32 vmxoff;        // Pixel X-offset from tile position where the monster should be drawn
-	LE_INT32 vmyoff;        // Pixel Y-offset from tile position where the monster should be drawn
+	LE_INT32 vmdx;          // Precise dungeon X-position of the monster
+	LE_INT32 vmdy;          // Precise dungeon Y-position of the monster
 	LE_INT32 vmgx;          // Precise grid (shifted dungeon) X-position of the monster
 	LE_INT32 vmgy;          // Precise grid (shifted dungeon) Y-position of the monster
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
@@ -1437,13 +1437,13 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmisy;    // Initial tile Y-position
 	LE_INT32 vmix;     // Tile X-position where the missile should be drawn
 	LE_INT32 vmiy;     // Tile Y-position where the missile should be drawn
-	LE_INT32 vmixoff;  // Pixel X-offset from tile position where the missile should be drawn
-	LE_INT32 vmiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 vmidx;    // Precise dungeon X-position of the missile
+	LE_INT32 vmidy;    // Precise dungeon Y-position of the missile
 	LE_INT32 vmizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 vmixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 vmiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
-	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
+	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy/migx/migy get updated every game tick based on this
+	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy/migx/migy get updated every game tick based on this
 	LE_INT32 vmigx;    // Precise grid (shifted dungeon) X-position of the missile
 	LE_INT32 vmigy;    // Precise grid (shifted dungeon) Y-position of the missile
 	LE_INT32 vmiDir;   // The direction of the missile
@@ -1838,10 +1838,10 @@ typedef struct TSyncLvlPlayer {
 //	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
 //	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
 //	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
-	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
-	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
-	LE_INT32 spgx;     // Precise grid (shifted dungeon) X-position of the player
-	LE_INT32 spgy;     // Precise grid (shifted dungeon) Y-position of the player
+	LE_INT32 spdx; // Precise dungeon X-position of the player
+	LE_INT32 spdy; // Precise dungeon Y-position of the player
+	LE_INT32 spgx; // Precise grid (shifted dungeon) X-position of the player
+	LE_INT32 spgy; // Precise grid (shifted dungeon) Y-position of the player
 	BYTE spdir;    // Direction faced by player (direction enum)
 	BYTE spAnimFrame; // Current frame of animation.
 	BYTE spAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
@@ -1875,8 +1875,8 @@ typedef struct TSyncLvlMonster {
 //	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
 //	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
 //	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
-	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
-	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
+	LE_INT32 smdx;     // Precise dungeon X-position of the monster
+	LE_INT32 smdy;     // Precise dungeon Y-position of the monster
 	LE_INT32 smgx;     // Precise grid (shifted dungeon) X-position of the monster
 	LE_INT32 smgy;     // Precise grid (shifted dungeon) Y-position of the monster
 	BYTE smdir;        // Direction faced by monster (direction enum)
@@ -1917,13 +1917,13 @@ typedef struct TSyncLvlMissile {
 	BYTE smisy;    // Initial tile Y-position for missile
 	BYTE smix;     // Tile X-position where the missile should be drawn
 	BYTE smiy;     // Tile Y-position where the missile should be drawn
-	LE_INT32 smixoff;  // Pixel X-offset from tile position where the missile should be drawn
-	LE_INT32 smiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 smidx;    // Precise dungeon X-position of the missile
+	LE_INT32 smidy;    // Precise dungeon Y-position of the missile
 	LE_INT32 smizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 smixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 smiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
-	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mixoff/miyoff get updated every game tick based on this
+	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy/migx/migy get updated every game tick based on this
+	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy/migx/migy get updated every game tick based on this
 	LE_INT32 smigx;    // Precise grid (shifted dungeon) X-position of the missile
 	LE_INT32 smigy;    // Precise grid (shifted dungeon) Y-position of the missile
 	LE_INT32 smiSpllvl; // TODO: int?

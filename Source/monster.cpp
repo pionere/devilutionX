@@ -1527,9 +1527,9 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon = &monsters[mnum];
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
-
+	POS32 pd = DungeonScreenToDunPos(x, y, 0, 0);
+	mon->_mdx = pd.x;
+	mon->_mdy = pd.y;
 	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
 	mon->_mgx = pg.x;
 	mon->_mgy = pg.y;
@@ -1546,8 +1546,8 @@ static void AssertFixMonLocation(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	assert(mon->_mxoff == 0);
-	assert(mon->_myoff == 0);
+	assert(mon->_mdx == ((mon->_mx * DUN_WIDTH) | (DUN_WIDTH / 2)));
+	assert(mon->_mdy == ((mon->_my * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(mon->_mfutx == mon->_mx);
 	assert(mon->_moldx == mon->_mx);
 	assert(mon->_mfuty == mon->_my);
@@ -1737,8 +1737,6 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 	mon->_mmode = MM_WALK;
 	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
 	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
-	mon->_mxoff = 0;
-	mon->_myoff = 0;
 	//mon->_mVar1 = xadd; // dx after the movement
 	//mon->_mVar2 = yadd; // dy after the movement
 	mon->_mVar6 = 0;    // MWALK_XOFF : _mxoff in a higher range
@@ -1769,8 +1767,6 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	mon->_mmode = MM_WALK2;
 	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
 	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
-	mon->_mxoff = xoff * ASSET_MPL;
-	mon->_myoff = yoff * ASSET_MPL;
 	mon->_mVar6 = xoff << MON_WALK_SHIFT; // MWALK_XOFF : _mxoff in a higher range
 	mon->_mVar7 = yoff << MON_WALK_SHIFT; // MWALK_YOFF : _myoff in a higher range
 	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
@@ -2312,9 +2308,12 @@ static bool MonDoWalk(int mnum)
 			//mon->_mVar8++;
 			mon->_mVar6 += mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
-			mon->_mxoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
-			mon->_myoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
-			POS32 gp = DungeonScreenToGridPos(mon->_mx, mon->_my, mon->_mxoff, mon->_myoff);
+			int xoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
+			int yoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
+			POS32 dp = DungeonScreenToDunPos(mon->_mx, mon->_my, xoff, yoff);
+			mon->_mdx = dp.x;
+			mon->_mdy = dp.y;
+			POS32 gp = DungeonScreenToGridPos(mon->_mx, mon->_my, xoff, yoff);
 			mon->_mgx = gp.x;
 			mon->_mgy = gp.y;
 			// assert(mon->_mlid == NO_LIGHT);

@@ -115,8 +115,8 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_pfuty = savedPlr->vpfuty;
 	pr->_poldx = savedPlr->vpoldx;
 	pr->_poldy = savedPlr->vpoldy;
-	pr->_pxoff = savedPlr->vpxoff;
-	pr->_pyoff = savedPlr->vpyoff;
+	pr->_pdx = savedPlr->vpdx;
+	pr->_pdy = savedPlr->vpdy;
 	pr->_pgx = savedPlr->vpgx;
 	pr->_pgy = savedPlr->vpgy;
 	pr->_pdir = savedPlr->vpdir;
@@ -272,8 +272,8 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_mfuty = savedMon->vmfuty;
 	mon->_moldx = savedMon->vmoldx;
 	mon->_moldy = savedMon->vmoldy;
-	mon->_mxoff = savedMon->vmxoff;
-	mon->_myoff = savedMon->vmyoff;
+	mon->_mdx = savedMon->vmdx;
+	mon->_mdy = savedMon->vmdy;
 	mon->_mgx = savedMon->vmgx;
 	mon->_mgy = savedMon->vmgy;
 	mon->_mdir = savedMon->vmdir;
@@ -416,8 +416,8 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_misy = savedMis->vmisy;
 	mis->_mix = savedMis->vmix;
 	mis->_miy = savedMis->vmiy;
-	mis->_mixoff = savedMis->vmixoff;
-	mis->_miyoff = savedMis->vmiyoff;
+	mis->_midx = savedMis->vmidx;
+	mis->_midy = savedMis->vmidy;
 	mis->_mizoff = savedMis->vmizoff;
 	mis->_mixvel = savedMis->vmixvel;
 	mis->_miyvel = savedMis->vmiyvel;
@@ -905,8 +905,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpfuty = pr->_pfuty;
 	plrSave->vpoldx = pr->_poldx;
 	plrSave->vpoldy = pr->_poldy;
-	plrSave->vpxoff = pr->_pxoff;
-	plrSave->vpyoff = pr->_pyoff;
+	plrSave->vpdx = pr->_pdx;
+	plrSave->vpdy = pr->_pdy;
 	plrSave->vpgx = pr->_pgx;
 	plrSave->vpgy = pr->_pgy;
 	plrSave->vpdir = pr->_pdir;
@@ -1066,8 +1066,8 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmfuty = mon->_mfuty;
 	monSave->vmoldx = mon->_moldx;
 	monSave->vmoldy = mon->_moldy;
-	monSave->vmxoff = mon->_mxoff;
-	monSave->vmyoff = mon->_myoff;
+	monSave->vmdx = mon->_mdx;
+	monSave->vmdy = mon->_mdy;
 	monSave->vmgx = mon->_mgx;
 	monSave->vmgy = mon->_mgy;
 	monSave->vmdir = mon->_mdir;
@@ -1189,8 +1189,8 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmisy = mis->_misy;
 	misSave->vmix = mis->_mix;
 	misSave->vmiy = mis->_miy;
-	misSave->vmixoff = mis->_mixoff;
-	misSave->vmiyoff = mis->_miyoff;
+	misSave->vmidx = mis->_midx;
+	misSave->vmidy = mis->_midy;
 	misSave->vmizoff = mis->_mizoff;
 	misSave->vmixvel = mis->_mixvel;
 	misSave->vmiyvel = mis->_miyvel;

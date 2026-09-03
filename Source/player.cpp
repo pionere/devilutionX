@@ -638,9 +638,9 @@ void SetPlayerLoc(int pnum, int x, int y)
 {
 	plr._px = plr._pfutx = plr._poldx = x;
 	plr._py = plr._pfuty = plr._poldy = y;
-	plr._pxoff = 0;
-	plr._pyoff = 0;
-
+	POS32 pd = DungeonScreenToDunPos(x, y, 0, 0);
+	plr._pdx = pd.x;
+	plr._pdy = pd.y;
 	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
 	plr._pgx = pg.x;
 	plr._pgy = pg.y;
@@ -648,8 +648,6 @@ void SetPlayerLoc(int pnum, int x, int y)
 
 static void FixPlayerLocation(int pnum)
 {
-	plr._pxoff = 0;
-	plr._pyoff = 0;
 	SetPlayerLoc(pnum, plr._px, plr._py);
 	UpdateScrollInfo(pnum);
 }
@@ -660,8 +658,8 @@ static void AssertFixPlayerLocation(int pnum)
 	assert(plr._poldx == plr._px);
 	assert(plr._pfuty == plr._py);
 	assert(plr._poldy == plr._py);
-	assert(plr._pxoff == 0);
-	assert(plr._pyoff == 0);
+	assert(plr._pdx == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
+	assert(plr._pdy == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	if (pnum == mypnum) {
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
@@ -766,8 +764,8 @@ void InitLvlPlayer(int pnum, bool entering)
 			assert(plr._poldx == plr._px);
 			assert(plr._pfuty == plr._py);
 			assert(plr._poldy == plr._py);
-			assert(plr._pxoff == 0);
-			assert(plr._pyoff == 0);
+			assert(plr._pdx == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
+			assert(plr._pdy == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			FixPlayerLocation(pnum);
 		}
 		if (plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
@@ -1080,21 +1078,17 @@ void PlrStartStand(int pnum)
 
 static void PlrChangeOffset(int pnum)
 {
-	// int px, py;
-
-	// px = plr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
-	// py = plr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
-
 	plr._pVar6 += plr._pVar4; // WALK_XOFF <- WALK_XVEL
 	plr._pVar7 += plr._pVar5; // WALK_YOFF <- WALK_YVEL
 
-	plr._pxoff = (plr._pVar6 >> PLR_WALK_SHIFT) * ASSET_MPL;
-	plr._pyoff = (plr._pVar7 >> PLR_WALK_SHIFT) * ASSET_MPL;
-	POS32 gp = DungeonScreenToGridPos(plr._px, plr._py, plr._pxoff, plr._pyoff);
+	int xoff = (plr._pVar6 >> PLR_WALK_SHIFT) * ASSET_MPL;
+	int yoff = (plr._pVar7 >> PLR_WALK_SHIFT) * ASSET_MPL;
+	POS32 dp = DungeonScreenToDunPos(plr._px, plr._py, xoff, yoff);
+	plr._pdx = dp.x;
+	plr._pdy = dp.y;
+	POS32 gp = DungeonScreenToGridPos(plr._px, plr._py, xoff, yoff);
 	plr._pgx = gp.x;
 	plr._pgy = gp.y;
-	// px -= plr._pxoff;
-	// py -= plr._pyoff;
 
 	UpdateScrollInfo(pnum);
 
@@ -1112,11 +1106,9 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 	plr._pmode = PM_WALK;
 	plr._pVar4 = xvel; // WALK_XVEL : velocity of the player in the X-direction
 	plr._pVar5 = yvel; // WALK_YVEL : velocity of the player in the Y-direction
-	plr._pxoff = 0;
-	plr._pyoff = 0;
 	//plr._pVar3 = dir;  // Player's direction when ending movement.
-	plr._pVar6 = 0;    // WALK_XOFF : _pxoff value in a higher range
-	plr._pVar7 = 0;    // WALK_YOFF : _pyoff value in a higher range
+	plr._pVar6 = 0;    // WALK_XOFF : screen X-offset in a higher range
+	plr._pVar7 = 0;    // WALK_YOFF : screen Y-offset in a higher range
 	plr._pVar8 = 0;    // WALK_TICK : speed helper
 
 	px = plr._px;
@@ -1142,10 +1134,8 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	plr._pmode = PM_WALK2;
 	plr._pVar4 = xvel;       // WALK_XVEL : velocity of the player in the X-direction
 	plr._pVar5 = yvel;       // WALK_YVEL : velocity of the player in the Y-direction
-	plr._pxoff = xoff * ASSET_MPL;        // Offset player sprite to align with their previous tile position
-	plr._pyoff = yoff * ASSET_MPL;
-	plr._pVar6 = xoff << PLR_WALK_SHIFT;  // WALK_XOFF : _pxoff value in a higher range
-	plr._pVar7 = yoff << PLR_WALK_SHIFT;  // WALK_YOFF : _pyoff value in a higher range
+	plr._pVar6 = xoff << PLR_WALK_SHIFT;  // WALK_XOFF : screen X-offset in a higher range
+	plr._pVar7 = yoff << PLR_WALK_SHIFT;  // WALK_YOFF : screen Y-offset in a higher range
 	//plr._pVar3 = dir;      // Player's direction when ending movement.
 	plr._pVar8 = 0;          // WALK_TICK : speed helper
 

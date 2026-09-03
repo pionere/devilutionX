@@ -1057,7 +1057,6 @@ void DeltaLoadLevel()
 					UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 					RemoveMonFromMap(i);
 				}
-				// assert(mon->_mxoff == 0 && mon->_myoff == 0);
 				SetMonsterLoc(i, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
 				if (mstr->dmSIdx != 0) {
@@ -1308,8 +1307,8 @@ void LevelDeltaExport()
 			//tplr->spfuty = plr._pfuty;
 			//tplr->spoldx = plr._poldx;
 			//tplr->spoldy = plr._poldy;
-			tplr->spxoff = plr._pxoff / ASSET_MPL;
-			tplr->spyoff = plr._pyoff / ASSET_MPL;
+			tplr->spdx = plr._pdx;
+			tplr->spdy = plr._pdy;
 			tplr->spgx = plr._pgx;
 			tplr->spgy = plr._pgy;
 			tplr->spdir = plr._pdir;
@@ -1353,8 +1352,8 @@ void LevelDeltaExport()
 			//tmon->smfuty = mon->_mfuty;
 			//tmon->smoldx = mon->_moldx;
 			//tmon->smoldy = mon->_moldy;
-			tmon->smxoff = mon->_mxoff / ASSET_MPL;
-			tmon->smyoff = mon->_myoff / ASSET_MPL;
+			tmon->smdx = mon->_mdx;
+			tmon->smdy = mon->_mdy;
 			tmon->smgx = mon->_mgx;
 			tmon->smgy = mon->_mgy;
 			tmon->smdir = mon->_mdir;
@@ -1415,8 +1414,8 @@ void LevelDeltaExport()
 			tmis->smisy = mis->_misy;
 			tmis->smix = mis->_mix;
 			tmis->smiy = mis->_miy;
-			tmis->smixoff = mis->_mixoff / ASSET_MPL;
-			tmis->smiyoff = mis->_miyoff / ASSET_MPL;
+			tmis->smidx = mis->_midx;
+			tmis->smidy = mis->_midy;
 			tmis->smizoff = mis->_mizoff / ASSET_MPL;
 			tmis->smixvel = mis->_mixvel;
 			tmis->smiyvel = mis->_miyvel;
@@ -1527,8 +1526,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		plr._pxoff = tplr->spxoff * ASSET_MPL;
-		plr._pyoff = tplr->spyoff * ASSET_MPL;
+		plr._pdx = tplr->spdx;
+		plr._pdy = tplr->spdy;
 		plr._pgx = tplr->spgx;
 		plr._pgy = tplr->spgy;
 		plr._pdir = tplr->spdir;
@@ -1619,8 +1618,8 @@ void LevelDeltaLoad()
 		//mon->_mfuty = tmon->smfuty;
 		//mon->_moldx = tmon->smoldx;
 		//mon->_moldy = tmon->smoldy;
-		mon->_mxoff = tmon->smxoff * ASSET_MPL;
-		mon->_myoff = tmon->smyoff * ASSET_MPL;
+		mon->_mdx = tmon->smdx;
+		mon->_mdy = tmon->smdy;
 		mon->_mgx = tmon->smgx;
 		mon->_mgy = tmon->smgy;
 		mon->_mdir = tmon->smdir;
@@ -1746,8 +1745,8 @@ void LevelDeltaLoad()
 		mis->_misy = tmis->smisy;
 		mis->_mix = tmis->smix;
 		mis->_miy = tmis->smiy;
-		mis->_mixoff = tmis->smixoff * ASSET_MPL;
-		mis->_miyoff = tmis->smiyoff * ASSET_MPL;
+		mis->_midx = tmis->smidx;
+		mis->_midy = tmis->smidy;
 		mis->_mizoff = tmis->smizoff * ASSET_MPL;
 		mis->_mixvel = tmis->smixvel;
 		mis->_miyvel = tmis->smiyvel;
@@ -3643,8 +3642,8 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	"y:%d "
 	"fx:%d "
 	"fy:%d "
-	"ox:%d "
-	"oy:%d "
+	"dx:%d "
+	"dy:%d "
 	"xf:%d "
 	"yf:%d "
 	"dir:%d "
@@ -3717,8 +3716,8 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mfuty,
 	mon->_moldx,
 	mon->_moldy,
-	mon->_mxoff,
-	mon->_myoff,
+	mon->_mdx,
+	mon->_mdy,
 	mon->_mdir,
 	mon->_menemy,
 	mon->_menemyx,
@@ -3873,8 +3872,8 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._poldy;
 		buf++;
-		//plr._pxoff = tplr->spxoff;
-		//plr._pyoff = tplr->spyoff;
+		//plr._pdx = tplr->spdx;
+		//plr._pdy = tplr->spdy;
 		*buf = plx(i)._pdir;
 		buf++;
 		//int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -4179,8 +4178,8 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 			PrintPlrMismatch("poldy", plx(i)._poldy, *src, pnum, i);
 		src++;
 
-		//int _pxoff;   // Player sprite's pixel X-offset from tile.
-		//int _pyoff;   // Player sprite's pixel Y-offset from tile.
+		//int _pdx;   // Precise dungeon X-position of the player
+		//int _pdy;   // Precise dungeon Y-position of the player
 		if (plx(i)._pdir != *src)
 			PrintPlrMismatch("dir", plx(i)._pdir, *src, pnum, i);
 		src++;

@@ -112,6 +112,42 @@ const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 };
 #endif
 
+POS32 DungeonToDunPos(int x, int y)
+{
+	x *= DUN_WIDTH;
+	y *= DUN_WIDTH;
+
+	x |= DUN_WIDTH / 2;
+	y |= DUN_WIDTH / 2;
+
+	return { x, y };
+}
+
+POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff)
+{
+	int xo, yo;
+	POS32 res = DungeonToDunPos(x, y);
+	static_assert(((TILE_WIDTH / ASSET_MPL) << GRID_SHIFT) == GRID_WIDTH, "Grid position calculation must be adjusted.");
+
+	// convert screen-offset to tile-offset
+	xoff /= ASSET_MPL;
+	yoff /= ASSET_MPL;
+
+	yoff *= TILE_WIDTH / TILE_HEIGHT;
+
+	xo = xoff + yoff;
+	yo = yoff - xoff;
+
+	xo *= DUN_WIDTH / (TILE_WIDTH / ASSET_MPL);
+	yo *= DUN_WIDTH / (TILE_WIDTH / ASSET_MPL);
+
+
+	res.x += xo;
+	res.y += yo;
+
+	return res;
+}
+
 POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
 {
 	int gx = 0;
@@ -153,6 +189,15 @@ POS32 GridToScreen(int gx, int gy)
 	pos.y *= ASSET_MPL;
 
 	return pos;
+}
+
+POS32 ScreenOffset(int x, int y, int gx, int gy)
+{
+	POS32 gp = DungeonScreenToGridPos(x, y, 0, 0);
+	gx -= gp.x;
+	gy -= gp.y;
+
+	return GridToScreen(gx, gy);
 }
 
 void UpdateScrollInfo(int pnum)
