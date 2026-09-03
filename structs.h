@@ -107,6 +107,8 @@ typedef struct RECT_AREA32 {
 typedef struct GRID_POS32 {
 	int x;
 	int y;
+	int dx;
+	int dy;
 	int gx;
 	int gy;
 } GRID_POS32;

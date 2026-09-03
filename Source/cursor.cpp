@@ -279,6 +279,8 @@ void CheckTownPortal()
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
 				pcurspos.x = mis->_mix;
 				pcurspos.y = mis->_miy;
+				pcurspos.dx = mis->_midx;
+				pcurspos.dy = mis->_midy;
 				pcurspos.gx = mis->_migx;
 				pcurspos.gy = mis->_migy;
 			}
@@ -660,6 +662,9 @@ done:
 		ASSUME_UNREACHABLE
 	}
 
+	POS32 dp = DungeonScreenToDunPos(pcurspos.x, pcurspos.y, 0, 0);
+	pcurspos.dx = dp.x;
+	pcurspos.dy = dp.y;
 	POS32 gp = DungeonScreenToGridPos(pcurspos.x, pcurspos.y, 0, 0);
 	pcurspos.gx = gp.x;
 	pcurspos.gy = gp.y;
