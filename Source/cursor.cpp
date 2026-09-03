@@ -540,8 +540,8 @@ void CheckCursMove()
 		// select a dead player
 		if (deadplr[0] != 0) {
 			pcursplr = deadplr[0];
-			pcurspos.x = mx;
-			pcurspos.y = my;
+			// pcurspos.x = mx;
+			// pcurspos.y = my;
 			goto done;
 		}
 		// select an object
@@ -573,8 +573,8 @@ void CheckCursMove()
 			}
 		}
 
-		pcurspos.x = mx;
-		pcurspos.y = my;
+		// pcurspos.x = mx;
+		// pcurspos.y = my;
 		pcurstrig = CheckTrigForce();
 		if (TRIG_VALID(pcurstrig)) {
 			pcurspos.x = trigs[pcurstrig]._tx;
@@ -652,8 +652,8 @@ done:
 		// select a dead player
 		if (deadplr[0] != 0) {
 			pcursplr = deadplr[0] - 1;
-			pcurspos.x = mx;
-			pcurspos.y = my;
+			// pcurspos.x = mx;
+			// pcurspos.y = my;
 		}
 		break;
 	case TGT_NONE:
