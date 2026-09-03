@@ -1870,7 +1870,7 @@ static void Obj_Trap(int oi)
 	on = &objects[os->_oVar1]; // TRAP_OI_REF
 	switch (os->_oVar2) { // TRAP_TRIG_TYPE
 	case OTM_DOOR:
-		if (on->_oVar4 != DOOR_CLOSED) {
+		if (on->_oVar4 == DOOR_OPEN || on->_oVar4 == DOOR_BLOCKED) {
 			trigArea = baseTrigArea;
 			trigNum = lengthof(baseTrigArea);
 		}
