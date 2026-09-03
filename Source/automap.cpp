@@ -349,13 +349,10 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 	x = sx;
 	y = sy;
 
-	POS32 gp = DungeonScreenToGridPos(p->_px, p->_py, 0, 0);
-	gp.x -= p->_pgx;
-	gp.y -= p->_pgy;
+	POS32 sp = ScreenOffset(p->_px, p->_py, p->_pgx, p->_pgy);
 
-	POS32 sp = GridToScreen(gp.x, gp.y);
-	x -= sp.x * (int)AutoMapScale >> (MAP_SHIFT + 1);
-	y -= sp.y * (int)AutoMapScale >> (MAP_SHIFT + 1);
+	x += sp.x * (int)AutoMapScale >> (MAP_SHIFT + 1);
+	y += sp.y * (int)AutoMapScale >> (MAP_SHIFT + 1);
 
 	y -= d16;
 

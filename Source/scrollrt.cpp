@@ -211,19 +211,15 @@ void UpdateScrollInfo(int pnum)
 		myview.x = plr._px;
 		myview.y = plr._py;
 
-		POS32 gp = DungeonScreenToGridPos(myview.x, myview.y, 0, 0);
-		gp.x -= plr._pgx;
-		gp.y -= plr._pgy;
-
-		POS32 sp = GridToScreen(gp.x, gp.y);
+		POS32 sp = ScreenOffset(myview.x, myview.y, plr._pgx, plr._pgy);
 #if FOLLOW
-		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff - sp.x, ScrollInfo._syoff - sp.y);
+		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff + sp.x, ScrollInfo._syoff + sp.y);
 		dp = GridToScreen(dp.x, dp.y);
 		if (gbActionBtnDown != 0 && (dp.x | dp.y) != 0 && MON_VALID(pcursmonst))
 			SetCursorPos(MousePos.x - dp.x, MousePos.y - dp.y);
 #endif
-		ScrollInfo._sxoff = sp.x;
-		ScrollInfo._syoff = sp.y;
+		ScrollInfo._sxoff = -sp.x;
+		ScrollInfo._syoff = -sp.y;
 #if DEBUG_MODE
 		for (int i = 0; i < lengthof(dir2sdir); i++)
 			assert(dir2sdir[i] == 1 + i);
