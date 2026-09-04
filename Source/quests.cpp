@@ -117,7 +117,7 @@ void CheckQuests()
 		 && nummonsters == MAX_MINIONS) {
 			quests[Q_PWATER]._qvar1 = QV_PWATER_CLEAN;
 			NetSendCmdQuest(Q_PWATER, true);
-			PlaySfxLoc(IS_QUESTDN, myplr._px, myplr._py);
+			PlaySfxLoc(IS_QUESTDN, myplr._ppos);
 			gbWaterDone = 32;
 			LoadPalette(L3_WATER_PAL);
 		}

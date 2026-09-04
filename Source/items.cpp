@@ -2157,7 +2157,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
  */
 void PickQuestItemAt(int idx, int x, int y, int mode)
 {
-	PlaySfxLoc(IS_IGRAB, x, y);
+	PlaySfxLoc(IS_IGRAB, DungeonScreenToDunPos(x, y, 0, 0));
 	SpawnQuestItemAt(idx, x, y, mode);
 	if (mode >= ICM_SEND) {
 		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, MAXITEMS);
@@ -2270,7 +2270,7 @@ void ProcessItems()
 				if (is->_iSelFlag == 0) {
 					// emit drop sfx at the middle of the animation (or right away if the animation is short)
 					if (is->_iAnimFrame == (anim->caFrameLen >> 1) || (is->_iAnimFrame == 2 && anim->caFrameLen <= 3)) {
-						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ix, is->_iy);
+						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ipos);
 					}
 					// switch to ground graphics at the end of the drop animation
 					if (is->_iAnimFrame >= anim->caFrameLen) {

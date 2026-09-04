@@ -106,22 +106,23 @@ void FreeMonsterSFX()
 	}
 }
 
-static INTPAIR calc_snd_position(int x, int y)
+static INTPAIR calc_snd_position(POS32 pos)
 {
 	INTPAIR res;
 	int pan, volume;
 
-	x -= myplr._px;
-	y -= myplr._py;
+	pos.x -= myplr._px;
+	pos.y -= myplr._py;
 
-	pan = (x - y);
+	pan = (pos.x - pos.y);
+	pan /= DUN_WIDTH;
 	res = { 0, pan };
 	if (abs(pan) <= SFX_DIST_MAX) {
-		volume = std::max(abs(x), abs(y));
-		if (volume < SFX_DIST_MAX) {
+		volume = std::max(abs(pos.x), abs(pos.y));
+		if (volume < SFX_DIST_MAX * DUN_WIDTH) {
 			static_assert(((VOLUME_MAX - VOLUME_MIN) % SFX_DIST_MAX) == 0, "Volume calculation in calc_snd_position requires matching VOLUME_MIN/MAX and SFX_DIST_MAX values.");
 			static_assert(((((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX)) & ((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX - 1)) == 0, "Volume calculation in calc_snd_position is no longer optimal for performance.");
-			volume *= (VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX;
+			volume /= SFX_DIST_MAX * DUN_WIDTH / (VOLUME_MAX - VOLUME_MIN);
 			res.v0 = VOLUME_MAX - volume;
 		}
 	}
@@ -176,7 +177,7 @@ void PlayMonSfx(int mnum, int mode)
 		return;
 	}
 
-	volumePan = calc_snd_position(mon->_mx, mon->_my);
+	volumePan = calc_snd_position(mon->_mpos);
 	if (volumePan.v0 != 0)
 		sound_play(snd, volumePan.v0, volumePan.v1);
 }
@@ -193,20 +194,20 @@ void PlaySfxN(int nsfx, int rndCnt)
 	PlaySfx(nsfx);
 }
 
-void PlaySfxLoc(int nsfx, int x, int y)
+void PlaySfxLoc(int nsfx, POS32 pos)
 {
-	INTPAIR volumePan = calc_snd_position(x, y);
+	INTPAIR volumePan = calc_snd_position(pos);
 
 	if (volumePan.v0 != 0)
 		PlaySfx_priv(nsfx, volumePan.v0, volumePan.v1);
 }
 
-void PlaySfxLocN(int nsfx, int x, int y, int rndCnt)
+void PlaySfxLocN(int nsfx, POS32 pos, int rndCnt)
 {
 	if (rndCnt > 1)
 		nsfx += random_low(165, rndCnt);
 
-	PlaySfxLoc(nsfx, x, y);
+	PlaySfxLoc(nsfx, pos);
 }
 
 void PlayWalkSfx(int pnum)
@@ -215,7 +216,7 @@ void PlayWalkSfx(int pnum)
 
 	sgSndSamples[nsfx].lastTc = 0;
 
-	PlaySfxLoc(nsfx, plr._px, plr._py);
+	PlaySfxLoc(nsfx, plr._ppos);
 }
 
 static void priv_sound_free(BYTE bLoadMask)

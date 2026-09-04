@@ -1008,7 +1008,7 @@ static void StartPlrKill(int pnum, int dmgtype)
 		NewPlrAnim(pnum, PGX_DEATH, plr._pdir);
 
 		RemovePlrFromMap(pnum);
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._px, plr._py);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._ppos);
 		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 		PlrPlace(pnum);
 
@@ -1376,7 +1376,7 @@ static void StartSpell(int pnum)
 	}
 	NewPlrAnim(pnum, animIdx, plr._pdir);
 
-	PlaySfxLoc(sd->sSFX, plr._px, plr._py);
+	PlaySfxLoc(sd->sSFX, plr._ppos);
 
 	AssertFixPlayerLocation(pnum);
 }
@@ -1471,7 +1471,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 		// dam = 0;
 	}
 
-	PlaySfxLocN(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._px, plr._py, 2);
+	PlaySfxLocN(sgSFXSets[SFXS_PLR_69][plr._pClass], plr._ppos, 2);
 
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
@@ -1992,7 +1992,7 @@ static void PlrDoAttack(int pnum)
 		return;
 	if (plr._pVar7 == 0) { // ATTACK_ACTION_PROGRESS
 		plr._pVar7 = 1;
-		PlaySfxLocN(PS_SWING, plr._px, plr._py, 2);
+		PlaySfxLocN(PS_SWING, plr._ppos, 2);
 	}
 	if (plr._pAnimFrame == plr._pAFNum - 1) {
 		return;
@@ -2162,7 +2162,7 @@ bool PlrCheckBlock(int pnum, int bmod, int dir)
 				StartBlock(pnum, dir);
 			}
 
-			PlaySfxLoc(IS_ISWORD, plr._px, plr._py);
+			PlaySfxLoc(IS_ISWORD, plr._ppos);
 			if (random_(3, 10) == 0) {
 				ShieldDur(pnum);
 			}
@@ -2651,7 +2651,7 @@ void ProcessPlayers()
 				if (plr._pTimer[PLTR_RAGE] == 0) {
 					if (lastTimer >= 0) {
 						plr._pTimer[PLTR_RAGE] = -RAGE_COOLDOWN_TICK;
-						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._px, plr._py);
+						PlaySfxLoc(sgSFXSets[SFXS_PLR_72][plr._pClass], plr._ppos);
 					}
 					CalcPlrItemVals(pnum, false); // last parameter should not matter
 				}
@@ -2751,7 +2751,7 @@ void MissToPlr(int mi, bool hit)
 	//if (mis->_miSpllvl < 10)
 		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
 	//else
-	//	PlaySfxLoc(IS_BHIT, x, y);
+	//	PlaySfxLoc(IS_BHIT, plr._ppos);
 	dist = (int)mis->_miRange - 24; // MISRANGE
 	// if (dist < 0)
 	//	return;

@@ -1531,7 +1531,7 @@ static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 			mis->_miRange = -1;
 		mds = &missiledata[mis->_miType];
 		if (SFX_VALID(mds->miSFX))
-			PlaySfxLocN(mds->miSFX, mis->_mix, mis->_miy, mds->miSFXCnt);
+			PlaySfxLocN(mds->miSFX, mis->_mipos, mds->miSFXCnt);
 	}
 	return hit;
 }
@@ -2638,7 +2638,7 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	static_assert(MAX_LIGHT_RAD >= 15, "AddPortal needs at least light-radius of 15.");
 	mis->_miLid = AddLight(mis->_migx, mis->_migy, spllvl >= 0 ? 1 : 15);
 	if (spllvl >= 0) {
-		PlaySfxLoc(LS_SENTINEL, dx, dy);
+		PlaySfxLoc(LS_SENTINEL, mis->_mipos);
 		if (misource == mypnum)
 			NetSendCmdLocBParam1(CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
 	} else {
@@ -3516,7 +3516,7 @@ int AddRage(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 
 	if (plr._pTimer[PLTR_RAGE] == 0) {
 		plr._pTimer[PLTR_RAGE] = 32 * spllvl + 245;
-		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._px, plr._py);
+		PlaySfxLoc(sgSFXSets[SFXS_PLR_70][plr._pClass], plr._ppos);
 		CalcPlrItemVals(pnum, false); // last parameter should not matter
 	}
 	return MIRES_DELETE;
@@ -3614,7 +3614,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miLid = NO_LIGHT;
 
 	if (SFX_VALID(mds->mlSFX)) {
-		PlaySfxLocN(mds->mlSFX, sx, sy, mds->mlSFXCnt);
+		PlaySfxLocN(mds->mlSFX, mis->_mipos, mds->mlSFXCnt);
 	}
 
 	if (mds->mdPrSpeed != 0) {
@@ -4094,7 +4094,7 @@ void MI_Firewall(int mi)
 			mis->_miVar1 = 255;
 			// assert(missiledata[MIS_FIREWALL].mlSFX == LS_WALLLOOP);
 			// assert(missiledata[MIS_FIREWALL].mlSFXCnt == 1);
-			PlaySfxLoc(LS_WALLLOOP, mis->_mix, mis->_miy);
+			PlaySfxLoc(LS_WALLLOOP, mis->_mipos);
 		}
 	}
 	PutMissileF(mi, BFLAG_HAZARD); // TODO: do not place hazard if the source is a monster
@@ -4548,7 +4548,7 @@ void MI_Meteor(int mi)
 		mx = mis->_mix;
 		my = mis->_miy;
 		CheckMissileCol(mi, mx, my, MICM_NONE);
-		PlaySfxLoc(LS_FIRIMP2, mx, my);
+		PlaySfxLoc(LS_FIRIMP2, mis->_mipos);
 
 		AddMissile(mx, my, 0, 0, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 	}

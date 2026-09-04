@@ -66,13 +66,13 @@ static void CowSFX(MonsterStruct* cow, int pnum)
 
 	if (_guCowClicks < 8) {
 		CowPlaying = _guCowClicks == 4 ? TSFX_COW2 : TSFX_COW1;
-		PlaySfxLoc(CowPlaying, cow->_mx, cow->_my);
+		PlaySfxLoc(CowPlaying, cow->_mpos);
 		return;
 	}
 
 	_guCowClicks = 4;
 	CowPlaying = snSFX[_guCowMsg][plr._pClass];
-	PlaySfxLoc(CowPlaying, plr._px, plr._py);
+	PlaySfxLoc(CowPlaying, plr._ppos);
 	_guCowMsg++;
 	if (_guCowMsg >= lengthof(snSFX))
 		_guCowMsg = 0;
