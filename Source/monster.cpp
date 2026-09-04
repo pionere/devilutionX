@@ -1527,9 +1527,7 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon = &monsters[mnum];
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
-	POS32 pd = DungeonScreenToDunPos(x, y, 0, 0);
-	mon->_mdx = pd.x;
-	mon->_mdy = pd.y;
+	mon->_mpos = DungeonScreenToDunPos(x, y, 0, 0);
 	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
 	mon->_mgx = pg.x;
 	mon->_mgy = pg.y;
@@ -1546,8 +1544,8 @@ static void AssertFixMonLocation(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
-	assert(mon->_mdx == ((mon->_mx * DUN_WIDTH) | (DUN_WIDTH / 2)));
-	assert(mon->_mdy == ((mon->_my * DUN_WIDTH) | (DUN_WIDTH / 2)));
+	assert(mon->_mpos.x == ((mon->_mx * DUN_WIDTH) | (DUN_WIDTH / 2)));
+	assert(mon->_mpos.y == ((mon->_my * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(mon->_mfutx == mon->_mx);
 	assert(mon->_moldx == mon->_mx);
 	assert(mon->_mfuty == mon->_my);
@@ -2310,9 +2308,7 @@ static bool MonDoWalk(int mnum)
 			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
 			int xoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
 			int yoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
-			POS32 dp = DungeonScreenToDunPos(mon->_mx, mon->_my, xoff, yoff);
-			mon->_mdx = dp.x;
-			mon->_mdy = dp.y;
+			mon->_mpos = DungeonScreenToDunPos(mon->_mx, mon->_my, xoff, yoff);
 			POS32 gp = DungeonScreenToGridPos(mon->_mx, mon->_my, xoff, yoff);
 			mon->_mgx = gp.x;
 			mon->_mgy = gp.y;

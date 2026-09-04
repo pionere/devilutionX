@@ -210,8 +210,7 @@ void UpdateScrollInfo(int pnum)
 #endif
 		myview.x = plr._px;
 		myview.y = plr._py;
-		myview.dx = plr._pdx;
-		myview.dy = plr._pdy;
+		myview.dun = plr._ppos;
 		myview.gx = plr._pgx;
 		myview.gy = plr._pgy;
 

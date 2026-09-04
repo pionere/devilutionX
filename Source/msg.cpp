@@ -1307,8 +1307,8 @@ void LevelDeltaExport()
 			//tplr->spfuty = plr._pfuty;
 			//tplr->spoldx = plr._poldx;
 			//tplr->spoldy = plr._poldy;
-			tplr->spdx = plr._pdx;
-			tplr->spdy = plr._pdy;
+			tplr->spdx = plr._ppos.x;
+			tplr->spdy = plr._ppos.y;
 			tplr->spgx = plr._pgx;
 			tplr->spgy = plr._pgy;
 			tplr->spdir = plr._pdir;
@@ -1352,8 +1352,8 @@ void LevelDeltaExport()
 			//tmon->smfuty = mon->_mfuty;
 			//tmon->smoldx = mon->_moldx;
 			//tmon->smoldy = mon->_moldy;
-			tmon->smdx = mon->_mdx;
-			tmon->smdy = mon->_mdy;
+			tmon->smdx = mon->_mpos.x;
+			tmon->smdy = mon->_mpos.y;
 			tmon->smgx = mon->_mgx;
 			tmon->smgy = mon->_mgy;
 			tmon->smdir = mon->_mdir;
@@ -1414,8 +1414,8 @@ void LevelDeltaExport()
 			tmis->smisy = mis->_misy;
 			tmis->smix = mis->_mix;
 			tmis->smiy = mis->_miy;
-			tmis->smidx = mis->_midx;
-			tmis->smidy = mis->_midy;
+			tmis->smidx = mis->_mipos.x;
+			tmis->smidy = mis->_mipos.y;
 			tmis->smizoff = mis->_mizoff / ASSET_MPL;
 			tmis->smixvel = mis->_mixvel;
 			tmis->smiyvel = mis->_miyvel;
@@ -1526,8 +1526,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		plr._pdx = tplr->spdx;
-		plr._pdy = tplr->spdy;
+		plr._ppos.x = tplr->spdx;
+		plr._ppos.y = tplr->spdy;
 		plr._pgx = tplr->spgx;
 		plr._pgy = tplr->spgy;
 		plr._pdir = tplr->spdir;
@@ -1618,8 +1618,8 @@ void LevelDeltaLoad()
 		//mon->_mfuty = tmon->smfuty;
 		//mon->_moldx = tmon->smoldx;
 		//mon->_moldy = tmon->smoldy;
-		mon->_mdx = tmon->smdx;
-		mon->_mdy = tmon->smdy;
+		mon->_mpos.x = tmon->smdx;
+		mon->_mpos.y = tmon->smdy;
 		mon->_mgx = tmon->smgx;
 		mon->_mgy = tmon->smgy;
 		mon->_mdir = tmon->smdir;
@@ -1745,8 +1745,8 @@ void LevelDeltaLoad()
 		mis->_misy = tmis->smisy;
 		mis->_mix = tmis->smix;
 		mis->_miy = tmis->smiy;
-		mis->_midx = tmis->smidx;
-		mis->_midy = tmis->smidy;
+		mis->_mipos.x = tmis->smidx;
+		mis->_mipos.y = tmis->smidy;
 		mis->_mizoff = tmis->smizoff * ASSET_MPL;
 		mis->_mixvel = tmis->smixvel;
 		mis->_miyvel = tmis->smiyvel;
@@ -3716,8 +3716,8 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mfuty,
 	mon->_moldx,
 	mon->_moldy,
-	mon->_mdx,
-	mon->_mdy,
+	mon->_mpos.x,
+	mon->_mpos.y,
 	mon->_mdir,
 	mon->_menemy,
 	mon->_menemyx,
@@ -3872,8 +3872,8 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._poldy;
 		buf++;
-		//plr._pdx = tplr->spdx;
-		//plr._pdy = tplr->spdy;
+		//plr._ppos.x = tplr->spdx;
+		//plr._ppos.y = tplr->spdy;
 		*buf = plx(i)._pdir;
 		buf++;
 		//int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -4178,8 +4178,7 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 			PrintPlrMismatch("poldy", plx(i)._poldy, *src, pnum, i);
 		src++;
 
-		//int _pdx;   // Precise dungeon X-position of the player
-		//int _pdy;   // Precise dungeon Y-position of the player
+		//int _ppos;   // Precise dungeon position of the player
 		if (plx(i)._pdir != *src)
 			PrintPlrMismatch("dir", plx(i)._pdir, *src, pnum, i);
 		src++;

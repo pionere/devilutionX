@@ -638,9 +638,7 @@ void SetPlayerLoc(int pnum, int x, int y)
 {
 	plr._px = plr._pfutx = plr._poldx = x;
 	plr._py = plr._pfuty = plr._poldy = y;
-	POS32 pd = DungeonScreenToDunPos(x, y, 0, 0);
-	plr._pdx = pd.x;
-	plr._pdy = pd.y;
+	plr._ppos = DungeonScreenToDunPos(x, y, 0, 0);
 	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
 	plr._pgx = pg.x;
 	plr._pgy = pg.y;
@@ -658,8 +656,8 @@ static void AssertFixPlayerLocation(int pnum)
 	assert(plr._poldx == plr._px);
 	assert(plr._pfuty == plr._py);
 	assert(plr._poldy == plr._py);
-	assert(plr._pdx == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
-	assert(plr._pdy == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
+	assert(plr._ppos.x == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
+	assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	if (pnum == mypnum) {
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
@@ -764,8 +762,8 @@ void InitLvlPlayer(int pnum, bool entering)
 			assert(plr._poldx == plr._px);
 			assert(plr._pfuty == plr._py);
 			assert(plr._poldy == plr._py);
-			assert(plr._pdx == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
-			assert(plr._pdy == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
+			assert(plr._ppos.x == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
+			assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			FixPlayerLocation(pnum);
 		}
 		if (plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
@@ -1083,9 +1081,7 @@ static void PlrChangeOffset(int pnum)
 
 	int xoff = (plr._pVar6 >> PLR_WALK_SHIFT) * ASSET_MPL;
 	int yoff = (plr._pVar7 >> PLR_WALK_SHIFT) * ASSET_MPL;
-	POS32 dp = DungeonScreenToDunPos(plr._px, plr._py, xoff, yoff);
-	plr._pdx = dp.x;
-	plr._pdy = dp.y;
+	plr._ppos = DungeonScreenToDunPos(plr._px, plr._py, xoff, yoff);
 	POS32 gp = DungeonScreenToGridPos(plr._px, plr._py, xoff, yoff);
 	plr._pgx = gp.x;
 	plr._pgy = gp.y;

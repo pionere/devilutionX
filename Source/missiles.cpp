@@ -663,9 +663,7 @@ static void SetMissilePos(MissileStruct* mis, int x, int y, int xoff, int yoff)
 {
 	mis->_mix = x;
 	mis->_miy = y;
-	POS32 pd = DungeonScreenToDunPos(x, y, xoff, yoff);
-	mis->_midx = pd.x;
-	mis->_midy = pd.y;
+	mis->_mipos = DungeonScreenToDunPos(x, y, xoff, yoff);
 	POS32 pg = DungeonScreenToGridPos(x, y, xoff, yoff);
 	mis->_migx = pg.x;
 	mis->_migy = pg.y;
@@ -677,8 +675,7 @@ static void PlrSetMissilePos(int pnum, MissileStruct* mis)
 	// mis->_misy = plr._py;
 	mis->_mix = plr._px;
 	mis->_miy = plr._py;
-	mis->_midx = plr._pdx;
-	mis->_midy = plr._pdy;
+	mis->_mipos = plr._ppos;
 	mis->_migx = plr._pgx;
 	mis->_migy = plr._pgy;
 }
@@ -689,8 +686,7 @@ static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
 	// mis->_misy = mon->_my;
 	mis->_mix = mon->_mx;
 	mis->_miy = mon->_my;
-	mis->_midx = mon->_mdx;
-	mis->_midy = mon->_mdy;
+	mis->_mipos = mon->_mpos;
 	mis->_migx = mon->_mgx;
 	mis->_migy = mon->_mgy;
 }
@@ -699,8 +695,7 @@ static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 {
 	plr._px = plr._poldx = plr._pfutx = mis->_mix;
 	plr._py = plr._poldy = plr._pfuty = mis->_miy;
-	plr._pdx = mis->_midx;
-	plr._pdy = mis->_midy;
+	plr._ppos = mis->_mipos;
 	plr._pgx = mis->_migx;
 	plr._pgy = mis->_migy;
 
@@ -712,8 +707,7 @@ static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 {
 	mon->_mx = mon->_moldx = mon->_mfutx = mis->_mix;
 	mon->_my = mon->_moldy = mon->_mfuty = mis->_miy;
-	mon->_mdx = mis->_midx;
-	mon->_mdy = mis->_midy;
+	mon->_mpos = mis->_mipos;
 	mon->_mgx = mis->_migx;
 	mon->_mgy = mis->_migy;
 
@@ -2420,8 +2414,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (midir >= 0) {
 		// mis->_mix = missile[midir]._mix;
 		// mis->_miy = missile[midir]._miy;
-		mis->_midx = missile[midir]._midx;
-		mis->_midy = missile[midir]._midy;
+		mis->_mipos = missile[midir]._mipos;;
 		// mis->_mizoff = missile[midir]._mizoff;
 		// mis->_mitxoff = missile[midir]._mitxoff;
 		// mis->_mityoff = missile[midir]._mityoff;
@@ -2578,8 +2571,7 @@ int AddMisexp(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 		mis->_miy = bmis->_miy;
 		//mis->_misx = bmis->_mix;
 		//mis->_misy = bmis->_miy;
-		mis->_midx = bmis->_midx;
-		mis->_midy = bmis->_midy;
+		mis->_mipos = bmis->_mipos;
 		//mis->_mizoff = bmis->_mizoff;
 		//mis->_mitxoff = bmis->_mitxoff;
 		//mis->_mityoff = bmis->_mityoff;
@@ -3227,8 +3219,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	bmis = &missile[midir];
 	mis->_misx = bmis->_misx;
 	mis->_misy = bmis->_misy;
-	mis->_midx = bmis->_midx;
-	mis->_midy = bmis->_midy;
+	mis->_mipos = bmis->_mipos;
 	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
 	// mis->_mityoff = bmis->_mityoff;
@@ -4518,8 +4509,8 @@ void MI_Meteor(int mi)
 				xoff = MET_SHIFT_X;
 				zoff = -MET_SHIFT_Y;
 				xoff += -MET_SHIFT_RIGHT;
-				mis->_midx += (xoff / ASSET_MPL) << DUN_SHIFT;
-				mis->_midy -= (xoff / ASSET_MPL) << DUN_SHIFT;
+				mis->_mipos.x += (xoff / ASSET_MPL) << DUN_SHIFT;
+				mis->_mipos.y -= (xoff / ASSET_MPL) << DUN_SHIFT;
 				// -- 96: height of the sprite, 46: transparent lines on the first frame -- unnecessary, since Cl2DrawLightTbl is safe
 				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
 				// mis->_mizoff += MET_SHIFT_UP + zoff;
@@ -4533,8 +4524,8 @@ void MI_Meteor(int mi)
 				// mis->_miAnimCnt = 0;
 				xoff = MET_SHIFT_RIGHT / MET_STEPS_UP;
 				zoff = -(MET_SHIFT_UP / MET_STEPS_UP);
-				mis->_midx += (xoff / ASSET_MPL) << DUN_SHIFT;
-				mis->_midy -= (xoff / ASSET_MPL) << DUN_SHIFT;
+				mis->_mipos.x += (xoff / ASSET_MPL) << DUN_SHIFT;
+				mis->_mipos.y -= (xoff / ASSET_MPL) << DUN_SHIFT;
 				mis->_mizoff += zoff;
 				mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
 			}
@@ -4544,8 +4535,8 @@ void MI_Meteor(int mi)
 	} else {
 		xoff = -(MET_SHIFT_X / MET_STEPS_DOWN);
 		zoff = MET_SHIFT_Y / MET_STEPS_DOWN;
-		mis->_midx += (xoff / ASSET_MPL) << DUN_SHIFT;
-		mis->_midy -= (xoff / ASSET_MPL) << DUN_SHIFT;
+		mis->_mipos.x += (xoff / ASSET_MPL) << DUN_SHIFT;
+		mis->_mipos.y -= (xoff / ASSET_MPL) << DUN_SHIFT;
 		mis->_mizoff += zoff;
 		mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
 		if (mis->_mizoff < 0) { // TODO: use _miRange?

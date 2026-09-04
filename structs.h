@@ -107,8 +107,7 @@ typedef struct RECT_AREA32 {
 typedef struct GRID_POS32 {
 	int x;
 	int y;
-	int dx;
-	int dy;
+	POS32 dun;
 	int gx;
 	int gy;
 } GRID_POS32;
@@ -269,8 +268,7 @@ typedef struct ItemStruct {
 		int _iPHolder; // parent index of a placeholder entry in InvList
 	};
 	int _iy;
-	int _idx;     // Precise dungeon X-position of the item
-	int _idy;     // Precise dungeon Y-position of the item
+	POS32 _ipos;  // Precise dungeon position of the item
 	int _igx;     // Precise grid (shifted dungeon) X-position of the item
 	int _igy;     // Precise grid (shifted dungeon) Y-position of the item
 	int _iCurs;   // item_cursor_graphic
@@ -406,8 +404,7 @@ typedef struct PlayerStruct {
 	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
 	int _poldx;   // Most recent tile X-position where the player was at the start of its action
 	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
-	int _pdx;     // Precise dungeon X-position of the player
-	int _pdy;     // Precise dungeon Y-position of the player
+	POS32 _ppos;  // Precise dungeon position of the player
 	int _pgx;     // Precise grid (shifted dungeon) X-position of the player
 	int _pgy;     // Precise grid (shifted dungeon) Y-position of the player
 	int _pdir;    // Direction faced by player (direction enum)
@@ -586,8 +583,7 @@ typedef struct MissileStruct {
 	int _misy;    // Initial tile Y-position
 	int _mix;     // Tile X-position where the missile should be drawn
 	int _miy;     // Tile Y-position where the missile should be drawn
-	int _midx;    // Precise dungeon X-position of the missile
-	int _midy;    // Precise dungeon Y-position of the missile
+	POS32 _mipos; // Precise dungeon position of the missile
 	int _mizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
@@ -768,8 +764,7 @@ typedef struct MonsterStruct {
 	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
 	int _moldx;        // Most recent tile X-position where the monster was at the start of its action
 	int _moldy;        // Most recent tile Y-position where the monster was at the start of its action
-	int _mdx;          // Precise dungeon X-position of the monster
-	int _mdy;          // Precise dungeon Y-position of the monster
+	POS32 _mpos;       // Precise dungeon position of the monster
 	int _mgx;          // Precise grid (shifted dungeon) X-position of the monster
 	int _mgy;          // Precise grid (shifted dungeon) Y-position of the monster
 	int _mdir;         // Direction faced by monster (direction enum)
@@ -934,8 +929,7 @@ typedef struct ObjectStruct {
 	int _otype; // _object_id
 	int _ox;    // Tile X-position of the object
 	int _oy;    // Tile Y-position of the object
-	int _odx;   // Precise dungeon X-position of the object
-	int _ody;   // Precise dungeon Y-position of the object
+	POS32 _opos; // Precise dungeon position of the object
 	int _ogx;   // Precise grid (shifted dungeon) X-position of the object
 	int _ogy;   // Precise grid (shifted dungeon) Y-position of the object
 	int _oSFX;  // _sfx_id

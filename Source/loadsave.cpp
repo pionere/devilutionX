@@ -44,8 +44,8 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	UnPackItem(&savedItem->viPkItem, is);
 	is->_ix = savedItem->vix;
 	is->_iy = savedItem->viy;
-	is->_idx = savedItem->vidx;
-	is->_idy = savedItem->vidy;
+	is->_ipos.x = savedItem->vidx;
+	is->_ipos.y = savedItem->vidy;
 	is->_igx = savedItem->vigx;
 	is->_igy = savedItem->vigy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
@@ -117,8 +117,8 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_pfuty = savedPlr->vpfuty;
 	pr->_poldx = savedPlr->vpoldx;
 	pr->_poldy = savedPlr->vpoldy;
-	pr->_pdx = savedPlr->vpdx;
-	pr->_pdy = savedPlr->vpdy;
+	pr->_ppos.x = savedPlr->vpdx;
+	pr->_ppos.y = savedPlr->vpdy;
 	pr->_pgx = savedPlr->vpgx;
 	pr->_pgy = savedPlr->vpgy;
 	pr->_pdir = savedPlr->vpdir;
@@ -274,8 +274,8 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_mfuty = savedMon->vmfuty;
 	mon->_moldx = savedMon->vmoldx;
 	mon->_moldy = savedMon->vmoldy;
-	mon->_mdx = savedMon->vmdx;
-	mon->_mdy = savedMon->vmdy;
+	mon->_mpos.x = savedMon->vmdx;
+	mon->_mpos.y = savedMon->vmdy;
 	mon->_mgx = savedMon->vmgx;
 	mon->_mgy = savedMon->vmgy;
 	mon->_mdir = savedMon->vmdir;
@@ -418,8 +418,8 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_misy = savedMis->vmisy;
 	mis->_mix = savedMis->vmix;
 	mis->_miy = savedMis->vmiy;
-	mis->_midx = savedMis->vmidx;
-	mis->_midy = savedMis->vmidy;
+	mis->_mipos.x = savedMis->vmidx;
+	mis->_mipos.y = savedMis->vmidy;
 	mis->_mizoff = savedMis->vmizoff;
 	mis->_mixvel = savedMis->vmixvel;
 	mis->_miyvel = savedMis->vmiyvel;
@@ -469,8 +469,8 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_otype = savedObj->votype;
 	os->_ox = savedObj->vox;
 	os->_oy = savedObj->voy;
-	os->_odx = savedObj->vodx;
-	os->_ody = savedObj->vody;
+	os->_opos.x = savedObj->vodx;
+	os->_opos.y = savedObj->vody;
 	os->_ogx = savedObj->vogx;
 	os->_ogy = savedObj->vogy;
 	os->_oSFX = savedObj->voSFX;
@@ -722,8 +722,8 @@ void LoadGame()
 	// load player-data
 	_View.x = ghs->vhViewX;
 	_View.y = ghs->vhViewY;
-	_View.dx = ghs->vhViewDunX;
-	_View.dy = ghs->vhViewDunY;
+	_View.dun.x = ghs->vhViewDunX;
+	_View.dun.y = ghs->vhViewDunY;
 	_View.gx = ghs->vhViewGridX;
 	_View.gy = ghs->vhViewGridY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
@@ -841,8 +841,8 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	PackItem(&itemSave->viPkItem, is);
 	itemSave->vix = is->_ix;
 	itemSave->viy = is->_iy;
-	itemSave->vidx = is->_idx;
-	itemSave->vidy = is->_idy;
+	itemSave->vidx = is->_ipos.x;
+	itemSave->vidy = is->_ipos.y;
 	itemSave->vigx = is->_igx;
 	itemSave->vigy = is->_igy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
@@ -915,8 +915,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpfuty = pr->_pfuty;
 	plrSave->vpoldx = pr->_poldx;
 	plrSave->vpoldy = pr->_poldy;
-	plrSave->vpdx = pr->_pdx;
-	plrSave->vpdy = pr->_pdy;
+	plrSave->vpdx = pr->_ppos.x;
+	plrSave->vpdy = pr->_ppos.y;
 	plrSave->vpgx = pr->_pgx;
 	plrSave->vpgy = pr->_pgy;
 	plrSave->vpdir = pr->_pdir;
@@ -1076,8 +1076,8 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmfuty = mon->_mfuty;
 	monSave->vmoldx = mon->_moldx;
 	monSave->vmoldy = mon->_moldy;
-	monSave->vmdx = mon->_mdx;
-	monSave->vmdy = mon->_mdy;
+	monSave->vmdx = mon->_mpos.x;
+	monSave->vmdy = mon->_mpos.y;
 	monSave->vmgx = mon->_mgx;
 	monSave->vmgy = mon->_mgy;
 	monSave->vmdir = mon->_mdir;
@@ -1199,8 +1199,8 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmisy = mis->_misy;
 	misSave->vmix = mis->_mix;
 	misSave->vmiy = mis->_miy;
-	misSave->vmidx = mis->_midx;
-	misSave->vmidy = mis->_midy;
+	misSave->vmidx = mis->_mipos.x;
+	misSave->vmidy = mis->_mipos.y;
 	misSave->vmizoff = mis->_mizoff;
 	misSave->vmixvel = mis->_mixvel;
 	misSave->vmiyvel = mis->_miyvel;
@@ -1250,8 +1250,8 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->votype = os->_otype;
 	objSave->vox = os->_ox;
 	objSave->voy = os->_oy;
-	objSave->vodx = os->_odx;
-	objSave->vody = os->_ody;
+	objSave->vodx = os->_opos.x;
+	objSave->vody = os->_opos.y;
 	objSave->vogx = os->_ogx;
 	objSave->vogy = os->_ogy;
 	objSave->voSFX = os->_oSFX;
@@ -1515,8 +1515,8 @@ void SaveGame()
 	// save player-data
 	ghs->vhViewX = myview.x;
 	ghs->vhViewY = myview.y;
-	ghs->vhViewDunX = myview.dx;
-	ghs->vhViewDunY = myview.dy;
+	ghs->vhViewDunX = myview.dun.x;
+	ghs->vhViewDunY = myview.dun.y;
 	ghs->vhViewGridX = myview.gx;
 	ghs->vhViewGridY = myview.gy;
 	// ghs->vhScrollX = ScrollInfo._sdx;

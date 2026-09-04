@@ -37,9 +37,7 @@ static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ix = x;
 	items[ii]._iy = y;
-	const POS32 dp = DungeonScreenToDunPos(x, y, 0, 0);
-	items[ii]._idx = dp.x;
-	items[ii]._idy = dp.y;
+	items[ii]._ipos = DungeonScreenToDunPos(x, y, 0, 0);
 	const POS32 dg = DungeonScreenToGridPos(x, y, 0, 0);
 	items[ii]._igx = dg.x;
 	items[ii]._igy = dg.y;
