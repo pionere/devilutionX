@@ -1927,10 +1927,12 @@ static void Obj_Trap(int oi)
 
 static void Obj_BCrossDamage(int oi)
 {
+	ObjectStruct* os;
 	int ox, oy, pnum, fire_resist, damage;
 
-	ox = objects[oi]._ox;
-	oy = objects[oi]._oy - 1;
+	os = &objects[oi];
+	ox = os->_ox;
+	oy = os->_oy - 1;
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pInvincible)
 			continue;
