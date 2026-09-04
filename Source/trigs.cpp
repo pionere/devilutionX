@@ -231,7 +231,9 @@ void InitView(int entry)
 		return;
 	}
 
-	myview = TrigEntryPos(type);
+	POS32 ep = TrigEntryPos(type);
+	myview.x = ep.x;
+	myview.y = ep.y;
 }
 
 POS32 TrigEntryPos(int idx)

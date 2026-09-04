@@ -14,7 +14,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Specifies the player viewpoint of the map. */
-POS32 myview;
+GRID_POS32 myview;
 ScrollStruct ScrollInfo;
 
 /* Specifies the number of entries in the scene array. */
@@ -210,6 +210,10 @@ void UpdateScrollInfo(int pnum)
 #endif
 		myview.x = plr._px;
 		myview.y = plr._py;
+		myview.dx = plr._pdx;
+		myview.dy = plr._pdy;
+		myview.gx = plr._pgx;
+		myview.gy = plr._pgy;
 
 		POS32 sp = ScreenOffset(myview.x, myview.y, plr._pgx, plr._pgy);
 #if FOLLOW

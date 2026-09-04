@@ -30,7 +30,7 @@ extern "C" {
 #define DUN_SHIFT (16 - 6)
 #define DUN_WIDTH ((1 << 6) << DUN_SHIFT)
 
-extern POS32 myview;
+extern GRID_POS32 myview;
 extern ScrollStruct ScrollInfo;
 extern ViewportStruct gsTileVp;
 extern int light_trn_index;

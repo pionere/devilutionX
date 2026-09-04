@@ -693,7 +693,7 @@ void LoadGame()
 	LSaveGameHeaderStruct* ghs;
 	LSaveGameMetaStruct* gms;
 	BYTE *fileBuff, *tbuff;
-	POS32 _View;
+	GRID_POS32 _View;
 	int32_t _CurrSeed;
 
 	// TODO: UIDisconnectGame() ?
@@ -722,6 +722,10 @@ void LoadGame()
 	// load player-data
 	_View.x = ghs->vhViewX;
 	_View.y = ghs->vhViewY;
+	_View.dx = ghs->vhViewDunX;
+	_View.dy = ghs->vhViewDunY;
+	_View.gx = ghs->vhViewGridX;
+	_View.gy = ghs->vhViewGridY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ScrollInfo._sxoff = ghs->vhScrollXOff;
@@ -1511,6 +1515,10 @@ void SaveGame()
 	// save player-data
 	ghs->vhViewX = myview.x;
 	ghs->vhViewY = myview.y;
+	ghs->vhViewDunX = myview.dx;
+	ghs->vhViewDunY = myview.dy;
+	ghs->vhViewGridX = myview.gx;
+	ghs->vhViewGridY = myview.gy;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ghs->vhScrollXOff = ScrollInfo._sxoff;

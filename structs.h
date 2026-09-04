@@ -1210,6 +1210,10 @@ typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
 	LE_INT32 vhViewY;
+	LE_INT32 vhViewDunX;
+	LE_INT32 vhViewDunY;
+	LE_INT32 vhViewGridX;
+	LE_INT32 vhViewGridY;
 	LE_INT32 vhScrollXOff;
 	LE_INT32 vhScrollYOff;
 	LE_INT32 vhScrollDir;
