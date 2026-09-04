@@ -106,44 +106,34 @@ void FreeMonsterSFX()
 	}
 }
 
-static bool calc_snd_position(int x, int y, int* plVolume, int* plPan)
+static INTPAIR calc_snd_position(int x, int y)
 {
+	INTPAIR res;
 	int pan, volume;
 
 	x -= myplr._px;
 	y -= myplr._py;
 
 	pan = (x - y);
-	*plPan = pan;
-
-	if (abs(pan) > SFX_DIST_MAX)
-		return false;
-
-	volume = std::max(abs(x), abs(y));
-	if (volume >= SFX_DIST_MAX)
-		return false;
-
-	static_assert(((VOLUME_MAX - VOLUME_MIN) % SFX_DIST_MAX) == 0, "Volume calculation in calc_snd_position requires matching VOLUME_MIN/MAX and SFX_DIST_MAX values.");
-	static_assert(((((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX)) & ((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX - 1)) == 0, "Volume calculation in calc_snd_position is no longer optimal for performance.");
-	volume *= (VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX;
-	*plVolume = VOLUME_MAX - volume;
-
-	return true;
+	res = { 0, pan };
+	if (abs(pan) <= SFX_DIST_MAX) {
+		volume = std::max(abs(x), abs(y));
+		if (volume < SFX_DIST_MAX) {
+			static_assert(((VOLUME_MAX - VOLUME_MIN) % SFX_DIST_MAX) == 0, "Volume calculation in calc_snd_position requires matching VOLUME_MIN/MAX and SFX_DIST_MAX values.");
+			static_assert(((((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX)) & ((VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX - 1)) == 0, "Volume calculation in calc_snd_position is no longer optimal for performance.");
+			volume *= (VOLUME_MAX - VOLUME_MIN) / SFX_DIST_MAX;
+			res.v0 = VOLUME_MAX - volume;
+		}
+	}
+	return res;
 }
 
-static void PlaySfx_priv(int nsfx, bool loc, int x, int y)
+static void PlaySfx_priv(int nsfx, int lVolume, int lPan)
 {
-	int lPan, lVolume;
 	const SFXData* pSFX;
 
 	if (!gbSoundOn || gbLvlLoad)
 		return;
-
-	lPan = 0;
-	lVolume = VOLUME_MAX;
-	if (loc && !calc_snd_position(x, y, &lVolume, &lPan)) {
-		return;
-	}
 
 	pSFX = &sfxdata[nsfx];
 	/* not necessary, since non-streamed sfx should be loaded at this time
@@ -169,6 +159,7 @@ void PlayMonSfx(int mnum, int mode)
 	MonsterStruct* mon;
 	int sndIdx, lVolume, lPan;
 	SoundSample* snd;
+	INTPAIR volumePan;
 
 	sndIdx = random_(164, lengthof(mapMonTypes[0].cmSnds[0]));
 	if (!gbSoundOn || gbLvlLoad)
@@ -185,15 +176,14 @@ void PlayMonSfx(int mnum, int mode)
 		return;
 	}
 
-	if (!calc_snd_position(mon->_mx, mon->_my, &lVolume, &lPan))
-		return;
-
-	sound_play(snd, lVolume, lPan);
+	volumePan = calc_snd_position(mon->_mx, mon->_my);
+	if (volumePan.v0 != 0)
+		sound_play(snd, volumePan.v0, volumePan.v1);
 }
 
 void PlaySfx(int nsfx)
 {
-	PlaySfx_priv(nsfx, false, 0, 0);
+	PlaySfx_priv(nsfx, VOLUME_MAX, 0);
 }
 
 void PlaySfxN(int nsfx, int rndCnt)
@@ -205,7 +195,10 @@ void PlaySfxN(int nsfx, int rndCnt)
 
 void PlaySfxLoc(int nsfx, int x, int y)
 {
-	PlaySfx_priv(nsfx, true, x, y);
+	INTPAIR volumePan = calc_snd_position(x, y);
+
+	if (volumePan.v0 != 0)
+		PlaySfx_priv(nsfx, volumePan.v0, volumePan.v1);
 }
 
 void PlaySfxLocN(int nsfx, int x, int y, int rndCnt)
