@@ -1434,7 +1434,7 @@ int AddObject(int type, int ox, int oy)
 	// place object
 	os->_ox = ox;
 	os->_oy = oy;
-	os->_opos = DungeonScreenToDunPos(ox, oy, 0, 0);
+	os->_opos = DungeonToDunPos(ox, oy);
 	const POS32 dg = DungeonScreenToGridPos(ox, oy, 0, 0);
 	os->_ogx = dg.x;
 	os->_ogy = dg.y;
@@ -3389,7 +3389,7 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		}
 		PlaySfxLoc(IS_LEVER, os->_opos);
-		PlaySfxLoc(IS_CROPEN, DungeonScreenToDunPos(os->_ox - 3, os->_oy + 1, 0, 0));
+		PlaySfxLoc(IS_CROPEN, DungeonToDunPos(os->_ox - 3, os->_oy + 1));
 	}
 	OpenNakrulRoom();
 }

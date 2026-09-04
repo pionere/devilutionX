@@ -2543,7 +2543,7 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			sx = 70 + DBORDERX; sy = 52 + DBORDERY;
 			dx = 71 + DBORDERX; dy = 53 + DBORDERY;
-			PlaySfxLoc(LS_FLAMWAVE, DungeonScreenToDunPos(sx, sy, 0, 0));
+			PlaySfxLoc(LS_FLAMWAVE, DungeonToDunPos(sx, sy));
 			for (i = sx; i <= dx; i++)
 				for (j = sy; j <= dy; j++)
 					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
