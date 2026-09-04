@@ -1278,6 +1278,8 @@ if(APPLE)
     set(BUNDLE_FIXUP_CODE "
       include(BundleUtilities)
       fixup_bundle(\"${CMAKE_BINARY_DIR}/${BIN_TARGET}.app\" \"\" \"\")
+        # fixup_bundle invalidates any existing code signature, so re-sign.
+        execute_process(COMMAND codesign --force --deep --sign - ${CMAKE_BINARY_DIR}/${BIN_TARGET}.app)
       ")
     if(DEVIL_PATCHER)
       set(BUNDLE_FIXUP_CODE "${BUNDLE_FIXUP_CODE}fixup_bundle(\"${CMAKE_BINARY_DIR}/${DEVIL_PATCHER}.app\" \"\" \"\")
