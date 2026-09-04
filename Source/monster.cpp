@@ -2055,7 +2055,7 @@ static void MonFallenFear(int x, int y)
 static void MonDiabloDeath(int mnum)
 {
 	MonsterStruct* mon;
-	int i, mx, my;
+	int i;
 	unsigned killLevel;
 
 	for (i = 0; i < MAXMONSTERS; i++) {
@@ -2081,12 +2081,10 @@ static void MonDiabloDeath(int mnum)
 	}
 	mon = &monsters[mnum];
 	mon->_mVar1 = 7 * gnTicksRate; // DIABLO_TICK
-	mx = mon->_mx;
-	my = mon->_my;
-	PlaySfxLoc(USFX_DIABLOD, mx, my);
+	PlaySfxLoc(USFX_DIABLOD, mon->_mpos);
 	static_assert(MAX_LIGHT_RAD >= 8, "MonDiabloDeath needs at least light-radius of 8.");
 	AddLight(mon->_mgx, mon->_mgy, 8);
-	DoVision(mx, my, 8, true);
+	DoVision(mon->_mx, mon->_my, 8, true);
 
 	// assert(currLvl._dLevelIdx == DLV_HELL4);
 	killLevel = gnDifficulty + 1;
@@ -4621,12 +4619,12 @@ void ProcessMonsters()
 			if (MON_HAS_ENEMY) {
 				if (mon->_msquelch == 0) {
 					if (mon->_mType == MT_CLEAVER)
-						PlaySfxLoc(USFX_CLEAVER, mon->_mfutx, mon->_mfuty);
+						PlaySfxLoc(USFX_CLEAVER, mon->_mpos);
 #ifdef HELLFIRE
 					else if (mon->_mType == MT_NAKRUL)
-						PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mfutx, mon->_mfuty);
+						PlaySfxLoc(quests[Q_JERSEY]._qactive != QUEST_NOTAVAIL ? USFX_NAKRUL6 : (quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? USFX_NAKRUL4 : USFX_NAKRUL5), mon->_mpos);
 					else if (mon->_mType == MT_DEFILER)
-						PlaySfxLoc(USFX_DEFILER8, mon->_mfutx, mon->_mfuty);
+						PlaySfxLoc(USFX_DEFILER8, mon->_mpos);
 #endif
 				}
 				mon->_msquelch = SQUELCH_MAX;
@@ -5295,7 +5293,7 @@ bool SpawnMinion(int mnum, int dx, int dy, int type, int level, int hitpoints)
 					mon->_mhitpoints = std::min(hitpoints, mon->_mmaxhp);
 				mon->_mvid = currLvl._dLevelIdx != DLV_TOWN ? AddVision(tx, ty, PLR_MIN_VISRAD, false) : NO_VISION;
 				ActivateSpawn(mnum, tx, ty, DIR_S);
-				PlaySfxLoc(LS_GOLUM, tx, ty);
+				PlaySfxLoc(LS_GOLUM, mon->_mpos);
 				return true;
 			}
 		}
