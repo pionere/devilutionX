@@ -2160,7 +2160,7 @@ void PickQuestItemAt(int idx, int x, int y, int mode)
 	PlaySfxLoc(IS_IGRAB, DungeonScreenToDunPos(x, y, 0, 0));
 	SpawnQuestItemAt(idx, x, y, mode);
 	if (mode >= ICM_SEND) {
-		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, MAXITEMS);
+		NetSendCmdGItem(MAXITEMS);
 	}
 }
 

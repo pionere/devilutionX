@@ -1384,7 +1384,7 @@ static void StartSpell(int pnum)
 static void StartPickItem(int pnum)
 {
 	if (pnum == mypnum && pcursicon == CURSOR_HAND) {
-		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, plr._pDestParam4);
+		NetSendCmdGItem(plr._pDestParam4);
 	}
 }
 
