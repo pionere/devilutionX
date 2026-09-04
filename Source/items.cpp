@@ -37,7 +37,7 @@ static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ix = x;
 	items[ii]._iy = y;
-	items[ii]._ipos = DungeonScreenToDunPos(x, y, 0, 0);
+	items[ii]._ipos = DungeonToDunPos(x, y);
 	const POS32 dg = DungeonScreenToGridPos(x, y, 0, 0);
 	items[ii]._igx = dg.x;
 	items[ii]._igy = dg.y;
@@ -2157,7 +2157,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
  */
 void PickQuestItemAt(int idx, int x, int y, int mode)
 {
-	PlaySfxLoc(IS_IGRAB, DungeonScreenToDunPos(x, y, 0, 0));
+	PlaySfxLoc(IS_IGRAB, DungeonToDunPos(x, y));
 	SpawnQuestItemAt(idx, x, y, mode);
 	if (mode >= ICM_SEND) {
 		NetSendCmdGItem(MAXITEMS);

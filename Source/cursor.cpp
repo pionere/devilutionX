@@ -661,7 +661,7 @@ done:
 		ASSUME_UNREACHABLE
 	}
 
-	pcurspos.dun = DungeonScreenToDunPos(pcurspos.x, pcurspos.y, 0, 0);
+	pcurspos.dun = DungeonToDunPos(pcurspos.x, pcurspos.y);
 	POS32 gp = DungeonScreenToGridPos(pcurspos.x, pcurspos.y, 0, 0);
 	pcurspos.gx = gp.x;
 	pcurspos.gy = gp.y;
