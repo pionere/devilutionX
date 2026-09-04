@@ -2131,12 +2131,12 @@ void SendStoreCmd2(BYTE bStoreId)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGItem(BYTE bCmd, BYTE ii)
+void NetSendCmdGItem(BYTE ii)
 {
 	ItemStruct* is;
 	TCmdGItem cmd;
 
-	cmd.bCmd = bCmd;
+	cmd.bCmd = !gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM;
 	cmd.bLevel = currLvl._dLevelIdx;
 	is = &items[ii];
 	cmd.x = is->_ix;

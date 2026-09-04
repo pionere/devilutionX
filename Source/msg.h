@@ -41,7 +41,7 @@ void NetSendCmdParam1(BYTE bCmd, uint16_t wParam1);
 void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, uint16_t wParam2);
 void NetSendCmdBParam1(BYTE bCmd, BYTE bParam1);
 void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2);
-void NetSendCmdGItem(BYTE bCmd, BYTE ii);
+void NetSendCmdGItem(BYTE ii);
 void NetSendCmdPutItem(BYTE x, BYTE y);
 void NetSendCmdSpawnItem(bool flipFlag);
 /** Use a spell on an item.
