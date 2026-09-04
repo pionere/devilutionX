@@ -1945,7 +1945,7 @@ static void Obj_BCrossDamage(int oi)
 			damage -= fire_resist * damage / 100;
 
 		if (!PlrDecHp(pnum, damage, DMGTYPE_NPC))
-			PlaySfxLoc(sgSFXSets[SFXS_PLR_68][plr._pClass], os->_opos);
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_68][plr._pClass], plr._ppos);
 	}
 }
 
