@@ -96,7 +96,7 @@ static void TargetPos(int x, int y)
 	pcurspos.x = x;
 	pcurspos.y = y;
 	pcurspos.dun = DungeonToDunPos(x, y);
-	POS32 gp = DungeonScreenToGridPos(x, y, 0, 0);
+	POS32 gp = DungeonToGridPos(x, y);
 	pcurspos.gx = gp.x;
 	pcurspos.gy = gp.y;
 }

@@ -662,7 +662,7 @@ done:
 	}
 
 	pcurspos.dun = DungeonToDunPos(pcurspos.x, pcurspos.y);
-	POS32 gp = DungeonScreenToGridPos(pcurspos.x, pcurspos.y, 0, 0);
+	POS32 gp = DungeonToGridPos(pcurspos.x, pcurspos.y);
 	pcurspos.gx = gp.x;
 	pcurspos.gy = gp.y;
 }

@@ -38,7 +38,7 @@ static void SetItemLoc(int ii, int x, int y)
 	items[ii]._ix = x;
 	items[ii]._iy = y;
 	items[ii]._ipos = DungeonToDunPos(x, y);
-	const POS32 dg = DungeonScreenToGridPos(x, y, 0, 0);
+	const POS32 dg = DungeonToGridPos(x, y);
 	items[ii]._igx = dg.x;
 	items[ii]._igy = dg.y;
 	if (ii != MAXITEMS)

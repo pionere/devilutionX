@@ -37,6 +37,7 @@ extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
 POS32 DungeonToDunPos(int x, int y);
+POS32 DungeonToGridPos(int x, int y);
 POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff);
 POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
 POS32 ScreenOffset(int x, int y, int gx, int gy);

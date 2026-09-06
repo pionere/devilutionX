@@ -1528,7 +1528,7 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
 	mon->_mpos = DungeonToDunPos(x, y);
-	POS32 pg = DungeonScreenToGridPos(x, y, 0, 0);
+	POS32 pg = DungeonToGridPos(x, y);
 	mon->_mgx = pg.x;
 	mon->_mgy = pg.y;
 }

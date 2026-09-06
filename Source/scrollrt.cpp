@@ -147,7 +147,7 @@ POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff)
 	return res;
 }
 
-POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
+POS32 DungeonToGridPos(int x, int y)
 {
 	int gx = 0;
 	int gy = 0;
@@ -156,19 +156,25 @@ POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
 	gx *= GRID_WIDTH / 2;
 	gy *= GRID_WIDTH / 2;
 
-	xoff /= ASSET_MPL;
-	yoff /= ASSET_MPL;
-
-	yoff *= TILE_WIDTH / TILE_HEIGHT;
-
-	gx += xoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
-	gy += yoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
-
 	// gx += GRID_WIDTH / 2;
 	// gy += GRID_WIDTH / 2;
 
 	// gx += GRID_WIDTH * (MAXDUNX / 2);
 	return { gx, gy };
+}
+
+POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
+{
+	POS32 res = DungeonToGridPos(x, y);
+
+	xoff /= ASSET_MPL;
+	yoff /= ASSET_MPL;
+
+	yoff *= TILE_WIDTH / TILE_HEIGHT;
+
+	res.x += xoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	res.y += yoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	return res;
 }
 
 /*
@@ -197,7 +203,7 @@ POS32 GridToScreen(int gx, int gy)
 
 POS32 ScreenOffset(int x, int y, int gx, int gy)
 {
-	POS32 gp = DungeonScreenToGridPos(x, y, 0, 0);
+	POS32 gp = DungeonToGridPos(x, y);
 	gx -= gp.x;
 	gy -= gp.y;
 
@@ -1750,7 +1756,7 @@ static void CreateScene()
 	scene_addEntries(x, y, sx, sy, rows, columns);
 
 	// shift positions from grid to screen
-	POS32 dp = DungeonScreenToGridPos(x, y, 0, 0);
+	POS32 dp = DungeonToGridPos(x, y);
 
 	dp = GridToScreen(dp.x, dp.y);
 
