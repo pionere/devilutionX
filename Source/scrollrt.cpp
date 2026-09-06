@@ -29,8 +29,8 @@ static SceneEntry scene[(16 + 1) * (16 * 2 + 2 + 2) * 3 + MAXITEMS + MAXOBJECTS 
   * _vRows: the number of rows to draw to ensure the screen is covered.
   * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
   * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to myview.x.
-  * _vShiftY: the base offset to myview.y.
+  * _vShiftX: the base offset to myview.subtile.x.
+  * _vShiftY: the base offset to myview.subtile.y.
 */
 ViewportStruct gsTileVp;
 
@@ -229,16 +229,16 @@ void UpdateScrollInfo(int pnum)
 	if (pnum == mypnum) {
 #if FOLLOW
 		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		int dx = plr._px - myview.x;
-		int dy = plr._py - myview.y;
+		int dx = plr._px - myview.subtile.x;
+		int dy = plr._py - myview.subtile.y;
 #endif
-		myview.x = plr._px;
-		myview.y = plr._py;
+		myview.subtile.x = plr._px;
+		myview.subtile.y = plr._py;
 		myview.dun = plr._ppos;
 		myview.gx = plr._pgx;
 		myview.gy = plr._pgy;
 
-		POS32 sp = ScreenOffset(myview.x, myview.y, plr._pgx, plr._pgy);
+		POS32 sp = ScreenOffset(myview.subtile.x, myview.subtile.y, plr._pgx, plr._pgy);
 #if FOLLOW
 		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff + sp.x, ScrollInfo._syoff + sp.y);
 		dp = GridToScreen(dp.x, dp.y);
@@ -1948,66 +1948,66 @@ void ScrollView()
 	scroll = false;
 
 	if (MousePos.x < 20) {
-		if (DSIZEY + DBORDERY - 1 <= myview.y || DBORDERX >= myview.x) {
-			if (DSIZEY + DBORDERY - 1 > myview.y) {
-				myview.y++;
+		if (DSIZEY + DBORDERY - 1 <= myview.subtile.y || DBORDERX >= myview.subtile.x) {
+			if (DSIZEY + DBORDERY - 1 > myview.subtile.y) {
+				myview.subtile.y++;
 				scroll = true;
 			}
-			if (DBORDERX < myview.x) {
-				myview.x--;
+			if (DBORDERX < myview.subtile.x) {
+				myview.subtile.x--;
 				scroll = true;
 			}
 		} else {
-			myview.y++;
-			myview.x--;
+			myview.subtile.y++;
+			myview.subtile.x--;
 			scroll = true;
 		}
 	}
 	if (MousePos.x > SCREEN_WIDTH - 20) {
-		if (DSIZEX + DBORDERX - 1 <= myview.x || DBORDERY >= myview.y) {
-			if (DSIZEX + DBORDERX - 1 > myview.x) {
-				myview.x++;
+		if (DSIZEX + DBORDERX - 1 <= myview.subtile.x || DBORDERY >= myview.subtile.y) {
+			if (DSIZEX + DBORDERX - 1 > myview.subtile.x) {
+				myview.subtile.x++;
 				scroll = true;
 			}
-			if (DBORDERY < myview.y) {
-				myview.y--;
+			if (DBORDERY < myview.subtile.y) {
+				myview.subtile.y--;
 				scroll = true;
 			}
 		} else {
-			myview.y--;
-			myview.x++;
+			myview.subtile.y--;
+			myview.subtile.x++;
 			scroll = true;
 		}
 	}
 	if (MousePos.y < 20) {
-		if (DBORDERY >= myview.y || DBORDERX >= myview.x) {
-			if (DBORDERY < myview.y) {
-				myview.y--;
+		if (DBORDERY >= myview.subtile.y || DBORDERX >= myview.subtile.x) {
+			if (DBORDERY < myview.subtile.y) {
+				myview.subtile.y--;
 				scroll = true;
 			}
-			if (DBORDERX < myview.x) {
-				myview.x--;
+			if (DBORDERX < myview.subtile.x) {
+				myview.subtile.x--;
 				scroll = true;
 			}
 		} else {
-			myview.x--;
-			myview.y--;
+			myview.subtile.x--;
+			myview.subtile.y--;
 			scroll = true;
 		}
 	}
 	if (MousePos.y > SCREEN_HEIGHT - 20) {
-		if (DSIZEY + DBORDERY - 1 <= myview.y || DSIZEX + DBORDERX - 1 <= myview.x) {
-			if (DSIZEY + DBORDERY - 1 > myview.y) {
-				myview.y++;
+		if (DSIZEY + DBORDERY - 1 <= myview.subtile.y || DSIZEX + DBORDERX - 1 <= myview.subtile.x) {
+			if (DSIZEY + DBORDERY - 1 > myview.subtile.y) {
+				myview.subtile.y++;
 				scroll = true;
 			}
-			if (DSIZEX + DBORDERX - 1 > myview.x) {
-				myview.x++;
+			if (DSIZEX + DBORDERX - 1 > myview.subtile.x) {
+				myview.subtile.x++;
 				scroll = true;
 			}
 		} else {
-			myview.x++;
-			myview.y++;
+			myview.subtile.x++;
+			myview.subtile.y++;
 			scroll = true;
 		}
 	}

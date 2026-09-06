@@ -2374,7 +2374,7 @@ void DropItem()
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	pos = { pcurspos.x, pcurspos.y };
+	pos = pcurspos.subtile;
 	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 

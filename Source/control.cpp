@@ -1156,7 +1156,7 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 static POS32 GetMousePosGrid(int gx, int gy)
 {
 	POS32 pos;
-	POS32 dp = DungeonToGridPos(myview.x, myview.y);
+	POS32 dp = DungeonToGridPos(myview.subtile.x, myview.subtile.y);
 
 	gx -= dp.x;
 	gy -= dp.y;

@@ -662,8 +662,8 @@ static void AssertFixPlayerLocation(int pnum)
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
 		assert(ScrollInfo._sdir == SDIR_NONE);
-		assert(myview.x == plr._px); // - ScrollInfo._sdx;
-		assert(myview.y == plr._py); // - ScrollInfo._sdy;
+		assert(myview.subtile.x == plr._px); // - ScrollInfo._sdx;
+		assert(myview.subtile.y == plr._py); // - ScrollInfo._sdy;
 	}
 }
 

@@ -157,29 +157,29 @@ void InitView(int entry)
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		if (entry == ENTRY_MAIN) {
 			// New game
-			myview = { 65 + DBORDERX, 58 + DBORDERY };
+			myview.subtile = { 65 + DBORDERX, 58 + DBORDERY };
 		//} else if (entry == ENTRY_PREV) { // Cathedral
-		//	myview = { 15 + DBORDERX, 21 + DBORDERY };
+		//	myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
 		} else if (entry == ENTRY_TWARPUP) {
 			switch (gbTWarpFrom) {
 			case TWARP_CATHEDRAL:
-				myview = { 15 + DBORDERX, 21 + DBORDERY };
+				myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
 				break;
 			case TWARP_CATACOMB:
-				myview = { 39 + DBORDERX, 12 + DBORDERY };
+				myview.subtile = { 39 + DBORDERX, 12 + DBORDERY };
 				break;
 			case TWARP_CAVES:
-				myview = { 8 + DBORDERX, 59 + DBORDERY };
+				myview.subtile = { 8 + DBORDERX, 59 + DBORDERY };
 				break;
 			case TWARP_HELL:
-				myview = { 30 + DBORDERX, 70 + DBORDERY };
+				myview.subtile = { 30 + DBORDERX, 70 + DBORDERY };
 				break;
 #ifdef HELLFIRE
 			case TWARP_CRYPT:
-				myview = { 26 + DBORDERX, 15 + DBORDERY };
+				myview.subtile = { 26 + DBORDERX, 15 + DBORDERY };
 				break;
 			case TWARP_NEST:
-				myview = { 69 + DBORDERX, 52 + DBORDERY };
+				myview.subtile = { 69 + DBORDERX, 52 + DBORDERY };
 				break;
 #endif
 			default:
@@ -188,7 +188,7 @@ void InitView(int entry)
 			}
 		} else if (entry == ENTRY_RETOWN) {
 			// Restart in Town
-			myview = { 63 + DBORDERX, 70 + DBORDERY };
+			myview.subtile = { 63 + DBORDERX, 70 + DBORDERY };
 		}
 		return;
 	}
@@ -210,11 +210,11 @@ void InitView(int entry)
 			// return from the betrayer side-map - TODO: better solution?
 			assert(currLvl._dLevelIdx == DLV_HELL3);
 			type = DWARP_EXIT;
-			myview.x = pWarps[type]._wx;
-			myview.y = pWarps[type]._wy;
+			myview.subtile.x = pWarps[type]._wx;
+			myview.subtile.y = pWarps[type]._wy;
 			assert(pWarps[type]._wtype == WRPT_L4_PENTA);
-			myview.x += -2;
-			myview.y += -2;
+			myview.subtile.x += -2;
+			myview.subtile.y += -2;
 			return;
 		}
 		break;
@@ -231,9 +231,7 @@ void InitView(int entry)
 		return;
 	}
 
-	POS32 ep = TrigEntryPos(type);
-	myview.x = ep.x;
-	myview.y = ep.y;
+	myview.subtile = TrigEntryPos(type);
 }
 
 POS32 TrigEntryPos(int idx)
@@ -299,8 +297,8 @@ POS32 TrigEntryPos(int idx)
 int CheckTrigForce()
 {
 	for (int i = numtrigs - 1; i >= 0; i--) {
-		int dx = pcurspos.x - trigs[i]._tx;
-		int dy = pcurspos.y - trigs[i]._ty;
+		int dx = pcurspos.subtile.x - trigs[i]._tx;
+		int dy = pcurspos.subtile.y - trigs[i]._ty;
 		switch (trigs[i]._ttype) {
 		case WRPT_RPORTAL:
 			continue;

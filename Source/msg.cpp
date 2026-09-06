@@ -1220,8 +1220,8 @@ void NetSendCmdJoinLevel()
 
 	cmd.bCmd = CMD_JOINLEVEL;
 	cmd.lLevel = myplr._pDunLevel;
-	cmd.px = myview.x;
-	cmd.py = myview.y;
+	cmd.px = myview.subtile.x;
+	cmd.py = myview.subtile.y;
 	cmd.php = myplr._pHPBase;
 	cmd.pmp = myplr._pManaBase;
 	cmd.lTimer1 = myplr._pTimer[PLTR_INFRAVISION];

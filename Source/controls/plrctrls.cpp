@@ -93,8 +93,8 @@ static int GetDistanceRanged(int dx, int dy)
 
 static void TargetPos(int x, int y)
 {
-	pcurspos.x = x;
-	pcurspos.y = y;
+	pcurspos.subtile.x = x;
+	pcurspos.subtile.y = y;
 	pcurspos.dun = DungeonToDunPos(x, y);
 	POS32 gp = DungeonToGridPos(x, y);
 	pcurspos.gx = gp.x;
@@ -326,7 +326,7 @@ static void FindTrigger()
 		}
 	}
 
-	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
+	/* commented out because it would just set the pcurspos.subtile.x/y and pcurstrig fields again
 	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || !TRIG_VALID(pcurstrig))
 		return; // Prefer monster/player info text
 
@@ -1040,11 +1040,11 @@ void PerformSecondaryAction()
 	}
 
 	if (ITEM_VALID(pcursitem)) {
-		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.subtile.x, pcurspos.subtile.y, pcursitem);
 	} else if (OBJ_VALID(pcursobj)) {
-		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
-	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
-		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
+		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.subtile.x, pcurspos.subtile.y, pcursobj);
+	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]]) {
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.subtile.x, pcurspos.subtile.y);
 	}
 }
 

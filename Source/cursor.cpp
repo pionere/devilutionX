@@ -15,8 +15,8 @@ DEVILUTION_BEGIN_NAMESPACE
   * _vRows: the number of rows on the screen.
   * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
   * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to myview.x.
-  * _vShiftY: the base offset to myview.y.
+  * _vShiftX: the base offset to myview.subtile.x.
+  * _vShiftY: the base offset to myview.subtile.y.
 */
 ViewportStruct gsMouseVp;
 
@@ -272,13 +272,13 @@ void CheckTownPortal()
 			 *    ++|
 			 *      |
 			 */
-			int dx = pcurspos.x - (mis->_mix - 1);
-			int dy = pcurspos.y - (mis->_miy - 1);
+			int dx = pcurspos.subtile.x - (mis->_mix - 1);
+			int dy = pcurspos.subtile.y - (mis->_miy - 1);
 			if (abs(dx) < 2 && abs(dy) < 2 // select the 3x3 square around (-1;-1)
 			 && abs(dx - dy) < 2) {        // exclude the top left and bottom right positions
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
-				pcurspos.x = mis->_mix;
-				pcurspos.y = mis->_miy;
+				pcurspos.subtile.x = mis->_mix;
+				pcurspos.subtile.y = mis->_miy;
 				// pcurspos.dun = mis->_mipos;
 				// pcurspos.gx = mis->_migx;
 				// pcurspos.gy = mis->_migy;
@@ -381,8 +381,8 @@ void CheckCursMove()
 	}
 
 	// Center player tile on screen
-	mx = myview.x + gsMouseVp._vShiftX;
-	my = myview.y + gsMouseVp._vShiftY;
+	mx = myview.subtile.x + gsMouseVp._vShiftX;
+	my = myview.subtile.y + gsMouseVp._vShiftY;
 
 	// ensure sx/y are positive
 	sx += TILE_WIDTH;
@@ -421,8 +421,8 @@ void CheckCursMove()
 	else if (my > MAXDUNY - 1 - DBORDERY)
 		my = MAXDUNY - 1 - DBORDERY;
 
-	pcurspos.x = mx;
-	pcurspos.y = my;
+	pcurspos.subtile.x = mx;
+	pcurspos.subtile.y = my;
 
 	int curmon[5] = { 0 };
 	int curobj[5] = { 0 };
@@ -498,8 +498,8 @@ void CheckCursMove()
 						continue;
 					}
 					pcursmonst = mi;
-					pcurspos.x = mx + offx[i];
-					pcurspos.y = my + offy[i];
+					pcurspos.subtile.x = mx + offx[i];
+					pcurspos.subtile.y = my + offy[i];
 					goto done;
 				}
 			}
@@ -517,8 +517,8 @@ void CheckCursMove()
 					continue;
 				}
 				pcursmonst = mi;
-				pcurspos.x = mx + offx[i];
-				pcurspos.y = my + offy[i];
+				pcurspos.subtile.x = mx + offx[i];
+				pcurspos.subtile.y = my + offy[i];
 				goto done;
 			}
 		}
@@ -531,16 +531,16 @@ void CheckCursMove()
 					continue;
 				}
 				pcursplr = mi;
-				pcurspos.x = mx + offx[i + 2];
-				pcurspos.y = my + offy[i + 2];
+				pcurspos.subtile.x = mx + offx[i + 2];
+				pcurspos.subtile.y = my + offy[i + 2];
 				goto done;
 			}
 		}
 		// select a dead player
 		if (deadplr[0] != 0) {
 			pcursplr = deadplr[0];
-			// pcurspos.x = mx;
-			// pcurspos.y = my;
+			// pcurspos.subtile.x = mx;
+			// pcurspos.subtile.y = my;
 			goto done;
 		}
 		// select an object
@@ -552,8 +552,8 @@ void CheckCursMove()
 					continue;
 				}
 				pcursobj = mi;
-				pcurspos.x = mx + offx[i];
-				pcurspos.y = my + offy[i];
+				pcurspos.subtile.x = mx + offx[i];
+				pcurspos.subtile.y = my + offy[i];
 				goto done;
 			}
 		}
@@ -566,18 +566,18 @@ void CheckCursMove()
 					continue;
 				}
 				pcursitem = mi;
-				pcurspos.x = mx + offx[i + 2];
-				pcurspos.y = my + offy[i + 2];
+				pcurspos.subtile.x = mx + offx[i + 2];
+				pcurspos.subtile.y = my + offy[i + 2];
 				goto done;
 			}
 		}
 
-		// pcurspos.x = mx;
-		// pcurspos.y = my;
+		// pcurspos.subtile.x = mx;
+		// pcurspos.subtile.y = my;
 		pcurstrig = CheckTrigForce();
 		if (TRIG_VALID(pcurstrig)) {
-			pcurspos.x = trigs[pcurstrig]._tx;
-			pcurspos.y = trigs[pcurstrig]._ty;
+			pcurspos.subtile.x = trigs[pcurstrig]._tx;
+			pcurspos.subtile.y = trigs[pcurstrig]._ty;
 		} else {
 			CheckTownPortal();
 		}
@@ -593,8 +593,8 @@ done:
 					continue;
 				}
 				pcursitem = mi;
-				pcurspos.x = mx + offx[i + 2];
-				pcurspos.y = my + offy[i + 2];
+				pcurspos.subtile.x = mx + offx[i + 2];
+				pcurspos.subtile.y = my + offy[i + 2];
 				break;
 			}
 		}
@@ -609,8 +609,8 @@ done:
 					continue;
 				}
 				pcursobj = mi;
-				pcurspos.x = mx + offx[i];
-				pcurspos.y = my + offy[i];
+				pcurspos.subtile.x = mx + offx[i];
+				pcurspos.subtile.y = my + offy[i];
 				break;
 			}
 		}
@@ -625,8 +625,8 @@ done:
 					continue;
 				}
 				pcursplr = mi;
-				pcurspos.x = mx + offx[i + 2];
-				pcurspos.y = my + offy[i + 2];
+				pcurspos.subtile.x = mx + offx[i + 2];
+				pcurspos.subtile.y = my + offy[i + 2];
 				break;
 			}
 		}
@@ -640,8 +640,8 @@ done:
 						continue;
 					}
 					pcursmonst = mi;
-					pcurspos.x = mx + offx[i];
-					pcurspos.y = my + offy[i];
+					pcurspos.subtile.x = mx + offx[i];
+					pcurspos.subtile.y = my + offy[i];
 					break;
 				}
 			}
@@ -651,8 +651,8 @@ done:
 		// select a dead player
 		if (deadplr[0] != 0) {
 			pcursplr = deadplr[0] - 1;
-			// pcurspos.x = mx;
-			// pcurspos.y = my;
+			// pcurspos.subtile.x = mx;
+			// pcurspos.subtile.y = my;
 		}
 		break;
 	case TGT_NONE:
@@ -661,8 +661,8 @@ done:
 		ASSUME_UNREACHABLE
 	}
 
-	pcurspos.dun = DungeonToDunPos(pcurspos.x, pcurspos.y);
-	POS32 gp = DungeonToGridPos(pcurspos.x, pcurspos.y);
+	pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
+	POS32 gp = DungeonToGridPos(pcurspos.subtile.x, pcurspos.subtile.y);
 	pcurspos.gx = gp.x;
 	pcurspos.gy = gp.y;
 }

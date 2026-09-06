@@ -294,8 +294,8 @@ static void SearchAutomapItem()
 	int i, j;
 	unsigned d16 = MAP_TILE_WIDTH / 4;
 
-	x = AutoMapXOfs + myview.x;
-	y = AutoMapYOfs + myview.y;
+	x = AutoMapXOfs + myview.subtile.x;
+	y = AutoMapYOfs + myview.subtile.y;
 	xoff = (ScrollInfo._sxoff * (int)AutoMapScale >> (MAP_SHIFT + 1)) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
 	yoff = (ScrollInfo._syoff * (int)AutoMapScale >> (MAP_SHIFT + 1)) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
 
@@ -449,7 +449,7 @@ static void DrawAutomapContent()
 	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
-	mapx = myview.x & ~1;
+	mapx = myview.subtile.x & ~1;
 	mapx += AutoMapXOfs;
 	if (mapx < DBORDERX) {
 		AutoMapXOfs -= mapx - DBORDERX;
@@ -459,7 +459,7 @@ static void DrawAutomapContent()
 		mapx = DBORDERX + (DSIZEX - 2);
 	}
 
-	mapy = myview.y & ~1;
+	mapy = myview.subtile.y & ~1;
 	mapy += AutoMapYOfs;
 	if (mapy < DBORDERY) {
 		AutoMapYOfs -= mapy - DBORDERY;
@@ -510,11 +510,11 @@ static void DrawAutomapContent()
 		sx += (d64 >> 1);
 		sy -= (d64 >> 2);
 	}*/
-	if (myview.x & 1) {
+	if (myview.subtile.x & 1) {
 		sx -= (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
-	if (myview.y & 1) {
+	if (myview.subtile.y & 1) {
 		sx += (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
