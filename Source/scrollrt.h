@@ -24,6 +24,12 @@ extern "C" {
 		y += (vertical) - (horizontal);        \
 	}
 
+#define SET_GRID(x, y, horizontal, vertical) \
+	{                                        \
+		x = (vertical) + (horizontal);       \
+		y = (vertical) - (horizontal);       \
+	}
+
 #define GRID_SHIFT (PLR_WALK_SHIFT - 5)
 #define GRID_WIDTH (64 << GRID_SHIFT)
 

@@ -149,9 +149,8 @@ POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff)
 
 POS32 DungeonToGridPos(int x, int y)
 {
-	int gx = 0;
-	int gy = 0;
-	SHIFT_GRID(gy, gx, y, x);
+	int gx, gy;
+	SET_GRID(gy, gx, y, x);
 
 	gx *= GRID_WIDTH / 2;
 	gy *= GRID_WIDTH / 2;
@@ -216,8 +215,8 @@ POS32 DunScreenOffset(int x, int y, int dx, int dy)
 	dx -= dp.x;
 	dy -= dp.y;
 
-	POS32 gp = { 0, 0 };
-	SHIFT_GRID(gp.y, gp.x, dy, dx);
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, dy, dx);
 
 	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
 	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
@@ -1632,9 +1631,7 @@ static void CalcTileViewport()
 	unsigned lrow = gsTileVp._vRows;
 
 	// Center player tile on screen
-	gsTileVp._vShiftX = 0;
-	gsTileVp._vShiftY = 0;
-	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
+	SET_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
 
 	gsTileVp._vRows *= 2;
 
@@ -1673,9 +1670,7 @@ static void CalcMouseViewport()
 	unsigned lrow = gsMouseVp._vRows;
 
 	// Center player tile on screen
-	gsMouseVp._vShiftX = 0;
-	gsMouseVp._vShiftY = 0;
-	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
+	SET_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
 
 	// Align grid
 	if ((gsMouseVp._vColumns & 1) == 0) {

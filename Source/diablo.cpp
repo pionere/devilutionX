@@ -310,8 +310,8 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	dy = (MAX_DIST * dy) / adm;
 	dx = (MAX_DIST * dx) / adm;
 
-	POS32 tpos = { 0, 0 };
-	SHIFT_GRID(tpos.x, tpos.y, dx, dy);
+	POS32 tpos;
+	SET_GRID(tpos.x, tpos.y, dx, dy);
 
 	int dir8 = GetDirection(0, 0, tpos.x, tpos.y);
 	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
