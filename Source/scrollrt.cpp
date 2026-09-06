@@ -141,7 +141,6 @@ POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff)
 	xo *= DUN_WIDTH / (TILE_WIDTH / ASSET_MPL);
 	yo *= DUN_WIDTH / (TILE_WIDTH / ASSET_MPL);
 
-
 	res.x += xo;
 	res.y += yo;
 
@@ -156,9 +155,14 @@ POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
 
 	gx *= GRID_WIDTH / 2;
 	gy *= GRID_WIDTH / 2;
-	static_assert(((TILE_WIDTH / ASSET_MPL) << GRID_SHIFT) == GRID_WIDTH, "Grid position calculation must be adjusted.");
-	gx += (xoff / ASSET_MPL) << GRID_SHIFT;
-	gy += ((yoff / ASSET_MPL) * (TILE_WIDTH / TILE_HEIGHT)) << GRID_SHIFT;
+
+	xoff /= ASSET_MPL;
+	yoff /= ASSET_MPL;
+
+	yoff *= TILE_WIDTH / TILE_HEIGHT;
+
+	gx += xoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	gy += yoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
 
 	// gx += GRID_WIDTH / 2;
 	// gy += GRID_WIDTH / 2;
