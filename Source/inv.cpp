@@ -1324,7 +1324,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			idx = TEXT_IM_FANG;
 		}
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int nn, i, x, y, dx, dy, gx, gy;
+		int nn, i, x, y, gx, gy;
 		POS32 pos;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))

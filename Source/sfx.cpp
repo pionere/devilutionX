@@ -158,7 +158,7 @@ static void PlaySfx_priv(int nsfx, int lVolume, int lPan)
 void PlayMonSfx(int mnum, int mode)
 {
 	MonsterStruct* mon;
-	int sndIdx, lVolume, lPan;
+	int sndIdx;
 	SoundSample* snd;
 	INTPAIR volumePan;
 
