@@ -210,6 +210,21 @@ POS32 ScreenOffset(int x, int y, int gx, int gy)
 	return GridToScreen(gx, gy);
 }
 
+POS32 DunScreenOffset(int x, int y, int dx, int dy)
+{
+	POS32 dp = DungeonToDunPos(x, y);
+	dx -= dp.x;
+	dy -= dp.y;
+
+	POS32 gp = { 0, 0 };
+	SHIFT_GRID(gp.y, gp.x, dy, dx);
+
+	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
+	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
+
+	return gp;
+}
+
 void UpdateScrollInfo(int pnum)
 {
 	if (pnum == mypnum) {
@@ -833,13 +848,7 @@ static void scene_addCell(int pn, int sx, int sy)
 {
 	uint16_t i, limit;
 	int tmp;
-
-	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return; // starting from too far to the left or right -> skip
-
 	tmp = sy - SCREEN_Y;
-	if (tmp < 0)
-		return; // starting from above the top -> skip
 	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT - 1)) / MICRO_HEIGHT;
 	tmp *= TILE_WIDTH / MICRO_WIDTH;
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
@@ -859,8 +868,6 @@ static void scene_addCell(int pn, int sx, int sy)
 		tmp = 1 + (unsigned)tmp / TILE_HEIGHT;
 		sy -= TILE_HEIGHT * tmp;
 		i = tmp * (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT);
-		if (i >= limit)
-			return; // not enough microtiles to affect the screen -> skip
 	}
 
 	scene[numEntries].scType = SCT_CELL;
@@ -1225,12 +1232,6 @@ static void DrawSceneSpecial(const SceneEntry &entry)
  */
 static void scene_addFloorPiece(int pn, int sx, int sy)
 {
-	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return; // starting from too far to the left or right -> skip
-
-	if (sy < SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1)
-		return; // starting from above the top or below the bottom -> skip
-
 	scene[numEntries].scType = SCT_FLOOR;
 	scene[numEntries].scLight = light_trn_index;
 	scene[numEntries].scTrans = FALSE;
@@ -1450,48 +1451,46 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param rows Number of rows
- * @param columns Tile in a row
+ * @param mode the direction to go after the end on the first line (0: SW [0,1], 1" SE [1,0])
  */
-static void scene_addFloor(int x, int y, int sx, int sy, int rows, int columns)
+static void scene_addFloor(int x, int y, int sx, int sy, int mode)
 {
 	//int pn;
-
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			if (IN_DUNGEON_AREA(x, y)) {
-				//pn = dPiece[x][y];
+	const int rightEnd = SCREEN_X + (gbZoomInFlag ? SCREEN_WIDTH / 2 : SCREEN_WIDTH);
+	const int bottomEnd = SCREEN_Y + (gbZoomInFlag ? SCREEN_HEIGHT / 2 : SCREEN_HEIGHT) + TILE_HEIGHT - 1;
+	int i = 0;
+	do {
+		int cx = sx, cy = sy;
+		int xx = x, yy = y;
+		do {
+			if (IN_DUNGEON_AREA(xx, yy)) {
+				//pn = dPiece[xx][yy];
 				//assert(pn != 0);
 				//if (pn != 0) {
 					//if ((microFlags[pn] & (~(TMIF_WALL_TRANS))) != (TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW))
-						light_trn_index = dLight[x][y];
-						scene_addFloorPiece(dPiece[x][y], sx, sy);
+						light_trn_index = dLight[xx][yy];
+						scene_addFloorPiece(dPiece[xx][yy], cx, cy);
 					//}
 				//} else {
-				//	world_draw_black_tile(sx, sy);
+				//	world_draw_black_tile(cx, cy);
 				//}
 			//} else {
-			//	world_draw_black_tile(sx, sy);
+			//	world_draw_black_tile(cx, cy);
 			}
-			SHIFT_GRID(x, y, 1, 0);
-			sx += TILE_WIDTH;
-		}
-		// Return to start of row
-		SHIFT_GRID(x, y, -columns, 0);
-		sx -= columns * TILE_WIDTH;
-
+			SHIFT_GRID(xx, yy, 1, 0);
+			cx += TILE_WIDTH;
+		} while (cx < rightEnd);
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
-		if (i & 1) {
+		if ((i & 1) != mode) {
 			x++;
-			columns--;
 			sx += TILE_WIDTH / 2;
 		} else {
 			y++;
-			columns++;
 			sx -= TILE_WIDTH / 2;
 		}
-	}
+		i++;
+	} while (sy < bottomEnd);
 }
 
 #define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE) != 0)
@@ -1503,56 +1502,53 @@ static void scene_addFloor(int x, int y, int sx, int sy, int rows, int columns)
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param rows Number of rows
- * @param columns Tile in a row
+ * @param mode the direction to go after the end on the first line (0: SW [0,1], 1" SE [1,0])
  */
-static void scene_addEntries(int x, int y, int sx, int sy, int rows, int columns)
+static void scene_addEntries(int x, int y, int sx, int sy, int mode)
 {
+	int i = 0;
 	BYTE skips = 0;
+	const int rightEnd = SCREEN_X + (gbZoomInFlag ? SCREEN_WIDTH / 2 : SCREEN_WIDTH);
+	const int bottomEnd = SCREEN_Y + (gbZoomInFlag ? SCREEN_HEIGHT / 2 : SCREEN_HEIGHT) + TILE_HEIGHT - 1 + TILE_HEIGHT * ((unsigned)MicroTileLen / ((TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT)) - 1);
 
-	// Keep evaluating until MicroTiles can't affect screen
-	rows += MicroTileLen;
 	//memset(dRendered, 0, sizeof(dRendered));
 
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			if (IN_DUNGEON_AREA(x, y)) {
-				if (x + 1 < MAXDUNX && y - 1 >= 0 && j != columns - 1 /*sx + TILE_WIDTH <= SCREEN_X + SCREEN_WIDTH*/) {
+	do {
+		int cx = sx, cy = sy;
+		int xx = x, yy = y;
+		do {
+			if (IN_DUNGEON_AREA(xx, yy)) {
+				if (xx + 1 < MAXDUNX && yy - 1 >= 0 && /*j != columns - 1 */cx + TILE_WIDTH < rightEnd) {
 					// Render objects behind walls first to prevent sprites, that are moving
 					// between tiles, from poking through the walls as they exceed the tile bounds.
 					// A proper fix for this would probably be to layout the sceen and render by
 					// sprite screen position rather than tile position.
-					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
-					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
-						scene_addDungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
+					if (IsWall(xx, yy)                                          // Part of a wall aligned on the x-axis
+					 && IsWalkable(xx, yy - 1) && IsWalkable(xx + 1, yy - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
+						scene_addDungeon(xx + 1, yy - 1, cx + TILE_WIDTH, cy);
 						skips |= 2;
 					}
 				}
-				assert(dPiece[x][y] != 0);
-				if (/*dPiece[x][y] != 0 &&*/ !(skips & 1)) {
-					scene_addDungeon(x, y, sx, sy);
+				assert(dPiece[xx][yy] != 0);
+				if (/*dPiece[xx][yy] != 0 &&*/ !(skips & 1)) {
+					scene_addDungeon(xx, yy, cx, cy);
 				}
 			}
-			SHIFT_GRID(x, y, 1, 0);
-			sx += TILE_WIDTH;
+			SHIFT_GRID(xx, yy, 1, 0);
+			cx += TILE_WIDTH;
 			skips >>= 1;
-		}
-		// Return to start of row
-		SHIFT_GRID(x, y, -columns, 0);
-		sx -= columns * TILE_WIDTH;
-
+		} while (cx < rightEnd);
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
-		if (i & 1) {
+		if ((i & 1) != mode) {
 			x++;
-			columns--;
 			sx += TILE_WIDTH / 2;
 		} else {
 			y++;
-			columns++;
 			sx -= TILE_WIDTH / 2;
 		}
-	}
+		i++;
+	} while (sy < bottomEnd);
 }
 
 /**
@@ -1708,52 +1704,79 @@ void CalcViewportGeometry()
  */
 static void CreateScene()
 {
-	int x, y, sx, sy, columns, rows;
+	int x, y, sx, sy;
 
-	// Adjust by player offset and tile grid alignment
-	sx = ScrollInfo._sxoff - gsTileVp._vOffsetX;
-	sy = ScrollInfo._syoff - gsTileVp._vOffsetY;
-
-	columns = gsTileVp._vColumns;
-	rows = gsTileVp._vRows;
-
-	x = myview.x + gsTileVp._vShiftX;
-	y = myview.y + gsTileVp._vShiftY;
-
-	// Draw areas moving in and out of the screen
-	switch (ScrollInfo._sdir) {
-	case SDIR_NONE:
-		break;
-	case SDIR_N:
-	case SDIR_S:
-		sy -= TILE_HEIGHT;
-		SHIFT_GRID(x, y, 0, -1);
-		rows += 2;
-		break;
-	case SDIR_NE:
-	case SDIR_SW:
-	case SDIR_SE:
-	case SDIR_NW:
-		sx -= TILE_WIDTH / 2;
-		sy -= TILE_HEIGHT / 2;
-		x--;
-		columns++;
-		rows++;
-		break;
-	case SDIR_E:
-	case SDIR_W:
-		sx -= TILE_WIDTH;
-		SHIFT_GRID(x, y, -1, 0);
-		columns++;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+	const POS32 vp = myview.dun;
+	const POS32 dso = DunScreenOffset(vp.x / DUN_WIDTH, vp.y / DUN_WIDTH, vp.x, vp.y);
+	POS32 sp = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+	if (gbZoomInFlag) {
+		sp.x /= 2u;
+		sp.y /= 2u;
 	}
+	// Adjust by player offset and tile grid alignment
+	sp.x -= dso.x + TILE_WIDTH / 2;
+	sp.y -= dso.y + TILE_HEIGHT / 2;
+
+	// Slightly lower the view
+	sp.y -= TILE_HEIGHT;
+	if (gbZoomInFlag) {
+		sp.y += TILE_HEIGHT / 4;
+	}
+	// Find the subtile on the top-left corner
+	// assert(sp.x > 0);
+	// assert(sp.y > 0);
+	// - subtiles to the left
+	int dsx = (unsigned)(sp.x + TILE_WIDTH - 1) / TILE_WIDTH;
+	// - subtile to the top
+	int dsy = (unsigned)(sp.y - 1) / TILE_HEIGHT;
+	// - calculate the delta to the left
+	POS32 dt = { 0, 0 };
+	dt.x -= dsx;
+	dt.y += dsx;
+	// - calculate the delta to the top
+	dt.x -= dsy;
+	dt.y -= dsy;
+
+	// - move to the starting subtile (screen coordinates)
+	POS32 gp = sp;
+	gp.x += dt.x * TILE_WIDTH / 2 - dt.y * TILE_WIDTH / 2;
+	gp.y += dt.x * TILE_HEIGHT / 2 + dt.y * TILE_HEIGHT / 2;
+
+	int mode;
+	if (gp.y > TILE_HEIGHT / 2) {
+		// missing pixels on the top
+		if (gp.x > -TILE_WIDTH / 2) {
+			// missing pixels on the top-left corner
+			dt.x--;
+			gp.x -= TILE_WIDTH / 2;
+			gp.y -= TILE_HEIGHT / 2;
+			mode = 1;
+		} else {
+			dt.y--;
+			gp.x += TILE_WIDTH / 2;
+			gp.y -= TILE_HEIGHT / 2;
+			mode = 0;
+		}
+	} else {
+		if (gp.x > -TILE_WIDTH / 2) {
+			// missing pixels on the left side
+			mode = 0;
+		} else {
+			mode = 1;
+		}
+	}
+	// - move to the starting subtile (tile coordinates)
+	x = vp.x / DUN_WIDTH + dt.x;
+	y = vp.y / DUN_WIDTH + dt.y;
+
+	// - adjust for the border (screen coordinates)
+	sx = SCREEN_X + gp.x;
+	sy = SCREEN_Y + gp.y;
+
 	numEntries = 0;
 
-	scene_addFloor(x, y, sx, sy, rows, columns);
-	scene_addEntries(x, y, sx, sy, rows, columns);
+	scene_addFloor(x, y, sx, sy, mode);
+	scene_addEntries(x, y, sx, sy, mode);
 
 	// shift positions from grid to screen
 	POS32 dp = DungeonToGridPos(x, y);

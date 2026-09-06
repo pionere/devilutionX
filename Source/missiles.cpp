@@ -485,10 +485,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 	dPlayer[px][py] = pnum + 1;
 	ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
 	ChangeVisionXY(plr._pvid, px, py);
-	if (pnum == mypnum) {
-		myview.x = px; // - ScrollInfo._sdx;
-		myview.y = py; // - ScrollInfo._sdy;
-	}
+	UpdateScrollInfo(pnum);
 }
 
 #define GetDirection8 GetDirection
