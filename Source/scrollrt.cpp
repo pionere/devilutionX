@@ -1723,7 +1723,7 @@ static void CreateScene()
 	// - subtiles to the left
 	int dsx = (unsigned)(sp.x + TILE_WIDTH - 1) / TILE_WIDTH;
 	// - subtile to the top
-	int dsy = (unsigned)(sp.y - 1) / TILE_HEIGHT;
+	int dsy = (unsigned)(sp.y - 0) / TILE_HEIGHT;
 	// - calculate the delta to the left
 	POS32 dt = { 0, 0 };
 	dt.x -= dsx;
