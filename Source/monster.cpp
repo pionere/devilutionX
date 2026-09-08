@@ -3665,6 +3665,14 @@ void MAI_Scav(int mnum)
 						if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 16) continue;
 						// check if corpse is accessible and visible
 						if (!LineClear(mon->_mx, mon->_my, dmon->_mx, dmon->_my)) continue;
+						if (mon->_mAI.aiInt > 2) {
+							if (!PosOkMonst(mnum, dmon->_mx, dmon->_my)) continue;
+							if (mon->_mAI.aiInt > 4) {
+								int8_t walkdir;
+								if (FindPath(PosOkMonst, mnum, mon->_mx, mon->_my, dmon->_mx, dmon->_my, &walkdir) < 0)
+									continue;
+							}
+						}
 						corpses[tmp] = { i, dist };
 						tmp++;
 						if (mindist > dist)
