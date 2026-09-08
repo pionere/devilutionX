@@ -1713,7 +1713,7 @@ static void CreateScene()
 	sp.y -= dso.y + TILE_HEIGHT / 2;
 
 	// Slightly lower the view
-	sp.y -= TILE_HEIGHT - 1;
+	sp.y += TILE_HEIGHT - 1;
 	if (gbZoomInFlag) {
 		sp.y += TILE_HEIGHT / 4;
 	}
