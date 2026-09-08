@@ -387,17 +387,6 @@ static bool PosOkMis2(int x, int y)
 	return true;
 }
 
-static int GetDistance2(int gx1, int gy1, int gx2, int gy2)
-{
-	int ddx = (gx1 - gx2);
-	int ddy = (gy1 - gy2);
-
-	ddx >>= GRID_SHIFT;
-	ddy >>= GRID_SHIFT;
-
-	return ddx * ddx + ddy * ddy;
-}
-
 static bool FindClosest(int sx, int sy, int& dx, int& dy)
 {
 	int j, i, mid, mnum, tx, ty;
@@ -3823,8 +3812,8 @@ void MI_Mage(int mi)
 				continue;
 			}
 			// check the distance
-			int doff = GetDistance2(mis->_migx, mis->_migy, bmis->_migx, bmis->_migy);
-			if (doff > (GRID_WIDTH >> GRID_SHIFT) * (GRID_WIDTH >> GRID_SHIFT) / 8)
+			int doff = GetDunDistance2(mis->_mipos, bmis->_mipos);
+			if (doff > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) / 16)
 				continue;
 			// check target
 			if (mis->_miVar1 != 0 && bmis->_miVar1 != 0 && mis->_miVar1 != bmis->_miVar1)
