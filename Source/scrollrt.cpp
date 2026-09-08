@@ -1724,14 +1724,9 @@ static void CreateScene()
 	int dsx = (unsigned)(sp.x + TILE_WIDTH - 1) / TILE_WIDTH;
 	// - subtile to the top
 	int dsy = (unsigned)(sp.y - 0) / TILE_HEIGHT;
-	// - calculate the delta to the left
-	POS32 dt = { 0, 0 };
-	dt.x -= dsx;
-	dt.y += dsx;
-	// - calculate the delta to the top
-	dt.x -= dsy;
-	dt.y -= dsy;
-
+	// - calculate the delta to the top-left corner
+	POS32 dt;
+	SET_GRID(dt.x, dt.y, -dsx, -dsy);
 	// - move to the starting subtile (screen coordinates)
 	POS32 gp = sp;
 	gp.x += dt.x * TILE_WIDTH / 2 - dt.y * TILE_WIDTH / 2;
