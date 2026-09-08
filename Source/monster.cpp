@@ -3577,45 +3577,32 @@ static void MonConsumeCorpse(MonsterStruct* mon)
 
 	mx = mon->_mx;
 	my = mon->_my;
-	i = dDead[mx][my];
-	if (i != DEAD_MULTI) {
-		// single body -> consume it
-		i--;
+	//  1. find the last(top) corpse
+	for (i = MAXMONSTERS - 1; i >= 0; i--) {
 		mon = &monsters[i];
-		assert(mon->_mmode == MM_DEAD);
+		if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
+			continue;
 		mon->_mmode = MM_UNUSED;
 		static_assert(MAXMONSTERS < UCHAR_MAX, "ConsumeCorpse sends mnum in BYTE.");
 		NetSendCmdBParam2(CMD_MONSTCORPSE, currLvl._dLevelIdx, i);
-		n = 0;
-	} else {
-		// multiple bodies
-		//  1. find the last(top) one
-		for (i = MAXMONSTERS - 1; i >= 0; i--) {
-			mon = &monsters[i];
-			if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
-				continue;
-			mon->_mmode = MM_UNUSED;
-			static_assert(MAXMONSTERS < UCHAR_MAX, "ConsumeCorpse sends mnum in BYTE.");
-			NetSendCmdBParam2(CMD_MONSTCORPSE, currLvl._dLevelIdx, i);
-			break;
-		}
-		assert(i >= 0);
-		//  2. find out how many left
-		n = DEAD_MULTI;
-		while (--i >= 0) {
-			mon = &monsters[i];
-			if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
-				continue;
-			if (n == DEAD_MULTI) {
-				n = i;
-				continue;
-			}
-			n = DEAD_MULTI;
-			break;
-		}
-		assert(n == DEAD_MULTI || i < 0);
-		n = n == DEAD_MULTI ? n : n + 1;
+		break;
 	}
+	assert(i >= 0);
+	//  2. find out how many left
+	n = DEAD_MULTI;
+	while (--i >= 0) {
+		mon = &monsters[i];
+		if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
+			continue;
+		if (n == DEAD_MULTI) {
+			n = i;
+			continue;
+		}
+		n = DEAD_MULTI;
+		break;
+	}
+	assert(n == DEAD_MULTI || i < 0);
+	n = n == DEAD_MULTI ? n : n + 1;
 	//  3. update the matrix
 	dDead[mx][my] = n;
 }
@@ -3632,7 +3619,7 @@ void MAI_Scav(int mnum)
 	if (mon->_mhitpoints < (mon->_mmaxhp >> 1) && mon->_mgoal != MGOAL_HEALING) {
 		MonLeaveLeader(mnum);
 		mon->_mgoal = MGOAL_HEALING;
-		mon->_mgoalvar1 = 0; // HEALING_LOCATION_X
+		mon->_mgoalvar1 = 0; // DEAD_MONSTER
 		//mon->_mgoalvar2 = 0;
 #if DEBUG
 		assert(mon->_mAnims[MA_SPECIAL].maFrames * mon->_mAnims[MA_SPECIAL].maFrameLen * 9 < SQUELCH_MAX - SQUELCH_LOW);
@@ -3645,7 +3632,8 @@ void MAI_Scav(int mnum)
 	if (mon->_mgoal == MGOAL_HEALING) {
 		if (mon->_mgoalvar3 != 0) {
 			mon->_mgoalvar3--; // HEALING_ROUNDS
-			if (dDead[mon->_mx][mon->_my] != 0) {
+			if (mon->_mgoalvar1 != 0 // DEAD_MONSTER
+			 && monsters[mon->_mgoalvar1 - 1]._mmode == MM_DEAD && mon->_mx == monsters[mon->_mgoalvar1 - 1]._mx && mon->_my == monsters[mon->_mgoalvar1 - 1]._my) {
 				MonStartSpAttack(mnum);
 				maxhp = mon->_mmaxhp;
 				//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
@@ -3665,40 +3653,40 @@ void MAI_Scav(int mnum)
 #endif
 				//}
 			} else {
-				if (mon->_mgoalvar1 == 0) { // HEALING_LOCATION_X
-					static_assert(DBORDERX >= 4, "MAI_Scav expects a large enough border I.");
-					static_assert(DBORDERY >= 4, "MAI_Scav expects a large enough border II.");
-					static_assert(MAXDUNX < UCHAR_MAX, "MAI_Scav stores dungeon coordinates in BYTE field I.");
-					static_assert(MAXDUNY < UCHAR_MAX, "MAI_Scav stores dungeon coordinates in BYTE field II.");
-					static_assert(lengthof(CrawlNum) > 4, "MAI_Scav uses CrawlTable/CrawlNum up to radius 4.");
-					// assert(CrawlTable[CrawlNum[4]] == 24);
-					BYTE corpseLocs[24 * 2];
+				if (mon->_mgoalvar1 == 0 || monsters[mon->_mgoalvar1 - 1]._mmode != MM_DEAD) {
+					INTPAIR corpses[MAXMONSTERS + 1];
 					tmp = 0;
-					for (i = 1; i <= 4; i++) {
-						cr = &CrawlTable[CrawlNum[i]];
-						for (j = (BYTE)*cr; j > 0; j--) {
-							tx = mon->_mx + *++cr;
-							ty = mon->_my + *++cr;
-							if (dDead[tx][ty] != 0
-							 && LineClear(mon->_mx, mon->_my, tx, ty)) {
-								corpseLocs[tmp] = tx;
-								tmp++;
-								corpseLocs[tmp] = ty;
-								tmp++;
+					int mindist = INT_MAX;
+					for (i = MAXMONSTERS - 1; i >= 0; i--) {
+						MonsterStruct* dmon = &monsters[i];
+						if (dmon->_mmode != MM_DEAD) continue;
+						// check if corpse is too far
+						int dist = GetDunDistance2(mon->_mpos, dmon->_mpos);
+						if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 16) continue;
+						// check if corpse is accessible and visible
+						if (!LineClear(mon->_mx, mon->_my, dmon->_mx, dmon->_my)) continue;
+						corpses[tmp] = { i, dist };
+						tmp++;
+						if (mindist > dist)
+							mindist = dist;
+					}
+					if (tmp != 0) {
+						// filter corpses which are relatively too far
+						mindist += (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
+						for (i = tmp - 1; i >= 0; i--) {
+							if (corpses[i].v1 > mindist) {
+								tmp--;
+								corpses[i] = corpses[tmp];
 							}
 						}
-						if (tmp != 0) {
-							tmp = random_low(0, tmp);
-							tmp &= ~1;
-							mon->_mgoalvar1 = corpseLocs[tmp];     // HEALING_LOCATION_X
-							mon->_mgoalvar2 = corpseLocs[tmp + 1]; // HEALING_LOCATION_Y
-							break;
-						}
+						tmp = random_low(0, tmp);
+						tmp = corpses[tmp].v0 + 1;
 					}
+					mon->_mgoalvar1 = tmp; // DEAD_MONSTER
 				}
-				if (mon->_mgoalvar1 != 0) {
-					//                                  HEALING_LOCATION_X, HEALING_LOCATION_Y
-					tmp = GetDirection(mon->_mx, mon->_my, mon->_mgoalvar1, mon->_mgoalvar2);
+				if (mon->_mgoalvar1 != 0) { // DEAD_MONSTER
+					const MonsterStruct* dmon = &monsters[mon->_mgoalvar1 - 1]; // DEAD_MONSTER
+					tmp = GetDirection(mon->_mx, mon->_my, dmon->_mx, dmon->_my);
 					if (!MonCallWalk(mnum, tmp))
 						mon->_mgoalvar3 = 0; // reset HEALING_ROUNDS to prevent back-and-forth with MAI_SkelSd
 				}
