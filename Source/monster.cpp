@@ -3611,8 +3611,7 @@ static void MonConsumeCorpse(MonsterStruct* mon)
 void MAI_Scav(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int i, j, tx, ty, maxhp, tmp;
-	const int8_t* cr;
+	int i, maxhp, tmp;
 	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
