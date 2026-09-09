@@ -2294,6 +2294,7 @@ typedef struct SceneEntry {
 	int scIdx;
 	int scPosx;
 	int scPosy;
+	unsigned scZOrder;
 	union {
 		struct {
 			int scCellIdxFrom;
@@ -2301,6 +2302,7 @@ typedef struct SceneEntry {
 		};
 		BYTE scPlrTrn;
 	};
+	unsigned scNext;
 } SceneEntry;
 
 //////////////////////////////////////////////////

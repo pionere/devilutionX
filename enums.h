@@ -3752,7 +3752,27 @@ typedef enum scene_entry_type {
 	SCT_PLAYER,
 	SCT_DEAD_PLAYER,
 	SCT_TOWNER,
+	SCT_DUMMY,
 } scene_entry_type;
+
+typedef enum z_order {
+	ZOR_CELL,
+	ZOR_FLOOR = ZOR_CELL,
+	ZOR_PRE_OBJECT,
+	ZOR_PRE_MISSILE,
+	ZOR_DEAD_MONSTER,
+	ZOR_PRE_ITEM,
+	ZOR_DEAD_PLAYER,
+	ZOR_PLAYER,
+	ZOR_MONSTER = ZOR_PLAYER,
+	ZOR_TOWNER = ZOR_PLAYER,
+	// ZOR_ITEM = ZOR_PLAYER,
+	ZOR_MISSILE = ZOR_PLAYER,
+	ZOR_OBJECT = ZOR_PLAYER,
+	ZOR_SPECIAL_CELL,
+
+	ZOR_SHIFT = 6
+} z_order;
 
 typedef enum _automap_mode {
 	AMM_NONE,

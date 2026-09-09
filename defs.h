@@ -233,6 +233,12 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
     && (y) >= (ry)                        \
     && (y) < (ry + rh))
 
+#define POS_IN_AREA(x, y, x1, y1, x2, y2) \
+    ((x) >= (x1)                          \
+    && (y) >= (y1)                        \
+    && (x) < (x2)                         \
+    && (y) < (y2))
+
 #define IN_DUNGEON_AREA(x, y) \
     ((unsigned)(x) < MAXDUNX  \
     && (unsigned)(y) < MAXDUNY)
