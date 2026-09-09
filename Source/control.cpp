@@ -1505,7 +1505,7 @@ void DrawInfoStr()
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
 		pos = GetMousePosDun(is->_ipos);
-		pos.y -= TOOLTIP_OFFSET;
+		pos.y -= TILE_HEIGHT / 2 + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
