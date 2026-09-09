@@ -407,8 +407,8 @@ static void scrollrt_draw_cursor()
 }
 
 /**
- * @brief Render a missile sprite
- * @param mi missile index
+ * @brief add a missile to the scene-array
+ * @param mi id of the missile
  */
 static void scene_addMissileEntry(int mi)
 {
@@ -432,6 +432,10 @@ static void scene_addMissileEntry(int mi)
 #endif
 }
 
+/**
+ * @brief Render a missile sprite
+ * @param entry the scene entry of the missile
+ */
 static void DrawSceneMissile(const SceneEntry &entry)
 {
 	int mx = entry.scPosx;
@@ -462,7 +466,7 @@ static void DrawSceneMissile(const SceneEntry &entry)
 }
 
 /**
- * @brief Render a missile sprites for a given tile
+ * @brief add missile(s) to the scene
  * @param mi id of the missile or MIS_MULTI if there are more
  * @param x dPiece coordinate
  * @param y dPiece coordinate
@@ -490,9 +494,12 @@ static void scene_addMissile(int mi, int x, int y)
 }
 
 /**
- * @brief Render a monster sprite
- * @param mnum Id of monster
+ * @brief add a monster to the scene-array
+ * @param mnum id of the monster
  * @param bFlag flags to draw
+ * @param lightIdx light index at the monster's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the monster should be added
  */
 static void scene_addMonster(int mnum, BYTE bFlag)
 {
@@ -527,6 +534,10 @@ static void scene_addMonster(int mnum, BYTE bFlag)
 #endif
 }
 
+/**
+ * @brief Render a monster sprite
+ * @param entry the scene entry of the monster
+ */
 static void DrawSceneMonster(const SceneEntry &entry)
 {
 	int mx = entry.scPosx;
@@ -569,8 +580,8 @@ static void DrawSceneMonster(const SceneEntry &entry)
 }
 
 /**
- * @brief Render a sprite of a dead monster
- * @param mnum monster index
+ * @brief add a dead monster to the scene-array
+ * @param mnum id of the monster
  */
 static void scene_addDeadMonsterEntry(int mnum)
 {
@@ -589,6 +600,12 @@ static void scene_addDeadMonsterEntry(int mnum)
 #endif
 }
 
+/**
+ * @brief add dead monster(s) to the scene
+ * @param mnum id of the monster or DEAD_MULTI if there are more
+ * @param x dPiece coordinate
+ * @param y dPiece coordinate
+ */
 static void scene_addDeadMonster(int mnum, int x, int y)
 {
 	int i;
@@ -609,8 +626,8 @@ static void scene_addDeadMonster(int mnum, int x, int y)
 }
 
 /**
- * @brief Render a towner sprite
- * @param mnum Id of towner
+ * @brief add a towner to the scene-array
+ * @param mnum id of the towner
  * @param bFlag flags to draw
  */
 static void scene_addTowner(int mnum, BYTE bFlag)
@@ -630,6 +647,10 @@ static void scene_addTowner(int mnum, BYTE bFlag)
 #endif
 }
 
+/**
+ * @brief Render a towner sprite
+ * @param entry the scene entry of the towner
+ */
 static void DrawSceneTowner(const SceneEntry &entry)
 {
 	int tx = entry.scPosx;
@@ -655,9 +676,9 @@ static void DrawSceneTowner(const SceneEntry &entry)
 }
 
 /**
- * @brief Render a player sprite
- * @param pnum Player id
- * @param bFlag flags
+ * @brief add a player to the scene-array
+ * @param pnum id of the player
+ * @param bFlag flags to draw
  */
 static void scene_addPlayer(int pnum, BYTE bFlag)
 {
@@ -688,6 +709,10 @@ static void scene_addPlayer(int pnum, BYTE bFlag)
 #endif
 }
 
+/**
+ * @brief Render a player sprite
+ * @param entry the scene entry of the player
+ */
 static void DrawScenePlayer(const SceneEntry &entry)
 {
 	int px = entry.scPosx;
@@ -736,7 +761,7 @@ static void DrawScenePlayer(const SceneEntry &entry)
 }
 
 /**
- * @brief Render a player sprite
+ * @brief add a dead player(s) to the scene
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  */
@@ -765,8 +790,8 @@ static void scene_addDeadPlayer(int x, int y)
 }
 
 /**
- * @brief Render an object sprite
- * @param oi the id of the object
+ * @brief add an object to the scene-array
+ * @param oi id of the object
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  */
@@ -792,6 +817,10 @@ static void scene_addObject(int oi, int x, int y)
 #endif
 }
 
+/**
+ * @brief Render an object sprite
+ * @param entry the scene entry of the object
+ */
 static void DrawSceneObject(const SceneEntry &entry)
 {
 	int ox = entry.scPosx;
@@ -838,7 +867,7 @@ static void DrawSceneObject(const SceneEntry &entry)
 }
 
 /**
- * @brief Render a cell
+ * @brief add a dungeon subtile to the scene-array
  * @param pn piece number
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -883,6 +912,10 @@ static void scene_addCell(int pn, int sx, int sy)
 #endif
 }
 
+/**
+ * @brief Render a cell
+ * @param entry the scene entry of the cell
+ */
 static void DrawSceneCell(const SceneEntry &entry)
 {
 	int sx = entry.scPosx;
@@ -1214,6 +1247,10 @@ static void DrawSceneCell(const SceneEntry &entry)
 	}
 }
 
+/**
+ * @brief Render a special frame of a subtile
+ * @param entry the scene entry of the special frame
+ */
 static void DrawSceneSpecial(const SceneEntry &entry)
 {
 	int sx = entry.scPosx;
@@ -1224,7 +1261,7 @@ static void DrawSceneSpecial(const SceneEntry &entry)
 }
 
 /**
- * @brief Render a floor tiles
+ * @brief add a floor subtile to the scene-array
  * @param pn piece number
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
@@ -1243,6 +1280,10 @@ static void scene_addFloorPiece(int pn, int sx, int sy)
 #endif
 }
 
+/**
+ * @brief Render a floor subtile
+ * @param entry the scene entry of the subtile
+ */
 static void DrawSceneFloor(const SceneEntry &entry)
 {
 	BYTE *dst, tmp;
@@ -1280,8 +1321,8 @@ static void DrawSceneFloor(const SceneEntry &entry)
 }
 
 /**
- * @brief Draw item for a given tile
- * @param ii id of item
+ * @brief add an item to the scene-array
+ * @param ii id of the item
  */
 static void scene_addItem(int ii)
 {
@@ -1305,6 +1346,10 @@ static void scene_addItem(int ii)
 #endif
 }
 
+/**
+ * @brief Draw item for a given tile
+ * @param entry entry of the item
+ */
 static void DrawSceneItem(const SceneEntry &entry)
 {
 	int sx = entry.scPosx;
@@ -1350,9 +1395,9 @@ static void DrawSceneItem(const SceneEntry &entry)
 }
 
 /**
- * @brief Draw a towner or a monster depending on the level
- * @param mnum Id of monster
- * @param bFlag flags
+ * @brief add a towner or a monster to the scene depending on the level
+ * @param mnum id of the towner/monster
+ * @param bFlag flags to draw
  */
 static void scene_addMonsterHelper(int mnum, BYTE bFlag)
 {
@@ -1362,6 +1407,12 @@ static void scene_addMonsterHelper(int mnum, BYTE bFlag)
 		scene_addTowner(mnum, bFlag);
 }
 
+/**
+ * @brief add a special (dungeon) frame to the scene
+ * @param bv id of the special frame
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
+ */
 static void scene_addSpecialCell(BYTE bv, int sx, int sy)
 {
 	scene[numEntries].scType = SCT_SPECIAL;
@@ -1377,7 +1428,7 @@ static void scene_addSpecialCell(BYTE bv, int sx, int sy)
 }
 
 /**
- * @brief Render object sprites
+ * @brief add dungeon entities to the scene
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
@@ -1445,7 +1496,7 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
 }
 
 /**
- * @brief Render a row of tiles
+ * @brief add a row of tiles to the scene
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
@@ -1496,7 +1547,7 @@ static void scene_addFloor(int x, int y, int sx, int sy, int mode)
 #define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
 
 /**
- * @brief Render a row of tile
+ * @brief add dungeon entities to the scene
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
