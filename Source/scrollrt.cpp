@@ -1828,9 +1828,9 @@ static void CreateScene()
 	int shy = (sy - dp.y);
 
 	for (unsigned i = 0; i < numEntries; i++) {
-		SceneEntry &entry = scene[i];
+		SceneEntry* entry = &scene[i];
 
-		switch (entry.scType) {
+		switch (entry->scType) {
 		case SCT_FLOOR:        break;
 		case SCT_CELL:         break;
 		case SCT_ITEM:
@@ -1841,10 +1841,10 @@ static void CreateScene()
 		case SCT_DEAD_MONSTER:
 		case SCT_PLAYER:
 		case SCT_DEAD_PLAYER: {
-			POS32 sp = GridToScreen(entry.scPosx, entry.scPosy);
+			POS32 sp = GridToScreen(entry->scPosx, entry->scPosy);
 
-			entry.scPosx = sp.x + shx + TILE_WIDTH / 2;
-			entry.scPosy = sp.y + shy;
+			entry->scPosx = sp.x + shx + TILE_WIDTH / 2;
+			entry->scPosy = sp.y + shy;
 		} break;
 		case SCT_SPECIAL:      break;
 		default: ASSUME_UNREACHABLE
@@ -1862,22 +1862,22 @@ static void DrawScene()
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT / 2)];
 
 	for (unsigned i = 0; i < numEntries; i++) {
-		const SceneEntry &entry = scene[i];
+		const SceneEntry* entry = &scene[i];
 
-		gbCelTransparencyActive = entry.scTrans;
-		light_trn_index = entry.scLight;
-		switch (entry.scType) {
-		case SCT_FLOOR:        DrawSceneFloor(entry);       break; // light
-		case SCT_CELL:         DrawSceneCell(entry);        break; // light, transp
-		case SCT_ITEM:         DrawSceneItem(entry);        break; // light
-		case SCT_OBJECT:       DrawSceneObject(entry);      break; // light
-		case SCT_MISSILE:      DrawSceneMissile(entry);     break;
-		case SCT_TOWNER:       DrawSceneTowner(entry);      break;
+		gbCelTransparencyActive = entry->scTrans;
+		light_trn_index = entry->scLight;
+		switch (entry->scType) {
+		case SCT_FLOOR:        DrawSceneFloor(*entry);       break; // light
+		case SCT_CELL:         DrawSceneCell(*entry);        break; // light, transp
+		case SCT_ITEM:         DrawSceneItem(*entry);        break; // light
+		case SCT_OBJECT:       DrawSceneObject(*entry);      break; // light
+		case SCT_MISSILE:      DrawSceneMissile(*entry);     break;
+		case SCT_TOWNER:       DrawSceneTowner(*entry);      break;
 		case SCT_MONSTER:
-		case SCT_DEAD_MONSTER: DrawSceneMonster(entry);     break;
+		case SCT_DEAD_MONSTER: DrawSceneMonster(*entry);     break;
 		case SCT_PLAYER:
-		case SCT_DEAD_PLAYER:  DrawScenePlayer(entry);      break;
-		case SCT_SPECIAL:      DrawSceneSpecial(entry);     break; // light, transp
+		case SCT_DEAD_PLAYER:  DrawScenePlayer(*entry);      break;
+		case SCT_SPECIAL:      DrawSceneSpecial(*entry);     break; // light, transp
 		default: ASSUME_UNREACHABLE
 		}
 	}
