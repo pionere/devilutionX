@@ -1234,7 +1234,7 @@ static void DrawTrigInfo()
 {
 	POS32 pos;
 
-	pos = GetMousePosGrid(pcurspos.gx, pcurspos.gy);
+	pos = GetMousePosDun(pcurspos.dun);
 	if (pcurstrig >= MAXTRIGGERS + 1) {
 		// portal
 		MissileStruct* mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
@@ -1504,13 +1504,13 @@ void DrawInfoStr()
 	if (ITEM_VALID(pcursitem)) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
-		pos = GetMousePosGrid(is->_igx, is->_igy);
+		pos = GetMousePosDun(is->_ipos);
 		pos.y -= TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
-		pos = GetMousePosGrid(os->_ogx, os->_ogy);
+		pos = GetMousePosDun(os->_opos);
 		pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (MON_VALID(pcursmonst)) {
@@ -1518,13 +1518,13 @@ void DrawInfoStr()
 		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
 		ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
-		pos = GetMousePosGrid(mon->_mgx, mon->_mgy);
+		pos = GetMousePosDun(mon->_mpos);
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (PLR_VALID(pcursplr)) {
 		PlayerStruct* p = &players[pcursplr];
-		pos = GetMousePosGrid(p->_pgx, p->_pgy);
+		pos = GetMousePosDun(p->_ppos);
 		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);

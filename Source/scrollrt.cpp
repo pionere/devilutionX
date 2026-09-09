@@ -249,6 +249,35 @@ POS32 GetMousePosGrid(int gx, int gy)
 	return pos;
 }
 
+/*
+ * Return the screen position of the given dun-position.
+ *
+ * @param pos Precise dungeon position
+ * @return the screen x/y-coordinates
+ */
+POS32 GetMousePosDun(POS32 pos)
+{
+	POS32 dp = myview.dun;
+	pos.x -= dp.x;
+	pos.y -= dp.y;
+
+	int gx = pos.x - pos.y;
+	int gy = pos.x + pos.y;
+
+	gx /= DUN_WIDTH / (TILE_WIDTH / 2);
+	gy /= DUN_WIDTH / (TILE_HEIGHT / 2);
+
+	if (gbZoomInFlag) {
+		gx <<= 1;
+		gy <<= 1;
+	}
+
+	gx += SCREEN_WIDTH / 2u;
+	gy += SCREEN_HEIGHT / 2u;
+
+	return { gx, gy };
+}
+
 void UpdateScrollInfo(int pnum)
 {
 	if (pnum == mypnum) {

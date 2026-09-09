@@ -55,6 +55,7 @@ POS32 ScreenOffset(int x, int y, int gx, int gy);
  * @return the screen x/y-coordinates
  */
 POS32 GetMousePosGrid(int gx, int gy);
+POS32 GetMousePosDun(POS32 pos);
 void UpdateScrollInfo(int pnum);
 /*
  * Convert grid-position to screen coordinates ignoring zoom and scrolling
