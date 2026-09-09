@@ -148,12 +148,12 @@ void InitVPEntryTrigger(bool recreate)
 void InitView(int entry)
 {
 	int type;
-
+	// unnecessary because UpdateScrollInfo is going to update this when the player enters the level
 	//ScrollInfo._sdx = 0;
 	//ScrollInfo._sdy = 0;
-	ScrollInfo._sxoff = 0;
-	ScrollInfo._syoff = 0;
-	ScrollInfo._sdir = SDIR_NONE;
+	//ScrollInfo._sxoff = 0;
+	//ScrollInfo._syoff = 0;
+	//ScrollInfo._sdir = SDIR_NONE;
 
 	if (entry == ENTRY_PORTLVL) {
 		GetPortalLvlPos();
