@@ -1209,7 +1209,7 @@ typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhViewGridY;
 	LE_INT32 vhScrollXOff;
 	LE_INT32 vhScrollYOff;
-	LE_INT32 vhScrollDir;
+	// LE_INT32 vhScrollDir;
 	LE_INT32 vhHPPer;
 	LE_INT32 vhManaPer;
 	BYTE vhLvlUpFlag;
@@ -2275,7 +2275,7 @@ typedef struct ScrollStruct {
 	int _syoff; // Y-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pyoff
 	// int _sdx;
 	// int _sdy;
-	int _sdir;
+	// int _sdir;
 } ScrollStruct;
 
 typedef struct ViewportStruct {

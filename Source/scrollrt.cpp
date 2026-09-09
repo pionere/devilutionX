@@ -67,6 +67,8 @@ static BYTE sgSaveBack[MAX_CURSOR_AREA];
 static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
+/** Maps from facing direction to scroll-direction. */
+static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 
 const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
@@ -302,10 +304,10 @@ void UpdateScrollInfo(int pnum)
 		ScrollInfo._sxoff = -sp.x;
 		ScrollInfo._syoff = -sp.y;
 #if DEBUG_MODE
-		for (int i = 0; i < lengthof(dir2sdir); i++)
-			assert(dir2sdir[i] == 1 + i);
+//		for (int i = 0; i < lengthof(dir2sdir); i++)
+//			assert(dir2sdir[i] == 1 + i);
 #endif
-		ScrollInfo._sdir = (ScrollInfo._sxoff == 0 && ScrollInfo._syoff == 0) ? SDIR_NONE : (1 + /*OPPOSITE(*/plr._pdir/*)*/); // == dir2sdir[dir];
+//		ScrollInfo._sdir = (ScrollInfo._sxoff == 0 && ScrollInfo._syoff == 0) ? SDIR_NONE : (1 + /*OPPOSITE(*/plr._pdir/*)*/); // == dir2sdir[dir];
 	}
 }
 
@@ -2192,8 +2194,8 @@ void ScrollView()
 		}
 	}
 
-	if (scroll)
-		ScrollInfo._sdir = SDIR_NONE;
+//	if (scroll)
+//		ScrollInfo._sdir = SDIR_NONE;
 }
 
 /**

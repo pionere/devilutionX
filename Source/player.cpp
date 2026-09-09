@@ -237,11 +237,6 @@ const unsigned SkillExpLvlsTbl[MAXSPLLEVEL + 1] = {
 	1082908612,
 };
 
-#if DEBUG_MODE
-/** Maps from facing direction to scroll-direction. */
-static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
-#endif
-
 static inline void GetPlrGFXCells(int pc, const char** szCel, const char** cs)
 {
 /*#ifdef HELLFIRE
@@ -661,7 +656,7 @@ static void AssertFixPlayerLocation(int pnum)
 	if (pnum == mypnum) {
 		assert(ScrollInfo._sxoff == 0);
 		assert(ScrollInfo._syoff == 0);
-		assert(ScrollInfo._sdir == SDIR_NONE);
+		// assert(ScrollInfo._sdir == SDIR_NONE);
 		assert(myview.subtile.x == plr._px); // - ScrollInfo._sdx;
 		assert(myview.subtile.y == plr._py); // - ScrollInfo._sdy;
 	}

@@ -730,7 +730,7 @@ void LoadGame()
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ScrollInfo._sxoff = ghs->vhScrollXOff;
 	ScrollInfo._syoff = ghs->vhScrollYOff;
-	ScrollInfo._sdir = ghs->vhScrollDir;
+	// ScrollInfo._sdir = ghs->vhScrollDir;
 	gnHPPer = ghs->vhHPPer;
 	gnManaPer = ghs->vhManaPer;
 
@@ -1523,7 +1523,7 @@ void SaveGame()
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ghs->vhScrollXOff = ScrollInfo._sxoff;
 	ghs->vhScrollYOff = ScrollInfo._syoff;
-	ghs->vhScrollDir = ScrollInfo._sdir;
+	// ghs->vhScrollDir = ScrollInfo._sdir;
 	ghs->vhHPPer = gnHPPer;
 	ghs->vhManaPer = gnManaPer;
 
