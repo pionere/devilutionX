@@ -47,6 +47,14 @@ POS32 DungeonToGridPos(int x, int y);
 POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff);
 POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
 POS32 ScreenOffset(int x, int y, int gx, int gy);
+/*
+ * Return the screen position of the given grid-position (gx;gy).
+ *
+ * @param gx Precise grid (shifted dungeon) X-position
+ * @param gy Precise grid (shifted dungeon) Y-position
+ * @return the screen x/y-coordinates
+ */
+POS32 GetMousePosGrid(int gx, int gy);
 void UpdateScrollInfo(int pnum);
 /*
  * Convert grid-position to screen coordinates ignoring zoom and scrolling

@@ -1146,37 +1146,6 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	return result;
 }
 
-/*
- * Return the screen position of the given grid-position (gx;gy).
- *
- * @param gx Precise grid (shifted dungeon) X-position
- * @param gy Precise grid (shifted dungeon) Y-position
- * @return the screen x/y-coordinates
- */
-static POS32 GetMousePosGrid(int gx, int gy)
-{
-	POS32 pos;
-	POS32 dp = DungeonToGridPos(myview.subtile.x, myview.subtile.y);
-
-	gx -= dp.x;
-	gy -= dp.y;
-
-	pos = GridToScreen(gx, gy);
-
-	pos.x += ScrollInfo._sxoff;
-	pos.y += ScrollInfo._syoff;
-
-	if (gbZoomInFlag) {
-		pos.x <<= 1;
-		pos.y <<= 1;
-	}
-
-	pos.x += SCREEN_WIDTH / 2u;
-	pos.y += SCREEN_HEIGHT / 2u;
-
-	return pos;
-}
-
 static void GetItemInfo(const ItemStruct* is)
 {
 	infoclr = ItemColor(is);
