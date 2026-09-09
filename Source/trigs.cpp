@@ -149,6 +149,12 @@ void InitView(int entry)
 {
 	int type;
 
+	//ScrollInfo._sdx = 0;
+	//ScrollInfo._sdy = 0;
+	ScrollInfo._sxoff = 0;
+	ScrollInfo._syoff = 0;
+	ScrollInfo._sdir = SDIR_NONE;
+
 	if (entry == ENTRY_PORTLVL) {
 		GetPortalLvlPos();
 		return;
