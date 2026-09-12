@@ -5006,7 +5006,7 @@ void MI_Inferno(int mi)
 		mis->_miVar2--;
 		return;
 	}
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE; // + AddUnLight
