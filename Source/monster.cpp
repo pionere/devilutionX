@@ -1881,13 +1881,8 @@ static void MonStopWalk(int mnum)
 		return;
 
 	// assert(mon->_mAnims[MA_WALK].maFrames == mon->_mAnimLen);
-	if (mon->_mAnimFrame > (mon->_mAnimLen >> 1)) {
-		x = mon->_mfutx;
-		y = mon->_mfuty;
-	} else {
-		x = mon->_moldx;
-		y = mon->_moldy;
-	}
+	x = (unsigned)mon->_mpos.x / DUN_WIDTH;
+	y = (unsigned)mon->_mpos.y / DUN_WIDTH;
 	mon->_mx = x;
 	mon->_my = y;
 	MonStartStand(mnum);
