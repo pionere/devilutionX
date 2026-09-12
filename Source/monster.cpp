@@ -1375,13 +1375,8 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints == 0*/)
 				continue;
-			if ((plx(i)._pmode < PM_WALK || plx(i)._pmode > PM_WALK2) || plx(i)._pAnimFrame <= (plx(i)._pAnimLen >> 1)) {
-				x = plx(i)._px;
-				y = plx(i)._py;
-			} else {
-				x = plx(i)._pfutx;
-				y = plx(i)._pfuty;
-			}
+			x = (unsigned)plx(i)._ppos.x / DUN_WIDTH;
+			y = (unsigned)plx(i)._ppos.y / DUN_WIDTH;
 			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
 			sameroom = tv == dTransVal[x][y];
@@ -1407,13 +1402,8 @@ static void MonFindEnemy(int mnum)
 				continue;
 			//if (tmon->_mFlags & MFLAG_HIDDEN)
 			//	continue;
-			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
-				x = tmon->_mx;
-				y = tmon->_my;
-			} else {
-				x = tmon->_mfutx;
-				y = tmon->_mfuty;
-			}
+			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
+			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
 			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
 			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
@@ -1444,13 +1434,8 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mgoal == MGOAL_TALKING) // CanTalkToMonst(tnum)
 				continue;
-			if ((tmon->_mmode < MM_WALK || tmon->_mmode > MM_WALK2) || tmon->_mAnimFrame <= (tmon->_mAnimLen >> 1)) {
-				x = tmon->_mx;
-				y = tmon->_my;
-			} else {
-				x = tmon->_mfutx;
-				y = tmon->_mfuty;
-			}
+			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
+			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
 			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
 				continue;
 			// if (!(dFlags[x][y] & BFLAG_ALERT)) - stick to line of sight to prevent stuck golems in multiplayer games
