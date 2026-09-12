@@ -3211,8 +3211,7 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	// mis->_mityoff = bmis->_mityoff;
 	mis->_migx = bmis->_migx;
 	mis->_migy = bmis->_migy;
-	// assert(bmis->_miVar3 < 3);
-	mis->_miVar2 = (2 - bmis->_miRange) * 4;
+	mis->_miVar2 = (missiledata[MIS_INFERNOC].mdRange - bmis->_miRange) * 4;
 	// assert(misource != -1);
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
