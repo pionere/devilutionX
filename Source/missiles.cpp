@@ -3439,14 +3439,10 @@ int AddApocaC2(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0)
 			continue; // skip player if not on the current level
-		// assert(plr._pAnims[PGX_WALK].paFrames == plr._mAnimLen);
-		if (plr._pAnimFrame > (plr._pAnimLen >> 1)) {
-			px = plr._pfutx;
-			py = plr._pfuty;
-		} else {
-			px = plr._poldx;
-			py = plr._poldy;
-		}
+
+		px = (unsigned)plr._ppos.x / DUN_WIDTH;
+		py = (unsigned)plr._ppos.y / DUN_WIDTH;
+
 		if (!LineClear(sx, sy, px, py))
 			continue; // skip player if not visible
 
