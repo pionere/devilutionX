@@ -742,6 +742,7 @@ static void MoveMissile(MissileStruct* mis, int steps)
 #if 0
 /**
  * Shift the missiles coordinates to place it in front of the view.
+ * @param mis the missile to be shifted
  * @param tiles the number tiles to shift with
  */
 static void ShiftMissilePos(MissileStruct* mis, int tiles)
@@ -1583,7 +1584,7 @@ static void CheckSplashCol(int mi, int hit)
 		if (abs(tx - lx) < 2 && abs(ty - ly) < 2)
 			CheckMissileCol(mi, tx, ty, MICM_NONE);
 	}
-	// - restore source position
+	//  - restore source position
 	mis->_misx = sx;
 	mis->_misy = sy;
 }
@@ -2395,7 +2396,7 @@ int AddLightning(int mi, int sx, int sy, int dx, int dy, int midir, int micaster
 	if (midir >= 0) {
 		// mis->_mix = missile[midir]._mix;
 		// mis->_miy = missile[midir]._miy;
-		mis->_mipos = missile[midir]._mipos;;
+		mis->_mipos = missile[midir]._mipos;
 		// mis->_mizoff = missile[midir]._mizoff;
 		// mis->_mitxoff = missile[midir]._mitxoff;
 		// mis->_mityoff = missile[midir]._mityoff;
@@ -3200,6 +3201,8 @@ int AddInferno(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	bmis = &missile[midir];
 	mis->_misx = bmis->_misx;
 	mis->_misy = bmis->_misy;
+	// mis->_mix = bmis->_mix;
+	// mis->_miy = bmis->_miy;
 	mis->_mipos = bmis->_mipos;
 	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
