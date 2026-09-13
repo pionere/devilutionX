@@ -638,8 +638,8 @@ static void GetMissileVel(MissileStruct* mis, int sx, int sy, int dx, int dy, in
 	dx -= sx;
 	dy -= sy;
 	assert(dx != 0 || dy != 0);
-	dxp = (dx - dy);
-	dyp = (dy + dx);
+	dxp = dx;
+	dyp = dy;
 	dr = sqrt(dxp * dxp + dyp * dyp);
 	mis->_mixvel = (dxp * (v << MIS_BASE_VELO_SHIFT)) / dr;
 	mis->_miyvel = (dyp * (v << MIS_BASE_VELO_SHIFT)) / dr;
@@ -705,13 +705,13 @@ static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 
 static void GetMissilePos(MissileStruct* mis)
 {
-	int mx, my, dx, dy, dqx, dqy, mix, miy, mixoff, miyoff;
+	int mx, my, dx, dy, dqx, dqy;
 	POS32 dp = DungeonToDunPos(mis->_misx, mis->_misy);
 	mx = mis->_mitxoff;
 	my = mis->_mityoff;
 
-	dx = mx + my;
-	dy = my - mx;
+	dx = mx;
+	dy = my;
 
 	dqx = dx / ((1 << (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT)) / (DUN_WIDTH / 64));
 	dqy = dy / ((1 << (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT)) / (DUN_WIDTH / 64));
@@ -2788,16 +2788,16 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	dPlayer[sx][sy] = -(pnum + 1);
 
 	mis = &missile[mi];
-	chv = MIS_SHIFTEDVEL(16) / M_SQRT2;
+	chv = MIS_SHIFTEDVEL(16);
 	aa = 2;
 	if (plr._pIWalkSpeed != 0) {
 		if (plr._pIWalkSpeed == 3) {
 			// ISPL_FASTESTWALK
-			chv = MIS_SHIFTEDVEL(32) / M_SQRT2;
+			chv = MIS_SHIFTEDVEL(32);
 			aa = 4;
 		} else {
 			// (ISPL_FASTERWALK | ISPL_FASTWALK)
-			chv = MIS_SHIFTEDVEL(24) / M_SQRT2;
+			chv = MIS_SHIFTEDVEL(24);
 			aa = 3;
 		}
 		GetMissileVel(mis, sx, sy, dx, dy, chv);
