@@ -196,6 +196,24 @@ POS32 GridToScreen(int gx, int gy)
 	return pos;
 }
 
+POS32 DunToGrid(POS32 pos)
+{
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, pos.y, pos.x);
+
+#if DUN_WIDTH < GRID_WIDTH / 2
+	gp.x *= (GRID_WIDTH / 2) / DUN_WIDTH;
+	gp.y *= (GRID_WIDTH / 2) / DUN_WIDTH;
+#else
+	gp.x /= DUN_WIDTH / (GRID_WIDTH / 2);
+	gp.y /= DUN_WIDTH / (GRID_WIDTH / 2);
+#endif
+
+	gp.y -= GRID_WIDTH / 2;
+
+	return gp;
+}
+
 POS32 ScreenOffset(int x, int y, int gx, int gy)
 {
 	POS32 gp = DungeonToGridPos(x, y);

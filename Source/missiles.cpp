@@ -706,30 +706,25 @@ static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 static void GetMissilePos(MissileStruct* mis)
 {
 	int mx, my, dx, dy, dqx, dqy, mix, miy, mixoff, miyoff;
-
-	mx = mis->_mitxoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT);
-	my = mis->_mityoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT);
-	if ((mis->_mitxoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT - 1) & 1))
-		mx++;
-	if ((mis->_mityoff >> (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT - 1) & 1))
-		my++;
+	POS32 dp = DungeonToDunPos(mis->_misx, mis->_misy);
+	mx = mis->_mitxoff;
+	my = mis->_mityoff;
 
 	dx = mx + my;
 	dy = my - mx;
-	// -- keep in sync with LineClearF + do it in GetMissileVel?
-	//dx += dx >= 0 ? 32 : -32;
-	//dy += dy >= 0 ? 32 : -32;
 
-	dqx = dx / 64;
-	//drx = dx % 64;
-	dqy = dy / 64;
-	//dry = dy % 64;
+	dqx = dx / ((1 << (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT)) / (DUN_WIDTH / 64));
+	dqy = dy / ((1 << (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT)) / (DUN_WIDTH / 64));
 
-	mix = dqx + mis->_misx;
-	miy = dqy + mis->_misy;
-	mixoff = (mx - (dqx - dqy) * 32) * ASSET_MPL;        // ((drx - dry) >> 1) * ASSET_MPL;
-	miyoff = ((my >> 1) - (dqx + dqy) * 16) * ASSET_MPL; // ((drx + dry) >> 2) * ASSET_MPL;
-	SetMissilePos(mis, mix, miy, mixoff, miyoff);
+	dp.x += dqx;
+	dp.y += dqy;
+	mis->_mipos = dp;
+	mis->_mix = (unsigned)dp.x / DUN_WIDTH;
+	mis->_miy = (unsigned)dp.y / DUN_WIDTH;
+	POS32 gp = DunToGrid(dp);
+	mis->_migx = gp.x;
+	mis->_migy = gp.y;
+
 	ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
 }
 
