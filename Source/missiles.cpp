@@ -645,12 +645,12 @@ static void GetMissileVel(MissileStruct* mis, int sx, int sy, int dx, int dy, in
 	mis->_miyvel = (dyp * (v << MIS_BASE_VELO_SHIFT)) / dr;
 }
 
-static void SetMissilePos(MissileStruct* mis, int x, int y, int xoff, int yoff)
+static void SetMissilePos(MissileStruct* mis, int x, int y)
 {
 	mis->_mix = x;
 	mis->_miy = y;
-	mis->_mipos = DungeonScreenToDunPos(x, y, xoff, yoff);
-	POS32 pg = DungeonScreenToGridPos(x, y, xoff, yoff);
+	mis->_mipos = DungeonToDunPos(x, y);
+	POS32 pg = DungeonToGridPos(x, y);
 	mis->_migx = pg.x;
 	mis->_migy = pg.y;
 }
@@ -1920,7 +1920,7 @@ int AddRune(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, int
 			if (PlaceMissile(tx, ty, sx, sy)) {
 				// mis->_misx = tx; -- unused
 				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty, 0, 0);
+				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
 				mis->_miLid = AddLight(mis->_migx, mis->_migy, 8);
 				return MIRES_DONE;
@@ -2454,7 +2454,7 @@ int AddBloodBoilC(int mi, int sx, int sy, int dx, int dy, int midir, int micaste
 
 	// mis->_misx = dx - 2; -- unused
 	// mis->_misy = dy - 2;
-	SetMissilePos(mis, dx - 2, dy - 2, 0, 0);
+	SetMissilePos(mis, dx - 2, dy - 2);
 	mis->_miVar1 = 0;
 	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
 	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * 8;
@@ -2533,7 +2533,7 @@ int AddShroud(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			if (PlaceMissile(tx, ty, sx, sy)) {
 				// mis->_misx = tx; -- unused
 				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty, 0, 0);
+				SetMissilePos(mis, tx, ty);
 				mis->_miRange = 32 * spllvl + 160;
 				return MIRES_DONE;
 			}
@@ -2616,7 +2616,7 @@ int AddPortal(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	mis = &missile[mi];
 	mis->_misx = dx;
 	mis->_misy = dy;
-	SetMissilePos(mis, dx, dy, 0, 0);
+	SetMissilePos(mis, dx, dy);
 	static_assert(MAX_LIGHT_RAD >= 15, "AddPortal needs at least light-radius of 15.");
 	mis->_miLid = AddLight(mis->_migx, mis->_migy, spllvl >= 0 ? 1 : 15);
 	if (spllvl >= 0) {
@@ -2721,7 +2721,7 @@ int AddMeteor(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				mis->_misx = tx;
 				mis->_misy = ty;
-				SetMissilePos(mis, tx, ty, 0, 0);
+				SetMissilePos(mis, tx, ty);
 				// assert(mis->_miAnimLen == MIA_SHATTER1_LENGTH);
 				mis->_miAnimFrame = MIA_SHATTER1_LENGTH;
 				mis->_miAnimAdd = -1;
@@ -2919,7 +2919,7 @@ int AddGuardian(int mi, int sx, int sy, int dx, int dy, int midir, int micaster,
 			if (PlaceMissile(tx, ty, sx, sy)) {
 				mis->_misx = tx;
 				mis->_misy = ty;
-				SetMissilePos(mis, tx, ty, 0, 0);
+				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
 				mis->_miLid = AddLight(mis->_migx, mis->_migy, 1);
 				mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
@@ -3110,7 +3110,7 @@ int AddWallC(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 				midir = (midir - 2) & 7;
 				// mis->_misx = tx; -- unused
 				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty, 0, 0);
+				SetMissilePos(mis, tx, ty);
 				mis->_mixvel = XDirAdd[midir];
 				mis->_miyvel = YDirAdd[midir];
 				//mis->_miVar1 = 0;
@@ -3348,7 +3348,7 @@ int AddAttract(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, 
 	mis = &missile[mi];
 	// mis->_misx = dx; -- unused
 	// mis->_misy = dy;
-	SetMissilePos(mis, dx, dy, 0, 0);
+	SetMissilePos(mis, dx, dy);
 	mis->_miAnimFrame = 2;
 	mis->_miAnimAdd = 2;
 
@@ -3544,7 +3544,7 @@ int AddPulse(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, in
 			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				// mis->_misx = tx; -- unused
 				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty, 0, 0);
+				SetMissilePos(mis, tx, ty);
 				static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
 				mis->_miLid = AddLight(mis->_migx, mis->_migy, 4);
 				return MIRES_DONE;
@@ -3585,7 +3585,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 	mis->_miSpllvl = spllvl;
 	mis->_misx = sx;
 	mis->_misy = sy;
-	SetMissilePos(mis, sx, sy, 0, 0);
+	SetMissilePos(mis, sx, sy);
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
 	mis->_miFlags = mds->mdFlags;
@@ -4632,7 +4632,7 @@ void MI_Chain(int mi)
 				mis->_mitxoff = 0;
 				mis->_mityoff = 0;
 				// - update grid position
-				SetMissilePos(mis, mx, my, 0, 0);
+				SetMissilePos(mis, mx, my);
 				ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
