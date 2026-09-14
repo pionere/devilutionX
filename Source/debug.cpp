@@ -2253,7 +2253,7 @@ void ValidateData()
 		if (md.mProc == MI_Shroud || md.mProc == MI_FireWave || md.mProc == MI_Portal || md.mProc == MI_Firewall || md.mProc == MI_Acidpud || md.mProc == MI_Wind) {
 			assert(n == 2);
 		}
-		if (md.mProc == MI_AsArrow/* || md.mProc == MI_Poison*/ || md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_BloodBoil || md.mProc == MI_Bleed ||
+		if (md.mProc == MI_AsArrow/* || md.mProc == MI_Poison*/ || md.mProc == MI_Acidpud || md.mProc == MI_Firewall || md.mProc == MI_Lightning || md.mProc == MI_BloodBoil || md.mProc == MI_Bleed ||
 			md.mProc == MI_Flash || md.mProc == MI_Meteor || md.mProc == MI_Elemental || md.mProc == MI_Pulse) {
 			assert(md.miSFX == SFX_NONE);
 		}

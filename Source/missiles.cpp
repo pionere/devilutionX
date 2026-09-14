@@ -4248,7 +4248,7 @@ void MI_Lightning(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
+	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_NONE);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
