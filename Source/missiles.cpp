@@ -12,14 +12,8 @@ DEVILUTION_BEGIN_NAMESPACE
 /*
  * Similar to walk offsetx/y with PLR/MON_WALK_SHIFT, missile velocity values
  * are shifted with MIS_*VELO_SHIFT to the higher range for better precision.
- * if MIS_VELO_SHIFT is set to 0 and MIS_BASE_VELO_SHIFT to 16:
- *    the result is reduced code size with slightly slower runtime speed.
- * if MIS_VELO_SHIFT is set to 16, MIS_BASE_VELO_SHIFT to 0:
- *    the result is increased code size with slightly better runtime speed.
  */
-#define MIS_VELO_SHIFT      0
-#define MIS_BASE_VELO_SHIFT 16
-#define MIS_SHIFTEDVEL(x)   ((x) << MIS_VELO_SHIFT)
+#define MIS_VELO_SHIFT      16
 
 int missileactive[MAXMISSILES];
 MissileStruct missile[MAXMISSILES];
@@ -641,8 +635,9 @@ static void GetMissileVel(MissileStruct* mis, int sx, int sy, int dx, int dy, in
 	dxp = dx;
 	dyp = dy;
 	dr = sqrt(dxp * dxp + dyp * dyp);
-	mis->_mixvel = (dxp * (v << MIS_BASE_VELO_SHIFT)) / dr;
-	mis->_miyvel = (dyp * (v << MIS_BASE_VELO_SHIFT)) / dr;
+	v <<= MIS_VELO_SHIFT;
+	mis->_mixvel = (dxp * v) / dr;
+	mis->_miyvel = (dyp * v) / dr;
 }
 
 static void SetMissilePos(MissileStruct* mis, int x, int y)
@@ -713,8 +708,8 @@ static void GetMissilePos(MissileStruct* mis)
 	dx = mx;
 	dy = my;
 
-	dqx = dx / ((1 << (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT)) / (DUN_WIDTH / 64));
-	dqy = dy / ((1 << (MIS_BASE_VELO_SHIFT + MIS_VELO_SHIFT)) / (DUN_WIDTH / 64));
+	dqx = dx / ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+	dqy = dy / ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
 
 	dp.x += dqx;
 	dp.y += dqy;
@@ -2827,16 +2822,16 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	dPlayer[sx][sy] = -(pnum + 1);
 
 	mis = &missile[mi];
-	chv = MIS_SHIFTEDVEL(16);
+	chv = 16;
 	aa = 2;
 	if (plr._pIWalkSpeed != 0) {
 		if (plr._pIWalkSpeed == 3) {
 			// ISPL_FASTESTWALK
-			chv = MIS_SHIFTEDVEL(32);
+			chv = 32;
 			aa = 4;
 		} else {
 			// (ISPL_FASTERWALK | ISPL_FASTWALK)
-			chv = MIS_SHIFTEDVEL(24);
+			chv = 24;
 			aa = 3;
 		}
 		GetMissileVel(mis, sx, sy, dx, dy, chv);
@@ -3639,7 +3634,7 @@ int AddMissile(int sx, int sy, int dx, int dy, int midir, int mitype, int micast
 			dx += XDirAdd[midir];
 			dy += YDirAdd[midir];
 		}
-		GetMissileVel(mis, sx, sy, dx, dy, MIS_SHIFTEDVEL(mds->mdPrSpeed));
+		GetMissileVel(mis, sx, sy, dx, dy, mds->mdPrSpeed);
 	}
 
 	animdir = 0;
@@ -3870,7 +3865,7 @@ void MI_Mage(int mi)
 			int pnum = mis->_miVar1 - 1;
 			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
 				mis->_miVar5 = GetDirection8(mis->_mix, mis->_miy, plr._px, plr._py); // MIS_DIR
-				GetMissileVel(mis, mis->_mix, mis->_miy, plr._px, plr._py, MIS_SHIFTEDVEL(missiledata[MIS_MAGE].mdPrSpeed));
+				GetMissileVel(mis, mis->_mix, mis->_miy, plr._px, plr._py, missiledata[MIS_MAGE].mdPrSpeed);
 			} else {
 				mis->_miVar1 = 0;
 			}
@@ -4684,7 +4679,7 @@ void MI_Chain(int mi)
 					dy = my + YDirAdd[sd];
 				}
 				//SetMissAnim(mi, sd);
-				GetMissileVel(mis, mx, my, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_CHAIN].mdPrSpeed));
+				GetMissileVel(mis, mx, my, dx, dy, missiledata[MIS_CHAIN].mdPrSpeed);
 			}
 		}
 	}
@@ -5114,7 +5109,7 @@ void MI_Cbolt(int mi)
 		if (mis->_miVar3 == 0) {
 			md = (mis->_miVar2 + bpath[mis->_miVar4]) & 7;
 			mis->_miVar4 = (mis->_miVar4 + 1) & 0xF;
-			GetMissileVel(mis, 0, 0, XDirAdd[md], YDirAdd[md], MIS_SHIFTEDVEL(missiledata[MIS_CBOLT].mdPrSpeed));
+			GetMissileVel(mis, 0, 0, XDirAdd[md], YDirAdd[md], missiledata[MIS_CBOLT].mdPrSpeed);
 			mis->_miVar3 = 16;
 		} else {
 			mis->_miVar3--;
@@ -5165,7 +5160,7 @@ void MI_Elemental(int mi)
 		}
 		mis->_miVar5 = sd; // MIS_DIR
 		SetMissAnim(mi, sd);
-		GetMissileVel(mis, cx, cy, dx, dy, MIS_SHIFTEDVEL(missiledata[MIS_ELEMENTAL].mdPrSpeed));
+		GetMissileVel(mis, cx, cy, dx, dy, missiledata[MIS_ELEMENTAL].mdPrSpeed);
 	}
 	if (hit == 0) {
 		PutMissile(mi);
