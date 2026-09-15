@@ -2231,7 +2231,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
 
 	FindClosestPlr(&dx, &dy);
-	AddMissile(os->_ox, os->_oy + 1, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+	AddMissile(os->_ox, os->_oy, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 	objects[dObject[LAZ_CENTRAL_X][LAZ_CENTRAL_Y] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
@@ -3098,7 +3098,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			if (!ItemSpaceOk(xx, yy))
 				continue;
 			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
+				AddMissile(plr._px, plr._py, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
 			else
 				CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
 		}
