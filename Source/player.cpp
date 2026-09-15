@@ -1471,7 +1471,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && random_(47, 128) < ((hitflags & ISPL_BLEED) ? 8 : 1))
-		AddMissile(0, 0, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
+		AddMissile({ 0, 0 }, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
 	knockback = (hitflags & ISPL_KNOCKBACK) != 0;
 	stun = (hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP;
 	if (knockback || stun) {
@@ -2032,7 +2032,7 @@ static void PlrDoAttack(int pnum)
 static void PlrDoRangeAttack(int pnum)
 {
 	bool stepAnim = false;
-	int numarrows, sx, sy, dx, dy;
+	int numarrows, dx, dy;
 
 	plr._pVar8++;         // RATTACK_TICK
 	switch (plr._pVar4) { // RATTACK_SPEED
@@ -2081,8 +2081,6 @@ static void PlrDoRangeAttack(int pnum)
 		plr._pVar7 = TRUE;
 
 		numarrows = plr._pVar5 == SPL_MULTI_SHOT ? 3 : 1; // RATTACK_SKILL
-		sx = plr._px;
-		sy = plr._py;
 		dx = plr._pVar1; // RATTACK_TARGET_X
 		dy = plr._pVar2; // RATTACK_TARGET_Y
 
@@ -2091,15 +2089,15 @@ static void PlrDoRangeAttack(int pnum)
 			int yoff = 0;
 			if (numarrows != 0) {
 				int angle = numarrows == 2 ? -1 : 1;
-				int x = dx - sx;
+				int x = dx - plr._px;
 				if (x != 0)
 					yoff = x < 0 ? angle : -angle;
-				int y = dy - sy;
+				int y = dy - plr._py;
 				if (y != 0)
 					xoff = y < 0 ? -angle : angle;
 
 			}
-			AddMissile(sx, sy, dx + xoff, dy + yoff, plr._pdir,
+			AddMissile(plr._ppos, dx + xoff, dy + yoff, plr._pdir,
 				spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
 		}
 
@@ -2268,7 +2266,7 @@ static void PlrDoSpell(int pnum)
 	if (!plr._pVar7) { // SPELL_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
 
-		AddMissile(plr._px, plr._py, plr._pVar1, plr._pVar2, plr._pdir,    // SPELL_TARGET_X, SPELL_TARGET_Y
+		AddMissile(plr._ppos, plr._pVar1, plr._pVar2, plr._pdir,    // SPELL_TARGET_X, SPELL_TARGET_Y
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1);

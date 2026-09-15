@@ -113,7 +113,7 @@ static void InitSetDunTriggers()
 			trigs[numtrigs]._tmsg = DVL_DWM_RTNLVL;
 			numtrigs++;
 			// TODO: set BFLAG_MON_PROTECT | BFLAG_OBJ_PROTECT? test if the missile exists?
-			AddMissile(0, 0, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, deltaload ? -1 : 0);
+			AddMissile({ 0, 0 }, trigs[0]._tx, trigs[0]._ty, 0, MIS_RPORTAL, MST_NA, -1, deltaload ? -1 : 0);
 		}
 		return;
 	default:
@@ -142,7 +142,7 @@ void InitVPEntryTrigger(bool recreate)
 	trigs[i]._ttype = WRPT_RPORTAL;
 	numtrigs = i + 1;
 
-	AddMissile(0, 0, trigs[i]._tx, trigs[i]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
+	AddMissile({ 0, 0 }, trigs[i]._tx, trigs[i]._ty, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
 void InitView(int entry)

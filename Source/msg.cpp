@@ -2545,8 +2545,10 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 			dx = 71 + DBORDERX; dy = 53 + DBORDERY;
 			PlaySfxLoc(LS_FLAMWAVE, DungeonToDunPos(sx, sy));
 			for (i = sx; i <= dx; i++)
-				for (j = sy; j <= dy; j++)
-					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+				for (j = sy; j <= dy; j++) {
+					const POS32 dp = DungeonToDunPos(i, j);
+					AddMissile(dp, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+				}
 			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_NEST);
 			OpenNest();

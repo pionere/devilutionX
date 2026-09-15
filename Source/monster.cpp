@@ -1960,7 +1960,7 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 	if (mon->_mmode != MM_STONE) {
 		if (mon->_mFlags & MFLAG_CAN_BLEED && (hitflags & ISPL_FAKE_CAN_BLEED)
 		 && random_(47, 64) < (((hitflags & ISPL_BLEED)) ? 8 : 1))
-			AddMissile(0, 0, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
+			AddMissile({ 0, 0 }, 0, 0, 0, MIS_BLEED, MST_PLAYER, pnum, mnum);
 		if (!(mon->_mFlags & MFLAG_NOGETHIT)) {
 			knockback = (hitflags & ISPL_KNOCKBACK) != 0;
 			stun = (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= mon->_mmaxhp;
@@ -2193,7 +2193,7 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 #else
 	if (mon->_mType >= MT_NACID && mon->_mType <= MT_XACID)
 #endif
-		AddMissile(mon->_mx, mon->_my, 0, 0, 0, MIS_ACIDPUD, MST_MONSTER, mnum, 1);
+		AddMissile(mon->_mpos, 0, 0, 0, MIS_ACIDPUD, MST_MONSTER, mnum, 1);
 }
 
 void MonKill(int mnum, int mpnum)
@@ -2432,7 +2432,7 @@ static bool MonDoRAttack(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum) {
-		AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // RATTACK_SKILL
+		AddMissile(mon->_mpos, mon->_menemyx, mon->_menemyy, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // RATTACK_SKILL
 		PlayMonSfx(mnum, MS_ATTACK);
 	}
 
@@ -2451,7 +2451,7 @@ static bool MonDoRSpAttack(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2) {
 		if (mon->_mAnimCnt == 0) {
-			AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // SPATTACK_SKILL
+			AddMissile(mon->_mpos, mon->_menemyx, mon->_menemyy, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // SPATTACK_SKILL
 			PlayMonSfx(mnum, MS_SPECIAL);
 		}
 
@@ -3030,7 +3030,7 @@ void MAI_Snake(int mnum)
 	dist = currEnemyInfo._meRealDist;
 	if (dist >= 2) { // STAND_PREV_MODE
 		if (dist == 2 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy) && mon->_mVar1 != MM_CHARGE) {
-			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+			if (AddMissile(mon->_mpos, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSfx(mnum, MS_ATTACK);
 				MonLeaveLeader(mnum);
 			}
@@ -3104,7 +3104,7 @@ void MAI_Bat(int mnum)
 	 && dist >= 5
 	 && v < 4 * mon->_mAI.aiInt + 33
 	 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
-		if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+		if (AddMissile(mon->_mpos, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonLeaveLeader(mnum);
 		}
 	} else if (dist >= 2) {
@@ -3117,7 +3117,8 @@ void MAI_Bat(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0; // RETREAT_FINISHED
 		if (mon->_mType == MT_XBAT) {
-			AddMissile(mon->_menemyx, mon->_menemyy, 0, 0, -1, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
+			const POS32 ep = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
+			AddMissile(ep, 0, 0, -1, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
 		}
 	}
 }
@@ -3261,7 +3262,7 @@ void MAI_Sneak(int mnum)
 	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (EnemyInLine(mnum)
-		 && AddMissile(mx, my, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
+		 && AddMissile(mon->_mpos, fx, fy, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK;
 			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
@@ -4081,7 +4082,7 @@ void MAI_Rhino(int mnum)
 		if (dist >= 5 && v < 2 * mon->_mAI.aiInt + 43
 		 && LineClearMon(mnum, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)) {
 			mon->_mdir = currEnemyInfo._meLastDir;
-			if (AddMissile(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+			if (AddMissile(mon->_mpos, mon->_menemyx, mon->_menemyy, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSfx(mnum, MS_SPECIAL);
 				MonLeaveLeader(mnum);
 			}
