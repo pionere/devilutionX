@@ -2822,16 +2822,16 @@ int AddCharge(int mi, int sx, int sy, int dx, int dy, int midir, int micaster, i
 	dPlayer[sx][sy] = -(pnum + 1);
 
 	mis = &missile[mi];
-	chv = 16;
+	chv = missiledata[MIS_CHARGE].mdPrSpeed;
 	aa = 2;
 	if (plr._pIWalkSpeed != 0) {
 		if (plr._pIWalkSpeed == 3) {
 			// ISPL_FASTESTWALK
-			chv = 32;
+			chv *= 2;
 			aa = 4;
 		} else {
 			// (ISPL_FASTERWALK | ISPL_FASTWALK)
-			chv = 24;
+			chv = 3 * chv / 2;
 			aa = 3;
 		}
 		GetMissileVel(mis, sx, sy, dx, dy, chv);
