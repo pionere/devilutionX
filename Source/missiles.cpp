@@ -5180,8 +5180,16 @@ void MI_Elemental(int mi)
 		mis->_miVar1 = (cx != mis->_misx || cy != mis->_misy) ? TRUE : FALSE;
 	if (mis->_miVar1)
 		hit = CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY);
-	if (hit == 0                                                     // did not hit anything
-	 && !mis->_miVar2 && cx == mis->_miVar3 && cy == mis->_miVar4) { // destination reached the first time
+	if (hit != 0) {
+		//CheckMissileArea(mi, cx, cy);
+		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
+		CheckSplashCol(mi, hit);
+
+		ConvertMissile(mi, MIS_EXFBALL);
+		return;
+	}
+	// did not hit anything
+	if (!mis->_miVar2 && cx == mis->_miVar3 && cy == mis->_miVar4) { // destination reached the first time
 		mis->_miVar2 = TRUE;
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
@@ -5194,15 +5202,7 @@ void MI_Elemental(int mi)
 		SetMissAnim(mi, sd);
 		GetMissileVel(mis, cx, cy, dx, dy, missiledata[MIS_ELEMENTAL].mdPrSpeed);
 	}
-	if (hit == 0) {
-		PutMissile(mi);
-		return;
-	}
-	//CheckMissileArea(mi, cx, cy);
-	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
-	CheckSplashCol(mi, hit);
-
-	ConvertMissile(mi, MIS_EXFBALL);
+	PutMissile(mi);
 }
 
 void MI_Pulse(int mi)
