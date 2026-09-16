@@ -3064,10 +3064,10 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_TAINTED);
 		break;
 	case SHRINE_GLISTENING:
+		AddMissile({ 0, 0 }, plr._px, plr._py, 0, MIS_TOWN, MST_NA, pnum, 0);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
-		AddMissile({ 0, 0 }, plr._px, plr._py, 0, MIS_TOWN, MST_NA, pnum, 0);
 		break;
 	case SHRINE_SPARKLING:
 		AddMissile(os->_opos, 0, 0, 0, MIS_FLASH, MST_OBJECT, -1, 0);
