@@ -861,13 +861,13 @@ int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster
 	} else {
 		mp = plx(mpnum)._ppos;
 	}
-	AddMissile(mp, 0, 0, 0, mtype, MST_NA, 0, 0);
+	AddMissile(mp, { 0, 0 }, 0, mtype, MST_NA, 0, 0);
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
 		if (gfx < dam - ldam) {
-			AddMissile(mp, 0, 0, 0, MIS_WEAPFEXP, MST_NA, 0, 0);
+			AddMissile(mp, { 0, 0 }, 0, MIS_WEAPFEXP, MST_NA, 0, 0);
 		} else {
-			AddMissile(mp, 0, 0, 0, MIS_WEAPLEXP, MST_NA, 0, 0);
+			AddMissile(mp, { 0, 0 }, 0, MIS_WEAPLEXP, MST_NA, 0, 0);
 		}
 	}*/
 	return dam;
@@ -2035,7 +2035,7 @@ int AddRingC(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
 			const POS32 tp = DungeonToDunPos(tx, ty);
-			AddMissile(tp, 0, 0, 0, mitype, micaster, misource, spllvl);
+			AddMissile(tp, { 0, 0 }, 0, mitype, micaster, misource, spllvl);
 		}
 	}
 
@@ -2650,7 +2650,7 @@ int AddFlash(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 	int i, dam;
 
 	mis = &missile[mi];
-	AddMissile(mis->_mipos, 0, 0, 0, MIS_FLASH2, micaster, misource, spllvl);
+	AddMissile(mis->_mipos, { 0, 0 }, 0, MIS_FLASH2, micaster, misource, spllvl);
 
 	if (micaster & MST_PLAYER) {
 		// assert((unsigned)misource < MAX_PLRS);
@@ -2981,7 +2981,7 @@ int AddGolem(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 		PlrIncHp(misource, mon->_mhitpoints);
 	} else {
 		// assert(mon->_mType == MIS_SKELAX || mon->_mType == MIS_SKELBW);
-		AddMissile(mon->_mpos, 0, 0, 0, MIS_LIGHTNOVAC, micaster, misource, (mon->_mLevel * mon->_mhitpoints) / (4 * mon->_mmaxhp));
+		AddMissile(mon->_mpos, { 0, 0 }, 0, MIS_LIGHTNOVAC, micaster, misource, (mon->_mLevel * mon->_mhitpoints) / (4 * mon->_mmaxhp));
 	}
 
 	MonKill(misource, misource);
@@ -3157,7 +3157,8 @@ int AddFireWaveC(int mi, int dx, int dy, int midir, int micaster, int misource, 
 	sy = missile[mi]._misy;
 	sd = GetDirection8(sx, sy, dx, dy);
 	// if (!nMissileTable[dPiece[sx][sy]]) {
-		AddMissile(missile[mi]._mipos, sx + XDirAdd[sd], sy + YDirAdd[sd], 0, MIS_FIREWAVE, micaster, misource, spllvl);
+		const POS32 dp = DungeonToDunPos(sx + XDirAdd[sd], sy + YDirAdd[sd]);
+		AddMissile(missile[mi]._mipos, dp, 0, MIS_FIREWAVE, micaster, misource, spllvl);
 
 		for (i = -2; i <= 2; i += 4) {
 			dir = (sd + i) & 7;
@@ -3171,7 +3172,8 @@ int AddFireWaveC(int mi, int dx, int dy, int midir, int micaster, int misource, 
 				if (nMissileTable[dPiece[nx][ny]])
 					break;
 				const POS32 np = DungeonToDunPos(nx, ny);
-				AddMissile(np, nx + XDirAdd[sd], ny + YDirAdd[sd], 0, MIS_FIREWAVE, micaster, misource, spllvl);
+				const POS32 tp = DungeonToDunPos(nx + XDirAdd[sd], ny + YDirAdd[sd]);
+				AddMissile(np, tp, 0, MIS_FIREWAVE, micaster, misource, spllvl);
 			}
 		}
 	// }
@@ -3193,7 +3195,8 @@ int AddNovaC(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 	for (i = (BYTE)*cr; i > 0; i--) {
 		tx = sx + *++cr;
 		ty = sy + *++cr;
-		AddMissile(missile[mi]._mipos, tx, ty, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
+		const POS32 tp = DungeonToDunPos(tx, ty);
+		AddMissile(missile[mi]._mipos, tp, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
 	}
 
 	return MIRES_DELETE;
@@ -3301,8 +3304,9 @@ int AddCboltC(int mi, int dx, int dy, int midir, int micaster, int misource, int
 	//	}
 	//}
 
+	const POS32 dp = DungeonToDunPos(dx, dy);
 	while (i-- != 0) {
-		AddMissile(missile[mi]._mipos, dx, dy, midir, MIS_CBOLT, micaster, misource, spllvl);
+		AddMissile(missile[mi]._mipos, dp, midir, MIS_CBOLT, micaster, misource, spllvl);
 	}
 	return MIRES_DELETE;
 }
@@ -3480,7 +3484,7 @@ int AddApocaC2(int mi, int dx, int dy, int midir, int micaster, int misource, in
 		PlrMissHit(pnum, mi);
 
 		// add explosion effect
-		AddMissile(plr._ppos, 0, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
+		AddMissile(plr._ppos, { 0, 0 }, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
 	}
 	return MIRES_DELETE;
 }
@@ -3588,11 +3592,11 @@ int AddCallToArms(int mi, int dx, int dy, int midir, int micaster, int misource,
 	return MIRES_DELETE;
 }
 
-int AddMissile(POS32 sp, int dx, int dy, int midir, int mitype, int micaster, int misource, int spllvl)
+int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
 	const MissileData* mds;
-	int sx, sy, idx, mi, anims, animdir, res;
+	int sx, sy, dx, dy, idx, mi, anims, animdir, res;
 
 	idx = nummissiles;
 	if (idx >= MAXMISSILES)
@@ -3630,6 +3634,8 @@ int AddMissile(POS32 sp, int dx, int dy, int midir, int mitype, int micaster, in
 		PlaySfxLocN(mds->mlSFX, mis->_mipos, mds->mlSFXCnt);
 	}
 
+	dx = (unsigned)dp.x / DUN_WIDTH;
+	dy = (unsigned)dp.y / DUN_WIDTH;
 	if (mds->mdPrSpeed != 0) {
 		if (sx == dx && sy == dy) {
 			dx += XDirAdd[midir];
@@ -3699,7 +3705,8 @@ static bool Sentfire(int mi, int sx, int sy)
 	 //&& !CanTalkToMonst(mnum) -- commented out to make it consistent with MI_Rune, MI_Poison, FindClosestChain, FindClosest
 	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
 		// SetRndSeed(mis->_miRndSeed);
-		AddMissile(mis->_mipos, sx, sy, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
+		const POS32 dp = DungeonToDunPos(sx, sy);
+		AddMissile(mis->_mipos, dp, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
 		// mis->_miRndSeed = NextRndSeed();
 		SetMissAnim(mi, 2);
 		// assert(mis->_miAnimLen == MIA_GUARD2_LENGTH);
@@ -4197,7 +4204,8 @@ void MI_Rune(int mi)
 			if (!LineClear(sx, sy, tx, ty))
 				continue;
 			// SetRndSeed(mis->_miRndSeed);
-			AddMissile(mis->_mipos, tx, ty, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			const POS32 tp = DungeonToDunPos(tx, ty);
+			AddMissile(mis->_mipos, tp, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 			mis->_miRange -= 48;
 			mis->_miVar3 = 48;
 			mis->_miVar4++;
@@ -4258,8 +4266,7 @@ void MI_LightningC(int mi)
 			// SetRndSeed(mis->_miRndSeed);
 			AddMissile(
 			    mis->_mipos,
-			    0,
-			    0,
+				{ 0, 0 },
 			    mi,
 			    mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
 			    mis->_miCaster,
@@ -4305,7 +4312,7 @@ void MI_BloodBoilC(int mi)
 		my = mis->_miy + BloodBoilLocs[mis->_miVar2][1];
 		if ((nMissileTable[dPiece[mx][my]] | dObject[mx][my]) == 0) {
 			const POS32 mp = DungeonToDunPos(mx, my);
-			AddMissile(mp, 0, 0, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(mp, { 0, 0 }, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 		}
 	}
 	mis->_miRange--;
@@ -4561,7 +4568,7 @@ void MI_Meteor(int mi)
 		CheckMissileArea(mi, mis->_mix, mis->_miy);
 		PlaySfxLoc(LS_FIRIMP2, mis->_mipos);
 
-		AddMissile(mis->_mipos, 0, 0, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+		AddMissile(mis->_mipos, { 0, 0 }, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 	}
 }
 
@@ -4778,7 +4785,7 @@ void MI_Acidsplat(int mi)
 	// mis->_mix--;
 	// mis->_miy--;
 	// mis->_miyoff += TILE_HEIGHT;
-	AddMissile(mis->_mipos, 0, 0, 0 /* mis->_miDir */, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
+	AddMissile(mis->_mipos, { 0, 0 }, 0 /* mis->_miDir */, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
 }
 
 void MI_Stone(int mi)
@@ -5001,7 +5008,7 @@ void MI_WallC(int mi)
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (!nMissileTable[dPiece[tx][ty]]) {
 			const POS32 tp = DungeonToDunPos(tx, ty);
-			AddMissile(tp, 0, 0, 0, mitype, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(tp, { 0, 0 }, 0, mitype, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 		} else {
 			mis->_miVar2 = TRUE;
 		}
@@ -5012,7 +5019,7 @@ void MI_WallC(int mi)
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (!nMissileTable[dPiece[tx][ty]]) {
 			const POS32 tp = DungeonToDunPos(tx, ty);
-			AddMissile(tp, 0, 0, 0, mitype, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(tp, { 0, 0 }, 0, mitype, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 		} else {
 			mis->_miVar3 = TRUE;
 		}
@@ -5067,8 +5074,7 @@ void MI_InfernoC(int mi)
 			// mis->_miRange used by MIS_INFERNO !
 			AddMissile(
 			    mis->_mipos,
-			    0,
-			    0,
+			    { 0, 0 },
 			    mi,
 			    MIS_INFERNO,
 			    mis->_miCaster,
@@ -5194,7 +5200,7 @@ void MI_Pulse(int mi)
 	dir = mis->_miRange % 8u; // NUM_DIRS
 	if (dir == 0) {
 		if (CheckMissileArea(mi, mis->_mix, mis->_miy) != 0) {
-			// AddMissile(mis->_mipos, 0, 0, 0, MIS_EXLGHT, MST_NA, 0, 0);
+			// AddMissile(mis->_mipos, { 0, 0 }, 0, MIS_EXLGHT, MST_NA, 0, 0);
 
 			mis->_miMinDam += mis->_miVar1;
 			mis->_miMaxDam += mis->_miVar2;

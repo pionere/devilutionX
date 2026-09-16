@@ -1471,7 +1471,7 @@ void PlrHitByAny(int pnum, int mpnum, int dam, unsigned hitflags, int dir)
 	static_assert(MAX_PLRS <= MAX_MINIONS, "PlrHitByAny uses a single int to store player and monster sources.");
 	if (!(plr._pIFlags & ISPL_NO_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
 	 && random_(47, 128) < ((hitflags & ISPL_BLEED) ? 8 : 1))
-		AddMissile({ 0, 0 }, 0, 0, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
+		AddMissile({ 0, 0 }, { 0, 0 }, 0, MIS_BLEED, mpnum < MAX_PLRS ? (mpnum < 0 ? MST_OBJECT : MST_PLAYER) : MST_MONSTER, mpnum, pnum); // TODO: prevent golems from acting like a player?
 	knockback = (hitflags & ISPL_KNOCKBACK) != 0;
 	stun = (hitflags & ISPL_FAKE_FORCE_STUN) || (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= plr._pMaxHP;
 	if (knockback || stun) {
@@ -2097,7 +2097,8 @@ static void PlrDoRangeAttack(int pnum)
 					xoff = y < 0 ? -angle : angle;
 
 			}
-			AddMissile(plr._ppos, dx + xoff, dy + yoff, plr._pdir,
+			const POS32 dp = DungeonToDunPos(dx + xoff, dy + yoff);
+			AddMissile(plr._ppos, dp, plr._pdir,
 				spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
 		}
 
@@ -2265,8 +2266,8 @@ static void PlrDoSpell(int pnum)
 
 	if (!plr._pVar7) { // SPELL_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
-
-		AddMissile(plr._ppos, plr._pVar1, plr._pVar2, plr._pdir,    // SPELL_TARGET_X, SPELL_TARGET_Y
+		const POS32 dp = DungeonToDunPos(plr._pVar1, plr._pVar2); // SPELL_TARGET_X, SPELL_TARGET_Y
+		AddMissile(plr._ppos, dp, plr._pdir,
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
 	assert(PlrAnimFrameLens[PGX_FIRE] == 1 && PlrAnimFrameLens[PGX_LIGHTNING] == 1 && PlrAnimFrameLens[PGX_MAGIC] == 1);

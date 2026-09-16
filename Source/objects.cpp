@@ -1746,7 +1746,8 @@ static void Obj_Circle(int oi)
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
 			const POS32 cp = DungeonToDunPos(LAZ_CENTRAL_X, LAZ_CENTRAL_Y);
-			AddMissile(cp, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+			const POS32 dp = DungeonToDunPos(LAZ_CIRCLE_X, LAZ_CIRCLE_Y);
+			AddMissile(cp, dp, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 			// assert(pnum == mypnum);
 			gbActionBtnDown = 0;
 			// StartTurn(pnum, DIR_NW); ?
@@ -1838,7 +1839,7 @@ static void Obj_FlameTrap(int oi)
 			os->_oAnimFrame = 11;
 		if (os->_oAnimFrame == 11) {
 			SetRndSeed(os->_oRndSeed);
-			AddMissile(os->_opos, 0, 0, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0);
+			AddMissile(os->_opos, { 0, 0 }, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0);
 			os->_oRndSeed = NextRndSeed();
 		} else if (os->_oAnimFrame <= 5) {
 			static_assert(MAX_LIGHT_RAD >= 5, "Obj_FlameTrap needs at least light-radius of 5.");
@@ -1919,7 +1920,8 @@ static void Obj_Trap(int oi)
 
 	// SetRndSeed(os->_oRndSeed);
 	dir = GetDirection(os->_ox, os->_oy, dx, dy);
-	AddMissile(os->_opos, dx, dy, dir, os->_oVar3, MST_OBJECT, -1, 0); // TRAP_MISTYPE
+	const POS32 dp = DungeonToDunPos(dx, dy);
+	AddMissile(os->_opos, dp, dir, os->_oVar3, MST_OBJECT, -1, 0); // TRAP_MISTYPE
 
 	NetSendCmdParam1(CMD_TRAPDISABLE, oi);
 }
@@ -2230,7 +2232,8 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
 
 	FindClosestPlr(&dx, &dy);
-	AddMissile(os->_opos, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+	const POS32 dp = DungeonToDunPos(dx, dy);
+	AddMissile(os->_opos, dp, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 	objects[dObject[LAZ_CENTRAL_X][LAZ_CENTRAL_Y] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
@@ -2343,7 +2346,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 			break;
 		}
 		mdir = GetDirection(os->_ox, os->_oy, plr._px, plr._py);
-		AddMissile(os->_opos, plr._px, plr._py, mdir, mtype, MST_OBJECT, -1, 0);
+		AddMissile(os->_opos, plr._ppos, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
 
@@ -2923,7 +2926,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_RELIGIOUS);
 		break;
 	case SHRINE_MAGICAL:
-		AddMissile({ 0, 0 }, 0, 0, 0, MIS_MANASHIELD, MST_NA, pnum, (1 + currLvl._dLevel) >> 1);
+		AddMissile({ 0, 0 }, { 0, 0 }, 0, MIS_MANASHIELD, MST_NA, pnum, (1 + currLvl._dLevel) >> 1);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_MAGICAL);
@@ -2963,7 +2966,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
 		break;
 	case SHRINE_CRYPTIC:
-		AddMissile(os->_opos, 0, 0, 0, MIS_LIGHTNOVAC, MST_OBJECT, -1, 0);
+		AddMissile(os->_opos, { 0, 0 }, 0, MIS_LIGHTNOVAC, MST_OBJECT, -1, 0);
 		if (pnum != mypnum)
 			return;
 		NetSendShrineCmd(SHRINE_CRYPTIC, 0);
@@ -3014,7 +3017,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_DIVINE);
 		break;
 	case SHRINE_HOLY:
-		AddMissile(plr._ppos, 0, 0, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+		AddMissile(plr._ppos, { 0, 0 }, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_HOLY);
@@ -3057,20 +3060,20 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_TAINTED:
 		static_assert(MAX_MINIONS == MAX_PLRS, "OperateShrine requires that owner of a monster has the same id as the monster itself.");
 		if (monsters[mypnum]._mmode > MM_INGAME_LAST) {
-			AddMissile(myplr._ppos, myplr._px, myplr._py, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
+			AddMissile(myplr._ppos, myplr._ppos, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
 		}
 		//if (pnum != mypnum)
 		//	return;
 		InitDiabloMsg(EMSG_SHRINE_TAINTED);
 		break;
 	case SHRINE_GLISTENING:
-		AddMissile({ 0, 0 }, plr._px, plr._py, 0, MIS_TOWN, MST_NA, pnum, 0);
+		AddMissile({ 0, 0 }, plr._ppos, 0, MIS_TOWN, MST_NA, pnum, 0);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
 		break;
 	case SHRINE_SPARKLING:
-		AddMissile(os->_opos, 0, 0, 0, MIS_FLASH, MST_OBJECT, -1, 0);
+		AddMissile(os->_opos, { 0, 0 }, 0, MIS_FLASH, MST_OBJECT, -1, 0);
 		if (pnum != mypnum)
 			return;
 		NetSendShrineCmd(SHRINE_SPARKLING, 0);
@@ -3096,10 +3099,12 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			yy = plr._py + *++cr;
 			if (!ItemSpaceOk(xx, yy))
 				continue;
-			if (random_(0, 3) == 0)
-				AddMissile(plr._ppos, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
-			else
+			if (random_(0, 3) == 0) {
+				const POS32 dp = DungeonToDunPos(xx, yy);
+				AddMissile(plr._ppos, dp, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
+			} else {
 				CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
+			}
 		}
 		if (pnum != mypnum)
 			return;
@@ -3127,7 +3132,7 @@ static void OperateBook1(int oi, bool sendmsg)
 	if (os->_oVar5 == BK_ANCIENT) { // STORY_BOOK_NAME
 		PlaySfxLoc(IS_QUESTDN, os->_opos);
 		// SetRndSeed(os->_oRndSeed);
-		// AddMissile(plr._ppos, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
+		// AddMissile(plr._ppos, { os->_ox - 2, os->_oy - 4 }, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_BCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
 			NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
@@ -3261,7 +3266,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-		AddMissile({ 0, 0 }, 0, 0, 0, MIS_INFRA, MST_NA, pnum, 6);
+		AddMissile({ 0, 0 }, { 0, 0 }, 0, MIS_INFRA, MST_NA, pnum, 6);
 		break;
 	case OBJ_TEARFTN:
 		if (deltaload)
@@ -3476,7 +3481,7 @@ static void OperateBarrel(int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 	if (os->_otype == xotype) {
-		AddMissile(os->_opos, 0, 0, 0, MIS_BARRELEX, MST_NA, -1, 0);
+		AddMissile(os->_opos, { 0, 0 }, 0, MIS_BARRELEX, MST_NA, -1, 0);
 		for (int i = 0; i < lengthof(bxadd); i++) {
 			xp = os->_ox + bxadd[i];
 			yp = os->_oy + byadd[i];
