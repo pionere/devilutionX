@@ -39,7 +39,6 @@ int AddLightning(int mi, int dx, int dy, int midir, int micaster, int misource, 
 int AddBloodBoilC(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddBloodBoil(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddBleed(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);
-int AddMisexp(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddFlash(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddFireWave(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);
 int AddMeteor(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl);

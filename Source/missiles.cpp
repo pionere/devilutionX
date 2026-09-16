@@ -861,7 +861,7 @@ int AddElementalExplosion(int fdam, int ldam, int mdam, int adam, bool isMonster
 	} else {
 		mp = plx(mpnum)._ppos;
 	}
-	AddMissile(mp, -1, 0, 0, mtype, MST_NA, 0, 0);
+	AddMissile(mp, 0, 0, 0, mtype, MST_NA, 0, 0);
 	/*int gfx = random_(8, dam);
 	if (gfx >= dam - (fdam + ldam)) {
 		if (gfx < dam - ldam) {
@@ -2577,31 +2577,6 @@ int AddShroud(int mi, int dx, int dy, int midir, int micaster, int misource, int
 	return MIRES_FAIL_DELETE;
 }
 
-int AddMisexp(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl)
-{
-	MissileStruct *mis, *bmis;
-
-	mis = &missile[mi];
-	if (dx != -1) {
-		bmis = &missile[dx];
-		mis->_mix = bmis->_mix;
-		mis->_miy = bmis->_miy;
-		//mis->_misx = bmis->_mix;
-		//mis->_misy = bmis->_miy;
-		mis->_mipos = bmis->_mipos;
-		//mis->_mizoff = bmis->_mizoff;
-		//mis->_mitxoff = bmis->_mitxoff;
-		//mis->_mityoff = bmis->_mityoff;
-		mis->_migx = bmis->_migx;
-		mis->_migy = bmis->_migy;
-		mis->_miUniqTrans = bmis->_miUniqTrans;
-	}
-	//mis->_mixvel = 0;
-	//mis->_miyvel = 0;
-	// assert(mis->_miAnimFrameLen == 1);
-	return MIRES_DONE;
-}
-
 /**
  * Var3: triggered
  */
@@ -3507,7 +3482,7 @@ int AddApocaC2(int mi, int dx, int dy, int midir, int micaster, int misource, in
 		PlrMissHit(pnum, mi);
 
 		// add explosion effect
-		AddMissile(plr._ppos, -1, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
+		AddMissile(plr._ppos, 0, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
 	}
 	return MIRES_DELETE;
 }
@@ -4332,7 +4307,7 @@ void MI_BloodBoilC(int mi)
 		my = mis->_miy + BloodBoilLocs[mis->_miVar2][1];
 		if ((nMissileTable[dPiece[mx][my]] | dObject[mx][my]) == 0) {
 			const POS32 mp = DungeonToDunPos(mx, my);
-			AddMissile(mp, -1, 0, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(mp, 0, 0, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 		}
 	}
 	mis->_miRange--;
@@ -5218,7 +5193,7 @@ void MI_Pulse(int mi)
 	dir = mis->_miRange % 8u; // NUM_DIRS
 	if (dir == 0) {
 		if (CheckMissileArea(mi, mis->_mix, mis->_miy) != 0) {
-			// AddMissile(mis->_mipos, -1, 0, 0, MIS_EXLGHT, MST_NA, 0, 0);
+			// AddMissile(mis->_mipos, 0, 0, 0, MIS_EXLGHT, MST_NA, 0, 0);
 
 			mis->_miMinDam += mis->_miVar1;
 			mis->_miMaxDam += mis->_miVar2;
