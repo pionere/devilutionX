@@ -3070,7 +3070,6 @@ int AddHealOther(int mi, int dx, int dy, int midir, int micaster, int misource, 
 }
 
 /**
- * Var1: whether the starting position is left
  * Var2: whether the destination is reached
  * Var3: x coordinate of the destination
  * Var4: y coordinate of the destination
@@ -3082,7 +3081,6 @@ int AddElemental(int mi, int dx, int dy, int midir, int micaster, int misource, 
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	//mis->_miVar1 = FALSE;
 	//mis->_miVar2 = FALSE;
 	mis->_miVar3 = dx;
 	mis->_miVar4 = dy;
@@ -4656,17 +4654,15 @@ void MI_Chain(int mi)
 	if (mx != mis->_misx || my != mis->_misy) {
 		if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY) == 1) {
 			if (mis->_miVar1-- != 0) {
-				// set the new position as the starting point
+				// set the current position as the starting point
+				const POS32 dp = DungeonToDunPos(mx, my);
+				mis->_mitxoff = (mis->_mipos.x - dp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+				mis->_mityoff = (mis->_mipos.y - dp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
 				mis->_misx = mx;
 				mis->_misy = my;
-				mis->_mitxoff = 0;
-				mis->_mityoff = 0;
-				// - update grid position
-				SetMissilePos(mis, mx, my);
-				ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
-				// find new target
+				// find a new target
 				if (!FindClosestChain(mx, my, dx, dy)) {
 					// create pseudo-random seed using the monster which was hit (or the first real monster)
 					/*sd = dMonster[mx][my];
@@ -5149,9 +5145,7 @@ void MI_Elemental(int mi)
 	MoveMissile(mis, 1);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if (!mis->_miVar1)
-		mis->_miVar1 = (cx != mis->_misx || cy != mis->_misy) ? TRUE : FALSE;
-	if (mis->_miVar1)
+	if (cx != mis->_misx || cy != mis->_misy)
 		hit = CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY);
 	if (hit != 0) {
 		//CheckMissileArea(mi, cx, cy);
@@ -5164,6 +5158,13 @@ void MI_Elemental(int mi)
 	// did not hit anything
 	if (!mis->_miVar2 && cx == mis->_miVar3 && cy == mis->_miVar4) { // destination reached the first time
 		mis->_miVar2 = TRUE;
+		// set the current position as the starting point
+		const POS32 dp = DungeonToDunPos(cx, cy);
+		mis->_mitxoff = (mis->_mipos.x - dp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+		mis->_mityoff = (mis->_mipos.y - dp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+		mis->_misx = cx;
+		mis->_misy = cy;
+		// find a new target
 		if (FindClosest(cx, cy, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
