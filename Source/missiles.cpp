@@ -3507,9 +3507,7 @@ int AddApocaC2(int mi, int dx, int dy, int midir, int micaster, int misource, in
 		PlrMissHit(pnum, mi);
 
 		// add explosion effect
-		PlrSetMissilePos(pnum, mis);
-
-		AddMissile(mis->_mipos, mi, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
+		AddMissile(plr._ppos, -1, 0, 0, MIS_EXAPOCA2, MST_NA, 0, 0);
 	}
 	return MIRES_DELETE;
 }
