@@ -15,6 +15,8 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /* Calculate direction (DIR_) from (x1;y1) to (x2;y2) */
 int GetDirection(int x1, int y1, int x2, int y2);
+/* Calculate direction (DIR_) from p1 to p2 */
+int GetDirection(POS32 p1, POS32 p2);
 /* calculate the distance(square) between two dungeon-positions. */
 int GetDunDistance2(POS32 dp1, POS32 dp2);
 /* Set the current RNG seed */

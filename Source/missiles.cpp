@@ -3413,7 +3413,7 @@ int AddTelekinesis(int mi, int dx, int dy, int midir, int micaster, int misource
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
 			monsters[target]._mlasty = plr._py;
-			// int dir = GetDirection8(plr._px, plr._py, monsters[target]._mx, monsters[target]._my);
+			// int dir = GetDirection8(plr._ppos, monsters[target]._mpos);
 			MonHitByPlr(target, pnum, 0, ISPL_KNOCKBACK, plr._pdir);
 		}
 		break;
@@ -3427,7 +3427,7 @@ int AddTelekinesis(int mi, int dx, int dy, int midir, int micaster, int misource
 		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
 		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints != 0 && plx(target)._pmode != PM_BLOCK
 		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pIPower) {
-			// int dir = GetDirection8(plr._px, plr._py, plx(target)._px, plx(target)._py);
+			// int dir = GetDirection8(plr._ppos, plx(target)._ppos);
 			PlrHitByAny(target, pnum, 0, ISPL_KNOCKBACK, plr._pdir);
 		}
 		break;
@@ -3857,7 +3857,7 @@ void MI_Mage(int mi)
 		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
 			int pnum = mis->_miVar1 - 1;
 			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
-				mis->_miVar5 = GetDirection8(mis->_mix, mis->_miy, plr._px, plr._py); // MIS_DIR
+				mis->_miVar5 = GetDirection8(mis->_mipos, plr._ppos); // MIS_DIR
 				GetMissileVel(mis, plr._ppos, missiledata[MIS_MAGE].mdPrSpeed);
 			} else {
 				mis->_miVar1 = 0;
@@ -5135,7 +5135,7 @@ void MI_Cbolt(int mi)
 void MI_Elemental(int mi)
 {
 	MissileStruct* mis;
-	int hit = 0, sd, cx, cy, dx, dy;
+	int hit = 0, sd, cx, cy;
 	POS32 dp;
 
 	mis = &missile[mi];
@@ -5163,9 +5163,7 @@ void MI_Elemental(int mi)
 		mis->_misy = cy;
 		// find a new target
 		if (FindClosest(mis->_mipos, dp)) {
-			dx = (unsigned)dp.x / DUN_WIDTH;
-			dy = (unsigned)dp.y / DUN_WIDTH;
-			sd = GetDirection8(cx, cy, dx, dy);
+			sd = GetDirection8(mis->_mipos, dp);
 		} else {
 			sd = plx(mis->_miSource)._pdir;
 			dp = mis->_mipos;

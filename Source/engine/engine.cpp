@@ -158,6 +158,12 @@ int GetDirection(int x1, int y1, int x2, int y2)
 #endif
 }
 
+/* Calculate direction (DIR_) from p1 to p2 */
+int GetDirection(POS32 p1, POS32 p2)
+{
+	return GetDirection(p1.x, p1.y, p2.x, p2.y);
+}
+
 int GetDunDistance2(POS32 dp1, POS32 dp2)
 {
 	int ddx = (dp1.x - dp2.x);
