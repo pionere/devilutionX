@@ -679,10 +679,19 @@ static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 	// ChangeVisionXY(mon->_mvid, mon->_mx, mon->my);
 }
 
-static void GetMissilePos(MissileStruct* mis)
+/**
+ * Shift the missiles coordinates using its velocity.
+ * @param mi the missile to be shifted
+ * @param steps the number of steps to make
+ */
+static void MoveMissile(MissileStruct* mis, int steps)
 {
 	int mx, my, dx, dy, dqx, dqy;
 	POS32 dp = DungeonToDunPos(mis->_misx, mis->_misy);
+
+	mis->_mitxoff += mis->_mixvel * steps;
+	mis->_mityoff += mis->_miyvel * steps;
+
 	mx = mis->_mitxoff;
 	my = mis->_mityoff;
 
@@ -702,18 +711,6 @@ static void GetMissilePos(MissileStruct* mis)
 	mis->_migy = gp.y;
 
 	ChangeLightGrid(mis->_miLid, mis->_migx, mis->_migy);
-}
-
-/**
- * Shift the missiles coordinates using its velocity.
- * @param mi the missile to be shifted
- * @param steps the number of steps to make
- */
-static void MoveMissile(MissileStruct* mis, int steps)
-{
-	mis->_mitxoff += mis->_mixvel * steps;
-	mis->_mityoff += mis->_miyvel * steps;
-	GetMissilePos(mis);
 }
 #if 0
 /**
