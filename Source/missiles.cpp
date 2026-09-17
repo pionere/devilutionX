@@ -381,7 +381,7 @@ static bool PosOkMis2(int x, int y)
 	return true;
 }
 
-static bool FindClosest(const POS32 sp, int& dx, int& dy)
+static bool FindClosest(const POS32 sp, POS32& dp)
 {
 	constexpr int MAX_DIST = (15 * TILE_WIDTH) * (15 * TILE_WIDTH);
 	int sx, sy, mnum, tx, ty, dist;
@@ -401,13 +401,12 @@ static bool FindClosest(const POS32 sp, int& dx, int& dy)
 		if (!LineClear(sx, sy, tx, ty)) continue;
 		// if (dist == bestDist && random_(111, 2) == 0) continue;
 		bestDist = dist;
-		dx = tx;
-		dy = ty;
+		dp = mon->_mpos;
 	}
 	return bestDist <= MAX_DIST;
 }
 
-static bool FindClosestChain(const POS32 sp, int& dx, int& dy)
+static bool FindClosestChain(const POS32 sp, POS32& dp)
 {
 	constexpr int MAX_DIST = (7 * TILE_WIDTH) * (7 * TILE_WIDTH);
 	int sx, sy, mnum, tx, ty, dist;
@@ -428,8 +427,7 @@ static bool FindClosestChain(const POS32 sp, int& dx, int& dy)
 		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
 		if (!LineClear(sx, sy, tx, ty)) continue;
 		bestDist = dist;
-		dx = tx;
-		dy = ty;
+		dp = mon->_mpos;
 	}
 	return bestDist <= MAX_DIST;
 }
@@ -4638,7 +4636,8 @@ collapse:
 void MI_Chain(int mi)
 {
 	MissileStruct* mis;
-	int mx, my, sd, dx, dy;
+	int mx, my, sd;
+	POS32 dp;
 
 	mis = &missile[mi];
 
@@ -4650,15 +4649,15 @@ void MI_Chain(int mi)
 		if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY) == 1) {
 			if (mis->_miVar1-- != 0) {
 				// set the current position as the starting point
-				const POS32 dp = DungeonToDunPos(mx, my);
-				mis->_mitxoff = (mis->_mipos.x - dp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
-				mis->_mityoff = (mis->_mipos.y - dp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+				const POS32 mp = DungeonToDunPos(mx, my);
+				mis->_mitxoff = (mis->_mipos.x - mp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+				mis->_mityoff = (mis->_mipos.y - mp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
 				mis->_misx = mx;
 				mis->_misy = my;
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
 				// find a new target
-				if (!FindClosestChain(mis->_mipos, dx, dy)) {
+				if (!FindClosestChain(mis->_mipos, dp)) {
 					// create pseudo-random seed using the monster which was hit (or the first real monster)
 					/*sd = dMonster[mx][my];
 					if (sd != 0)
@@ -4667,11 +4666,12 @@ void MI_Chain(int mi)
 						sd = MAX_MINIONS;
 					SetRndSeed(monsters[sd]._mRndSeed);*/
 					sd = random_(0, lengthof(XDirAdd));
-					dx = mx + XDirAdd[sd];
-					dy = my + YDirAdd[sd];
+					dp = mis->_mipos;
+					dp.x += XDirAdd[sd];
+					dp.y += YDirAdd[sd];
 				}
 				//SetMissAnim(mi, sd);
-				GetMissileVel(mis, DungeonToDunPos(dx, dy), missiledata[MIS_CHAIN].mdPrSpeed);
+				GetMissileVel(mis, dp, missiledata[MIS_CHAIN].mdPrSpeed);
 			}
 		}
 	}
@@ -5137,6 +5137,7 @@ void MI_Elemental(int mi)
 {
 	MissileStruct* mis;
 	int hit = 0, sd, cx, cy, dx, dy;
+	POS32 dp;
 
 	mis = &missile[mi];
 	MoveMissile(mis, 1);
@@ -5156,22 +5157,25 @@ void MI_Elemental(int mi)
 	if (!mis->_miVar2 && cx == mis->_miVar3 && cy == mis->_miVar4) { // destination reached the first time
 		mis->_miVar2 = TRUE;
 		// set the current position as the starting point
-		const POS32 dp = DungeonToDunPos(cx, cy);
-		mis->_mitxoff = (mis->_mipos.x - dp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
-		mis->_mityoff = (mis->_mipos.y - dp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+		const POS32 mp = DungeonToDunPos(cx, cy);
+		mis->_mitxoff = (mis->_mipos.x - mp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
+		mis->_mityoff = (mis->_mipos.y - mp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
 		mis->_misx = cx;
 		mis->_misy = cy;
 		// find a new target
-		if (FindClosest(mis->_mipos, dx, dy)) {
+		if (FindClosest(mis->_mipos, dp)) {
+			dx = (unsigned)dp.x / DUN_WIDTH;
+			dy = (unsigned)dp.y / DUN_WIDTH;
 			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
 			sd = plx(mis->_miSource)._pdir;
-			dx = cx + XDirAdd[sd];
-			dy = cy + YDirAdd[sd];
+			dp = mis->_mipos;
+			dp.x += XDirAdd[sd];
+			dp.y += YDirAdd[sd];
 		}
 		mis->_miVar5 = sd; // MIS_DIR
 		SetMissAnim(mi, sd);
-		GetMissileVel(mis, DungeonToDunPos(dx, dy), missiledata[MIS_ELEMENTAL].mdPrSpeed);
+		GetMissileVel(mis, dp, missiledata[MIS_ELEMENTAL].mdPrSpeed);
 	}
 	PutMissile(mi);
 }
