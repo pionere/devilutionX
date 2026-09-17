@@ -625,10 +625,12 @@ static void PutMissileF(int mi, BYTE flag)
 	//}
 }
 
-static void GetMissileVel(MissileStruct* mis, POS32 sp, POS32 dp, int v)
+static void GetMissileVel(MissileStruct* mis, POS32 dp, int v)
 {
 	double dxp, dyp, dr;
+	POS32 sp;
 
+	sp = mis->_mipos;
 	dp.x -= sp.x;
 	dp.y -= sp.y;
 	assert(dp.x != 0 || dp.y != 0);
@@ -2819,7 +2821,7 @@ int AddCharge(int mi, int dx, int dy, int midir, int micaster, int misource, int
 			chv = 3 * chv / 2;
 			aa = 3;
 		}
-		GetMissileVel(mis, mis->_mipos, DungeonToDunPos(dx, dy), chv);
+		GetMissileVel(mis, DungeonToDunPos(dx, dy), chv);
 	}
 	plr._pmode = PM_CHARGE;
 	mis->_miDir = midir;
@@ -3645,7 +3647,7 @@ int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int miso
 			dp.x += XDirAdd[midir];
 			dp.y += XDirAdd[midir];
 		}
-		GetMissileVel(mis, sp, dp, mds->mdPrSpeed);
+		GetMissileVel(mis, dp, mds->mdPrSpeed);
 	}
 
 	animdir = 0;
@@ -3877,7 +3879,7 @@ void MI_Mage(int mi)
 			int pnum = mis->_miVar1 - 1;
 			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
 				mis->_miVar5 = GetDirection8(mis->_mix, mis->_miy, plr._px, plr._py); // MIS_DIR
-				GetMissileVel(mis, mis->_mipos, plr._ppos, missiledata[MIS_MAGE].mdPrSpeed);
+				GetMissileVel(mis, plr._ppos, missiledata[MIS_MAGE].mdPrSpeed);
 			} else {
 				mis->_miVar1 = 0;
 			}
@@ -4687,7 +4689,7 @@ void MI_Chain(int mi)
 					dy = my + YDirAdd[sd];
 				}
 				//SetMissAnim(mi, sd);
-				GetMissileVel(mis, mis->_mipos, DungeonToDunPos(dx, dy), missiledata[MIS_CHAIN].mdPrSpeed);
+				GetMissileVel(mis, DungeonToDunPos(dx, dy), missiledata[MIS_CHAIN].mdPrSpeed);
 			}
 		}
 	}
@@ -5123,7 +5125,7 @@ void MI_Cbolt(int mi)
 			POS32 dp = mis->_mipos;
 			dp.x += XDirAdd[md];
 			dp.y += YDirAdd[md];
-			GetMissileVel(mis, mis->_mipos, dp, missiledata[MIS_CBOLT].mdPrSpeed);
+			GetMissileVel(mis, dp, missiledata[MIS_CBOLT].mdPrSpeed);
 			mis->_miVar3 = 16;
 		} else {
 			mis->_miVar3--;
@@ -5187,7 +5189,7 @@ void MI_Elemental(int mi)
 		}
 		mis->_miVar5 = sd; // MIS_DIR
 		SetMissAnim(mi, sd);
-		GetMissileVel(mis, mis->_mipos, DungeonToDunPos(dx, dy), missiledata[MIS_ELEMENTAL].mdPrSpeed);
+		GetMissileVel(mis, DungeonToDunPos(dx, dy), missiledata[MIS_ELEMENTAL].mdPrSpeed);
 	}
 	PutMissile(mi);
 }
