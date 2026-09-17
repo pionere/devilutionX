@@ -383,73 +383,59 @@ static bool PosOkMis2(int x, int y)
 
 static bool FindClosest(int sx, int sy, int& dx, int& dy)
 {
-	int j, i, mid, mnum, tx, ty;
-	const int8_t* cr;
+	constexpr int MAX_DIST = (15 * TILE_WIDTH) * (15 * TILE_WIDTH);
+	int mid, mnum, tx, ty, dist;
+	int bestDist = MAX_DIST + 1;
+	const POS32 sp = DungeonToDunPos(sx, sy);
 	MonsterStruct* mon;
 
 	mid = dMonster[sx][sy];
 	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
-	static_assert(DBORDERX >= 15 && DBORDERY >= 15, "FindClosest expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 15, "FindClosest uses CrawlTable/CrawlNum up to radius 16.");
-	for (i = 1; i <= 15; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = sx + *++cr;
-			ty = sy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			mnum = dMonster[tx][ty] - 1;
-			if (mnum < 0 || mnum == mid)
-				continue;
-			mon = &monsters[mnum];
-			if (mon->_mhitpoints == 0)
-				continue;
-			tx = mon->_mfutx;
-			ty = mon->_mfuty;
-			if (LineClear(sx, sy, tx, ty)) {
-				dx = tx;
-				dy = ty;
-				return true;
-			}
-		}
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		if (mnum == mid) continue;
+		mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
+		dist = GetDunDistance2(sp, mon->_mpos);
+		if (dist > bestDist) continue;
+		tx = mon->_mfutx;
+		ty = mon->_mfuty;
+		if (!LineClear(sx, sy, tx, ty)) continue;
+		// if (dist == bestDist && random_(111, 2) == 0) continue;
+		bestDist = dist;
+		dx = tx;
+		dy = ty;
 	}
-	return false;
+	return bestDist <= MAX_DIST;
 }
 
 static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 {
-	int j, i, mid, mnum, tx, ty;
-	const int8_t* cr;
+	constexpr int MAX_DIST = (7 * TILE_WIDTH) * (7 * TILE_WIDTH);
+	int mid, mnum, tx, ty, dist;
+	int bestDist = MAX_DIST + 1;
+	const POS32 sp = DungeonToDunPos(sx, sy);
 	MonsterStruct* mon;
 
 	mid = dMonster[sx][sy];
 	mid = mid >= 0 ? mid - 1 : -(mid + 1);
 
-	static_assert(DBORDERX >= 7 && DBORDERY >= 7, "FindClosestChain expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 7, "FindClosestChain uses CrawlTable/CrawlNum up to radius 7.");
-	for (i = 1; i <= 7; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = sx + *++cr;
-			ty = sy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			mnum = dMonster[tx][ty] - 1;
-			if (mnum < 0 || mnum == mid)
-				continue;
-			mon = &monsters[mnum];
-			if (mon->_mhitpoints == 0
-			 || (mon->_mMagicRes & MORS_LIGHTNING_IMMUNE) == MORS_LIGHTNING_IMMUNE)
-				continue;
-			tx = mon->_mfutx;
-			ty = mon->_mfuty;
-			if (LineClear(sx, sy, tx, ty)) {
-				dx = tx;
-				dy = ty;
-				return true;
-			}
-		}
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		if (mnum == mid) continue;
+		mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
+		if ((mon->_mMagicRes & MORS_LIGHTNING_IMMUNE) == MORS_LIGHTNING_IMMUNE)
+			continue;
+		dist = GetDunDistance2(sp, mon->_mpos);
+		if (dist > bestDist) continue;
+		tx = mon->_mfutx;
+		ty = mon->_mfuty;
+		if (!LineClear(sx, sy, tx, ty)) continue;
+		bestDist = dist;
+		dx = tx;
+		dy = ty;
 	}
-	return false;
+	return bestDist <= MAX_DIST;
 }
 
 static void DoTeleport(int pnum, int dx, int dy)
