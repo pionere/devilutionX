@@ -384,22 +384,19 @@ static bool PosOkMis2(int x, int y)
 static bool FindClosest(int sx, int sy, int& dx, int& dy)
 {
 	constexpr int MAX_DIST = (15 * TILE_WIDTH) * (15 * TILE_WIDTH);
-	int mid, mnum, tx, ty, dist;
+	int mnum, tx, ty, dist;
 	int bestDist = MAX_DIST + 1;
 	const POS32 sp = DungeonToDunPos(sx, sy);
 	MonsterStruct* mon;
 
-	mid = dMonster[sx][sy];
-	mid = mid >= 0 ? mid - 1 : -(mid + 1);
-
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		if (mnum == mid) continue;
 		mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
 		dist = GetDunDistance2(sp, mon->_mpos);
 		if (dist > bestDist) continue;
 		tx = mon->_mfutx;
 		ty = mon->_mfuty;
+		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
 		if (!LineClear(sx, sy, tx, ty)) continue;
 		// if (dist == bestDist && random_(111, 2) == 0) continue;
 		bestDist = dist;
@@ -412,16 +409,12 @@ static bool FindClosest(int sx, int sy, int& dx, int& dy)
 static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 {
 	constexpr int MAX_DIST = (7 * TILE_WIDTH) * (7 * TILE_WIDTH);
-	int mid, mnum, tx, ty, dist;
+	int mnum, tx, ty, dist;
 	int bestDist = MAX_DIST + 1;
 	const POS32 sp = DungeonToDunPos(sx, sy);
 	MonsterStruct* mon;
 
-	mid = dMonster[sx][sy];
-	mid = mid >= 0 ? mid - 1 : -(mid + 1);
-
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
-		if (mnum == mid) continue;
 		mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
 		if ((mon->_mMagicRes & MORS_LIGHTNING_IMMUNE) == MORS_LIGHTNING_IMMUNE)
@@ -430,6 +423,7 @@ static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
 		if (dist > bestDist) continue;
 		tx = mon->_mfutx;
 		ty = mon->_mfuty;
+		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
 		if (!LineClear(sx, sy, tx, ty)) continue;
 		bestDist = dist;
 		dx = tx;
