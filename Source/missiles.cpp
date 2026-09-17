@@ -454,7 +454,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 #define GetDirection8 GetDirection
 
 /**
- * @brief Returns the direction a vector from p1(x1, y1) to p2(x2, y2) is pointing to.
+ * @brief Returns the direction a vector from p1 to p2 is pointing to.
  *
  *      W  sW  SW   Sw  S
  *              ^
@@ -466,14 +466,13 @@ static void DoTeleport(int pnum, int dx, int dy)
  *              |
  *      N  Ne  NE   nE  E
  *
- * @param x1 the x coordinate of p1
- * @param y1 the y coordinate of p1
- * @param x2 the x coordinate of p2
- * @param y2 the y coordinate of p2
+ * @param p1 the x/y coordinate of p1
+ * @param p2 the x/y coordinate of p2
  * @return the direction of the p1->p2 vector
 */
-static int GetDirection16(int x1, int y1, int x2, int y2)
+static int GetDirection16(POS32 p1, POS32 p2)
 {
+	int x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
 #if UNOPTIMIZED_DIRECTION
 	int mx, my, md;
 	mx = x2 - x1;
@@ -2058,7 +2057,7 @@ int AddArrow(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 		}
 	}
 	mis = &missile[mi];
-	midir = GetDirection16(mis->_misx, mis->_misy, dx, dy);
+	midir = GetDirection16(mis->_mipos, DungeonToDunPos(dx, dy));
 	if (mtype == MFILE_ARROWS) {
 		mis->_miAnimFrame = midir + 1;
 	} else {
@@ -3636,7 +3635,7 @@ int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int miso
 		animdir = midir;
 		if (anims != NUM_DIRS) {
 			// assert(anims == 16);
-			animdir = GetDirection16(sx, sy, dx, dy);
+			animdir = GetDirection16(sp, dp);
 		}
 	}
 	SetMissAnim(mi, animdir);
