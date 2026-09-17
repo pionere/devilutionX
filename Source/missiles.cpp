@@ -381,14 +381,15 @@ static bool PosOkMis2(int x, int y)
 	return true;
 }
 
-static bool FindClosest(int sx, int sy, int& dx, int& dy)
+static bool FindClosest(const POS32 sp, int& dx, int& dy)
 {
 	constexpr int MAX_DIST = (15 * TILE_WIDTH) * (15 * TILE_WIDTH);
-	int mnum, tx, ty, dist;
+	int sx, sy, mnum, tx, ty, dist;
 	int bestDist = MAX_DIST + 1;
-	const POS32 sp = DungeonToDunPos(sx, sy);
 	MonsterStruct* mon;
 
+	sx = (unsigned)sp.x / DUN_WIDTH;
+	sy = (unsigned)sp.y / DUN_WIDTH;
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
@@ -406,14 +407,15 @@ static bool FindClosest(int sx, int sy, int& dx, int& dy)
 	return bestDist <= MAX_DIST;
 }
 
-static bool FindClosestChain(int sx, int sy, int& dx, int& dy)
+static bool FindClosestChain(const POS32 sp, int& dx, int& dy)
 {
 	constexpr int MAX_DIST = (7 * TILE_WIDTH) * (7 * TILE_WIDTH);
-	int mnum, tx, ty, dist;
+	int sx, sy, mnum, tx, ty, dist;
 	int bestDist = MAX_DIST + 1;
-	const POS32 sp = DungeonToDunPos(sx, sy);
 	MonsterStruct* mon;
 
+	sx = (unsigned)sp.x / DUN_WIDTH;
+	sy = (unsigned)sp.y / DUN_WIDTH;
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
@@ -4656,7 +4658,7 @@ void MI_Chain(int mi)
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
 				// find a new target
-				if (!FindClosestChain(mx, my, dx, dy)) {
+				if (!FindClosestChain(mis->_mipos, dx, dy)) {
 					// create pseudo-random seed using the monster which was hit (or the first real monster)
 					/*sd = dMonster[mx][my];
 					if (sd != 0)
@@ -5160,7 +5162,7 @@ void MI_Elemental(int mi)
 		mis->_misx = cx;
 		mis->_misy = cy;
 		// find a new target
-		if (FindClosest(cx, cy, dx, dy)) {
+		if (FindClosest(mis->_mipos, dx, dy)) {
 			sd = GetDirection8(cx, cy, dx, dy);
 		} else {
 			sd = plx(mis->_miSource)._pdir;
