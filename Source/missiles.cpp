@@ -1592,6 +1592,17 @@ static void CheckSplashCol(int mi, int hit)
 	mis->_misy = sy;
 }
 
+static int MoveProjectal(int mi, int steps, missile_collision_mode mode)
+{
+	int hit = 0;
+	MoveMissile(mi, steps);
+	MissileStruct* mis = &missile[mi];
+	if (mis->_misx != mis->_mix || mis->_misy != mis->_miy) {
+		hit = CheckMissileCol(mi, mis->_mix, mis->_miy, mode);
+	}
+	return hit;
+}
+
 static void SyncMissAnim(int mi)
 {
 	MissileStruct* mis;
@@ -3712,10 +3723,7 @@ void MI_Arrow(int mi)
 
 	mis = &missile[mi];
 	mis->_miVar7++; // MISDIST
-	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, mis->_miType != MIS_PCARROW ? MICM_BLOCK_ANY : MICM_BLOCK_WALL);
-	}
+	MoveProjectal(mi, 1, mis->_miType != MIS_PCARROW ? MICM_BLOCK_ANY : MICM_BLOCK_WALL);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -3743,13 +3751,10 @@ void MI_AsArrow(int mi)
 void MI_Firebolt(int mi)
 {
 	MissileStruct* mis;
-	int xptype, hit = 0;
+	int xptype, hit;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		hit = CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
-	}
+	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -3813,10 +3818,7 @@ void MI_Mage(int mi)
 	int i, bmi, xptype;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
-	}
+	MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		for (i = 0; i < nummissiles; i++) {
@@ -3873,15 +3875,14 @@ void MI_Mage(int mi)
 void MI_Poison(int mi)
 {
 	MissileStruct* mis;
-	int tnum, pnum, zoff;
+	int hit, tnum, pnum, zoff;
 	MonsterStruct* mon;
 
 	mis = &missile[mi];
 	if (mis->_miVar1 == 0) {
 		// target not acquired
-		MoveMissile(mi, 1);
-		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL) == 1) {
+		hit = MoveProjectal(mi, 1, MICM_BLOCK_WALL);
+		if (hit == 1) {
 			tnum = dMonster[mis->_mix][mis->_miy];
 			if (tnum != 0) {
 				// monster target acquired
@@ -3953,10 +3954,7 @@ void MI_Wind(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
-	}
+	MoveProjectal(mi, 1, MICM_BLOCK_WALL);
 	if (mis->_miDir == 0) {
 		mis->_miMinDam += mis->_miVar1;
 		mis->_miMaxDam += mis->_miVar2;
@@ -3980,10 +3978,7 @@ void MI_Lightball(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
-	}
+	MoveProjectal(mi, 1, MICM_BLOCK_WALL);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4012,10 +4007,7 @@ void MI_Acid(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_misx || mis->_miy != mis->_misy) {
-		CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
-	}
+	MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4106,19 +4098,15 @@ void MI_Firewall(int mi)
 /*void MI_Fireball(int mi)
 {
 	MissileStruct* mis;
-	int mx, my, hit = 0;
+	int hit;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	mx = mis->_mix;
-	my = mis->_miy;
-	if (mx != mis->_misx || my != mis->_misy)
-		hit = CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY);
+	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
 		return;
 	}
-	//CheckMissileArea(mi, mx, my);
+	//CheckMissileArea(mi, mis->_mix, mis->_miy);
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi, hit);
 
@@ -4633,17 +4621,17 @@ collapse:
 void MI_Chain(int mi)
 {
 	MissileStruct* mis;
-	int mx, my, sd;
+	int hit, mx, my, sd;
 	POS32 dp;
 
 	mis = &missile[mi];
 
-	MoveMissile(mi, 1);
+	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 
 	mx = mis->_mix;
 	my = mis->_miy;
-	if (mx != mis->_misx || my != mis->_misy) {
-		if (CheckMissileCol(mi, mx, my, MICM_BLOCK_ANY) == 1) {
+	{
+		if (hit == 1) {
 			if (mis->_miVar1-- != 0) {
 				// set the current position as the starting point
 				const POS32 mp = DungeonToDunPos(mx, my);
@@ -5093,7 +5081,7 @@ void MI_InfernoC(int mi)
 void MI_Cbolt(int mi)
 {
 	MissileStruct* mis;
-	int md;
+	int md, hit;
 	int bpath[16] = { -1, 0, 1, -1, 0, 1, -1, -1, 0, 0, 1, 1, 0, 1, -1, 0 };
 
 	mis = &missile[mi];
@@ -5109,9 +5097,8 @@ void MI_Cbolt(int mi)
 		} else {
 			mis->_miVar3--;
 		}
-		MoveMissile(mi, 1);
-		if ((mis->_mix != mis->_misx || mis->_miy != mis->_misy)
-		 && CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY) == 1) {
+		hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
+		if (hit == 1) {
 			static_assert(MAX_LIGHT_RAD >= 8, "MI_Cbolt needs at least light-radius of 8.");
 			mis->_miVar1 = 8;
 			mis->_miFileNum = MFILE_LGHNING;
@@ -5133,15 +5120,13 @@ void MI_Cbolt(int mi)
 void MI_Elemental(int mi)
 {
 	MissileStruct* mis;
-	int hit = 0, sd, cx, cy;
+	int hit, sd, cx, cy;
 	POS32 dp;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
+	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 	cx = mis->_mix;
 	cy = mis->_miy;
-	if (cx != mis->_misx || cy != mis->_misy)
-		hit = CheckMissileCol(mi, cx, cy, MICM_BLOCK_ANY);
 	if (hit != 0) {
 		//CheckMissileArea(mi, cx, cy);
 		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
