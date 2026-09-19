@@ -3329,7 +3329,7 @@ void MonCallToArms(int mnum)
 				y = my + *++cr;
 				// assert(IN_DUNGEON_AREA(x, y));
 				m = dMonster[x][y];
-				if (m > 0) {
+				if (m > MAX_MINIONS) {
 					mon = &monsters[m - 1];
 					if (/*!MON_RELAXED && */(mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
 						mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
