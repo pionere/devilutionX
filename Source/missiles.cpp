@@ -398,7 +398,7 @@ static bool FindClosest(const POS32 sp, POS32& dp)
 		tx = mon->_mfutx;
 		ty = mon->_mfuty;
 		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
-		if (!LineClear(sx, sy, tx, ty)) continue;
+		if (!LineClearPos(sp, mon->_mpos)) continue;
 		// if (dist == bestDist && random_(111, 2) == 0) continue;
 		bestDist = dist;
 		dp = mon->_mpos;
@@ -425,7 +425,7 @@ static bool FindClosestChain(const POS32 sp, POS32& dp)
 		tx = mon->_mfutx;
 		ty = mon->_mfuty;
 		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
-		if (!LineClear(sx, sy, tx, ty)) continue;
+		if (!LineClearPos(sp, mon->_mpos)) continue;
 		bestDist = dist;
 		dp = mon->_mpos;
 	}
@@ -3412,12 +3412,12 @@ int AddTelekinesis(int mi, int dx, int dy, int midir, int micaster, int misource
 	case MTT_ITEM:
 		// assert(target < MAXITEMS);
 		if (pnum == mypnum && dx == items[target]._ix && dy == items[target]._iy
-		 && LineClear(plr._px, plr._py, items[target]._ix, items[target]._iy))
+		 && LineClearPos(plr._ppos, items[target]._ipos))
 			NetSendCmdGItem(target);
 		break;
 	case MTT_MONSTER:
 		// assert(target < MAXMONSTERS);
-		if (LineClear(plr._px, plr._py, monsters[target]._mx, monsters[target]._my)
+		if (LineClearPos(plr._ppos, monsters[target]._mpos)
 		 && CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && monsters[target]._mmode <= MM_INGAME_LAST && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pIPower) {
 			monsters[target]._msquelch = SQUELCH_MAX;
 			monsters[target]._mlastx = plr._px;
@@ -3428,12 +3428,12 @@ int AddTelekinesis(int mi, int dx, int dy, int midir, int micaster, int misource
 		break;
 	case MTT_OBJECT:
 		// assert(target < MAXOBJECTS);
-		if (LineClear(plr._px, plr._py, objects[target]._ox, objects[target]._oy))
+		if (LineClearPos(plr._ppos, objects[target]._opos))
 			OperateObject(pnum, target, true);
 		break;
 	case MTT_PLAYER:
 		// assert(target < MAX_PLRS);
-		if (LineClear(plr._px, plr._py, plx(target)._px, plx(target)._py)
+		if (LineClearPos(plr._ppos, plx(target)._ppos)
 		 && plx(target)._pActive && !plx(target)._pLvlChanging && plx(target)._pDunLevel == currLvl._dLevelIdx && plx(target)._pHitPoints != 0 && plx(target)._pmode != PM_BLOCK
 		 && (plx(target)._pMaxHP >> (6 + 1)) < plr._pIPower) {
 			// int dir = GetDirection8(plr._ppos, plx(target)._ppos);
@@ -3450,23 +3450,18 @@ int AddTelekinesis(int mi, int dx, int dy, int midir, int micaster, int misource
 int AddApocaC2(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int sx, sy, pnum, px, py;
+	int pnum;
 
 	// assert(micaster == MST_MONSTER);
 	// assert(misource == DIABLO);
 
 	mis = &missile[mi];
 	mis->_miMinDam = mis->_miMaxDam = 40 << (6 + gnDifficulty);
-	sx = mis->_misx;
-	sy = mis->_misy;
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0)
 			continue; // skip player if not on the current level
 
-		px = (unsigned)plr._ppos.x / DUN_WIDTH;
-		py = (unsigned)plr._ppos.y / DUN_WIDTH;
-
-		if (!LineClear(sx, sy, px, py))
+		if (!LineClearPos(mis->_mipos, plr._ppos))
 			continue; // skip player if not visible
 
 		// hit-check
@@ -3697,10 +3692,9 @@ static bool Sentfire(int mi, int sx, int sy)
 	if (mnum >= MAX_MINIONS
 	 && monsters[mnum]._mhitpoints != 0
 	 //&& !CanTalkToMonst(mnum) -- commented out to make it consistent with MI_Rune, MI_Poison, FindClosestChain, FindClosest
-	 && LineClear(mis->_mix, mis->_miy, monsters[mnum]._mx, monsters[mnum]._my)) {
+	 && LineClearPos(mis->_mipos, monsters[mnum]._mpos)) {
 		// SetRndSeed(mis->_miRndSeed);
-		const POS32 dp = DungeonToDunPos(monsters[mnum]._mx, monsters[mnum]._my);
-		AddMissile(mis->_mipos, dp, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
+		AddMissile(mis->_mipos, monsters[mnum]._mpos, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
 		// mis->_miRndSeed = NextRndSeed();
 		SetMissAnim(mi, 2);
 		// assert(mis->_miAnimLen == MIA_GUARD2_LENGTH);

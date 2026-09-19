@@ -1438,7 +1438,7 @@ bool LineClear(int x1, int y1, int x2, int y2)
 /**
  * Check if the destination (p2) is 'visible' from the source (p1)
  */
-bool LineClear(POS32 p1, POS32 p2)
+bool LineClearPos(POS32 p1, POS32 p2)
 {
 	return LineClearF(CheckVisible, p1, p2);
 }
@@ -1498,7 +1498,7 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints == 0*/)
 				continue;
-			if (!LineClear(mon->_mpos, plx(i)._ppos))
+			if (!LineClearPos(mon->_mpos, plx(i)._ppos))
 				continue;
 			x = (unsigned)plx(i)._ppos.x / DUN_WIDTH;
 			y = (unsigned)plx(i)._ppos.y / DUN_WIDTH;
@@ -1525,7 +1525,7 @@ static void MonFindEnemy(int mnum)
 				continue;
 			//if (tmon->_mFlags & MFLAG_HIDDEN)
 			//	continue;
-			if (!LineClear(mon->_mpos, tmon->_mpos))
+			if (!LineClearPos(mon->_mpos, tmon->_mpos))
 				continue;
 			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
 			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
@@ -1557,7 +1557,7 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mgoal == MGOAL_TALKING) // CanTalkToMonst(tnum)
 				continue;
-			if (!LineClear(mon->_mpos, tmon->_mpos))
+			if (!LineClearPos(mon->_mpos, tmon->_mpos))
 				continue;
 			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
 			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
@@ -2902,7 +2902,7 @@ static void GroupUnity(int mnum)
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->_mleader != MON_NO_LEADER) {
 		leader = &monsters[mon->_mleader];
-		clear = LineClear(mon->_mpos, leader->_mpos);
+		clear = LineClearPos(mon->_mpos, leader->_mpos);
 		if (clear
 		 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
 		 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
@@ -3443,7 +3443,7 @@ void MonCallToArms(int mnum)
 			if (bmon->_mmode > MM_INGAME_LAST || bmon->_mmode == MM_DEATH) continue;
 			int dist = GetDunDistance2(mon->_mpos, bmon->_mpos);
 			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * rad) continue;
-			if (!LineClear(mon->_mpos, bmon->_mpos)) continue;
+			if (!LineClearPos(mon->_mpos, bmon->_mpos)) continue;
 			if (/*!MON_RELAXED && */(bmon->_mleader == MON_NO_LEADER || bmon->_mleader == mnum)) {
 				bmon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 				if (bmon->_mAI.aiType == AI_FALLEN) {
@@ -3760,7 +3760,7 @@ void MAI_Scav(int mnum)
 						int dist = GetDunDistance2(mon->_mpos, dmon->_mpos);
 						if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 16) continue;
 						// check if corpse is accessible and visible
-						if (!LineClear(mon->_mpos, dmon->_mpos)) continue;
+						if (!LineClearPos(mon->_mpos, dmon->_mpos)) continue;
 						if (mon->_mAI.aiInt > 2) {
 							if (!PosOkMonst(mnum, dmon->_mx, dmon->_my)) continue;
 							if (mon->_mAI.aiInt > 4) {
