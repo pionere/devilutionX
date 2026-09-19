@@ -65,6 +65,7 @@ void ProcessMonsters();
 void FreeMonsters();
 //bool CheckAllowMissile(int x, int y);
 bool LineClear(int x1, int y1, int x2, int y2);
+bool LineClearPos(POS32 p1, POS32 p2);
 void SyncMonsterAnim(int mnum);
 void MonHinder(int mnum, int spllvl, unsigned tick);
 void MissToMonst(int mi);
