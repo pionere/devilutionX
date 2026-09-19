@@ -3697,9 +3697,9 @@ static bool Sentfire(int mi, int sx, int sy)
 	if (mnum >= MAX_MINIONS
 	 && monsters[mnum]._mhitpoints != 0
 	 //&& !CanTalkToMonst(mnum) -- commented out to make it consistent with MI_Rune, MI_Poison, FindClosestChain, FindClosest
-	 && LineClear(mis->_mix, mis->_miy, sx, sy)) {
+	 && LineClear(mis->_mix, mis->_miy, monsters[mnum]._mx, monsters[mnum]._my)) {
 		// SetRndSeed(mis->_miRndSeed);
-		const POS32 dp = DungeonToDunPos(sx, sy);
+		const POS32 dp = DungeonToDunPos(monsters[mnum]._mx, monsters[mnum]._my);
 		AddMissile(mis->_mipos, dp, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
 		// mis->_miRndSeed = NextRndSeed();
 		SetMissAnim(mi, 2);
