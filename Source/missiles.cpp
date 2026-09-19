@@ -406,15 +406,14 @@ static bool FindClosest(const POS32 sp, POS32& dp)
 	return bestDist <= MAX_DIST;
 }
 
-static bool FindClosestChain(const POS32 sp, POS32& dp)
+static bool FindClosestChain(const MissileStruct* mis, POS32& dp)
 {
 	constexpr int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 7 * 7;
-	int sx, sy, mnum, tx, ty, dist;
+	int mnum, dist;
 	int bestDist = MAX_DIST + 1;
 	MonsterStruct* mon;
+	const POS32 sp = mis->_mipos;
 
-	sx = (unsigned)sp.x / DUN_WIDTH;
-	sy = (unsigned)sp.y / DUN_WIDTH;
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
@@ -422,9 +421,7 @@ static bool FindClosestChain(const POS32 sp, POS32& dp)
 			continue;
 		dist = GetDunDistance2(sp, mon->_mpos);
 		if (dist > bestDist) continue;
-		tx = mon->_mfutx;
-		ty = mon->_mfuty;
-		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
+		if (mis->_miVar8 == mnum + 1) continue;
 		if (!LineClearPos(sp, mon->_mpos)) continue;
 		bestDist = dist;
 		dp = mon->_mpos;
@@ -4636,7 +4633,7 @@ void MI_Chain(int mi)
 				// restore base range
 				mis->_miRange = missiledata[MIS_CHAIN].mdRange;
 				// find a new target
-				if (!FindClosestChain(mis->_mipos, dp)) {
+				if (!FindClosestChain(mis, dp)) {
 					// create pseudo-random seed using the monster which was hit (or the first real monster)
 					/*sd = dMonster[mx][my];
 					if (sd != 0)
