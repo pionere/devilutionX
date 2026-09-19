@@ -1256,7 +1256,7 @@ static bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			dy = -dy;
 			xyinc = -1;
 		}
-		// multiply by 2 so we round up -- keep in sync with GetMissilePos + handle swap above!
+		// multiply by 2 so we round up -- keep in sync with MoveMissile + handle swap above!
 		//dy *= 2;
 		d = 0;
 		do {
@@ -1299,7 +1299,7 @@ static bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 			xyinc = -1;
 		}
 		// multiply by 2 so we round up
-		//dx *= 2; -- keep in sync with GetMissilePos + handle swap above!
+		//dx *= 2; -- keep in sync with MoveMissile + handle swap above!
 		d = 0;
 		do {
 			d += dx;
@@ -1427,18 +1427,25 @@ static bool LineClearF(bool (*Clear)(int, int), POS32 p1, POS32 p2)
 	return true;
 }
 
-// test if the destination (x2;y2) is 'visible' from the source (x1;y1)
+/**
+ * Check if the destination (x2;y2) is 'visible' from the source (x1;y1)
+ */
 bool LineClear(int x1, int y1, int x2, int y2)
 {
 	return LineClearF(CheckVisible, x1, y1, x2, y2);
 }
 
-// test if the destination (p2) is 'visible' from the source (p1)
+/**
+ * Check if the destination (p2) is 'visible' from the source (p1)
+ */
 bool LineClear(POS32 p1, POS32 p2)
 {
 	return LineClearF(CheckVisible, p1, p2);
 }
 
+/**
+ * Check if the enemy of the monster is in line for missiles
+ */
 static bool EnemyInLine(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
@@ -1449,7 +1456,7 @@ static bool EnemyInLine(int mnum)
 }
 
 /**
- * Same as LineClearF, only with a different Clear function.
+ * Check if the destination is 'free' for the monster starting from the source (x1;y1)
  */
 static bool LineClearMon(int mnum, int x1, int y1, int x2, int y2)
 {
