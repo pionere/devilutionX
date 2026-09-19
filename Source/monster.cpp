@@ -3323,7 +3323,7 @@ void MonCallToArms(int mnum)
 			if (!LineClear(mon->_mx, mon->_my, bmon->_mx, bmon->_my)) continue;
 			if (/*!MON_RELAXED && */(bmon->_mleader == MON_NO_LEADER || bmon->_mleader == mnum)) {
 				bmon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-				if (bmon->_mAI.aiType == AI_FALLEN) {
+				if (bmon->_mAI.aiType == AI_FALLEN && bmon->_mgoal != MGOAL_TALKING) {
 #if DEBUG
 					assert(bmon->_mAnims[MA_WALK].maFrames * bmon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
 					assert(bmon->_mAnims[MA_ATTACK].maFrames * bmon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
