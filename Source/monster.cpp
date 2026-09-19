@@ -3438,11 +3438,12 @@ void MonCallToArms(int mnum)
 		}
 		amount = 2 * rad + 8;
 		rad = 2 * rad + 4;
+		rad = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * rad * rad;
 		for (i = MAX_MINIONS; i < MAXMONSTERS; i++) {
 			MonsterStruct *bmon = &monsters[i];
 			if (bmon->_mmode > MM_INGAME_LAST || bmon->_mmode == MM_DEATH) continue;
 			int dist = GetDunDistance2(mon->_mpos, bmon->_mpos);
-			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * rad) continue;
+			if (dist > rad) continue;
 			if (!LineClearPos(mon->_mpos, bmon->_mpos)) continue;
 			if (/*!MON_RELAXED && */(bmon->_mleader == MON_NO_LEADER || bmon->_mleader == mnum)) {
 				bmon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
