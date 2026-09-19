@@ -383,7 +383,7 @@ static bool PosOkMis2(int x, int y)
 
 static bool FindClosest(const POS32 sp, POS32& dp)
 {
-	constexpr int MAX_DIST = (15 * TILE_WIDTH) * (15 * TILE_WIDTH);
+	constexpr int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 15 * 15;
 	int sx, sy, mnum, tx, ty, dist;
 	int bestDist = MAX_DIST + 1;
 	MonsterStruct* mon;
@@ -408,7 +408,7 @@ static bool FindClosest(const POS32 sp, POS32& dp)
 
 static bool FindClosestChain(const POS32 sp, POS32& dp)
 {
-	constexpr int MAX_DIST = (7 * TILE_WIDTH) * (7 * TILE_WIDTH);
+	constexpr int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 7 * 7;
 	int sx, sy, mnum, tx, ty, dist;
 	int bestDist = MAX_DIST + 1;
 	MonsterStruct* mon;
