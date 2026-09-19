@@ -3302,8 +3302,7 @@ void MAI_Sneak(int mnum)
 void MonCallToArms(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int i, j, x, y, mx, my, tx, ty, m, rad, amount;
-	const int8_t* cr;
+	int i, rad, amount;
 	const int MAX_RAD = 5;
 	rad = mon->_mAI.aiInt;
 	//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
@@ -3316,37 +3315,26 @@ void MonCallToArms(int mnum)
 		}
 		amount = 2 * rad + 8;
 		rad = 2 * rad + 4;
-		static_assert(DBORDERX == DBORDERY && DBORDERX >= 2 * MAX_RAD + 4, "MonCallToArm expects a large enough border.");
-		mx = mon->_mx;
-		my = mon->_my;
-		tx = mon->_menemyx;
-		ty = mon->_menemyy;
-		static_assert(lengthof(CrawlNum) > 2 * MAX_RAD + 4, "MonCallToArm uses CrawlTable/CrawlNum up to radius 5.");
-		for (i = 0; i <= rad; i++) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = (BYTE)*cr; j > 0; j--) {
-				x = mx + *++cr;
-				y = my + *++cr;
-				// assert(IN_DUNGEON_AREA(x, y));
-				m = dMonster[x][y];
-				if (m > MAX_MINIONS) {
-					mon = &monsters[m - 1];
-					if (/*!MON_RELAXED && */(mon->_mleader == MON_NO_LEADER || mon->_mleader == mnum) && LineClear(mx, my, mon->_mx, mon->_my)) {
-						mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
-						if (mon->_mAI.aiType == AI_FALLEN) {
+		for (i = MAX_MINIONS; i < MAXMONSTERS; i++) {
+			MonsterStruct *bmon = &monsters[i];
+			if (bmon->_mmode > MM_INGAME_LAST || bmon->_mmode == MM_DEATH) continue;
+			int dist = GetDunDistance2(mon->_mpos, bmon->_mpos);
+			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * rad) continue;
+			if (!LineClear(mon->_mx, mon->_my, bmon->_mx, bmon->_my)) continue;
+			if (/*!MON_RELAXED && */(bmon->_mleader == MON_NO_LEADER || bmon->_mleader == mnum)) {
+				bmon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
+				if (bmon->_mAI.aiType == AI_FALLEN) {
 #if DEBUG
-							assert(mon->_mAnims[MA_WALK].maFrames * mon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
-							assert(mon->_mAnims[MA_ATTACK].maFrames * mon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
-							assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
+					assert(bmon->_mAnims[MA_WALK].maFrames * bmon->_mAnims[MA_WALK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+					assert(bmon->_mAnims[MA_ATTACK].maFrames * bmon->_mAnims[MA_ATTACK].maFrameLen * (2 * MAX_RAD + 8) < SQUELCH_MAX - SQUELCH_LOW);
+					assert(amount * 13 < SQUELCH_MAX - SQUELCH_LOW);
 #endif
-							static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
-							mon->_mgoal = MGOAL_ATTACK;
-							mon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
-						}
-						mon->_mlastx = tx;
-						mon->_mlasty = ty;
-					}
+					static_assert((2 * MAX_RAD + 8) * 13 < SQUELCH_MAX - SQUELCH_LOW, "MAI_Fallen might relax with attack goal.");
+					bmon->_mgoal = MGOAL_ATTACK;
+					bmon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 				}
+				bmon->_mlastx = mon->_menemyx;
+				bmon->_mlasty = mon->_menemyy;
 			}
 		}
 	}
