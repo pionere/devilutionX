@@ -1317,10 +1317,126 @@ static bool LineClearF(bool (*Clear)(int, int), int x1, int y1, int x2, int y2)
 	return false;
 }
 
+static bool LineClearF(bool (*Clear)(int, int), POS32 p1, POS32 p2)
+{
+	int dx, dy;
+	POS32 pTmp;
+	dx = p2.x - p1.x;
+	dy = p2.y - p1.y;
+	if (abs(dx) >= abs(dy)) {
+		// if (dx == 0)
+		//	return true;
+		// alway proceed from lower to higher x
+		if (dx < 0) {
+			pTmp = p1;
+			p1 = p2;
+			p2 = pTmp;
+			dx = -dx;
+			dy = -dy;
+		}
+		if ((unsigned)p1.y / DUN_WIDTH == (unsigned)p2.y / DUN_WIDTH && (unsigned)p1.x / DUN_WIDTH + 1 >= (unsigned)p2.x / DUN_WIDTH)
+			return true; // y1 == y2
+		const int64_t bdx = ((int64_t)dx * p1.y - (int64_t)dy * p1.x);
+		if (dy >= 0) {
+			for (int i = (unsigned)p1.x / DUN_WIDTH; i <= (int)((unsigned)p2.x / DUN_WIDTH); i++) {
+				for (int j = (unsigned)p1.y / DUN_WIDTH; j <= (int)((unsigned)p2.y / DUN_WIDTH); j++) {
+					// test whether the subtile is on the line
+					int x01 = i * DUN_WIDTH;
+					int y01 = j * DUN_WIDTH + DUN_WIDTH;
+					int x10 = i * DUN_WIDTH + DUN_WIDTH;
+					int y10 = j * DUN_WIDTH;
+					if ((int64_t)dy * x10 + bdx <= (int64_t)y10 * dx) continue;
+					if ((int64_t)dy * x01 + bdx >= (int64_t)y01 * dx) continue;
+					// ignore the first and last positions
+					if ((i == (unsigned)p1.x / DUN_WIDTH && j == (unsigned)p1.y / DUN_WIDTH)
+					 || (i == (unsigned)p2.x / DUN_WIDTH && j == (unsigned)p2.y / DUN_WIDTH))
+						continue;
+					if (!Clear(i, j))
+						return false;
+				}
+			}
+		} else {
+			for (int i = (unsigned)p1.x / DUN_WIDTH; i <= (int)((unsigned)p2.x / DUN_WIDTH); i++) {
+				for (int j = (unsigned)p2.y / DUN_WIDTH; j <= (int)((unsigned)p1.y / DUN_WIDTH); j++) {
+					// test whether the subtile is on the line
+					int x00 = i * DUN_WIDTH;
+					int y00 = j * DUN_WIDTH;
+					int x11 = i * DUN_WIDTH + DUN_WIDTH;
+					int y11 = j * DUN_WIDTH + DUN_WIDTH;
+					if ((int64_t)dy * x00 + bdx <= (int64_t)y00 * dx) continue;
+					if ((int64_t)dy * x11 + bdx >= (int64_t)y11 * dx) continue;
+					// ignore the first and last positions
+					if ((i == (unsigned)p1.x / DUN_WIDTH && j == (unsigned)p1.y / DUN_WIDTH)
+					 || (i == (unsigned)p2.x / DUN_WIDTH && j == (unsigned)p2.y / DUN_WIDTH))
+						continue;
+					if (!Clear(i, j))
+						return false;
+				}
+			}
+		}
+	} else {
+		// alway proceed from lower to higher y
+		if (dy < 0) {
+			pTmp = p1;
+			p1 = p2;
+			p2 = pTmp;
+			dx = -dx;
+			dy = -dy;
+		}
+		if ((unsigned)p1.x / DUN_WIDTH == (unsigned)p2.x / DUN_WIDTH && (unsigned)p1.y / DUN_WIDTH + 1 >= (unsigned)p2.y / DUN_WIDTH)
+			return true; // x1 == x2
+		const int64_t bdy = ((int64_t)dy * p1.x - (int64_t)dx * p1.y);
+		if (dx >= 0) {
+			for (int i = (unsigned)p1.x / DUN_WIDTH; i <= (int)((unsigned)p2.x / DUN_WIDTH); i++) {
+				for (int j = (unsigned)p1.y / DUN_WIDTH; j <= (int)((unsigned)p2.y / DUN_WIDTH); j++) {
+					// test whether the subtile is on the line
+					int y01 = j * DUN_WIDTH;
+					int x01 = i * DUN_WIDTH + DUN_WIDTH;
+					int y10 = j * DUN_WIDTH + DUN_WIDTH;
+					int x10 = i * DUN_WIDTH;
+					if ((int64_t)dx * y10 + bdy <= (int64_t)x10 * dy) continue;
+					if ((int64_t)dx * y01 + bdy >= (int64_t)x01 * dy) continue;
+					// ignore the first and last positions
+					if ((j == (unsigned)p1.y / DUN_WIDTH && i == (unsigned)p1.x / DUN_WIDTH)
+					 || (j == (unsigned)p2.y / DUN_WIDTH && i == (unsigned)p2.x / DUN_WIDTH))
+						continue;
+					if (!Clear(i, j))
+						return false;
+				}
+			}
+		} else {
+			for (int i = (unsigned)p2.x / DUN_WIDTH; i <= (int)((unsigned)p1.x / DUN_WIDTH); i++) {
+				for (int j = (unsigned)p1.y / DUN_WIDTH; j <= (int)((unsigned)p2.y / DUN_WIDTH); j++) {
+					// test whether the subtile is on the line
+					int y00 = j * DUN_WIDTH;
+					int x00 = i * DUN_WIDTH;
+					int y11 = j * DUN_WIDTH + DUN_WIDTH;
+					int x11 = i * DUN_WIDTH + DUN_WIDTH;
+					if ((int64_t)dx * y00 + bdy <= (int64_t)x00 * dy) continue;
+					if ((int64_t)dx * y11 + bdy >= (int64_t)x11 * dy) continue;
+					// ignore the first and last positions
+					if ((j == (unsigned)p1.y / DUN_WIDTH && i == (unsigned)p1.x / DUN_WIDTH)
+					 || (j == (unsigned)p2.y / DUN_WIDTH && i == (unsigned)p2.x / DUN_WIDTH))
+						continue;
+					if (!Clear(i, j))
+						return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
 // test if the destination (x2;y2) is 'visible' from the source (x1;y1)
 bool LineClear(int x1, int y1, int x2, int y2)
 {
 	return LineClearF(CheckVisible, x1, y1, x2, y2);
+}
+
+// test if the destination (p2) is 'visible' from the source (p1)
+bool LineClear(POS32 p1, POS32 p2)
+{
+	return LineClearF(CheckVisible, p1, p2);
 }
 
 static bool EnemyInLine(int mnum)
@@ -1375,10 +1491,10 @@ static void MonFindEnemy(int mnum)
 			if (!plx(i)._pActive || currLvl._dLevelIdx != plx(i)._pDunLevel ||
 				plx(i)._pInvincible/*plx(i)._pLvlChanging || plx(i)._pHitPoints == 0*/)
 				continue;
+			if (!LineClear(mon->_mpos, plx(i)._ppos))
+				continue;
 			x = (unsigned)plx(i)._ppos.x / DUN_WIDTH;
 			y = (unsigned)plx(i)._ppos.y / DUN_WIDTH;
-			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
-				continue;
 			sameroom = tv == dTransVal[x][y];
 			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			if (sameroom == bestsameroom) {
@@ -1402,10 +1518,10 @@ static void MonFindEnemy(int mnum)
 				continue;
 			//if (tmon->_mFlags & MFLAG_HIDDEN)
 			//	continue;
+			if (!LineClear(mon->_mpos, tmon->_mpos))
+				continue;
 			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
 			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
-			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
-				continue;
 			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			sameroom = tv == dTransVal[x][y];
 			if (sameroom == bestsameroom) {
@@ -1434,10 +1550,10 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (tmon->_mgoal == MGOAL_TALKING) // CanTalkToMonst(tnum)
 				continue;
+			if (!LineClear(mon->_mpos, tmon->_mpos))
+				continue;
 			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
 			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
-			if (!LineClear(mon->_mfutx, mon->_mfuty, x, y))
-				continue;
 			// if (!(dFlags[x][y] & BFLAG_ALERT)) - stick to line of sight to prevent stuck golems in multiplayer games
 			//	continue;
 			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
@@ -2779,7 +2895,7 @@ static void GroupUnity(int mnum)
 	// check if the leader is still available and update its squelch value + enemy location
 	if (mon->_mleader != MON_NO_LEADER) {
 		leader = &monsters[mon->_mleader];
-		clear = LineClear(mon->_mx, mon->_my, leader->_mfutx, leader->_mfuty);
+		clear = LineClear(mon->_mpos, leader->_mpos);
 		if (clear
 		 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
 		 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
@@ -3320,7 +3436,7 @@ void MonCallToArms(int mnum)
 			if (bmon->_mmode > MM_INGAME_LAST || bmon->_mmode == MM_DEATH) continue;
 			int dist = GetDunDistance2(mon->_mpos, bmon->_mpos);
 			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * rad) continue;
-			if (!LineClear(mon->_mx, mon->_my, bmon->_mx, bmon->_my)) continue;
+			if (!LineClear(mon->_mpos, bmon->_mpos)) continue;
 			if (/*!MON_RELAXED && */(bmon->_mleader == MON_NO_LEADER || bmon->_mleader == mnum)) {
 				bmon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 				if (bmon->_mAI.aiType == AI_FALLEN && bmon->_mgoal != MGOAL_TALKING) {
@@ -3637,7 +3753,7 @@ void MAI_Scav(int mnum)
 						int dist = GetDunDistance2(mon->_mpos, dmon->_mpos);
 						if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 16) continue;
 						// check if corpse is accessible and visible
-						if (!LineClear(mon->_mx, mon->_my, dmon->_mx, dmon->_my)) continue;
+						if (!LineClear(mon->_mpos, dmon->_mpos)) continue;
 						if (mon->_mAI.aiInt > 2) {
 							if (!PosOkMonst(mnum, dmon->_mx, dmon->_my)) continue;
 							if (mon->_mAI.aiInt > 4) {
