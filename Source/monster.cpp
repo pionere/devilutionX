@@ -1500,10 +1500,10 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (!LineClearPos(mon->_mpos, plx(i)._ppos))
 				continue;
+			dist = GetDunDistance2(mon->_mpos, plx(i)._ppos);
 			x = (unsigned)plx(i)._ppos.x / DUN_WIDTH;
 			y = (unsigned)plx(i)._ppos.y / DUN_WIDTH;
 			sameroom = tv == dTransVal[x][y];
-			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
 					continue;
@@ -1527,9 +1527,9 @@ static void MonFindEnemy(int mnum)
 			//	continue;
 			if (!LineClearPos(mon->_mpos, tmon->_mpos))
 				continue;
+			dist = GetDunDistance2(mon->_mpos, tmon->_mpos);
 			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
 			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
-			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			sameroom = tv == dTransVal[x][y];
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
@@ -1559,11 +1559,11 @@ static void MonFindEnemy(int mnum)
 				continue;
 			if (!LineClearPos(mon->_mpos, tmon->_mpos))
 				continue;
+			dist = GetDunDistance2(mon->_mpos, tmon->_mpos);
 			x = (unsigned)tmon->_mpos.x / DUN_WIDTH;
 			y = (unsigned)tmon->_mpos.y / DUN_WIDTH;
 			// if (!(dFlags[x][y] & BFLAG_ALERT)) - stick to line of sight to prevent stuck golems in multiplayer games
 			//	continue;
-			dist = std::max(abs(mon->_mfutx - x), abs(mon->_mfuty - y));
 			sameroom = tv == dTransVal[x][y];
 			if (sameroom == bestsameroom) {
 				if (dist > best_dist)
