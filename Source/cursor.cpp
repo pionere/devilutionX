@@ -363,8 +363,11 @@ void CheckCursMove()
 	sy += gsMouseVp._vOffsetY;
 
 	//if (ScrollInfo._sdir != SDIR_NONE) {
-		sx -= ScrollInfo._sxoff;
-		sy -= ScrollInfo._syoff;
+	const POS32 vp = myview.dun;
+	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
+	const POS32 sp = DunScreenOffset(vp);
+		sx += sp.x;
+		sy += sp.y;
 
 	//	// Predict the next frame when walking to avoid input jitter
 	//	fx = myplr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
@@ -381,8 +384,8 @@ void CheckCursMove()
 	}
 
 	// Center player tile on screen
-	mx = myview.subtile.x + gsMouseVp._vShiftX;
-	my = myview.subtile.y + gsMouseVp._vShiftY;
+	mx = mp.x + gsMouseVp._vShiftX;
+	my = mp.y + gsMouseVp._vShiftY;
 
 	// ensure sx/y are positive
 	sx += TILE_WIDTH;
