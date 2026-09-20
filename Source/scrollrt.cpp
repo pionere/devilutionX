@@ -238,6 +238,25 @@ POS32 DungeonScreenOffset(int x, int y, int dx, int dy)
 	return gp;
 }
 
+POS32 DunScreenOffset(POS32 pos)
+{
+	pos.x &= (DUN_WIDTH - 1);
+	pos.y &= (DUN_WIDTH - 1);
+	pos.x -= DUN_WIDTH / 2;
+	pos.y -= DUN_WIDTH / 2;
+
+	int dx = pos.x;
+	int dy = pos.y;
+
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, dy, dx);
+
+	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
+	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
+
+	return gp;
+}
+
 /*
  * Return the screen position of the given grid-position (gx;gy).
  *
@@ -1902,7 +1921,7 @@ static void CreateScene()
 	int x, y, sx, sy;
 
 	const POS32 vp = myview.dun;
-	const POS32 dso = DungeonScreenOffset(vp.x / DUN_WIDTH, vp.y / DUN_WIDTH, vp.x, vp.y);
+	const POS32 dso = DunScreenOffset(vp);
 	POS32 sp = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
 	if (gbZoomInFlag) {
 		sp.x /= 2u;
