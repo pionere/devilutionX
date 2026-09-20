@@ -1982,7 +1982,7 @@ static void MonPlace(int mnum)
 	my = mon->_my;
 	// assert(mon->_mlid == NO_LIGHT || (LightList[mon->_mlid]._lx == mx && LightList[mon->_mlid]._ly == my));
 	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-	//	ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
+	//	ChangeLightXY(mon->_mlid, mon->_mpos);
 	if (mon->_mvid != NO_VISION)
 		ChangeVisionXY(mon->_mvid, mx, my);
 	// place monster in the new position
@@ -2417,7 +2417,7 @@ static bool MonDoWalk(int mnum)
 			mon->_mgy = gp.y;
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-			//	ChangeLightGrid(mon->_mlid, mon->_mgx, mon->mgy);
+			//	ChangeLightXY(mon->_mlid, mon->_mpos);
 		//}
 		rv = false;
 	}
@@ -2627,7 +2627,7 @@ static bool MonDoFadein(int mnum)
 	// assert(mon->_mlid == NO_LIGHT);
 	//if (mon->_mlid != NO_LIGHT) { // && !(mon->_mFlags & MFLAG_HIDDEN)) {
 	//	ChangeLightRadius(mon->_mlid, MON_LIGHTRAD);
-	//	ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
+	//	ChangeLightXY(mon->_mlid, mon->_mpos);
 	//}
 	StartStand(mnum);
 	return true;
@@ -4964,7 +4964,7 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
 			// assert(dPlayer[mon->_mx][mon->_my] == 0);
 			// assert(!(mon->_mFlags & MFLAG_HIDDEN));
-			//ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
+			//ChangeLightXY(mon->_mlid, mon->_mpos);
 			StartStand(mnum);
 		}
 	}

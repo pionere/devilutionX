@@ -665,7 +665,7 @@ static void AssertFixPlayerLocation(int pnum)
 static void PlrPlace(int pnum)
 {
 	FixPlayerLocation(pnum);
-	ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
+	ChangeLightXY(plr._plid, plr._ppos);
 	ChangeVisionXY(plr._pvid, plr._px, plr._py);
 }
 
@@ -1084,7 +1084,7 @@ static void PlrChangeOffset(int pnum)
 	UpdateScrollInfo(pnum);
 
 	//if (plr._plid != NO_LIGHT)
-		ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
+		ChangeLightXY(plr._plid, plr._ppos);
 }
 
 /**

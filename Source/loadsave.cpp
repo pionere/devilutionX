@@ -1449,7 +1449,7 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 {
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel) {
-			ChangeLightGrid(plr._plid, plr._pgx, plr._pgy);
+			ChangeLightXY(plr._plid, plr._ppos);
 		}
 	}
 }

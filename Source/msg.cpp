@@ -1072,7 +1072,7 @@ void DeltaLoadLevel()
 #if 0 // commented out because the implementation is incomplete (e.g. what about hidden monsters)
 				// SyncMonstersLight: inline for better performance + apply to moving monsters
 				if (mon->_mlid != NO_LIGHT)
-					ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
+					ChangeLightXY(mon->_mlid, mon->_mpos);
 #endif
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
@@ -1709,7 +1709,7 @@ void LevelDeltaLoad()
 		//	// if (mon->_mFlags & MFLAG_HIDDEN) {
 		//	//	ChangeLightRadius(mon->_mlid, 0);
 		//	// } else {
-		//		ChangeLightGrid(mon->_mlid, mon->_mgx, mon->_mgy);
+		//		ChangeLightXY(mon->_mlid, mon->_mpos);
 		//	// }
 		// }
 		SyncMonsterAnim(mnum);

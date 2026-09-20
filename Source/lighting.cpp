@@ -989,6 +989,45 @@ void ChangeLightGrid(unsigned lnum, int gx, int gy)
 	gbDolighting = true;
 }
 
+void ChangeLightXY(unsigned lnum, POS32 dp)
+{
+	LightListStruct* lis;
+	int dx, dy, dxoff, dyoff;
+
+	if (lnum >= MAXLIGHTS)
+		return;
+	// convert precise dungeon position to light-offset
+	dp.x -= DUN_WIDTH / 2;
+	dp.y -= DUN_WIDTH / 2;
+
+#if LIGHT_WIDTH >= DUN_WIDTH
+	dp.x *= LIGHT_WIDTH / DUN_WIDTH;
+	dp.y *= LIGHT_WIDTH / DUN_WIDTH;
+#else
+	dp.x /= DUN_WIDTH / LIGHT_WIDTH;
+	dp.y /= DUN_WIDTH / LIGHT_WIDTH;
+#endif
+
+	dx = dp.x >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
+	dy = dp.y >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
+	static_assert((1 << (LIGHT_SHIFT + BASE_LIGHT_SHIFT)) - 1 == 0xFFFF, "ChangeLight optimization must be adjusted.");
+	dxoff = (dp.x & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
+	dyoff = (dp.y & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
+
+	assert(MAX_LIGHT_RAD <= MAXDUNX - dx);
+	assert(MAX_LIGHT_RAD <= MAXDUNY - dy);
+	assert(MAX_LIGHT_RAD <= dx + 1);
+	assert(MAX_LIGHT_RAD <= dy + 1);
+
+	lis = &LightList[lnum];
+	lis->_lx = dx;
+	lis->_ly = dy;
+	lis->_lxoff = dxoff;
+	lis->_lyoff = dyoff;
+	lis->_lunflag = true;
+	gbDolighting = true;
+}
+
 void ProcessLightList()
 {
 	LightListStruct* lis;
