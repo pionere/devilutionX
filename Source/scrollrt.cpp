@@ -214,6 +214,31 @@ POS32 DunToGrid(POS32 pos)
 	return gp;
 }
 
+POS32 DunToScreen(POS32 pos)
+{
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, pos.y, pos.x);
+
+#if DUN_WIDTH <= TILE_WIDTH / 2
+	static_assert((TILE_WIDTH / 2) % DUN_WIDTH == 0, "dun to screen conversion must be adjusted I.");
+	gp.x *= (TILE_WIDTH / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_WIDTH / 2) == 0, "dun to screen conversion must be adjusted II.");
+	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
+#endif
+#if DUN_WIDTH <= TILE_HEIGHT / 2
+	static_assert((TILE_HEIGHT / 2) % DUN_WIDTH == 0, "dun to screen conversion must be adjusted III.");
+	gp.y *= (TILE_HEIGHT / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_HEIGHT / 2) == 0, "dun to screen conversion must be adjusted IV.");
+	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
+#endif
+
+	gp.y -= TILE_HEIGHT / 2;
+
+	return gp;
+}
+
 POS32 DungeonScreenOffset(int x, int y, int dx, int dy)
 {
 	POS32 dp = DungeonToDunPos(x, y);
@@ -503,8 +528,8 @@ static void scene_addMissile(int mi, int lightIdx, unsigned zorder, SceneEntry* 
 	scene[numEntries].scType = SCT_MISSILE;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = mis->_migx;
-	scene[numEntries].scPosy = mis->_migy;
+	scene[numEntries].scPosx = mis->_mipos.x;
+	scene[numEntries].scPosy = mis->_mipos.y;
 	scene[numEntries].scIdx = mi;
 
 	scene[numEntries].scZOrder = zorder;
@@ -583,8 +608,8 @@ static void scene_addMonster(int mnum, BYTE bFlag, int lightIdx, unsigned zorder
 	scene[numEntries].scType = SCT_MONSTER;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = mon->_mgx;
-	scene[numEntries].scPosy = mon->_mgy;
+	scene[numEntries].scPosx = mon->_mpos.x;
+	scene[numEntries].scPosy = mon->_mpos.y;
 	scene[numEntries].scIdx = mnum;
 
 	scene[numEntries].scZOrder = zorder;
@@ -659,8 +684,8 @@ static void scene_addDeadMonsterEntry(int mnum, BYTE bFlag, int lightIdx, unsign
 	scene[numEntries].scType = SCT_DEAD_MONSTER;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = lightIdx; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = mon->_mgx;
-	scene[numEntries].scPosy = mon->_mgy;
+	scene[numEntries].scPosx = mon->_mpos.x;
+	scene[numEntries].scPosy = mon->_mpos.y;
 	scene[numEntries].scIdx = mnum;
 
 	scene[numEntries].scZOrder = zorder;
@@ -689,8 +714,8 @@ static void scene_addTowner(int mnum, int lightIdx, unsigned zorder, SceneEntry*
 	scene[numEntries].scType = SCT_TOWNER;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = tw->_mgx;
-	scene[numEntries].scPosy = tw->_mgy;
+	scene[numEntries].scPosx = tw->_mpos.x;
+	scene[numEntries].scPosy = tw->_mpos.y;
 	scene[numEntries].scIdx = mnum;
 
 	scene[numEntries].scZOrder = zorder;
@@ -760,8 +785,8 @@ static void scene_addPlayer(int pnum, BYTE bFlag, int lightIdx, unsigned zorder,
 	scene[numEntries].scType = plr._pHitPoints != 0 ? SCT_PLAYER : SCT_DEAD_PLAYER;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = plr._pgx;
-	scene[numEntries].scPosy = plr._pgy;
+	scene[numEntries].scPosx = plr._ppos.x;
+	scene[numEntries].scPosy = plr._ppos.y;
 	scene[numEntries].scIdx = pnum;
 
 	scene[numEntries].scZOrder = zorder;
@@ -842,8 +867,8 @@ static void scene_addObject(int oi, int lightIdx, unsigned zorder, SceneEntry* e
 	scene[numEntries].scType = SCT_OBJECT;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = os->_ogx;
-	scene[numEntries].scPosy = os->_ogy;
+	scene[numEntries].scPosx = os->_opos.x;
+	scene[numEntries].scPosy = os->_opos.y;
 	scene[numEntries].scIdx = oi;
 
 	scene[numEntries].scZOrder = zorder;
@@ -1388,8 +1413,8 @@ static void scene_addItem(int ii, int lightIdx, unsigned zorder, SceneEntry* ent
 	scene[numEntries].scType = SCT_ITEM;
 	scene[numEntries].scLight = lightIdx;
 	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
-	scene[numEntries].scPosx = is->_igx;
-	scene[numEntries].scPosy = is->_igy;
+	scene[numEntries].scPosx = is->_ipos.x;
+	scene[numEntries].scPosy = is->_ipos.y;
 	scene[numEntries].scIdx = ii;
 
 	scene[numEntries].scZOrder = zorder;
@@ -1971,7 +1996,7 @@ static void CreateScene()
 		case SCT_DEAD_MONSTER:
 		case SCT_PLAYER:
 		case SCT_DEAD_PLAYER: {
-			POS32 sp = GridToScreen(entry->scPosx, entry->scPosy);
+			POS32 sp = DunToScreen({ entry->scPosx, entry->scPosy });
 
 			entry->scPosx = sp.x + shx + TILE_WIDTH / 2;
 			entry->scPosy = sp.y + shy;
