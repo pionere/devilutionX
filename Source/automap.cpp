@@ -349,7 +349,7 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 	x = sx;
 	y = sy;
 
-	POS32 sp = ScreenOffset(p->_px, p->_py, p->_pgx, p->_pgy);
+	POS32 sp = DunScreenOffset(p->_ppos);
 
 	x += sp.x * (int)AutoMapScale >> (MAP_SHIFT + 1);
 	y += sp.y * (int)AutoMapScale >> (MAP_SHIFT + 1);
@@ -538,7 +538,7 @@ static void DrawAutomapContent()
 					DrawAutomapTile(x, sy, maptype);
 				int pnum;
 				for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-					if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
+					if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx && (int)((unsigned)plr._ppos.x / DUN_WIDTH) == mapx && (int)((unsigned)plr._ppos.y / DUN_WIDTH) == mapy) {
 #if !INET_MODE
 						if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/ || plr._pHitPoints == 0)
 #endif
