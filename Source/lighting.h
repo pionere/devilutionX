@@ -39,10 +39,9 @@ void InitLighting();
 void ToggleLighting();
 #endif
 void InitLvlLighting();
-unsigned AddLight(int gx, int gy, int r);
+unsigned AddLight(POS32 pos, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
-void ChangeLightGrid(unsigned lnum, int gx, int gy);
 void ChangeLightXY(unsigned lnum, POS32 pos);
 void ProcessLightList();
 inline void SavePreLighting()

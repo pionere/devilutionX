@@ -902,7 +902,7 @@ void InitLvlLighting()
 	}
 }
 
-unsigned AddLight(int gx, int gy, int r)
+unsigned AddLight(POS32 pos, int r)
 {
 	LightListStruct* lis;
 	int lnum;
@@ -914,7 +914,7 @@ unsigned AddLight(int gx, int gy, int r)
 		lnum = lightactive[numlights++];
 		lis = &LightList[lnum];
 
-		ChangeLightGrid(lnum, gx, gy);
+		ChangeLightXY(lnum, pos);
 		lis->_lunx = lis->_lx;
 		lis->_luny = lis->_ly;
 		lis->_lunr = lis->_lradius = r;
@@ -947,46 +947,6 @@ void ChangeLightRadius(unsigned lnum, int r)
 		lis->_lunflag = true;
 		gbDolighting = true;
 	}
-}
-
-void ChangeLightGrid(unsigned lnum, int gx, int gy)
-{
-	LightListStruct* lis;
-	int dx, dy, dxoff, dyoff;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	POS32 dp;
-	POS32 gp = { gx, gy };
-	// convert grid-offset to tile-offset
-	dp.x = gp.x + gp.y;
-	dp.y = gp.y - gp.x;
-
-#if LIGHT_WIDTH >= GRID_WIDTH
-	dp.x *= LIGHT_WIDTH / GRID_WIDTH;
-	dp.y *= LIGHT_WIDTH / GRID_WIDTH;
-#else
-	dp.x /= GRID_WIDTH / LIGHT_WIDTH;
-	dp.y /= GRID_WIDTH / LIGHT_WIDTH;
-#endif
-	dx = dp.x >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
-	dy = dp.y >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
-	dxoff = (dp.x & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
-	dyoff = (dp.y & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
-
-	assert(MAX_LIGHT_RAD <= MAXDUNX - dx);
-	assert(MAX_LIGHT_RAD <= MAXDUNY - dy);
-	assert(MAX_LIGHT_RAD <= dx + 1);
-	assert(MAX_LIGHT_RAD <= dy + 1);
-
-	lis = &LightList[lnum];
-	lis->_lx = dx;
-	lis->_ly = dy;
-	lis->_lxoff = dxoff;
-	lis->_lyoff = dyoff;
-	lis->_lunflag = true;
-	gbDolighting = true;
 }
 
 void ChangeLightXY(unsigned lnum, POS32 dp)

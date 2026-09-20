@@ -939,7 +939,7 @@ static unsigned InitUniqueMonster(int mnum, int uniqindex)
 		mon->_mFlags |= MFLAG_NODROP;
 	static_assert(MAX_LIGHT_RAD >= MON_LIGHTRAD, "Light-radius of unique monsters are too high.");
 	if (flags & UMF_LIGHT) {
-		mon->_mlid = AddLight(mon->_mgx, mon->_mgy, MON_LIGHTRAD);
+		mon->_mlid = AddLight(mon->_mpos, MON_LIGHTRAD);
 	}
 
 	InitMonsterMis(mon->_mType, mon->_mAI);
@@ -2188,7 +2188,7 @@ static void MonDiabloDeath(int mnum)
 	mon->_mVar1 = 7 * gnTicksRate; // DIABLO_TICK
 	PlaySfxLoc(USFX_DIABLOD, mon->_mpos);
 	static_assert(MAX_LIGHT_RAD >= 8, "MonDiabloDeath needs at least light-radius of 8.");
-	AddLight(mon->_mgx, mon->_mgy, 8);
+	AddLight(mon->_mpos, 8);
 	DoVision(mon->_mx, mon->_my, 8, true);
 
 	// assert(currLvl._dLevelIdx == DLV_HELL4);
