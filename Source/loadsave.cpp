@@ -46,8 +46,6 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	is->_iy = savedItem->viy;
 	is->_ipos.x = savedItem->vidx;
 	is->_ipos.y = savedItem->vidy;
-	is->_igx = savedItem->vigx;
-	is->_igy = savedItem->vigy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
 	is->_iMagical = savedItem->viMagical;
 	is->_iSelFlag = savedItem->viSelFlag;
@@ -119,8 +117,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_poldy = savedPlr->vpoldy;
 	pr->_ppos.x = savedPlr->vpdx;
 	pr->_ppos.y = savedPlr->vpdy;
-	pr->_pgx = savedPlr->vpgx;
-	pr->_pgy = savedPlr->vpgy;
 	pr->_pdir = savedPlr->vpdir;
 	// savedPlr->vpAnimDataAlign = pr->_pAnimData;
 	// savedPlr->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
@@ -276,8 +272,6 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_moldy = savedMon->vmoldy;
 	mon->_mpos.x = savedMon->vmdx;
 	mon->_mpos.y = savedMon->vmdy;
-	mon->_mgx = savedMon->vmgx;
-	mon->_mgy = savedMon->vmgy;
 	mon->_mdir = savedMon->vmdir;
 	mon->_menemy = savedMon->vmenemy;
 	mon->_menemyx = savedMon->vmenemyx;
@@ -425,8 +419,6 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miyvel = savedMis->vmiyvel;
 	mis->_mitxoff = savedMis->vmitxoff;
 	mis->_mityoff = savedMis->vmityoff;
-	mis->_migx = savedMis->vmigx;
-	mis->_migy = savedMis->vmigy;
 	mis->_miDir = savedMis->vmiDir;
 	mis->_miSpllvl = savedMis->vmiSpllvl;
 	mis->_miSource = savedMis->vmiSource;
@@ -471,8 +463,6 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oy = savedObj->voy;
 	os->_opos.x = savedObj->vodx;
 	os->_opos.y = savedObj->vody;
-	os->_ogx = savedObj->vogx;
-	os->_ogy = savedObj->vogy;
 	os->_oSFX = savedObj->voSFX;
 
 	os->_oSFXCnt = savedObj->voSFXCnt;
@@ -724,8 +714,6 @@ void LoadGame()
 	_View.subtile.y = ghs->vhViewY;
 	_View.dun.x = ghs->vhViewDunX;
 	_View.dun.y = ghs->vhViewDunY;
-	_View.gx = ghs->vhViewGridX;
-	_View.gy = ghs->vhViewGridY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ScrollInfo._sxoff = ghs->vhScrollXOff;
@@ -843,8 +831,6 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	itemSave->viy = is->_iy;
 	itemSave->vidx = is->_ipos.x;
 	itemSave->vidy = is->_ipos.y;
-	itemSave->vigx = is->_igx;
-	itemSave->vigy = is->_igy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
 
 	itemSave->viMagical = is->_iMagical;
@@ -917,8 +903,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpoldy = pr->_poldy;
 	plrSave->vpdx = pr->_ppos.x;
 	plrSave->vpdy = pr->_ppos.y;
-	plrSave->vpgx = pr->_pgx;
-	plrSave->vpgy = pr->_pgy;
 	plrSave->vpdir = pr->_pdir;
 	// plrSave->vpAnimDataAlign = pr->_pAnimData;
 	// plrSave->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
@@ -1078,8 +1062,6 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmoldy = mon->_moldy;
 	monSave->vmdx = mon->_mpos.x;
 	monSave->vmdy = mon->_mpos.y;
-	monSave->vmgx = mon->_mgx;
-	monSave->vmgy = mon->_mgy;
 	monSave->vmdir = mon->_mdir;
 	monSave->vmenemy = mon->_menemy;
 	monSave->vmenemyx = mon->_menemyx;
@@ -1206,8 +1188,6 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiyvel = mis->_miyvel;
 	misSave->vmitxoff = mis->_mitxoff;
 	misSave->vmityoff = mis->_mityoff;
-	misSave->vmigx = mis->_migx;
-	misSave->vmigy = mis->_migy;
 	misSave->vmiDir = mis->_miDir;
 	misSave->vmiSpllvl = mis->_miSpllvl;
 	misSave->vmiSource = mis->_miSource;
@@ -1252,8 +1232,6 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voy = os->_oy;
 	objSave->vodx = os->_opos.x;
 	objSave->vody = os->_opos.y;
-	objSave->vogx = os->_ogx;
-	objSave->vogy = os->_ogy;
 	objSave->voSFX = os->_oSFX;
 
 	objSave->voSFXCnt = os->_oSFXCnt;
@@ -1517,8 +1495,6 @@ void SaveGame()
 	ghs->vhViewY = myview.subtile.y;
 	ghs->vhViewDunX = myview.dun.x;
 	ghs->vhViewDunY = myview.dun.y;
-	ghs->vhViewGridX = myview.gx;
-	ghs->vhViewGridY = myview.gy;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ghs->vhScrollXOff = ScrollInfo._sxoff;

@@ -313,8 +313,6 @@ void UpdateScrollInfo(int pnum)
 		myview.subtile.x = plr._px;
 		myview.subtile.y = plr._py;
 		myview.dun = plr._ppos;
-		myview.gx = plr._pgx;
-		myview.gy = plr._pgy;
 #if FOLLOW
 		POS32 sp = DunScreenOffset(myview.dun);
 		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff + sp.x, ScrollInfo._syoff + sp.y);

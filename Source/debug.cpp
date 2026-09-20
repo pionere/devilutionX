@@ -2116,8 +2116,6 @@ void ValidateData()
 			}
 		}
 #endif
-		if (md.mAddProc == AddCharge && md.mdPrSpeed != (int)(MIS_SHIFTEDVEL(16) / M_SQRT2))
-			app_fatal("Charge-Missile %d has invalid projectile-speed (%d, expected %d).", i, md.mdPrSpeed, (int)(MIS_SHIFTEDVEL(16) / M_SQRT2));
 #ifdef DEBUG_ASSETS
 		if (md.mAddProc == AddMisexp) {
 			for (int j = 0; j < n; j++) {

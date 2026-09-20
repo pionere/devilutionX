@@ -623,9 +623,6 @@ static void SetMissilePos(MissileStruct* mis, int x, int y)
 	mis->_mix = x;
 	mis->_miy = y;
 	mis->_mipos = DungeonToDunPos(x, y);
-	POS32 pg = DungeonToGridPos(x, y);
-	mis->_migx = pg.x;
-	mis->_migy = pg.y;
 }
 
 static void PlrSetMissilePos(int pnum, MissileStruct* mis)
@@ -635,8 +632,6 @@ static void PlrSetMissilePos(int pnum, MissileStruct* mis)
 	mis->_mix = plr._px;
 	mis->_miy = plr._py;
 	mis->_mipos = plr._ppos;
-	mis->_migx = plr._pgx;
-	mis->_migy = plr._pgy;
 }
 
 static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
@@ -646,8 +641,6 @@ static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
 	mis->_mix = mon->_mx;
 	mis->_miy = mon->_my;
 	mis->_mipos = mon->_mpos;
-	mis->_migx = mon->_mgx;
-	mis->_migy = mon->_mgy;
 }
 
 static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
@@ -655,8 +648,6 @@ static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 	plr._px = plr._poldx = plr._pfutx = mis->_mix;
 	plr._py = plr._poldy = plr._pfuty = mis->_miy;
 	plr._ppos = mis->_mipos;
-	plr._pgx = mis->_migx;
-	plr._pgy = mis->_migy;
 
 	ChangeLightXY(plr._plid, plr._ppos);
 	ChangeVisionXY(plr._pvid, plr._px, plr._py);
@@ -667,8 +658,6 @@ static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 	mon->_mx = mon->_moldx = mon->_mfutx = mis->_mix;
 	mon->_my = mon->_moldy = mon->_mfuty = mis->_miy;
 	mon->_mpos = mis->_mipos;
-	mon->_mgx = mis->_migx;
-	mon->_mgy = mis->_migy;
 
 	// assert(mon->_mvid == NO_VISION);
 	// assert(mon->_mlid == NO_LIGHT);
@@ -704,9 +693,6 @@ static void MoveMissile(int mi, int steps)
 	mis->_mipos = dp;
 	mis->_mix = (unsigned)dp.x / DUN_WIDTH;
 	mis->_miy = (unsigned)dp.y / DUN_WIDTH;
-	POS32 gp = DunToGrid(dp);
-	mis->_migx = gp.x;
-	mis->_migy = gp.y;
 
 	ChangeLightXY(mis->_miLid, mis->_mipos);
 }
@@ -2420,8 +2406,6 @@ int AddLightning(int mi, int dx, int dy, int midir, int micaster, int misource, 
 		// mis->_mizoff = missile[midir]._mizoff;
 		// mis->_mitxoff = missile[midir]._mitxoff;
 		// mis->_mityoff = missile[midir]._mityoff;
-		mis->_migx = missile[midir]._migx;
-		mis->_migy = missile[midir]._migy;
 	}
 	mis->_miLid = AddLight(mis->_mipos, 4);
 	range = 8 - 1;
@@ -3224,8 +3208,6 @@ int AddInferno(int mi, int dx, int dy, int midir, int micaster, int misource, in
 	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
 	// mis->_mityoff = bmis->_mityoff;
-	mis->_migx = bmis->_migx;
-	mis->_migy = bmis->_migy;
 	mis->_miVar2 = (missiledata[MIS_INFERNOC].mdRange - bmis->_miRange) * 4;
 	// assert(misource != -1);
 	if (micaster & MST_PLAYER) {
@@ -3599,9 +3581,6 @@ int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int miso
 	mis->_misx = sx;
 	mis->_misy = sy;
 	mis->_mipos = sp;
-	const POS32 gp = DunToGrid(sp);
-	mis->_migx = gp.x;
-	mis->_migy = gp.y;
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
 	mis->_miFlags = mds->mdFlags;
@@ -4497,7 +4476,6 @@ void MI_Meteor(int mi)
 				//static_assert(BORDER_TOP - (96 - 46) * ASSET_MPL >= MET_SHIFT_Y, "MI_Meteor expects a large enough (screen-)border.");
 				// mis->_mizoff += MET_SHIFT_UP + zoff;
 				mis->_mizoff = zoff;
-				mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
 				// TODO: adjust velocity based on spllvl?
 			} else {
 				// freeze the animation
@@ -4509,7 +4487,6 @@ void MI_Meteor(int mi)
 				mis->_mipos.x += (xoff / ASSET_MPL) << DUN_SHIFT;
 				mis->_mipos.y -= (xoff / ASSET_MPL) << DUN_SHIFT;
 				mis->_mizoff += zoff;
-				mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
 			}
 		}
 
@@ -4520,7 +4497,6 @@ void MI_Meteor(int mi)
 		mis->_mipos.x += (xoff / ASSET_MPL) << DUN_SHIFT;
 		mis->_mipos.y -= (xoff / ASSET_MPL) << DUN_SHIFT;
 		mis->_mizoff += zoff;
-		mis->_migx += (xoff / ASSET_MPL) << GRID_SHIFT;
 		if (mis->_mizoff < 0) { // TODO: use _miRange?
 			PutMissile(mi);
 			return;

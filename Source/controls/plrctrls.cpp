@@ -96,9 +96,6 @@ static void TargetPos(int x, int y)
 	pcurspos.subtile.x = x;
 	pcurspos.subtile.y = y;
 	pcurspos.dun = DungeonToDunPos(x, y);
-	POS32 gp = DungeonToGridPos(x, y);
-	pcurspos.gx = gp.x;
-	pcurspos.gy = gp.y;
 }
 
 static void FindItem()

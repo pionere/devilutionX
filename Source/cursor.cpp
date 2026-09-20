@@ -665,9 +665,6 @@ done:
 	}
 
 	pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
-	POS32 gp = DungeonToGridPos(pcurspos.subtile.x, pcurspos.subtile.y);
-	pcurspos.gx = gp.x;
-	pcurspos.gy = gp.y;
 }
 
 DEVILUTION_END_NAMESPACE

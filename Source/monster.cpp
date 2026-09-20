@@ -1638,9 +1638,6 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
 	mon->_mpos = DungeonToDunPos(x, y);
-	POS32 pg = DungeonToGridPos(x, y);
-	mon->_mgx = pg.x;
-	mon->_mgy = pg.y;
 }
 
 static void FixMonLocation(int mnum)
@@ -2412,9 +2409,6 @@ static bool MonDoWalk(int mnum)
 			int xoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
 			int yoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
 			mon->_mpos = DungeonScreenToDunPos(mon->_mx, mon->_my, xoff, yoff);
-			POS32 gp = DungeonScreenToGridPos(mon->_mx, mon->_my, xoff, yoff);
-			mon->_mgx = gp.x;
-			mon->_mgy = gp.y;
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			//	ChangeLightXY(mon->_mlid, mon->_mpos);

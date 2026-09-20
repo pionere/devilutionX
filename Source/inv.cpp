@@ -1324,7 +1324,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			idx = TEXT_IM_FANG;
 		}
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int nn, i, x, y, gx, gy;
+		int nn, i, x, y;
 		POS32 pos;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
@@ -1341,12 +1341,10 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			idx = is->_iSeed;
 			x = is->_ix; y = is->_iy;
 			pos = is->_ipos;
-			gx = is->_igx; gy = is->_igy;
 			SetItemSData(is, IDI_FULLNOTE);
 			is->_iSeed = idx;
 			is->_ix = x; is->_iy = y;
 			is->_ipos = pos;
-			is->_igx = gx; is->_igy = gy;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
 		}

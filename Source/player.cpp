@@ -634,9 +634,6 @@ void SetPlayerLoc(int pnum, int x, int y)
 	plr._px = plr._pfutx = plr._poldx = x;
 	plr._py = plr._pfuty = plr._poldy = y;
 	plr._ppos = DungeonToDunPos(x, y);
-	POS32 pg = DungeonToGridPos(x, y);
-	plr._pgx = pg.x;
-	plr._pgy = pg.y;
 }
 
 static void FixPlayerLocation(int pnum)
@@ -1077,9 +1074,6 @@ static void PlrChangeOffset(int pnum)
 	int xoff = (plr._pVar6 >> PLR_WALK_SHIFT) * ASSET_MPL;
 	int yoff = (plr._pVar7 >> PLR_WALK_SHIFT) * ASSET_MPL;
 	plr._ppos = DungeonScreenToDunPos(plr._px, plr._py, xoff, yoff);
-	POS32 gp = DungeonScreenToGridPos(plr._px, plr._py, xoff, yoff);
-	plr._pgx = gp.x;
-	plr._pgy = gp.y;
 
 	UpdateScrollInfo(pnum);
 
