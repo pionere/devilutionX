@@ -293,11 +293,23 @@ static void SearchAutomapItem()
 	int x1, y1, x2, y2, xoff, yoff;
 	int i, j;
 	unsigned d16 = MAP_TILE_WIDTH / 4;
+	const POS32 vp = myview.dun;
+	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
 
-	x = AutoMapXOfs + myview.subtile.x;
-	y = AutoMapYOfs + myview.subtile.y;
-	xoff = (ScrollInfo._sxoff * (int)AutoMapScale >> (MAP_SHIFT + 1)) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale >> (MAP_SHIFT + 1)) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
+	x = AutoMapXOfs + mp.x;
+	y = AutoMapYOfs + mp.y;
+	if (gbAutomapflag == AMM_NORMAL) {
+		xoff = SCREEN_CENTERX(0);
+		yoff = SCREEN_CENTERY(0);
+	} else {
+		xoff = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
+		yoff = SCREEN_Y + MAP_MINI_HEIGHT / 2;
+	}
+	xoff -= (x - y) * d16;
+	yoff -= (x + y) * (d16 >> 1) - (d16 >> 1);
+	const POS32 sp = DunScreenOffset(vp);
+	xoff -= (sp.x * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	yoff -= (sp.y * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {
@@ -445,11 +457,13 @@ static void DrawAutomapContent()
 	int sx, sy, mapx, mapy;
 	int i, j, cells;
 	unsigned d64 = MAP_TILE_WIDTH;
+	const POS32 vp = myview.dun;
+	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
 
 	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
-	mapx = myview.subtile.x & ~1;
+	mapx = mp.x & ~1;
 	mapx += AutoMapXOfs;
 	if (mapx < DBORDERX) {
 		AutoMapXOfs -= mapx - DBORDERX;
@@ -459,7 +473,7 @@ static void DrawAutomapContent()
 		mapx = DBORDERX + (DSIZEX - 2);
 	}
 
-	mapy = myview.subtile.y & ~1;
+	mapy = mp.y & ~1;
 	mapy += AutoMapYOfs;
 	if (mapy < DBORDERY) {
 		AutoMapYOfs -= mapy - DBORDERY;
@@ -510,17 +524,17 @@ static void DrawAutomapContent()
 		sx += (d64 >> 1);
 		sy -= (d64 >> 2);
 	}*/
-	if (myview.subtile.x & 1) {
+	if (mp.x & 1) {
 		sx -= (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
-	if (myview.subtile.y & 1) {
+	if (mp.y & 1) {
 		sx += (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
-
-	sx += (ScrollInfo._sxoff * (int)AutoMapScale) >> (MAP_SHIFT + 1);
-	sy += (ScrollInfo._syoff * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	const POS32 sp = DunScreenOffset(vp);
+	sx -= (sp.x * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	sy -= (sp.y * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	// select the bottom edge of the tile
 	sy += (d64 >> 2);
