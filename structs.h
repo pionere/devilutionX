@@ -2271,8 +2271,8 @@ static_warning((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellD
 //////////////////////////////////////////////////
 
 typedef struct ScrollStruct {
-	int _sxoff; // X-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pxoff
-	int _syoff; // Y-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pyoff
+	int _sxoff; // X-offset of camera position relative to myview.dun position. (unused)
+	int _syoff; // Y-offset of camera position relative to myview.dun position. (unused)
 	// int _sdx;
 	// int _sdy;
 	// int _sdir;

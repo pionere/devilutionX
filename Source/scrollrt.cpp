@@ -214,15 +214,6 @@ POS32 DunToGrid(POS32 pos)
 	return gp;
 }
 
-POS32 ScreenOffset(int x, int y, int gx, int gy)
-{
-	POS32 gp = DungeonToGridPos(x, y);
-	gx -= gp.x;
-	gy -= gp.y;
-
-	return GridToScreen(gx, gy);
-}
-
 POS32 DungeonScreenOffset(int x, int y, int dx, int dy)
 {
 	POS32 dp = DungeonToDunPos(x, y);
@@ -258,38 +249,7 @@ POS32 DunScreenOffset(POS32 pos)
 }
 
 /*
- * Return the screen position of the given grid-position (gx;gy).
- *
- * @param gx Precise grid (shifted dungeon) X-position
- * @param gy Precise grid (shifted dungeon) Y-position
- * @return the screen x/y-coordinates
- */
-POS32 GetMousePosGrid(int gx, int gy)
-{
-	POS32 pos;
-	POS32 dp = DungeonToGridPos(myview.subtile.x, myview.subtile.y);
-
-	gx -= dp.x;
-	gy -= dp.y;
-
-	pos = GridToScreen(gx, gy);
-
-	pos.x += ScrollInfo._sxoff;
-	pos.y += ScrollInfo._syoff;
-
-	if (gbZoomInFlag) {
-		pos.x <<= 1;
-		pos.y <<= 1;
-	}
-
-	pos.x += SCREEN_WIDTH / 2u;
-	pos.y += SCREEN_HEIGHT / 2u;
-
-	return pos;
-}
-
-/*
- * Return the screen position of the given dun-position.
+ * Return the screen position of the given precise dungeon position.
  *
  * @param pos Precise dungeon position
  * @return the screen x/y-coordinates
@@ -321,25 +281,24 @@ void UpdateScrollInfo(int pnum)
 {
 	if (pnum == mypnum) {
 #if FOLLOW
-		// TODO: follow with the cursor if a monster is selected? (does not work well with upscale)
-		int dx = plr._px - myview.subtile.x;
-		int dy = plr._py - myview.subtile.y;
+		// TODO: follow with the cursor if a monster is selected?
+		int dx = (unsigned)plr._ppos.x / DUN_WIDTH - (unsigned)myview.dun.x / DUN_WIDTH;
+		int dy = (unsigned)plr._ppos.y / DUN_WIDTH - (unsigned)myview.dun.y / DUN_WIDTH;
 #endif
 		myview.subtile.x = plr._px;
 		myview.subtile.y = plr._py;
 		myview.dun = plr._ppos;
 		myview.gx = plr._pgx;
 		myview.gy = plr._pgy;
-
-		POS32 sp = ScreenOffset(myview.subtile.x, myview.subtile.y, plr._pgx, plr._pgy);
 #if FOLLOW
+		POS32 sp = DunScreenOffset(myview.dun);
 		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff + sp.x, ScrollInfo._syoff + sp.y);
 		dp = GridToScreen(dp.x, dp.y);
 		if (gbActionBtnDown != 0 && (dp.x | dp.y) != 0 && MON_VALID(pcursmonst))
 			SetCursorPos(MousePos.x - dp.x, MousePos.y - dp.y);
-#endif
 		ScrollInfo._sxoff = -sp.x;
 		ScrollInfo._syoff = -sp.y;
+#endif
 #if DEBUG_MODE
 //		for (int i = 0; i < lengthof(dir2sdir); i++)
 //			assert(dir2sdir[i] == 1 + i);
