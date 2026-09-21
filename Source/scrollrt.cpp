@@ -239,6 +239,17 @@ POS32 DunToScreen(POS32 pos)
 	return gp;
 }
 
+POS32 DungeonToScreen(int x, int y)
+{
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, y, x);
+
+	gp.x *= (TILE_WIDTH / 2);
+	gp.y *= (TILE_HEIGHT / 2);
+
+	return gp;
+}
+
 POS32 DungeonScreenOffset(int x, int y, int dx, int dy)
 {
 	POS32 dp = DungeonToDunPos(x, y);
@@ -315,8 +326,9 @@ void UpdateScrollInfo(int pnum)
 		myview.dun = plr._ppos;
 #if FOLLOW
 		POS32 sp = DunScreenOffset(myview.dun);
-		POS32 dp = DungeonScreenToGridPos(dx, dy, ScrollInfo._sxoff + sp.x, ScrollInfo._syoff + sp.y);
-		dp = GridToScreen(dp.x, dp.y);
+		POS32 dp = DungeonToScreen(dx, dy);
+		dp.x += ScrollInfo._sxoff + sp.x;
+		dp.y += ScrollInfo._syoff + sp.y;
 		if (gbActionBtnDown != 0 && (dp.x | dp.y) != 0 && MON_VALID(pcursmonst))
 			SetCursorPos(MousePos.x - dp.x, MousePos.y - dp.y);
 		ScrollInfo._sxoff = -sp.x;
@@ -1972,10 +1984,8 @@ static void CreateScene()
 
 	scene_insertEntries(numCells);
 
-	// shift positions from grid to screen
-	POS32 dp = DungeonToGridPos(x, y);
-
-	dp = GridToScreen(dp.x, dp.y);
+	// shift positions from dungeon to screen
+	const POS32 dp = DungeonToScreen(x, y);
 
 	int shx = (sx - dp.x);
 	int shy = (sy - dp.y);
