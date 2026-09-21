@@ -3604,7 +3604,7 @@ int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int miso
 		}
 		if (sp.x == dp.x && sp.y == dp.y) {
 			dp.x += XDirAdd[midir];
-			dp.y += XDirAdd[midir];
+			dp.y += YDirAdd[midir];
 		}
 		GetMissileVel(mis, dp, mds->mdPrSpeed);
 	}
