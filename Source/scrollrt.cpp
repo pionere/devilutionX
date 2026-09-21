@@ -2190,10 +2190,9 @@ void CalcViewportGeometry()
 static void CreateScene()
 {
 	int x, y, sx, sy;
-
 	const POS32 vp = myview.dun;
 	const POS32 dso = DunScreenOffset(vp);
-	POS32 sp = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+	POS32 sp = { (int)(SCREEN_WIDTH / 2u), (int)(SCREEN_HEIGHT / 2u) };
 	if (gbZoomInFlag) {
 		sp.x /= 2u;
 		sp.y /= 2u;
