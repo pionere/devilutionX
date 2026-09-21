@@ -285,6 +285,33 @@ POS32 DunScreenOffset(POS32 pos)
 	return gp;
 }
 
+POS32 ScreenToDun(POS32 pos)
+{
+	POS32 gp = pos;
+	// gp.y += TILE_HEIGHT / 2;
+
+#if DUN_WIDTH <= TILE_WIDTH / 2
+	static_assert((TILE_WIDTH / 2) % DUN_WIDTH == 0, "screen to dun conversion must be adjusted I.");
+	gp.x /= (TILE_WIDTH / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_WIDTH / 2) == 0, "screen to dun conversion must be adjusted II.");
+	gp.x *= DUN_WIDTH / (TILE_WIDTH / 2);
+#endif
+
+#if DUN_WIDTH <= TILE_HEIGHT / 2
+	static_assert((TILE_HEIGHT / 2) % DUN_WIDTH == 0, "screen to dun conversion must be adjusted III.");
+	gp.y /= (TILE_HEIGHT / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_HEIGHT / 2) == 0, "screen to dun conversion must be adjusted IV.");
+	gp.y *= DUN_WIDTH / (TILE_HEIGHT / 2);
+#endif
+	POS32 dp;
+	dp.x = (gp.x + gp.y) / 2;
+	dp.y = (gp.y - gp.x) / 2;
+
+	return dp;
+}
+
 /*
  * Return the screen position of the given precise dungeon position.
  *
@@ -543,6 +570,7 @@ void SceneCursor()
 		if (TRIG_VALID(pcurstrig)) {
 			pcurspos.subtile.x = trigs[pcurstrig]._tx;
 			pcurspos.subtile.y = trigs[pcurstrig]._ty;
+			pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
 		} else {
 			// CheckTownPortal();
 			mi = curport.v0;
@@ -551,7 +579,6 @@ void SceneCursor()
 				pcurspos.dun = missile[mi]._mipos;
 				pcurspos.subtile.x = missile[mi]._mix;
 				pcurspos.subtile.y = missile[mi]._miy;
-				goto done;
 			}			
 		}
 		break;
@@ -564,7 +591,6 @@ tgtitem:
 			pcurspos.dun = items[mi]._ipos;
 			pcurspos.subtile.x = items[mi]._ix;
 			pcurspos.subtile.y = items[mi]._iy;
-			goto done;
 		}
 		break;
 	case TGT_OBJECT:
@@ -576,7 +602,6 @@ tgtobj:
 			pcurspos.dun = curobjpos;
 			pcurspos.subtile.x = (unsigned)curobjpos.x / DUN_WIDTH;
 			pcurspos.subtile.y = (unsigned)curobjpos.y / DUN_WIDTH;
-			goto done;
 		}
 		break;
 	case TGT_OTHER:
@@ -593,7 +618,6 @@ tgtmon:
 			pcurspos.dun = monsters[mi]._mpos;
 			pcurspos.subtile.x = monsters[mi]._mx;
 			pcurspos.subtile.y = monsters[mi]._my;
-			goto done;
 		}
 		break;
 	case TGT_DEAD:
@@ -605,7 +629,6 @@ tgtplr:
 			pcurspos.dun = players[mi]._ppos;
 			pcurspos.subtile.x = players[mi]._px;
 			pcurspos.subtile.y = players[mi]._py;
-			goto done;
 		}
 		break;
 	case TGT_NONE:
@@ -613,10 +636,6 @@ tgtplr:
 	default:
 		ASSUME_UNREACHABLE
 	}
-
-	pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
-done:
-	;
 }
 
 /**

@@ -289,7 +289,7 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int i, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py;
+	int i, sx, sy;
 
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
@@ -358,69 +358,36 @@ void CheckCursMove()
 		return;
 	}
 
-	sx += gsMouseVp._vOffsetX;
-	sy += gsMouseVp._vOffsetY;
-
-	//if (ScrollInfo._sdir != SDIR_NONE) {
-	const POS32 vp = myview.dun;
-	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
-	const POS32 sp = DunScreenOffset(vp);
-		sx += sp.x;
-		sy += sp.y;
-
-	//	// Predict the next frame when walking to avoid input jitter
-	//	fx = myplr._pVar6 >> PLR_WALK_SHIFT; // WALK_XOFF
-	//	fx -= (myplr._pVar6 + myplr._pVar4) >> PLR_WALK_SHIFT; // WALK_XOFF + WALK_XVEL
-	//	fy = myplr._pVar7 >> PLR_WALK_SHIFT; // WALK_YOFF
-	//	fy -= (myplr._pVar7 + myplr._pVar5) >> PLR_WALK_SHIFT; // WALK_YOFF + WALK_YVEL
-	//	sx -= fx;
-	//	sy -= fy;
-	//}
+	// Center player tile on screen
+	POS32 mp = MousePos;
+	mp.x -= SCREEN_WIDTH / 2u;
+	mp.y -= SCREEN_HEIGHT / 2u;
 
 	if (gbZoomInFlag) {
-		sx >>= 1;
-		sy >>= 1;
+		mp.x /= 2u;
+		mp.y /= 2u;
+
+		mp.y -= TILE_HEIGHT / 4;
 	}
+	mp.y -= 1;
 
-	// Center player tile on screen
-	mx = mp.x + gsMouseVp._vShiftX;
-	my = mp.y + gsMouseVp._vShiftY;
-
-	// ensure sx/y are positive
-	sx += TILE_WIDTH;
-	// assert(sx >= 0);
-	sy += TILE_HEIGHT;
-	// assert(sy >= 0);
-
-	tx = ((unsigned)sx) / TILE_WIDTH;
-	ty = ((unsigned)sy) / TILE_HEIGHT;
-	tx--; // revert added value
-	ty--;
-	SHIFT_GRID(mx, my, tx, ty);
-
-	// Shift position to match diamond grid aligment
-	px = ((unsigned)sx) % TILE_WIDTH;
-	py = ((unsigned)sy) % TILE_HEIGHT;
-
-	if (py < (px >> 1)) {
-		my--;
-	}
-	if (py >= TILE_HEIGHT - (px >> 1)) {
-		mx++;
-	}
-
+	POS32 dp = ScreenToDun(mp);
+	const POS32 vp = myview.dun;
+	dp.x += vp.x;
+	dp.y += vp.y;
 	// limit the position to the 'live' dungeon
-	if (mx < DBORDERX)
-		mx = DBORDERX;
-	else if (mx > MAXDUNX - 1 - DBORDERX)
-		mx = MAXDUNX - 1 - DBORDERX;
-	if (my < DBORDERY)
-		my = DBORDERY;
-	else if (my > MAXDUNY - 1 - DBORDERY)
-		my = MAXDUNY - 1 - DBORDERY;
+	if (dp.x < DBORDERX * DUN_WIDTH)
+		dp.x = DBORDERX * DUN_WIDTH;
+	else if (dp.x >= (MAXDUNX - DBORDERX) * DUN_WIDTH)
+		dp.x = (MAXDUNX - DBORDERX) * DUN_WIDTH - 1;
+	if (dp.y < DBORDERY * DUN_WIDTH)
+		dp.y = DBORDERY * DUN_WIDTH;
+	else if (dp.y >= (MAXDUNY - DBORDERY) * DUN_WIDTH)
+		dp.y = (MAXDUNY - DBORDERY) * DUN_WIDTH - 1;
 
-	pcurspos.subtile.x = mx;
-	pcurspos.subtile.y = my;
+	pcurspos.subtile.x = (unsigned)dp.x / DUN_WIDTH;
+	pcurspos.subtile.y = (unsigned)dp.y / DUN_WIDTH;
+	pcurspos.dun = dp;
 
 	SceneCursor();
 }

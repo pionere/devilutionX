@@ -48,6 +48,7 @@ POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff);
 POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
 POS32 DunToGrid(POS32 pos);
 POS32 DunScreenOffset(POS32 pos);
+POS32 ScreenToDun(POS32 pos);
 /*
  * Return the screen position of the given precise dungeon position.
  *
