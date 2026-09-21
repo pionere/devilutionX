@@ -3246,7 +3246,7 @@ void MAI_Bat(int mnum)
 		mon->_mgoalvar1 = 0; // RETREAT_FINISHED
 		if (mon->_mType == MT_XBAT) {
 			const POS32 ep = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
-			AddMissile(ep, { 0, 0 }, -1, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
+			AddMissile(ep, { 0, 0 }, 0, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
 		}
 	}
 }

@@ -2399,14 +2399,6 @@ int AddLightning(int mi, int dx, int dy, int midir, int micaster, int misource, 
 
 	mis = &missile[mi];
 	static_assert(MAX_LIGHT_RAD >= 4, "AddLightning needs at least light-radius of 4.");
-	if (midir >= 0) {
-		// mis->_mix = missile[midir]._mix;
-		// mis->_miy = missile[midir]._miy;
-		mis->_mipos = missile[midir]._mipos;
-		// mis->_mizoff = missile[midir]._mizoff;
-		// mis->_mitxoff = missile[midir]._mitxoff;
-		// mis->_mityoff = missile[midir]._mityoff;
-	}
 	mis->_miLid = AddLight(mis->_mipos, 4);
 	range = 8 - 1;
 	if (micaster & MST_PLAYER) {
@@ -3204,7 +3196,7 @@ int AddInferno(int mi, int dx, int dy, int midir, int micaster, int misource, in
 	mis->_misy = bmis->_misy;
 	// mis->_mix = bmis->_mix;
 	// mis->_miy = bmis->_miy;
-	mis->_mipos = bmis->_mipos;
+	// mis->_mipos = bmis->_mipos;
 	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
 	// mis->_mityoff = bmis->_mityoff;
@@ -4208,7 +4200,7 @@ void MI_LightningC(int mi)
 			AddMissile(
 			    mis->_mipos,
 				{ 0, 0 },
-			    mi,
+			    0,
 			    mis->_miType == MIS_LIGHTNINGC ? MIS_LIGHTNING : MIS_LIGHTNING2,
 			    mis->_miCaster,
 			    mis->_miSource,
