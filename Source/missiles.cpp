@@ -3578,8 +3578,8 @@ int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int miso
 	mis->_miSpllvl = spllvl;
 	sx = (unsigned)sp.x / DUN_WIDTH;
 	sy = (unsigned)sp.y / DUN_WIDTH;
-	mis->_misx = sx;
-	mis->_misy = sy;
+	mis->_misx = mis->_mix = sx;
+	mis->_misy = mis->_miy = sy;
 	mis->_mipos = sp;
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
