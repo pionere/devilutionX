@@ -5334,7 +5334,6 @@ void PreSpawnMinion(int mnum, int type, int level)
 	mon->_mMLevel = level;
 	mon->_mmode = MM_RESERVED;
 	mon->_mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
-	mon->_mSelFlag = 0;
 	mon->_mAI = currLvl._dLevelIdx != DLV_TOWN ? mmData.mAI : follow;
 	mon->_mAI.aiInt = monData.mAI.aiInt + lvlBonus / 16;
 	mon->_mHit = monData.mHit + lvlBonus * 5 / 2;

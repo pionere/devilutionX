@@ -289,8 +289,7 @@ void CheckTownPortal()
 
 void CheckCursMove()
 {
-	int i, pnum, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py, mi;
-	bool flipflag, flipx, flipy;
+	int i, sx, sy, /*fx, fy,*/ mx, my, tx, ty, px, py;
 
 	pcursmonst = MON_NONE;
 	pcursobj = OBJ_NONE;
@@ -403,16 +402,12 @@ void CheckCursMove()
 	px = ((unsigned)sx) % TILE_WIDTH;
 	py = ((unsigned)sy) % TILE_HEIGHT;
 
-	flipy = py < (px >> 1);
-	if (flipy) {
+	if (py < (px >> 1)) {
 		my--;
 	}
-	flipx = py >= TILE_HEIGHT - (px >> 1);
-	if (flipx) {
+	if (py >= TILE_HEIGHT - (px >> 1)) {
 		mx++;
 	}
-
-	flipflag = (flipy && flipx) || ((flipy || flipx) && px < TILE_WIDTH / 2);
 
 	// limit the position to the 'live' dungeon
 	if (mx < DBORDERX)
@@ -427,244 +422,7 @@ void CheckCursMove()
 	pcurspos.subtile.x = mx;
 	pcurspos.subtile.y = my;
 
-	int curmon[5] = { 0 };
-	int curobj[5] = { 0 };
-	int curitem[3] = { 0 };
-	int curplr[3] = { 0 };
-	int deadplr[1] = { 0 };
-	const int selFlag[5] = { 4, 4, 2, 1, 2 };
-	int offx[5] = { 2, 2, 1, 0, 1 };
-	int offy[5] = { 1, 2, 0, 0, 1 };
-	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "Borders are too small to skip the OOB checks.");
-	if (dFlags[mx][my] & BFLAG_VISIBLE) {
-		curmon[3] = dMonster[mx][my];
-		curobj[3] = dObject[mx][my];
-		curplr[1] = dPlayer[mx][my];
-		curitem[1] = dItem[mx][my];
-		if (dFlags[mx][my] & BFLAG_DEAD_PLAYER) {
-			for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-				if (/*pnum != mypnum && */plr._pmode == PM_DEATH/* && !plr._pLvlChanging*/ && plr._px == mx && plr._py == my && plr._pActive && plr._pDunLevel == currLvl._dLevelIdx) {
-					deadplr[0] = pnum + 1;
-				}
-			}
-		}
-	}
-	if (dFlags[mx + 1][my + 1] & BFLAG_VISIBLE) {
-		curmon[4] = dMonster[mx + 1][my + 1];
-		curobj[4] = dObject[mx + 1][my + 1];
-		curplr[2] = dPlayer[mx + 1][my + 1];
-		curitem[2] = dItem[mx + 1][my + 1];
-	}
-	if (dFlags[mx + 2][my + 2] & BFLAG_VISIBLE) {
-		curmon[1] = dMonster[mx + 2][my + 2];
-		curobj[1] = dObject[mx + 2][my + 2];
-	}
-	if (flipflag) {
-		if (dFlags[mx + 0][my + 1] & BFLAG_VISIBLE) {
-			curmon[2] = dMonster[mx + 0][my + 1];
-			curobj[2] = dObject[mx + 0][my + 1];
-			curplr[0] = dPlayer[mx + 0][my + 1];
-			curitem[0] = dItem[mx + 0][my + 1];
-		}
-		if (dFlags[mx + 1][my + 2] & BFLAG_VISIBLE) {
-			curmon[0] = dMonster[mx + 1][my + 2];
-			curobj[0] = dObject[mx + 1][my + 2];
-		}
-	} else {
-		if (dFlags[mx + 1][my + 0] & BFLAG_VISIBLE) {
-			curmon[2] = dMonster[mx + 1][my + 0];
-			curobj[2] = dObject[mx + 1][my + 0];
-			curplr[0] = dPlayer[mx + 1][my + 0];
-			curitem[0] = dItem[mx + 1][my + 0];
-		}
-		if (dFlags[mx + 2][my + 1] & BFLAG_VISIBLE) {
-			curmon[0] = dMonster[mx + 2][my + 1];
-			curobj[0] = dObject[mx + 2][my + 1];
-		}
-	}
-	offx[0] = flipflag ? 1 : 2; offy[0] = flipflag ? 2 : 1;
-	offx[2] = flipflag ? 0 : 1; offy[2] = flipflag ? 1 : 0;
-
-	switch (pcurstgt) {
-	case TGT_NORMAL:
-		// select the previous monster/npc
-		if (MON_VALID(pcursmonst)) {
-			for (i = 4; i >= 0; i--) {
-				mi = curmon[i];
-				if (mi != 0) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi != pcursmonst) {
-						continue;
-					}
-					// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
-					if (!(monsters[mi]._mSelFlag & selFlag[i])) {
-						continue;
-					}
-					pcursmonst = mi;
-					pcurspos.subtile.x = mx + offx[i];
-					pcurspos.subtile.y = my + offy[i];
-					goto done;
-				}
-			}
-		}
-		// select a monster/npc
-		for (i = 4; i >= 0; i--) {
-			mi = curmon[i];
-			if (mi != 0) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN)) {
-					continue;
-				}
-				// assert(mi >= MAX_MINIONS || monsterdata[monsters[mi].mType].mSelFlag == 0);
-				if (!(monsters[mi]._mSelFlag & selFlag[i])) {
-					continue;
-				}
-				pcursmonst = mi;
-				pcurspos.subtile.x = mx + offx[i];
-				pcurspos.subtile.y = my + offy[i];
-				goto done;
-			}
-		}
-		// select a live player
-		for (i = 2; i >= 0; i--) {
-			mi = curplr[i];
-			if (mi != 0) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
-					continue;
-				}
-				pcursplr = mi;
-				pcurspos.subtile.x = mx + offx[i + 2];
-				pcurspos.subtile.y = my + offy[i + 2];
-				goto done;
-			}
-		}
-		// select a dead player
-		if (deadplr[0] != 0) {
-			pcursplr = deadplr[0];
-			// pcurspos.subtile.x = mx;
-			// pcurspos.subtile.y = my;
-			goto done;
-		}
-		// select an object
-		for (i = 4; i >= 0; i--) {
-			mi = curobj[i];
-			if (mi != 0) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (!(objects[mi]._oSelFlag & selFlag[i])) {
-					continue;
-				}
-				pcursobj = mi;
-				pcurspos.subtile.x = mx + offx[i];
-				pcurspos.subtile.y = my + offy[i];
-				goto done;
-			}
-		}
-		// select an item
-		for (i = 2; i >= 0; i--) {
-			mi = curitem[i];
-			if (mi > 0) {
-				mi = mi - 1;
-				if (!(items[mi]._iSelFlag & selFlag[i + 2])) {
-					continue;
-				}
-				pcursitem = mi;
-				pcurspos.subtile.x = mx + offx[i + 2];
-				pcurspos.subtile.y = my + offy[i + 2];
-				goto done;
-			}
-		}
-
-		// pcurspos.subtile.x = mx;
-		// pcurspos.subtile.y = my;
-		pcurstrig = CheckTrigForce();
-		if (TRIG_VALID(pcurstrig)) {
-			pcurspos.subtile.x = trigs[pcurstrig]._tx;
-			pcurspos.subtile.y = trigs[pcurstrig]._ty;
-		} else {
-			CheckTownPortal();
-		}
-done:
-		break;
-	case TGT_ITEM:
-		// select an item
-		for (i = 2; i >= 0; i--) {
-			mi = curitem[i];
-			if (mi > 0) {
-				mi = mi - 1;
-				if (!(items[mi]._iSelFlag & selFlag[i + 2])) {
-					continue;
-				}
-				pcursitem = mi;
-				pcurspos.subtile.x = mx + offx[i + 2];
-				pcurspos.subtile.y = my + offy[i + 2];
-				break;
-			}
-		}
-		break;
-	case TGT_OBJECT:
-		// select an object
-		for (i = 4; i >= 0; i--) {
-			mi = curobj[i];
-			if (mi != 0) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (!(objects[mi]._oSelFlag & selFlag[i])) {
-					continue;
-				}
-				pcursobj = mi;
-				pcurspos.subtile.x = mx + offx[i];
-				pcurspos.subtile.y = my + offy[i];
-				break;
-			}
-		}
-		break;
-	case TGT_OTHER:
-		// select a live player
-		for (i = 2; i >= 0; i--) {
-			mi = curplr[i];
-			if (mi != 0) {
-				mi = mi >= 0 ? mi - 1 : -(mi + 1);
-				if (mi == mypnum || plx(mi)._pHitPoints == 0) {
-					continue;
-				}
-				pcursplr = mi;
-				pcurspos.subtile.x = mx + offx[i + 2];
-				pcurspos.subtile.y = my + offy[i + 2];
-				break;
-			}
-		}
-		if (i < 0) {
-			// select a live minion
-			for (i = 4; i >= 0; i--) {
-				mi = curmon[i];
-				if (mi != 0) {
-					mi = mi >= 0 ? mi - 1 : -(mi + 1);
-					if (mi >= MAX_MINIONS || monsters[mi]._mhitpoints == 0) {
-						continue;
-					}
-					pcursmonst = mi;
-					pcurspos.subtile.x = mx + offx[i];
-					pcurspos.subtile.y = my + offy[i];
-					break;
-				}
-			}
-		}
-		break;
-	case TGT_DEAD:
-		// select a dead player
-		if (deadplr[0] != 0) {
-			pcursplr = deadplr[0] - 1;
-			// pcurspos.subtile.x = mx;
-			// pcurspos.subtile.y = my;
-		}
-		break;
-	case TGT_NONE:
-		break;
-	default:
-		ASSUME_UNREACHABLE
-	}
-
-	pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
+	SceneCursor();
 }
 
 DEVILUTION_END_NAMESPACE

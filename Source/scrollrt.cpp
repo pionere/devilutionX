@@ -19,6 +19,7 @@ ScrollStruct ScrollInfo;
 
 /* Specifies the number of entries in the scene array. */
 static unsigned numEntries;
+static unsigned numDungeonEntries;
 /* Array to contain the entities to be drawn. */
 static SceneEntry scene[(16 + 1) * (16 * 2 + 2 + 2) * 3 + MAXITEMS + MAXOBJECTS + MAXMISSILES + MAXMONSTERS + MAX_PLRS];
 
@@ -340,6 +341,282 @@ void UpdateScrollInfo(int pnum)
 #endif
 //		ScrollInfo._sdir = (ScrollInfo._sxoff == 0 && ScrollInfo._syoff == 0) ? SDIR_NONE : (1 + /*OPPOSITE(*/plr._pdir/*)*/); // == dir2sdir[dir];
 	}
+}
+
+void InitScene()
+{
+	numEntries = 0;
+	// numDungeonEntries = 0;
+}
+
+void SceneCursor()
+{
+	INTPAIR curmon = { MON_NONE, 0 };
+	INTPAIR curmin = { MON_NONE, 0 };
+	INTPAIR curobj = { OBJ_NONE, 0 };
+	INTPAIR curitem = { ITEM_NONE, 0 };
+	INTPAIR curplr = { PLR_NONE, 0 };
+	INTPAIR deadplr = { PLR_NONE, 0 };
+	INTPAIR curport = { TRIG_NONE, 0 };
+	POS32 curobjpos;
+	int mi;
+
+	for (unsigned i = numDungeonEntries; i < numEntries; i++) {
+		const SceneEntry* entry = &scene[i];
+		mi = entry->scIdx;
+		int selFlag;
+		POS32 pos;
+		INTPAIR* dst;
+
+		int dx, dy, dist;
+		dx = MousePos.x - (entry->scPosx - SCREEN_X);
+		dy = -(MousePos.y - (entry->scPosy - SCREEN_Y));
+		switch (entry->scType) {
+		// case SCT_FLOOR:
+		// case SCT_CELL:         continue;
+		case SCT_ITEM:
+			selFlag = items[mi]._iSelFlag;
+			pos = items[mi]._ipos;
+			dst = &curitem;
+			break;
+		case SCT_OBJECT:
+			selFlag = objects[mi]._oSelFlag;
+			if (selFlag == 0) continue;
+			if ((objects[mi]._oAnimFrame == 0 || !CelClippedPixelAt(dx, dy, objects[mi]._oAnimWidth, objects[mi]._oAnimData, objects[mi]._oAnimFrame)) &&
+				(objects[mi]._oGfxFrame == 0 || !CelClippedPixelAt(dx, dy, objects[mi]._oAnimWidth, objects[mi]._oAnimData, objects[mi]._oGfxFrame))) {
+				continue;
+			}
+			pos = objects[mi]._opos;
+			if (objects[mi]._oSolidFlag & 2) {
+				// extra tile at [0,-1]
+				if (selFlag & 2) {
+					if (dx >= TILE_WIDTH / 2)
+						pos.y -= DUN_WIDTH;
+				} else {
+					if (dy >= TILE_HEIGHT - dx)
+						pos.y -= DUN_WIDTH;
+				}
+			}
+			if (objects[mi]._oSolidFlag & 4) {
+				// extra tile at [-1,0]
+				// if (!(selFlag & 2))
+				{
+					if (dy >= dx + TILE_HEIGHT)
+						pos.x -= DUN_WIDTH;
+				}
+			}
+			//if (objects[mi]._oSolidFlag & 8) {
+			//	// extra tile at [-1,-1]
+			//	if (!(selFlag & 2))
+			//	{
+			//		if (dy >= dx + TILE_HEIGHT && dy >= TILE_HEIGHT - dx)
+			//			if (!(objects[mi]._oSolidFlag & 4))
+			//				pos.x -= DUN_WIDTH;
+			//			if (!(objects[mi]._oSolidFlag & 2))
+			//				pos.y -= DUN_WIDTH;
+			//	}
+			//}
+			selFlag = 8;
+			dst = &curobj;
+			break;
+		case SCT_MISSILE:
+			if (missile[mi]._miType != MIS_TOWN && missile[mi]._miType != MIS_RPORTAL)
+				continue;
+			if (!Cl2PixelAt(dx, dy, missile[mi]._miAnimWidth, missile[mi]._miAnimData, missile[mi]._miAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+			pos = missile[mi]._mipos;
+			dst = &curport;
+			break;
+		case SCT_TOWNER:
+			if (!CelClippedPixelAt(dx, dy, monsters[mi]._mAnimWidth, monsters[mi]._mAnimData, monsters[mi]._mAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+			pos = monsters[mi]._mpos;
+			dst = &curmon;
+			break;
+		case SCT_MONSTER:
+			if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN))
+				continue;
+#if 0
+			// if (monsters[mi]._mSelFlag == 0) continue;
+			if (!Cl2PixelAt(dx, dy, monsters[mi]._mAnimWidth, monsters[mi]._mAnimData, monsters[mi]._mAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+#else
+			selFlag = monsters[mi]._mSelFlag;
+#endif
+			pos = monsters[mi]._mpos;
+			dst = mi >= MAX_MINIONS ? &curmon : &curmin;
+			break;
+		case SCT_DEAD_MONSTER: continue;
+		case SCT_PLAYER:
+			if (mi == mypnum || plx(mi)._pHitPoints == 0)
+				continue;
+			if (!Cl2PixelAt(dx, dy, players[mi]._pAnimWidth, players[mi]._pAnimData, players[mi]._pAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+			pos = players[mi]._ppos;
+			dst = &curplr;
+			break;
+		case SCT_DEAD_PLAYER:
+			selFlag = 1;
+			pos = players[mi]._ppos;
+			dst = &deadplr;
+			break;
+		// case SCT_SPECIAL:   continue;
+		// case SCT_DUMMY:     continue;
+		default: ASSUME_UNREACHABLE
+		}
+
+		if (!(dFlags[(unsigned)pos.x / DUN_WIDTH][(unsigned)pos.y / DUN_WIDTH] & BFLAG_VISIBLE)) continue;
+
+		switch (selFlag) {
+		case 0: continue;
+		case 1: // width: TILE_WIDTH, height: TILE_HEIGHT
+			dy -= TILE_HEIGHT / 2;
+			dist = dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 3: // width: TILE_WIDTH, height: 2.12 * TILE_HEIGHT
+			// dy -= 3 * TILE_HEIGHT / 4;
+			dy -= TILE_HEIGHT;
+			dist = 8 * dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 8 * 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, 4 * TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 6: // width: TILE_WIDTH, height: 2.12 * TILE_HEIGHT
+			dy -= TILE_HEIGHT + TILE_HEIGHT / 2;
+			dist = 8 * dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 8 * 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, 4 * TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 7: // width: TILE_WIDTH, height: 2.6 * TILE_HEIGHT
+			dy -= TILE_HEIGHT + TILE_HEIGHT / 2;
+			dist = 12 * dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 12 * 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, 6 * TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 8:
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+
+		if ((unsigned)dst->v1 > entry->scZOrder) continue;
+
+		dst->v0 = mi;
+		dst->v1 = entry->scZOrder;
+		if (dst == &curobj)
+			curobjpos = pos;
+	}
+
+	switch (pcurstgt) {
+	case TGT_NORMAL:
+		// select a monster/npc
+		mi = curmon.v0;
+		if (mi != MON_NONE) {
+			goto tgtmon;
+		}
+		// select a live or dead player
+		mi = curplr.v0 != PLR_NONE ? curplr.v0 : deadplr.v0;
+		if (mi != PLR_NONE) {
+			goto tgtplr;
+		}
+		// select an object
+		if (curobj.v0 != OBJ_NONE) {
+			goto tgtobj;
+		}
+		// select an item
+		mi = curitem.v0;
+		if (mi != ITEM_NONE) {
+			goto tgtitem;
+		}
+		// pcurspos.subtile.x = mx;
+		// pcurspos.subtile.y = my;
+		pcurstrig = CheckTrigForce();
+		if (TRIG_VALID(pcurstrig)) {
+			pcurspos.subtile.x = trigs[pcurstrig]._tx;
+			pcurspos.subtile.y = trigs[pcurstrig]._ty;
+		} else {
+			// CheckTownPortal();
+			mi = curport.v0;
+			if (mi != TRIG_NONE) {
+				pcurstrig = MAXTRIGGERS + mi + 1;
+				pcurspos.dun = missile[mi]._mipos;
+				pcurspos.subtile.x = missile[mi]._mix;
+				pcurspos.subtile.y = missile[mi]._miy;
+				goto done;
+			}			
+		}
+		break;
+	case TGT_ITEM:
+		// select an item
+		mi = curitem.v0;
+		if (mi != ITEM_NONE) {
+tgtitem:
+			pcursitem = mi;
+			pcurspos.dun = items[mi]._ipos;
+			pcurspos.subtile.x = items[mi]._ix;
+			pcurspos.subtile.y = items[mi]._iy;
+			goto done;
+		}
+		break;
+	case TGT_OBJECT:
+		// select an object
+		if (curobj.v0 != OBJ_NONE) {
+tgtobj:
+			mi = curobj.v0;
+			pcursobj = mi;
+			pcurspos.dun = curobjpos;
+			pcurspos.subtile.x = (unsigned)curobjpos.x / DUN_WIDTH;
+			pcurspos.subtile.y = (unsigned)curobjpos.y / DUN_WIDTH;
+			goto done;
+		}
+		break;
+	case TGT_OTHER:
+		// select a live player
+		mi = curplr.v0;
+		if (mi != PLR_NONE) {
+			goto tgtplr;
+		}
+		// select a live minion
+		mi = curmin.v0;
+		if (mi != MON_NONE) {
+tgtmon:
+			pcursmonst = mi;
+			pcurspos.dun = monsters[mi]._mpos;
+			pcurspos.subtile.x = monsters[mi]._mx;
+			pcurspos.subtile.y = monsters[mi]._my;
+			goto done;
+		}
+		break;
+	case TGT_DEAD:
+		// select a dead player
+		mi = deadplr.v0;
+		if (mi != PLR_NONE) {
+tgtplr:
+			pcursplr = mi;
+			pcurspos.dun = players[mi]._ppos;
+			pcurspos.subtile.x = players[mi]._px;
+			pcurspos.subtile.y = players[mi]._py;
+			goto done;
+		}
+		break;
+	case TGT_NONE:
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+
+	pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
+done:
+	;
 }
 
 /**
@@ -1640,7 +1917,7 @@ unsigned bSearchLess(unsigned From, unsigned To, unsigned zorder)
 	}
 }
 
-static SceneEntry* scene_placeEntry(const RECT_AREA32 &vArea, const POS32 &pos, int width, unsigned numCells, unsigned numStaticEntries, unsigned zorder)
+static SceneEntry* scene_placeEntry(const RECT_AREA32 &vArea, const POS32 &pos, int width, unsigned numCells, unsigned zorder)
 {
 	const int height = 2 * 160 * ASSET_MPL * (DUN_WIDTH / TILE_HEIGHT);
 	width = width /* / 2 * 2 */ * (DUN_WIDTH / TILE_WIDTH);
@@ -1653,7 +1930,7 @@ static SceneEntry* scene_placeEntry(const RECT_AREA32 &vArea, const POS32 &pos, 
 	const bool inView = POS_IN_AREA(sp.x, sp.y, vArea.x1 - width + 1, vArea.y1, vArea.x2 + width - 1, vArea.y2 + height - 1);
 	if (!inView)
 		return NULL;
-	unsigned idx = bSearchLess(numCells, numStaticEntries, zorder);
+	unsigned idx = bSearchLess(numCells, numDungeonEntries, zorder);
 	// assert(idx >= numCells);
 	// assert(numCells != 0);
 	SceneEntry* cellEntry = &scene[idx - 1];
@@ -1674,7 +1951,7 @@ void scene_insertEntries(unsigned numCells)
 	scene[numEntries].scZOrder = UINT_MAX;
 	numEntries++;
 
-	const unsigned numStaticEntries = numEntries;
+	numDungeonEntries = numEntries;
 	RECT_AREA32 area;
 	POS32 cp = myview.dun;
 	int sx, sy, w, h;
@@ -1698,7 +1975,7 @@ void scene_insertEntries(unsigned numCells)
 		ObjectStruct* os = &objects[oi];
 		if (dObject[os->_ox][os->_oy] != oi + 1) continue;
 		const unsigned zorder = SubtileZOrder(os->_opos) | (((!os->_oPreFlag) ? ZOR_OBJECT : ZOR_PRE_OBJECT) << ZOR_SHIFT) | OffsetZOrder(os->_opos);
-		SceneEntry* entry = scene_placeEntry(area, os->_opos, os->_oAnimWidth, numCells, numStaticEntries, zorder);
+		SceneEntry* entry = scene_placeEntry(area, os->_opos, os->_oAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		int lightIdx = dLight[(unsigned)os->_opos.x / DUN_WIDTH][(unsigned)os->_opos.y / DUN_WIDTH];
 		scene_addObject(oi, lightIdx, zorder, entry);
@@ -1708,7 +1985,7 @@ void scene_insertEntries(unsigned numCells)
 		int ii = itemactive[i];
 		const ItemStruct* is = &items[ii];
 		const unsigned zorder = SubtileZOrder(is->_ipos) | (/*is->_iPostDraw ? ZOR_ITEM : */ZOR_PRE_ITEM << ZOR_SHIFT) | OffsetZOrder(is->_ipos);
-		SceneEntry* entry = scene_placeEntry(area, is->_ipos, is->_iAnimData->caWidth, numCells, numStaticEntries, zorder);
+		SceneEntry* entry = scene_placeEntry(area, is->_ipos, is->_iAnimData->caWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		int lightIdx = dLight[(unsigned)is->_ipos.x / DUN_WIDTH][(unsigned)is->_ipos.y / DUN_WIDTH];
 		scene_addItem(ii, lightIdx, zorder, entry);
@@ -1719,7 +1996,7 @@ void scene_insertEntries(unsigned numCells)
 		if (mon->_mmode > MM_INGAME_LAST && mon->_mmode != MM_DEAD) continue;
 		if (mon->_mmode == MM_CHARGE) continue;
 		const unsigned zorder = SubtileZOrder(mon->_mpos) | ((mon->_mmode != MM_DEAD ? ZOR_MONSTER : ZOR_DEAD_MONSTER) << ZOR_SHIFT) | OffsetZOrder(mon->_mpos);
-		SceneEntry* entry = scene_placeEntry(area, mon->_mpos, mon->_mAnimWidth, numCells, numStaticEntries, zorder);
+		SceneEntry* entry = scene_placeEntry(area, mon->_mpos, mon->_mAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		BYTE bFlag = dFlags[(unsigned)mon->_mpos.x / DUN_WIDTH][(unsigned)mon->_mpos.y / DUN_WIDTH];
 		int lightIdx = dLight[(unsigned)mon->_mpos.x / DUN_WIDTH][(unsigned)mon->_mpos.y / DUN_WIDTH];
@@ -1734,7 +2011,7 @@ void scene_insertEntries(unsigned numCells)
 		const MonsterStruct* mon = &monsters[mnum];
 		// if (mon->_mmode > MM_INGAME_LAST && mon->_mmode != MM_DEAD) continue;
 		const unsigned zorder = SubtileZOrder(mon->_mpos) | (ZOR_MONSTER << ZOR_SHIFT) | OffsetZOrder(mon->_mpos);
-		SceneEntry* entry = scene_placeEntry(area, mon->_mpos, mon->_mAnimWidth, numCells, numStaticEntries, zorder);
+		SceneEntry* entry = scene_placeEntry(area, mon->_mpos, mon->_mAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		int lightIdx = dLight[(unsigned)mon->_mpos.x / DUN_WIDTH][(unsigned)mon->_mpos.y / DUN_WIDTH];
 		scene_addTowner(mnum, lightIdx, zorder, entry);
@@ -1744,7 +2021,7 @@ void scene_insertEntries(unsigned numCells)
 		if (!plr._pActive || plr._pLvlChanging || plr._pDunLevel != currLvl._dLevelIdx) continue;
 		if (plr._pmode == PM_CHARGE) continue;
 		const unsigned zorder = SubtileZOrder(plr._ppos) | (((plr._pHitPoints != 0) ? ZOR_PLAYER : ZOR_DEAD_PLAYER) << ZOR_SHIFT) | OffsetZOrder(plr._ppos);
-		SceneEntry* entry = scene_placeEntry(area, plr._ppos, plr._pAnimWidth, numCells, numStaticEntries, zorder);
+		SceneEntry* entry = scene_placeEntry(area, plr._ppos, plr._pAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		BYTE bFlag = dFlags[(unsigned)plr._ppos.x / DUN_WIDTH][(unsigned)plr._ppos.y / DUN_WIDTH];
 		int lightIdx = dLight[(unsigned)plr._ppos.x / DUN_WIDTH][(unsigned)plr._ppos.y / DUN_WIDTH];
@@ -1756,7 +2033,7 @@ void scene_insertEntries(unsigned numCells)
 		MissileStruct* mis = &missile[mi];
 		if (!mis->_miDrawFlag) continue;
 		const unsigned zorder = SubtileZOrderAt(mis->_mix, mis->_miy) | (((!mis->_miPreFlag) ? ZOR_MISSILE : ZOR_PRE_MISSILE) << ZOR_SHIFT) | OffsetZOrder(mis->_mipos);
-		SceneEntry* entry = scene_placeEntry(area, mis->_mipos, mis->_miAnimWidth, numCells, numStaticEntries, zorder);
+		SceneEntry* entry = scene_placeEntry(area, mis->_mipos, mis->_miAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		int lightIdx = dLight[(unsigned)mis->_mipos.x / DUN_WIDTH][(unsigned)mis->_mipos.y / DUN_WIDTH];
 		scene_addMissile(mi, lightIdx, zorder, entry);

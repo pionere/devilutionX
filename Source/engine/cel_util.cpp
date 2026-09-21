@@ -424,4 +424,109 @@ unsigned Cl2Width(const BYTE* pCelBuff)
 	return n / CEL_BLOCK_HEIGHT;
 }
 
+/**
+ * @brief evaluate whether the CEL-frame has a non-transparent pixel at the given position
+ * @param x x-position starting from the middle of the frame
+ * @param y y-position starting from the bottom of the frame
+ * @param nWidth width of the asset
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL-frame number
+ * @return true if the CEL-frame has a color-pixel at the given position
+ */
+bool CelClippedPixelAt(int x, int y, unsigned nWidth, const BYTE* pCelBuff, unsigned nCel)
+{
+	if (y >= 0) {
+		x += nWidth / 2;
+		if ((unsigned)x < nWidth) {
+			int nDataSize;
+			const BYTE *pRLEBytes;
+			int offset = y * nWidth + x;
+
+			pRLEBytes = CelGetFrameClippedAt(pCelBuff, nCel, 0, &nDataSize);
+
+			const BYTE *src, *end;
+			int width;
+
+			src = pRLEBytes;
+
+			end = &src[nDataSize];
+
+			while (src < end) {
+				width = (int8_t)*src++;
+				if (width >= 0) {
+					if (offset < width) {
+						return src[offset] != 0;
+					}
+					offset -= width;
+					src += width;
+				} else {
+					width = -width;
+					offset -= width;
+					if (offset < 0) {
+						break;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * @brief evaluate whether the CL2-frame has a non-transparent pixel at the given position
+ * @param x x-position starting from the middle of the frame
+ * @param y y-position starting from the bottom of the frame
+ * @param nWidth width of the asset
+ * @param pCelBuff pointer to CL2-frame offsets and data
+ * @param nCel CL2-frame number
+ * @return true if the CL2-frame has a color-pixel at the given position
+ */
+bool Cl2PixelAt(int x, int y, unsigned nWidth, const BYTE* pCelBuff, unsigned nCel)
+{
+	if (y >= 0) {
+		x += nWidth / 2;
+		if ((unsigned)x < nWidth) {
+			int nDataSize;
+			const BYTE *pRLEBytes;
+			int offset = y * nWidth + x;
+
+			pRLEBytes = CelGetFrameClippedAt(pCelBuff, nCel, 0, &nDataSize);
+
+			const BYTE *src, *end;
+			int width;
+
+			src = pRLEBytes;
+
+			end = &src[nDataSize];
+
+			while (src < end) {
+				width = (int8_t)*src++;
+				if (width < 0) {
+					width = -width;
+					if (width > 65) {
+						width -= 65;
+						if (offset < width) {
+							return src[0] != 0;
+						}
+						offset -= width;
+						src++;
+					} else {
+						if (offset < width) {
+							return src[offset] != 0;
+						}
+						offset -= width;
+						src += width;
+					}
+				} else {
+					offset -= width;
+					if (offset < 0) {
+						break;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 DEVILUTION_END_NAMESPACE

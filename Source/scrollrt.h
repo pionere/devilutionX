@@ -63,6 +63,8 @@ void UpdateScrollInfo(int pnum);
  * @return the screen x/y-coordinates
  */
 POS32 GridToScreen(int gx, int gy);
+void InitScene();
+void SceneCursor();
 void ClearCursor();
 void CalcViewportGeometry();
 #if DEBUG_MODE

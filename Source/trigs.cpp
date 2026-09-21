@@ -155,6 +155,7 @@ void InitView(int entry)
 	//ScrollInfo._sxoff = 0;
 	//ScrollInfo._syoff = 0;
 	//ScrollInfo._sdir = SDIR_NONE;
+	InitScene();
 
 	if (entry == ENTRY_PORTLVL) {
 		GetPortalLvlPos();
