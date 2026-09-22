@@ -1037,11 +1037,11 @@ void PerformSecondaryAction()
 	}
 
 	if (ITEM_VALID(pcursitem)) {
-		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.subtile.x, pcurspos.subtile.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.dun, pcursitem);
 	} else if (OBJ_VALID(pcursobj)) {
-		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.subtile.x, pcurspos.subtile.y, pcursobj);
+		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.dun, pcursobj);
 	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]]) {
-		NetSendCmdLoc(CMD_WALKXY, pcurspos.subtile.x, pcurspos.subtile.y);
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.dun);
 	}
 }
 

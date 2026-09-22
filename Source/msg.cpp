@@ -1794,7 +1794,7 @@ void LevelDeltaLoad()
 				net_assert(plr._pVar6 >= 0);                   // RATTACK_SKILL_LEVEL
 				break;
 			case PM_SPELL:
-				net_assert(IN_ACTIVE_AREA(plr._pVar1, plr._pVar2)); // SPELL_TARGET_X, SPELL_TARGET_Y
+				net_assert(IN_ACTIVE_DUN(plr._pVar1, plr._pVar2)); // SPELL_TARGET_X, SPELL_TARGET_Y
 				net_assert((unsigned)plr._pVar5 < NUM_SPELLS);                        // SPELL_NUM
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
@@ -1806,10 +1806,10 @@ void LevelDeltaLoad()
 		case ACTION_NONE:
 			break;
 		case ACTION_WALK:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2));
 			break;
 		case ACTION_OPERATE:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2));
 			net_assert(plr._pDestParam3 == SPL_ATTACK);
 			net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS);
 			net_assert(abs(dObject[plr._pDestParam1][plr._pDestParam2]) == plr._pDestParam4 + 1);
@@ -1839,7 +1839,7 @@ void LevelDeltaLoad()
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2)); // SPELL_TARGET_X, SPELL_TARGET_Y
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2)); // SPELL_TARGET_X, SPELL_TARGET_Y
 			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS);                              // SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
@@ -1865,7 +1865,7 @@ void LevelDeltaLoad()
 			}
 			break;
 		case ACTION_PICKUPITEM:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2));
 			net_assert((unsigned)plr._pDestParam4 < MAXITEMS);
 			break;
 		case ACTION_TALK:
@@ -1981,13 +1981,13 @@ void NetSendCmdGolem(BYTE lvl, BYTE type, int hitpoints)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLoc(BYTE bCmd, BYTE x, BYTE y)
+void NetSendCmdLoc(BYTE bCmd, POS32 pos)
 {
 	TCmdLoc cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2004,26 +2004,26 @@ void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocBParam2(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2)
+void NetSendCmdLocBParam2(BYTE bCmd, POS32 pos, BYTE bParam1, BYTE bParam2)
 {
 	TCmdLocBParam2 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.bParam1 = bParam1;
 	cmd.bParam2 = bParam2;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, uint16_t wParam1)
+void NetSendCmdLocParam1(BYTE bCmd, POS32 pos, uint16_t wParam1)
 {
 	TCmdLocParam1 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.wParam1 = wParam1;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
@@ -2176,25 +2176,25 @@ void NetSendCmdItemSkill(BYTE cii, const CmdSkillUse skillUse)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocSkill(BYTE x, BYTE y, const CmdSkillUse skillUse)
+void NetSendCmdLocSkill(POS32 pos, const CmdSkillUse skillUse)
 {
 	TCmdLocSkill cmd;
 
 	cmd.bCmd = CMD_SKILLXY;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.lsu = skillUse;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, int8_t from)
+void NetSendCmdLocDisarm(POS32 pos, BYTE oi, int8_t from)
 {
 	TCmdLocDisarm cmd;
 
 	cmd.bCmd = CMD_DISARMXY;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.oi = oi;
 	cmd.from = from;
 
@@ -2310,7 +2310,7 @@ static unsigned On_WALKXY(const TCmd* pCmd, int pnum)
 	const TCmdLoc* cmd = (const TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		net_check_cmd(IN_ACTIVE_AREA(cmd->x, cmd->y));
+		net_check_cmd(IN_ACTIVE_DUN(cmd->x, cmd->y));
 		plr._pDestAction = ACTION_WALK;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2618,7 +2618,7 @@ static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
 		// net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
 		plr._pDestAction = spelldata[sn].sAction;
@@ -2674,8 +2674,8 @@ static unsigned On_OPOBJXY(const TCmd* pCmd, int pnum)
 		y = cmd->y;
 
 		net_check_cmd(oi < MAXOBJECTS);
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
-		net_check_cmd(abs(dObject[x][y]) == oi + 1);
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
+		net_check_cmd(abs(dObject[(unsigned)x / DUN_WIDTH][(unsigned)y / DUN_WIDTH]) == oi + 1);
 
 		plr._pDestAction = ACTION_OPERATE;
 		plr._pDestParam1 = x;
@@ -2702,8 +2702,8 @@ static unsigned On_DISARMXY(const TCmd* pCmd, int pnum)
 		y = cmd->y;
 
 		net_check_cmd(oi < MAXOBJECTS);
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
-		net_check_cmd(abs(dObject[x][y]) == oi + 1);
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
+		net_check_cmd(abs(dObject[(unsigned)x / DUN_WIDTH][(unsigned)y / DUN_WIDTH]) == oi + 1);
 
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = x;
@@ -3306,7 +3306,7 @@ static unsigned On_REQDELTA(const TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
+static void DoTelekinesis(int pnum, POS32 pos, int8_t from, int id)
 {
 	CmdSkillUse su;
 
@@ -3315,8 +3315,8 @@ static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 
 	if (CheckPlrSkillUse(pnum, su)) {
 		plr._pDestAction = ACTION_SPELL;
-		plr._pDestParam1 = x;
-		plr._pDestParam2 = y;
+		plr._pDestParam1 = pos.x;
+		plr._pDestParam2 = pos.y;
 		// plr._pDestParam3 = SPL_TELEKINESIS; // spell
 		plr._pDestParam4 = id;              // fake spllvl
 	}
@@ -3326,7 +3326,7 @@ static unsigned On_TELEKINITM(const TCmd* pCmd, int pnum)
 {
 	const TCmdLocBParam2* cmd = (const TCmdLocBParam2*)pCmd;
 
-	DoTelekinesis(pnum, cmd->x, cmd->y, cmd->bParam1, (MTT_ITEM << 16) | cmd->bParam2);
+	DoTelekinesis(pnum, { cmd->x, cmd->y }, cmd->bParam1, (MTT_ITEM << 16) | cmd->bParam2);
 
 	return sizeof(*cmd);
 }
@@ -3338,7 +3338,7 @@ static unsigned On_TELEKINMON(const TCmd* pCmd, int pnum)
 
 	net_check_cmd(mnum < MAXMONSTERS);
 
-	DoTelekinesis(pnum, monsters[mnum]._mx, monsters[mnum]._my, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
+	DoTelekinesis(pnum, monsters[mnum]._mpos, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
 
 	return sizeof(*cmd);
 }
@@ -3350,7 +3350,7 @@ static unsigned On_TELEKINPLR(const TCmd* pCmd, int pnum)
 
 	net_check_cmd(tnum < MAX_PLRS);
 
-	DoTelekinesis(pnum, players[tnum]._px, players[tnum]._py, cmd->bParam1, (MTT_PLAYER << 16) | tnum);
+	DoTelekinesis(pnum, players[tnum]._ppos, cmd->bParam1, (MTT_PLAYER << 16) | tnum);
 
 	return sizeof(*cmd);
 }
@@ -3362,7 +3362,7 @@ static unsigned On_TELEKINOBJ(const TCmd* pCmd, int pnum)
 
 	net_check_cmd(oi < MAXOBJECTS);
 
-	DoTelekinesis(pnum, objects[oi]._ox, objects[oi]._oy, cmd->byteParam, (MTT_OBJECT << 16) | oi);
+	DoTelekinesis(pnum, objects[oi]._opos, cmd->byteParam, (MTT_OBJECT << 16) | oi);
 
 	return sizeof(*cmd);
 }

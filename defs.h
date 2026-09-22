@@ -249,6 +249,12 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
     && (y) >= DBORDERY         \
     && (y) < DBORDERY + DSIZEY)
 
+#define IN_ACTIVE_DUN(x, y)                  \
+    ((x) >= DBORDERX * DUN_WIDTH             \
+    && (x) < (DBORDERX + DSIZEX) * DUN_WIDTH \
+    && (y) >= DBORDERY * DUN_WIDTH           \
+    && (y) < (DBORDERY + DSIZEY) * DUN_WIDTH)
+
 #ifndef TRUE
 #define TRUE true
 #endif

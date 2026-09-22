@@ -33,10 +33,10 @@ void DeltaSaveLevel();
 void DeltaLoadLevel();
 void NetSendCmdJoinLevel();
 void NetSendCmd(BYTE bCmd);
-void NetSendCmdLoc(BYTE bCmd, BYTE x, BYTE y);
-void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, uint16_t wParam1);
+void NetSendCmdLoc(BYTE bCmd, POS32 pos);
+void NetSendCmdLocParam1(BYTE bCmd, POS32 pos, uint16_t wParam1);
 void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1);
-void NetSendCmdLocBParam2(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2);
+void NetSendCmdLocBParam2(BYTE bCmd, POS32 pos, BYTE bParam1, BYTE bParam2);
 void NetSendCmdParam1(BYTE bCmd, uint16_t wParam1);
 void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, uint16_t wParam2);
 void NetSendCmdBParam1(BYTE bCmd, BYTE bParam1);
@@ -50,18 +50,16 @@ void NetSendCmdSpawnItem(bool flipFlag);
  */
 void NetSendCmdItemSkill(BYTE cii, const CmdSkillUse skillUse);
 /** Use a spell/skill on a given location.
- * @param x: the x coordinate of the target (MAXDUNX)
- * @param y: the y coordinate of the target (MAXDUNY)
+ * @param pos: the precise dungeon position of the target
  * @param skillUse: the skill and its source to be used
  */
-void NetSendCmdLocSkill(BYTE x, BYTE y, const CmdSkillUse skillUse);
+void NetSendCmdLocSkill(POS32 pos, const CmdSkillUse skillUse);
 /** Use a disarm on a given location using from as a source.
- * @param x: the x coordinate of the target (MAXDUNX)
- * @param y: the y coordinate of the target (MAXDUNY)
+ * @param pos: the precise dungeon position of the target
  * @param oi: the index of the target (MAXOBJECTS)
  * @param from: the source of the skill
  */
-void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, int8_t from);
+void NetSendCmdLocDisarm(POS32 pos, BYTE oi, int8_t from);
 /** Use a spell/skill on a player.
  * @param pnum: the id of the targeted player
  * @param skillUse: the skill and its source to be used

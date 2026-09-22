@@ -1196,18 +1196,18 @@ static void StartAttack(int pnum)
 		dy = plr._pDestParam2;
 		break;
 	case ACTION_ATTACKMON:
-		dx = monsters[i]._mfutx;
-		dy = monsters[i]._mfuty;
+		dx = monsters[i]._mpos.x;
+		dy = monsters[i]._mpos.y;
 		break;
 	case ACTION_ATTACKPLR:
-		dx = plx(i)._pfutx;
-		dy = plx(i)._pfuty;
+		dx = plx(i)._ppos.x;
+		dy = plx(i)._ppos.y;
 		break;
 	case ACTION_OPERATE:
 		dx = i;
 		dy = plr._pDestParam2;
 		i = plr._pDestParam4;
-		assert(abs(dObject[dx][dy]) == i + 1);
+		// assert(abs(dObject[(unsigned)dx / DUN_WIDTH][(unsigned)dy / DUN_WIDTH]) == i + 1);
 		if (objects[i]._oBreak == OBM_UNBREAKABLE) {
 			OperateObject(pnum, i, false);
 			return; // true;
@@ -1220,7 +1220,7 @@ static void StartAttack(int pnum)
 
 	sn = plr._pDestParam3;
 	sl = plr._pDestParam4;
-	dir = GetDirection(plr._px, plr._py, dx, dy);
+	dir = GetDirection(plr._ppos, { dx, dy });
 	ss = plr._pIBaseAttackSpeed;
 	if (sn == SPL_WHIPLASH) {
 		ss += 3;
@@ -1257,12 +1257,12 @@ static void StartRangeAttack(int pnum)
 		dy = plr._pDestParam2;
 		break;
 	case ACTION_RATTACKMON:
-		dx = monsters[i]._mfutx;
-		dy = monsters[i]._mfuty;
+		dx = monsters[i]._mpos.x;
+		dy = monsters[i]._mpos.y;
 		break;
 	case ACTION_RATTACKPLR:
-		dx = plx(i)._pfutx;
-		dy = plx(i)._pfuty;
+		dx = plx(i)._ppos.x;
+		dy = plx(i)._ppos.y;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1281,7 +1281,7 @@ static void StartRangeAttack(int pnum)
 	plr._pVar8 = 0;     // RATTACK_TICK : speed helper
 	plr._pmode = PM_RATTACK;
 
-	dir = GetDirection(plr._px, plr._py, dx, dy);
+	dir = GetDirection(plr._ppos, { dx, dy });
 
 	if (!(plr._pGFXLoad & PGF_ATTACK)) {
 		LoadPlrGFX(pnum, PGF_ATTACK);
@@ -1324,15 +1324,15 @@ static void StartSpell(int pnum)
 		dy = plr._pDestParam2;
 		break;
 	case ACTION_SPELLMON:
-		dx = monsters[i]._mfutx;
-		dy = monsters[i]._mfuty;
+		dx = monsters[i]._mpos.x;
+		dy = monsters[i]._mpos.y;
 		break;
 	case ACTION_SPELLPLR:
 		// preserve target information for the resurrect spell
 		if (plr._pDestParam3 == SPL_RESURRECT) // SPELL_NUM
 			plr._pDestParam4 = i;              // SPELL_LEVEL
-		dx = plx(i)._pfutx;
-		dy = plx(i)._pfuty;
+		dx = plx(i)._ppos.x;
+		dy = plx(i)._ppos.y;
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -1349,7 +1349,7 @@ static void StartSpell(int pnum)
 
 	sd = &spelldata[plr._pVar5]; // SPELL_NUM
 	if (sd->sSkillFlags & SDFLAG_TARGETED)
-		plr._pdir = GetDirection(plr._px, plr._py, dx, dy);
+		plr._pdir = GetDirection(plr._ppos, { dx, dy });
 
 	static_assert((int)PGX_LIGHTNING - (int)PGX_FIRE == (int)STYPE_LIGHTNING - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type I.");
 	static_assert((int)PGX_MAGIC - (int)PGX_FIRE == (int)STYPE_MAGIC - (int)STYPE_FIRE, "StartSpell expects ordered player_graphic_idx and magic_type II.");
@@ -2082,16 +2082,16 @@ static void PlrDoRangeAttack(int pnum)
 			int xoff = 0;
 			int yoff = 0;
 			if (numarrows != 0) {
-				int angle = numarrows == 2 ? -1 : 1;
-				int x = dx - plr._px;
-				if (x != 0)
+				int angle = numarrows == 2 ? -1 * DUN_WIDTH : 1 * DUN_WIDTH;
+				int x = dx - plr._ppos.x;
+				if (abs(x) >= DUN_WIDTH)
 					yoff = x < 0 ? angle : -angle;
-				int y = dy - plr._py;
-				if (y != 0)
+				int y = dy - plr._ppos.y;
+				if (abs(y) >= DUN_WIDTH)
 					xoff = y < 0 ? -angle : angle;
 
 			}
-			const POS32 dp = DungeonToDunPos(dx + xoff, dy + yoff);
+			const POS32 dp = { dx + xoff, dy + yoff };
 			AddMissile(plr._ppos, dp, plr._pdir,
 				spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // RATTACK_SKILL, RATTACK_SKILL_LEVEL
 		}
@@ -2260,7 +2260,7 @@ static void PlrDoSpell(int pnum)
 
 	if (!plr._pVar7) { // SPELL_ACTION_PROGRESS
 		plr._pVar7 = TRUE;
-		const POS32 dp = DungeonToDunPos(plr._pVar1, plr._pVar2); // SPELL_TARGET_X, SPELL_TARGET_Y
+		const POS32 dp = { plr._pVar1, plr._pVar2 }; // SPELL_TARGET_X, SPELL_TARGET_Y
 		AddMissile(plr._ppos, dp, plr._pdir,
 			spelldata[plr._pVar5].sMissile, MST_PLAYER, pnum, plr._pVar6); // SPELL_NUM, SPELL_LEVEL
 	}
@@ -2377,7 +2377,7 @@ static void CheckNewPath(int pnum)
 		return;
 	}
 	if (plr._pDestAction == ACTION_WALK) {
-		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, true);
+		dir = MakePlrPath(pnum, (unsigned)plr._pDestParam1 / DUN_WIDTH, (unsigned)plr._pDestParam2 / DUN_WIDTH, true);
 	} else if (plr._pDestAction == ACTION_WALKDIR) {
 		if (PathWalkable(plr._pfutx, plr._pfuty, dir2pdir[plr._pDestParam1])) // Don't start backtrack around obstacles
 			dir = MakePlrPath(pnum, plr._pfutx + offset_x[plr._pDestParam1], plr._pfuty + offset_y[plr._pDestParam1], true);
@@ -2391,10 +2391,10 @@ static void CheckNewPath(int pnum)
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
 		dir = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
 	} else if (plr._pDestAction == ACTION_PICKUPITEM) {
-		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, false);
+		dir = MakePlrPath(pnum, (unsigned)plr._pDestParam1 / DUN_WIDTH, (unsigned)plr._pDestParam2 / DUN_WIDTH, false);
 	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {
 		static_assert((int)ODT_NONE == 0, "BitOr optimization of CheckNewPath expects ODT_NONE to be zero.");
-		dir = MakePlrPath(pnum, plr._pDestParam1, plr._pDestParam2, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
+		dir = MakePlrPath(pnum, (unsigned)plr._pDestParam1 / DUN_WIDTH, (unsigned)plr._pDestParam2 / DUN_WIDTH, !(objects[plr._pDestParam4]._oSolidFlag | objects[plr._pDestParam4]._oDoorFlag));
 	}
 	static_assert((int)DIR_NONE >= 0, "CheckNewPath uses negative value to define an invalid path.");
 	if (dir < 0) {

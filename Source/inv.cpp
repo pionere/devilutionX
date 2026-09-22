@@ -1680,7 +1680,7 @@ void InvUseItem(int cii)
 			gbTSkillUse = itmSkill;
 			NewCursor(spelldata[sn].scCurs);
 		} else {
-			NetSendCmdLocSkill(pcurspos.subtile.x, pcurspos.subtile.y, itmSkill);
+			NetSendCmdLocSkill(pcurspos.dun, itmSkill);
 		}
 	} break;
 	//case IMISC_MAPOFDOOM:

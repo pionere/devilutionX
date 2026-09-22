@@ -2021,8 +2021,7 @@ int AddDone(int mi, int dx, int dy, int midir, int micaster, int misource, int s
 }
 
 /*
- * Var1: x coordinate of the missile-target of MIS_ASARROW
- * Var2: y coordinate of the missile-target of MIS_ASARROW
+ * Var1: number of ticks till the missile reaches its target of MIS_ASARROW
  * Var6: hit chance (MISHIT)
  * Var7: the distance travelled (MISDIST)
  */
@@ -2061,8 +2060,7 @@ int AddArrow(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
 		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
 		if (mis->_miType == MIS_ASARROW) {
-			mis->_miVar1 = dx;
-			mis->_miVar2 = dy;
+			mis->_miVar1 = sqrt(GetDunDistance2(mis->_mipos, DungeonToDunPos(dx, dy))) / missiledata[MIS_ASARROW].mdPrSpeed;
 		}
 		// mis->_miVar6 = plx(misource)._pIHitChance;
 	} else if (micaster == MST_MONSTER) {
@@ -2756,8 +2754,7 @@ int AddRhino(int mi, int dx, int dy, int midir, int micaster, int misource, int 
 }
 
 /**
- * Var1: x coordinate of the destination
- * Var2: y coordinate of the destination
+ * Var1: number of ticks till the missile reaches its target
  */
 int AddCharge(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -2786,8 +2783,7 @@ int AddCharge(int mi, int dx, int dy, int midir, int micaster, int misource, int
 	}
 	plr._pmode = PM_CHARGE;
 	mis->_miDir = midir;
-	mis->_miVar1 = dx;
-	mis->_miVar2 = dy;
+	mis->_miVar1 = sqrt(GetDunDistance2(mis->_mipos, DungeonToDunPos(dx, dy))) / chv;
 	mis->_miAnimAdd = aa;
 	SyncChargeAnim(mis);
 	//mis->_miLid = mon->_mlid;
@@ -3033,9 +3029,7 @@ int AddHealOther(int mi, int dx, int dy, int midir, int micaster, int misource, 
 }
 
 /**
- * Var2: whether the destination is reached
- * Var3: x coordinate of the destination
- * Var4: y coordinate of the destination
+ * Var1: number of ticks till the missile reaches its target
  */
 int AddElemental(int mi, int dx, int dy, int midir, int micaster, int misource, int spllvl)
 {
@@ -3044,9 +3038,7 @@ int AddElemental(int mi, int dx, int dy, int midir, int micaster, int misource, 
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	//mis->_miVar2 = FALSE;
-	mis->_miVar3 = dx;
-	mis->_miVar4 = dy;
+	mis->_miVar1 = sqrt(GetDunDistance2(mis->_mipos, DungeonToDunPos(dx, dy))) / missiledata[MIS_ELEMENTAL].mdPrSpeed;
 	mis->_miVar5 = midir; // MIS_DIR
 	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(mis->_mipos, 8);
@@ -3701,7 +3693,8 @@ void MI_AsArrow(int mi)
 	mis = &missile[mi];
 	mis->_miVar7++; // MISDIST
 	MoveMissile(mi, 1);
-	if (!nMissileTable[dPiece[mis->_mix][mis->_miy]] && (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2)) {
+	mis->_miVar1--;
+	if (mis->_miVar1 > 0 && !nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
 		PutMissile(mi);
 		return;
 	}
@@ -4868,7 +4861,8 @@ void MI_Charge(int mi)
 	//assert(dMonster[bx][by] == 0);
 	//assert(dPlayer[bx][by] == 0);
 	dPlayer[bx][by] = -(pnum + 1);
-	if (bx == mis->_miVar1 && by == mis->_miVar2) {
+	mis->_miVar1--;
+	if (mis->_miVar1 <= 0) {
 		MissToPlr(mi, false);
 		mis->_miDelFlag = TRUE;
 		return;
@@ -5095,8 +5089,7 @@ void MI_Elemental(int mi)
 		return;
 	}
 	// did not hit anything
-	if (!mis->_miVar2 && cx == mis->_miVar3 && cy == mis->_miVar4) { // destination reached the first time
-		mis->_miVar2 = TRUE;
+	if (mis->_miVar1-- == 0) { // destination reached the first time
 		// set the current position as the starting point
 		const POS32 mp = DungeonToDunPos(cx, cy);
 		mis->_mitxoff = (mis->_mipos.x - mp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));

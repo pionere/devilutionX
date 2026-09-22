@@ -307,16 +307,15 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	}
 	// limit the vector to the MAX_DIST
 	int adm = adx >= ady ? adx : ady;
-	dy = (MAX_DIST * dy) / adm;
-	dx = (MAX_DIST * dx) / adm;
+	dy = (DUN_WIDTH * MAX_DIST * dy) / adm;
+	dx = (DUN_WIDTH * MAX_DIST * dx) / adm;
 
 	POS32 tpos;
 	SET_GRID(tpos.x, tpos.y, dx, dy);
 
-	int dir8 = GetDirection(0, 0, tpos.x, tpos.y);
-	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
-	tpos.x += pos8.x;
-	tpos.y += pos8.y;
+	int dir8 = GetDirection({ 0, 0 }, tpos);
+	tpos.x += myplr._ppos.x;
+	tpos.y += myplr._ppos.y;
 
 	if (skill._psAttack._suSkill != SPL_NULL) {
 		if (skill._psAttack._suSkill == SPL_BLOCK) {
@@ -333,7 +332,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 		}
 
 		if (skill._psMove._suSkill == SPL_NULL) {
-			NetSendCmdLocSkill(tpos.x, tpos.y, skillUse);
+			NetSendCmdLocSkill(tpos, skillUse);
 			return;
 		}
 	} else if (skill._psMove._suSkill == SPL_NULL) {
@@ -352,13 +351,15 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 		// TODO: check if tpos.x/y == _pfutx/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
-		NetSendCmdLocSkill(tpos.x, tpos.y, *((CmdSkillUse*)&skill._psMove));
+		NetSendCmdLocSkill(tpos, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
 
+	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
 	pos8.x += offset_x[dir8];
 	pos8.y += offset_y[dir8];
-	NetSendCmdLoc(CMD_WALKXY, pos8.x, pos8.y);
+	pos8 = DungeonToDunPos(pos8.x, pos8.y);
+	NetSendCmdLoc(CMD_WALKXY, pos8);
 }
 
 static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*moveFunc)(int))
@@ -444,7 +445,7 @@ static void ActionBtnCmd(bool altSkill)
 		}
 
 		if (bShift) {
-			NetSendCmdLocSkill(pcurspos.subtile.x, pcurspos.subtile.y, skillUse);
+			NetSendCmdLocSkill(pcurspos.dun, skillUse);
 			return;
 		}
 		if (MON_VALID(pcursmonst)) {
@@ -460,7 +461,7 @@ static void ActionBtnCmd(bool altSkill)
 			return;
 		}
 		if (skill._psMove._suSkill == SPL_NULL) {
-			NetSendCmdLocSkill(pcurspos.subtile.x, pcurspos.subtile.y, skillUse);
+			NetSendCmdLocSkill(pcurspos.dun, skillUse);
 			return;
 		}
 	} else if (skill._psMove._suSkill == SPL_NULL) {
@@ -494,7 +495,7 @@ static void ActionBtnCmd(bool altSkill)
 	if (OBJ_VALID(pcursobj)) {
 		bool bNear = abs(myplr._pfutx - pcurspos.subtile.x) < 2 && abs(myplr._pfuty - pcurspos.subtile.y) < 2;
 		if (skill._psMove._suSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
-			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.subtile.x, pcurspos.subtile.y, pcursobj);
+			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.dun, pcursobj);
 			return;
 		}
 		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
@@ -503,16 +504,16 @@ static void ActionBtnCmd(bool altSkill)
 		// TODO: check if pcurspos.subtile.x/y == _pfutx/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
-		NetSendCmdLocSkill(pcurspos.subtile.x, pcurspos.subtile.y, *((CmdSkillUse*)&skill._psMove));
+		NetSendCmdLocSkill(pcurspos.dun, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
 
 	if (ITEM_VALID(pcursitem)) {
-		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.subtile.x, pcurspos.subtile.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.dun, pcursitem);
 		return;
 	}
 	if (!nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]])
-		NetSendCmdLoc(CMD_WALKXY, pcurspos.subtile.x, pcurspos.subtile.y);
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.dun);
 }
 
 static bool TryIconCurs()
@@ -531,7 +532,7 @@ static bool TryIconCurs()
 			if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) ||
 			 (abs(myplr._pfutx - pcurspos.subtile.x) < 2 && abs(myplr._pfuty - pcurspos.subtile.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
-				NetSendCmdLocDisarm(pcurspos.subtile.x, pcurspos.subtile.y, pcursobj, gbTSkillUse.from);
+				NetSendCmdLocDisarm(pcurspos.dun, pcursobj, gbTSkillUse.from);
 			}
 		}
 		break;
@@ -540,7 +541,7 @@ static bool TryIconCurs()
 		if (OBJ_VALID(pcursobj)) {
 			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
 		} else if (ITEM_VALID(pcursitem)) {
-			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
+			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ipos, gbTSkillUse.from, pcursitem);
 		} else if (MON_VALID(pcursmonst)) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
 		} else if (PLR_VALID(pcursplr)) {
@@ -555,7 +556,7 @@ static bool TryIconCurs()
 		else if (PLR_VALID(pcursplr))
 			NetSendCmdPlrSkill(pcursplr, gbTSkillUse);
 		else if (pcursicon == CURSOR_TELEPORT)
-			NetSendCmdLocSkill(pcurspos.subtile.x, pcurspos.subtile.y, gbTSkillUse);
+			NetSendCmdLocSkill(pcurspos.dun, gbTSkillUse);
 		break;
 	default:
 		return false;

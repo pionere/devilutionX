@@ -1539,8 +1539,8 @@ typedef struct TCmd {
 
 typedef struct TCmdLoc {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 } TCmdLoc;
 
 typedef struct TCmdLocBParam1 {
@@ -1552,16 +1552,16 @@ typedef struct TCmdLocBParam1 {
 
 typedef struct TCmdLocBParam2 {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BYTE bParam1;
 	BYTE bParam2;
 } TCmdLocBParam2;
 
 typedef struct TCmdLocParam1 {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	LE_UINT16 wParam1;
 } TCmdLocParam1;
 
@@ -1617,15 +1617,15 @@ typedef struct TCmdItemOp {
 
 typedef struct TCmdLocSkill {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	CmdSkillUse lsu;
 } TCmdLocSkill;
 
 typedef struct TCmdLocDisarm {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BYTE oi;
 	int8_t from;
 } TCmdLocDisarm;
