@@ -2293,10 +2293,10 @@ int AddTeleport(int mi, int dx, int dy, int midir, int micaster, int misource, i
 	while (true) {
 		tx = sx - dx;
 		ty = sy - dy;
-		i = sqrt(tx * tx + ty * ty);
-		if (i <= 7)
+		i = tx * tx + ty * ty;
+		if (i < 8 * 8)
 			break;
-		// assert(i < MAXDUNX + MAXDUNY);
+		// assert(i < (MAXDUNX + MAXDUNY) * (MAXDUNX + MAXDUNY));
 		dir = OPPOSITE(midir);
 		dx += XDirAdd[dir];
 		dy += YDirAdd[dir];
