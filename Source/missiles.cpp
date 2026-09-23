@@ -363,7 +363,7 @@ static bool PlaceMissile(int x, int y, int sx, int sy)
 /*
  * Check if a missile can be placed at the given position.
  */
-static bool PosOkMis2(int x, int y)
+static bool PosOkMis2(int x, int y, int sx, int sy)
 {
 	// int oi;
 
@@ -378,7 +378,7 @@ static bool PosOkMis2(int x, int y)
 			return false;
 	}*/
 
-	return true;
+	return LineClear(sx, sy, x, y);
 }
 
 static bool FindClosest(const POS32 sp, POS32& dp)
@@ -2008,7 +2008,7 @@ int AddRingC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 		tx = sx + *++cr;
 		ty = sy + *++cr;
 		assert(IN_DUNGEON_AREA(tx, ty));
-		if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+		if (PosOkMis2(tx, ty, sx, sy)) {
 			const POS32 tp = DungeonToDunPos(tx, ty);
 			AddMissile(tp, { 0, 0 }, 0, mitype, micaster, misource, spllvl);
 		}
@@ -2714,7 +2714,7 @@ int AddMeteor(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			if (PosOkMis2(tx, ty, sx, sy)) {
 				mis->_misx = tx;
 				mis->_misy = ty;
 				SetMissilePos(mis, tx, ty);
@@ -3113,7 +3113,7 @@ int AddWallC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty) && (sx != tx || sy != ty)) {
+			if (PosOkMis2(tx, ty, sx, sy) && (sx != tx || sy != ty)) {
 				midir = GetDirection8(sx, sy, dx, dy);
 				midir = (midir - 2) & 7;
 				// mis->_misx = tx; -- unused
@@ -3546,7 +3546,7 @@ int AddPulse(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty) && LineClear(sx, sy, tx, ty)) {
+			if (PosOkMis2(tx, ty, sx, sy)) {
 				// mis->_misx = tx; -- unused
 				// mis->_misy = ty;
 				SetMissilePos(mis, tx, ty);
@@ -4101,7 +4101,7 @@ void MI_HorkSpawn(int mi)
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		MoveMissile(mi, 1);
-		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy) || PosOkMis2(mis->_mix, mis->_miy)) {
+		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy)) {
 		// if (PosOkMonster(mis->_miSource, mis->_mix, mis->_miy)) {
 			PutMissile(mi);
 			return;
