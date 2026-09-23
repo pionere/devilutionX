@@ -522,7 +522,7 @@ typedef struct TextData {
 //////////////////////////////////////////////////
 
 typedef struct MissileData {
-	int (*mAddProc)(int, int, int, int, int, int, int);
+	int (*mAddProc)(int, POS32, int, int, int, int);
 	void (*mProc)(int);
 	BYTE mdFlags; // missile_flags
 	BYTE mResist; // missile_resistance
