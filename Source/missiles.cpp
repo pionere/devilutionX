@@ -3352,47 +3352,39 @@ int AddAttract(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int sx, sy, dx, dy, dist, i, j, tx, ty, mnum;
-	const int8_t* cr;
+	int dx, dy, dist, mnum;
 
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	if (!LineClear(sx, sy, dx, dy))
+	if (!LineClearPos(mis->_mipos, dp))
 		return MIRES_FAIL_DELETE;
 
+	dx = (unsigned)dp.x / DUN_WIDTH;
+	dy = (unsigned)dp.y / DUN_WIDTH;
 	// mis->_misx = dx; -- unused
 	// mis->_misy = dy;
-	SetMissilePos(mis, dx, dy);
+	mis->_mix = dx;
+	mis->_miy = dy;
+	mis->_mipos = dp;
 	mis->_miAnimFrame = 2;
 	mis->_miAnimAdd = 2;
 
 	dist = 4 + (spllvl >> 2);
-	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "AddAttract expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 9, "AddAttract uses CrawlTable/CrawlNum up to radius 9.");
 	if (dist > 9)
 		dist = 9;
-	for (i = 0; i <= dist; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			mnum = dMonster[tx][ty] - 1;
-			if (mnum < 0 || !LineClear(dx, dy, tx, ty))
-				continue;
-			mon = &monsters[mnum];
-			if (mon->_msquelch != SQUELCH_MAX) {
-				mon->_msquelch = SQUELCH_MAX;
-				mon->_mlastx = dx;
-				mon->_mlasty = dy;
-			}
+	dist = dist * dist * (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
+	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST /*|| mon->_mmode == MM_DEATH*/) continue;
+		if (GetDunDistance2(mon->_mpos, dp) > dist) continue;
+		if (!LineClearPos(mon->_mpos, dp)) continue;
+		if (mon->_msquelch != SQUELCH_MAX) {
+			mon->_msquelch = SQUELCH_MAX;
+			mon->_mlastx = dx;
+			mon->_mlasty = dy;
 		}
 	}
-
 	return MIRES_DONE;
 }
 
