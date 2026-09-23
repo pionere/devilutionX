@@ -182,9 +182,7 @@ void GetSkillDetails(int sn, int sl, SkillDetails* skd)
 		skd->v0 = mind;
 		skd->v1 = maxd;
 		break;
-#ifdef HELLFIRE
 	case SPL_FIRERING:
-#endif
 	case SPL_FIREWALL:
 		skd->v0 = ((power >> 3) + sl + 5) << (-3 + 5);
 		skd->v1 = ((power >> 3) + sl * 2 + 10) << (-3 + 5);
