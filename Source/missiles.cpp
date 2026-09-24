@@ -379,6 +379,64 @@ static bool PosOkMis2(int x, int y, int sx, int sy)
 	return LineClear(sx, sy, x, y);
 }
 
+/*
+ * Check if an active missile can be placed on the floor at the given position.
+ */
+static bool PosOkMis1(POS32 dp, POS32 sp)
+{
+	int oi, x, y;
+
+	x = (unsigned)dp.x / DUN_WIDTH;
+	y = (unsigned)dp.y / DUN_WIDTH;
+	if (nSolidTable[dPiece[x][y]] != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	return LineClearPos(sp, dp);
+}
+
+static bool PosOkGuardian(POS32 dp, POS32 sp)
+{
+	int mi;
+	if (!PosOkMis1(dp, sp)) return false;
+	for (mi = 0; mi < nummissiles; mi++) {
+		MissileStruct* bmis = &missile[missileactive[mi]];
+		if (bmis->_miType != MIS_GUARDIAN) continue;
+		// if (bmis == mis) continue;
+		if (GetDunDistance2(dp, bmis->_mipos) <= 24 * 24 * 2 * 2)
+			return false;
+	}
+	return true;
+}
+
+static bool FindPlace(const POS32 sp, int r, bool (*func)(POS32, POS32), POS32& dp)
+{
+	int i, dx, dy, sx, sy, tx, ty;
+	dx = dp.x;
+	dy = dp.y;
+	for (i = 0; i < r * ((DUN_WIDTH >> DUN_SHIFT) / 2); i++) {
+		for (sx = 0; sx <= 2 * i; sx++) {
+			for (sy = 0; sy <= 2 * i; sy++) {
+				// if (sx != 0 && sx != 2 * i && sy != 0 && sy != 2 * i) continue;
+				if (sx > 0 && sx < 2 * i && sy > 0 && sy < 2 * i) continue;
+				tx = dx + ((sx - i) << DUN_SHIFT);
+				ty = dy + ((sy - i) << DUN_SHIFT);
+				if (func({ tx, ty }, sp)) {
+					dp = { tx, ty };
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 static bool FindClosest(const POS32 sp, POS32& dp)
 {
 	constexpr int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 15 * 15;
@@ -2929,34 +2987,26 @@ int AddStone(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 int AddGuardian(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int sx, sy, dx, dy, i, j, tx, ty;
-	const int8_t* cr;
+	int tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 
-	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddGuardian expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 5, "AddGuardian uses CrawlTable/CrawlNum up to radius 5.");
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 5; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PlaceMissile(tx, ty, sx, sy)) {
-				mis->_misx = tx;
-				mis->_misy = ty;
-				SetMissilePos(mis, tx, ty);
-				static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
-				mis->_miLid = AddLight(mis->_mipos, 1);
-				mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
-				return MIRES_DONE;
-			}
-		}
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddGuardian expects a large enough border.");
+	POS32 sp = mis->_mipos;
+	mis->_mipos = { 0, 0 };
+	if (FindPlace(sp, 3, PosOkGuardian, dp)) {
+		mis->_mipos = dp;
+		tx = (unsigned)dp.x / DUN_WIDTH;
+		ty = (unsigned)dp.y / DUN_WIDTH;
+		mis->_mix = tx;
+		mis->_miy = ty;
+		// mis->_misx = tx; -- unused
+		// mis->_misy = ty;
+		static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
+		mis->_miLid = AddLight(mis->_mipos, 1);
+		mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
@@ -4521,7 +4571,6 @@ void MI_Guardian(int mi)
 		 // && mis->_miAnimCnt == MIA_GUARD_DELAY - 1
 		 && mis->_miAnimAdd < 0) {
 			// done after collapse
-			dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
 			mis->_miDelFlag = TRUE; // + AddUnLight
 			return;
 		}
@@ -5200,7 +5249,7 @@ void SyncMissilesAnim()
 		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
 			// PutMissileF(mi, BFLAG_HAZARD)
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
-		} else if (mis->_miType == MIS_GUARDIAN || mis->_miType == MIS_SHROUD
+		} else if (mis->_miType == MIS_SHROUD
 #ifdef HELLFIRE
 			|| (mis->_miType >= MIS_RUNEFIRE && mis->_miType <= MIS_RUNESTONE)
 #endif
