@@ -1068,12 +1068,18 @@ void PlrStartStand(int pnum)
 
 static void PlrChangeOffset(int pnum)
 {
-	plr._pVar6 += plr._pVar4; // WALK_XOFF <- WALK_XVEL
-	plr._pVar7 += plr._pVar5; // WALK_YOFF <- WALK_YVEL
+#if DUN_SHIFT <= PLR_WALK_SHIFT
+	int xoff = plr._pVar4 >> (PLR_WALK_SHIFT - DUN_SHIFT);
+	int yoff = plr._pVar5 >> (PLR_WALK_SHIFT - DUN_SHIFT);
+#else
+	int xoff = plr._pVar4 << (DUN_SHIFT - PLR_WALK_SHIFT);
+	int yoff = plr._pVar5 << (DUN_SHIFT - PLR_WALK_SHIFT);
+#endif
+	plr._ppos.x += xoff;
+	plr._ppos.y += yoff;
 
-	int xoff = (plr._pVar6 >> PLR_WALK_SHIFT) * ASSET_MPL;
-	int yoff = (plr._pVar7 >> PLR_WALK_SHIFT) * ASSET_MPL;
-	plr._ppos = DungeonScreenToDunPos(plr._px, plr._py, xoff, yoff);
+	plr._pVar4 = plr._pVar6; // WALK_XVEL <- WALK_XVEL_MAX
+	plr._pVar5 = plr._pVar7; // WALK_YVEL <- WALK_YVEL_MAX
 
 	UpdateScrollInfo(pnum);
 
@@ -1089,12 +1095,9 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 	int px, py;
 
 	plr._pmode = PM_WALK;
-	plr._pVar4 = xvel; // WALK_XVEL : velocity of the player in the X-direction
-	plr._pVar5 = yvel; // WALK_YVEL : velocity of the player in the Y-direction
-	//plr._pVar3 = dir;  // Player's direction when ending movement.
-	plr._pVar6 = 0;    // WALK_XOFF : screen X-offset in a higher range
-	plr._pVar7 = 0;    // WALK_YOFF : screen Y-offset in a higher range
-	plr._pVar8 = 0;    // WALK_TICK : speed helper
+	plr._pVar6 = plr._pVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the player in the X-direction
+	plr._pVar7 = plr._pVar5 = yvel; // WALK_YVEL_MAX, WALK_YVEL : velocity of the player in the Y-direction
+	plr._pVar8 = 0;                 // WALK_TICK : speed helper
 
 	px = plr._px;
 	py = plr._py;
@@ -1117,12 +1120,9 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	int px, py;
 
 	plr._pmode = PM_WALK2;
-	plr._pVar4 = xvel;       // WALK_XVEL : velocity of the player in the X-direction
-	plr._pVar5 = yvel;       // WALK_YVEL : velocity of the player in the Y-direction
-	plr._pVar6 = xoff << PLR_WALK_SHIFT;  // WALK_XOFF : screen X-offset in a higher range
-	plr._pVar7 = yoff << PLR_WALK_SHIFT;  // WALK_YOFF : screen Y-offset in a higher range
-	//plr._pVar3 = dir;      // Player's direction when ending movement.
-	plr._pVar8 = 0;          // WALK_TICK : speed helper
+	plr._pVar6 = plr._pVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the player in the X-direction
+	plr._pVar7 = plr._pVar5 = yvel; // WALK_YVEL_MAX, WALK_YVEL : velocity of the player in the Y-direction
+	plr._pVar8 = 0;                 // WALK_TICK : speed helper
 
 	px = plr._px;
 	py = plr._py;
@@ -1148,28 +1148,28 @@ static void StartWalk(int pnum, int dir)
 	mwi = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, 0, -(mwi >> 1), dir);
+		StartWalk1(pnum, -mwi, -mwi, dir);
 		break;
 	case DIR_NE:
-		StartWalk1(pnum, (mwi >> 1), -(mwi >> 2), dir);
+		StartWalk1(pnum, 0, -mwi, dir);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, mwi, 0, -TILE_WIDTH, 0, dir);
+		StartWalk2(pnum, mwi, -mwi, -TILE_WIDTH, 0, dir);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, (mwi >> 1), (mwi >> 2), -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, mwi, 0, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, 0, (mwi >> 1), 0, -TILE_HEIGHT, dir);
+		StartWalk2(pnum, mwi, mwi, 0, -TILE_HEIGHT, dir);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, -(mwi >> 1), (mwi >> 2), TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, 0, mwi, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
 		break;
 	case DIR_W:
-		StartWalk1(pnum, -mwi, 0, dir);
+		StartWalk1(pnum, -mwi, mwi, dir);
 		break;
 	case DIR_NW:
-		StartWalk1(pnum, -(mwi >> 1), -(mwi >> 2), dir);
+		StartWalk1(pnum, -mwi, 0, dir);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -2706,8 +2706,8 @@ void PlrHinder(int pnum, int spllvl, unsigned tick)
 	if (effect != 0 && ((unsigned)tick % (unsigned)effect) == 0) {
 		if (plr._pmode != PM_CHARGE) {
 			plr._pAnimCnt--;
-			plr._pVar6 -= plr._pVar4; // WALK_XOFF <- WALK_XVEL
-			plr._pVar7 -= plr._pVar5; // WALK_YOFF <- WALK_YVEL
+			plr._pVar4 = 0; // WALK_XVEL
+			plr._pVar5 = 0; // WALK_YVEL
 			plr._pVar8--; // WALK_TICK
 		} else {
 			PlrStartStand(pnum);

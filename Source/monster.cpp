@@ -1840,13 +1840,9 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 	int mx, my;
 
 	mon->_mmode = MM_WALK;
-	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
-	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
-	//mon->_mVar1 = xadd; // dx after the movement
-	//mon->_mVar2 = yadd; // dy after the movement
-	mon->_mVar6 = 0;    // MWALK_XOFF : _mxoff in a higher range
-	mon->_mVar7 = 0;    // MWALK_YOFF : _myoff in a higher range
-	//mon->_mVar8 = 0;    // Value used to measure progress for moving from one tile to another
+	mon->_mVar6 = mon->_mVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the monster in the X-direction
+	mon->_mVar7 = mon->_mVar5 = yvel; // WALK_YVEL_MAX, WALK_YVEL : velocity of the monster in the Y-direction
+	//mon->_mVar8 = 0;                // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
@@ -1870,11 +1866,9 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	int mx, my;
 
 	mon->_mmode = MM_WALK2;
-	mon->_mVar4 = xvel; // WALK_XVEL : velocity of the monster in the X-direction
-	mon->_mVar5 = yvel; // WALK_YVEL : velocity of the monster in the Y-direction
-	mon->_mVar6 = xoff << MON_WALK_SHIFT; // MWALK_XOFF : _mxoff in a higher range
-	mon->_mVar7 = yoff << MON_WALK_SHIFT; // MWALK_YOFF : _myoff in a higher range
-	//mon->_mVar8 = 0;         // Value used to measure progress for moving from one tile to another
+	mon->_mVar6 = mon->_mVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the monster in the X-direction
+	mon->_mVar7 = mon->_mVar5 = yvel; // WALK_YVEL_MAX, WALK_YVEL : velocity of the monster in the Y-direction
+	//mon->_mVar8 = 0;                // Value used to measure progress for moving from one tile to another
 
 	mx = mon->_mx;
 	my = mon->_my;
@@ -2404,11 +2398,19 @@ static bool MonDoWalk(int mnum)
 	} else {
 		//if (mon->_mAnimCnt == 0) {
 			//mon->_mVar8++;
-			mon->_mVar6 += mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
-			mon->_mVar7 += mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
-			int xoff = (mon->_mVar6 >> MON_WALK_SHIFT) * ASSET_MPL;
-			int yoff = (mon->_mVar7 >> MON_WALK_SHIFT) * ASSET_MPL;
-			mon->_mpos = DungeonScreenToDunPos(mon->_mx, mon->_my, xoff, yoff);
+#if DUN_SHIFT <= MON_WALK_SHIFT
+			int xoff = mon->_mVar4 >> (MON_WALK_SHIFT - DUN_SHIFT);
+			int yoff = mon->_mVar5 >> (MON_WALK_SHIFT - DUN_SHIFT);
+#else
+			int xoff = mon->_mVar4 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_XVEL
+			int yoff = mon->_mVar5 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_YVEL
+#endif
+			mon->_mpos.x += xoff;
+			mon->_mpos.y += yoff;
+
+			mon->_mVar4 = mon->_mVar6; // WALK_XVEL <- WALK_XVEL_MAX
+			mon->_mVar5 = mon->_mVar7; // WALK_YVEL <- WALK_YVEL_MAX
+
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			//	ChangeLightXY(mon->_mlid, mon->_mpos);
@@ -2854,28 +2856,28 @@ static void MonWalkDir(int mnum, int md)
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
 	case DIR_N:
-		MonStartWalk1(mnum, 0, -(mwi >> 1), md);
+		MonStartWalk1(mnum, -mwi, -mwi, md);
 		break;
 	case DIR_NE:
-		MonStartWalk1(mnum, (mwi >> 1), -(mwi >> 2), md);
+		MonStartWalk1(mnum, 0, -mwi, md);
 		break;
 	case DIR_E:
-		MonStartWalk2(mnum, mwi, 0, -TILE_WIDTH, 0, md);
+		MonStartWalk2(mnum, mwi, -mwi, -TILE_WIDTH, 0, md);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, (mwi >> 1), (mwi >> 2), -TILE_WIDTH/2, -TILE_HEIGHT/2, md);
+		MonStartWalk2(mnum, mwi, 0, -TILE_WIDTH/2, -TILE_HEIGHT/2, md);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, 0, (mwi >> 1), 0, -TILE_HEIGHT, md);
+		MonStartWalk2(mnum, mwi, mwi, 0, -TILE_HEIGHT, md);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, -(mwi >> 1), (mwi >> 2), TILE_WIDTH/2, -TILE_HEIGHT/2, md);
+		MonStartWalk2(mnum, 0, mwi, TILE_WIDTH/2, -TILE_HEIGHT/2, md);
 		break;
 	case DIR_W:
-		MonStartWalk1(mnum, -mwi, 0, md);
+		MonStartWalk1(mnum, -mwi, mwi, md);
 		break;
 	case DIR_NW:
-		MonStartWalk1(mnum, -(mwi >> 1), -(mwi >> 2), md);
+		MonStartWalk1(mnum, -mwi, 0, md);
 		break;
 	default:
 		ASSUME_UNREACHABLE
@@ -4956,8 +4958,8 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 	if (effect != 0 && ((unsigned)tick % (unsigned)effect) == 0) {
 		if (mon->_mmode != MM_CHARGE) {
 			mon->_mAnimCnt--;
-			mon->_mVar6 -= mon->_mVar4; // MWALK_XOFF <- WALK_XVEL
-			mon->_mVar7 -= mon->_mVar5; // MWALK_YOFF <- WALK_YVEL
+			mon->_mVar4 = 0; // WALK_XVEL
+			mon->_mVar5 = 0; // WALK_YVEL
 		} else {
 			// assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
 			dMonster[mon->_mx][mon->_my] = mnum + 1;
