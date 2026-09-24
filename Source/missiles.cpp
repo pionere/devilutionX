@@ -390,6 +390,7 @@ static bool FindClosest(const POS32 sp, POS32& dp)
 	sy = (unsigned)sp.y / DUN_WIDTH;
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
+		// if (CanTalkToMonst(mnum)) continue;
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
 		dist = GetDunDistance2(sp, mon->_mpos);
 		if (dist > bestDist) continue;
@@ -414,6 +415,7 @@ static bool FindClosestChain(const MissileStruct* mis, POS32& dp)
 
 	for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		mon = &monsters[mnum];
+		// if (CanTalkToMonst(mnum)) continue;
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
 		if ((mon->_mMagicRes & MORS_LIGHTNING_IMMUNE) == MORS_LIGHTNING_IMMUNE)
 			continue;
@@ -425,6 +427,27 @@ static bool FindClosestChain(const MissileStruct* mis, POS32& dp)
 		dp = mon->_mpos;
 	}
 	return bestDist <= MAX_DIST;
+}
+
+static bool FindNextMon(const POS32 sp, POS32& dp)
+{
+	constexpr int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 6 * 6;
+	int mnum, dist;
+	int bestDist = -1;
+	MonsterStruct* mon;
+
+	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+		mon = &monsters[mnum];
+		// if (CanTalkToMonst(mnum)) continue;
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
+		dist = GetDunDistance2(sp, mon->_mpos);
+		if (dist > MAX_DIST || dist < bestDist) continue;
+		if (!LineClearPos(sp, mon->_mpos)) continue;
+		// if (dist == bestDist && random_(111, 2) == 0) continue;
+		bestDist = dist;
+		dp = mon->_mpos;
+	}
+	return bestDist >= 0;
 }
 
 static void DoTeleport(int pnum, int dx, int dy)
@@ -3661,31 +3684,6 @@ static void ConvertMissile(int mi, int mitype)
 	PutMissile(mi);
 }
 
-static bool Sentfire(int mi, int sx, int sy)
-{
-	int mnum;
-	MissileStruct* mis;
-
-	mis = &missile[mi];
-	// assert(mis->_miCaster == MST_PLAYER);
-	mnum = dMonster[sx][sy] - 1;
-	if (mnum >= MAX_MINIONS
-	 && monsters[mnum]._mhitpoints != 0
-	 //&& !CanTalkToMonst(mnum) -- commented out to make it consistent with MI_Rune, MI_Poison, FindClosestChain, FindClosest
-	 && LineClearPos(mis->_mipos, monsters[mnum]._mpos)) {
-		// SetRndSeed(mis->_miRndSeed);
-		AddMissile(mis->_mipos, monsters[mnum]._mpos, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
-		// mis->_miRndSeed = NextRndSeed();
-		SetMissAnim(mi, 2);
-		// assert(mis->_miAnimLen == MIA_GUARD2_LENGTH);
-		mis->_miAnimFrame = MIA_GUARD2_LENGTH;
-		mis->_miAnimAdd = -1;
-		return true;
-	}
-
-	return false;
-}
-
 void MI_Dummy(int mi)
 {
 	return;
@@ -4518,8 +4516,6 @@ void MI_Meteor(int mi)
 void MI_Guardian(int mi)
 {
 	MissileStruct* mis;
-	int i, j, tx, ty;
-	const int8_t* cr;
 
 	mis = &missile[mi];
 	switch (mis->_miDir) {
@@ -4547,19 +4543,16 @@ void MI_Guardian(int mi)
 			// check for an enemy
 			mis->_miRange--;
 			if (mis->_miRange >= 0) {
-				static_assert(DBORDERX >= 6 && DBORDERY >= 6, "MI_Guardian expects a large enough border.");
-				static_assert(lengthof(CrawlNum) > 6, "MI_Guardian uses CrawlTable/CrawlNum up to radius 6.");
-				for (i = 6; i >= 0; i--) {
-					cr = &CrawlTable[CrawlNum[i]];
-					for (j = (BYTE)*cr; j > 0; j--) {
-						tx = mis->_mix + *++cr;
-						ty = mis->_miy + *++cr;
-						if (Sentfire(mi, tx, ty))
-							goto done;
-					}
+				POS32 dp;
+				if (FindNextMon(mis->_mipos, dp)) {
+					// SetRndSeed(mis->_miRndSeed);
+					AddMissile(mis->_mipos, dp, 0, MIS_FIREBOLT, MST_PLAYER, mis->_miSource, mis->_miSpllvl);
+					// mis->_miRndSeed = NextRndSeed();
+					SetMissAnim(mi, 2);
+					// assert(mis->_miAnimLen == MIA_GUARD2_LENGTH);
+					mis->_miAnimFrame = MIA_GUARD2_LENGTH;
+					mis->_miAnimAdd = -1;
 				}
-done:
-				;
 			} else {
 collapse:
 				// start collapse
