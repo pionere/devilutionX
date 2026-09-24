@@ -3895,7 +3895,7 @@ void MI_Poison(int mi)
 					zoff -= TILE_HEIGHT / 2;
 				}
 			}
-			mis->_mizoff += zoff;
+			mis->_mizoff = zoff;
 			// CheckMissileArea(mi, mis->_mix, mis->_miy);
 			MonMissHit(tnum, mi);
 		}
@@ -3908,7 +3908,7 @@ void MI_Poison(int mi)
 			PlrSetMissilePos(pnum, mis);
 			zoff = 0;
 			zoff -= 3 * TILE_HEIGHT / 4;
-			mis->_mizoff += zoff;
+			mis->_mizoff = zoff;
 			// CheckMissileArea(mi, mis->_mix, mis->_miy);
 			PlrMissHit(pnum, mi);
 		}
