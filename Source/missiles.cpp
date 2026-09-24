@@ -881,8 +881,9 @@ static bool MissMonHitByMon(int mnum, int mi)
 	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == mnum + 1)
 			return false;
-		mis->_miVar8 = mnum + 1;
 	}
+	mis->_miVar8 = mnum + 1;
+
 	misource = mis->_miSource;
 	// assert(misource == -1 || ((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS));
 	if (mnum >= MAX_MINIONS && misource >= MAX_MINIONS) {
@@ -953,8 +954,9 @@ static bool MissMonHitByPlr(int mnum, int mi)
 	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == mnum + 1)
 			return false;
-		mis->_miVar8 = mnum + 1;
 	}
+	mis->_miVar8 = mnum + 1;
+
 	pnum = mis->_miSource;
 	// assert((unsigned)pnum < MAX_PLRS);
 	// if (mnum < MAX_MINIONS && plx(mnum)._pTeam == plr._pTeam)
@@ -1143,8 +1145,9 @@ static bool MissPlrHitByMon(int pnum, int mi)
 	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == -(pnum + 1))
 			return false;
-		mis->_miVar8 = -(pnum + 1);
 	}
+	mis->_miVar8 = -(pnum + 1);
+
 	misource = mis->_miSource;
 	// assert(misource == -1 || ((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS));
 	if ((unsigned)misource < MAX_MINIONS && plx(misource)._pTeam == plr._pTeam)
@@ -1211,8 +1214,9 @@ static bool MissPlrHitByPlr(int pnum, int mi)
 	if (!(mis->_miFlags & MIF_DOT)) {
 		if (mis->_miVar8 == -(pnum + 1))
 			return false;
-		mis->_miVar8 = -(pnum + 1);
 	}
+	mis->_miVar8 = -(pnum + 1);
+
 	offp = mis->_miSource;
 	// assert((unsigned)offp < MAX_PLRS);
 	if (plr._pTeam == plx(offp)._pTeam || plr._pInvincible) {
@@ -3855,25 +3859,9 @@ void MI_Poison(int mi)
 	if (mis->_miVar1 == 0) {
 		// target not acquired
 		hit = MoveProjectal(mi, 1, MICM_BLOCK_WALL);
-		if (hit == 1) {
-			tnum = dMonster[mis->_mix][mis->_miy];
-			if (tnum != 0) {
-				// monster target acquired
-				tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-
-				mis->_miVar1 = tnum + 1;
-			} else {
-				tnum = dPlayer[mis->_mix][mis->_miy];
-				if (tnum != 0) {
-					// player target acquired
-					tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-
-					mis->_miVar1 = -(tnum + 1);
-				} else {
-					// actor died and displaced -> done
-					mis->_miRange = 0;
-				}
-			}
+		// if (hit == 1) {
+		if (hit) {
+			mis->_miVar1 = mis->_miVar8;
 		}
 	} else if (mis->_miVar1 > 0) {
 		// monster target
