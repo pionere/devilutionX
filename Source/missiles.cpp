@@ -361,10 +361,12 @@ static bool PlaceMissile(int x, int y, int sx, int sy)
 /*
  * Check if a missile can be placed at the given position.
  */
-static bool PosOkMis2(int x, int y, int sx, int sy)
+static bool PosOkMis2(POS32 dp, POS32 sp)
 {
-	// int oi;
+	int x, y;
 
+	x = (unsigned)dp.x / DUN_WIDTH;
+	y = (unsigned)dp.y / DUN_WIDTH;
 	if (nMissileTable[dPiece[x][y]] != 0)
 		return false;
 
@@ -376,7 +378,7 @@ static bool PosOkMis2(int x, int y, int sx, int sy)
 			return false;
 	}*/
 
-	return LineClear(sx, sy, x, y);
+	return LineClearPos(sp, dp);
 }
 
 /*
@@ -2084,15 +2086,15 @@ int AddRingC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddRingC expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 3, "AddRingC uses CrawlTable/CrawlNum radius 3.");
-	sx = missile[mi]._misx;
-	sy = missile[mi]._misy;
+	sx = missile[mi]._mipos.x;
+	sy = missile[mi]._mipos.y;
 	cr = &CrawlTable[CrawlNum[3]];
 	for (j = (BYTE)*cr; j > 0; j--) {
-		tx = sx + *++cr;
-		ty = sy + *++cr;
-		assert(IN_DUNGEON_AREA(tx, ty));
-		if (PosOkMis2(tx, ty, sx, sy)) {
-			const POS32 tp = DungeonToDunPos(tx, ty);
+		tx = sx + (*++cr * DUN_WIDTH);
+		ty = sy + (*++cr * DUN_WIDTH);
+		// assert(IN_DUNGEON_DUN(tx, ty));
+		if (PosOkMis2({ tx, ty }, { sx, sy })) {
+			const POS32 tp = { tx, ty };
 			AddMissile(tp, { 0, 0 }, 0, mitype, micaster, misource, spllvl);
 		}
 	}
@@ -2765,8 +2767,7 @@ int AddFireWave(int mi, POS32 dp, int midir, int micaster, int misource, int spl
 int AddMeteor(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int power, mindam, maxdam, sx, sy, dx, dy, i, j, tx, ty;
-	const int8_t* cr;
+	int power, mindam, maxdam, tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -2785,28 +2786,19 @@ int AddMeteor(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 	mis->_miMinDam = mindam;
 	mis->_miMaxDam = maxdam;
 
-	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddMeteor expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 5, "AddMeteor uses CrawlTable/CrawlNum up to radius 5.");
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 5; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty, sx, sy)) {
-				mis->_misx = tx;
-				mis->_misy = ty;
-				SetMissilePos(mis, tx, ty);
-				// assert(mis->_miAnimLen == MIA_SHATTER1_LENGTH);
-				mis->_miAnimFrame = MIA_SHATTER1_LENGTH;
-				mis->_miAnimAdd = -1;
-				return MIRES_DONE;
-			}
-		}
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddMeteor expects a large enough border.");
+	if (FindPlace(mis->_mipos, 3, PosOkMis2, dp)) {
+		mis->_mipos = dp;
+		tx = (unsigned)dp.x / DUN_WIDTH;
+		ty = (unsigned)dp.y / DUN_WIDTH;
+		mis->_mix = tx;
+		mis->_miy = ty;
+		// mis->_misx = tx; -- unused
+		// mis->_misy = ty;
+		// assert(mis->_miAnimLen == MIA_SHATTER1_LENGTH);
+		mis->_miAnimFrame = MIA_SHATTER1_LENGTH;
+		mis->_miAnimAdd = -1;
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
@@ -3171,38 +3163,28 @@ int AddOpItem(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 int AddWallC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int sx, sy, dx ,dy, i, j, tx, ty;
-	const int8_t* cr;
+	int tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
-	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddWallC expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 5, "AddWallC uses CrawlTable/CrawlNum up to radius 5.");
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWallC expects a large enough border.");
 	mis = &missile[mi];
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 5; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty, sx, sy)) {
-				midir = plx(mis->_miSource)._pdir;
-				midir = (midir - 2) & 7;
-				// mis->_misx = tx; -- unused
-				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty);
-				mis->_mixvel = XDirAdd[midir];
-				mis->_miyvel = YDirAdd[midir];
-				//mis->_miVar1 = 0;
-				//mis->_miVar2 = FALSE;
-				//mis->_miVar3 = FALSE;
-				mis->_miRange = (spllvl >> 1);
-				return MIRES_DONE;
-			}
-		}
+	if (FindPlace(mis->_mipos, 3, PosOkMis2, dp)) {
+		mis->_mipos = dp;
+		tx = (unsigned)dp.x / DUN_WIDTH;
+		ty = (unsigned)dp.y / DUN_WIDTH;
+		mis->_mix = tx;
+		mis->_miy = ty;
+		// mis->_misx = tx; -- unused
+		// mis->_misy = ty;
+		midir = plx(misource)._pdir;
+		midir = (midir - 2) & 7;
+		mis->_mixvel = XDirAdd[midir];
+		mis->_miyvel = YDirAdd[midir];
+		// mis->_miVar1 = 0;
+		// mis->_miVar2 = FALSE;
+		// mis->_miVar3 = FALSE;
+		mis->_miRange = (spllvl >> 1);
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
@@ -3588,8 +3570,7 @@ int AddRage(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 int AddPulse(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam, sx, sy, dx, dy, i, j, tx, ty;
-	const int8_t* cr;
+	int mindam, maxdam, tx, ty;
 	mis = &missile[mi];
 
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
@@ -3609,27 +3590,18 @@ int AddPulse(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 	// assert(mis->_miAnimLen == MIA_LGHNING_LENGTH);
 	mis->_miAnimFrame = RandRange(1, MIA_LGHNING_LENGTH);
 
-	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddPulse expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 5, "AddPulse uses CrawlTable/CrawlNum up to radius 5.");
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 5; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty, sx, sy)) {
-				// mis->_misx = tx; -- unused
-				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty);
-				static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
-				mis->_miLid = AddLight(mis->_mipos, 4);
-				return MIRES_DONE;
-			}
-		}
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddPulse expects a large enough border.");
+	if (FindPlace(mis->_mipos, 3, PosOkMis2, dp)) {
+		mis->_mipos = dp;
+		tx = (unsigned)dp.x / DUN_WIDTH;
+		ty = (unsigned)dp.y / DUN_WIDTH;
+		mis->_mix = tx;
+		mis->_miy = ty;
+		// mis->_misx = tx; -- unused
+		// mis->_misy = ty;
+		static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
+		mis->_miLid = AddLight(mis->_mipos, 4);
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
