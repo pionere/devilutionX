@@ -4780,7 +4780,8 @@ void MI_Shroud(int mi)
 			for (i = 0; i < nummissiles; i++) {
 				bmis = &missile[missileactive[i]];
 				// TODO: handle MIS_FIREWALLC ?
-				if (bmis->_mix != mis->_mix || bmis->_miy != mis->_miy)
+				int doff = GetDunDistance2(mis->_mipos, bmis->_mipos);
+				if (doff > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) / 4)
 					continue;
 				if (bmis == mis || !(bmis->_miFlags & MIF_SHROUD))
 					continue;
