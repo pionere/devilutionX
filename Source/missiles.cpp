@@ -2607,32 +2607,21 @@ int AddBleed(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 int AddShroud(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int sx, sy, dx, dy, i, j, tx, ty;
-	const int8_t* cr;
+	int tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-
-	static_assert(DBORDERX >= 5 && DBORDERY >= 5, "AddShroud expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 5, "AddShroud uses CrawlTable/CrawlNum up to radius 5.");
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 5; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PlaceMissile(tx, ty, sx, sy)) {
-				// mis->_misx = tx; -- unused
-				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty);
-				mis->_miRange = 32 * spllvl + 160;
-				return MIRES_DONE;
-			}
-		}
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddShroud expects a large enough border.");
+	if (FindPlace(mis->_mipos, 3, PosOkMis1, dp)) {
+		mis->_mipos = dp;
+		tx = (unsigned)dp.x / DUN_WIDTH;
+		ty = (unsigned)dp.y / DUN_WIDTH;
+		mis->_mix = tx;
+		mis->_miy = ty;
+		// mis->_misx = tx; -- unused
+		// mis->_misy = ty;
+		mis->_miRange = 32 * spllvl + 160;
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
@@ -4819,7 +4808,6 @@ void MI_Shroud(int mi)
 		PutMissile(mi);
 		return;
 	}
-	dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
 	mis->_miDelFlag = TRUE;
 }
 
@@ -5222,12 +5210,10 @@ void SyncMissilesAnim()
 		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
 			// PutMissileF(mi, BFLAG_HAZARD)
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
-		} else if (mis->_miType == MIS_SHROUD
 #ifdef HELLFIRE
-			|| (mis->_miType >= MIS_RUNEFIRE && mis->_miType <= MIS_RUNESTONE)
-#endif
-			) {
+		} else if (mis->_miType >= MIS_RUNEFIRE && mis->_miType <= MIS_RUNESTONE) {
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_MIS_ACTIVE;
+#endif
 		//} else if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
 		//	// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
 		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
