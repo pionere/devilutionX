@@ -3215,15 +3215,14 @@ int AddNovaC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 	// assert((micaster & MST_PLAYER) || micaster == MST_OBJECT);
 	static_assert(DBORDERX >= 3 && DBORDERY >= 3, "AddNovaC expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 3, "AddNovaC uses CrawlTable/CrawlNum radius 3.");
-	sx = missile[mi]._misx;
-	sy = missile[mi]._misy;
+	sx = missile[mi]._mipos.x;
+	sy = missile[mi]._mipos.y;
 	// assert(CrawlTable[CrawlNum[3]] == 24);  -- (total) damage depends on this
 	cr = &CrawlTable[CrawlNum[3]];
 	for (i = (BYTE)*cr; i > 0; i--) {
-		tx = sx + *++cr;
-		ty = sy + *++cr;
-		const POS32 tp = DungeonToDunPos(tx, ty);
-		AddMissile(missile[mi]._mipos, tp, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
+		tx = sx + (*++cr * DUN_WIDTH);
+		ty = sy + (*++cr * DUN_WIDTH);
+		AddMissile({ sx, sy }, { tx, ty }, 0, MIS_LIGHTBALL, micaster, misource, spllvl);
 	}
 
 	return MIRES_DELETE;
