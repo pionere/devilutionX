@@ -3829,7 +3829,6 @@ typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
 	BFLAG_ALERT       = 0x02, // alert flag, used by monsters to set squelch
 	BFLAG_DEAD_PLAYER = 0x04,
-	BFLAG_MIS_ACTIVE  = 0x08, // whether there is an active/blocking missile at the given position (e.g. guardian, shroud or rune)
 	BFLAG_HAZARD      = 0x20, // fire hazard flag, used by monsters to avoid tiles
 	BFLAG_VISIBLE     = 0x40, // visibility flag, used by the local player to check if monsters/players are visible
 	BFLAG_EXPLORED    = 0x80, // whether the automapview is set (not in sync after load/deltaload/shrine-effect)

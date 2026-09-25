@@ -343,22 +343,6 @@ void RemovePortalMissile(int pnum)
 }
 
 /*
- * Check if an active (missile-)entity can be placed at the given position.
- */
-static bool PlaceMissile(int x, int y, int sx, int sy)
-{
-	if (!PosOkActor(x, y))
-		return false;
-	// nSolidTable is checked -> ignore the few additional tiles from nMissileTable
-	if (!LineClear(sx, sy, x, y))
-		return false;
-	if (dFlags[x][y] & BFLAG_MIS_ACTIVE)
-		return false;
-	dFlags[x][y] |= BFLAG_MIS_ACTIVE;
-	return true;
-}
-
-/*
  * Check if a missile can be placed at the given position.
  */
 static bool PosOkMis2(POS32 dp, POS32 sp)
@@ -416,7 +400,24 @@ static bool PosOkGuardian(POS32 dp, POS32 sp)
 	}
 	return true;
 }
+#ifdef HELLFIRE
+static bool PosOkRune(POS32 dp, POS32 sp)
+{
+	int mi, x, y;
 
+	x = (unsigned)dp.x / DUN_WIDTH;
+	y = (unsigned)dp.y / DUN_WIDTH;
+	if (!PosOkActor(x, y)) return false;
+	for (mi = 0; mi < nummissiles; mi++) {
+		MissileStruct* bmis = &missile[missileactive[mi]];
+		if (bmis->_miType < MIS_RUNEFIRE || bmis->_miType > MIS_RUNESTONE) continue;
+		// if (bmis == mis) continue;
+		if (GetDunDistance2(dp, bmis->_mipos) <= 12 * 12 * 2 * 2)
+			return false;
+	}
+	return true;
+}
+#endif
 static bool FindPlace(const POS32 sp, int r, bool (*func)(POS32, POS32), POS32& dp)
 {
 	int i, dx, dy, sx, sy, tx, ty;
@@ -1968,8 +1969,7 @@ void InitMissiles()
  */
 int AddRune(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
-	int mitype, mirange, sx, sy, dx, dy, i, j, tx, ty;
-	const int8_t* cr;
+	int mitype, mirange, tx, ty;
 	MissileStruct* mis;
 	// (micaster == MST_PLAYER || micaster == MST_OBJECT);
 	mis = &missile[mi];
@@ -1991,27 +1991,20 @@ int AddRune(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 		mis->_miSpllvl += plx(mis->_miSource)._pDexterity >> 4;
 	}
 	mis->_miRange = 16 + 816; // delay + ttl (48 * 9 + 48 * 8)
-	static_assert(DBORDERX >= 9 && DBORDERY >= 9, "AddRune expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 9, "AddRune uses CrawlTable/CrawlNum up to radius 9.");
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 9; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PlaceMissile(tx, ty, sx, sy)) {
-				// mis->_misx = tx; -- unused
-				// mis->_misy = ty;
-				SetMissilePos(mis, tx, ty);
-				static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
-				mis->_miLid = AddLight(mis->_mipos, 8);
-				return MIRES_DONE;
-			}
-		}
+	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddRune expects a large enough border.");
+	POS32 sp = mis->_mipos;
+	mis->_mipos = { 0, 0 };
+	if (FindPlace(sp, 3, PosOkRune, dp)) {
+		mis->_mipos = dp;
+		tx = (unsigned)dp.x / DUN_WIDTH;
+		ty = (unsigned)dp.y / DUN_WIDTH;
+		mis->_mix = tx;
+		mis->_miy = ty;
+		// mis->_misx = tx; -- unused
+		// mis->_misy = ty;
+		static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
+		mis->_miLid = AddLight(mis->_mipos, 8);
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
@@ -4159,7 +4152,6 @@ void MI_Rune(int mi)
 	}
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
-		dFlags[mis->_mix][mis->_miy] &= ~BFLAG_MIS_ACTIVE;
 		if ((mis->_miCaster & MST_PLAYER) && random_(0, 512) > mis->_miVar4) {
 			static_assert(SPL_RUNELIGHT == MIS_RUNELIGHT - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums I.");
 			static_assert(SPL_RUNENOVA == MIS_RUNENOVA - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums II.");
@@ -5210,10 +5202,6 @@ void SyncMissilesAnim()
 		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
 			// PutMissileF(mi, BFLAG_HAZARD)
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
-#ifdef HELLFIRE
-		} else if (mis->_miType >= MIS_RUNEFIRE && mis->_miType <= MIS_RUNESTONE) {
-			dFlags[mis->_mix][mis->_miy] |= BFLAG_MIS_ACTIVE;
-#endif
 		//} else if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
 		//	// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
 		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
