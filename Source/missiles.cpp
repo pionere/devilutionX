@@ -3188,7 +3188,7 @@ int AddWallC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 			tx = dx + *++cr;
 			ty = dy + *++cr;
 			assert(IN_DUNGEON_AREA(tx, ty));
-			if (PosOkMis2(tx, ty, sx, sy) && (sx != tx || sy != ty)) {
+			if (PosOkMis2(tx, ty, sx, sy)) {
 				midir = plx(mis->_miSource)._pdir;
 				midir = (midir - 2) & 7;
 				// mis->_misx = tx; -- unused
