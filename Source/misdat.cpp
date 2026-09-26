@@ -96,7 +96,7 @@ const MissileData missiledata[] = {
 /*MIS_OPITEM*/       { &AddOpItem,      &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_REPAIR*/       { &AddOpItem,      &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     IS_REPAIR,   SFX_NONE,           1,        1,         0,       0, ALIGN32 },
 /*MIS_DISARM*/       { &AddDisarm,      &MI_Dummy,      0,                                             MISR_NONE,      MFILE_NONE,     LS_TRAPDIS,  SFX_NONE,           1,        1,         0,       0, ALIGN32 },
-/*MIS_INFERNOC*/     { &AddInfernoC,    &MI_InfernoC,   MIF_SHROUD,                                    MISR_NONE,      MFILE_NONE,     LS_SPOUTSTR, SFX_NONE,           1,        1,        45,       2, ALIGN32 },
+/*MIS_INFERNOC*/     { &AddInfernoC,    &MI_InfernoC,   MIF_SHROUD,                                    MISR_NONE,      MFILE_NONE,     LS_SPOUTSTR, SFX_NONE,           1,        1,        32,       2, ALIGN32 },
 /*MIS_INFERNO*/      { &AddInferno,     &MI_Inferno,    MIF_SHROUD | MIF_AREA | MIF_DOT,               MISR_FIRE,      MFILE_INFERNO,  SFX_NONE,    SFX_NONE,           1,        1,         0,      20, ALIGN32 },
 /*MIS_FIRETRAP*///   { &AddFireTrap,    &MI_FireTrap,   MIF_AREA | MIF_DOT,                            MISR_FIRE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       8, ALIGN32 },
 /*MIS_BARRELEX*/     { &AddBarrelExp,   &MI_Dummy,      0,                                             MISR_FIRE,      MFILE_NONE,     SFX_NONE,    SFX_NONE,           1,        1,         0,       0, ALIGN32 },

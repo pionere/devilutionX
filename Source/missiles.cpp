@@ -3302,16 +3302,14 @@ int AddInferno(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 }
 
 /**
- * Var1: x coordinate of the missile
- * Var2: y coordinate of the missile
+ * Var1: timer to place the splashes
  */
 int AddInfernoC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
-	mis->_miVar1 = mis->_misx;
-	mis->_miVar2 = mis->_misy;
+	// mis->_miVar1 = 0;
 	return MIRES_DONE;
 }
 
@@ -4998,9 +4996,8 @@ void MI_InfernoC(int mi)
 
 	mis = &missile[mi];
 	MoveMissile(mi, 1);
-	if (mis->_mix != mis->_miVar1 || mis->_miy != mis->_miVar2) {
-		mis->_miVar1 = mis->_mix;
-		mis->_miVar2 = mis->_miy;
+	mis->_miVar1++;
+	if (!(mis->_miVar1 & 1)) {
 		if (!nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
 			// SetRndSeed(mis->_miRndSeed);
 			// mis->_miRange used by MIS_INFERNO !
