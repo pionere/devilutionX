@@ -979,7 +979,7 @@ static bool MissMonHitByMon(int mnum, int mi)
 
 	misource = mis->_miSource;
 	// assert(misource == -1 || ((unsigned)misource >= MAX_MINIONS && (unsigned)misource < MAXMONSTERS));
-	if (mnum >= MAX_MINIONS && misource >= MAX_MINIONS) {
+	if (mnum == misource || (mnum >= MAX_MINIONS && misource >= MAX_MINIONS)) {
 		return false; // monster vs. monster
 	}
 	// if (mnum < MAX_MINIONS && (unsigned)misource < MAX_MINIONS && plx(mnum)._pTeam == plx(misource)._pTeam)
@@ -1695,12 +1695,10 @@ static void CheckSplashCol(int mi, int hit)
 
 static int MoveProjectal(int mi, int steps, missile_collision_mode mode)
 {
-	int hit = 0;
+	int hit;
 	MoveMissile(mi, steps);
 	MissileStruct* mis = &missile[mi];
-	if (mis->_misx != mis->_mix || mis->_misy != mis->_miy) {
-		hit = CheckMissileCol(mi, mis->_mix, mis->_miy, mode);
-	}
+	hit = CheckMissileCol(mi, mis->_mix, mis->_miy, mode);
 	return hit;
 }
 
