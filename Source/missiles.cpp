@@ -3201,36 +3201,32 @@ int AddFireWaveC(int mi, POS32 dp, int midir, int micaster, int misource, int sp
 {
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
-	int sx, sy, dx, dy, sd, nx, ny, dir;
+	int sd, nx, ny, dir;
 	int i, j;
+	const POS32 sp = missile[mi]._mipos;
 
-	sx = missile[mi]._misx;
-	sy = missile[mi]._misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	sd = GetDirection8(sx, sy, dx, dy);
-	// if (!nMissileTable[dPiece[sx][sy]]) {
-		const POS32 bp = DungeonToDunPos(sx + XDirAdd[sd], sy + YDirAdd[sd]);
-		AddMissile(missile[mi]._mipos, bp, 0, MIS_FIREWAVE, micaster, misource, spllvl);
+	sd = GetDirection8(sp, dp);
+	// if (!nMissileTable[dPiece[(unsigned)sp.x / DUN_WIDTH][(unsigned)sp.y / DUN_WIDTH]]) {
+		const POS32 bp = { sp.x + XDirAdd[sd] * DUN_WIDTH, sp.y + YDirAdd[sd] * DUN_WIDTH };
+		AddMissile(sp, bp, 0, MIS_FIREWAVE, micaster, misource, spllvl);
 
 		for (i = -2; i <= 2; i += 4) {
 			dir = (sd + i) & 7;
-			nx = sx;
-			ny = sy;
+			nx = sp.x;
+			ny = sp.y;
 			for (j = (spllvl >> 1) + 2; j > 0; j--) {
-				nx += XDirAdd[dir];
-				ny += YDirAdd[dir];
-				if (!IN_DUNGEON_AREA(nx, ny))
+				nx += XDirAdd[dir] * DUN_WIDTH;
+				ny += YDirAdd[dir] * DUN_WIDTH;
+				// if (!IN_DUNGEON_DUN(nx, ny))
+				//	break;
+				if (nMissileTable[dPiece[(unsigned)nx / DUN_WIDTH][(unsigned)ny / DUN_WIDTH]])
 					break;
-				if (nMissileTable[dPiece[nx][ny]])
-					break;
-				const POS32 np = DungeonToDunPos(nx, ny);
-				const POS32 tp = DungeonToDunPos(nx + XDirAdd[sd], ny + YDirAdd[sd]);
+				const POS32 np = { nx, ny };
+				const POS32 tp = { nx + XDirAdd[sd] * DUN_WIDTH, ny + YDirAdd[sd] * DUN_WIDTH };
 				AddMissile(np, tp, 0, MIS_FIREWAVE, micaster, misource, spllvl);
 			}
 		}
 	// }
-
 	return MIRES_DELETE;
 }
 
