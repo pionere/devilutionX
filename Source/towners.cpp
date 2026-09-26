@@ -265,22 +265,9 @@ static void InitCows()
 	const BYTE TownCowY[] = {  6 + DBORDERY,  4 + DBORDERY, 10 + DBORDERY };
 	/** Specifies the start directions of the cows. */
 	const BYTE TownCowDir[] = { DIR_SW, DIR_NW, DIR_N };
-	/** Maps from direction to X-coordinate delta, which is used when
-	 * placing cows in Tristram. A single cow may require space of up
-	 * to four tiles when being placed on the map.
-	 */
-	const int8_t cowoffx[NUM_DIRS] = { -1, 0, -1, -1, -1, 0, -1, -1 };
-	/** Maps from direction to Y-coordinate delta, which is used when
-	 * placing cows in Tristram. A single cow may require space of up
-	 * to four tiles when being placed on the map.
-	 */
-	const int8_t cowoffy[NUM_DIRS] = { -1, -1, -1, 0, -1, -1, -1, 0 };
-	/** Specifies the offsets from the cows to reserve space on the map. */
-	const int8_t TownCowXOff[] = { cowoffx[TownCowDir[0]], cowoffx[TownCowDir[1]], cowoffx[TownCowDir[2]] };
-	const int8_t TownCowYOff[] = { cowoffy[TownCowDir[0]], cowoffy[TownCowDir[1]], cowoffy[TownCowDir[2]] };
 	const BYTE* cowAnims[NUM_DIRS];
 	int i, dir;
-	int x, y, xo, yo;
+	int x, y;
 
 	assert(pCowCels == NULL);
 	pCowCels = LoadFileInMem("Towners\\Animals\\Cow.CEL");
@@ -296,18 +283,6 @@ static void InitCows()
 		dir = TownCowDir[i];
 		InitTownerInfo(numtowners, "Cow", TOWN_COW, x, y, 3);
 		InitCowAnim(numtowners, cowAnims[dir], delay);
-
-		xo = x + TownCowXOff[i];
-		yo = y + TownCowYOff[i];
-
-		//assert(dMonster[xo][yo] == 0);
-		dMonster[xo][yo] = -(numtowners + 1);
-		if (xo != x && yo != y) {
-			//assert(dMonster[x][yo] == 0);
-			//assert(dMonster[xo][y] == 0);
-			dMonster[x][yo] = -(numtowners + 1);
-			dMonster[xo][y] = -(numtowners + 1);
-		}
 
 		numtowners++;
 	}
