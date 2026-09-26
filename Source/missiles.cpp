@@ -2901,59 +2901,53 @@ int AddCharge(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
  */
 int AddStone(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
+	constexpr int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 1 * 1;
+	int bestDist = MAX_DIST;
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int sx, sy, dx, dy, i, j, tx, ty, mid, range;
-	const int8_t* cr;
+	int mnum, dist, tnum = -1, range;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	static_assert(DBORDERX >= 2 && DBORDERY >= 2, "AddStone expects a large enough border.");
-	static_assert(lengthof(CrawlNum) > 2, "AddStone uses CrawlTable/CrawlNum up to radius 2.");
-	sx = mis->_misx;
-	sy = mis->_misy;
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	for (i = 0; i <= 2; i++) {
-		cr = &CrawlTable[CrawlNum[i]];
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = dx + *++cr;
-			ty = dy + *++cr;
-			assert(IN_DUNGEON_AREA(tx, ty));
-			mid = dMonster[tx][ty] - 1;
-			if (mid < MAX_MINIONS || !LineClear(sx, sy, tx, ty))
-				continue;
-			assert(mid < MAXMONSTERS);
-			mon = &monsters[mid];
-			if (!(mon->_mFlags & MFLAG_NOSTONE) && !CanTalkToMonst(mid)
-			 && mon->_mmode != MM_FADEIN && mon->_mmode != MM_FADEOUT && mon->_mmode != MM_CHARGE && mon->_mmode != MM_STONE && mon->_mmode != MM_DEATH /*mon->_mhitpoints != 0*/) {
-				// range = (sl * 128 - HP + 128) * 2
-				range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
-				// TODO: add support for spell duration modifier
-				//range += (range * plx(misource)._pISplDur) >> 7;
-				range >>= 5;
-				if (range < 15)
-					return MIRES_DELETE;
-				if (range > 239)
-					range = 239;
-				mis->_miRange = range;
+	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+		mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
+		if (mon->_mmode == MM_FADEIN || mon->_mmode == MM_FADEOUT || mon->_mmode == MM_CHARGE || mon->_mmode == MM_STONE) continue;
+		if (mon->_mFlags & MFLAG_NOSTONE) continue;
+		if (CanTalkToMonst(mnum)) continue;
+		dist = GetDunDistance2(mon->_mpos, dp);
+		if (dist > bestDist) continue;
+		if (!LineClearPos(mis->_mipos, mon->_mpos)) continue;
+		tnum = mnum;
+		bestDist = dist;
+	}
+	if (tnum >= 0) {
+		mon = &monsters[tnum];
+		// range = (sl * 128 - HP + 128) * 2
+		range = ((spllvl + 1) << (7 + 6)) - mon->_mmaxhp;
+		// TODO: add support for spell duration modifier
+		//range += (range * plx(misource)._pISplDur) >> 7;
+		range >>= 5;
+		if (range < 15)
+			return MIRES_DELETE;
+		if (range > 239)
+			range = 239;
+		mis->_miRange = range;
 
-				MonLeaveLeader(mid);
-				mis->_miVar1 = mid;
-				MonSetMissilePos(mon, mis);
-				mon->_mVar3 = mon->_mmode;
-				mon->_mmode = MM_STONE;
-				// ensure lastx/y are set when MI_Stone 'alerts' the monster
-				if (micaster == MST_PLAYER) {
-					mon->_mlastx = plx(misource)._px;
-					mon->_mlasty = plx(misource)._py;
-				//} else {
-				//	assert(!MON_RELAXED);
-				}
-
-				return MIRES_DONE;
-			}
+		MonLeaveLeader(tnum);
+		mis->_miVar1 = tnum;
+		MonSetMissilePos(mon, mis);
+		mon->_mVar3 = mon->_mmode;
+		mon->_mmode = MM_STONE;
+		// ensure lastx/y are set when MI_Stone 'alerts' the monster
+		if (micaster == MST_PLAYER) {
+			mon->_mlastx = plx(misource)._px;
+			mon->_mlasty = plx(misource)._py;
+		//} else {
+		//	assert(!MON_RELAXED);
 		}
+
+		return MIRES_DONE;
 	}
 	return MIRES_FAIL_DELETE;
 }
