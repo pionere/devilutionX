@@ -2079,10 +2079,8 @@ int AddFireexp(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 	}
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	CheckMissileArea(mi, mis->_misx, mis->_misy);
-	// assert(mis->_mix == mis->_misx);
-	// assert(mis->_miy == mis->_misy);
-	// assert(!nMissileTable[dPiece[mis->_misx][mis->_misy]]);
+	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
 	CheckSplashColFull(mi);
 	return MIRES_DONE;
 }
