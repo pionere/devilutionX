@@ -26,7 +26,7 @@ POS32 RndLoc3x3();
 int AddObject(int type, int ox, int oy);
 void ObjAddDoorLock(int ox, int oy, int oi);
 void ProcessObjects();
-void MonstCheckDoors(int mx, int my);
+void MonstCheckDoors(POS32 pos);
 void ObjChangeMap(int x1, int y1, int x2, int y2 /*, bool hasNewObjPiece*/);
 void DisarmObject(int pnum, int oi);
 void OperateObject(int pnum, int oi, bool TeleFlag);

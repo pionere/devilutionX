@@ -2105,10 +2105,12 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 	RedoLightAndVision();
 }
 
-void MonstCheckDoors(int mx, int my)
+void MonstCheckDoors(POS32 pos)
 {
-	int i, oi;
+	int mx, my, i, oi;
 
+	mx = (unsigned)pos.x / DUN_WIDTH;
+	my = (unsigned)pos.y / DUN_WIDTH;
 	for (i = 0; i < lengthof(offset_x); i++) {
 		oi = dObject[mx + offset_x[i]][my + offset_y[i]];
 		if (oi == 0)
