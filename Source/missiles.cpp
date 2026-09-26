@@ -510,7 +510,39 @@ static bool FindNextMon(const POS32 sp, POS32& dp)
 	}
 	return bestDist >= 0;
 }
+#ifdef HELLFIRE
+static bool FindNextActor(const POS32 sp, int r2, POS32& dp)
+{
+	const int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * r2;
+	int pnum, mnum, dist;
+	int bestDist = -1;
+	MonsterStruct* mon;
 
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue;
+		dist = GetDunDistance2(sp, plr._ppos);
+		if (dist > MAX_DIST || dist < bestDist) continue;
+		if (!LineClearPos(sp, plr._ppos)) continue;
+		// if (dist == bestDist && random_(111, 2) == 0) continue;
+		bestDist = dist;
+		dp = plr._ppos;
+	}
+
+	for (mnum = MAX_MINIONS; mnum < MAXMONSTERS; mnum++) {
+		mon = &monsters[mnum];
+		// if (CanTalkToMonst(mnum)) continue;
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
+		if (mon->_mmode == MM_STONE) continue;
+		dist = GetDunDistance2(sp, mon->_mpos);
+		if (dist > MAX_DIST || dist < bestDist) continue;
+		if (!LineClearPos(sp, mon->_mpos)) continue;
+		// if (dist == bestDist && random_(111, 2) == 0) continue;
+		bestDist = dist;
+		dp = mon->_mpos;
+	}
+	return bestDist >= 0;
+}
+#endif
 static void DoTeleport(int pnum, int dx, int dy)
 {
 	int px, py;
@@ -1975,11 +2007,11 @@ int AddRune(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 	mis = &missile[mi];
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddRune expects a large enough border.");
 	switch (mis->_miType) {
-	case MIS_RUNEFIRE:  mitype = MIS_FIREEXP;    mirange = 0; break;
-	case MIS_RUNELIGHT: mitype = MIS_LIGHTNINGC; mirange = 1; break;
-	case MIS_RUNENOVA:  mitype = MIS_LIGHTNOVAC; mirange = 1; break;
-	case MIS_RUNEWAVE:  mitype = MIS_FIREWAVEC;  mirange = 1; break;
-	case MIS_RUNESTONE: mitype = MIS_STONE;      mirange = 0; break;
+	case MIS_RUNEFIRE:  mitype = MIS_FIREEXP;    mirange = 1; break;
+	case MIS_RUNELIGHT: mitype = MIS_LIGHTNINGC; mirange = 3; break;
+	case MIS_RUNENOVA:  mitype = MIS_LIGHTNOVAC; mirange = 3; break;
+	case MIS_RUNEWAVE:  mitype = MIS_FIREWAVEC;  mirange = 3; break;
+	case MIS_RUNESTONE: mitype = MIS_STONE;      mirange = 1; break;
 	default: ASSUME_UNREACHABLE; break;
 	}
 	mis->_miVar1 = mitype;
@@ -4110,35 +4142,17 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct* mis;
-	int j, mnum, sx, sy, tx, ty;
-	const int8_t* cr;
+	int ty;
 
 	mis = &missile[mi];
 	if (--mis->_miVar3 <= 0) {
-		sx = mis->_mix;
-		sy = mis->_miy;
-		static_assert(lengthof(CrawlNum) > 1, "MI_Rune uses CrawlTable/CrawlNum up to radius 1.");
-		cr = &CrawlTable[CrawlNum[mis->_miVar2]]; // RUNE_RANGE
-		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = sx + *++cr;
-			ty = sy + *++cr;
-			if (dPlayer[tx][ty] == 0) {
-				mnum = dMonster[tx][ty];
-				if (mnum == 0)
-					continue;
-				mnum = mnum >= 0 ? mnum - 1 : -(mnum + 1);
-				if (monsters[mnum]._mmode == MM_STONE || monsters[mnum]._mmode == MM_DEATH)
-					continue;
-			}
-			if (!LineClear(sx, sy, tx, ty))
-				continue;
+		POS32 dp;
+		if (FindNextActor(mis->_mipos, mis->_miVar2, dp)) {
 			// SetRndSeed(mis->_miRndSeed);
-			const POS32 tp = DungeonToDunPos(tx, ty);
-			AddMissile(mis->_mipos, tp, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
+			AddMissile(mis->_mipos, dp, 0, mis->_miVar1, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
 			mis->_miRange -= 48;
 			mis->_miVar3 = 48;
 			mis->_miVar4++;
-			break;
 		}
 	} else {
 		mis->_miAnimCnt--;
