@@ -1531,18 +1531,20 @@ int CheckPlrCol(int pnum)
 
 /*
  * @param mi: index of the missile
- * @param mx: the x coordinate of the target
- * @param my: the y coordinate of the target
  * @param mode: the collision mode (missile_collision_mode)
  * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
  */
-static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
+static int CheckMissileCol(int mi, missile_collision_mode mode)
 {
 	MissileStruct* mis;
 	const MissileData* mds;
 	int oi, mnum, pnum;
 	int hit = 0;
+	int mx, my;
 
+	mis = &missile[mi];
+	mx = mis->_mix;
+	my = mis->_miy;
 	oi = dObject[mx][my];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
@@ -1574,7 +1576,6 @@ static int CheckMissileCol(int mi, int mx, int my, missile_collision_mode mode)
 		return hit;
 
 	if (mode != MICM_NONE) {
-		mis = &missile[mi];
 		if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
 			mis->_miRange = -1;
 		mds = &missiledata[mis->_miType];
@@ -1698,7 +1699,7 @@ static int MoveProjectal(int mi, int steps, missile_collision_mode mode)
 	int hit;
 	MoveMissile(mi, steps);
 	MissileStruct* mis = &missile[mi];
-	hit = CheckMissileCol(mi, mis->_mix, mis->_miy, mode);
+	hit = CheckMissileCol(mi, mode);
 	return hit;
 }
 
@@ -3973,7 +3974,7 @@ void MI_Lightball(int mi)
 
 	mis = &missile[mi];
 	MoveMissile(mi, 1);
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_ANY);
+	CheckMissileCol(mi, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4168,7 +4169,7 @@ void MI_Rune(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, mis->_mix, mis->_miy, MICM_BLOCK_WALL);
+	CheckMissileCol(mi, MICM_BLOCK_WALL);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
