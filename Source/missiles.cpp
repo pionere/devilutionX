@@ -1531,62 +1531,6 @@ int CheckPlrCol(int pnum)
 
 /*
  * @param mi: index of the missile
- * @param mode: the collision mode (missile_collision_mode)
- * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
- */
-static int CheckMissileCol(int mi, missile_collision_mode mode)
-{
-	MissileStruct* mis;
-	const MissileData* mds;
-	int oi, mnum, pnum;
-	int hit = 0;
-	int mx, my;
-
-	mis = &missile[mi];
-	mx = mis->_mix;
-	my = mis->_miy;
-	oi = dObject[mx][my];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (!objects[oi]._oMissFlag) {
-			if (objects[oi]._oBreak == OBM_BREAKABLE)
-				OperateObject(-1, oi, false);
-			hit = 2;
-		}
-	}
-	if (nMissileTable[dPiece[mx][my]]) {
-		hit = 3;
-	}
-
-	mnum = dMonster[mx][my];
-	if (mnum != 0) {
-		mnum = CheckMonCol(mnum);
-		if (mnum >= 0 && MonMissHit(mnum, mi))
-			hit = 1;
-	}
-
-	pnum = dPlayer[mx][my];
-	if (pnum != 0) {
-		pnum = CheckPlrCol(pnum);
-		if (pnum >= 0 && PlrMissHit(pnum, mi))
-			hit = 1;
-	}
-
-	if (hit == 0)
-		return hit;
-
-	if (mode != MICM_NONE) {
-		if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
-			mis->_miRange = -1;
-		mds = &missiledata[mis->_miType];
-		if (SFX_VALID(mds->miSFX))
-			PlaySfxLocN(mds->miSFX, mis->_mipos, mds->miSFXCnt);
-	}
-	return hit;
-}
-
-/*
- * @param mi: index of the missile
  * @param mx: the x coordinate of the target
  * @param my: the y coordinate of the target
  * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
@@ -1694,12 +1638,180 @@ static void CheckSplashCol(int mi, int hit)
 	mis->_misy = sy;
 }
 
+/*
+ * @param mx: Tile X-position
+ * @param my: Tile Y-position
+ * @param mi: index of the missile
+ * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ */
+static int CheckSubtileHit(int mx, int my, int mi)
+{
+	int hit = 0;
+	int oi, mnum, pnum;
+	oi = dObject[mx][my];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (!objects[oi]._oMissFlag) {
+			if (objects[oi]._oBreak == OBM_BREAKABLE)
+				OperateObject(-1, oi, false);
+			hit = 2;
+		}
+	}
+	if (nMissileTable[dPiece[mx][my]]) {
+		hit = 3;
+	}
+
+	mnum = dMonster[mx][my];
+	if (mnum != 0) {
+		mnum = CheckMonCol(mnum);
+		if (mnum >= 0 && MonMissHit(mnum, mi))
+			hit = 1;
+	}
+
+	pnum = dPlayer[mx][my];
+	if (pnum != 0) {
+		pnum = CheckPlrCol(pnum);
+		if (pnum >= 0 && PlrMissHit(pnum, mi))
+			hit = 1;
+	}
+
+	return hit;
+}
+
+/*
+ * @param sp: the starting (precise dungeon) position
+ * @param dp: the ending (precise dungeon) position
+ * @param mi: index of the missile
+ * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ */
+static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
+{
+	int hit = 0;
+	POS32 p0, p2;
+
+	p0 = sp;
+	p2 = dp;
+
+	POS32 dp02 = { p2.x - p0.x, p2.y - p0.y };
+
+	const int64_t bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
+	if (dp02.x >= 0) {
+		if (dp02.y >= 0) {
+			// (+;+)
+			for (int i = (unsigned)sp.x / DUN_WIDTH; i <= (int)((unsigned)dp.x / DUN_WIDTH); i++) {
+				for (int j = (unsigned)sp.y / DUN_WIDTH; j <= (int)((unsigned)dp.y / DUN_WIDTH); j++) {
+					// test whether the subtile is in the rectangle
+					int x01 = (i + 0) * DUN_WIDTH;
+					int y01 = (j + 1) * DUN_WIDTH;
+					int x10 = (i + 1) * DUN_WIDTH;
+					int y10 = (j + 0) * DUN_WIDTH;
+					if ((int64_t)dp02.y * x10 + bdx02 <= (int64_t)y10 * dp02.x) {
+						continue; // subtile is on the left side of the projectal -> skip
+					}
+					if ((int64_t)dp02.y * x01 + bdx02 >= (int64_t)y01 * dp02.x) {
+						continue; // subtile is on the right side of the projectal -> skip
+					}
+					hit = CheckSubtileHit(i, j, mi);
+					if (hit != 0) {
+						goto done;
+					}
+				}
+			}
+		} else {
+			// (+;-)
+			for (int i = (unsigned)sp.x / DUN_WIDTH; i <= (int)((unsigned)dp.x / DUN_WIDTH); i++) {
+				for (int j = (unsigned)sp.y / DUN_WIDTH; j >= (int)((unsigned)dp.y / DUN_WIDTH); j--) {
+					// test whether the subtile is in the rectangle
+					int x00 = (i + 0) * DUN_WIDTH;
+					int y00 = (j + 0) * DUN_WIDTH;
+					int x11 = (i + 1) * DUN_WIDTH;
+					int y11 = (j + 1) * DUN_WIDTH;
+					if ((int64_t)dp02.y * x00 + bdx02 <= (int64_t)y00 * dp02.x) {
+						continue; // subtile is on the left side of the projectal -> skip
+					}
+					if ((int64_t)dp02.y * x11 + bdx02 >= (int64_t)y11 * dp02.x) {
+						continue; // subtile is on the right side of the projectal -> skip
+					}
+					hit = CheckSubtileHit(i, j, mi);
+					if (hit != 0) {
+						goto done;
+					}
+				}
+			}
+		}
+	} else {
+		if (dp02.y >= 0) {
+			// (-;+)
+			for (int i = (unsigned)sp.x / DUN_WIDTH; i >= (int)((unsigned)dp.x / DUN_WIDTH); i--) {
+				for (int j = (unsigned)sp.y / DUN_WIDTH; j <= (int)((unsigned)dp.y / DUN_WIDTH); j++) {
+					// test whether the subtile is in the rectangle
+					int x00 = (i + 0) * DUN_WIDTH;
+					int y00 = (j + 0) * DUN_WIDTH;
+					int x11 = (i + 1) * DUN_WIDTH;
+					int y11 = (j + 1) * DUN_WIDTH;
+					if ((int64_t)dp02.y * x11 + bdx02 <= (int64_t)y11 * dp02.x) {
+						continue; // subtile is on the left side of the projectal -> skip
+					}
+					if ((int64_t)dp02.y * x00 + bdx02 >= (int64_t)y00 * dp02.x) {
+						continue; // subtile is on the right side of the projectal -> skip
+					}
+					hit = CheckSubtileHit(i, j, mi);
+					if (hit != 0) {
+						goto done;
+					}
+				}
+			}
+		} else {
+			// (-;-)
+			for (int i = (unsigned)sp.x / DUN_WIDTH; i >= (int)((unsigned)dp.x / DUN_WIDTH); i--) {
+				for (int j = (unsigned)sp.y / DUN_WIDTH; j >= (int)((unsigned)dp.y / DUN_WIDTH); j--) {
+					// test whether the subtile is in the rectangle
+					int x01 = (i + 0) * DUN_WIDTH;
+					int y01 = (j + 1) * DUN_WIDTH;
+					int x10 = (i + 1) * DUN_WIDTH;
+					int y10 = (j + 0) * DUN_WIDTH;
+					if ((int64_t)dp02.y * x10 + bdx02 >= (int64_t)y10 * dp02.x) {
+						continue; // subtile is on the left side of the projectal -> skip
+					}
+					if ((int64_t)dp02.y * x01 + bdx02 <= (int64_t)y01 * dp02.x) {
+						continue; // subtile is on the right side of the projectal -> skip
+					}
+					hit = CheckSubtileHit(i, j, mi);
+					if (hit != 0) {
+						goto done;
+					}
+				}
+			}
+		}
+	}
+done:
+	return hit;
+}
+
+/*
+ * @param mi: index of the missile
+ * @param steps: steps to move
+ * @param mode: the collision mode (missile_collision_mode)
+ * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ */
 static int MoveProjectal(int mi, int steps, missile_collision_mode mode)
 {
-	int hit;
-	MoveMissile(mi, steps);
 	MissileStruct* mis = &missile[mi];
-	hit = CheckMissileCol(mi, mode);
+	const MissileData* mds;
+	int hit;
+	POS32 sp = mis->_mipos;
+	MoveMissile(mi, steps);
+	POS32 dp = mis->_mipos;
+	hit = CheckMoveHit(sp, dp, mi);
+	if (hit != 0) {
+		if (mode != MICM_NONE) {
+			if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
+				mis->_miRange = -1;
+			mds = &missiledata[mis->_miType];
+			if (SFX_VALID(mds->miSFX))
+				PlaySfxLocN(mds->miSFX, mis->_mipos, mds->miSFXCnt);
+		}
+	}
 	return hit;
 }
 
