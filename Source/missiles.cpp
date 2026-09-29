@@ -3973,8 +3973,7 @@ void MI_Lightball(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	MoveMissile(mi, 1);
-	CheckMissileCol(mi, MICM_BLOCK_ANY);
+	MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4169,7 +4168,7 @@ void MI_Rune(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileCol(mi, MICM_BLOCK_WALL);
+	CheckMissileArea(mi, mis->_mix, mis->_miy); // MICM_BLOCK_WALL?
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
