@@ -1770,10 +1770,10 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					int y01 = (j + 1) * DUN_WIDTH;
 					int x10 = (i + 1) * DUN_WIDTH;
 					int y10 = (j + 0) * DUN_WIDTH;
-					if ((int64_t)dp02.y * x10 + bdx02 >= (int64_t)y10 * dp02.x) {
+					if ((int64_t)dp02.y * x01 + bdx02 <= (int64_t)y01 * dp02.x) {
 						continue; // subtile is on the left side of the projectal -> skip
 					}
-					if ((int64_t)dp02.y * x01 + bdx02 <= (int64_t)y01 * dp02.x) {
+					if ((int64_t)dp02.y * x10 + bdx02 >= (int64_t)y10 * dp02.x) {
 						continue; // subtile is on the right side of the projectal -> skip
 					}
 					hit = CheckSubtileHit(i, j, mi);
