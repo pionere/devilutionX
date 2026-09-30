@@ -1641,13 +1641,12 @@ static void CheckSplashCol(int mi, int hit)
 /*
  * @param mx: Tile X-position
  * @param my: Tile Y-position
- * @param mi: index of the missile
- * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ * @return what was hit (0: nothing, 2: object, 3: wall)
  */
-static int CheckSubtileHit(int mx, int my, int mi)
+static int CheckSubtileHit(int mx, int my)
 {
 	int hit = 0;
-	int oi, mnum, pnum;
+	int oi;
 	oi = dObject[mx][my];
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
@@ -1661,20 +1660,116 @@ static int CheckSubtileHit(int mx, int my, int mi)
 		hit = 3;
 	}
 
-	mnum = dMonster[mx][my];
-	if (mnum != 0) {
-		mnum = CheckMonCol(mnum);
-		if (mnum >= 0 && MonMissHit(mnum, mi))
-			hit = 1;
-	}
+	return hit;
+}
 
-	pnum = dPlayer[mx][my];
-	if (pnum != 0) {
-		pnum = CheckPlrCol(pnum);
-		if (pnum >= 0 && PlrMissHit(pnum, mi))
-			hit = 1;
-	}
+static int GetDunVector2(POS32 dp)
+{
+	int ddx = dp.x;
+	int ddy = dp.y;
 
+	ddx >>= DUN_SHIFT;
+	ddy >>= DUN_SHIFT;
+
+	return ddx * ddx + ddy * ddy;
+}
+
+static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
+{
+	constexpr unsigned r = DUN_WIDTH / 2;
+	POS32 p0, p1, p2, p3;
+
+	int dx = dp.x - sp.x;
+	int dy = dp.y - sp.y;
+
+	int k = sqrt((int64_t)dx * dx + (int64_t)dy * dy) / r;
+	assert(k != 0);
+	p0 = { sp.x - dy / k, sp.y + dx / k };
+	p1 = { sp.x + dy / k, sp.y - dx / k };
+
+	p2 = { dp.x - dy / k, dp.y + dx / k };
+	p3 = { dp.x + dy / k, dp.y - dx / k };
+
+	const POS32 dp01 = { 2 * dy / k, -2 * dx / k };
+	const POS32 dp02 = { dx, dy };
+	const POS32 dp23 = dp01;
+	const POS32 dp13 = dp02;
+
+	const int64_t bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
+	const int64_t bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
+	const int64_t bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
+	const int64_t bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue;
+		if ((int64_t)dp02.y * plr._ppos.x + bdx02 <= (int64_t)plr._ppos.y * dp02.x) {
+			continue; // subtile is on the right side of the projectal -> skip
+		}
+		if ((int64_t)dp01.y * plr._ppos.x + bdx01 >= (int64_t)plr._ppos.y * dp01.x) {
+			continue; // subtile is behind the projectal -> skip
+		}
+		if ((int64_t)dp23.y * plr._ppos.x + bdx23 <= (int64_t)plr._ppos.y * dp23.x) {
+			continue; // subtile is to the front from the projectal -> skip
+		}
+		if ((int64_t)dp13.y * plr._ppos.x + bdx13 >= (int64_t)plr._ppos.y * dp13.x) {
+			continue; // subtile is on the left side of the projectal -> skip
+		}
+		int doff = GetDunDistance2(plr._ppos, sp);
+		if (hit.v1 < doff) continue;
+		if (-(pnum + 1) == lh) continue; // Var8
+		hit.v0 = -(pnum + 1);
+		hit.v1 = doff;
+	}
+	return hit;
+}
+
+static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
+{
+	constexpr unsigned r = DUN_WIDTH / 2;
+	POS32 p0, p1, p2, p3;
+
+	int dx = dp.x - sp.x;
+	int dy = dp.y - sp.y;
+
+	int k = sqrt((int64_t)dx * dx + (int64_t)dy * dy) / r;
+	assert(k != 0);
+	p0 = { sp.x - dy / k, sp.y + dx / k };
+	p1 = { sp.x + dy / k, sp.y - dx / k };
+
+	p2 = { dp.x - dy / k, dp.y + dx / k };
+	p3 = { dp.x + dy / k, dp.y - dx / k };
+
+	const POS32 dp01 = { 2 * dy / k, -2 * dx / k };
+	const POS32 dp02 = { dx, dy };
+	const POS32 dp23 = dp01;
+	const POS32 dp13 = dp02;
+
+	const int64_t bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
+	const int64_t bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
+	const int64_t bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
+	const int64_t bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+
+	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST/* || mon->_mmode == MM_DEATH*/) continue;
+		if ((int64_t)dp02.y * mon->_mpos.x + bdx02 <= (int64_t)mon->_mpos.y * dp02.x) {
+			continue; // monster is on the right side of the projectal -> skip
+		}
+		if ((int64_t)dp01.y * mon->_mpos.x + bdx01 >= (int64_t)mon->_mpos.y * dp01.x) {
+			continue; // monster is behind the projectal -> skip
+		}
+		if ((int64_t)dp23.y * mon->_mpos.x + bdx23 <= (int64_t)mon->_mpos.y * dp23.x) {
+			continue; // monster is to the front from the projectal -> skip
+		}
+		if ((int64_t)dp13.y * mon->_mpos.x + bdx13 >= (int64_t)mon->_mpos.y * dp13.x) {
+			continue; // monster is on the left side of the projectal -> skip
+		}
+		int doff = GetDunDistance2(mon->_mpos, sp);
+		if (hit.v1 < doff) continue;
+		if (mnum + 1 == lh) continue;
+		hit.v0 = mnum + 1;
+		hit.v1 = doff;
+	}
 	return hit;
 }
 
@@ -1686,7 +1781,8 @@ static int CheckSubtileHit(int mx, int my, int mi)
  */
 static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 {
-	int hit = 0;
+	INTPAIR hit = { 0, INT_MAX };
+	int res;
 	POS32 p0, p2;
 
 	p0 = sp;
@@ -1701,6 +1797,8 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 			for (int i = (unsigned)sp.x / DUN_WIDTH; i <= (int)((unsigned)dp.x / DUN_WIDTH); i++) {
 				for (int j = (unsigned)sp.y / DUN_WIDTH; j <= (int)((unsigned)dp.y / DUN_WIDTH); j++) {
 					// test whether the subtile is in the rectangle
+					int x00 = (i + 0) * DUN_WIDTH;
+					int y00 = (j + 0) * DUN_WIDTH;
 					int x01 = (i + 0) * DUN_WIDTH;
 					int y01 = (j + 1) * DUN_WIDTH;
 					int x10 = (i + 1) * DUN_WIDTH;
@@ -1711,8 +1809,12 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					if ((int64_t)dp02.y * x01 + bdx02 >= (int64_t)y01 * dp02.x) {
 						continue; // subtile is on the right side of the projectal -> skip
 					}
-					hit = CheckSubtileHit(i, j, mi);
-					if (hit != 0) {
+					hit.v0 = CheckSubtileHit(i, j);
+					if (hit.v0 != 0) {
+						POS32 hp = { x00 - sp.x , y00 - sp.y};
+						if (hp.x < 0) hp.x = 0;
+						if (hp.y < 0) hp.y = 0;
+						hit.v1 = GetDunVector2(hp);
 						goto done;
 					}
 				}
@@ -1724,6 +1826,8 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					// test whether the subtile is in the rectangle
 					int x00 = (i + 0) * DUN_WIDTH;
 					int y00 = (j + 0) * DUN_WIDTH;
+					int x01 = (i + 0) * DUN_WIDTH;
+					int y01 = (j + 1) * DUN_WIDTH;
 					int x11 = (i + 1) * DUN_WIDTH;
 					int y11 = (j + 1) * DUN_WIDTH;
 					if ((int64_t)dp02.y * x00 + bdx02 <= (int64_t)y00 * dp02.x) {
@@ -1732,8 +1836,12 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					if ((int64_t)dp02.y * x11 + bdx02 >= (int64_t)y11 * dp02.x) {
 						continue; // subtile is on the right side of the projectal -> skip
 					}
-					hit = CheckSubtileHit(i, j, mi);
-					if (hit != 0) {
+					hit.v0 = CheckSubtileHit(i, j);
+					if (hit.v0 != 0) {
+						POS32 hp = { x01 - sp.x , sp.y - y01 };
+						if (hp.x < 0) hp.x = 0;
+						if (hp.y < 0) hp.y = 0;
+						hit.v1 = GetDunVector2(hp);
 						goto done;
 					}
 				}
@@ -1747,6 +1855,8 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					// test whether the subtile is in the rectangle
 					int x00 = (i + 0) * DUN_WIDTH;
 					int y00 = (j + 0) * DUN_WIDTH;
+					int x10 = (i + 1) * DUN_WIDTH;
+					int y10 = (j + 0) * DUN_WIDTH;
 					int x11 = (i + 1) * DUN_WIDTH;
 					int y11 = (j + 1) * DUN_WIDTH;
 					if ((int64_t)dp02.y * x11 + bdx02 <= (int64_t)y11 * dp02.x) {
@@ -1755,8 +1865,12 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					if ((int64_t)dp02.y * x00 + bdx02 >= (int64_t)y00 * dp02.x) {
 						continue; // subtile is on the right side of the projectal -> skip
 					}
-					hit = CheckSubtileHit(i, j, mi);
-					if (hit != 0) {
+					hit.v0 = CheckSubtileHit(i, j);
+					if (hit.v0 != 0) {
+						POS32 hp = { x10 - sp.x , sp.y - y10 };
+						if (hp.x < 0) hp.x = 0;
+						if (hp.y < 0) hp.y = 0;
+						hit.v1 = GetDunVector2(hp);
 						goto done;
 					}
 				}
@@ -1770,14 +1884,20 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 					int y01 = (j + 1) * DUN_WIDTH;
 					int x10 = (i + 1) * DUN_WIDTH;
 					int y10 = (j + 0) * DUN_WIDTH;
+					int x11 = (i + 1) * DUN_WIDTH;
+					int y11 = (j + 1) * DUN_WIDTH;
 					if ((int64_t)dp02.y * x01 + bdx02 <= (int64_t)y01 * dp02.x) {
 						continue; // subtile is on the left side of the projectal -> skip
 					}
 					if ((int64_t)dp02.y * x10 + bdx02 >= (int64_t)y10 * dp02.x) {
 						continue; // subtile is on the right side of the projectal -> skip
 					}
-					hit = CheckSubtileHit(i, j, mi);
-					if (hit != 0) {
+					hit.v0 = CheckSubtileHit(i, j);
+					if (hit.v0 != 0) {
+						POS32 hp = { x11 - sp.x , sp.y - y11 };
+						if (hp.x < 0) hp.x = 0;
+						if (hp.y < 0) hp.y = 0;
+						hit.v1 = GetDunVector2(hp);
 						goto done;
 					}
 				}
@@ -1785,7 +1905,22 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 		}
 	}
 done:
-	return hit;
+	hit = CheckPlrCollision(sp, dp, hit, missile[mi]._miVar8);
+	hit = CheckMonCollision(sp, dp, hit, missile[mi]._miVar8);
+	res = hit.v0;
+	if (res != 0) {
+		if (res < 0) {
+			res = -(res + 1);
+			if (res >= MAX_PLRS) {
+				res -= MAX_PLRS + 2;
+			} else {
+				res = PlrMissHit(res, mi) ? 1: 0;
+			}
+		} else {
+			res = MonMissHit(res - 1, mi) ? 1 : 0;
+		}
+	}
+	return res;
 }
 
 /*
