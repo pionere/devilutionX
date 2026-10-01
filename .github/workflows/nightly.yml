@@ -943,7 +943,7 @@ jobs:
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vita.vpk'
     runs-on: ubuntu-latest
-    container: vitasdk/vitasdk:latest
+    container: vitasdk/vitasdk@sha256:2e92c60b69cb06d3f20814f6c882e943d8efd80fc96e643e043803bc702fc4ac
     steps:
     - name: Checkout
       uses: actions/checkout@v7
@@ -952,7 +952,10 @@ jobs:
       #  fetch-depth: 0
 
     - name: Create Build Environment
-      run: apk add cmake ninja
+      #run: apk add cmake ninja
+      run: |
+        sudo apt-get update
+        sudo apt-get install cmake ninja-build
 
     - name: Configure CMake
       run: |

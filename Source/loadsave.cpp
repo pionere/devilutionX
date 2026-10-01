@@ -44,6 +44,8 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 	UnPackItem(&savedItem->viPkItem, is);
 	is->_ix = savedItem->vix;
 	is->_iy = savedItem->viy;
+	is->_ipos.x = savedItem->vidx;
+	is->_ipos.y = savedItem->vidy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
 	is->_iMagical = savedItem->viMagical;
 	is->_iSelFlag = savedItem->viSelFlag;
@@ -113,8 +115,8 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_pfuty = savedPlr->vpfuty;
 	pr->_poldx = savedPlr->vpoldx;
 	pr->_poldy = savedPlr->vpoldy;
-	pr->_pxoff = savedPlr->vpxoff;
-	pr->_pyoff = savedPlr->vpyoff;
+	pr->_ppos.x = savedPlr->vpdx;
+	pr->_ppos.y = savedPlr->vpdy;
 	pr->_pdir = savedPlr->vpdir;
 	// savedPlr->vpAnimDataAlign = pr->_pAnimData;
 	// savedPlr->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
@@ -122,7 +124,7 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_pAnimLen = savedPlr->vpAnimLenAlign;
 	pr->_pAnimFrame = savedPlr->vpAnimFrame;
 	pr->_pAnimWidth = savedPlr->vpAnimWidthAlign;
-	pr->_pAnimXOffset = savedPlr->vpAnimXOffsetAlign;
+	// pr->_pAnimXOffset = savedPlr->vpAnimXOffsetAlign;
 	pr->_plid = savedPlr->vplid;
 	pr->_pvid = savedPlr->vpvid;
 
@@ -268,8 +270,8 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_mfuty = savedMon->vmfuty;
 	mon->_moldx = savedMon->vmoldx;
 	mon->_moldy = savedMon->vmoldy;
-	mon->_mxoff = savedMon->vmxoff;
-	mon->_myoff = savedMon->vmyoff;
+	mon->_mpos.x = savedMon->vmdx;
+	mon->_mpos.y = savedMon->vmdy;
 	mon->_mdir = savedMon->vmdir;
 	mon->_menemy = savedMon->vmenemy;
 	mon->_menemyx = savedMon->vmenemyx;
@@ -358,7 +360,6 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	src += sizeof(LSaveMonsterStruct);
 
 	// Skip _mAnimWidth
-	// Skip _mAnimXOffset
 	// Skip _mAFNum
 	// Skip _mAFNum2
 	// Skip _mAlign_0
@@ -404,7 +405,6 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	// mis->_miAnimFrameLen = savedMis->vmiAnimFrameLenAlign;
 	// mis->_miAnimLen = savedMis->vmiAnimLenAlign;
 	// mis->_miAnimWidth = savedMis->vmiAnimWidthAlign;
-	// mis->_miAnimXOffset = savedMis->vmiAnimXOffsetAlign;
 	mis->_miAnimCnt = savedMis->vmiAnimCnt;
 	mis->_miAnimAdd = savedMis->vmiAnimAdd;
 	mis->_miAnimFrame = savedMis->vmiAnimFrame;
@@ -412,8 +412,9 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_misy = savedMis->vmisy;
 	mis->_mix = savedMis->vmix;
 	mis->_miy = savedMis->vmiy;
-	mis->_mixoff = savedMis->vmixoff;
-	mis->_miyoff = savedMis->vmiyoff;
+	mis->_mipos.x = savedMis->vmidx;
+	mis->_mipos.y = savedMis->vmidy;
+	mis->_mizoff = savedMis->vmizoff;
 	mis->_mixvel = savedMis->vmixvel;
 	mis->_miyvel = savedMis->vmiyvel;
 	mis->_mitxoff = savedMis->vmitxoff;
@@ -460,6 +461,8 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_otype = savedObj->votype;
 	os->_ox = savedObj->vox;
 	os->_oy = savedObj->voy;
+	os->_opos.x = savedObj->vodx;
+	os->_opos.y = savedObj->vody;
 	os->_oSFX = savedObj->voSFX;
 
 	os->_oSFXCnt = savedObj->voSFXCnt;
@@ -474,7 +477,6 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	os->_oAnimLen = savedObj->voAnimLen;
 	os->_oAnimFrame = savedObj->voAnimFrame;
 	os->_oAnimWidth = savedObj->voAnimWidthAlign;
-	os->_oAnimXOffset = savedObj->voAnimXOffsetAlign;
 
 	os->_oSolidFlag = savedObj->voSolidFlag;
 	os->_oBreak = savedObj->voBreak;
@@ -548,24 +550,20 @@ static BYTE* LoadLight(BYTE* src, LightListStruct* DVL_RESTRICT pLight)
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	pLight->_lx = savedLight->vlx;
 	pLight->_ly = savedLight->vly;
+	pLight->_lxoff = savedLight->vlxoff;
+	pLight->_lyoff = savedLight->vlyoff;
 	pLight->_lunx = savedLight->vlunx;
 	pLight->_luny = savedLight->vluny;
 
 	pLight->_lradius = savedLight->vlradius;
 	pLight->_lunr = savedLight->vlunr;
-	pLight->_lunxoff = savedLight->vlunxoff;
-	pLight->_lunyoff = savedLight->vlunyoff;
-
 	pLight->_ldel = savedLight->vldel;
 	pLight->_lunflag = savedLight->vlunflag;
-	pLight->_lmine = savedLight->vlmine;
-	pLight->_lAlign2 = savedLight->vlAlign2;
 
-	pLight->_lxoff = savedLight->vlxoff;
-	pLight->_lyoff = savedLight->vlyoff;
+	pLight->_lmine = savedLight->vlmine;
 #else
-	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlyoff) + sizeof(savedLight->vlyoff)
-	 && offsetof(LightListStruct, _lyoff) == offsetof(LSaveLightListStruct, vlyoff), "LoadLight uses memcpy to load the LSaveLightListStruct in LightListStruct.");
+	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlmine) + sizeof(savedLight->vlmine)
+	 && offsetof(LightListStruct, _lmine) == offsetof(LSaveLightListStruct, vlmine), "LoadLight uses memcpy to load the LSaveLightListStruct in LightListStruct.");
 	memcpy(pLight, savedLight, sizeof(LSaveLightListStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 
@@ -615,7 +613,7 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src = LoadMonster(src, i, full);
 	moncount = currLvl._dType != DTYPE_TOWN ? MAXMONSTERS : MAX_MINIONS;
 	{
-		for (i = (full ? 0 : MAX_MINIONS); i < MAXMONSTERS; i++)
+		for (i = (full ? 0 : MAX_MINIONS); i < moncount; i++)
 			SyncMonsterAnim(i);
 	}
 	if (full) {
@@ -685,7 +683,7 @@ void LoadGame()
 	LSaveGameHeaderStruct* ghs;
 	LSaveGameMetaStruct* gms;
 	BYTE *fileBuff, *tbuff;
-	POS32 _View;
+	GRID_POS32 _View;
 	int32_t _CurrSeed;
 
 	// TODO: UIDisconnectGame() ?
@@ -712,13 +710,15 @@ void LoadGame()
 		gDynLevels[i]._dnType = ghs->vhDynLvls[i].vdType;
 	}
 	// load player-data
-	_View.x = ghs->vhViewX;
-	_View.y = ghs->vhViewY;
+	_View.subtile.x = ghs->vhViewX;
+	_View.subtile.y = ghs->vhViewY;
+	_View.dun.x = ghs->vhViewDunX;
+	_View.dun.y = ghs->vhViewDunY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ScrollInfo._sxoff = ghs->vhScrollXOff;
 	ScrollInfo._syoff = ghs->vhScrollYOff;
-	ScrollInfo._sdir = ghs->vhScrollDir;
+	// ScrollInfo._sdir = ghs->vhScrollDir;
 	gnHPPer = ghs->vhHPPer;
 	gnManaPer = ghs->vhManaPer;
 
@@ -829,6 +829,8 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 	PackItem(&itemSave->viPkItem, is);
 	itemSave->vix = is->_ix;
 	itemSave->viy = is->_iy;
+	itemSave->vidx = is->_ipos.x;
+	itemSave->vidy = is->_ipos.y;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
 
 	itemSave->viMagical = is->_iMagical;
@@ -899,8 +901,8 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpfuty = pr->_pfuty;
 	plrSave->vpoldx = pr->_poldx;
 	plrSave->vpoldy = pr->_poldy;
-	plrSave->vpxoff = pr->_pxoff;
-	plrSave->vpyoff = pr->_pyoff;
+	plrSave->vpdx = pr->_ppos.x;
+	plrSave->vpdy = pr->_ppos.y;
 	plrSave->vpdir = pr->_pdir;
 	// plrSave->vpAnimDataAlign = pr->_pAnimData;
 	// plrSave->vpAnimFrameLenAlign = pr->_pAnimFrameLen;
@@ -908,7 +910,7 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpAnimLenAlign = pr->_pAnimLen;
 	plrSave->vpAnimFrame = pr->_pAnimFrame;
 	plrSave->vpAnimWidthAlign = pr->_pAnimWidth;
-	plrSave->vpAnimXOffsetAlign = pr->_pAnimXOffset;
+	// plrSave->vpAnimXOffsetAlign = pr->_pAnimXOffset;
 	plrSave->vplid = pr->_plid;
 	plrSave->vpvid = pr->_pvid;
 
@@ -1058,8 +1060,8 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmfuty = mon->_mfuty;
 	monSave->vmoldx = mon->_moldx;
 	monSave->vmoldy = mon->_moldy;
-	monSave->vmxoff = mon->_mxoff;
-	monSave->vmyoff = mon->_myoff;
+	monSave->vmdx = mon->_mpos.x;
+	monSave->vmdy = mon->_mpos.y;
 	monSave->vmdir = mon->_mdir;
 	monSave->vmenemy = mon->_menemy;
 	monSave->vmenemyx = mon->_menemyx;
@@ -1139,7 +1141,6 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	dest += sizeof(LSaveMonsterStruct);
 
 	// Skip _mAnimWidth
-	// Skip _mAnimXOffset
 	// Skip _mAFNum
 	// Skip _mAFNum2
 	// Skip _mAlign_0
@@ -1173,7 +1174,6 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	// misSave->vmiAnimFrameLenAlign = mis->_miAnimFrameLen;
 	// misSave->vmiAnimLenAlign = mis->_miAnimLen;
 	// misSave->vmiAnimWidthAlign = mis->_miAnimWidth;
-	// misSave->vmiAnimXOffsetAlign = mis->_miAnimXOffset;
 	misSave->vmiAnimCnt = mis->_miAnimCnt;
 	misSave->vmiAnimAdd = mis->_miAnimAdd;
 	misSave->vmiAnimFrame = mis->_miAnimFrame;
@@ -1181,8 +1181,9 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmisy = mis->_misy;
 	misSave->vmix = mis->_mix;
 	misSave->vmiy = mis->_miy;
-	misSave->vmixoff = mis->_mixoff;
-	misSave->vmiyoff = mis->_miyoff;
+	misSave->vmidx = mis->_mipos.x;
+	misSave->vmidy = mis->_mipos.y;
+	misSave->vmizoff = mis->_mizoff;
 	misSave->vmixvel = mis->_mixvel;
 	misSave->vmiyvel = mis->_miyvel;
 	misSave->vmitxoff = mis->_mitxoff;
@@ -1229,6 +1230,8 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->votype = os->_otype;
 	objSave->vox = os->_ox;
 	objSave->voy = os->_oy;
+	objSave->vodx = os->_opos.x;
+	objSave->vody = os->_opos.y;
 	objSave->voSFX = os->_oSFX;
 
 	objSave->voSFXCnt = os->_oSFXCnt;
@@ -1243,7 +1246,6 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	objSave->voAnimLen = os->_oAnimLen;
 	objSave->voAnimFrame = os->_oAnimFrame;
 	objSave->voAnimWidthAlign = os->_oAnimWidth;
-	objSave->voAnimXOffsetAlign = os->_oAnimXOffset;
 
 	objSave->voSolidFlag = os->_oSolidFlag;
 	objSave->voBreak = os->_oBreak;
@@ -1312,24 +1314,20 @@ static BYTE* SaveLight(BYTE* DVL_RESTRICT dest, LightListStruct* DVL_RESTRICT pL
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	lightSave->vlx = pLight->_lx;
 	lightSave->vly = pLight->_ly;
+	lightSave->vlxoff = pLight->_lxoff;
+	lightSave->vlyoff = pLight->_lyoff;
 	lightSave->vlunx = pLight->_lunx;
 	lightSave->vluny = pLight->_luny;
 
 	lightSave->vlradius = pLight->_lradius;
 	lightSave->vlunr = pLight->_lunr;
-	lightSave->vlunxoff = pLight->_lunxoff;
-	lightSave->vlunyoff = pLight->_lunyoff;
-
 	lightSave->vldel = pLight->_ldel;
 	lightSave->vlunflag = pLight->_lunflag;
-	lightSave->vlmine = pLight->_lmine;
-	lightSave->vlAlign2 = pLight->_lAlign2;
 
-	lightSave->vlxoff = pLight->_lxoff;
-	lightSave->vlyoff = pLight->_lyoff;
+	lightSave->vlmine = pLight->_lmine;
 #else
-	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlyoff) + sizeof(lightSave->vlyoff)
-	 && offsetof(LightListStruct, _lyoff) == offsetof(LSaveLightListStruct, vlyoff), "SaveLight uses memcpy to store the LightListStruct in LSaveLightListStruct.");
+	static_assert(sizeof(LSaveLightListStruct) == offsetof(LSaveLightListStruct, vlmine) + sizeof(lightSave->vlmine)
+	 && offsetof(LightListStruct, _lmine) == offsetof(LSaveLightListStruct, vlmine), "SaveLight uses memcpy to store the LightListStruct in LSaveLightListStruct.");
 	memcpy(lightSave, pLight, sizeof(LSaveLightListStruct));
 #endif // SDL_BYTEORDER == SDL_BIG_ENDIAN || INT_MAX != INT32_MAX
 
@@ -1428,8 +1426,9 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 /*static void RedoPlayerLight()
 {
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel)
-			ChangeLightXY(plr._plid, plr._px, plr._py);
+		if (plr._pActive && currLvl._dLevelIdx == plr._pDunLevel) {
+			ChangeLightXY(plr._plid, plr._ppos);
+		}
 	}
 }
 
@@ -1462,10 +1461,7 @@ static BYTE* SyncMonstersLight(BYTE* src)
 		lid = monsters[*(LE_INT32*)src]._mlid;
 		src += sizeof(LE_INT32);
 		assert(lid != NO_LIGHT);
-		LightListStruct lls;
-		src = LoadLight(src, &lls);
-		ChangeLight(lid, lls._lx, lls._ly, lls._lradius);
-		ChangeLightScreenOff(lid, lls._lxoff, lls._lyoff);
+		src = LoadLight(src, &LightList[lid]);
 	}
 	return src;
 }*/
@@ -1495,13 +1491,15 @@ void SaveGame()
 	}
 	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data
-	ghs->vhViewX = myview.x;
-	ghs->vhViewY = myview.y;
+	ghs->vhViewX = myview.subtile.x;
+	ghs->vhViewY = myview.subtile.y;
+	ghs->vhViewDunX = myview.dun.x;
+	ghs->vhViewDunY = myview.dun.y;
 	// ghs->vhScrollX = ScrollInfo._sdx;
 	// ghs->vhScrollY = ScrollInfo._sdy;
 	ghs->vhScrollXOff = ScrollInfo._sxoff;
 	ghs->vhScrollYOff = ScrollInfo._syoff;
-	ghs->vhScrollDir = ScrollInfo._sdir;
+	// ghs->vhScrollDir = ScrollInfo._sdir;
 	ghs->vhHPPer = gnHPPer;
 	ghs->vhManaPer = gnManaPer;
 
@@ -1635,7 +1633,7 @@ void LoadLevel()
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
-		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/ | BFLAG_MIS_ACTIVE | BFLAG_HAZARD);
+		*tmp &= ~(BFLAG_MISSILE_PRE | BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/ | BFLAG_HAZARD);
 	}
 	// reload light to clear the lights of the eliminated missiles
 	LoadPreLighting();

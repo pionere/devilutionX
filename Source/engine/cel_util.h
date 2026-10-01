@@ -106,6 +106,28 @@ void Cl2ApplyTrans(BYTE* pCelBuff, const BYTE* ttbl);
  */
 unsigned Cl2Width(const BYTE* pCelBuff);
 
+/**
+ * @brief evaluate whether the CEL-frame has a non-transparent pixel at the given position
+ * @param x x-position starting from the middle of the frame
+ * @param y y-position starting from the bottom of the frame
+ * @param nWidth width of the asset
+ * @param pCelBuff pointer to CEL-frame offsets and data
+ * @param nCel CEL-frame number
+ * @return true if the CEL-frame has a color-pixel at the given position
+ */
+bool CelClippedPixelAt(int x, int y, unsigned nWidth, const BYTE* pCelBuff, unsigned nCel);
+
+/**
+ * @brief evaluate whether the CL2-frame has a non-transparent pixel at the given position
+ * @param x x-position starting from the middle of the frame
+ * @param y y-position starting from the bottom of the frame
+ * @param nWidth width of the asset
+ * @param pCelBuff pointer to CL2-frame offsets and data
+ * @param nCel CL2-frame number
+ * @return true if the CL2-frame has a color-pixel at the given position
+ */
+bool Cl2PixelAt(int x, int y, unsigned nWidth, const BYTE* pCelBuff, unsigned nCel);
+
 DEVILUTION_END_NAMESPACE
 
 #endif /* __CEL_UTIL_H__ */

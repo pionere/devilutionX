@@ -1057,7 +1057,7 @@ void DeltaLoadLevel()
 					UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 					RemoveMonFromMap(i);
 				}
-				SetMonsterLoc(mon, mstr->dmx, mstr->dmy);
+				SetMonsterLoc(i, mstr->dmx, mstr->dmy);
 				mon->_mdir = mstr->dmdir;
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
@@ -1072,7 +1072,7 @@ void DeltaLoadLevel()
 #if 0 // commented out because the implementation is incomplete (e.g. what about hidden monsters)
 				// SyncMonstersLight: inline for better performance + apply to moving monsters
 				if (mon->_mlid != NO_LIGHT)
-					ChangeLightXY(mon->_mlid, mon->_mx, mon->_my);
+					ChangeLightXY(mon->_mlid, mon->_mpos);
 #endif
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
@@ -1220,8 +1220,8 @@ void NetSendCmdJoinLevel()
 
 	cmd.bCmd = CMD_JOINLEVEL;
 	cmd.lLevel = myplr._pDunLevel;
-	cmd.px = myview.x;
-	cmd.py = myview.y;
+	cmd.px = myview.subtile.x;
+	cmd.py = myview.subtile.y;
 	cmd.php = myplr._pHPBase;
 	cmd.pmp = myplr._pManaBase;
 	cmd.lTimer1 = myplr._pTimer[PLTR_INFRAVISION];
@@ -1307,8 +1307,8 @@ void LevelDeltaExport()
 			//tplr->spfuty = plr._pfuty;
 			//tplr->spoldx = plr._poldx;
 			//tplr->spoldy = plr._poldy;
-			//tplr->spxoff = plr._pxoff;
-			//tplr->spyoff = plr._pyoff;
+			tplr->spdx = plr._ppos.x;
+			tplr->spdy = plr._ppos.y;
 			tplr->spdir = plr._pdir;
 			tplr->spAnimFrame = plr._pAnimFrame;
 			tplr->spAnimCnt = plr._pAnimCnt;
@@ -1350,8 +1350,8 @@ void LevelDeltaExport()
 			//tmon->smfuty = mon->_mfuty;
 			//tmon->smoldx = mon->_moldx;
 			//tmon->smoldy = mon->_moldy;
-			//tmon->smxoff = mon->_mxoff;
-			//tmon->smyoff = mon->_myoff;
+			tmon->smdx = mon->_mpos.x;
+			tmon->smdy = mon->_mpos.y;
 			tmon->smdir = mon->_mdir;
 			tmon->smenemy = mon->_menemy;
 			tmon->smenemyx = mon->_menemyx;
@@ -1402,7 +1402,6 @@ void LevelDeltaExport()
 			//int _miAnimFrameLen;
 			//int _miAnimLen;
 			//int _miAnimWidth;
-			//int _miAnimXOffset;
 			tmis->smiAnimCnt = mis->_miAnimCnt;
 			tmis->smiAnimAdd = mis->_miAnimAdd;
 			tmis->smiAnimFrame = mis->_miAnimFrame;
@@ -1411,8 +1410,9 @@ void LevelDeltaExport()
 			tmis->smisy = mis->_misy;
 			tmis->smix = mis->_mix;
 			tmis->smiy = mis->_miy;
-			tmis->smixoff = mis->_mixoff / ASSET_MPL;
-			tmis->smiyoff = mis->_miyoff / ASSET_MPL;
+			tmis->smidx = mis->_mipos.x;
+			tmis->smidy = mis->_mipos.y;
+			tmis->smizoff = mis->_mizoff / ASSET_MPL;
 			tmis->smixvel = mis->_mixvel;
 			tmis->smiyvel = mis->_miyvel;
 			tmis->smitxoff = mis->_mitxoff;
@@ -1520,9 +1520,8 @@ void LevelDeltaLoad()
 		// plr._pfuty = tplr->spfuty;
 		// plr._poldx = tplr->spoldx;
 		// plr._poldy = tplr->spoldy;
-		// plr._pxoff = tplr->spxoff;
-		// plr._pyoff = tplr->spyoff;
-		plr._pxoff = plr._pyoff = 0; // no need to sync these values as they are recalculated when used
+		plr._ppos.x = tplr->spdx;
+		plr._ppos.y = tplr->spdy;
 		plr._pdir = tplr->spdir;
 		plr._pAnimFrame = tplr->spAnimFrame;
 		plr._pAnimCnt = tplr->spAnimCnt;
@@ -1550,7 +1549,7 @@ void LevelDeltaLoad()
 			mi = plr._pmode;
 			net_assert(mi < NUM_PLR_MODES);
 			if (mi == PM_WALK || mi == PM_WALK2) {
-				if (plr._pmode == PM_WALK) {
+				if (mi == PM_WALK) {
 					plr._poldx = px;
 					plr._poldy = py;
 
@@ -1569,7 +1568,6 @@ void LevelDeltaLoad()
 				}
 				net_assert(IN_DUNGEON_AREA(px, py));
 			} else {
-				// SetPlayerLoc(&plr, px, py);
 				plr._pfutx = plr._poldx = px;
 				plr._pfuty = plr._poldy = py;
 			}
@@ -1612,9 +1610,8 @@ void LevelDeltaLoad()
 		//mon->_mfuty = tmon->smfuty;
 		//mon->_moldx = tmon->smoldx;
 		//mon->_moldy = tmon->smoldy;
-		//mon->_mxoff = tmon->smxoff;
-		//mon->_myoff = tmon->smyoff;
-		mon->_mxoff = mon->_myoff = 0;        // no need to sync these values as they are recalculated when used
+		mon->_mpos.x = tmon->smdx;
+		mon->_mpos.y = tmon->smdy;
 		mon->_mdir = tmon->smdir;
 		mon->_menemy = tmon->smenemy;
 		mon->_menemyx = tmon->smenemyx;
@@ -1639,10 +1636,6 @@ void LevelDeltaLoad()
 		//BYTE _mpacksize; // the number of 'pack'-monsters close to their leader
 		//BYTE _mvid; // vision id of the monster (for minions only)
 		mon->_mFlags = tmon->smFlags;
-		// move the light of the monster
-		// assert(mon->_mlid == NO_LIGHT || (LightList[mon->_mlid]._lx == mx && LightList[mon->_mlid]._ly == my));
-		//if (mon->_mlid != NO_LIGHT)
-		//	ChangeLightXY(mon->_mlid, mon->_moldx, mon->_moldy);
 		// place the monster
 		mi = mon->_mmode;
 		net_assert(mi <= MM_INGAME_LAST);
@@ -1658,7 +1651,7 @@ void LevelDeltaLoad()
 			my = mon->_my;
 			net_assert(IN_ACTIVE_AREA(mx, my));
 			if (mi == MM_WALK || mi == MM_WALK2) {
-				if (mon->_mmode == MM_WALK) {
+				if (mi == MM_WALK) {
 					mon->_moldx = mx;
 					mon->_moldy = my;
 
@@ -1679,7 +1672,6 @@ void LevelDeltaLoad()
 				// net_assert(PosOkMonster(mnum, mx, my));
 			} else {
 				// net_assert(PosOkMonster(mnum, mx, my));
-				// SetMonsterLoc(mon, mx, my);
 				mon->_mfutx = mon->_moldx = mx;
 				mon->_mfuty = mon->_moldy = my;
 			}
@@ -1701,6 +1693,15 @@ void LevelDeltaLoad()
 				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
 			}
 		}
+		// move the light of the monster
+		// assert(mon->_mlid == NO_LIGHT);
+		// if (mon->_mlid != NO_LIGHT) {
+		//	// if (mon->_mFlags & MFLAG_HIDDEN) {
+		//	//	ChangeLightRadius(mon->_mlid, 0);
+		//	// } else {
+		//		ChangeLightXY(mon->_mlid, mon->_mpos);
+		//	// }
+		// }
 		SyncMonsterAnim(mnum);
 		src += sizeof(TSyncLvlMonster);
 	}
@@ -1734,8 +1735,9 @@ void LevelDeltaLoad()
 		mis->_misy = tmis->smisy;
 		mis->_mix = tmis->smix;
 		mis->_miy = tmis->smiy;
-		mis->_mixoff = tmis->smixoff * ASSET_MPL;
-		mis->_miyoff = tmis->smiyoff * ASSET_MPL;
+		mis->_mipos.x = tmis->smidx;
+		mis->_mipos.y = tmis->smidy;
+		mis->_mizoff = tmis->smizoff * ASSET_MPL;
 		mis->_mixvel = tmis->smixvel;
 		mis->_miyvel = tmis->smiyvel;
 		mis->_mitxoff = tmis->smitxoff;
@@ -1759,7 +1761,7 @@ void LevelDeltaLoad()
 
 		if (tmis->smiLidRadius != 0) {
 			net_assert(tmis->smiLidRadius <= MAX_LIGHT_RAD);
-			mis->_miLid = AddLight(mis->_mix, mis->_miy, tmis->smiLidRadius);
+			mis->_miLid = AddLight(mis->_mipos, tmis->smiLidRadius);
 		} else {
 			mis->_miLid = NO_LIGHT;
 		}
@@ -1792,7 +1794,7 @@ void LevelDeltaLoad()
 				net_assert(plr._pVar6 >= 0);                   // RATTACK_SKILL_LEVEL
 				break;
 			case PM_SPELL:
-				net_assert(IN_ACTIVE_AREA(plr._pVar1, plr._pVar2)); // SPELL_TARGET_X, SPELL_TARGET_Y
+				net_assert(IN_ACTIVE_DUN(plr._pVar1, plr._pVar2)); // SPELL_TARGET_X, SPELL_TARGET_Y
 				net_assert((unsigned)plr._pVar5 < NUM_SPELLS);                        // SPELL_NUM
 				net_assert(plr._pVar6 >= 0);                                          // SPELL_LEVEL
 				break;
@@ -1804,10 +1806,10 @@ void LevelDeltaLoad()
 		case ACTION_NONE:
 			break;
 		case ACTION_WALK:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2));
 			break;
 		case ACTION_OPERATE:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2));
 			net_assert(plr._pDestParam3 == SPL_ATTACK);
 			net_assert((unsigned)plr._pDestParam4 < MAXOBJECTS);
 			net_assert(abs(dObject[plr._pDestParam1][plr._pDestParam2]) == plr._pDestParam4 + 1);
@@ -1837,7 +1839,7 @@ void LevelDeltaLoad()
 			net_assert(plr._pDestParam4 >= 0);         // ATTACK_SKILL_LEVEL, SPELL_LEVEL
 			break;
 		case ACTION_SPELL:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2)); // SPELL_TARGET_X, SPELL_TARGET_Y
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2)); // SPELL_TARGET_X, SPELL_TARGET_Y
 			net_assert((unsigned)plr._pDestParam3 < NUM_SPELLS);                              // SPELL_NUM
 			net_assert(plr._pDestParam4 >= 0);                                                // SPELL_LEVEL
 			if (plr._pDestParam3 == SPL_DISARM)
@@ -1863,7 +1865,7 @@ void LevelDeltaLoad()
 			}
 			break;
 		case ACTION_PICKUPITEM:
-			net_assert(IN_ACTIVE_AREA(plr._pDestParam1, plr._pDestParam2));
+			net_assert(IN_ACTIVE_DUN(plr._pDestParam1, plr._pDestParam2));
 			net_assert((unsigned)plr._pDestParam4 < MAXITEMS);
 			break;
 		case ACTION_TALK:
@@ -1979,13 +1981,13 @@ void NetSendCmdGolem(BYTE lvl, BYTE type, int hitpoints)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLoc(BYTE bCmd, BYTE x, BYTE y)
+void NetSendCmdLoc(BYTE bCmd, POS32 pos)
 {
 	TCmdLoc cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2002,26 +2004,26 @@ void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocBParam2(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1, BYTE bParam2)
+void NetSendCmdLocBParam2(BYTE bCmd, POS32 pos, BYTE bParam1, BYTE bParam2)
 {
 	TCmdLocBParam2 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.bParam1 = bParam1;
 	cmd.bParam2 = bParam2;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocParam1(BYTE bCmd, BYTE x, BYTE y, uint16_t wParam1)
+void NetSendCmdLocParam1(BYTE bCmd, POS32 pos, uint16_t wParam1)
 {
 	TCmdLocParam1 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.wParam1 = wParam1;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
@@ -2117,12 +2119,12 @@ void SendStoreCmd2(BYTE bStoreId)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdGItem(BYTE bCmd, BYTE ii)
+void NetSendCmdGItem(BYTE ii)
 {
 	ItemStruct* is;
 	TCmdGItem cmd;
 
-	cmd.bCmd = bCmd;
+	cmd.bCmd = !gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM;
 	cmd.bLevel = currLvl._dLevelIdx;
 	is = &items[ii];
 	cmd.x = is->_ix;
@@ -2174,25 +2176,25 @@ void NetSendCmdItemSkill(BYTE cii, const CmdSkillUse skillUse)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocSkill(BYTE x, BYTE y, const CmdSkillUse skillUse)
+void NetSendCmdLocSkill(POS32 pos, const CmdSkillUse skillUse)
 {
 	TCmdLocSkill cmd;
 
 	cmd.bCmd = CMD_SKILLXY;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.lsu = skillUse;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocDisarm(BYTE x, BYTE y, BYTE oi, int8_t from)
+void NetSendCmdLocDisarm(POS32 pos, BYTE oi, int8_t from)
 {
 	TCmdLocDisarm cmd;
 
 	cmd.bCmd = CMD_DISARMXY;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.oi = oi;
 	cmd.from = from;
 
@@ -2308,7 +2310,7 @@ static unsigned On_WALKXY(const TCmd* pCmd, int pnum)
 	const TCmdLoc* cmd = (const TCmdLoc*)pCmd;
 
 	if (currLvl._dLevelIdx == plr._pDunLevel) {
-		net_check_cmd(IN_ACTIVE_AREA(cmd->x, cmd->y));
+		net_check_cmd(IN_ACTIVE_DUN(cmd->x, cmd->y));
 		plr._pDestAction = ACTION_WALK;
 		plr._pDestParam1 = cmd->x;
 		plr._pDestParam2 = cmd->y;
@@ -2529,10 +2531,12 @@ static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			sx = 70 + DBORDERX; sy = 52 + DBORDERY;
 			dx = 71 + DBORDERX; dy = 53 + DBORDERY;
-			PlaySfxLoc(LS_FLAMWAVE, sx, sy);
+			PlaySfxLoc(LS_FLAMWAVE, DungeonToDunPos(sx, sy));
 			for (i = sx; i <= dx; i++)
-				for (j = sy; j <= dy; j++)
-					AddMissile(i, j, -1, 0, 0, MIS_EXFBALL, MST_NA, 0, 0);
+				for (j = sy; j <= dy; j++) {
+					const POS32 dp = DungeonToDunPos(i, j);
+					AddMissile(dp, { 0, 0 }, 0, MIS_EXFBALL, MST_NA, 0, 0);
+				}
 			// TODO: ResyncQuests?
 			gbOpenWarps |= (1 << TWARP_NEST);
 			OpenNest();
@@ -2614,7 +2618,7 @@ static unsigned On_SKILLXY(const TCmd* pCmd, int pnum)
 		x = cmd->x;
 		y = cmd->y;
 
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
 		// net_check_cmd(/*sn != SPL_WALK &&*/ sn != SPL_BLOCK);
 
 		plr._pDestAction = spelldata[sn].sAction;
@@ -2670,8 +2674,8 @@ static unsigned On_OPOBJXY(const TCmd* pCmd, int pnum)
 		y = cmd->y;
 
 		net_check_cmd(oi < MAXOBJECTS);
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
-		net_check_cmd(abs(dObject[x][y]) == oi + 1);
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
+		net_check_cmd(abs(dObject[(unsigned)x / DUN_WIDTH][(unsigned)y / DUN_WIDTH]) == oi + 1);
 
 		plr._pDestAction = ACTION_OPERATE;
 		plr._pDestParam1 = x;
@@ -2698,8 +2702,8 @@ static unsigned On_DISARMXY(const TCmd* pCmd, int pnum)
 		y = cmd->y;
 
 		net_check_cmd(oi < MAXOBJECTS);
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
-		net_check_cmd(abs(dObject[x][y]) == oi + 1);
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
+		net_check_cmd(abs(dObject[(unsigned)x / DUN_WIDTH][(unsigned)y / DUN_WIDTH]) == oi + 1);
 
 		plr._pDestAction = ACTION_SPELL;
 		plr._pDestParam1 = x;
@@ -3302,7 +3306,7 @@ static unsigned On_REQDELTA(const TCmd* pCmd, int pnum)
 	return sizeof(*pCmd);
 }
 
-static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
+static void DoTelekinesis(int pnum, POS32 pos, int8_t from, int id)
 {
 	CmdSkillUse su;
 
@@ -3311,8 +3315,8 @@ static void DoTelekinesis(int pnum, int x, int y, int8_t from, int id)
 
 	if (CheckPlrSkillUse(pnum, su)) {
 		plr._pDestAction = ACTION_SPELL;
-		plr._pDestParam1 = x;
-		plr._pDestParam2 = y;
+		plr._pDestParam1 = pos.x;
+		plr._pDestParam2 = pos.y;
 		// plr._pDestParam3 = SPL_TELEKINESIS; // spell
 		plr._pDestParam4 = id;              // fake spllvl
 	}
@@ -3322,7 +3326,7 @@ static unsigned On_TELEKINITM(const TCmd* pCmd, int pnum)
 {
 	const TCmdLocBParam2* cmd = (const TCmdLocBParam2*)pCmd;
 
-	DoTelekinesis(pnum, cmd->x, cmd->y, cmd->bParam1, (MTT_ITEM << 16) | cmd->bParam2);
+	DoTelekinesis(pnum, { cmd->x, cmd->y }, cmd->bParam1, (MTT_ITEM << 16) | cmd->bParam2);
 
 	return sizeof(*cmd);
 }
@@ -3334,7 +3338,7 @@ static unsigned On_TELEKINMON(const TCmd* pCmd, int pnum)
 
 	net_check_cmd(mnum < MAXMONSTERS);
 
-	DoTelekinesis(pnum, monsters[mnum]._mx, monsters[mnum]._my, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
+	DoTelekinesis(pnum, monsters[mnum]._mpos, cmd->byteParam, (MTT_MONSTER << 16) | mnum);
 
 	return sizeof(*cmd);
 }
@@ -3346,7 +3350,7 @@ static unsigned On_TELEKINPLR(const TCmd* pCmd, int pnum)
 
 	net_check_cmd(tnum < MAX_PLRS);
 
-	DoTelekinesis(pnum, players[tnum]._px, players[tnum]._py, cmd->bParam1, (MTT_PLAYER << 16) | tnum);
+	DoTelekinesis(pnum, players[tnum]._ppos, cmd->bParam1, (MTT_PLAYER << 16) | tnum);
 
 	return sizeof(*cmd);
 }
@@ -3358,7 +3362,7 @@ static unsigned On_TELEKINOBJ(const TCmd* pCmd, int pnum)
 
 	net_check_cmd(oi < MAXOBJECTS);
 
-	DoTelekinesis(pnum, objects[oi]._ox, objects[oi]._oy, cmd->byteParam, (MTT_OBJECT << 16) | oi);
+	DoTelekinesis(pnum, objects[oi]._opos, cmd->byteParam, (MTT_OBJECT << 16) | oi);
 
 	return sizeof(*cmd);
 }
@@ -3628,8 +3632,8 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	"y:%d "
 	"fx:%d "
 	"fy:%d "
-	"ox:%d "
-	"oy:%d "
+	"dx:%d "
+	"dy:%d "
 	"xf:%d "
 	"yf:%d "
 	"dir:%d "
@@ -3685,8 +3689,7 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	"tr:%d "
 	"xp:%d "
 	"ty:%d "
-	"w:%d "
-	"xo:%d ",
+	"w:%d ",
 			mnum,
 			mon->_mmode,
 	mon->_msquelch,
@@ -3703,8 +3706,8 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mfuty,
 	mon->_moldx,
 	mon->_moldy,
-	mon->_mxoff,
-	mon->_myoff,
+	mon->_mpos.x,
+	mon->_mpos.y,
 	mon->_mdir,
 	mon->_menemy,
 	mon->_menemyx,
@@ -3756,8 +3759,7 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mMagicRes,
 	mon->_mExp,
 	mon->_mType,
-	mon->_mAnimWidth,
-	mon->_mAnimXOffset);
+	mon->_mAnimWidth);
 		// clang-format on
 		DDMonster* mstr = &gsDeltaData.ddLevel[myplr._pDunLevel].lvMonster[mnum];
 		if (mstr->dmCmd != DCMD_MON_INVALID) {
@@ -3860,8 +3862,8 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._poldy;
 		buf++;
-		//plr._pxoff = tplr->spxoff;
-		//plr._pyoff = tplr->spyoff;
+		//plr._ppos.x = tplr->spdx;
+		//plr._ppos.y = tplr->spdy;
 		*buf = plx(i)._pdir;
 		buf++;
 		//int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -4166,8 +4168,7 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 			PrintPlrMismatch("poldy", plx(i)._poldy, *src, pnum, i);
 		src++;
 
-		//int _pxoff;   // Player sprite's pixel X-offset from tile.
-		//int _pyoff;   // Player sprite's pixel Y-offset from tile.
+		//int _ppos;   // Precise dungeon position of the player
 		if (plx(i)._pdir != *src)
 			PrintPlrMismatch("dir", plx(i)._pdir, *src, pnum, i);
 		src++;

@@ -50,7 +50,7 @@ void SpellCheck(PlrSkillUse* skill)
 			break;
 		default: {
 			const ItemStruct* pi = &plr._pInvBody[result];
-			if (pi->_itype == ITYPE_NONE || pi->_iSpell != sn || !pi->_iStatFlag)
+			if (pi->_itype == ITYPE_NONE || pi->_iSpell != sn || plr._pStrength < pi->_iReqStr || plr._pMagic < pi->_iReqMag)
 				result = SPLFROM_INVALID_SOURCE;
 		} break;
 		}

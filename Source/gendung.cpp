@@ -47,7 +47,7 @@ BYTE microFlags[MAXSUBTILES + 1];
 /**
  * Flags of subtiles to specify collision properties and the light radius
  */
-BYTE nCollLightTable[MAXSUBTILES + 1];
+static BYTE nCollLightTable[MAXSUBTILES + 1];
 /**
  * List of path blocking dPieces
  */

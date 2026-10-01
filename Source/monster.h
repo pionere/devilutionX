@@ -8,7 +8,7 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-#define MON_WALK_SHIFT 8
+#define MON_WALK_SHIFT 16
 
 // Ticks necessary to finish the current action and add the result to the delta
 // ~ ACTION_LENGTH + (gbNetUpdateRate * gbEmptyTurns) * (MAXMONSTERS / (NET_TURN_MSG_SIZE / sizeof(TSyncMonster)))
@@ -47,6 +47,7 @@ void WakeNakrul();
 #endif
 void InitMonsters();
 void MonChangeMap();
+void SetMonsterLoc(int mnum, int x, int y);
 void InitMonster(int mnum, int dir, int mtidx, int x, int y);
 void AddMonster(int mtidx, int x, int y);
 void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y);
@@ -64,6 +65,7 @@ void ProcessMonsters();
 void FreeMonsters();
 //bool CheckAllowMissile(int x, int y);
 bool LineClear(int x1, int y1, int x2, int y2);
+bool LineClearPos(POS32 p1, POS32 p2);
 void SyncMonsterAnim(int mnum);
 void MonHinder(int mnum, int spllvl, unsigned tick);
 void MissToMonst(int mi);
@@ -84,12 +86,6 @@ bool SpawnMinion(int mnum, int x, int y, int type, int level, int hitpoints = -1
 bool CanTalkToMonst(int mnum);
 bool CheckMonsterHit(int mnum, bool* ret);
 void MonCallToArms(int mnum);
-
-inline void SetMonsterLoc(MonsterStruct* mon, int x, int y)
-{
-	mon->_mx = mon->_mfutx = mon->_moldx = x;
-	mon->_my = mon->_mfuty = mon->_moldy = y;
-}
 
 /* data */
 

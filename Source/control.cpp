@@ -186,16 +186,17 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 
 	if (sn == SPL_NULL)
 		return;
+	const int pnum = mypnum;
 	switch (skill._suFrom) {
 	case SPLFROM_ABILITY:
 		return;
 	case SPLFROM_MANA:
-		if (myplr._pHasUnidItem) {
+		if (plr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 			break;
 		}
-		v = myplr._pSkillLvl[sn];
-		if (v > 0 && myplr._pMagic >= spelldata[sn].sReqMag) {
+		v = plr._pSkillLvl[sn];
+		if (v > 0 && plr._pMagic >= spelldata[sn].sReqMag) {
 			snprintf(tempstr, sizeof(tempstr), "l%02d", v);
 		} else {
 			copy_cstr(tempstr, "X");
@@ -205,11 +206,11 @@ static void DrawSpellIconOverlay(int x, int y, PlrSkillUse skill)
 	case SPLFROM_INVALID_TYPE:
 		return;
 	default: {
-		if (myplr._pHasUnidItem) {
+		if (plr._pHasUnidItem) {
 			copy_cstr(tempstr, "?");
 		} else {
-			const ItemStruct* pi = &myplr._pInvBody[skill._suFrom];
-			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && pi->_iStatFlag) {
+			const ItemStruct* pi = &plr._pInvBody[skill._suFrom];
+			if (pi->_itype != ITYPE_NONE && pi->_iSpell == sn && plr._pStrength >= pi->_iReqStr && plr._pMagic >= pi->_iReqMag) {
 				snprintf(tempstr, sizeof(tempstr), "%d/%d", pi->_iCharges, pi->_iMaxCharges);
 			} else {
 				copy_cstr(tempstr, "X");
@@ -1145,40 +1146,6 @@ static int DrawTooltip2(const char* text1, const char* text2, int x, int y, BYTE
 	return result;
 }
 
-/*
- * Return the screen position of the given tile (x;y).
- *
- * @param x the x index of the tile
- * @param y the y index of the tile
- * @return the screen x/y-coordinates of the tile
- */
-static POS32 GetMousePos(int x, int y)
-{
-	POS32 pos;
-
-	x -= myview.x;
-	y -= myview.y;
-
-	pos = { 0, 0 };
-	SHIFT_GRID(pos.x, pos.y, -y, x);
-
-	pos.x *= TILE_WIDTH / 2;
-	pos.y *= TILE_HEIGHT / 2;
-
-	pos.x += ScrollInfo._sxoff;
-	pos.y += ScrollInfo._syoff;
-
-	if (gbZoomInFlag) {
-		pos.x <<= 1;
-		pos.y <<= 1;
-	}
-
-	pos.x += SCREEN_WIDTH / 2u;
-	pos.y += SCREEN_HEIGHT / 2u;
-
-	return pos;
-}
-
 static void GetItemInfo(const ItemStruct* is)
 {
 	infoclr = ItemColor(is);
@@ -1267,14 +1234,14 @@ static void DrawTrigInfo()
 {
 	POS32 pos;
 
+	pos = GetMousePosDun(pcurspos.dun);
 	if (pcurstrig >= MAXTRIGGERS + 1) {
 		// portal
 		MissileStruct* mis = &missile[pcurstrig - (MAXTRIGGERS + 1)];
+		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		if (mis->_miType == MIS_TOWN) {
 			copy_cstr(infostr, "Town Portal");
 			snprintf(tempstr, sizeof(tempstr), "(%s)", players[mis->_miSource]._pName);
-			pos = GetMousePos(pcurspos.x, pcurspos.y);
-			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip2(infostr, tempstr, pos.x, pos.y, COL_WHITE);
 		} else {
 			if (!currLvl._dSetLvl) {
@@ -1282,8 +1249,6 @@ static void DrawTrigInfo()
 			} else {
 				copy_cstr(infostr, "Portal back to hell");
 			}
-			pos = GetMousePos(pcurspos.x, pcurspos.y);
-			pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 			DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 		}
 		return;
@@ -1359,7 +1324,6 @@ static void DrawTrigInfo()
 		}
 	}
 
-	pos = GetMousePos(pcurspos.x, pcurspos.y);
 	pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 	DrawTooltip(infostr, pos.x, pos.y, COL_WHITE);
 }
@@ -1540,13 +1504,13 @@ void DrawInfoStr()
 	if (ITEM_VALID(pcursitem)) {
 		ItemStruct* is = &items[pcursitem];
 		GetItemInfo(is);
-		pos = GetMousePos(is->_ix, is->_iy);
-		pos.y -= TOOLTIP_OFFSET;
+		pos = GetMousePosDun(is->_ipos);
+		pos.y -= TILE_HEIGHT / 2 + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (OBJ_VALID(pcursobj)) {
 		GetObjectStr(pcursobj);
 		ObjectStruct* os = &objects[pcursobj];
-		pos = GetMousePos(os->_ox, os->_oy);
+		pos = GetMousePosDun(os->_opos);
 		pos.y -= TILE_HEIGHT + TOOLTIP_OFFSET;
 		DrawTooltip(infostr, pos.x, pos.y, infoclr);
 	} else if (MON_VALID(pcursmonst)) {
@@ -1554,17 +1518,13 @@ void DrawInfoStr()
 		DISABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
 		strcpy(infostr, mon->_mName); // TNR_NAME or a monster's name
 		ENABLE_WARNING(deprecated-declarations, deprecated-declarations, 4996)
-		pos = GetMousePos(mon->_mx, mon->_my);
-		pos.x += mon->_mxoff;
-		pos.y += mon->_myoff;
+		pos = GetMousePosDun(mon->_mpos);
 		pos.y -= ((mon->_mSelFlag & 6) ? TILE_HEIGHT * 2 : TILE_HEIGHT) + TOOLTIP_OFFSET;
 		pos.x += DrawTooltip(infostr, pos.x, pos.y, mon->_mNameColor);
 		DrawHealthBar(mon->_mhitpoints, mon->_mmaxhp, pos.x, pos.y + TOOLTIP_HEIGHT - HEALTHBAR_HEIGHT / 2);
 	} else if (PLR_VALID(pcursplr)) {
 		PlayerStruct* p = &players[pcursplr];
-		pos = GetMousePos(p->_px, p->_py);
-		pos.x += p->_pxoff;
-		pos.y += p->_pyoff;
+		pos = GetMousePosDun(p->_ppos);
 		pos.y -= TILE_HEIGHT * 2 + TOOLTIP_OFFSET;
 		snprintf(infostr, sizeof(infostr), p->_pManaShield == 0 ? "%s(%d)" : "%s(%d)*", ClassStrTbl[p->_pClass], p->_pLevel);
 		pos.x += DrawTooltip2(p->_pName, infostr, pos.x, pos.y, COL_GOLD);

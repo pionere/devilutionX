@@ -586,7 +586,7 @@ bool AutoPlaceBelt(int pnum, ItemStruct* is, bool saveflag)
 	ItemStruct* pi;
 	int i, n;
 
-	if (is->_iLoc != ILOC_BELT) // || !is->_iStatFlag)
+	if (is->_iLoc != ILOC_BELT) // || !is->_iStatFlag ... /* || plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag*/)
 		return false;
 
 	// assert(is->_iUsable);
@@ -1325,6 +1325,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 		}
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
 		int nn, i, x, y;
+		POS32 pos;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
 		 && (idx == IDI_NOTE3 || PlrHasStorageItem(pnum, IDI_NOTE3, &nn))) {
@@ -1338,12 +1339,12 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			}
 			// preserve seed and location of the last item (required by DeleteItem[AutoGetItem, InvGetItem])
 			idx = is->_iSeed;
-			x = is->_ix;
-			y = is->_iy;
+			x = is->_ix; y = is->_iy;
+			pos = is->_ipos;
 			SetItemSData(is, IDI_FULLNOTE);
 			is->_iSeed = idx;
-			is->_ix = x;
-			is->_iy = y;
+			is->_ix = x; is->_iy = y;
+			is->_ipos = pos;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
 		}
@@ -1635,7 +1636,7 @@ void InvUseItem(int cii)
 		return;
 	}
 
-	if (!is->_iStatFlag) {
+	if (!is->_iStatFlag /*plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag*/) {
 		PlaySfx(sgSFXSets[SFXS_PLR_13][plr._pClass]);
 		return;
 	}
@@ -1679,7 +1680,7 @@ void InvUseItem(int cii)
 			gbTSkillUse = itmSkill;
 			NewCursor(spelldata[sn].scCurs);
 		} else {
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, itmSkill);
+			NetSendCmdLocSkill(pcurspos.dun, itmSkill);
 		}
 	} break;
 	//case IMISC_MAPOFDOOM:
@@ -1720,7 +1721,7 @@ int SyncUseItem(int pnum, BYTE cii)
 
 	is = PlrItem(pnum, cii);
 
-	if (is->_itype == ITYPE_NONE || !is->_iStatFlag)
+	if (is->_itype == ITYPE_NONE || plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag)
 		return SPL_NULL;
 
 	sn = is->_iSpell;
@@ -1812,7 +1813,7 @@ bool SyncUseMapItem(int pnum, BYTE cii, BYTE mIdx)
 
 	is = PlrItem(pnum, cii);
 
-	if (is->_itype == ITYPE_NONE) // || !is->_iStatFlag)
+	if (is->_itype == ITYPE_NONE) // || !is->_iStatFlag ... plr._pStrength < is->_iReqStr || plr._pMagic < is->_iReqMag)
 		return false;
 
 	// if (!is->_iUsable)

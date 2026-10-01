@@ -104,6 +104,11 @@ typedef struct RECT_AREA32 {
 	int y2;
 } RECT_AREA32;
 
+typedef struct GRID_POS32 {
+	POS32 subtile;
+	POS32 dun;
+} GRID_POS32;
+
 typedef struct CelMetaInfo {
 	DWORD cmiDimensions;
 	DWORD cmiDimensionsPerFrame;
@@ -221,6 +226,7 @@ typedef struct ItemData {
 	BYTE iMinDam;
 	BYTE iMaxDam;
 	BYTE iBaseCrit;
+	BYTE iBasePow;
 	BYTE iReqStr; // the required strength to use the item
 	BYTE iReqMag; // the required magic to use the item
 	BYTE iReqDex; // the required dexterity to use the item
@@ -259,6 +265,7 @@ typedef struct ItemStruct {
 		int _iPHolder; // parent index of a placeholder entry in InvList
 	};
 	int _iy;
+	POS32 _ipos;  // Precise dungeon position of the item
 	int _iCurs;   // item_cursor_graphic
 	int _itype;   // item_type
 	int _iMiscId; // item_misc_id
@@ -269,12 +276,12 @@ typedef struct ItemStruct {
 	BYTE _iMinDam;
 	BYTE _iMaxDam;
 	BYTE _iBaseCrit;
+	BYTE _iBasePow;
 	BYTE _iReqStr; // the required strength to use the item
 	BYTE _iReqMag; // the required magic to use the item
 	BYTE _iReqDex; // the required dexterity to use the item
 	BOOLEAN _iUsable; // can be placed in belt, can be consumed/used or stacked (if max durability is not 1)
 	BYTE _iPrePower; // item_effect_type -- unused
-	BYTE _iSufPower; // item_effect_type -- unused
 	BYTE _iMagical;	// item_quality
 	BYTE _iSelFlag;
 	BYTE _iSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
@@ -309,7 +316,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(15, 14)
+	ALIGNMENT(13, 12)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -392,8 +399,7 @@ typedef struct PlayerStruct {
 	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
 	int _poldx;   // Most recent tile X-position where the player was at the start of its action
 	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
-	int _pxoff;   // Pixel X-offset from tile position where the player should be drawn
-	int _pyoff;   // Pixel Y-offset from tile position where the player should be drawn
+	POS32 _ppos;  // Precise dungeon position of the player
 	int _pdir;    // Direction faced by player (direction enum)
 	const BYTE* _pAnimData;
 	int _pAnimFrameLen; // Tick length of each frame in the current animation
@@ -401,7 +407,7 @@ typedef struct PlayerStruct {
 	unsigned _pAnimLen;   // Number of frames in current animation
 	unsigned _pAnimFrame; // Current frame of animation.
 	int _pAnimWidth;
-	int _pAnimXOffset;
+	int _pAnimXOffset; // unused
 	unsigned _plid; // light id of the player
 	unsigned _pvid; // vision id of the player
 	PlrSkillStruct _pMainSkill; // the selected attack/movement skill for the primary action
@@ -462,6 +468,7 @@ typedef struct PlayerStruct {
 	int _pIPcMaxDam; // max puncture-damage (bows, daggers)
 	int _pIChMinDam; // min charge-damage (shield charge)
 	int _pIChMaxDam; // max charge-damage (shield charge)
+	int _pIPower; // magic power of the player spells
 	int _pIEvasion;
 	int _pIAC;
 	int8_t _pMagResist;
@@ -492,7 +499,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(193, 110)
+	ALIGNMENT(192, 108)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -515,7 +522,7 @@ typedef struct TextData {
 //////////////////////////////////////////////////
 
 typedef struct MissileData {
-	int (*mAddProc)(int, int, int, int, int, int, int, int, int);
+	int (*mAddProc)(int, POS32, int, int, int, int);
 	void (*mProc)(int);
 	BYTE mdFlags; // missile_flags
 	BYTE mResist; // missile_resistance
@@ -562,7 +569,6 @@ typedef struct MissileStruct {
 	int _miAnimFrameLen; // Tick length of each frame in the current animation
 	int _miAnimLen;   // Number of frames in current animation
 	int _miAnimWidth;
-	int _miAnimXOffset;
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
@@ -570,12 +576,12 @@ typedef struct MissileStruct {
 	int _misy;    // Initial tile Y-position
 	int _mix;     // Tile X-position where the missile should be drawn
 	int _miy;     // Tile Y-position where the missile should be drawn
-	int _mixoff;  // Pixel X-offset from tile position where the missile should be drawn
-	int _miyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	POS32 _mipos; // Precise dungeon position of the missile
+	int _mizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy get updated every game tick based on this
+	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy get updated every game tick based on this
 	int _miDir;   // The direction of the missile
 	int _miSpllvl;
 	int _miSource; // missile_source_type
@@ -592,7 +598,7 @@ typedef struct MissileStruct {
 	int _miVar5;
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
-	int _miVar8; // last target in case of non-DOT missiles
+	int _miVar8; // last target
 	ALIGNMENT(10, 24)
 } MissileStruct;
 
@@ -719,7 +725,7 @@ typedef struct MapMonData {
 	unsigned cmMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned cmExp;
 	int cmWidth;
-	int cmXOffset;
+	int cmAnimXOffset; // unused
 	BYTE cmAFNum;
 	BYTE cmAFNum2;
 	uint16_t cmAlign_0; // unused
@@ -749,8 +755,7 @@ typedef struct MonsterStruct {
 	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
 	int _moldx;        // Most recent tile X-position where the monster was at the start of its action
 	int _moldy;        // Most recent tile Y-position where the monster was at the start of its action
-	int _mxoff;        // Pixel X-offset from tile position where the monster should be drawn
-	int _myoff;        // Pixel Y-offset from tile position where the monster should be drawn
+	POS32 _mpos;       // Precise dungeon position of the monster
 	int _mdir;         // Direction faced by monster (direction enum)
 	int _menemy;       // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
@@ -802,7 +807,7 @@ typedef struct MonsterStruct {
 	unsigned _mMagicRes; // resistances of the monster (_monster_resistance)
 	unsigned _mExp;
 	int _mAnimWidth;
-	int _mAnimXOffset;
+	int _mAnimXOffset; // unused
 	BYTE _mAFNum;  // action frame number of the attack animation
 	BYTE _mAFNum2; // action frame number of the special animation
 	uint16_t _mAlign_0; // unused
@@ -913,6 +918,7 @@ typedef struct ObjectStruct {
 	int _otype; // _object_id
 	int _ox;    // Tile X-position of the object
 	int _oy;    // Tile Y-position of the object
+	POS32 _opos; // Precise dungeon position of the object
 	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
 	BYTE _oAnimFlag;  // object_anim_mode
@@ -925,7 +931,6 @@ typedef struct ObjectStruct {
 	int _oAnimLen;   // Number of frames in current animation
 	int _oAnimFrame; // Current frame of animation.
 	int _oAnimWidth;
-	int _oAnimXOffset;
 	//BOOL _oDelFlag;
 	BOOLEAN _oSolidFlag;
 	BYTE _oBreak; // object_break_mode
@@ -945,7 +950,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(7, 6)
+	ALIGNMENT(6, 5)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1069,6 +1074,9 @@ typedef struct LE_INT32 {
 		return _value != oval._value;
 	};
 	operator int() const { return (int32_t)SwapLE32(_value); }
+	void operator/=(const int v) {
+		_value = SwapLE32(SwapLE32(_value) / v);
+	};
 } LE_INT32;
 
 typedef struct LE_UINT64 {
@@ -1183,9 +1191,11 @@ typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhCurrSeed;
 	LE_INT32 vhViewX;
 	LE_INT32 vhViewY;
+	LE_INT32 vhViewDunX;
+	LE_INT32 vhViewDunY;
 	LE_INT32 vhScrollXOff;
 	LE_INT32 vhScrollYOff;
-	LE_INT32 vhScrollDir;
+	// LE_INT32 vhScrollDir;
 	LE_INT32 vhHPPer;
 	LE_INT32 vhManaPer;
 	BYTE vhLvlUpFlag;
@@ -1224,6 +1234,8 @@ typedef struct LSaveItemStruct {
 	PkItemStruct viPkItem;
 	LE_INT32 vix;
 	LE_INT32 viy;
+	LE_INT32 vidx;   // Precise dungeon X-position of the item
+	LE_INT32 vidy;   // Precise dungeon Y-position of the item
 	BYTE viMagical;  // item_quality
 	BYTE viSelFlag;
 	BYTE viSpawnIdx; // idx + 1 when the item is spawned, 0 otherwise
@@ -1264,8 +1276,8 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 vpoldx;   // Most recent tile X-position where the player was at the start of its action
 	LE_INT32 vpoldy;   // Most recent tile Y-position where the player was at the start of its action
-	LE_INT32 vpxoff;   // Pixel X-offset from tile position where the player should be drawn
-	LE_INT32 vpyoff;   // Pixel Y-offset from tile position where the player should be drawn
+	LE_INT32 vpdx;     // Precise dungeon X-position of the player
+	LE_INT32 vpdy;     // Precise dungeon Y-position of the player
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
 	INT vpAnimDataAlign;
 	INT vpAnimFrameLenAlign; // Tick length of each frame in the current animation
@@ -1331,8 +1343,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 vmoldx;        // Most recent tile X-position where the monster was at the start of its action
 	LE_INT32 vmoldy;        // Most recent tile Y-position where the monster was at the start of its action
-	LE_INT32 vmxoff;        // Pixel X-offset from tile position where the monster should be drawn
-	LE_INT32 vmyoff;        // Pixel Y-offset from tile position where the monster should be drawn
+	LE_INT32 vmdx;          // Precise dungeon X-position of the monster
+	LE_INT32 vmdy;          // Precise dungeon Y-position of the monster
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
 	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
 	BYTE vmenemyx;          // Future (except for teleporting) tile X-coordinate of the enemy
@@ -1403,7 +1415,6 @@ typedef struct LSaveMissileStruct {
 	INT vmiAnimFrameLenAlign; // Tick length of each frame in the current animation
 	INT vmiAnimLenAlign;   // Number of frames in current animation
 	INT vmiAnimWidthAlign;
-	INT vmiAnimXOffsetAlign;
 	LE_INT32 vmiAnimCnt; // Increases by one each game tick, counting how close we are to vmiAnimFrameLen
 	LE_INT32 vmiAnimAdd;
 	LE_INT32 vmiAnimFrame; // Current frame of animation.
@@ -1411,12 +1422,13 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmisy;    // Initial tile Y-position
 	LE_INT32 vmix;     // Tile X-position where the missile should be drawn
 	LE_INT32 vmiy;     // Tile Y-position where the missile should be drawn
-	LE_INT32 vmixoff;  // Pixel X-offset from tile position where the missile should be drawn
-	LE_INT32 vmiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 vmidx;    // Precise dungeon X-position of the missile
+	LE_INT32 vmidy;    // Precise dungeon Y-position of the missile
+	LE_INT32 vmizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 vmixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 vmiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy get updated every game tick based on this
+	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy get updated every game tick based on this
 	LE_INT32 vmiDir;   // The direction of the missile
 	LE_INT32 vmiSpllvl;
 	LE_INT32 vmiSource; // missile_source_type
@@ -1439,6 +1451,8 @@ typedef struct LSaveObjectStruct {
 	LE_INT32 votype; // _object_id
 	LE_INT32 vox;
 	LE_INT32 voy;
+	LE_INT32 vodx;
+	LE_INT32 vody;
 	LE_INT32 voSFX; // ssfx_id
 	BYTE voSFXCnt;
 	BYTE voAnimFlag;
@@ -1451,7 +1465,6 @@ typedef struct LSaveObjectStruct {
 	LE_INT32 voAnimLen;   // Number of frames in current animation
 	LE_INT32 voAnimFrame; // Current frame of animation.
 	INT voAnimWidthAlign;
-	INT voAnimXOffsetAlign;
 	BOOLEAN voSolidFlag;
 	BYTE voBreak; // object_break_mode
 	BYTE voTrapChance;
@@ -1483,18 +1496,15 @@ typedef struct LSaveQuestStruct {
 typedef struct LSaveLightListStruct {
 	LE_INT32 vlx;
 	LE_INT32 vly;
+	LE_INT32 vlxoff;
+	LE_INT32 vlyoff;
 	LE_INT32 vlunx;
 	LE_INT32 vluny;
 	BYTE vlradius;
 	BYTE vlunr;
-	int8_t vlunxoff;
-	int8_t vlunyoff;
 	BOOLEAN vldel;
 	BOOLEAN vlunflag;
-	BOOLEAN vlmine;
-	BYTE vlAlign2;
-	LE_INT32 vlxoff;
-	LE_INT32 vlyoff;
+	BOOL vlmine;
 } LSaveLightListStruct;
 
 typedef struct LSavePortalStruct {
@@ -1529,8 +1539,8 @@ typedef struct TCmd {
 
 typedef struct TCmdLoc {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 } TCmdLoc;
 
 typedef struct TCmdLocBParam1 {
@@ -1542,16 +1552,16 @@ typedef struct TCmdLocBParam1 {
 
 typedef struct TCmdLocBParam2 {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BYTE bParam1;
 	BYTE bParam2;
 } TCmdLocBParam2;
 
 typedef struct TCmdLocParam1 {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	LE_UINT16 wParam1;
 } TCmdLocParam1;
 
@@ -1607,15 +1617,15 @@ typedef struct TCmdItemOp {
 
 typedef struct TCmdLocSkill {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	CmdSkillUse lsu;
 } TCmdLocSkill;
 
 typedef struct TCmdLocDisarm {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BYTE oi;
 	int8_t from;
 } TCmdLocDisarm;
@@ -1811,8 +1821,8 @@ typedef struct TSyncLvlPlayer {
 //	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
 //	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
 //	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
-//	LE_INT32 spxoff;   // Pixel X-offset from tile position where the player should be drawn
-//	LE_INT32 spyoff;   // Pixel Y-offset from tile position where the player should be drawn
+	LE_INT32 spdx; // Precise dungeon X-position of the player
+	LE_INT32 spdy; // Precise dungeon Y-position of the player
 	BYTE spdir;    // Direction faced by player (direction enum)
 	BYTE spAnimFrame; // Current frame of animation.
 	BYTE spAnimCnt;   // Increases by one each game tick, counting how close we are to _pAnimFrameLen
@@ -1846,8 +1856,8 @@ typedef struct TSyncLvlMonster {
 //	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
 //	BYTE smoldx;       // Most recent tile X-position where the monster was at the start of its action
 //	BYTE smoldy;       // Most recent tile Y-position where the monster was at the start of its action
-//	LE_INT32 smxoff;   // Pixel X-offset from tile position where the monster should be drawn
-//	LE_INT32 smyoff;   // Pixel Y-offset from tile position where the monster should be drawn
+	LE_INT32 smdx;     // Precise dungeon X-position of the monster
+	LE_INT32 smdy;     // Precise dungeon Y-position of the monster
 	BYTE smdir;        // Direction faced by monster (direction enum)
 	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
 	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
@@ -1886,12 +1896,13 @@ typedef struct TSyncLvlMissile {
 	BYTE smisy;    // Initial tile Y-position for missile
 	BYTE smix;     // Tile X-position where the missile should be drawn
 	BYTE smiy;     // Tile Y-position where the missile should be drawn
-	LE_INT32 smixoff;  // Pixel X-offset from tile position where the missile should be drawn
-	LE_INT32 smiyoff;  // Pixel Y-offset from tile position where the missile should be drawn
+	LE_INT32 smidx;    // Precise dungeon X-position of the missile
+	LE_INT32 smidy;    // Precise dungeon Y-position of the missile
+	LE_INT32 smizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 smixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 smiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
-	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/mxoff/myoff get updated every game tick based on this
+	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy get updated every game tick based on this
+	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy get updated every game tick based on this
 	LE_INT32 smiSpllvl; // TODO: int?
 	LE_INT32 smiSource; // TODO: int?
 	LE_INT32 smiCaster; // TODO: int?
@@ -2230,11 +2241,11 @@ static_warning((sizeof(SpellData) & (sizeof(SpellData) - 1)) == 0, "Align SpellD
 //////////////////////////////////////////////////
 
 typedef struct ScrollStruct {
-	int _sxoff; // X-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pxoff
-	int _syoff; // Y-offset of camera position. This usually corresponds to a negative version of plr[myplr]._pyoff
+	int _sxoff; // X-offset of camera position relative to myview.dun position. (unused)
+	int _syoff; // Y-offset of camera position relative to myview.dun position. (unused)
 	// int _sdx;
 	// int _sdy;
-	int _sdir;
+	// int _sdir;
 } ScrollStruct;
 
 typedef struct ViewportStruct {
@@ -2245,6 +2256,24 @@ typedef struct ViewportStruct {
 	int _vShiftX; // X-shift in a dPiece
 	int _vShiftY; // Y-shift in a dPiece
 } ViewportStruct;
+
+typedef struct SceneEntry {
+	BYTE scType;
+	BYTE scLight;
+	BYTE scTrans;
+	int scIdx;
+	int scPosx;
+	int scPosy;
+	unsigned scZOrder;
+	union {
+		struct {
+			int scCellIdxFrom;
+			int scCellIdxTo;
+		};
+		BYTE scPlrTrn;
+	};
+	unsigned scNext;
+} SceneEntry;
 
 //////////////////////////////////////////////////
 // gendung
@@ -2370,20 +2399,17 @@ typedef struct InvXY {
 //////////////////////////////////////////////////
 
 typedef struct LightListStruct {
-	int _lx;
-	int _ly;
-	int _lunx;
-	int _luny;
-	BYTE _lradius;
-	BYTE _lunr;
-	int8_t _lunxoff;
-	int8_t _lunyoff;
-	BOOLEAN _ldel;
-	BOOLEAN _lunflag;
-	BOOLEAN _lmine;
-	BYTE _lAlign2;
-	int _lxoff;
-	int _lyoff;
+	int _lx;          // Tile X-position where the vision/light center is
+	int _ly;          // Tile Y-position where the vision/light center is
+	int _lxoff;       // Tile X-offset from tile position where the vision/light center is
+	int _lyoff;       // Tile Y-offset from tile position where the vision/light center is
+	int _lunx;        // Tile X-position where the vision/light center was
+	int _luny;        // Tile Y-position where the vision/light center was
+	BYTE _lradius;    // Radius of the vision/light
+	BYTE _lunr;       // Previous radius of the vision/light
+	BOOLEAN _ldel;    // Whether the vision/light should be deleted
+	BOOLEAN _lunflag; // whether the vision/light should be restored around the source
+	BOOL _lmine;      // Whether the vision belongs to the local player
 } LightListStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)

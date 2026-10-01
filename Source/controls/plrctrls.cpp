@@ -91,6 +91,13 @@ static int GetDistanceRanged(int dx, int dy)
 	return sqrt(a * a + b * b);
 }
 
+static void TargetPos(int x, int y)
+{
+	pcurspos.subtile.x = x;
+	pcurspos.subtile.y = y;
+	pcurspos.dun = DungeonToDunPos(x, y);
+}
+
 static void FindItem()
 {
 	int mx = myplr._pfutx;
@@ -113,8 +120,7 @@ static void FindItem()
 				continue;
 			rotations = newRotations;
 			pcursitem = ii;
-			pcurspos.x = mx + xx;
-			pcurspos.y = my + yy;
+			TargetPos(mx + xx, my + yy);
 		}
 	}
 }
@@ -143,8 +149,7 @@ static void FindObject()
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
-			pcurspos.x = mx + xx;
-			pcurspos.y = my + yy;
+			TargetPos(mx + xx, my + yy);
 		}
 	}
 }
@@ -294,8 +299,7 @@ static void FindTrigger()
 		const int newDistance = GetDistance(tx, ty, 2);
 		if (newDistance < 0)
 			continue;
-		pcurspos.x = tx;
-		pcurspos.y = ty;
+		TargetPos(tx, ty);
 		pcurstrig = i;
 	}
 
@@ -312,20 +316,23 @@ static void FindTrigger()
 			const int newRotations = GetRotaryDistance(mix, miy);
 			if (distance == newDistance && rotations < newRotations)
 				continue;
-			pcurspos.x = mix;
-			pcurspos.y = miy;
+			TargetPos(mix, miy);
 			pcurstrig = MAXTRIGGERS + mi + 1;
 			distance = newDistance;
 			rotations = newRotations;
 		}
 	}
 
-	/* commented out because it would just set the pcurspos.x/y and pcurstrig fields again
+	/* commented out because it would just set the pcurspos.subtile.x/y and pcurstrig fields again
 	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || !TRIG_VALID(pcurstrig))
 		return; // Prefer monster/player info text
 
-	CheckTrigForce();
-	CheckTownPortal();*/
+	pcurstrig = CheckTrigForce();
+	if (TRIG_VALID(pcurstrig)) {
+		TargetPos(trigs[pcurstrig]._tx, trigs[pcurstrig]._ty);
+	} else {
+		CheckTownPortal();
+	}*/
 }
 
 static void AttrIncBtnSnap(int dir)
@@ -801,8 +808,7 @@ void plrctrls_after_check_curs_move()
 		pcursplr = PLR_NONE;
 		pcurstrig = TRIG_NONE;
 		// pcurswnd = WND_NONE;
-		pcurspos.x = -1;
-		pcurspos.y = -1;
+		// TargetPos(-1, -1);
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
 		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
@@ -887,7 +893,7 @@ void UseBeltItem(bool manaItem)
 		if ((!manaItem && (id == IMISC_HEAL || id == IMISC_FULLHEAL || (id == IMISC_SCROLL && spellId == SPL_HEAL)))
 		 || (manaItem && (id == IMISC_MANA || id == IMISC_FULLMANA))
 		 || id == IMISC_REJUV || id == IMISC_FULLREJUV) {
-			if (pi->_iStatFlag) {
+			if (pi->_iStatFlag /*myplr._pStrength >= pi->_iReqStr && myplr._pMagic < pi->_iReqMag*/) {
 				// assert(pi->_iUsable);
 				InvUseItem(INVITEM_BELT_FIRST + i);
 				return;
@@ -912,8 +918,7 @@ static bool SpellHasActorTarget()
 		return false;
 
 	if (spl == SPL_FIREWALL && MON_VALID(pcursmonst)) {
-		pcurspos.x = monsters[pcursmonst]._mx;
-		pcurspos.y = monsters[pcursmonst]._my;
+		TargetPos(monsters[pcursmonst]._mx, monsters[pcursmonst]._my);
 	}
 
 	return PLR_VALID(pcursplr) || MON_VALID(pcursmonst);
@@ -933,8 +938,7 @@ static void UpdateSpellTarget()
 	if (player._pAltSkill._psMove._suSkill == SPL_TELEPORT)
 		range = 4;
 
-	pcurspos.x = player._pfutx + offset_x[player._pdir] * range;
-	pcurspos.y = player._pfuty + offset_y[player._pdir] * range;
+	TargetPos(player._pfutx + offset_x[player._pdir] * range, player._pfuty + offset_y[player._pdir] * range);
 }
 
 /**
@@ -942,8 +946,7 @@ static void UpdateSpellTarget()
  */
 static void TryDropItem()
 {
-	pcurspos.x = myplr._pfutx + 1;
-	pcurspos.y = myplr._pfuty;
+	TargetPos(myplr._pfutx + 1, myplr._pfuty);
 	DropItem();
 }
 
@@ -967,8 +970,7 @@ void PerformSpellAction()
 				UpdateSpellTarget();
 			} else if (pcursicon >= CURSOR_FIRSTITEM) {
 				// prepare for DropItem
-				pcurspos.x = myplr._pfutx + 1;
-				pcurspos.y = myplr._pfuty;
+				TargetPos(myplr._pfutx + 1, myplr._pfuty);
 			}
 		}
 		InputBtnDown(ACT_ALTACT);
@@ -1035,11 +1037,11 @@ void PerformSecondaryAction()
 	}
 
 	if (ITEM_VALID(pcursitem)) {
-		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.dun, pcursitem);
 	} else if (OBJ_VALID(pcursobj)) {
-		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
-	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.x][pcurspos.y]]) {
-		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
+		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.dun, pcursobj);
+	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]]) {
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.dun);
 	}
 }
 

@@ -24,12 +24,48 @@ extern "C" {
 		y += (vertical) - (horizontal);        \
 	}
 
-extern POS32 myview;
+#define SET_GRID(x, y, horizontal, vertical) \
+	{                                        \
+		x = (vertical) + (horizontal);       \
+		y = (vertical) - (horizontal);       \
+	}
+
+#define GRID_SHIFT (PLR_WALK_SHIFT - 5)
+#define GRID_WIDTH (64 << GRID_SHIFT)
+
+#define DUN_SHIFT (16 - 6)
+#define DUN_WIDTH ((1 << 6) << DUN_SHIFT)
+
+extern GRID_POS32 myview;
 extern ScrollStruct ScrollInfo;
 extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
+POS32 DungeonToDunPos(int x, int y);
+POS32 DungeonToGridPos(int x, int y);
+POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff);
+POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
+POS32 DunToGrid(POS32 pos);
+POS32 DunScreenOffset(POS32 pos);
+POS32 ScreenToDun(POS32 pos);
+/*
+ * Return the screen position of the given precise dungeon position.
+ *
+ * @param pos Precise dungeon position
+ * @return the screen x/y-coordinates
+ */
+POS32 GetMousePosDun(POS32 pos);
+void UpdateScrollInfo(int pnum);
+/*
+ * Convert grid-position to screen coordinates ignoring zoom and scrolling
+ * @param gx Precise grid (shifted dungeon) X-position
+ * @param gy Precise grid (shifted dungeon) Y-position
+ * @return the screen x/y-coordinates
+ */
+POS32 GridToScreen(int gx, int gy);
+void InitScene();
+void SceneCursor();
 void ClearCursor();
 void CalcViewportGeometry();
 #if DEBUG_MODE

@@ -1409,7 +1409,6 @@ int AddObject(int type, int ox, int oy)
 	LoadCelMetaInfo(os->_oAnimData, mi);
 	os->_oAnimFrameLen = mi.cmiAnimDelay == 0 ? 1 : mi.cmiAnimDelay;
 	os->_oAnimWidth = objanimdim[ods->ofindex];
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 	ofd = &objfiledata[ods->ofindex];
 	os->_oSFX = ofd->oSFX;
 	os->_oSFXCnt = ofd->oSFXCnt;
@@ -1435,6 +1434,7 @@ int AddObject(int type, int ox, int oy)
 	// place object
 	os->_ox = ox;
 	os->_oy = oy;
+	os->_opos = DungeonToDunPos(ox, oy);
 	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
 	const bool ready = !nSolidTable[dPiece[ox][oy]] || !(os->_oModeFlags & OMF_FLOOR);
 	assert(dObject[ox][oy] == 0);
@@ -1544,11 +1544,11 @@ int AddObject(int type, int ox, int oy)
 		case OBJ_WEAPONRACK:
 			AddWeaponRack(oi, realType);
 			break;
+		case OBJ_BLINDBOOK:
 		case OBJ_BLOODBOOK:
 		case OBJ_STEELTOME:
-		case OBJ_BLINDBOOK:
-		case OBJ_MYTHICBOOK:
 		case OBJ_VILEBOOK:
+		case OBJ_MYTHICBOOK:
 			AddBook(oi);
 			break;
 		case OBJ_BOOK1:
@@ -1651,7 +1651,7 @@ static void Obj_Light(int oi)
 		assert(objfiledata[OFILE_L1BRAZ].oAnimFrameLen < lengthof(flickers));
 		tr = lr + flickers[os->_oAnimFrame];
 		if (os->_olid == NO_LIGHT)
-			os->_olid = AddLight(ox, oy, tr);
+			os->_olid = AddLight(os->_opos, tr);
 		else {
 			if (LightList[os->_olid]._lradius != tr)
 				ChangeLightRadius(os->_olid, tr);
@@ -1710,7 +1710,7 @@ static void Obj_Plate(int oi)
 			on--;
 			if (objects[on]._oVar4 == DOOR_LOCKED) {
 				objects[on]._oVar4 = DOOR_CLOSED;
-				PlaySfxLoc(IS_LEVER, ox, oy);
+				PlaySfxLoc(IS_LEVER, os->_opos);
 				if (pnum == mypnum)
 					NetSendCmdParam1(CMD_DOORCLOSE, on);
 			}
@@ -1742,7 +1742,9 @@ static void Obj_Circle(int oi)
 				// ObjLvrChangeMap(os/*, true*/);
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
-			AddMissile(LAZ_CENTRAL_X, LAZ_CENTRAL_Y, LAZ_CIRCLE_X, LAZ_CIRCLE_Y, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+			const POS32 cp = DungeonToDunPos(LAZ_CENTRAL_X, LAZ_CENTRAL_Y);
+			const POS32 dp = DungeonToDunPos(LAZ_CIRCLE_X, LAZ_CIRCLE_Y);
+			AddMissile(cp, dp, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 			// assert(pnum == mypnum);
 			gbActionBtnDown = 0;
 			// StartTurn(pnum, DIR_NW); ?
@@ -1786,7 +1788,7 @@ static void Obj_Door(int oi)
 			os->_oAnimFlag = OAM_LOOP;
 			//os->_oAnimFrameLen = 1;
 			static_assert(MAX_LIGHT_RAD >= 1, "ActivateTrapLine needs at least light-radius of 1.");
-			os->_olid = AddLight(os->_ox, os->_oy, 1);
+			os->_olid = AddLight(os->_opos, 1);
 		}
 	}
 }
@@ -1834,7 +1836,7 @@ static void Obj_FlameTrap(int oi)
 			os->_oAnimFrame = 11;
 		if (os->_oAnimFrame == 11) {
 			SetRndSeed(os->_oRndSeed);
-			AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0);
+			AddMissile(os->_opos, { 0, 0 }, 0, MIS_FIRETRAP, MST_OBJECT, -1, 0);
 			os->_oRndSeed = NextRndSeed();
 		} else if (os->_oAnimFrame <= 5) {
 			static_assert(MAX_LIGHT_RAD >= 5, "Obj_FlameTrap needs at least light-radius of 5.");
@@ -1865,7 +1867,7 @@ static void Obj_Trap(int oi)
 	on = &objects[os->_oVar1]; // TRAP_OI_REF
 	switch (os->_oVar2) { // TRAP_TRIG_TYPE
 	case OTM_DOOR:
-		if (on->_oVar4 != DOOR_CLOSED) {
+		if (on->_oVar4 == DOOR_OPEN || on->_oVar4 == DOOR_BLOCKED) {
 			trigArea = baseTrigArea;
 			trigNum = lengthof(baseTrigArea);
 		}
@@ -1898,10 +1900,10 @@ static void Obj_Trap(int oi)
 	os->_oVar4 = TRAP_INACTIVE; // TRAP_LIVE
 	on->_oTrapChance = 0;
 
+	PlaySfxLoc(IS_TRAP, on->_opos);
+
 	sx = on->_ox;
 	sy = on->_oy;
-	PlaySfxLoc(IS_TRAP, sx, sy);
-
 	dx = sx;
 	dy = sy;
 	for (i = 0; i < trigNum; i++) {
@@ -1914,20 +1916,21 @@ static void Obj_Trap(int oi)
 	}
 
 	// SetRndSeed(os->_oRndSeed);
-	sx = os->_ox;
-	sy = os->_oy;
-	dir = GetDirection(sx, sy, dx, dy);
-	AddMissile(sx, sy, dx, dy, dir, os->_oVar3, MST_OBJECT, -1, 0); // TRAP_MISTYPE
+	dir = GetDirection(os->_ox, os->_oy, dx, dy);
+	const POS32 dp = DungeonToDunPos(dx, dy);
+	AddMissile(os->_opos, dp, dir, os->_oVar3, MST_OBJECT, -1, 0); // TRAP_MISTYPE
 
 	NetSendCmdParam1(CMD_TRAPDISABLE, oi);
 }
 
 static void Obj_BCrossDamage(int oi)
 {
+	ObjectStruct* os;
 	int ox, oy, pnum, fire_resist, damage;
 
-	ox = objects[oi]._ox;
-	oy = objects[oi]._oy - 1;
+	os = &objects[oi];
+	ox = os->_ox;
+	oy = os->_oy - 1;
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pInvincible)
 			continue;
@@ -1940,7 +1943,7 @@ static void Obj_BCrossDamage(int oi)
 			damage -= fire_resist * damage / 100;
 
 		if (!PlrDecHp(pnum, damage, DMGTYPE_NPC))
-			PlaySfxLoc(sgSFXSets[SFXS_PLR_68][plr._pClass], ox, oy + 1);
+			PlaySfxLoc(sgSFXSets[SFXS_PLR_68][plr._pClass], plr._ppos);
 	}
 }
 
@@ -2075,7 +2078,7 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_DOOROPEN, oi);
 		if (!deltaload) {
-			PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
+			PlaySfxLoc(os->_oSFX, os->_opos);
 		}
 		OpenDoor(os);
 		SyncDoors(os);
@@ -2091,7 +2094,7 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 			sfx = os->_oVar4 == DOOR_BLOCKED ? IS_DOORCLOS : IS_CRCLOS;
 		}
 #endif
-		PlaySfxLoc(sfx, os->_ox, os->_oy);
+		PlaySfxLoc(sfx, os->_opos);
 		if (os->_oVar4 == DOOR_BLOCKED || os->_oVar4 == DOOR_LOCKED)
 			return;
 	}
@@ -2102,10 +2105,12 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 	RedoLightAndVision();
 }
 
-void MonstCheckDoors(int mx, int my)
+void MonstCheckDoors(POS32 pos)
 {
-	int i, oi;
+	int mx, my, i, oi;
 
+	mx = (unsigned)pos.x / DUN_WIDTH;
+	my = (unsigned)pos.y / DUN_WIDTH;
 	for (i = 0; i < lengthof(offset_x); i++) {
 		oi = dObject[mx + offset_x[i]][my + offset_y[i]];
 		if (oi == 0)
@@ -2200,7 +2205,7 @@ static void OperateLever(int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
+		PlaySfxLoc(IS_LEVER, os->_opos);
 	}
 	if (!CheckLeverGroup(os->_otype, os->_oVar8)) // LEVER_INDEX
 		return;
@@ -2226,7 +2231,8 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
 
 	FindClosestPlr(&dx, &dy);
-	AddMissile(os->_ox, os->_oy + 1, dx, dy, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+	const POS32 dp = DungeonToDunPos(dx, dy);
+	AddMissile(os->_opos, dp, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 	objects[dObject[LAZ_CENTRAL_X][LAZ_CENTRAL_Y] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
 
 	os->_oModeFlags &= ~OMF_ACTIVE;
@@ -2301,7 +2307,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
+	PlaySfxLoc(IS_CHEST, os->_opos);
 	for (i = os->_oVar1; i > 0; i--) { // CHEST_ITEM_NUM
 		SetRndSeed(os->_oRndSeed);     // CHEST_ITEM_SEEDx
 		for (k = i; k > 1; k--)
@@ -2313,7 +2319,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 	}
 	if (os->_oTrapChance != 0 && os->_oVar5 == 0) { // TRAP_OI_BACKREF
 		os->_oTrapChance = 0;
-		PlaySfxLoc(IS_TRAP, os->_ox, os->_oy);
+		PlaySfxLoc(IS_TRAP, os->_opos);
 		SetRndSeed(os->_oRndSeed);
 		if (currLvl._dType == DTYPE_CATACOMBS) {
 			mtype = 2;
@@ -2339,9 +2345,10 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 			break;
 		}
 		mdir = GetDirection(os->_ox, os->_oy, plr._px, plr._py);
-		AddMissile(os->_ox, os->_oy, plr._px, plr._py, mdir, mtype, MST_OBJECT, -1, 0);
+		AddMissile(os->_opos, plr._ppos, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
+
 static void PickItemFromObject(int idx, int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -2401,7 +2408,7 @@ static void OperateSignChest(int pnum, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_CHEST, os->_ox, os->_oy);
+	PlaySfxLoc(IS_CHEST, os->_opos);
 	SpawnQuestItemAt(IDI_BANNER, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
@@ -2413,7 +2420,7 @@ static void OperateSignChest(int pnum, int oi, bool sendmsg)
 
 	os = &objects[oi];
 	if (!deltaload)
-		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
+		PlaySfxLoc(IS_LEVER, os->_opos);
 
 	disable = os->_oAnimFrame == FLAMETRAP_ACTIVE_FRAME;
 	os->_oAnimFrame = disable ? FLAMETRAP_INACTIVE_FRAME : FLAMETRAP_ACTIVE_FRAME;
@@ -2444,7 +2451,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_SARC, os->_ox, os->_oy);
+	PlaySfxLoc(IS_SARC, os->_opos);
 
 	os->_oAnimFlag = OAM_ONCE;
 	//os->_oAnimFrameLen = 3;
@@ -2557,7 +2564,7 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	PlaySfxLoc(quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3 ? LS_BLODSTAR : LS_PUDDLE, os->_ox, os->_oy);
+	PlaySfxLoc(quests[Q_BLOOD]._qvar1 == QV_BLOOD_STONE3 ? LS_BLODSTAR : LS_PUDDLE, os->_opos);
 }
 
 bool SyncBloodPass(int pnum, int oi)
@@ -2887,7 +2894,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 
-	PlaySfxLocN(os->_oSFX, os->_ox, os->_oy, os->_oSFXCnt);
+	PlaySfxLocN(os->_oSFX, os->_opos, os->_oSFXCnt);
 	// assert(os->_oAnimFlag == OAM_NONE || os->_oAnimFlag == OAM_LOOP);
 	os->_oAnimFlag = os->_oAnimFlag == OAM_NONE ? OAM_ONCE : OAM_LOOP;
 	//os->_oAnimFrameLen = 1;
@@ -2918,7 +2925,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_RELIGIOUS);
 		break;
 	case SHRINE_MAGICAL:
-		AddMissile(0, 0, 0, 0, 0, MIS_MANASHIELD, MST_NA, pnum, (1 + currLvl._dLevel) >> 1);
+		AddMissile({ 0, 0 }, { 0, 0 }, 0, MIS_MANASHIELD, MST_NA, pnum, (1 + currLvl._dLevel) >> 1);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_MAGICAL);
@@ -2958,7 +2965,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_SHIMMERING);
 		break;
 	case SHRINE_CRYPTIC:
-		AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_LIGHTNOVAC, MST_OBJECT, -1, 0);
+		AddMissile(os->_opos, { 0, 0 }, 0, MIS_LIGHTNOVAC, MST_OBJECT, -1, 0);
 		if (pnum != mypnum)
 			return;
 		NetSendShrineCmd(SHRINE_CRYPTIC, 0);
@@ -3009,7 +3016,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		InitDiabloMsg(EMSG_SHRINE_DIVINE);
 		break;
 	case SHRINE_HOLY:
-		AddMissile(plr._px, plr._py, 0, 0, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
+		AddMissile(plr._ppos, { 0, 0 }, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_HOLY);
@@ -3052,20 +3059,20 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_TAINTED:
 		static_assert(MAX_MINIONS == MAX_PLRS, "OperateShrine requires that owner of a monster has the same id as the monster itself.");
 		if (monsters[mypnum]._mmode > MM_INGAME_LAST) {
-			AddMissile(myplr._px, myplr._py, myplr._px, myplr._py, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
+			AddMissile(myplr._ppos, myplr._ppos, 0, MIS_GOLEM, MST_PLAYER, mypnum, currLvl._dLevel >> 1);
 		}
 		//if (pnum != mypnum)
 		//	return;
 		InitDiabloMsg(EMSG_SHRINE_TAINTED);
 		break;
 	case SHRINE_GLISTENING:
+		AddMissile({ 0, 0 }, plr._ppos, 0, MIS_TOWN, MST_NA, pnum, 0);
 		if (pnum != mypnum)
 			return;
 		InitDiabloMsg(EMSG_SHRINE_GLISTENING);
-		AddMissile(0, 0, plr._px, plr._py, 0, MIS_TOWN, MST_NA, pnum, 0);
 		break;
 	case SHRINE_SPARKLING:
-		AddMissile(os->_ox, os->_oy, 0, 0, 0, MIS_FLASH, MST_OBJECT, -1, 0);
+		AddMissile(os->_opos, { 0, 0 }, 0, MIS_FLASH, MST_OBJECT, -1, 0);
 		if (pnum != mypnum)
 			return;
 		NetSendShrineCmd(SHRINE_SPARKLING, 0);
@@ -3091,10 +3098,12 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 			yy = plr._py + *++cr;
 			if (!ItemSpaceOk(xx, yy))
 				continue;
-			if (random_(0, 3) == 0)
-				AddMissile(xx, yy, xx, yy, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
-			else
+			if (random_(0, 3) == 0) {
+				const POS32 dp = DungeonToDunPos(xx, yy);
+				AddMissile(plr._ppos, dp, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
+			} else {
 				CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
+			}
 		}
 		if (pnum != mypnum)
 			return;
@@ -3120,15 +3129,15 @@ static void OperateBook1(int oi, bool sendmsg)
 		return;
 
 	if (os->_oVar5 == BK_ANCIENT) { // STORY_BOOK_NAME
-		PlaySfxLoc(IS_QUESTDN, os->_ox, os->_oy);
+		PlaySfxLoc(IS_QUESTDN, os->_opos);
 		// SetRndSeed(os->_oRndSeed);
-		// AddMissile(plr._px, plr._py, os->_ox - 2, os->_oy - 4, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
+		// AddMissile(plr._ppos, { os->_ox - 2, os->_oy - 4 }, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_BCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
 			NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
 		}
 	} else {
-		PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+		PlaySfxLoc(IS_ISCROL, os->_opos);
 	}
 	if (sendmsg) {
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
@@ -3154,7 +3163,7 @@ static void OperateBook2(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	PlaySfxLoc(IS_ISCROL, os->_opos);
 	SetRndSeed(os->_oRndSeed);
 	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
@@ -3175,7 +3184,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	PlaySfxLoc(IS_ISCROL, os->_opos);
 	SetRndSeed(os->_oRndSeed);
 	static_assert(OBJ_BOOKCASEL < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R I.");
 	static_assert(OBJ_BOOKCASER < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R II.");
@@ -3256,7 +3265,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		if (sendmsg)
 			NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-		AddMissile(0, 0, 0, 0, 0, MIS_INFRA, MST_NA, pnum, 6);
+		AddMissile({ 0, 0 }, { 0, 0 }, 0, MIS_INFRA, MST_NA, pnum, 6);
 		break;
 	case OBJ_TEARFTN:
 		if (deltaload)
@@ -3271,7 +3280,7 @@ static void OperateFountains(int pnum, int oi, bool sendmsg)
 		break;
 	}
 
-	PlaySfxLoc(LS_FOUNTAIN, os->_ox, os->_oy);
+	PlaySfxLoc(LS_FOUNTAIN, os->_opos);
 }
 
 static void OperateWeaponRack(int oi, bool sendmsg)
@@ -3315,7 +3324,7 @@ static void OperateStoryBook(int oi, bool sendmsg)
 	if (deltaload) {
 		return;
 	}
-	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	PlaySfxLoc(IS_ISCROL, os->_opos);
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 	if (sendmsg) // pnum == mypnum
@@ -3347,7 +3356,7 @@ static void OperateNakrulBook(int oi, bool sendmsg)
 		}
 		return;
 	}
-	PlaySfxLoc(IS_ISCROL, os->_ox, os->_oy);
+	PlaySfxLoc(IS_ISCROL, os->_opos);
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 	if (sendmsg) { // pnum == mypnum
@@ -3382,8 +3391,8 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 			if (sendmsg)
 				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		}
-		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
-		PlaySfxLoc(IS_CROPEN, os->_ox - 3, os->_oy + 1);
+		PlaySfxLoc(IS_LEVER, os->_opos);
+		PlaySfxLoc(IS_CROPEN, DungeonToDunPos(os->_ox - 3, os->_oy + 1));
 	}
 	OpenNakrulRoom();
 }
@@ -3424,10 +3433,10 @@ static void OperateCrux(int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PlaySfxLoc(LS_BONESP, os->_ox, os->_oy);
+	PlaySfxLoc(LS_BONESP, os->_opos);
 
 	if (triggered)
-		PlaySfxLoc(IS_LEVER, os->_ox, os->_oy);
+		PlaySfxLoc(IS_LEVER, os->_opos);
 }
 
 static void OperateBarrel(int oi, bool sendmsg)
@@ -3459,7 +3468,7 @@ static void OperateBarrel(int oi, bool sendmsg)
 	// os->_oAnimFrame = 1;
 
 	// assert(os->_oSFXCnt == 1);
-	PlaySfxLoc(os->_oSFX, os->_ox, os->_oy);
+	PlaySfxLoc(os->_oSFX, os->_opos);
 
 	xotype = OBJ_BARRELEX;
 #ifdef HELLFIRE
@@ -3471,15 +3480,15 @@ static void OperateBarrel(int oi, bool sendmsg)
 
 	SetRndSeed(os->_oRndSeed);
 	if (os->_otype == xotype) {
-		for (yp = os->_oy - 1; yp <= os->_oy + 1; yp++) {
-			for (xp = os->_ox - 1; xp <= os->_ox + 1; xp++) {
-				AddMissile(xp, yp, 0, 0, 0, MIS_BARRELEX, MST_NA, -1, 0);
-				mpo = dObject[xp][yp];
-				if (mpo > 0) {
-					mpo--;
-					if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
-						OperateBarrel(mpo, sendmsg);
-				}
+		AddMissile(os->_opos, { 0, 0 }, 0, MIS_BARRELEX, MST_NA, -1, 0);
+		for (int i = 0; i < lengthof(bxadd); i++) {
+			xp = os->_ox + bxadd[i];
+			yp = os->_oy + byadd[i];
+			mpo = dObject[xp][yp];
+			if (mpo > 0) {
+				mpo--;
+				if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
+					OperateBarrel(mpo, sendmsg);
 			}
 		}
 	} else {
@@ -3721,6 +3730,9 @@ void SyncOpObject(/*int pnum,*/ int oi)
 	case OBJ_CAULDRON:
 		OperateShrine(pnum, oi, false);
 		break;
+	case OBJ_BOOK1:
+		OperateBook1(oi, false);
+		break;
 	case OBJ_BOOK2:
 		OperateBook2(oi, false);
 		break;
@@ -3835,7 +3847,6 @@ void SyncObjectAnim(int oi)
 #if 0
 	os->_oAnimFrameLen = objfiledata[ofidx].oAnimFrameLen;
 	os->_oAnimWidth = objanimdim[ofidx];
-	os->_oAnimXOffset = (os->_oAnimWidth - TILE_WIDTH) >> 1;
 #endif
 	switch (type) {
 	case OBJ_L1LDOOR:
@@ -3865,10 +3876,10 @@ void SyncObjectAnim(int oi)
 	//case OBJ_CRUXL:
 		SyncCrux(os);
 		break;
-	case OBJ_MYTHICBOOK:
 	case OBJ_BLINDBOOK:
 	//case OBJ_BLOODBOOK: -- NULL_LVR_EFFECT
 	case OBJ_STEELTOME:
+	case OBJ_MYTHICBOOK:
 		SyncBookLever(os);
 		break;
 	case OBJ_PEDESTAL:
@@ -3993,11 +4004,11 @@ void GetObjectStr(int oi)
 	case OBJ_TEARFTN:
 		txt0 = "Fountain of Tears";
 		break;
+	case OBJ_BLINDBOOK:
+	case OBJ_BLOODBOOK:
+	case OBJ_STEELTOME:
 	case OBJ_VILEBOOK:
 	case OBJ_MYTHICBOOK:
-	case OBJ_BLOODBOOK:
-	case OBJ_BLINDBOOK:
-	case OBJ_STEELTOME:
 	case OBJ_STORYBOOK:
 	case OBJ_BOOK1:
 	case OBJ_BOOK2:

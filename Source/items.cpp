@@ -37,6 +37,7 @@ static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ix = x;
 	items[ii]._iy = y;
+	items[ii]._ipos = DungeonToDunPos(x, y);
 	if (ii != MAXITEMS)
 		dItem[x][y] = ii + 1;
 }
@@ -326,6 +327,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 
 	unsigned cc = 0; // critical hit chance
 	int btochit = 0; // bonus chance to critical hit
+	unsigned pmodp = 0; // added power
 
 	Loadgfx &= plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging;
 
@@ -376,6 +378,9 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 					} break;
 					case IPL_CRITP:
 						btochit += ias->asValue0;
+						break;
+					case IPL_POWMOD:
+						pmodp += ias->asValue0;
 						break;
 					case IPL_SKILLLVL:
 						skillLvlMods[ias->asValue1] += ias->asValue0;
@@ -503,6 +508,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 			}
 
 			tac += cac;
+			pmodp += pi->_iBasePow;
 			maxdam = pi->_iMaxDam;
 			if (!doDam || maxdam == 0)
 				continue;
@@ -602,14 +608,12 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	plr._pMana = imana + plr._pManaBase;
 	plr._pMaxMana = imana + plr._pMaxManaBase;
 
-	madd += plr._pBaseMag;
 	vadd += plr._pBaseVit;
-	madd = std::max(0, madd);
 	vadd = std::max(0, vadd);
-	// use calculated str/dex from CalcItemReqs
+	// use calculated str/dex/mag from CalcItemReqs
 	int sadd = plr._pStrength;
 	int dadd = plr._pDexterity;
-	plr._pMagic = madd;
+	madd = plr._pMagic;
 	plr._pVitality = vadd;
 	if (plr._pTimer[PLTR_RAGE] > 0) {
 		sadd += 2 * plr._pLevel;
@@ -707,6 +711,7 @@ void CalcPlrItemVals(int pnum, bool Loadgfx)
 	// calculate bonuses
 	cc = cc * (btochit + 100) / 50;
 	plr._pIBaseHitBonus = btohit == 0 ? IBONUS_NONE : (btohit >= 0 ? IBONUS_POSITIVE : IBONUS_NEGATIVE);
+	plr._pIPower = madd * (100 + pmodp) / 100;
 	plr._pIEvasion = dadd / 5 + 2 * plr._pLevel;
 	plr._pIAC = tac + plr._pIEvasion;
 	btohit += 50; // + plr._pLevel;
@@ -938,6 +943,7 @@ void SetItemSData(ItemStruct* is, int idata)
 	is->_iMinDam = ids->iMinDam;
 	is->_iMaxDam = ids->iMaxDam;
 	is->_iBaseCrit = ids->iBaseCrit;
+	is->_iBasePow = ids->iBasePow;
 	is->_iReqStr = ids->iReqStr;
 	is->_iReqMag = ids->iReqMag;
 	is->_iReqDex = ids->iReqDex;
@@ -1380,9 +1386,9 @@ static void SetStaffSpell(ItemStruct* is, unsigned lvl)
 
 	bs = GetStaffSpell(lvl);
 
+	is->_iSpell = bs;
 	sd = &spelldata[bs];
 
-	is->_iSpell = bs;
 	is->_iCharges = RandRangeLow(sd->sStaffMin, sd->sStaffMax);
 	is->_iMaxCharges = is->_iCharges;
 
@@ -1473,6 +1479,7 @@ static int SaveItemPower(ItemStruct* is, int power, int param1, int param2)
 	case IPL_ACIDRES:
 	case IPL_ALLRES:
 	case IPL_CRITP:
+	case IPL_POWMOD:
 		break;
 	case IPL_SKILLLVL:
 		ias->asValue1 = GetBookSpell(is->_iCreateInfo & CF_LEVEL);
@@ -2147,10 +2154,10 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
  */
 void PickQuestItemAt(int idx, int x, int y, int mode)
 {
-	PlaySfxLoc(IS_IGRAB, x, y);
+	PlaySfxLoc(IS_IGRAB, DungeonToDunPos(x, y));
 	SpawnQuestItemAt(idx, x, y, mode);
 	if (mode >= ICM_SEND) {
-		NetSendCmdGItem(!gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM, MAXITEMS);
+		NetSendCmdGItem(MAXITEMS);
 	}
 }
 
@@ -2260,7 +2267,7 @@ void ProcessItems()
 				if (is->_iSelFlag == 0) {
 					// emit drop sfx at the middle of the animation (or right away if the animation is short)
 					if (is->_iAnimFrame == (anim->caFrameLen >> 1) || (is->_iAnimFrame == 2 && anim->caFrameLen <= 3)) {
-						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ix, is->_iy);
+						PlaySfxLoc(itemfiledata[ItemCAnimTbl[is->_iCurs]].idSFX, is->_ipos);
 					}
 					// switch to ground graphics at the end of the drop animation
 					if (is->_iAnimFrame >= anim->caFrameLen) {
@@ -2364,7 +2371,7 @@ void DropItem()
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	pos = pcurspos;
+	pos = pcurspos.subtile;
 	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 
@@ -2400,11 +2407,9 @@ void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag)
 		return; // -1;
 
 	ii = itemactive[numitems];
-	dItem[pos.x][pos.y] = ii + 1;
 	numitems++;
 	copy_pod(items[ii], *is);
-	items[ii]._ix = pos.x;
-	items[ii]._iy = pos.y;
+	SetItemLoc(ii, pos.x, pos.y);
 	RespawnItem(ii, flipFlag);
 	//return ii;
 }
@@ -2742,6 +2747,9 @@ static void PrintEquipmentPower(BYTE idx, const ItemStruct* is)
 	} break;
 	case IPL_CRITP:
 		snprintf(tempstr, sizeof(tempstr), "%d%% increased crit. chance", ias->asValue0);
+		break;
+	case IPL_POWMOD:
+		snprintf(tempstr, sizeof(tempstr), "%d%% increased magic power", ias->asValue0);
 		break;
 	case IPL_SKILLLVL:
 		snprintf(tempstr, sizeof(tempstr), "%+d to %s", ias->asValue0, spelldata[ias->asValue1].sNameText);

@@ -42,6 +42,8 @@ BYTE gbDeathflag = MDM_ALIVE;
 unsigned gbActionBtnDown;
 /** The state of the mod-buttons. */
 unsigned gbModBtnDown;
+/** The last walk-direction calculated from the button-presses. */
+static int gbActionBtnDir;
 /** tick counter when the last time an action was repeated because a button was held down. */
 static Uint32 guLastRBD;
 /** Specifies the speed of the game. */
@@ -305,16 +307,15 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	}
 	// limit the vector to the MAX_DIST
 	int adm = adx >= ady ? adx : ady;
-	dy = (MAX_DIST * dy) / adm;
-	dx = (MAX_DIST * dx) / adm;
+	dy = (DUN_WIDTH * MAX_DIST * dy) / adm;
+	dx = (DUN_WIDTH * MAX_DIST * dx) / adm;
 
-	POS32 tpos = { 0, 0 };
-	SHIFT_GRID(tpos.x, tpos.y, dx, dy);
+	POS32 tpos;
+	SET_GRID(tpos.x, tpos.y, dx, dy);
 
-	int dir8 = GetDirection(0, 0, tpos.x, tpos.y);
-	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
-	tpos.x += pos8.x;
-	tpos.y += pos8.y;
+	int dir8 = GetDirection({ 0, 0 }, tpos);
+	tpos.x += myplr._ppos.x;
+	tpos.y += myplr._ppos.y;
 
 	if (skill._psAttack._suSkill != SPL_NULL) {
 		if (skill._psAttack._suSkill == SPL_BLOCK) {
@@ -331,7 +332,7 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 		}
 
 		if (skill._psMove._suSkill == SPL_NULL) {
-			NetSendCmdLocSkill(tpos.x, tpos.y, skillUse);
+			NetSendCmdLocSkill(tpos, skillUse);
 			return;
 		}
 	} else if (skill._psMove._suSkill == SPL_NULL) {
@@ -350,13 +351,15 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 		// TODO: check if tpos.x/y == _pfutx/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
-		NetSendCmdLocSkill(tpos.x, tpos.y, *((CmdSkillUse*)&skill._psMove));
+		NetSendCmdLocSkill(tpos, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
 
+	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
 	pos8.x += offset_x[dir8];
 	pos8.y += offset_y[dir8];
-	NetSendCmdLoc(CMD_WALKXY, pos8.x, pos8.y);
+	pos8 = DungeonToDunPos(pos8.x, pos8.y);
+	NetSendCmdLoc(CMD_WALKXY, pos8);
 }
 
 static bool TryActionMenuDirCmd(bool altAction, void (*clickFunc)(bool), void (*moveFunc)(int))
@@ -428,7 +431,7 @@ static void ActionBtnCmd(bool altSkill)
 #endif
 	if (skill._psAttack._suSkill != SPL_NULL) {
 		if (skill._psAttack._suSkill == SPL_BLOCK) {
-			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
+			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.subtile.x, pcurspos.subtile.y);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
@@ -442,7 +445,7 @@ static void ActionBtnCmd(bool altSkill)
 		}
 
 		if (bShift) {
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
+			NetSendCmdLocSkill(pcurspos.dun, skillUse);
 			return;
 		}
 		if (MON_VALID(pcursmonst)) {
@@ -458,14 +461,14 @@ static void ActionBtnCmd(bool altSkill)
 			return;
 		}
 		if (skill._psMove._suSkill == SPL_NULL) {
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, skillUse);
+			NetSendCmdLocSkill(pcurspos.dun, skillUse);
 			return;
 		}
 	} else if (skill._psMove._suSkill == SPL_NULL) {
 		if (skill._psAttack._suFrom == SPLFROM_INVALID_MANA || skill._psMove._suFrom == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (skill._psAttack._suFrom == SPLFROM_INVALID_TYPE && skill._psMove._suFrom == SPLFROM_INVALID_TYPE)*/ {
-			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.x, pcurspos.y);
+			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.subtile.x, pcurspos.subtile.y);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}
 		return;
@@ -490,27 +493,27 @@ static void ActionBtnCmd(bool altSkill)
 	}
 
 	if (OBJ_VALID(pcursobj)) {
-		bool bNear = abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2;
+		bool bNear = abs(myplr._pfutx - pcurspos.subtile.x) < 2 && abs(myplr._pfuty - pcurspos.subtile.y) < 2;
 		if (skill._psMove._suSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
-			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.x, pcurspos.y, pcursobj);
+			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.dun, pcursobj);
 			return;
 		}
 		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
 	}
 	if (skill._psMove._suSkill != SPL_WALK) {
-		// TODO: check if pcurspos.x/y == _pfutx/y ?
+		// TODO: check if pcurspos.subtile.x/y == _pfutx/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
-		NetSendCmdLocSkill(pcurspos.x, pcurspos.y, *((CmdSkillUse*)&skill._psMove));
+		NetSendCmdLocSkill(pcurspos.dun, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
 
 	if (ITEM_VALID(pcursitem)) {
-		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.x, pcurspos.y, pcursitem);
+		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.dun, pcursitem);
 		return;
 	}
-	if (!nSolidTable[dPiece[pcurspos.x][pcurspos.y]])
-		NetSendCmdLoc(CMD_WALKXY, pcurspos.x, pcurspos.y);
+	if (!nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]])
+		NetSendCmdLoc(CMD_WALKXY, pcurspos.dun);
 }
 
 static bool TryIconCurs()
@@ -527,9 +530,9 @@ static bool TryIconCurs()
 	case CURSOR_DISARM:
 		if (OBJ_VALID(pcursobj) && objects[pcursobj]._oBreak == OBM_UNBREAKABLE) {
 			if (!(gbModBtnDown & ACTBTN_MASK(ACT_MODACT)) ||
-			 (abs(myplr._pfutx - pcurspos.x) < 2 && abs(myplr._pfuty - pcurspos.y) < 2)) {
+			 (abs(myplr._pfutx - pcurspos.subtile.x) < 2 && abs(myplr._pfuty - pcurspos.subtile.y) < 2)) {
 				// assert(gbTSkillUse.skill == SPL_DISARM);
-				NetSendCmdLocDisarm(pcurspos.x, pcurspos.y, pcursobj, gbTSkillUse.from);
+				NetSendCmdLocDisarm(pcurspos.dun, pcursobj, gbTSkillUse.from);
 			}
 		}
 		break;
@@ -538,7 +541,7 @@ static bool TryIconCurs()
 		if (OBJ_VALID(pcursobj)) {
 			NetSendCmdParamBW(CMD_TELEKINOBJ, gbTSkillUse.from, pcursobj);
 		} else if (ITEM_VALID(pcursitem)) {
-			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ix, items[pcursitem]._iy, gbTSkillUse.from, pcursitem);
+			NetSendCmdLocBParam2(CMD_TELEKINITM, items[pcursitem]._ipos, gbTSkillUse.from, pcursitem);
 		} else if (MON_VALID(pcursmonst)) {
 			NetSendCmdParamBW(CMD_TELEKINMON, gbTSkillUse.from, pcursmonst);
 		} else if (PLR_VALID(pcursplr)) {
@@ -553,7 +556,7 @@ static bool TryIconCurs()
 		else if (PLR_VALID(pcursplr))
 			NetSendCmdPlrSkill(pcursplr, gbTSkillUse);
 		else if (pcursicon == CURSOR_TELEPORT)
-			NetSendCmdLocSkill(pcurspos.x, pcurspos.y, gbTSkillUse);
+			NetSendCmdLocSkill(pcurspos.dun, gbTSkillUse);
 		break;
 	default:
 		return false;
@@ -794,7 +797,7 @@ static void PressDebugChar(int vkey)
 	case 't':
 		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "PX = %d  PY = %d", myplr._px, myplr._py);
 		NetSendCmdString(&msg, 1 << mypnum);
-		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "CX = %d  CY = %d  DP = %d", pcurspos.x, pcurspos.y, dungeon[pcurspos.x][pcurspos.y]);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "CX = %d  CY = %d  DP = %d", pcurspos.subtile.x, pcurspos.subtile.y, dungeon[pcurspos.subtile.x][pcurspos.subtile.y]);
 		break;
 	case '[':
 		if (ITEM_VALID(pcursitem)) {
@@ -1315,10 +1318,11 @@ static bool ProcessInput()
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 		plrctrls_after_check_curs_move();
 #endif
-		if (gbActionBtnDown != 0 && (myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK) && SDL_TICKS_AFTER(SDL_GetTicks(), guLastRBD, gnTickDelay * 6)) {
+		if (gbActionBtnDown != 0 && (myplr._pDestAction == ACTION_NONE || myplr._pDestAction == ACTION_WALK)) {
 			// assert(gbDeathflag == MDM_ALIVE);
+			bool timeout = SDL_TICKS_AFTER(SDL_GetTicks(), guLastRBD, gnTickDelay * 6);
 			int dx = 0, dy = 0;
-			for (int i = ACT_ACT; i <= ACT_W_SE; i++) {
+			for (int i = timeout ? ACT_ACT : ACT_W_S; i <= ACT_W_SE; i++) {
 				if (gbActionBtnDown & ACTBTN_MASK(i)) {
 					if (i < ACT_W_S) {
 						gbActionBtnDown &= ~ACTBTN_MASK(i);
@@ -1331,11 +1335,13 @@ static bool ProcessInput()
 			}
 			if (dx != 0 || dy != 0) {
 				int dir = GetDirection(0, 0, dx, dy);
-				int i = ACT_W_S + dir;
-				unsigned gabd = gbActionBtnDown;
-				gbActionBtnDown = 0;
-				InputBtnDown(i);
-				gbActionBtnDown = gabd;
+				if (timeout || dir != gbActionBtnDir) {
+					int i = ACT_W_S + dir;
+					unsigned gabd = gbActionBtnDown;
+					gbActionBtnDown = 0;
+					InputBtnDown(i);
+					gbActionBtnDown = gabd;
+				}
 			}
 		}
 	}
@@ -1446,11 +1452,6 @@ static WNDPROC InitGameFX()
 	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
 	CalcViewportGeometry();
-	//ScrollInfo._sdx = 0;
-	//ScrollInfo._sdy = 0;
-	ScrollInfo._sxoff = 0;
-	ScrollInfo._syoff = 0;
-	ScrollInfo._sdir = SDIR_NONE;
 
 	gnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = 0;

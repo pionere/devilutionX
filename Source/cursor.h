@@ -24,7 +24,7 @@ extern BYTE pcursitem;
 extern BYTE pcursobj;
 extern BYTE pcursplr;
 extern int pcurstrig;
-extern POS32 pcurspos;
+extern GRID_POS32 pcurspos;
 extern int pcursicon;
 extern int pcurstgt;
 

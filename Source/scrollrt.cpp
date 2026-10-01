@@ -14,8 +14,14 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /** Specifies the player viewpoint of the map. */
-POS32 myview;
+GRID_POS32 myview;
 ScrollStruct ScrollInfo;
+
+/* Specifies the number of entries in the scene array. */
+static unsigned numEntries;
+static unsigned numDungeonEntries;
+/* Array to contain the entities to be drawn. */
+static SceneEntry scene[(16 + 1) * (16 * 2 + 2 + 2) * 3 + MAXITEMS + MAXOBJECTS + MAXMISSILES + MAXMONSTERS + MAX_PLRS];
 
 /**
   * Container to hold the cached properties of the viewport.
@@ -24,8 +30,8 @@ ScrollStruct ScrollInfo;
   * _vRows: the number of rows to draw to ensure the screen is covered.
   * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
   * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to myview.x.
-  * _vShiftY: the base offset to myview.y.
+  * _vShiftX: the base offset to myview.subtile.x.
+  * _vShiftY: the base offset to myview.subtile.y.
 */
 ViewportStruct gsTileVp;
 
@@ -38,11 +44,6 @@ int light_trn_index;
  * Specifies whether transparency is active for the current CEL file being decoded.
  */
 bool gbCelTransparencyActive;
-
-/**
- * Specifies the current draw mode.
- */
-static BOOLEAN gbPreFlag;
 
 #define BACK_CURSOR 0
 #if BACK_CURSOR
@@ -63,11 +64,12 @@ static int sgCursY;
  */
 static BYTE sgSaveBack[MAX_CURSOR_AREA];
 #endif
-//bool dRendered[MAXDUNX][MAXDUNY];
 #if DEBUG_MODE
 static unsigned guFrameCnt;
 static unsigned guFrameRate;
 static Uint32 guFpsStartTc;
+/** Maps from facing direction to scroll-direction. */
+static const int8_t dir2sdir[NUM_DIRS] = { SDIR_S, SDIR_SW, SDIR_W, SDIR_NW, SDIR_N, SDIR_NE, SDIR_E, SDIR_SE };
 
 const char* const szMonModeAssert[NUM_MON_MODES] = {
 	"standing",
@@ -106,6 +108,535 @@ const char* const szPlrModeAssert[NUM_PLR_MODES] = {
 	"changing levels"
 };
 #endif
+
+POS32 DungeonToDunPos(int x, int y)
+{
+	x *= DUN_WIDTH;
+	y *= DUN_WIDTH;
+
+	x |= DUN_WIDTH / 2;
+	y |= DUN_WIDTH / 2;
+
+	return { x, y };
+}
+
+POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff)
+{
+	int xo, yo;
+	POS32 res = DungeonToDunPos(x, y);
+	static_assert(((TILE_WIDTH / ASSET_MPL) << GRID_SHIFT) == GRID_WIDTH, "Grid position calculation must be adjusted.");
+
+	// convert screen-offset to tile-offset
+	xoff /= ASSET_MPL;
+	yoff /= ASSET_MPL;
+
+	yoff *= TILE_WIDTH / TILE_HEIGHT;
+
+	xo = xoff + yoff;
+	yo = yoff - xoff;
+
+	xo *= DUN_WIDTH / (TILE_WIDTH / ASSET_MPL);
+	yo *= DUN_WIDTH / (TILE_WIDTH / ASSET_MPL);
+
+	res.x += xo;
+	res.y += yo;
+
+	return res;
+}
+
+POS32 DungeonToGridPos(int x, int y)
+{
+	int gx, gy;
+	SET_GRID(gy, gx, y, x);
+
+	gx *= GRID_WIDTH / 2;
+	gy *= GRID_WIDTH / 2;
+
+	// gx += GRID_WIDTH / 2;
+	// gy += GRID_WIDTH / 2;
+
+	// gx += GRID_WIDTH * (MAXDUNX / 2);
+	return { gx, gy };
+}
+
+POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff)
+{
+	POS32 res = DungeonToGridPos(x, y);
+
+	xoff /= ASSET_MPL;
+	yoff /= ASSET_MPL;
+
+	yoff *= TILE_WIDTH / TILE_HEIGHT;
+
+	res.x += xoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	res.y += yoff * (GRID_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	return res;
+}
+
+/*
+ * Convert grid-position to screen coordinates ignoring zoom and scrolling
+ * @param gx Precise grid (shifted dungeon) X-position
+ * @param gy Precise grid (shifted dungeon) Y-position
+ * @return the screen x/y-coordinates
+ */
+POS32 GridToScreen(int gx, int gy)
+{
+	POS32 pos = { gx, gy };
+
+//	pos.x /= (GRID_WIDTH / TILE_WIDTH);
+//	pos.y /= (GRID_WIDTH / TILE_HEIGHT);
+
+	pos.x >>= GRID_SHIFT;
+	pos.y >>= GRID_SHIFT + 1;
+
+	static_assert(TILE_WIDTH << GRID_SHIFT == GRID_WIDTH * ASSET_MPL, "grid to screen conversion must be adjusted I.");
+	static_assert(TILE_HEIGHT << (GRID_SHIFT + 1) == GRID_WIDTH * ASSET_MPL, "grid to screen conversion must be adjusted II.");
+	pos.x *= ASSET_MPL;
+	pos.y *= ASSET_MPL;
+
+	return pos;
+}
+
+POS32 DunToGrid(POS32 pos)
+{
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, pos.y, pos.x);
+
+#if DUN_WIDTH < GRID_WIDTH / 2
+	gp.x *= (GRID_WIDTH / 2) / DUN_WIDTH;
+	gp.y *= (GRID_WIDTH / 2) / DUN_WIDTH;
+#else
+	gp.x /= DUN_WIDTH / (GRID_WIDTH / 2);
+	gp.y /= DUN_WIDTH / (GRID_WIDTH / 2);
+#endif
+
+	gp.y -= GRID_WIDTH / 2;
+
+	return gp;
+}
+
+POS32 DunToScreen(POS32 pos)
+{
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, pos.y, pos.x);
+
+#if DUN_WIDTH <= TILE_WIDTH / 2
+	static_assert((TILE_WIDTH / 2) % DUN_WIDTH == 0, "dun to screen conversion must be adjusted I.");
+	gp.x *= (TILE_WIDTH / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_WIDTH / 2) == 0, "dun to screen conversion must be adjusted II.");
+	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
+#endif
+#if DUN_WIDTH <= TILE_HEIGHT / 2
+	static_assert((TILE_HEIGHT / 2) % DUN_WIDTH == 0, "dun to screen conversion must be adjusted III.");
+	gp.y *= (TILE_HEIGHT / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_HEIGHT / 2) == 0, "dun to screen conversion must be adjusted IV.");
+	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
+#endif
+
+	gp.y -= TILE_HEIGHT / 2;
+
+	return gp;
+}
+
+POS32 DungeonToScreen(int x, int y)
+{
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, y, x);
+
+	gp.x *= (TILE_WIDTH / 2);
+	gp.y *= (TILE_HEIGHT / 2);
+
+	return gp;
+}
+
+POS32 DungeonScreenOffset(int x, int y, int dx, int dy)
+{
+	POS32 dp = DungeonToDunPos(x, y);
+	dx -= dp.x;
+	dy -= dp.y;
+
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, dy, dx);
+
+	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
+	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
+
+	return gp;
+}
+
+POS32 DunScreenOffset(POS32 pos)
+{
+	pos.x &= (DUN_WIDTH - 1);
+	pos.y &= (DUN_WIDTH - 1);
+	pos.x -= DUN_WIDTH / 2;
+	pos.y -= DUN_WIDTH / 2;
+
+	int dx = pos.x;
+	int dy = pos.y;
+
+	POS32 gp;
+	SET_GRID(gp.y, gp.x, dy, dx);
+
+	gp.x /= DUN_WIDTH / (TILE_WIDTH / 2);
+	gp.y /= DUN_WIDTH / (TILE_HEIGHT / 2);
+
+	return gp;
+}
+
+POS32 ScreenToDun(POS32 pos)
+{
+	POS32 gp = pos;
+	// gp.y += TILE_HEIGHT / 2;
+
+#if DUN_WIDTH <= TILE_WIDTH / 2
+	static_assert((TILE_WIDTH / 2) % DUN_WIDTH == 0, "screen to dun conversion must be adjusted I.");
+	gp.x /= (TILE_WIDTH / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_WIDTH / 2) == 0, "screen to dun conversion must be adjusted II.");
+	gp.x *= DUN_WIDTH / (TILE_WIDTH / 2);
+#endif
+
+#if DUN_WIDTH <= TILE_HEIGHT / 2
+	static_assert((TILE_HEIGHT / 2) % DUN_WIDTH == 0, "screen to dun conversion must be adjusted III.");
+	gp.y /= (TILE_HEIGHT / 2) / DUN_WIDTH;
+#else
+	static_assert(DUN_WIDTH % (TILE_HEIGHT / 2) == 0, "screen to dun conversion must be adjusted IV.");
+	gp.y *= DUN_WIDTH / (TILE_HEIGHT / 2);
+#endif
+	POS32 dp;
+	dp.x = (gp.x + gp.y) / 2;
+	dp.y = (gp.y - gp.x) / 2;
+
+	return dp;
+}
+
+/*
+ * Return the screen position of the given precise dungeon position.
+ *
+ * @param pos Precise dungeon position
+ * @return the screen x/y-coordinates
+ */
+POS32 GetMousePosDun(POS32 pos)
+{
+	POS32 dp = myview.dun;
+	pos.x -= dp.x;
+	pos.y -= dp.y;
+
+	int gx = pos.x - pos.y;
+	int gy = pos.x + pos.y;
+
+	gx /= DUN_WIDTH / (TILE_WIDTH / 2);
+	gy /= DUN_WIDTH / (TILE_HEIGHT / 2);
+
+	if (gbZoomInFlag) {
+		gx <<= 1;
+		gy <<= 1;
+	}
+
+	gx += SCREEN_WIDTH / 2u;
+	gy += SCREEN_HEIGHT / 2u;
+
+	return { gx, gy };
+}
+
+void UpdateScrollInfo(int pnum)
+{
+	if (pnum == mypnum) {
+#if FOLLOW
+		// TODO: follow with the cursor if a monster is selected?
+		int dx = (unsigned)plr._ppos.x / DUN_WIDTH - (unsigned)myview.dun.x / DUN_WIDTH;
+		int dy = (unsigned)plr._ppos.y / DUN_WIDTH - (unsigned)myview.dun.y / DUN_WIDTH;
+#endif
+		myview.subtile.x = plr._px;
+		myview.subtile.y = plr._py;
+		myview.dun = plr._ppos;
+#if FOLLOW
+		POS32 sp = DunScreenOffset(myview.dun);
+		POS32 dp = DungeonToScreen(dx, dy);
+		dp.x += ScrollInfo._sxoff + sp.x;
+		dp.y += ScrollInfo._syoff + sp.y;
+		if (gbActionBtnDown != 0 && (dp.x | dp.y) != 0 && MON_VALID(pcursmonst))
+			SetCursorPos(MousePos.x - dp.x, MousePos.y - dp.y);
+		ScrollInfo._sxoff = -sp.x;
+		ScrollInfo._syoff = -sp.y;
+#endif
+#if DEBUG_MODE
+//		for (int i = 0; i < lengthof(dir2sdir); i++)
+//			assert(dir2sdir[i] == 1 + i);
+#endif
+//		ScrollInfo._sdir = (ScrollInfo._sxoff == 0 && ScrollInfo._syoff == 0) ? SDIR_NONE : (1 + /*OPPOSITE(*/plr._pdir/*)*/); // == dir2sdir[dir];
+	}
+}
+
+void InitScene()
+{
+	numEntries = 0;
+	// numDungeonEntries = 0;
+}
+
+void SceneCursor()
+{
+	INTPAIR curmon = { MON_NONE, 0 };
+	INTPAIR curmin = { MON_NONE, 0 };
+	INTPAIR curobj = { OBJ_NONE, 0 };
+	INTPAIR curitem = { ITEM_NONE, 0 };
+	INTPAIR curplr = { PLR_NONE, 0 };
+	INTPAIR deadplr = { PLR_NONE, 0 };
+	INTPAIR curport = { TRIG_NONE, 0 };
+	POS32 curobjpos;
+	int mi;
+
+	for (unsigned i = numDungeonEntries; i < numEntries; i++) {
+		const SceneEntry* entry = &scene[i];
+		mi = entry->scIdx;
+		int selFlag;
+		POS32 pos;
+		INTPAIR* dst;
+
+		int dx, dy, dist;
+		dx = MousePos.x - (entry->scPosx - SCREEN_X);
+		dy = -(MousePos.y - (entry->scPosy - SCREEN_Y));
+		switch (entry->scType) {
+		// case SCT_FLOOR:
+		// case SCT_CELL:         continue;
+		case SCT_ITEM:
+			selFlag = items[mi]._iSelFlag;
+			pos = items[mi]._ipos;
+			dst = &curitem;
+			break;
+		case SCT_OBJECT:
+			selFlag = objects[mi]._oSelFlag;
+			if (selFlag == 0) continue;
+			if ((objects[mi]._oAnimFrame == 0 || !CelClippedPixelAt(dx, dy, objects[mi]._oAnimWidth, objects[mi]._oAnimData, objects[mi]._oAnimFrame)) &&
+				(objects[mi]._oGfxFrame == 0 || !CelClippedPixelAt(dx, dy, objects[mi]._oAnimWidth, objects[mi]._oAnimData, objects[mi]._oGfxFrame))) {
+				continue;
+			}
+			pos = objects[mi]._opos;
+			if (objects[mi]._oSolidFlag & 2) {
+				// extra tile at [0,-1]
+				if (selFlag & 2) {
+					if (dx >= TILE_WIDTH / 2)
+						pos.y -= DUN_WIDTH;
+				} else {
+					if (dy >= TILE_HEIGHT - dx)
+						pos.y -= DUN_WIDTH;
+				}
+			}
+			if (objects[mi]._oSolidFlag & 4) {
+				// extra tile at [-1,0]
+				// if (!(selFlag & 2))
+				{
+					if (dy >= dx + TILE_HEIGHT)
+						pos.x -= DUN_WIDTH;
+				}
+			}
+			//if (objects[mi]._oSolidFlag & 8) {
+			//	// extra tile at [-1,-1]
+			//	if (!(selFlag & 2))
+			//	{
+			//		if (dy >= dx + TILE_HEIGHT && dy >= TILE_HEIGHT - dx)
+			//			if (!(objects[mi]._oSolidFlag & 4))
+			//				pos.x -= DUN_WIDTH;
+			//			if (!(objects[mi]._oSolidFlag & 2))
+			//				pos.y -= DUN_WIDTH;
+			//	}
+			//}
+			selFlag = 8;
+			dst = &curobj;
+			break;
+		case SCT_MISSILE:
+			if (missile[mi]._miType != MIS_TOWN && missile[mi]._miType != MIS_RPORTAL)
+				continue;
+			if (!Cl2PixelAt(dx, dy, missile[mi]._miAnimWidth, missile[mi]._miAnimData, missile[mi]._miAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+			pos = missile[mi]._mipos;
+			dst = &curport;
+			break;
+		case SCT_TOWNER:
+			if (!CelClippedPixelAt(dx, dy, monsters[mi]._mAnimWidth, monsters[mi]._mAnimData, monsters[mi]._mAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+			pos = monsters[mi]._mpos;
+			dst = &curmon;
+			break;
+		case SCT_MONSTER:
+			if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN))
+				continue;
+#if 0
+			// if (monsters[mi]._mSelFlag == 0) continue;
+			if (!Cl2PixelAt(dx, dy, monsters[mi]._mAnimWidth, monsters[mi]._mAnimData, monsters[mi]._mAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+#else
+			selFlag = monsters[mi]._mSelFlag;
+#endif
+			pos = monsters[mi]._mpos;
+			dst = mi >= MAX_MINIONS ? &curmon : &curmin;
+			break;
+		case SCT_DEAD_MONSTER: continue;
+		case SCT_PLAYER:
+			if (mi == mypnum || plx(mi)._pHitPoints == 0)
+				continue;
+			if (!Cl2PixelAt(dx, dy, players[mi]._pAnimWidth, players[mi]._pAnimData, players[mi]._pAnimFrame)) {
+				continue;
+			}
+			selFlag = 8;
+			pos = players[mi]._ppos;
+			dst = &curplr;
+			break;
+		case SCT_DEAD_PLAYER:
+			selFlag = 1;
+			pos = players[mi]._ppos;
+			dst = &deadplr;
+			break;
+		// case SCT_SPECIAL:   continue;
+		// case SCT_DUMMY:     continue;
+		default: ASSUME_UNREACHABLE
+		}
+
+		if (!(dFlags[(unsigned)pos.x / DUN_WIDTH][(unsigned)pos.y / DUN_WIDTH] & BFLAG_VISIBLE)) continue;
+
+		switch (selFlag) {
+		case 0: continue;
+		case 1: // width: TILE_WIDTH, height: TILE_HEIGHT
+			dy -= TILE_HEIGHT / 2;
+			dist = dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 3: // width: TILE_WIDTH, height: 2.12 * TILE_HEIGHT
+			// dy -= 3 * TILE_HEIGHT / 4;
+			dy -= TILE_HEIGHT;
+			dist = 8 * dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 8 * 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, 4 * TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 6: // width: TILE_WIDTH, height: 2.12 * TILE_HEIGHT
+			dy -= TILE_HEIGHT + TILE_HEIGHT / 2;
+			dist = 8 * dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 8 * 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, 4 * TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 7: // width: TILE_WIDTH, height: 2.6 * TILE_HEIGHT
+			dy -= TILE_HEIGHT + TILE_HEIGHT / 2;
+			dist = 12 * dx * dx + dy * dy * (TILE_WIDTH / TILE_HEIGHT) * (TILE_WIDTH / TILE_HEIGHT);
+			if (dist > 12 * 3 * TILE_WIDTH * TILE_WIDTH / (4 * 4)) continue;
+			// EventPlrMsg("delta %d:%d dist %d vs %d", dx, dy, dist, 6 * TILE_WIDTH * TILE_WIDTH);
+			break;
+		case 8:
+			break;
+		default:
+			ASSUME_UNREACHABLE
+		}
+
+		if ((unsigned)dst->v1 > entry->scZOrder) continue;
+
+		dst->v0 = mi;
+		dst->v1 = entry->scZOrder;
+		if (dst == &curobj)
+			curobjpos = pos;
+	}
+
+	switch (pcurstgt) {
+	case TGT_NORMAL:
+		// select a monster/npc
+		mi = curmon.v0;
+		if (mi != MON_NONE) {
+			goto tgtmon;
+		}
+		// select a live or dead player
+		mi = curplr.v0 != PLR_NONE ? curplr.v0 : deadplr.v0;
+		if (mi != PLR_NONE) {
+			goto tgtplr;
+		}
+		// select an object
+		if (curobj.v0 != OBJ_NONE) {
+			goto tgtobj;
+		}
+		// select an item
+		mi = curitem.v0;
+		if (mi != ITEM_NONE) {
+			goto tgtitem;
+		}
+		// pcurspos.subtile.x = mx;
+		// pcurspos.subtile.y = my;
+		pcurstrig = CheckTrigForce();
+		if (TRIG_VALID(pcurstrig)) {
+			pcurspos.subtile.x = trigs[pcurstrig]._tx;
+			pcurspos.subtile.y = trigs[pcurstrig]._ty;
+			pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
+		} else {
+			// CheckTownPortal();
+			mi = curport.v0;
+			if (mi != TRIG_NONE) {
+				pcurstrig = MAXTRIGGERS + mi + 1;
+				pcurspos.dun = missile[mi]._mipos;
+				pcurspos.subtile.x = missile[mi]._mix;
+				pcurspos.subtile.y = missile[mi]._miy;
+			}			
+		}
+		break;
+	case TGT_ITEM:
+		// select an item
+		mi = curitem.v0;
+		if (mi != ITEM_NONE) {
+tgtitem:
+			pcursitem = mi;
+			pcurspos.dun = items[mi]._ipos;
+			pcurspos.subtile.x = items[mi]._ix;
+			pcurspos.subtile.y = items[mi]._iy;
+		}
+		break;
+	case TGT_OBJECT:
+		// select an object
+		if (curobj.v0 != OBJ_NONE) {
+tgtobj:
+			mi = curobj.v0;
+			pcursobj = mi;
+			pcurspos.dun = curobjpos;
+			pcurspos.subtile.x = (unsigned)curobjpos.x / DUN_WIDTH;
+			pcurspos.subtile.y = (unsigned)curobjpos.y / DUN_WIDTH;
+		}
+		break;
+	case TGT_OTHER:
+		// select a live player
+		mi = curplr.v0;
+		if (mi != PLR_NONE) {
+			goto tgtplr;
+		}
+		// select a live minion
+		mi = curmin.v0;
+		if (mi != MON_NONE) {
+tgtmon:
+			pcursmonst = mi;
+			pcurspos.dun = monsters[mi]._mpos;
+			pcurspos.subtile.x = monsters[mi]._mx;
+			pcurspos.subtile.y = monsters[mi]._my;
+		}
+		break;
+	case TGT_DEAD:
+		// select a dead player
+		mi = deadplr.v0;
+		if (mi != PLR_NONE) {
+tgtplr:
+			pcursplr = mi;
+			pcurspos.dun = players[mi]._ppos;
+			pcurspos.subtile.x = players[mi]._px;
+			pcurspos.subtile.y = players[mi]._py;
+		}
+		break;
+	case TGT_NONE:
+		break;
+	default:
+		ASSUME_UNREACHABLE
+	}
+}
 
 /**
  * @brief Clear cursor state
@@ -171,7 +702,7 @@ static void scrollrt_draw_cursor()
 	BYTE* cCels;
 #if BACK_CURSOR
 	int i, cx, cy, cw, ch;
-	BYTE *src, *dst, *cCels;
+	BYTE *src, *dst;
 	assert(sgCursWdt == 0);
 #endif
 	if (pcursicon <= CURSOR_NONE) {
@@ -258,23 +789,82 @@ static void scrollrt_draw_cursor()
 	}
 }
 
+static unsigned SubtileZOrderAt(int x, int y)
+{
+	int sx = x - y;
+	int sy = x + y;
+	static_assert(MAXDUNX < 128 && MAXDUNY < 128, "Higher bits of the zOrder might overflow.");
+	sx ^= 128;
+	sx &= 0xFF;
+	// assert(sy <= 0xFF);
+	return (sx << 16) | (sy << 24);
+}
+
+static unsigned SubtileZOrder(POS32 pos)
+{
+	int x = (unsigned)pos.x / DUN_WIDTH;
+	int y = (unsigned)pos.y / DUN_WIDTH;
+	return SubtileZOrderAt(x, y);
+}
+
+static unsigned OffsetZOrder(POS32 pos)
+{
+	int x = (pos.x >> DUN_SHIFT) & ((DUN_WIDTH >> DUN_SHIFT) - 1);
+	int y = (pos.y >> DUN_SHIFT) & ((DUN_WIDTH >> DUN_SHIFT) - 1);
+	// int sx = x - y;
+	int sy = x + y;
+	static_assert((DUN_WIDTH >> DUN_SHIFT) <= (1 << ZOR_SHIFT), "Lower bits of the zOrder might overflow.");
+	return sy >> 1;
+}
+
+/**
+ * @brief add a missile to the scene-array
+ * @param mi id of the missile
+ * @param lightIdx light index at the missile's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the missile should be added
+ */
+static void scene_addMissile(int mi, int lightIdx, unsigned zorder, SceneEntry* entry)
+{
+	BYTE trans;
+	const MissileStruct* mis = &missile[mi];
+
+	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? lightIdx : 0) : mis->_miUniqTrans;
+
+	scene[numEntries].scType = SCT_MISSILE;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = mis->_mipos.x;
+	scene[numEntries].scPosy = mis->_mipos.y;
+	scene[numEntries].scIdx = mi;
+
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
+
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
 /**
  * @brief Render a missile sprite
- * @param mis Pointer to MissileStruct struct
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @param entry the scene entry of the missile
  */
-static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
+static void DrawSceneMissile(const SceneEntry &entry)
 {
-	int mx, my, nCel, nWidth;
-	BYTE trans;
+	int mx = entry.scPosx;
+	int my = entry.scPosy;
+	int mi = entry.scIdx;
+	BYTE trans = entry.scTrans;
+	int nCel, nWidth;
 	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_MISSILE);
+	// assert((unsigned)mi < MAXMISSILES);
+	const MissileStruct* mis = &missile[mi];
 
-	if (mis->_miPreFlag != gbPreFlag)
-		return;
-
-	mx = sx + mis->_mixoff - mis->_miAnimXOffset;
-	my = sy + mis->_miyoff;
 	pCelBuff = mis->_miAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Missile type %d: NULL Cel Buffer", mis->_miType);
@@ -287,56 +877,26 @@ static void DrawMissilePrivate(const MissileStruct* mis, int sx, int sy)
 	}
 #endif
 	nWidth = mis->_miAnimWidth;
-	trans = mis->_miUniqTrans == 0 ? (mis->_miLightFlag ? light_trn_index : 0) : mis->_miUniqTrans;
+	mx -= nWidth / 2u;
+	my += mis->_mizoff;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
- * @brief Render a missile sprites for a given tile
- * @param mi id of the missile or MIS_MULTI if there are more
- * @param x dPiece coordinate
- * @param y dPiece coordinate
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
- */
-static void DrawMissile(int mi, int x, int y, int sx, int sy)
-{
-	int i;
-	const MissileStruct* mis;
-
-	if (mi != MIS_MULTI) {
-		// assert((unsigned)(mi - 1) < MAXMISSILES);
-		mis = &missile[mi - 1];
-		// assert(mis->_miDrawFlag);
-		DrawMissilePrivate(mis, sx, sy);
-		return;
-	}
-
-	for (i = 0; i < nummissiles; i++) {
-		// assert((unsigned)missileactive[i] < MAXMISSILES);
-		mis = &missile[missileactive[i]];
-		if (mis->_mix != x || mis->_miy != y || !mis->_miDrawFlag)
-			continue;
-		DrawMissilePrivate(mis, sx, sy);
-	}
-}
-
-/**
- * @brief Render a monster sprite
- * @param mnum Id of monster
+ * @brief add a monster to the scene-array
+ * @param mnum id of the monster
  * @param bFlag flags to draw
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @param lightIdx light index at the monster's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the monster should be added
  */
-static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addMonster(int mnum, BYTE bFlag, int lightIdx, unsigned zorder, SceneEntry* entry)
 {
 	const MonsterStruct* mon;
-	int mx, my, nCel, nWidth;
 	BYTE trans;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
-	const BYTE* pCelBuff;
 	// assert((unsigned)mnum < MAXMONSTERS);
-	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0 /* && !myplr._pInfraFlag*/)
+	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0/* !myplr._pInfraFlag */)
 		return;
 
 	mon = &monsters[mnum];
@@ -344,8 +904,46 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 		return;
 	}
 
-	mx = sx + mon->_mxoff - mon->_mAnimXOffset;
-	my = sy + mon->_myoff;
+	if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && lightIdx > 8))
+		trans = COLOR_TRN_RED;
+	else if (mon->_mmode == MM_STONE)
+		trans = COLOR_TRN_GRAY;
+	else
+		trans = lightIdx;
+
+	scene[numEntries].scType = SCT_MONSTER;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = mon->_mpos.x;
+	scene[numEntries].scPosy = mon->_mpos.y;
+	scene[numEntries].scIdx = mnum;
+
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
+
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+/**
+ * @brief Render a monster sprite
+ * @param entry the scene entry of the monster
+ */
+static void DrawSceneMonster(const SceneEntry &entry)
+{
+	int mx = entry.scPosx;
+	int my = entry.scPosy;
+	int mnum = entry.scIdx;
+	BYTE trans = entry.scTrans;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(entry.scIdx == SCT_MONSTER || entry.scIdx == SCT_DEAD_MONSTER);
+	// assert((unsigned)mnum < MAXMONSTERS);
+	const MonsterStruct* mon = &monsters[mnum];
 
 	pCelBuff = mon->_mAnimData;
 	if (pCelBuff == NULL) {
@@ -369,227 +967,246 @@ static void DrawMonster(int mnum, BYTE bFlag, int sx, int sy)
 	}
 #endif
 	nWidth = mon->_mAnimWidth;
+	mx -= nWidth / 2u;
 	if (mnum == pcursmonst) {
 		Cl2DrawOutline(PAL16_RED + 9, mx, my, pCelBuff, nCel, nWidth);
 	}
-	if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8))
-		trans = COLOR_TRN_RED;
-	else if (mon->_mmode == MM_STONE)
-		trans = COLOR_TRN_GRAY;
-	else
-		trans = light_trn_index;
 	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, trans);
 }
 
 /**
- * @brief Render a sprite of a dead monster
- * @param mon Pointer to MonsterStruct struct
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @brief add a dead monster to the scene-array
+ * @param mnum id of the monster
+ * @param bFlag flags to draw
+ * @param lightIdx light index at the monster's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the monster should be added
  */
-static void DrawDeadMonsterHelper(const MonsterStruct* mon, int sx, int sy)
+static void scene_addDeadMonsterEntry(int mnum, BYTE bFlag, int lightIdx, unsigned zorder, SceneEntry* entry)
 {
-	int mx, my, nCel, nWidth;
-	const BYTE* pCelBuff;
+	const MonsterStruct* mon = &monsters[mnum];
+	// assert((unsigned)mnum < MAXMONSTERS);
 
-	mx = sx /*+ mon->_mxoff*/ - mon->_mAnimXOffset;
-	my = sy /*+ mon->_myoff*/;
+	scene[numEntries].scType = SCT_DEAD_MONSTER;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = lightIdx; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = mon->_mpos.x;
+	scene[numEntries].scPosy = mon->_mpos.y;
+	scene[numEntries].scIdx = mnum;
 
-	pCelBuff = mon->_mAnimData;
-	if (pCelBuff == NULL) {
-		dev_fatal("Draw Dead Monster \"%s\": NULL Cel Buffer", mon->_mName);
-	}
-	nCel = mon->_mAnimFrame;
-#if DEBUG_MODE
-	int frames = LOAD_LE32(pCelBuff);
-	if (nCel < 1 || frames > 50 || nCel > frames) {
-		dev_fatal("Draw Dead Monster frame %d of %d, name:%s", nCel, frames, mon->_mName);
-	}
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
+
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
 #endif
-	nWidth = mon->_mAnimWidth;
-	Cl2DrawLightTbl(mx, my, pCelBuff, nCel, nWidth, light_trn_index);
 }
 
-static void DrawDeadMonster(int mnum, int x, int y, int sx, int sy)
+/**
+ * @brief add a towner to the scene-array
+ * @param mnum id of the towner
+ * @param lightIdx light index at the towner's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the towner should be added
+ */
+static void scene_addTowner(int mnum, int lightIdx, unsigned zorder, SceneEntry* entry)
 {
-	int i;
-	const MonsterStruct* mon;
+	const MonsterStruct* tw = &monsters[mnum];
+	// assert(mnum < numtowners);
 
-	if (light_trn_index >= MAXDARKNESS)
-		return;
+	scene[numEntries].scType = SCT_TOWNER;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = tw->_mpos.x;
+	scene[numEntries].scPosy = tw->_mpos.y;
+	scene[numEntries].scIdx = mnum;
 
-	if (mnum != DEAD_MULTI) {
-		// assert((unsigned)(mnum - 1) < MAXMONSTERS);
-		mon = &monsters[mnum - 1];
-		DrawDeadMonsterHelper(mon, sx, sy);
-		return;
-	}
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
 
-	for (i = 0; i < MAXMONSTERS; i++) {
-		mon = &monsters[i];
-		if (mon->_mmode != MM_DEAD || mon->_mx != x || mon->_my != y)
-			continue;
-		DrawDeadMonsterHelper(mon, sx, sy);
-	}
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
 }
 
 /**
  * @brief Render a towner sprite
- * @param mnum Id of towner
- * @param bFlag flags to draw
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @param entry the scene entry of the towner
  */
-static void DrawTowner(int mnum, BYTE bFlag, int sx, int sy)
+static void DrawSceneTowner(const SceneEntry &entry)
 {
-	const MonsterStruct* tw;
-	int tx, nCel, nWidth;
+	int tx = entry.scPosx;
+	int ty = entry.scPosy;
+	int tnum = entry.scIdx;
+	int nCel, nWidth;
 	const BYTE* pCelBuff;
-	// assert(mnum < numtowners);
-	tw = &monsters[mnum];
-	tx = sx - tw->_mAnimXOffset;
+	// assert(entry.scIdx == SCT_TOWNER);
+	// assert((unsigned)tnum < numtowners);
+	const MonsterStruct* tw = &monsters[tnum];
+
 	pCelBuff = tw->_mAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Towner \"%s\": NULL Cel Buffer", tw->_mName);
 	}
 	nCel = tw->_mAnimFrame;
 	nWidth = tw->_mAnimWidth;
-	if (mnum == pcursmonst) {
-		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, sy, pCelBuff, nCel, nWidth);
+	tx -= nWidth / 2u;
+	if (tnum == pcursmonst) {
+		CelClippedDrawOutline(PAL16_BEIGE + 6, tx, ty, pCelBuff, nCel, nWidth);
 	}
-	CelClippedDrawLightTbl(tx, sy, pCelBuff, nCel, nWidth, 0);
+	CelClippedDrawLightTbl(tx, ty, pCelBuff, nCel, nWidth, 0);
 }
 
 /**
- * @brief Render a player sprite
- * @param pnum Player id
- * @param bFlag flags
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @brief add a player to the scene-array
+ * @param pnum id of the player
+ * @param bFlag flags to draw
+ * @param lightIdx light index at the player's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the player should be added
  */
-static void DrawPlayer(int pnum, BYTE bFlag, int sx, int sy)
+static void scene_addPlayer(int pnum, BYTE bFlag, int lightIdx, unsigned zorder, SceneEntry* entry)
 {
-	int px, py, nCel, nWidth;
 	BYTE visFlag = bFlag & BFLAG_VISIBLE;
 	BYTE trans;
-	const BYTE* pCelBuff;
 	// assert(pnum < MAX_PLRS);
-	if (visFlag || myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) {
-		px = sx + plr._pxoff - plr._pAnimXOffset;
-		py = sy + plr._pyoff;
-		pCelBuff = plr._pAnimData;
-		if (pCelBuff == NULL) {
-			dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
-		}
-		nCel = plr._pAnimFrame;
-#if DEBUG_MODE
-		int frames = LOAD_LE32(pCelBuff);
-		if (nCel < 1 || frames > 50 || nCel > frames) {
-			const char* szMode = "unknown action";
-			if (plr._pmode < lengthof(szPlrModeAssert))
-				szMode = szPlrModeAssert[plr._pmode];
-			dev_fatal(
-				"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
-				pnum,
-				plr._pName,
-				szMode,
-				plr._pmode,
-				plr._pdir,
-				nCel,
-				frames);
-		}
-#endif
-		nWidth = plr._pAnimWidth;
-		if (pnum == pcursplr)
-			Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
-		if (pnum == mypnum) {
-			trans = 0;
-		} else if (!visFlag || ((myplr._pTimer[PLTR_INFRAVISION] > 0 /* || myplr._pInfraFlag*/) && light_trn_index > 8)) {
-			trans = COLOR_TRN_RED;
-		} else {
-			trans = light_trn_index;
-			trans = trans <= 5 ? 0 : (trans - 5);
-			/*if (plr.pManaShield != 0)
-				Cl2DrawLightTbl(
-				    px + plr._pAnimXOffset - misanimdim[MFILE_MANASHLD][1],
-				    py,
-				    misanimdata[MFILE_MANASHLD][0],
-				    1,
-				    misanimdim[MFILE_MANASHLD][0], trans);*/
-		}
-		Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
+	if (!visFlag && myplr._pTimer[PLTR_INFRAVISION] <= 0/* !myplr._pInfraFlag */)
+		return;
+
+	if (pnum == mypnum) {
+		trans = 0;
+	} else if (!visFlag || (myplr._pTimer[PLTR_INFRAVISION] > 0/* myplr._pInfraFlag */ && lightIdx > 8)) {
+		trans = COLOR_TRN_RED;
+	} else {
+		trans = lightIdx;
+		trans = trans <= 5 ? 0 : (trans - 5);
 	}
+
+	scene[numEntries].scType = plr._pHitPoints != 0 ? SCT_PLAYER : SCT_DEAD_PLAYER;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = trans; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = plr._ppos.x;
+	scene[numEntries].scPosy = plr._ppos.y;
+	scene[numEntries].scIdx = pnum;
+
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
+
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
 }
 
 /**
  * @brief Render a player sprite
- * @param x dPiece coordinate
- * @param y dPiece coordinate
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @param entry the scene entry of the player
  */
-void DrawDeadPlayer(int x, int y, int sx, int sy)
+static void DrawScenePlayer(const SceneEntry &entry)
 {
-	int pnum;
-	dFlags[x][y] &= ~BFLAG_DEAD_PLAYER;
+	int px = entry.scPosx;
+	int py = entry.scPosy;
+	int pnum = entry.scIdx;
+	BYTE trans = entry.scTrans;
+	int nCel, nWidth;
+	const BYTE* pCelBuff;
+	// assert(pnum < MAX_PLRS);
+	// assert(entry.scIdx == SCT_PLAYER || entry.scIdx == SCT_DEAD_PLAYER);
 
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-		if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == x && plr._py == y) {
-#if DEBUG_MODE
-			const BYTE* pCelBuff = plr._pAnimData;
-			if (pCelBuff == NULL) {
-				dev_fatal("Draw Dead Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
-			}
-			int nCel = plr._pAnimFrame;
-			int frames = LOAD_LE32(pCelBuff);
-			if (nCel < 1 || frames > 50 || nCel > frames) {
-				dev_fatal("Draw Dead Player %d \"%s\": facing %d, frame %d of %d", pnum, plr._pName, plr._pdir, nCel, frames);
-			}
-#endif
-			dFlags[x][y] |= BFLAG_DEAD_PLAYER;
-			DrawPlayer(pnum, dFlags[x][y], sx, sy);
-		}
+	pCelBuff = plr._pAnimData;
+	if (pCelBuff == NULL) {
+		dev_fatal("Draw Player %d \"%s\": NULL Cel Buffer", pnum, plr._pName);
 	}
+	nCel = plr._pAnimFrame;
+#if DEBUG_MODE
+	int frames = LOAD_LE32(pCelBuff);
+	if (nCel < 1 || frames > 50 || nCel > frames) {
+		const char* szMode = "unknown action";
+		if (plr._pmode < lengthof(szPlrModeAssert))
+			szMode = szPlrModeAssert[plr._pmode];
+		dev_fatal(
+			"Draw Player %d \"%s\" %s(%d): facing %d, frame %d of %d",
+			pnum,
+			plr._pName,
+			szMode,
+			plr._pmode,
+			plr._pdir,
+			nCel,
+			frames);
+	}
+#endif
+	nWidth = plr._pAnimWidth;
+	px -= nWidth / 2u;
+	if (pnum == pcursplr)
+		Cl2DrawOutline(PAL16_BEIGE + 5, px, py, pCelBuff, nCel, nWidth);
+	/*if (plr.pManaShield != 0)
+		Cl2DrawLightTbl(
+		    px + nWidth / 2u - misanimdim[MFILE_MANASHLD][1],
+		    py,
+		    misanimdata[MFILE_MANASHLD][0],
+		    1,
+		    misanimdim[MFILE_MANASHLD][0], trans);*/
+	Cl2DrawLightTbl(px, py, pCelBuff, nCel, nWidth, trans);
+}
+
+/**
+ * @brief add an object to the scene-array
+ * @param oi id of the object
+ * @param lightIdx light index at the object's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the object should be added
+ */
+static void scene_addObject(int oi, int lightIdx, unsigned zorder, SceneEntry* entry)
+{
+	const ObjectStruct* os;
+	// assert((unsigned)oi < MAXOBJECTS);
+	os = &objects[oi];
+
+	scene[numEntries].scType = SCT_OBJECT;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = os->_opos.x;
+	scene[numEntries].scPosy = os->_opos.y;
+	scene[numEntries].scIdx = oi;
+
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
+
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
 }
 
 /**
  * @brief Render an object sprite
- * @param oi the id of the object
- * @param x dPiece coordinate
- * @param y dPiece coordinate
- * @param ox Back buffer coordinate
- * @param oy Back buffer coordinate
+ * @param entry the scene entry of the object
  */
-static void DrawObject(int oi, int x, int y, int ox, int oy)
+static void DrawSceneObject(const SceneEntry &entry)
 {
-	const ObjectStruct* os;
-	int sx, sy, xx, yy, nGfxCel, nAnimCel, nWidth;
-	bool mainTile;
+	int ox = entry.scPosx;
+	int oy = entry.scPosy;
+	int oi = entry.scIdx;
+	int nGfxCel, nAnimCel, nWidth;
 	const BYTE* pCelBuff;
-	// assert(oi != 0);
-	if (light_trn_index >= MAXDARKNESS)
-		return;
-	mainTile = oi >= 0;
-	oi = oi >= 0 ? oi - 1 : -(oi + 1);
+	// assert(entry.scIdx == SCT_OBJECT);
 	// assert((unsigned)oi < MAXOBJECTS);
-	os = &objects[oi];
-	if (os->_oPreFlag != gbPreFlag)
-		return;
-	sx = ox - os->_oAnimXOffset;
-	sy = oy;
-	if (!mainTile) {
-		xx = os->_ox - x;
-		yy = os->_oy - y;
-		sx += (xx * (TILE_WIDTH / 2)) - (yy * (TILE_WIDTH / 2));
-		sy += (yy * (TILE_HEIGHT / 2)) + (xx * (TILE_HEIGHT / 2));
-	}
+	const ObjectStruct* os = &objects[oi];
 
 	pCelBuff = os->_oAnimData;
 	if (pCelBuff == NULL) {
 		dev_fatal("Draw Object type %d: NULL Cel Buffer", os->_otype);
 	}
-
-	nWidth = os->_oAnimWidth;
 
 	nGfxCel = os->_oGfxFrame;
 	nAnimCel = os->_oAnimFrame;
@@ -602,41 +1219,37 @@ static void DrawObject(int oi, int x, int y, int ox, int oy)
 		dev_fatal("Draw Object Anim: frame %d of %d, type %d", nAnimCel, frames, os->_otype);
 	}
 #endif
+	nWidth = os->_oAnimWidth;
+	ox -= nWidth / 2u;
 	if (oi == pcursobj) {
 		if (nGfxCel > 0) {
-			CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nGfxCel, nWidth);
+			CelClippedDrawOutline(PAL16_YELLOW + 2, ox, oy, pCelBuff, nGfxCel, nWidth);
 		}
 		if (nAnimCel > 0) {
-			CelClippedDrawOutline(PAL16_YELLOW + 2, sx, sy, pCelBuff, nAnimCel, nWidth);
+			CelClippedDrawOutline(PAL16_YELLOW + 2, ox, oy, pCelBuff, nAnimCel, nWidth);
 		}
 	}
 	if (nGfxCel > 0) {
-		CelClippedDrawLightTbl(sx, sy, pCelBuff, nGfxCel, nWidth, light_trn_index);
+		CelClippedDrawLightTbl(ox, oy, pCelBuff, nGfxCel, nWidth, light_trn_index);
 	}
 	if (nAnimCel > 0) {
-		CelClippedDrawLightTbl(sx, sy, pCelBuff, nAnimCel, nWidth, light_trn_index);
+		CelClippedDrawLightTbl(ox, oy, pCelBuff, nAnimCel, nWidth, light_trn_index);
 	}
 }
 
 /**
- * @brief Render a cell
+ * @brief add a dungeon subtile to the scene-array
  * @param pn piece number
+ * @param x dPiece coordinate
+ * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawCell(int pn, int sx, int sy)
+static void scene_addCell(int pn, int x, int y, int sx, int sy)
 {
-	BYTE* dst;
-	uint16_t levelCelBlock, i, limit;
-	uint16_t* pMap;
-	int tmp, mask;
-
-	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return; // starting from too far to the left or right -> skip
-
+	uint16_t i, limit;
+	int tmp;
 	tmp = sy - SCREEN_Y;
-	if (tmp < 0)
-		return; // starting from above the top -> skip
 	tmp = (unsigned)(tmp + 1 + (MICRO_HEIGHT - 1)) / MICRO_HEIGHT;
 	tmp *= TILE_WIDTH / MICRO_WIDTH;
 	limit = tmp <= MicroTileLen ? tmp : MicroTileLen;
@@ -656,9 +1269,42 @@ static void drawCell(int pn, int sx, int sy)
 		tmp = 1 + (unsigned)tmp / TILE_HEIGHT;
 		sy -= TILE_HEIGHT * tmp;
 		i = tmp * (TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT);
-		if (i >= limit)
-			return; // not enough microtiles to affect the screen -> skip
 	}
+
+	scene[numEntries].scType = SCT_CELL;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = gbCelTransparencyActive;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = pn;
+	scene[numEntries].scCellIdxFrom = i;
+	scene[numEntries].scCellIdxTo = limit;
+
+	scene[numEntries].scZOrder = SubtileZOrderAt(x, y) | (ZOR_CELL << ZOR_SHIFT);
+	scene[numEntries].scNext = numEntries + 1;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+/**
+ * @brief Render a cell
+ * @param entry the scene entry of the cell
+ */
+static void DrawSceneCell(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int pn = entry.scIdx;
+	uint16_t i = entry.scCellIdxFrom;
+	uint16_t limit = entry.scCellIdxTo;
+	BYTE* dst;
+	uint16_t levelCelBlock;
+	uint16_t* pMap;
+	int tmp, mask;
+	// assert(entry.scIdx == SCT_CELL);
 	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][i];
@@ -979,23 +1625,57 @@ static void drawCell(int pn, int sx, int sy)
 }
 
 /**
- * @brief Render a floor tiles
+ * @brief Render a special frame of a subtile
+ * @param entry the scene entry of the special frame
+ */
+static void DrawSceneSpecial(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int nCel = entry.scIdx;
+	// assert(entry.scIdx == SCT_SPECIAL);
+	CelClippedDrawLightTrans(sx, sy, pSpecialsCel, nCel, TILE_WIDTH); // light_trn_index, gbCelTransparencyActive
+}
+
+/**
+ * @brief add a floor subtile to the scene-array
  * @param pn piece number
+ * @param x dPiece coordinate
+ * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void drawFloor(int pn, int sx, int sy)
+static void scene_addFloorPiece(int pn, int x, int y, int sx, int sy)
+{
+	scene[numEntries].scType = SCT_FLOOR;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = FALSE;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = pn;
+
+	scene[numEntries].scZOrder = SubtileZOrderAt(x, y) | (ZOR_FLOOR << ZOR_SHIFT);
+	scene[numEntries].scNext = numEntries + 1;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+/**
+ * @brief Render a floor subtile
+ * @param entry the scene entry of the subtile
+ */
+static void DrawSceneFloor(const SceneEntry &entry)
 {
 	BYTE *dst, tmp;
 	uint16_t levelCelBlock;
 	uint16_t* pMap;
-
-	if (sx <= SCREEN_X - TILE_WIDTH || sx >= SCREEN_X + SCREEN_WIDTH)
-		return; // starting from too far to the left or right -> skip
-
-	if (sy < SCREEN_Y || sy >= SCREEN_Y + SCREEN_HEIGHT + TILE_HEIGHT - 1)
-		return; // starting from above the top or below the bottom -> skip
-
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int pn = entry.scIdx;
+	// assert(entry.scIdx == SCT_FLOOR);
 	dst = &gpBuffer[BUFFERXY(sx, sy)];
 
 	pMap = &pSubtiles[pn][0];
@@ -1024,22 +1704,50 @@ static void drawFloor(int pn, int sx, int sy)
 }
 
 /**
- * @brief Draw item for a given tile
- * @param ii id of item
- * @param sx Back buffer coordinate
- * @param sy Back buffer coordinate
+ * @brief add an item to the scene-array
+ * @param ii id of the item
+ * @param lightIdx light index at the item's position
+ * @param zorder zorder in the scene
+ * @param entry the scene-array entry after which the item should be added
  */
-static void DrawItem(int ii, int sx, int sy)
+static void scene_addItem(int ii, int lightIdx, unsigned zorder, SceneEntry* entry)
 {
-	int nGfxCel, nAnimCel, nWidth;
 	const ItemStruct* is;
-	const CelAnimBuf* pCelBuff;
-	// assert(ii > 0);
-	ii--;
 
 	is = &items[ii];
-	//if (is->_iPostDraw == gbPreFlag)
-	//	return;
+
+	scene[numEntries].scType = SCT_ITEM;
+	scene[numEntries].scLight = lightIdx;
+	scene[numEntries].scTrans = FALSE; // gbCelTransparencyActive;
+	scene[numEntries].scPosx = is->_ipos.x;
+	scene[numEntries].scPosy = is->_ipos.y;
+	scene[numEntries].scIdx = ii;
+
+	scene[numEntries].scZOrder = zorder;
+	scene[numEntries].scNext = entry->scNext;
+
+	entry->scNext = numEntries;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
+}
+
+/**
+ * @brief Draw item for a given tile
+ * @param entry entry of the item
+ */
+static void DrawSceneItem(const SceneEntry &entry)
+{
+	int sx = entry.scPosx;
+	int sy = entry.scPosy;
+	int ii = entry.scIdx;
+	// assert(entry.scIdx == SCT_ITEM);
+	// assert((unsigned)ii < MAXITEMS);
+	const ItemStruct* is = &items[ii];
+	int nGfxCel, nAnimCel, nWidth;
+	const CelAnimBuf* pCelBuff;
 
 	pCelBuff = is->_iAnimData;
 	if (pCelBuff == NULL) {
@@ -1057,8 +1765,7 @@ static void DrawItem(int ii, int sx, int sy)
 	}
 #endif
 	nWidth = pCelBuff->caWidth;
-	sx -= (nWidth - TILE_WIDTH) >> 1;
-	// sx -= is->_iAnimXOffset;
+	sx -= nWidth / 2u;
 	if (ii == pcursitem) {
 		if (nGfxCel > 0) {
 			CelClippedDrawOutline(ICOL_BLUE, sx, sy, reinterpret_cast<const BYTE*>(pCelBuff), nGfxCel, nWidth);
@@ -1076,199 +1783,279 @@ static void DrawItem(int ii, int sx, int sy)
 }
 
 /**
- * @brief Draw a towner or a monster depending on the level
- * @param mnum Id of monster
- * @param bFlag flags
+ * @brief add a special (dungeon) frame to the scene
+ * @param bv id of the special frame
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
  */
-static void DrawMonsterHelper(int mnum, BYTE bFlag, int sx, int sy)
+static void scene_addSpecialCell(BYTE bv, int x, int y, int sx, int sy)
 {
-	if (currLvl._dType != DTYPE_TOWN || mnum < MAX_MINIONS)
-		DrawMonster(mnum, bFlag, sx, sy);
-	else
-		DrawTowner(mnum, bFlag, sx, sy);
+	scene[numEntries].scType = SCT_SPECIAL;
+	scene[numEntries].scLight = light_trn_index;
+	scene[numEntries].scTrans = gbCelTransparencyActive;
+	scene[numEntries].scPosx = sx;
+	scene[numEntries].scPosy = sy;
+	scene[numEntries].scIdx = bv;
+
+	scene[numEntries].scZOrder = SubtileZOrderAt(x, y) | (ZOR_SPECIAL_CELL << ZOR_SHIFT);
+	scene[numEntries].scNext = numEntries + 1;
+
+	numEntries++;
+#ifdef DEBUG
+	assert(numEntries <= lengthof(scene));
+#endif
 }
 
 /**
- * @brief Render object sprites
- * @param sx dPiece coordinate
- * @param sy dPiece coordinate
- * @param dx Back buffer coordinate
- * @param dy Back buffer coordinate
- */
-static void scrollrt_draw_dungeon(int sx, int sy, int dx, int dy)
-{
-	int mpnum;
-	BYTE bv, bFlag;
-
-	assert((unsigned)sx < MAXDUNX);
-	assert((unsigned)sy < MAXDUNY);
-
-	//if (dRendered[sx][sy])
-	//	return;
-	//dRendered[sx][sy] = true;
-
-	gbPreFlag = TRUE;
-	bFlag = dFlags[sx][sy];
-	light_trn_index = dLight[sx][sy];
-	gbCelTransparencyActive = TransList[dTransVal[sx][sy]];
-
-	mpnum = dPiece[sx][sy];
-	drawCell(mpnum, dx, dy);
-
-	if (bFlag & BFLAG_MISSILE_PRE) {
-		mpnum = dMissile[sx][sy];
-		assert(mpnum != 0);
-		DrawMissile(mpnum, sx, sy, dx, dy);
-	}
-
-	bv = dDead[sx][sy];
-	if (bv != 0)
-		DrawDeadMonster(bv, sx, sy, dx, dy);
-	mpnum = dObject[sx][sy];
-	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy);
-	bv = dItem[sx][sy];
-	if (bv != 0)
-		DrawItem(bv, dx, dy);
-	if (bFlag & BFLAG_DEAD_PLAYER) {
-		DrawDeadPlayer(sx, sy, dx, dy);
-	}
-	gbPreFlag = FALSE;
-	mpnum = dPlayer[sx][sy];
-	if (mpnum > 0)
-		DrawPlayer(mpnum - 1, bFlag, dx, dy);
-	mpnum = dMonster[sx][sy];
-	if (mpnum > 0)
-		DrawMonsterHelper(mpnum - 1, bFlag, dx, dy);
-	mpnum = dMissile[sx][sy];
-	if (mpnum != 0)
-		DrawMissile(mpnum, sx, sy, dx, dy);
-	mpnum = dObject[sx][sy];
-	if (mpnum != 0)
-		DrawObject(mpnum, sx, sy, dx, dy);
-	//bv = dItem[sx][sy];
-	//if (bv != 0)
-	//	DrawItem(bv, dx, dy);
-
-	bv = nSpecTrapTable[dPiece[sx][sy]] & PST_SPEC_TYPE;
-	if (bv != 0) {
-		CelClippedDrawLightTrans(dx, dy, pSpecialsCel, bv, TILE_WIDTH);
-	}
-}
-
-/**
- * @brief Render a row of tiles
+ * @brief add a dungeon subtile (and special frame) to the scene
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param rows Number of rows
- * @param columns Tile in a row
  */
-static void scrollrt_drawFloor(int x, int y, int sx, int sy, int rows, int columns)
+static void scene_addDungeon(int x, int y, int sx, int sy)
+{
+	int mpnum;
+	BYTE bv;
+
+	assert((unsigned)x < MAXDUNX);
+	assert((unsigned)y < MAXDUNY);
+
+	light_trn_index = dLight[x][y];
+	gbCelTransparencyActive = TransList[dTransVal[x][y]];
+
+	mpnum = dPiece[x][y];
+	scene_addCell(mpnum, x, y, sx, sy);
+
+	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
+	if (bv != 0) {
+		scene_addSpecialCell(bv, x, y, sx, sy);
+	}
+}
+
+/**
+ * @brief add a row of tiles to the scene
+ * @param x dPiece coordinate
+ * @param y dPiece coordinate
+ * @param sx Back buffer coordinate
+ * @param sy Back buffer coordinate
+ * @param mode the direction to go after the end on the first line (0: SW [0,1], 1" SE [1,0])
+ */
+static void scene_addFloor(int x, int y, int sx, int sy, int mode)
 {
 	//int pn;
-
-	assert(gpBuffer != NULL);
-
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			if (IN_DUNGEON_AREA(x, y)) {
-				//pn = dPiece[x][y];
+	const int rightEnd = SCREEN_X + (gbZoomInFlag ? SCREEN_WIDTH / 2 : SCREEN_WIDTH);
+	const int bottomEnd = SCREEN_Y + (gbZoomInFlag ? SCREEN_HEIGHT / 2 : SCREEN_HEIGHT) + TILE_HEIGHT - 1;
+	int i = 0;
+	do {
+		int cx = sx, cy = sy;
+		int xx = x, yy = y;
+		do {
+			if (IN_DUNGEON_AREA(xx, yy)) {
+				//pn = dPiece[xx][yy];
 				//assert(pn != 0);
 				//if (pn != 0) {
 					//if ((microFlags[pn] & (~(TMIF_WALL_TRANS))) != (TMIF_LEFT_REDRAW | TMIF_RIGHT_REDRAW))
-						light_trn_index = dLight[x][y];
-						drawFloor(dPiece[x][y], sx, sy);
+						light_trn_index = dLight[xx][yy];
+						scene_addFloorPiece(dPiece[xx][yy], xx, yy, cx, cy);
 					//}
 				//} else {
-				//	world_draw_black_tile(sx, sy);
+				//	world_draw_black_tile(cx, cy);
 				//}
 			//} else {
-			//	world_draw_black_tile(sx, sy);
+			//	world_draw_black_tile(cx, cy);
 			}
-			SHIFT_GRID(x, y, 1, 0);
-			sx += TILE_WIDTH;
-		}
-		// Return to start of row
-		SHIFT_GRID(x, y, -columns, 0);
-		sx -= columns * TILE_WIDTH;
-
+			SHIFT_GRID(xx, yy, 1, 0);
+			cx += TILE_WIDTH;
+		} while (cx < rightEnd);
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
-		if (i & 1) {
+		if ((i & 1) != mode) {
 			x++;
-			columns--;
 			sx += TILE_WIDTH / 2;
 		} else {
 			y++;
-			columns++;
 			sx -= TILE_WIDTH / 2;
 		}
-	}
+		i++;
+	} while (sy < bottomEnd);
 }
 
-#define IsWall(x, y)     (/*dPiece[x][y] == 0 ||*/ nSolidTable[dPiece[x][y]] || (nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE) != 0)
-#define IsWalkable(x, y) (/*dPiece[x][y] != 0 &&*/ !nSolidTable[dPiece[x][y]])
-
 /**
- * @brief Render a row of tile
+ * @brief add dungeon subtiles and special frames to the scene
  * @param x dPiece coordinate
  * @param y dPiece coordinate
  * @param sx Back buffer coordinate
  * @param sy Back buffer coordinate
- * @param rows Number of rows
- * @param columns Tile in a row
+ * @param mode the direction to go after the end on the first line (0: SW [0,1], 1" SE [1,0])
  */
-static void scrollrt_draw(int x, int y, int sx, int sy, int rows, int columns)
+static void scene_addEntries(int x, int y, int sx, int sy, int mode)
 {
+	int i = 0;
 	BYTE skips = 0;
-	assert(gpBuffer != NULL);
+	const int rightEnd = SCREEN_X + (gbZoomInFlag ? SCREEN_WIDTH / 2 : SCREEN_WIDTH);
+	const int bottomEnd = SCREEN_Y + (gbZoomInFlag ? SCREEN_HEIGHT / 2 : SCREEN_HEIGHT) + TILE_HEIGHT - 1 + TILE_HEIGHT * ((unsigned)MicroTileLen / ((TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT)) - 1);
 
-	// Keep evaluating until MicroTiles can't affect screen
-	rows += MicroTileLen;
-	//memset(dRendered, 0, sizeof(dRendered));
-
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < columns; j++) {
-			if (IN_DUNGEON_AREA(x, y)) {
-				if (x + 1 < MAXDUNX && y - 1 >= 0 && j != columns - 1 /*sx + TILE_WIDTH <= SCREEN_X + SCREEN_WIDTH*/) {
-					// Render objects behind walls first to prevent sprites, that are moving
-					// between tiles, from poking through the walls as they exceed the tile bounds.
-					// A proper fix for this would probably be to layout the sceen and render by
-					// sprite screen position rather than tile position.
-					if (IsWall(x, y)                                        // Part of a wall aligned on the x-axis
-					 && IsWalkable(x, y - 1) && IsWalkable(x + 1, y - 1)) { // Has walkable area behind it  (to preserve the standard order if possible)
-						scrollrt_draw_dungeon(x + 1, y - 1, sx + TILE_WIDTH, sy);
-						skips |= 2;
-					}
-				}
-				assert(dPiece[x][y] != 0);
-				if (/*dPiece[x][y] != 0 &&*/ !(skips & 1)) {
-					scrollrt_draw_dungeon(x, y, sx, sy);
+	do {
+		int cx = sx, cy = sy;
+		int xx = x, yy = y;
+		do {
+			if (IN_DUNGEON_AREA(xx, yy)) {
+				assert(dPiece[xx][yy] != 0);
+				if (/*dPiece[xx][yy] != 0 &&*/ !(skips & 1)) {
+					scene_addDungeon(xx, yy, cx, cy);
 				}
 			}
-			SHIFT_GRID(x, y, 1, 0);
-			sx += TILE_WIDTH;
+			SHIFT_GRID(xx, yy, 1, 0);
+			cx += TILE_WIDTH;
 			skips >>= 1;
-		}
-		// Return to start of row
-		SHIFT_GRID(x, y, -columns, 0);
-		sx -= columns * TILE_WIDTH;
-
+		} while (cx < rightEnd);
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
-		if (i & 1) {
+		if ((i & 1) != mode) {
 			x++;
-			columns--;
 			sx += TILE_WIDTH / 2;
 		} else {
 			y++;
-			columns++;
 			sx -= TILE_WIDTH / 2;
 		}
+		i++;
+	} while (sy < bottomEnd);
+}
+
+unsigned bSearchLess(unsigned From, unsigned To, unsigned zorder)
+{
+	if (From == To) return From;
+	assert(To > From);
+	unsigned curr = (From + To) / 2;
+	assert(curr < numEntries);
+	if (scene[curr].scZOrder < zorder) {
+		return bSearchLess(curr + 1, To, zorder);
+	} else {
+		return bSearchLess(From, curr, zorder);
+	}
+}
+
+static SceneEntry* scene_placeEntry(const RECT_AREA32 &vArea, const POS32 &pos, int width, unsigned numCells, unsigned zorder)
+{
+	const int height = 2 * 160 * ASSET_MPL * (DUN_WIDTH / TILE_HEIGHT);
+	width = width /* / 2 * 2 */ * (DUN_WIDTH / TILE_WIDTH);
+	POS32 sp;
+	sp.x = pos.x - pos.y;
+	sp.y = pos.x + pos.y;
+	sp.x *= ASSET_MPL;
+	sp.y *= ASSET_MPL;
+	sp.y += 2 * (TILE_HEIGHT / 2) * (DUN_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	const bool inView = POS_IN_AREA(sp.x, sp.y, vArea.x1 - width + 1, vArea.y1, vArea.x2 + width - 1, vArea.y2 + height - 1);
+	if (!inView)
+		return NULL;
+	unsigned idx = bSearchLess(numCells, numDungeonEntries, zorder);
+	// assert(idx >= numCells);
+	// assert(numCells != 0);
+	SceneEntry* cellEntry = &scene[idx - 1];
+	while (true) {
+		unsigned nextIdx = cellEntry->scNext;
+		SceneEntry* nextEntry = &scene[nextIdx];
+		if (nextEntry->scZOrder > zorder)
+			break;
+		cellEntry = nextEntry;
+	}
+	return cellEntry;
+}
+
+void scene_insertEntries(unsigned numCells)
+{
+	// add CORK to simplify the insertion
+	scene[numEntries].scType = SCT_DUMMY;
+	scene[numEntries].scZOrder = UINT_MAX;
+	numEntries++;
+
+	numDungeonEntries = numEntries;
+	RECT_AREA32 area;
+	POS32 cp = myview.dun;
+	int sx, sy, w, h;
+
+	w = 2 * (SCREEN_WIDTH / (gbZoomInFlag ? 4 : 2)) * (DUN_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	h = 2 * (SCREEN_HEIGHT / (gbZoomInFlag ? 4 : 2)) * (DUN_WIDTH / (TILE_HEIGHT / ASSET_MPL));
+	sx = cp.x - cp.y;
+	sy = cp.x + cp.y;
+	sx *= ASSET_MPL;
+	sy *= ASSET_MPL;
+	//sy += 2 * TILE_HEIGHT * (DUN_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	//if (gbZoomInFlag)
+	//	sy += 2 * (TILE_HEIGHT / 4) * (DUN_WIDTH / (TILE_WIDTH / ASSET_MPL));
+	area.x1 = sx - w;
+	area.y1 = sy - h;
+	area.x2 = sx + w;
+	area.y2 = sy + h;
+	// insert objects
+	for (int oi = 0; oi < numobjects; ++oi) {
+		// int mi = objectactive[i];
+		ObjectStruct* os = &objects[oi];
+		if (dObject[os->_ox][os->_oy] != oi + 1) continue;
+		const unsigned zorder = SubtileZOrder(os->_opos) | (((!os->_oPreFlag) ? ZOR_OBJECT : ZOR_PRE_OBJECT) << ZOR_SHIFT) | OffsetZOrder(os->_opos);
+		SceneEntry* entry = scene_placeEntry(area, os->_opos, os->_oAnimWidth, numCells, zorder);
+		if (entry == NULL) continue;
+		int lightIdx = dLight[(unsigned)os->_opos.x / DUN_WIDTH][(unsigned)os->_opos.y / DUN_WIDTH];
+		scene_addObject(oi, lightIdx, zorder, entry);
+	}
+	// insert items
+	for (int i = 0; i < numitems; i++) {
+		int ii = itemactive[i];
+		const ItemStruct* is = &items[ii];
+		const unsigned zorder = SubtileZOrder(is->_ipos) | (/*is->_iPostDraw ? ZOR_ITEM : */ZOR_PRE_ITEM << ZOR_SHIFT) | OffsetZOrder(is->_ipos);
+		SceneEntry* entry = scene_placeEntry(area, is->_ipos, is->_iAnimData->caWidth, numCells, zorder);
+		if (entry == NULL) continue;
+		int lightIdx = dLight[(unsigned)is->_ipos.x / DUN_WIDTH][(unsigned)is->_ipos.y / DUN_WIDTH];
+		scene_addItem(ii, lightIdx, zorder, entry);
+	}
+	// insert monsters
+	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST && mon->_mmode != MM_DEAD) continue;
+		if (mon->_mmode == MM_CHARGE) continue;
+		const unsigned zorder = SubtileZOrder(mon->_mpos) | ((mon->_mmode != MM_DEAD ? ZOR_MONSTER : ZOR_DEAD_MONSTER) << ZOR_SHIFT) | OffsetZOrder(mon->_mpos);
+		SceneEntry* entry = scene_placeEntry(area, mon->_mpos, mon->_mAnimWidth, numCells, zorder);
+		if (entry == NULL) continue;
+		BYTE bFlag = dFlags[(unsigned)mon->_mpos.x / DUN_WIDTH][(unsigned)mon->_mpos.y / DUN_WIDTH];
+		int lightIdx = dLight[(unsigned)mon->_mpos.x / DUN_WIDTH][(unsigned)mon->_mpos.y / DUN_WIDTH];
+		if (mon->_mmode != MM_DEAD) {
+			scene_addMonster(mnum, bFlag, lightIdx, zorder, entry);
+		} else {
+			scene_addDeadMonsterEntry(mnum, bFlag, lightIdx, zorder, entry);
+		}
+	}
+	// insert towners
+	for (int mnum = MAX_MINIONS; mnum < numtowners; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		// if (mon->_mmode > MM_INGAME_LAST && mon->_mmode != MM_DEAD) continue;
+		const unsigned zorder = SubtileZOrder(mon->_mpos) | (ZOR_MONSTER << ZOR_SHIFT) | OffsetZOrder(mon->_mpos);
+		SceneEntry* entry = scene_placeEntry(area, mon->_mpos, mon->_mAnimWidth, numCells, zorder);
+		if (entry == NULL) continue;
+		int lightIdx = dLight[(unsigned)mon->_mpos.x / DUN_WIDTH][(unsigned)mon->_mpos.y / DUN_WIDTH];
+		scene_addTowner(mnum, lightIdx, zorder, entry);
+	}
+	// insert players
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pLvlChanging || plr._pDunLevel != currLvl._dLevelIdx) continue;
+		if (plr._pmode == PM_CHARGE) continue;
+		const unsigned zorder = SubtileZOrder(plr._ppos) | (((plr._pHitPoints != 0) ? ZOR_PLAYER : ZOR_DEAD_PLAYER) << ZOR_SHIFT) | OffsetZOrder(plr._ppos);
+		SceneEntry* entry = scene_placeEntry(area, plr._ppos, plr._pAnimWidth, numCells, zorder);
+		if (entry == NULL) continue;
+		BYTE bFlag = dFlags[(unsigned)plr._ppos.x / DUN_WIDTH][(unsigned)plr._ppos.y / DUN_WIDTH];
+		int lightIdx = dLight[(unsigned)plr._ppos.x / DUN_WIDTH][(unsigned)plr._ppos.y / DUN_WIDTH];
+		scene_addPlayer(pnum, bFlag, lightIdx, zorder, entry);
+	}
+	// insert missiles
+	for (int i = 0; i < nummissiles; i++) {
+		int mi = missileactive[i];
+		MissileStruct* mis = &missile[mi];
+		if (!mis->_miDrawFlag) continue;
+		const unsigned zorder = SubtileZOrderAt(mis->_mix, mis->_miy) | (((!mis->_miPreFlag) ? ZOR_MISSILE : ZOR_PRE_MISSILE) << ZOR_SHIFT) | OffsetZOrder(mis->_mipos);
+		SceneEntry* entry = scene_placeEntry(area, mis->_mipos, mis->_miAnimWidth, numCells, zorder);
+		if (entry == NULL) continue;
+		int lightIdx = dLight[(unsigned)mis->_mipos.x / DUN_WIDTH][(unsigned)mis->_mipos.y / DUN_WIDTH];
+		scene_addMissile(mi, lightIdx, zorder, entry);
 	}
 }
 
@@ -1353,9 +2140,7 @@ static void CalcTileViewport()
 	unsigned lrow = gsTileVp._vRows;
 
 	// Center player tile on screen
-	gsTileVp._vShiftX = 0;
-	gsTileVp._vShiftY = 0;
-	SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
+	SET_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
 
 	gsTileVp._vRows *= 2;
 
@@ -1394,9 +2179,7 @@ static void CalcMouseViewport()
 	unsigned lrow = gsMouseVp._vRows;
 
 	// Center player tile on screen
-	gsMouseVp._vShiftX = 0;
-	gsMouseVp._vShiftY = 0;
-	SHIFT_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
+	SET_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
 
 	// Align grid
 	if ((gsMouseVp._vColumns & 1) == 0) {
@@ -1423,62 +2206,141 @@ void CalcViewportGeometry()
 /**
  * @brief Configure render and process screen rows
  */
-static void DrawGame()
+static void CreateScene()
 {
-	int x, y, sx, sy, columns, rows;
+	int x, y, sx, sy;
+	const POS32 vp = myview.dun;
+	const POS32 dso = DunScreenOffset(vp);
+	POS32 sp = { (int)(SCREEN_WIDTH / 2u), (int)(SCREEN_HEIGHT / 2u) };
+	if (gbZoomInFlag) {
+		sp.x /= 2u;
+		sp.y /= 2u;
+	}
+	// Adjust by player offset and tile grid alignment
+	sp.x -= dso.x + TILE_WIDTH / 2;
+	sp.y -= dso.y + TILE_HEIGHT / 2;
 
+	// Slightly lower the view
+	sp.y += TILE_HEIGHT - 1;
+	if (gbZoomInFlag) {
+		sp.y += TILE_HEIGHT / 4;
+	}
+	// Find the subtile on the top-left corner
+	// assert(sp.x > 0);
+	// assert(sp.y > 0);
+	// - subtiles to the left
+	int dsx = (unsigned)(sp.x + TILE_WIDTH - 1) / TILE_WIDTH;
+	// - subtile to the top
+	int dsy = (unsigned)(sp.y - 0) / TILE_HEIGHT;
+	// - calculate the delta to the top-left corner
+	POS32 dt;
+	SET_GRID(dt.x, dt.y, -dsx, -dsy);
+	// - move to the starting subtile (screen coordinates)
+	POS32 gp = sp;
+	gp.x += dt.x * TILE_WIDTH / 2 - dt.y * TILE_WIDTH / 2;
+	gp.y += dt.x * TILE_HEIGHT / 2 + dt.y * TILE_HEIGHT / 2;
+
+	int mode;
+	if (gp.y > TILE_HEIGHT / 2) {
+		// missing pixels on the top
+		if (gp.x > -TILE_WIDTH / 2) {
+			// missing pixels on the top-left corner
+			dt.x--;
+			gp.x -= TILE_WIDTH / 2;
+			gp.y -= TILE_HEIGHT / 2;
+			mode = 1;
+		} else {
+			dt.y--;
+			gp.x += TILE_WIDTH / 2;
+			gp.y -= TILE_HEIGHT / 2;
+			mode = 0;
+		}
+	} else {
+		if (gp.x > -TILE_WIDTH / 2) {
+			// missing pixels on the left side
+			mode = 0;
+		} else {
+			mode = 1;
+		}
+	}
+	// - move to the starting subtile (tile coordinates)
+	x = vp.x / DUN_WIDTH + dt.x;
+	y = vp.y / DUN_WIDTH + dt.y;
+
+	// - adjust for the border (screen coordinates)
+	sx = SCREEN_X + gp.x;
+	sy = SCREEN_Y + gp.y;
+
+	numEntries = 0;
+	scene_addFloor(x, y, sx, sy, mode);
+
+	const unsigned numCells = numEntries;
+	scene_addEntries(x, y, sx, sy, mode);
+
+	scene_insertEntries(numCells);
+
+	// shift positions from dungeon to screen
+	const POS32 dp = DungeonToScreen(x, y);
+
+	int shx = (sx - dp.x);
+	int shy = (sy - dp.y);
+
+	for (unsigned i = 0; i < numEntries; i++) {
+		SceneEntry* entry = &scene[i];
+
+		switch (entry->scType) {
+		case SCT_FLOOR:        break;
+		case SCT_CELL:         break;
+		case SCT_ITEM:
+		case SCT_OBJECT:
+		case SCT_MISSILE:
+		case SCT_TOWNER:
+		case SCT_MONSTER:
+		case SCT_DEAD_MONSTER:
+		case SCT_PLAYER:
+		case SCT_DEAD_PLAYER: {
+			POS32 sp = DunToScreen({ entry->scPosx, entry->scPosy });
+
+			entry->scPosx = sp.x + shx + TILE_WIDTH / 2;
+			entry->scPosy = sp.y + shy;
+		} break;
+		case SCT_SPECIAL:      break;
+		case SCT_DUMMY:        break;
+		default: ASSUME_UNREACHABLE
+		}
+	}
+}
+
+static void DrawScene()
+{
 	ClearScreenBuffer();
-
 	// Limit rendering to the view area
 	//if (!gbZoomInFlag)
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
 	//else
 	//	gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT / 2)];
 
-	// Adjust by player offset and tile grid alignment
-	sx = ScrollInfo._sxoff - gsTileVp._vOffsetX;
-	sy = ScrollInfo._syoff - gsTileVp._vOffsetY;
-
-	columns = gsTileVp._vColumns;
-	rows = gsTileVp._vRows;
-
-	x = myview.x + gsTileVp._vShiftX;
-	y = myview.y + gsTileVp._vShiftY;
-
-	// Draw areas moving in and out of the screen
-	switch (ScrollInfo._sdir) {
-	case SDIR_NONE:
-		break;
-	case SDIR_N:
-	case SDIR_S:
-		sy -= TILE_HEIGHT;
-		SHIFT_GRID(x, y, 0, -1);
-		rows += 2;
-		break;
-	case SDIR_NE:
-	case SDIR_SW:
-	case SDIR_SE:
-	case SDIR_NW:
-		sx -= TILE_WIDTH / 2;
-		sy -= TILE_HEIGHT / 2;
-		x--;
-		columns++;
-		rows++;
-		break;
-	case SDIR_E:
-	case SDIR_W:
-		sx -= TILE_WIDTH;
-		SHIFT_GRID(x, y, -1, 0);
-		columns++;
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
+	const SceneEntry *entry = &scene[0];
+	for (unsigned i = 0; i < numEntries; i++) {
+		gbCelTransparencyActive = entry->scTrans;
+		light_trn_index = entry->scLight;
+		switch (entry->scType) {
+		case SCT_FLOOR:        DrawSceneFloor(*entry);       break; // light
+		case SCT_CELL:         DrawSceneCell(*entry);        break; // light, transp
+		case SCT_ITEM:         DrawSceneItem(*entry);        break; // light
+		case SCT_OBJECT:       DrawSceneObject(*entry);      break; // light
+		case SCT_MISSILE:      DrawSceneMissile(*entry);     break;
+		case SCT_TOWNER:       DrawSceneTowner(*entry);      break;
+		case SCT_MONSTER:
+		case SCT_DEAD_MONSTER: DrawSceneMonster(*entry);     break;
+		case SCT_PLAYER:
+		case SCT_DEAD_PLAYER:  DrawScenePlayer(*entry);      break;
+		case SCT_SPECIAL:      DrawSceneSpecial(*entry);     break; // light, transp
+		case SCT_DUMMY:                                      break;
+		default: ASSUME_UNREACHABLE
+		}
+		entry = &scene[entry->scNext];
 	}
-
-	scrollrt_drawFloor(x, y, sx, sy, rows, columns);
-	scrollrt_draw(x, y, sx, sy, rows, columns);
-
 	// Allow rendering to the whole screen
 	//gpBufEnd = &gpBuffer[SCREENXY(0, SCREEN_HEIGHT)];
 
@@ -1503,7 +2365,8 @@ static void DrawPause()
  */
 static void DrawView()
 {
-	DrawGame();
+	CreateScene();
+	DrawScene();
 	if (gbAutomapflag != AMM_NONE) {
 		DrawAutomap();
 	}
@@ -1591,72 +2454,72 @@ void ScrollView()
 	scroll = false;
 
 	if (MousePos.x < 20) {
-		if (DSIZEY + DBORDERY - 1 <= myview.y || DBORDERX >= myview.x) {
-			if (DSIZEY + DBORDERY - 1 > myview.y) {
-				myview.y++;
+		if (DSIZEY + DBORDERY - 1 <= myview.subtile.y || DBORDERX >= myview.subtile.x) {
+			if (DSIZEY + DBORDERY - 1 > myview.subtile.y) {
+				myview.subtile.y++;
 				scroll = true;
 			}
-			if (DBORDERX < myview.x) {
-				myview.x--;
+			if (DBORDERX < myview.subtile.x) {
+				myview.subtile.x--;
 				scroll = true;
 			}
 		} else {
-			myview.y++;
-			myview.x--;
+			myview.subtile.y++;
+			myview.subtile.x--;
 			scroll = true;
 		}
 	}
 	if (MousePos.x > SCREEN_WIDTH - 20) {
-		if (DSIZEX + DBORDERX - 1 <= myview.x || DBORDERY >= myview.y) {
-			if (DSIZEX + DBORDERX - 1 > myview.x) {
-				myview.x++;
+		if (DSIZEX + DBORDERX - 1 <= myview.subtile.x || DBORDERY >= myview.subtile.y) {
+			if (DSIZEX + DBORDERX - 1 > myview.subtile.x) {
+				myview.subtile.x++;
 				scroll = true;
 			}
-			if (DBORDERY < myview.y) {
-				myview.y--;
+			if (DBORDERY < myview.subtile.y) {
+				myview.subtile.y--;
 				scroll = true;
 			}
 		} else {
-			myview.y--;
-			myview.x++;
+			myview.subtile.y--;
+			myview.subtile.x++;
 			scroll = true;
 		}
 	}
 	if (MousePos.y < 20) {
-		if (DBORDERY >= myview.y || DBORDERX >= myview.x) {
-			if (DBORDERY < myview.y) {
-				myview.y--;
+		if (DBORDERY >= myview.subtile.y || DBORDERX >= myview.subtile.x) {
+			if (DBORDERY < myview.subtile.y) {
+				myview.subtile.y--;
 				scroll = true;
 			}
-			if (DBORDERX < myview.x) {
-				myview.x--;
+			if (DBORDERX < myview.subtile.x) {
+				myview.subtile.x--;
 				scroll = true;
 			}
 		} else {
-			myview.x--;
-			myview.y--;
+			myview.subtile.x--;
+			myview.subtile.y--;
 			scroll = true;
 		}
 	}
 	if (MousePos.y > SCREEN_HEIGHT - 20) {
-		if (DSIZEY + DBORDERY - 1 <= myview.y || DSIZEX + DBORDERX - 1 <= myview.x) {
-			if (DSIZEY + DBORDERY - 1 > myview.y) {
-				myview.y++;
+		if (DSIZEY + DBORDERY - 1 <= myview.subtile.y || DSIZEX + DBORDERX - 1 <= myview.subtile.x) {
+			if (DSIZEY + DBORDERY - 1 > myview.subtile.y) {
+				myview.subtile.y++;
 				scroll = true;
 			}
-			if (DSIZEX + DBORDERX - 1 > myview.x) {
-				myview.x++;
+			if (DSIZEX + DBORDERX - 1 > myview.subtile.x) {
+				myview.subtile.x++;
 				scroll = true;
 			}
 		} else {
-			myview.x++;
-			myview.y++;
+			myview.subtile.x++;
+			myview.subtile.y++;
 			scroll = true;
 		}
 	}
 
-	if (scroll)
-		ScrollInfo._sdir = SDIR_NONE;
+//	if (scroll)
+//		ScrollInfo._sdir = SDIR_NONE;
 }
 
 /**

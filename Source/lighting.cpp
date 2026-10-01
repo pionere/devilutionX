@@ -7,8 +7,13 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/* Maximum offset in a tile */
-#define MAX_OFFSET 8
+#define BASE_LIGHT_SHIFT 3
+/* Maximum offset in a tile. */
+#define MAX_OFFSET (1 << BASE_LIGHT_SHIFT)
+/* Helper defines to convert GRID-position to dungeon/light position. */
+#define LIGHT_SHIFT (16 - BASE_LIGHT_SHIFT)
+#define LIGHT_WIDTH (MAX_OFFSET << LIGHT_SHIFT)
+
 /* Maximum tile-distance till the precalculated tables are maintained. */
 #define MAX_TILE_DIST (MAX_LIGHT_RAD + 1)
 /* Maximum light-distance till the precalculated tables are maintained. */
@@ -316,43 +321,31 @@ static void DoLighting(unsigned lnum)
 	int x, y, xoff, yoff;
 	int min_x, max_x, min_y, max_y;
 	int baseOffX, baseOffY, block_x, block_y, temp_x, temp_y;
-	int nXPos = lis->_lx;
-	int nYPos = lis->_ly;
+	int nXPos, nYPos;
 	int nRadius = lis->_lradius;
 	BYTE (&dark)[128] = darkTable[nRadius];
 	BYTE v, radius_block;
 
+	nXPos = lis->_lx;
+	nYPos = lis->_ly;
+
 	xoff = lis->_lxoff;
 	yoff = lis->_lyoff;
-	if (xoff < 0) {
-		xoff += MAX_OFFSET;
-		nXPos--;
-	} else if (xoff >= MAX_OFFSET) {
-		xoff -= MAX_OFFSET;
-		nXPos++;
-	}
-	if (yoff < 0) {
-		yoff += MAX_OFFSET;
-		nYPos--;
-	} else if (yoff >= MAX_OFFSET) {
-		yoff -= MAX_OFFSET;
-		nYPos++;
-	}
-	assert((unsigned)xoff < MAX_OFFSET);
-	assert((unsigned)yoff < MAX_OFFSET);
+	// assert((unsigned)xoff < MAX_OFFSET);
+	// assert((unsigned)yoff < MAX_OFFSET);
 
 	baseOffX = xoff;
 	baseOffY = yoff;
 
 	static_assert(DBORDERX >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border I.");
 	static_assert(DBORDERY >= MAX_LIGHT_RAD + 1, "DoLighting expects a large enough border II.");
-	assert(MAX_LIGHT_RAD <= MAXDUNX - nXPos);
+	//assert(MAX_LIGHT_RAD <= MAXDUNX - nXPos);
 	//max_x = MAX_LIGHT_RAD; //std::min(15, MAXDUNX - nXPos);
-	assert(MAX_LIGHT_RAD <= MAXDUNY - nYPos);
+	//assert(MAX_LIGHT_RAD <= MAXDUNY - nYPos);
 	//max_y = MAX_LIGHT_RAD; //std::min(15, MAXDUNY - nYPos);
-	assert(MAX_LIGHT_RAD <= nXPos + 1);
+	//assert(MAX_LIGHT_RAD <= nXPos + 1);
 	//min_x = MAX_LIGHT_RAD; //std::min(15, nXPos + 1);
-	assert(MAX_LIGHT_RAD <= nYPos + 1);
+	//assert(MAX_LIGHT_RAD <= nYPos + 1);
 	//min_y = MAX_LIGHT_RAD; //std::min(15, nYPos + 1);
 
 	nRadius++;
@@ -437,9 +430,9 @@ static void DoLighting(unsigned lnum)
 
 static void DoUnLight(LightListStruct* lis)
 {
-	int x, y, xoff, yoff, min_x, min_y, max_x, max_y;
-	int nXPos = lis->_lunx + lis->_lunxoff;
-	int nYPos = lis->_luny + lis->_lunyoff;
+	int x, y, min_x, min_y, max_x, max_y;
+	int nXPos = lis->_lunx;
+	int nYPos = lis->_luny;
 	int nRadius = lis->_lunr;
 
 	nRadius++;
@@ -463,20 +456,6 @@ static void DoUnLight(LightListStruct* lis)
 	lis->_lunx = lis->_lx;
 	lis->_luny = lis->_ly;
 	lis->_lunr = lis->_lradius;
-	xoff = lis->_lxoff;
-	yoff = lis->_lyoff;
-	lis->_lunxoff = 0;
-	if (xoff < 0) {
-		lis->_lunxoff = -1;
-	} else if (xoff >= 8) {
-		lis->_lunxoff = 1;
-	}
-	lis->_lunyoff = 0;
-	if (yoff < 0) {
-		lis->_lunyoff = -1;
-	} else if (yoff >= 8) {
-		lis->_lunyoff = 1;
-	}
 	lis->_lunflag = false;
 }
 
@@ -923,7 +902,7 @@ void InitLvlLighting()
 	}
 }
 
-unsigned AddLight(int x, int y, int r)
+unsigned AddLight(POS32 pos, int r)
 {
 	LightListStruct* lis;
 	int lnum;
@@ -934,16 +913,13 @@ unsigned AddLight(int x, int y, int r)
 	if (numlights < MAXLIGHTS) {
 		lnum = lightactive[numlights++];
 		lis = &LightList[lnum];
-		lis->_lunx = lis->_lx = x;
-		lis->_luny = lis->_ly = y;
+
+		ChangeLightXY(lnum, pos);
+		lis->_lunx = lis->_lx;
+		lis->_luny = lis->_ly;
 		lis->_lunr = lis->_lradius = r;
-		lis->_lunxoff = 0;
-		lis->_lunyoff = 0;
-		lis->_lxoff = 0;
-		lis->_lyoff = 0;
 		lis->_ldel = false;
 		lis->_lunflag = false;
-		gbDolighting = true;
 	}
 
 	return lnum;
@@ -966,125 +942,49 @@ void ChangeLightRadius(unsigned lnum, int r)
 		return;
 
 	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lradius = r;
-	gbDolighting = true;
+	if (lis->_lradius != r) {
+		lis->_lradius = r;
+		lis->_lunflag = true;
+		gbDolighting = true;
+	}
 }
 
-void ChangeLightXY(unsigned lnum, int x, int y)
+void ChangeLightXY(unsigned lnum, POS32 dp)
 {
 	LightListStruct* lis;
+	int dx, dy, dxoff, dyoff;
 
 	if (lnum >= MAXLIGHTS)
 		return;
+	// convert precise dungeon position to light-offset
+	dp.x -= DUN_WIDTH / 2;
+	dp.y -= DUN_WIDTH / 2;
+
+#if LIGHT_WIDTH >= DUN_WIDTH
+	dp.x *= LIGHT_WIDTH / DUN_WIDTH;
+	dp.y *= LIGHT_WIDTH / DUN_WIDTH;
+#else
+	dp.x /= DUN_WIDTH / LIGHT_WIDTH;
+	dp.y /= DUN_WIDTH / LIGHT_WIDTH;
+#endif
+
+	dx = dp.x >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
+	dy = dp.y >> (LIGHT_SHIFT + BASE_LIGHT_SHIFT);
+	static_assert((1 << (LIGHT_SHIFT + BASE_LIGHT_SHIFT)) - 1 == 0xFFFF, "ChangeLight optimization must be adjusted.");
+	dxoff = (dp.x & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
+	dyoff = (dp.y & 0xFFFF) >> LIGHT_SHIFT; // (% LIGHT_WIDTH)
+
+	assert(MAX_LIGHT_RAD <= MAXDUNX - dx);
+	assert(MAX_LIGHT_RAD <= MAXDUNY - dy);
+	assert(MAX_LIGHT_RAD <= dx + 1);
+	assert(MAX_LIGHT_RAD <= dy + 1);
 
 	lis = &LightList[lnum];
+	lis->_lx = dx;
+	lis->_ly = dy;
+	lis->_lxoff = dxoff;
+	lis->_lyoff = dyoff;
 	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	gbDolighting = true;
-}
-
-void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
-{
-	LightListStruct* lis;
-	int xoff, yoff;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-	// convert screen-offset to tile-offset
-	xoff = xsoff + 2 * ysoff;
-	yoff = 2 * ysoff - xsoff;
-
-	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
-	yoff = yoff / (TILE_WIDTH / 8);
-
-	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lxoff = xoff;
-	lis->_lyoff = yoff;
-	gbDolighting = true;
-}
-
-/*
- * Same as ChangeLightXY, but also sets the x/y-offsets to zero.
- */
-void ChangeLightXYOff(unsigned lnum, int x, int y)
-{
-	LightListStruct* lis;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	lis->_lxoff = 0;
-	lis->_lyoff = 0;
-	gbDolighting = true;
-}
-
-void CondChangeLightXY(unsigned lnum, int x, int y)
-{
-	LightListStruct* lis;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	lis = &LightList[lnum];
-	if (lis->_lx == x && lis->_ly == y)
-		return;
-
-	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	gbDolighting = true;
-}
-
-void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff)
-{
-	LightListStruct* lis;
-	int xoff, yoff;
-	int lx, ly;
-	int offx, offy;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-	lis = &LightList[lnum];
-	// convert screen-offset to tile-offset
-	xoff = xsoff + 2 * ysoff;
-	yoff = 2 * ysoff - xsoff;
-
-	xoff = xoff / (TILE_WIDTH / 8); // ASSET_MPL * 8 ?
-	yoff = yoff / (TILE_WIDTH / 8);
-	// check if offset-change is meaningful
-	lx = xoff + (lis->_lx << 3);
-	ly = yoff + (lis->_ly << 3);
-	offx = lis->_lxoff + (lis->_lx << 3);
-	offy = lis->_lyoff + (lis->_ly << 3);
-
-	if (abs(lx - offx) < 3 && abs(ly - offy) < 3)
-		return;
-
-	lis->_lunflag = true;
-	lis->_lxoff = xoff;
-	lis->_lyoff = yoff;
-	gbDolighting = true;
-}
-
-void ChangeLight(unsigned lnum, int x, int y, int r)
-{
-	LightListStruct* lis;
-
-	if (lnum >= MAXLIGHTS)
-		return;
-
-	lis = &LightList[lnum];
-	lis->_lunflag = true;
-	lis->_lx = x;
-	lis->_ly = y;
-	lis->_lradius = r;
 	gbDolighting = true;
 }
 

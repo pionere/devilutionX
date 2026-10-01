@@ -156,8 +156,8 @@ int GetLeftStickOrDpadDirection(bool allowDpad)
 		const int MAX_DIST = -256;
 		const int dx = stickX * MAX_DIST;
 		const int dy = stickY * MAX_DIST;
-		POS32 tpos = { 0, 0 };
-		SHIFT_GRID(tpos.x, tpos.y, dx, dy);
+		POS32 tpos;
+		SET_GRID(tpos.x, tpos.y, dx, dy);
 		res = GetDirection(0, 0, tpos.x, tpos.y);
 	}
 	return res;

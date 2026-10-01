@@ -1,7 +1,8 @@
+#include "platform/ctr/keyboard.h"
+
 #include <cstdlib>
 #include <cstring>
-
-#include "platform/ctr/keyboard.h"
+#include <3ds.h>
 
 constexpr size_t MAX_TEXT_LENGTH = 255;
 

@@ -11,7 +11,7 @@ DEVILUTION_BEGIN_NAMESPACE
 #define myplr          players[mypnum]
 #define plr            players[pnum]
 #define plx(x)         players[x]
-#define PLR_WALK_SHIFT 8
+#define PLR_WALK_SHIFT 16
 #define plrAbility     Abilities[plr._pClass]
 
 #ifdef __cplusplus
@@ -31,13 +31,13 @@ void CreatePlayer(const _uiheroinfo& heroinfo);
 void NextPlrLevel(int pnum);
 #endif
 void AddPlrExperience(int pnum, int lvl, unsigned exp);
+void SetPlayerLoc(int pnum, int x, int y);
 void InitLocalPlayer(int pnum);
 void InitPlayer(int pnum);
 void InitLvlPlayer(int pnum, bool entering);
 void RemoveLvlPlayer(int pnum);
 //void PlrClrTrans(int x, int y);
 //void PlrDoTrans(int x, int y);
-void FixPlayerLocation(int pnum);
 void PlrStartStand(int pnum);
 void RemovePlrFromMap(int pnum);
 bool PlrCheckBlock(int pnum, int bmod, int dir);
@@ -67,15 +67,6 @@ void IncreasePlrDex(int pnum);
 void IncreasePlrVit(int pnum);
 void DecreasePlrMaxHp(int pnum);
 void RestorePlrHpVit(int pnum);
-
-// Set each location to the input location.
-// Oldx/y could be set to an invalid value so RemovePlrFromMap could check if the player was placed on the map earlier,
-//  but it is not worth it at the moment.
-inline void SetPlayerLoc(PlayerStruct* p, int x, int y)
-{
-	p->_px = p->_pfutx = p->_poldx = x;
-	p->_py = p->_pfuty = p->_poldy = y;
-}
 
 /* data */
 

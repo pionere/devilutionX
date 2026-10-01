@@ -289,8 +289,9 @@ void BltFast()
 		SCREEN_HEIGHT,
 	};
 
-	if (SDL_LowerBlit(src, &src_rect, dst, &dst_rect) < 0)
+	if (SDL_LowerBlit(src, &src_rect, dst, &dst_rect) < 0) {
 		sdl_issue(ERR_SDL_DX_BLIT_SDL2);
+	}
 #else
 	int result;
 	// ScaleOutputRect(dst, &dst_rect);

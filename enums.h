@@ -482,6 +482,7 @@ typedef enum item_effect_type {
 	IPL_ACIDRES,
 	IPL_ALLRES,
 	IPL_CRITP,
+	IPL_POWMOD,
 	IPL_SKILLLVL,
 	IPL_SKILLLEVELS,
 	IPL_CHARGES,
@@ -3039,14 +3040,14 @@ typedef enum _speech_id {
 	TEXT_BARMAID15,
 	TEXT_BARMAID16,
 	TEXT_BARMAID17,
-    TEXT_BARMAID18,
-    TEXT_BARMAID19,
-    TEXT_BARMAID20,
-    TEXT_BARMAID21,
-    TEXT_BARMAID22,
-    TEXT_BARMAID23,
-    TEXT_BARMAID24,
-    TEXT_BARMAID25,
+	TEXT_BARMAID18,
+	TEXT_BARMAID19,
+	TEXT_BARMAID20,
+	TEXT_BARMAID21,
+	TEXT_BARMAID22,
+	TEXT_BARMAID23,
+	TEXT_BARMAID24,
+	TEXT_BARMAID25,
 	TEXT_BARMAID26,
 	TEXT_HEALER12,
 	TEXT_HEALER13,
@@ -3739,6 +3740,40 @@ typedef enum _draw_mask_type {
 	DMT_EMPTY,
 } _draw_mask_type;
 
+typedef enum scene_entry_type {
+	SCT_FLOOR,
+	SCT_CELL,
+	SCT_SPECIAL,
+	SCT_ITEM,
+	SCT_OBJECT,
+	SCT_MISSILE,
+	SCT_MONSTER,
+	SCT_DEAD_MONSTER,
+	SCT_PLAYER,
+	SCT_DEAD_PLAYER,
+	SCT_TOWNER,
+	SCT_DUMMY,
+} scene_entry_type;
+
+typedef enum z_order {
+	ZOR_CELL,
+	ZOR_FLOOR = ZOR_CELL,
+	ZOR_PRE_OBJECT,
+	ZOR_PRE_MISSILE,
+	ZOR_DEAD_MONSTER,
+	ZOR_PRE_ITEM,
+	ZOR_DEAD_PLAYER,
+	ZOR_PLAYER,
+	ZOR_MONSTER = ZOR_PLAYER,
+	ZOR_TOWNER = ZOR_PLAYER,
+	// ZOR_ITEM = ZOR_PLAYER,
+	ZOR_MISSILE = ZOR_PLAYER,
+	ZOR_OBJECT = ZOR_PLAYER,
+	ZOR_SPECIAL_CELL,
+
+	ZOR_SHIFT = 6
+} z_order;
+
 typedef enum _automap_mode {
 	AMM_NONE,
 	AMM_MINI,
@@ -3794,7 +3829,6 @@ typedef enum dflag {
 	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
 	BFLAG_ALERT       = 0x02, // alert flag, used by monsters to set squelch
 	BFLAG_DEAD_PLAYER = 0x04,
-	BFLAG_MIS_ACTIVE  = 0x08, // whether there is an active/blocking missile at the given position (e.g. guardian, shroud or rune)
 	BFLAG_HAZARD      = 0x20, // fire hazard flag, used by monsters to avoid tiles
 	BFLAG_VISIBLE     = 0x40, // visibility flag, used by the local player to check if monsters/players are visible
 	BFLAG_EXPLORED    = 0x80, // whether the automapview is set (not in sync after load/deltaload/shrine-effect)
@@ -5083,26 +5117,26 @@ typedef enum app_sdl_error {
 } app_sdl_error;
 
 typedef enum SDL_LogCategory {
-    SDL_LOG_CATEGORY_APPLICATION,
-    SDL_LOG_CATEGORY_ERROR,
-    SDL_LOG_CATEGORY_ASSERT,
-    SDL_LOG_CATEGORY_SYSTEM,
-    SDL_LOG_CATEGORY_AUDIO,
-    SDL_LOG_CATEGORY_VIDEO,
-    SDL_LOG_CATEGORY_RENDER,
-    SDL_LOG_CATEGORY_INPUT,
-    SDL_LOG_CATEGORY_TEST,
+	SDL_LOG_CATEGORY_APPLICATION,
+	SDL_LOG_CATEGORY_ERROR,
+	SDL_LOG_CATEGORY_ASSERT,
+	SDL_LOG_CATEGORY_SYSTEM,
+	SDL_LOG_CATEGORY_AUDIO,
+	SDL_LOG_CATEGORY_VIDEO,
+	SDL_LOG_CATEGORY_RENDER,
+	SDL_LOG_CATEGORY_INPUT,
+	SDL_LOG_CATEGORY_TEST,
 } SDL_LogCategory;
 
 typedef enum SDL_LogPriority
 {
-    SDL_LOG_PRIORITY_VERBOSE = 1,
-    SDL_LOG_PRIORITY_DEBUG,
-    SDL_LOG_PRIORITY_INFO,
-    SDL_LOG_PRIORITY_WARN,
-    SDL_LOG_PRIORITY_ERROR,
-    SDL_LOG_PRIORITY_CRITICAL,
-    SDL_NUM_LOG_PRIORITIES
+	SDL_LOG_PRIORITY_VERBOSE = 1,
+	SDL_LOG_PRIORITY_DEBUG,
+	SDL_LOG_PRIORITY_INFO,
+	SDL_LOG_PRIORITY_WARN,
+	SDL_LOG_PRIORITY_ERROR,
+	SDL_LOG_PRIORITY_CRITICAL,
+	SDL_NUM_LOG_PRIORITIES
 } SDL_LogPriority;
 
 DEVILUTION_END_NAMESPACE

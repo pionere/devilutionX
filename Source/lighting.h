@@ -39,15 +39,10 @@ void InitLighting();
 void ToggleLighting();
 #endif
 void InitLvlLighting();
-unsigned AddLight(int x, int y, int r);
+unsigned AddLight(POS32 pos, int r);
 void AddUnLight(unsigned lnum);
 void ChangeLightRadius(unsigned lnum, int r);
-void ChangeLightXY(unsigned lnum, int x, int y);
-void ChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff);
-void ChangeLightXYOff(unsigned lnum, int x, int y);
-void CondChangeLightXY(unsigned lnum, int x, int y);
-void CondChangeLightScreenOff(unsigned lnum, int xsoff, int ysoff);
-void ChangeLight(unsigned lnum, int x, int y, int r);
+void ChangeLightXY(unsigned lnum, POS32 pos);
 void ProcessLightList();
 inline void SavePreLighting()
 {

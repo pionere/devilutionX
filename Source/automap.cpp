@@ -19,6 +19,9 @@ DEVILUTION_BEGIN_NAMESPACE
 
 #define AUTOMAP_VALID (automaptype[0] == 0)
 
+#define MAP_SHIFT 7
+#define MAP_GRID_WIDTH (1 << MAP_SHIFT)
+
 static_assert(MAP_SCALE_MAX <= UCHAR_MAX, "Mapscale values are stored in one byte.");
 /** Specifies whether the automap is enabled (_automap_mode). */
 BYTE gbAutomapflag = AMM_NONE;
@@ -30,9 +33,14 @@ BYTE NormalMapScale = MAP_SCALE_NORMAL;
 unsigned AutoMapScale;
 int AutoMapXOfs;
 int AutoMapYOfs;
-unsigned AmLine64;
-unsigned AmLine32;
-unsigned AmLine16;
+/* Specifies the tile-width at the given map-scale. (AutoMapScale * TILE_WIDTH) / MAP_GRID_WIDTH */
+#if TILE_WIDTH <= MAP_GRID_WIDTH
+static_assert(MAP_GRID_WIDTH % TILE_WIDTH == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
+#define MAP_TILE_WIDTH (AutoMapScale / (MAP_GRID_WIDTH / TILE_WIDTH))
+#else
+static_assert(TILE_WIDTH % MAP_GRID_WIDTH == 0, "The calculation of MAP_TILE_WIDTH is incorrect.");
+#define MAP_TILE_WIDTH (AutoMapScale * (TILE_WIDTH / MAP_GRID_WIDTH))
+#endif
 
 /** color used to draw the player's arrow */
 #define COLOR_PLAYER (PAL8_ORANGE + 1)
@@ -66,9 +74,6 @@ void InitAutomapOnce()
  */
 void InitAutomapScale()
 {
-	AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
-	AmLine32 = AmLine64 >> 1;
-	AmLine16 = AmLine32 >> 1;
 }
 
 /**
@@ -167,9 +172,6 @@ void AutomapZoomIn()
 {
 	if (gbAutomapflag != AMM_NONE && AutoMapScale < MAP_SCALE_MAX) {
 		AutoMapScale += 16;
-		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
-		AmLine32 = AmLine64 >> 1;
-		AmLine16 = AmLine32 >> 1;
 		if (gbAutomapflag == AMM_MINI) {
 			MiniMapScale = AutoMapScale;
 		} else { // if (gbAutomapflag == AMM_NORMAL) {
@@ -186,9 +188,6 @@ void AutomapZoomOut()
 {
 	if (gbAutomapflag != AMM_NONE && AutoMapScale > MAP_SCALE_MIN) {
 		AutoMapScale -= 16;
-		AmLine64 = (AutoMapScale * TILE_WIDTH) / 128;
-		AmLine32 = AmLine64 >> 1;
-		AmLine16 = AmLine32 >> 1;
 		if (gbAutomapflag == AMM_MINI) {
 			MiniMapScale = AutoMapScale;
 		} else { // if (gbAutomapflag == AMM_NORMAL) {
@@ -200,7 +199,7 @@ void AutomapZoomOut()
 
 static void DrawAutomapExtern(int sx, int sy)
 {
-	unsigned d32 = AmLine32;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d8 = (d32 >> 2);
 
 	DrawPixel(sx, sy - d8, COLOR_DIM);
@@ -208,7 +207,7 @@ static void DrawAutomapExtern(int sx, int sy)
 
 static void DrawAutomapStairs(int sx, int sy)
 {
-	unsigned d32 = AmLine32;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
 	DrawLine(sx - d16 + d8, sy - d16 + d4, sx + d8, sy - d16 + d4 + d8, COLOR_BRIGHT);
@@ -217,7 +216,7 @@ static void DrawAutomapStairs(int sx, int sy)
 
 static void DrawAutomapDoorDiamond(int dir, int sx, int sy)
 {
-	unsigned d32 = AmLine32;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2), d4 = (d32 >> 3);
 
 	if (dir == 0) { // WEST
@@ -256,7 +255,7 @@ void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 		break;
 	}
 
-	unsigned d32 = AmLine32;
+	unsigned d32 = MAP_TILE_WIDTH >> 1;
 	unsigned d16 = (d32 >> 1);
 	unsigned d8 = (d32 >> 2);
 	if (automap_type & MAT_WALL_NW) {
@@ -277,10 +276,10 @@ void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 {
 	int x1, y1, x2, y2;
 
-	x1 = x - AmLine32 / 2;
-	y1 = y - AmLine16 / 2;
-	x2 = x1 + AmLine64 / 2;
-	y2 = y1 + AmLine32 / 2;
+	x1 = x - MAP_TILE_WIDTH / 4;
+	y1 = y - MAP_TILE_WIDTH / 8;
+	x2 = x1 + MAP_TILE_WIDTH / 2;
+	y2 = y1 + MAP_TILE_WIDTH / 4;
 	DrawLine(x, y1, x1, y, color);
 	DrawLine(x, y1, x2, y, color);
 	DrawLine(x, y2, x1, y, color);
@@ -293,12 +292,24 @@ static void SearchAutomapItem()
 	int x, y;
 	int x1, y1, x2, y2, xoff, yoff;
 	int i, j;
-	unsigned d16 = AmLine16;
+	unsigned d16 = MAP_TILE_WIDTH / 4;
+	const POS32 vp = myview.dun;
+	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
 
-	x = AutoMapXOfs + myview.x;
-	y = AutoMapYOfs + myview.y;
-	xoff = (ScrollInfo._sxoff * (int)AutoMapScale / 128 >> 1) + SCREEN_WIDTH / 2 + SCREEN_X - (x - y) * d16;
-	yoff = (ScrollInfo._syoff * (int)AutoMapScale / 128 >> 1) + SCREEN_HEIGHT / 2 + SCREEN_Y - (x + y) * (d16 >> 1) - (d16 >> 1);
+	x = AutoMapXOfs + mp.x;
+	y = AutoMapYOfs + mp.y;
+	if (gbAutomapflag == AMM_NORMAL) {
+		xoff = SCREEN_CENTERX(0);
+		yoff = SCREEN_CENTERY(0);
+	} else {
+		xoff = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
+		yoff = SCREEN_Y + MAP_MINI_HEIGHT / 2;
+	}
+	xoff -= (x - y) * d16;
+	yoff -= (x + y) * (d16 >> 1) - (d16 >> 1);
+	const POS32 sp = DunScreenOffset(vp);
+	xoff -= (sp.x * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	yoff -= (sp.y * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	p = &myplr;
 	if (p->_pmode == PM_WALK2) {
@@ -343,20 +354,23 @@ static void DrawAutomapPlr(int pnum, int sx, int sy)
 {
 	PlayerStruct* p;
 	int x, y;
-	unsigned d16 = AmLine16;
+	unsigned d16 = MAP_TILE_WIDTH / 4;
 
 	p = &plr;
 
 	x = sx;
 	y = sy;
-	x += p->_pxoff * (int)AutoMapScale / 128 >> 1;
-	y += p->_pyoff * (int)AutoMapScale / 128 >> 1;
+
+	POS32 sp = DunScreenOffset(p->_ppos);
+
+	x += sp.x * (int)AutoMapScale >> (MAP_SHIFT + 1);
+	y += sp.y * (int)AutoMapScale >> (MAP_SHIFT + 1);
 
 	y -= d16;
 
-	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping V.");
-	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
-	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
+	static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 4, "Make sure the automap-renderer does not have to check for clipping V.");
+	static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 4, "Make sure the automap-renderer does not have to check for clipping VII.");
+	static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 4, "Make sure the automap-renderer does not have to check for clipping VIII.");
 
 	unsigned d8 = (d16 >> 1), d4 = (d16 >> 2);
 	if (p->_pHitPoints != 0) {
@@ -442,12 +456,14 @@ static void DrawAutomapContent()
 {
 	int sx, sy, mapx, mapy;
 	int i, j, cells;
-	unsigned d64 = AmLine64;
+	unsigned d64 = MAP_TILE_WIDTH;
+	const POS32 vp = myview.dun;
+	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
 
 	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 
 	// calculate the map center in the dungeon matrix
-	mapx = myview.x & ~1;
+	mapx = mp.x & ~1;
 	mapx += AutoMapXOfs;
 	if (mapx < DBORDERX) {
 		AutoMapXOfs -= mapx - DBORDERX;
@@ -457,7 +473,7 @@ static void DrawAutomapContent()
 		mapx = DBORDERX + (DSIZEX - 2);
 	}
 
-	mapy = myview.y & ~1;
+	mapy = mp.y & ~1;
 	mapy += AutoMapYOfs;
 	if (mapy < DBORDERY) {
 		AutoMapYOfs -= mapy - DBORDERY;
@@ -467,10 +483,10 @@ static void DrawAutomapContent()
 		mapy = DBORDERY + (DSIZEY - 2);
 	}
 
-	// assert(d64 <= (MAP_SCALE_MAX * TILE_WIDTH) / 128);
-	//static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping I."); - unnecessary, since the cells are limited to the screen
-	//static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / 128, "Make sure the automap-renderer does not have to check for clipping III.");
-	//static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / 128 / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
+	// assert(d64 <= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH);
+	//static_assert(BORDER_LEFT >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH, "Make sure the automap-renderer does not have to check for clipping I."); - unnecessary, since the cells are limited to the screen
+	//static_assert(BORDER_TOP >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH, "Make sure the automap-renderer does not have to check for clipping III.");
+	//static_assert(BORDER_BOTTOM >= (MAP_SCALE_MAX * TILE_WIDTH) / MAP_GRID_WIDTH / 2, "Make sure the automap-renderer does not have to check for clipping IV.");
 
 	// find an odd number of tiles which fits to the screen
 	// assert(SCREEN_WIDTH >= d64);
@@ -482,7 +498,7 @@ static void DrawAutomapContent()
 
 	/*if ((SCREEN_WIDTH / 2) % d64)
 		cells++;
-	if ((SCREEN_WIDTH / 2) % d64 >= (AutoMapScale << 5) / 128)
+	if ((SCREEN_WIDTH / 2) % d64 >= (AutoMapScale << 5) / MAP_GRID_WIDTH)
 		cells++;
 
 	if (ScrollInfo._sxoff + ScrollInfo._syoff)
@@ -508,17 +524,17 @@ static void DrawAutomapContent()
 		sx += (d64 >> 1);
 		sy -= (d64 >> 2);
 	}*/
-	if (myview.x & 1) {
+	if (mp.x & 1) {
 		sx -= (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
-	if (myview.y & 1) {
+	if (mp.y & 1) {
 		sx += (d64 >> 2);
 		sy -= (d64 >> 3);
 	}
-
-	sx += ((int)AutoMapScale * ScrollInfo._sxoff / 128) >> 1;
-	sy += ((int)AutoMapScale * ScrollInfo._syoff / 128) >> 1;
+	const POS32 sp = DunScreenOffset(vp);
+	sx -= (sp.x * (int)AutoMapScale) >> (MAP_SHIFT + 1);
+	sy -= (sp.y * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	// select the bottom edge of the tile
 	sy += (d64 >> 2);
@@ -535,21 +551,13 @@ static void DrawAutomapContent()
 				if (maptype != MAT_NONE)
 					DrawAutomapTile(x, sy, maptype);
 				int pnum;
-				BYTE flags = dFlags[mapx][mapy];
-				if (flags & BFLAG_DEAD_PLAYER) {
-					for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-						if (plr._pActive && plr._pHitPoints == 0/* && !plr._pLvlChanging*/ && plr._pDunLevel == currLvl._dLevelIdx && plr._px == mapx && plr._py == mapy) {
-							DrawAutomapPlr(pnum, x, sy);
-						}
-					}
-				}
-				pnum = dPlayer[mapx][mapy];
-				if (pnum > 0) {
-					pnum--;
+				for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+					if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx && (int)((unsigned)plr._ppos.x / DUN_WIDTH) == mapx && (int)((unsigned)plr._ppos.y / DUN_WIDTH) == mapy) {
 #if !INET_MODE
-					if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/)
+						if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/ || plr._pHitPoints == 0)
 #endif
-						DrawAutomapPlr(pnum, x, sy);
+							DrawAutomapPlr(pnum, x, sy);
+					}
 				}
 			}
 			SHIFT_GRID(mapx, mapy, 1, 0);
