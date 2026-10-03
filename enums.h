@@ -2695,6 +2695,7 @@ typedef enum _monster_hit {
 	MOH_QUICK,   // hit using the standard fields with increased hit, but reduced damage values
 	MOH_HEAVY,   // hit using the standard fields with reduced hit, but increased damage values
 	MOH_SPECIAL, // hit using the hit2/mindam2/maxdam2 fields
+	MOH_CHARGE,  // hit using the special fields with increased hit chance with knockback effect
 } _monster_hit;
 
 typedef enum _speech_id {
