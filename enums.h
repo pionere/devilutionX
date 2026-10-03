@@ -2297,7 +2297,6 @@ typedef enum missile_add_result {
 } missile_add_result;
 
 typedef enum missile_collision_mode {
-	MICM_NONE,
 	MICM_BLOCK_ANY,
 	MICM_BLOCK_WALL,
 } missile_collision_mode;
