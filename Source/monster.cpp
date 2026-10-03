@@ -5015,8 +5015,6 @@ void MissToMonst(int mi)
 		pnum = CheckPlrCol(mpnum);
 		if (pnum < 0)
 			return;
-		if (PlrCheckBlock(pnum, mon->_mLevel + 16, OPPOSITE(mon->_mdir)))
-			return;
 		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
 		MonHitPlr(mnum, pnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dPlayer[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
