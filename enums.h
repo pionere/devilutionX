@@ -2690,6 +2690,13 @@ typedef enum _monster_resistance {
 	MORS_ACID_IMMUNE         = 0x03 << MORS_IDX_ACID,
 } _monster_resistance;
 
+typedef enum _monster_hit {
+	MOH_NORMAL,  // hit using the standard hit/mindam/maxdam fields
+	MOH_QUICK,   // hit using the standard fields with increased hit, but reduced damage values
+	MOH_HEAVY,   // hit using the standard fields with reduced hit, but increased damage values
+	MOH_SPECIAL, // hit using the hit2/mindam2/maxdam2 fields
+} _monster_hit;
+
 typedef enum _speech_id {
 	TEXT_KING1,
 	TEXT_KING2,

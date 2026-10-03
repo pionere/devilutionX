@@ -1535,7 +1535,7 @@ int CheckPlrCol(int pnum)
  * @param cbArg: callback-argument to pass to the callback function
  * @return what was hit (0: nothing, 1: actor, 2: object)
  */
-static int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
+int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 {
 	int hit = 0;
 	int x1 = rect.x/* + 1*/, x2 = rect.x + rect.w, y1 = rect.y/* + 1*/, y2 = rect.y + rect.h;
