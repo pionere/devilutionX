@@ -2494,29 +2494,41 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	}
 }
 
-static void MonTryH2HHit(int mnum, int Hit, int MinDam, int MaxDam)
+static bool MonHitCallback(int mpnum, int mnumHit)
 {
 	MonsterStruct* mon;
-	int mpnum;
+	int mnum, mode, Hit, MinDam, MaxDam;
+	static_assert(MAXMONSTERS <= (1 << 16), "Hit mode information can not propagated to MonHitCallback.");
+	mnum = mnumHit & 0xFFFF;
+	mode = mnumHit >> 16;
+	mon = &monsters[mnum];
+	Hit = mon->_mHit;
+	MinDam = mon->_mMinDamage;
+	MaxDam = mon->_mMaxDamage;
+	switch (mode) {
+	case MOH_NORMAL: break;
+	case MOH_QUICK: Hit += 10; MinDam -= 2; MaxDam -= 2; break;
+	case MOH_HEAVY: Hit -= 20; MinDam += 4; MaxDam += 4; break;
+	case MOH_SPECIAL: Hit = mon->_mHit2; MinDam = mon->_mMinDamage2; MaxDam = mon->_mMaxDamage2; break;
+	default: ASSUME_UNREACHABLE; break;
+	}
+	if (mpnum >= 0) {
+		MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
+	} else {
+		MonHitPlr(mnum, -(mpnum + 1), Hit, MinDam, MaxDam);
+	}
+	// does not matter
+	return false;
+}
+
+static void MonTryH2HHit(int mnum, int mode)
+{
+	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	if (mon->_menemy >= 0) {
-		mpnum = dPlayer[mon->_mx + offset_x[mon->_mdir]][mon->_my + offset_y[mon->_mdir]];
-		if (mpnum == 0)
-			return;
-		mpnum = CheckPlrCol(mpnum);
-		if (mpnum < 0)
-			return;
-		MonHitPlr(mnum, mpnum, Hit, MinDam, MaxDam);
-	} else {
-		mpnum = dMonster[mon->_mx + offset_x[mon->_mdir]][mon->_my + offset_y[mon->_mdir]];
-		if (mpnum == 0)
-			return;
-		mpnum = CheckMonCol(mpnum);
-		if (mpnum < 0)
-			return;
-		MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
-	}
+	int mx = mon->_mx + offset_x[mon->_mdir], my = mon->_my + offset_y[mon->_mdir];
+	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	CheckHRectAreaHit(rect, MonHitCallback, (mode << 16) | mnum);
 }
 
 static bool MonDoAttack(int mnum)
@@ -2525,16 +2537,16 @@ static bool MonDoAttack(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum) {
-		MonTryH2HHit(mnum, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
+		MonTryH2HHit(mnum, MOH_NORMAL);
 		if (mon->_mAI.aiType != AI_SNAKE)
 			PlayMonSfx(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_MAGMA && mon->_mAnimFrame == 9) {
 		// mon->_mType >= MT_NMAGMA && mon->_mType <= MT_WMAGMA
-		MonTryH2HHit(mnum, mon->_mHit + 10, mon->_mMinDamage - 2, mon->_mMaxDamage - 2);
+		MonTryH2HHit(mnum, MOH_QUICK);
 		PlayMonSfx(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_THIN && mon->_mAnimFrame == 13) {
 		// mon->_mType >= MT_RTHIN && mon->_mType <= MT_GTHIN
-		MonTryH2HHit(mnum, mon->_mHit - 20, mon->_mMinDamage + 4, mon->_mMaxDamage + 4);
+		MonTryH2HHit(mnum, MOH_HEAVY);
 		PlayMonSfx(mnum, MS_ATTACK);
 	} else if (mon->_mFileNum == MOFILE_SNAKE && mon->_mAnimFrame == 1)
 		PlayMonSfx(mnum, MS_ATTACK);
@@ -2601,7 +2613,7 @@ static bool MonDoSpAttack(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2)
-		MonTryH2HHit(mnum, mon->_mHit2, mon->_mMinDamage2, mon->_mMaxDamage2);
+		MonTryH2HHit(mnum, MOH_SPECIAL);
 
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		StartStand(mnum);
@@ -3399,7 +3411,7 @@ void MAI_Sneak(int mnum)
 			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
 		} else {
 			if (currEnemyInfo._meRealDist < 2) {
-				MonTryH2HHit(mnum, mon->_mHit, mon->_mMinDamage, mon->_mMaxDamage);
+				MonTryH2HHit(mnum, MOH_NORMAL);
 				mon->_mgoal = MGOAL_RETREAT;
 				md = OPPOSITE(md);
 			}

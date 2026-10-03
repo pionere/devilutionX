@@ -21,6 +21,7 @@ unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxda
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckMonCol(int _mnum_);
 int CheckPlrCol(int _pnum_);
+int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg);
 int AddElementalExplosion(int fdam, int ldam, int mdam, int hdam, bool isMonster, int mpnum);
 int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int misource, int spllvl);
 void RemovePortalMissile(int pnum);
