@@ -3258,7 +3258,7 @@ int AddGuardian(int mi, POS32 dp, int midir, int micaster, int misource, int spl
 int AddGolem(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MonsterStruct* mon;
-	int level, dx, dy;
+	int level, dx, dy, type, hp;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	level = spllvl * 4 + (plx(misource)._pIPower >> 6);
@@ -3274,22 +3274,30 @@ int AddGolem(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 		dy = (unsigned)dp.y / DUN_WIDTH;
 		return SpawnMinion(misource, dx, dy, missile[mi]._miType - MIS_GOLEM, level) ? MIRES_DELETE : MIRES_FAIL_DELETE;
 	}
-
+	// 'move' the missile to the monster
+	// missile[mi]._misx = mon->_mx; -- unused
+	// missile[mi]._misy = mon->_my;
+	MonSetMissilePos(mon, &missile[mi]);
+	// preserve monster info
+	type = mon->_mType;
+	hp = mon->_mhitpoints;
+	level = (mon->_mLevel * mon->_mhitpoints) / (4 * mon->_mmaxhp);
+	// kill the minion
+	MonKill(misource, misource);
+	// launch missiles in dungeon
 	if (currLvl._dLevelIdx == DLV_TOWN) {
 		; // do nothing in town
-	} else if (mon->_mType == MT_GOLEM) {
-		MonSetMissilePos(mon, &missile[mi]);
-		missile[mi]._miMaxDam = mon->_mhitpoints;
-		missile[mi]._miMinDam = missile[mi]._miMaxDam >> 1;
+	} else if (type == MT_GOLEM) {
+		missile[mi]._miMaxDam = hp;
+		missile[mi]._miMinDam = hp / 2u;
 		CheckSplashColFull(mi);
-	} else if (mon->_mType == MT_BLDGOLEM) {
-		PlrIncHp(misource, mon->_mhitpoints);
+	} else if (type == MT_BLDGOLEM) {
+		PlrIncHp(misource, hp);
 	} else {
-		// assert(mon->_mType == MIS_SKELAX || mon->_mType == MIS_SKELBW);
-		AddMissile(mon->_mpos, { 0, 0 }, 0, MIS_LIGHTNOVAC, micaster, misource, (mon->_mLevel * mon->_mhitpoints) / (4 * mon->_mmaxhp));
+		// assert(type == MIS_SKELAX || type == MIS_SKELBW);
+		AddMissile(missile[mi]._mipos, { 0, 0 }, 0, MIS_LIGHTNOVAC, micaster, misource, level);
 	}
 
-	MonKill(misource, misource);
 	return MIRES_DELETE;
 }
 
