@@ -5030,7 +5030,7 @@ void MissToMonst(int mi)
 		MonHitMon(mnum, defm, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
 		if (mpnum == dMonster[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 			// TODO: use MonHitByMon ?
-			PlayMonSfx(mnum, MS_GOTHIT);
+			PlayMonSfx(defm, MS_GOTHIT);
 		}
 	}
 }
