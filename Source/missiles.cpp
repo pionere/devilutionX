@@ -1944,13 +1944,11 @@ static int MoveProjectal(int mi, int steps, missile_collision_mode mode)
 	POS32 dp = mis->_mipos;
 	hit = CheckMoveHit(sp, dp, mi);
 	if (hit != 0) {
-		if (mode != MICM_NONE) {
-			if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
-				mis->_miRange = -1;
-			mds = &missiledata[mis->_miType];
-			if (SFX_VALID(mds->miSFX))
-				PlaySfxLocN(mds->miSFX, mis->_mipos, mds->miSFXCnt);
-		}
+		if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
+			mis->_miRange = -1;
+		mds = &missiledata[mis->_miType];
+		if (SFX_VALID(mds->miSFX))
+			PlaySfxLocN(mds->miSFX, mis->_mipos, mds->miSFXCnt);
 	}
 	return hit;
 }
