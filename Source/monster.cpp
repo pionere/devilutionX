@@ -2421,7 +2421,7 @@ static bool MonDoWalk(int mnum)
 	return rv;
 }
 
-static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
+static bool MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 {
 	bool ret;
 
@@ -2429,7 +2429,7 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		dev_fatal("MonHitMon: Invalid monster %d", defm);
 	}
 	if (!CheckMonsterHit(defm, &ret))
-		return;
+		return false;
 
 	hper += 30 + 2 * monsters[offm]._mLevel;
 	hper -= monsters[defm]._mArmorClass;
@@ -2441,10 +2441,12 @@ static void MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		} else {
 			MonHitByMon(defm, offm, dam, monsters[offm]._mdir);
 		}
+		return true;
 	}
+	return false;
 }
 
-static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
+static bool MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 {
 	MonsterStruct* mon;
 	int dam;
@@ -2456,15 +2458,15 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	mon = &monsters[mnum];
 
 	if (plr._pInvincible)
-		return;
+		return false;
 
 	hper += 30 + (2 * mon->_mLevel);
 	hper -= plr._pIAC;
 	if (!CheckHit(hper))
-		return;
+		return false;
 
 	if (PlrCheckBlock(pnum, mon->_mLevel, OPPOSITE(mon->_mdir)))
-		return;
+		return false;
 
 	if (mon->_mType == MT_YZOMBIE && pnum == mypnum) {
 		NetSendCmd(CMD_DECHP);
@@ -2492,12 +2494,14 @@ static void MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 		static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MonHitPlr uses _mFlags as hitFlags.");
 		PlrHitByAny(pnum, mnum, dam, hitFlags, mon->_mdir);
 	}
+	return true;
 }
 
 static bool MonHitCallback(int mpnum, int mnumHit)
 {
 	MonsterStruct* mon;
 	int mnum, mode, Hit, MinDam, MaxDam;
+	bool result;
 	static_assert(MAXMONSTERS <= (1 << 16), "Hit mode information can not propagated to MonHitCallback.");
 	mnum = mnumHit & 0xFFFF;
 	mode = mnumHit >> 16;
@@ -2509,15 +2513,29 @@ static bool MonHitCallback(int mpnum, int mnumHit)
 	case MOH_NORMAL: break;
 	case MOH_QUICK: Hit += 10; MinDam -= 2; MaxDam -= 2; break;
 	case MOH_HEAVY: Hit -= 20; MinDam += 4; MaxDam += 4; break;
-	case MOH_SPECIAL: Hit = mon->_mHit2; MinDam = mon->_mMinDamage2; MaxDam = mon->_mMaxDamage2; break;
+	case MOH_SPECIAL:
+		Hit = mon->_mHit2; MinDam = mon->_mMinDamage2; MaxDam = mon->_mMaxDamage2;
+		break;
+	case MOH_CHARGE:
+		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
+		Hit = 8 * mon->_mHit2; MinDam = mon->_mMinDamage2; MaxDam = mon->_mMaxDamage2;
+		break;
 	default: ASSUME_UNREACHABLE; break;
 	}
 	if (mpnum >= 0) {
 		if (/*mnum != mpnum && */(mnum < MAX_MINIONS || mpnum < MAX_MINIONS)) {
-			MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
+			result = MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
+			if (!result && mode == MOH_CHARGE && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+				// TODO: use MonHitByMon ?
+				PlayMonSfx(mpnum, MS_GOTHIT);
+			}
 		}
 	} else {
-		MonHitPlr(mnum, -(mpnum + 1), Hit, MinDam, MaxDam);
+		mpnum = -(mpnum + 1);
+		result = MonHitPlr(mnum, mpnum, Hit, MinDam, MaxDam);
+		if (!result && mode == MOH_CHARGE && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+			PlrHitByAny(mpnum, mnum, 0, ISPL_KNOCKBACK, mon->_mdir);
+		}
 	}
 	// does not matter
 	return false;
@@ -4989,7 +5007,7 @@ void MissToMonst(int mi)
 {
 	MissileStruct* mis;
 	MonsterStruct* mon;
-	int mnum, oldx, oldy, mpnum, pnum, defm;
+	int mnum;
 
 	if ((unsigned)mi >= MAXMISSILES) {
 		dev_fatal("MissToMonst: Invalid missile %d", mi);
@@ -5010,31 +5028,8 @@ void MissToMonst(int mi)
 	if (mon->_mType == MT_GBAT) /* mon->_mAI.aiType == AI_BAT Foulwing? */
 		return;
 
-	oldx = mis->_mix;
-	oldy = mis->_miy;
-	mpnum = dPlayer[oldx][oldy];
-	if (mpnum != 0) {
-		pnum = CheckPlrCol(mpnum);
-		if (pnum < 0)
-			return;
-		// TODO: prevent bleeding if MonsterAI is AI_RHINO ?
-		MonHitPlr(mnum, pnum, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (mpnum == dPlayer[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			PlrHitByAny(pnum, mnum, 0, ISPL_KNOCKBACK, mon->_mdir);
-		}
-		return;
-	}
-	mpnum = dMonster[oldx][oldy];
-	if (mpnum != 0) {
-		defm = CheckMonCol(mpnum);
-		if (defm < 0 || defm >= MAX_MINIONS)
-			return; // do not hit team-mate : assert(mnum >= MAX_MINIONS);
-		MonHitMon(mnum, defm, mon->_mHit * 8, mon->_mMinDamage2, mon->_mMaxDamage2);
-		if (mpnum == dMonster[oldx][oldy] && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			// TODO: use MonHitByMon ?
-			PlayMonSfx(defm, MS_GOTHIT);
-		}
-	}
+	RECT32 rect = { mis->_mix * DUN_WIDTH, mis->_miy * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	CheckHRectAreaHit(rect, MonHitCallback, (MOH_CHARGE << 16) | mnum);
 }
 
 /*static bool monster_posok(int mnum, int x, int y)
