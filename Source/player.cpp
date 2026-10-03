@@ -1909,7 +1909,7 @@ static int PlrTryHit(int pnum, int dir)
 	dx = plr._px + offset_x[dir];
 	dy = plr._py + offset_y[dir];
 	sn = plr._pVar5; // ATTACK_SKILL
-	sl = plr._pVar6, // ATTACK_SKILL_LEVEL
+	sl = plr._pVar6; // ATTACK_SKILL_LEVEL
 
 	mpo = dMonster[dx][dy];
 	if (mpo != 0) {
