@@ -1593,71 +1593,45 @@ static int CheckMissileArea(int mi, int mx, int my)
 	return CheckHRectAreaHit(rect, MisAreaCallback, mi);
 }
 
-static void CheckSplashColFull(int mi)
-{
-	MissileStruct* mis;
-	int sx, sy, mx, my;
-
-	mis = &missile[mi];
-	mx = mis->_mix;
-	my = mis->_miy;
-
-	// monster/player/object hit
-	//  - adjust source position for directional hit
-	sx = mis->_misx;
-	sy = mis->_misy;
-	mis->_misx = mx;
-	mis->_misy = my;
-	//  - hit everything in the rectangle
-	RECT32 rect = { (mx - 1) * DUN_WIDTH, (my - 1) * DUN_WIDTH, 3 * DUN_WIDTH, 3 * DUN_WIDTH };
-	CheckHRectAreaHit(rect, MisAreaCallback, mi);
-	// - restore source position
-	mis->_misx = sx;
-	mis->_misy = sy;
-}
-
 static void CheckSplashCol(int mi, int hit)
 {
 	MissileStruct* mis;
 	int sx, sy, mx, my, lx, ly;
 
-	if (hit != 3) {
-		CheckSplashColFull(mi);
-		return;
-	}
-
-	// wall hit:
 	mis = &missile[mi];
 	mx = mis->_mix;
 	my = mis->_miy;
-	//  - move missile back a bit to indicate the displacement
-	MoveMissile(mi, -1);
-
 	RECT32 rect = { (mx - 1) * DUN_WIDTH, (my - 1) * DUN_WIDTH, 3 * DUN_WIDTH, 3 * DUN_WIDTH };
-	//  - limit the explosion area
-	lx = mis->_mix;
-	ly = mis->_miy;
-	if (lx != mx) {
-		if (lx > mx)
-			rect.x += DUN_WIDTH;
-		rect.w -= DUN_WIDTH;
+	if (hit == 3) {
+		// wall hit:
+		//  - move missile back a bit to indicate the displacement
+		MoveMissile(mi, -1);
+
+		//  - limit the explosion area
+		lx = mis->_mix;
+		ly = mis->_miy;
+		if (lx != mx) {
+			if (lx > mx)
+				rect.x += DUN_WIDTH;
+			rect.w -= DUN_WIDTH;
+		}
+
+		if (ly != my) {
+			if (ly > my)
+				rect.y += DUN_WIDTH;
+			rect.h -= DUN_WIDTH;
+		}
+
+		//  - alter offset for better visual
+		if ((DunScreenOffset(mis->_mipos).x >= TILE_WIDTH / 2)) {
+			mis->_mix++;
+			mis->_miy--;
+		}
+
+		// MoveMissile(mi, 1);
+
+		// assert(lx != mx || ly != my);
 	}
-
-	if (ly != my) {
-		if (ly > my)
-			rect.y += DUN_WIDTH;
-		rect.h -= DUN_WIDTH;
-	}
-
-	//  - alter offset for better visual
-	if ((DunScreenOffset(mis->_mipos).x >= TILE_WIDTH / 2)) {
-		mis->_mix++;
-		mis->_miy--;
-	}
-
-	//MoveMissile(mi, 1);
-
-	// assert(lx != mx || ly != my);
 	//  - adjust source position for directional hit
 	sx = mis->_misx;
 	sy = mis->_misy;
@@ -2360,7 +2334,7 @@ int AddFireexp(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
-	CheckSplashColFull(mi);
+	CheckSplashCol(mi, 0);
 	return MIRES_DONE;
 }
 
@@ -3321,7 +3295,7 @@ int AddGolem(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 	} else if (type == MT_GOLEM) {
 		missile[mi]._miMaxDam = hp;
 		missile[mi]._miMinDam = hp / 2u;
-		CheckSplashColFull(mi);
+		CheckSplashCol(mi, 0);
 	} else if (type == MT_BLDGOLEM) {
 		PlrIncHp(misource, hp);
 	} else {
@@ -3614,7 +3588,7 @@ int AddBarrelExp(int mi, POS32 dp, int midir, int micaster, int misource, int sp
 	mis->_miMinDam = 8 << (6 + gnDifficulty);
 	mis->_miMaxDam = 16 << (6 + gnDifficulty);
 
-	CheckSplashColFull(mi);
+	CheckSplashCol(mi, 0);
 	return MIRES_DELETE;
 }
 
@@ -4684,7 +4658,7 @@ void MI_Flash(int mi)
 
 	mis = &missile[mi];
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
-	CheckSplashColFull(mi);
+	CheckSplashCol(mi, 0);
 	// assert(mis->_miAnimLen == MIA_BLUEXFR_LENGTH);
 	// assert(mis->_miAnimFrameLen == 1);
 	if (mis->_miAnimFrame == MIA_BLUEXFR_LENGTH
