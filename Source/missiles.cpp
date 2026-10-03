@@ -1583,12 +1583,11 @@ static bool MisAreaCallback(int mpnum, int mi)
 
 /*
  * @param mi: index of the missile
- * @param mx: the x coordinate of the target
- * @param my: the y coordinate of the target
  * @return what was hit (0: nothing, 1: actor, 2: object)
  */
-static int CheckMissileArea(int mi, int mx, int my)
+static int CheckMissileArea(int mi)
 {
+	int mx = missile[mi]._mix, my = missile[mi]._miy;
 	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
 	return CheckHRectAreaHit(rect, MisAreaCallback, mi);
 }
@@ -3769,7 +3768,7 @@ int AddApocaC2(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 			continue; // skip player if not visible
 
 		// hit-check
-		//CheckMissileArea(mi, px, py);
+		// PlrSetMissilePos(pnum, mis); CheckMissileArea(mi);
 		PlrMissHit(pnum, mi);
 
 		// add explosion effect
@@ -4001,7 +4000,7 @@ void MI_AsArrow(int mi)
 		return;
 	}
 	// assert(missiledata[mis->_miType].miSFX == SFX_NONE);
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	CheckMissileArea(mi);
 	mis->_miDelFlag = TRUE;
 }
 
@@ -4164,7 +4163,7 @@ void MI_Poison(int mi)
 				}
 			}
 			mis->_mizoff = zoff;
-			// CheckMissileArea(mi, mis->_mix, mis->_miy);
+			// CheckMissileArea(mi);
 			MonMissHit(tnum, mi);
 		}
 	} else {
@@ -4177,7 +4176,7 @@ void MI_Poison(int mi)
 			zoff = 0;
 			zoff -= 3 * TILE_HEIGHT / 4;
 			mis->_mizoff = zoff;
-			// CheckMissileArea(mi, mis->_mix, mis->_miy);
+			// CheckMissileArea(mi);
 			PlrMissHit(pnum, mi);
 		}
 	}
@@ -4263,7 +4262,7 @@ void MI_Acidpud(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	CheckMissileArea(mi);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		if (mis->_miDir != 0) {
@@ -4284,7 +4283,7 @@ void MI_Firewall(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	CheckMissileArea(mi);
 	if (mis->_miDir == 0) {
 		if (mis->_miLid == NO_LIGHT) {
 			mis->_miLid = AddLight(mis->_mipos, FireWallLight[0]);
@@ -4346,7 +4345,7 @@ void MI_Firewall(int mi)
 		PutMissile(mi);
 		return;
 	}
-	//CheckMissileArea(mi, mis->_mix, mis->_miy);
+	// CheckMissileArea(mi);
 	// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 	CheckSplashCol(mi, hit);
 
@@ -4428,7 +4427,7 @@ void MI_Rune(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileArea(mi, mis->_mix, mis->_miy); // MICM_BLOCK_WALL?
+	CheckMissileArea(mi); // MICM_BLOCK_WALL?
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4480,7 +4479,7 @@ void MI_Lightning(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	CheckMissileArea(mi);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4574,7 +4573,7 @@ void MI_BloodBoil(int mi)
 	// assert(mis->_miAnimLen == MIA_BLODBURS_LENGTH);
 	// assert(mis->_miAnimFrameLen == MIA_BLODBURS_DELAY);
 	if (mis->_miRange == MIA_BLODBURS_DELAY * MIA_BLODBURS_LENGTH / 2)
-		CheckMissileArea(mi, mis->_mix, mis->_miy);
+		CheckMissileArea(mi);
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		PutMissile(mi);
@@ -4599,7 +4598,7 @@ void MI_Bleed(int mi)
 			if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
 				mis->_miVar1 = 1;
 			} else if (mon->_mmode != MM_STONE) {
-				// CheckMissileArea(mi, mis->_mix, mis->_miy);
+				// CheckMissileArea(mi);
 				MonMissHit(tnum, mi);
 			}
 		} else {
@@ -4607,7 +4606,7 @@ void MI_Bleed(int mi)
 			if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints == 0) {
 				mis->_miVar1 = 1;
 			} else {
-				// CheckMissileArea(mi, mis->_mix, mis->_miy);
+				// CheckMissileArea(mi);
 				PlrMissHit(pnum, mi);
 			}
 		}
@@ -4752,7 +4751,7 @@ void MI_Meteor(int mi)
 		}
 
 		mis->_miDelFlag = TRUE;
-		CheckMissileArea(mi, mis->_mix, mis->_miy);
+		CheckMissileArea(mi);
 		PlaySfxLoc(LS_FIRIMP2, mis->_mipos);
 
 		AddMissile(mis->_mipos, { 0, 0 }, 0, MIS_FIREWALL, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
@@ -5225,7 +5224,7 @@ void MI_Inferno(int mi)
 		mis->_miVar2--;
 		return;
 	}
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	CheckMissileArea(mi);
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
 		mis->_miDelFlag = TRUE; // + AddUnLight
@@ -5278,7 +5277,7 @@ void MI_InfernoC(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
+	CheckMissileArea(mi);
 
 	mis->_miRange--;
 	if (mis->_miRange < 0) {
@@ -5335,10 +5334,7 @@ void MI_Elemental(int mi)
 
 	mis = &missile[mi];
 	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
-	cx = mis->_mix;
-	cy = mis->_miy;
 	if (hit != 0) {
-		//CheckMissileArea(mi, cx, cy);
 		// TODO: mis->_miMinDam >>= 1; mis->_miMaxDam >>= 1; ?
 		CheckSplashCol(mi, hit);
 
@@ -5347,6 +5343,8 @@ void MI_Elemental(int mi)
 	}
 	// did not hit anything
 	if (mis->_miVar1-- == 0) { // destination reached the first time
+		cx = mis->_mix;
+		cy = mis->_miy;
 		// set the current position as the starting point
 		const POS32 mp = DungeonToDunPos(cx, cy);
 		mis->_mitxoff = (mis->_mipos.x - mp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
@@ -5383,7 +5381,7 @@ void MI_Pulse(int mi)
 
 	dir = mis->_miRange % 8u; // NUM_DIRS
 	if (dir == 0) {
-		if (CheckMissileArea(mi, mis->_mix, mis->_miy) != 0) {
+		if (CheckMissileArea(mi) != 0) {
 			// AddMissile(mis->_mipos, { 0, 0 }, 0, MIS_EXLGHT, MST_NA, 0, 0);
 
 			mis->_miMinDam += mis->_miVar1;
