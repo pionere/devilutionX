@@ -2513,7 +2513,9 @@ static bool MonHitCallback(int mpnum, int mnumHit)
 	default: ASSUME_UNREACHABLE; break;
 	}
 	if (mpnum >= 0) {
-		MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
+		if (/*mnum != mpnum && */(mnum < MAX_MINIONS || mpnum < MAX_MINIONS)) {
+			MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
+		}
 	} else {
 		MonHitPlr(mnum, -(mpnum + 1), Hit, MinDam, MaxDam);
 	}
