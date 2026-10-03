@@ -1530,47 +1530,73 @@ int CheckPlrCol(int pnum)
 }
 
 /*
+ * @param rect: precise dungeon rectangle to check
+ * @param callback: callback to notify on hitting actors
+ * @param cbArg: callback-argument to pass to the callback function
+ * @return what was hit (0: nothing, 1: actor, 2: object)
+ */
+static int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
+{
+	int hit = 0;
+	int x1 = rect.x/* + 1*/, x2 = rect.x + rect.w, y1 = rect.y/* + 1*/, y2 = rect.y + rect.h;
+
+	for (int oi = 0; oi < numobjects; oi++) {
+		if (objects[oi]._oMissFlag) continue;
+		if (!POS_IN_AREA(objects[oi]._opos.x, objects[oi]._opos.y, x1, y1, x2, y2)) continue;
+		if (objects[oi]._oBreak == OBM_BREAKABLE)
+			OperateObject(-1, oi, false);
+		hit = 2;
+	}
+
+	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST/* || mon->_mmode == MM_DEATH*/) continue;
+		if (!POS_IN_AREA(mon->_mpos.x, mon->_mpos.y, x1, y1, x2, y2)) continue;
+		if (!callback(mnum, cbArg)) continue;
+		hit = 1;
+	}
+
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue;
+		if (!POS_IN_AREA(plr._ppos.x, plr._ppos.y, x1, y1, x2, y2)) continue;
+		if (!callback(-(pnum + 1), cbArg)) continue;
+		hit = 1;
+	}
+	return hit;
+}
+
+static bool MisAreaCallback(int mpnum, int mi)
+{
+	int lh;
+	bool result;
+	//  - keep last hit actor
+	lh = missile[mi]._miVar8;
+	if (mpnum >= 0) {
+		result = MonMissHit(mpnum, mi);
+	} else {
+		result = PlrMissHit(-(mpnum + 1), mi);
+	}
+	// - restore last hit actor
+	missile[mi]._miVar8 = lh;
+	return result;
+}
+
+/*
  * @param mi: index of the missile
  * @param mx: the x coordinate of the target
  * @param my: the y coordinate of the target
- * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ * @return what was hit (0: nothing, 1: actor, 2: object)
  */
 static int CheckMissileArea(int mi, int mx, int my)
 {
-	int oi, mnum, pnum;
-	int hit = 0;
-
-	oi = dObject[mx][my];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (!objects[oi]._oMissFlag) {
-			if (objects[oi]._oBreak == OBM_BREAKABLE)
-				OperateObject(-1, oi, false);
-			hit = 2;
-		}
-	}
-
-	mnum = dMonster[mx][my];
-	if (mnum != 0) {
-		mnum = CheckMonCol(mnum);
-		if (mnum >= 0 && MonMissHit(mnum, mi))
-			hit = 1;
-	}
-
-	pnum = dPlayer[mx][my];
-	if (pnum != 0) {
-		pnum = CheckPlrCol(pnum);
-		if (pnum >= 0 && PlrMissHit(pnum, mi))
-			hit = 1;
-	}
-
-	return hit;
+	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	return CheckHRectAreaHit(rect, MisAreaCallback, mi);
 }
 
 static void CheckSplashColFull(int mi)
 {
 	MissileStruct* mis;
-	int i, sx, sy, mx, my;
+	int sx, sy, mx, my;
 
 	mis = &missile[mi];
 	mx = mis->_mix;
@@ -1582,10 +1608,9 @@ static void CheckSplashColFull(int mi)
 	sy = mis->_misy;
 	mis->_misx = mx;
 	mis->_misy = my;
-	//  - hit everything around
-	for (i = 0; i < lengthof(XDirAdd); i++) {
-		CheckMissileArea(mi, mx + XDirAdd[i], my + YDirAdd[i]);
-	}
+	//  - hit everything in the rectangle
+	RECT32 rect = { (mx - 1) * DUN_WIDTH, (my - 1) * DUN_WIDTH, 3 * DUN_WIDTH, 3 * DUN_WIDTH };
+	CheckHRectAreaHit(rect, MisAreaCallback, mi);
 	// - restore source position
 	mis->_misx = sx;
 	mis->_misy = sy;
@@ -1594,7 +1619,7 @@ static void CheckSplashColFull(int mi)
 static void CheckSplashCol(int mi, int hit)
 {
 	MissileStruct* mis;
-	int i, sx, sy, mx, my, lx, ly, tx, ty;
+	int sx, sy, mx, my, lx, ly;
 
 	if (hit != 3) {
 		CheckSplashColFull(mi);
@@ -1608,9 +1633,21 @@ static void CheckSplashCol(int mi, int hit)
 	//  - move missile back a bit to indicate the displacement
 	MoveMissile(mi, -1);
 
+	RECT32 rect = { (mx - 1) * DUN_WIDTH, (my - 1) * DUN_WIDTH, 3 * DUN_WIDTH, 3 * DUN_WIDTH };
 	//  - limit the explosion area
 	lx = mis->_mix;
 	ly = mis->_miy;
+	if (lx != mx) {
+		if (lx > mx)
+			rect.x += DUN_WIDTH;
+		rect.w -= DUN_WIDTH;
+	}
+
+	if (ly != my) {
+		if (ly > my)
+			rect.y += DUN_WIDTH;
+		rect.h -= DUN_WIDTH;
+	}
 
 	//  - alter offset for better visual
 	if ((DunScreenOffset(mis->_mipos).x >= TILE_WIDTH / 2)) {
@@ -1627,12 +1664,7 @@ static void CheckSplashCol(int mi, int hit)
 	mis->_misx = mx;
 	mis->_misy = my;
 	//  - hit around in a limited area
-	for (i = 0; i < lengthof(XDirAdd); i++) {
-		tx = mx + XDirAdd[i];
-		ty = my + YDirAdd[i];
-		if (abs(tx - lx) < 2 && abs(ty - ly) < 2)
-			CheckMissileArea(mi, tx, ty);
-	}
+	CheckHRectAreaHit(rect, MisAreaCallback, mi);
 	//  - restore source position
 	mis->_misx = sx;
 	mis->_misy = sy;
@@ -2327,7 +2359,6 @@ int AddFireexp(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 	}
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	CheckMissileArea(mi, mis->_mix, mis->_miy);
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
 	CheckSplashColFull(mi);
 	return MIRES_DONE;
@@ -4654,8 +4685,6 @@ void MI_Flash(int mi)
 	mis = &missile[mi];
 	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
 	CheckSplashColFull(mi);
-	if (mis->_miCaster == MST_OBJECT)
-		CheckMissileArea(mi, mis->_mix, mis->_miy);
 	// assert(mis->_miAnimLen == MIA_BLUEXFR_LENGTH);
 	// assert(mis->_miAnimFrameLen == 1);
 	if (mis->_miAnimFrame == MIA_BLUEXFR_LENGTH
