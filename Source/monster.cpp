@@ -2546,7 +2546,7 @@ static void MonTryH2HHit(int mnum, int mode)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	int mx = mon->_mx + offset_x[mon->_mdir], my = mon->_my + offset_y[mon->_mdir];
+	int mx = mon->_menemyx, my = mon->_menemyy;
 	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
 	CheckHRectAreaHit(rect, MonHitCallback, (mode << 16) | mnum);
 }
