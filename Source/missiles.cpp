@@ -4135,15 +4135,18 @@ void MI_Mage(int mi)
 void MI_Poison(int mi)
 {
 	MissileStruct* mis;
-	int hit, tnum, pnum, zoff;
+	int range, hit, tnum, pnum, zoff;
 	MonsterStruct* mon;
 
 	mis = &missile[mi];
 	if (mis->_miVar1 == 0) {
 		// target not acquired
-		hit = MoveProjectal(mi, 1, MICM_BLOCK_WALL);
-		// if (hit == 1) {
-		if (hit) {
+		range = mis->_miRange;
+		hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
+		if (hit == 1) {
+			// restore range
+			mis->_miRange = range;
+			// acquire target
 			mis->_miVar1 = mis->_miVar8;
 		}
 	} else if (mis->_miVar1 > 0) {
