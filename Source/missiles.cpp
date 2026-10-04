@@ -1776,16 +1776,9 @@ static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 	return hit;
 }
 
-/*
- * @param sp: the starting (precise dungeon) position
- * @param dp: the ending (precise dungeon) position
- * @param mi: index of the missile
- * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
- */
-static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
+static INTPAIR CheckTileCollision(POS32 sp, POS32 dp)
 {
 	INTPAIR hit = { 0, INT_MAX };
-	int res;
 	POS32 p0, p2;
 
 	p0 = sp;
@@ -1908,6 +1901,21 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 		}
 	}
 done:
+	return hit;
+}
+
+/*
+ * @param sp: the starting (precise dungeon) position
+ * @param dp: the ending (precise dungeon) position
+ * @param mi: index of the missile
+ * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ */
+static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
+{
+	INTPAIR hit;
+	int res;
+
+	hit = CheckTileCollision(sp, dp);
 	hit = CheckPlrCollision(sp, dp, hit, missile[mi]._miVar8);
 	hit = CheckMonCollision(sp, dp, hit, missile[mi]._miVar8);
 	res = hit.v0;
