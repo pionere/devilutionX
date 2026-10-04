@@ -1691,19 +1691,23 @@ typedef struct RectDesc {
 static void CalcRectDesc(POS32 sp, POS32 dp, unsigned r, RectDesc &rect)
 {
 	POS32 p0, p1, p2; // , p3;
+	int dx, dy, k, rdx, rdy;
 
-	int dx = dp.x - sp.x;
-	int dy = dp.y - sp.y;
+	dx = dp.x - sp.x;
+	dy = dp.y - sp.y;
 
-	int k = sqrt((int64_t)dx * dx + (int64_t)dy * dy) / r;
+	k = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
 	assert(k != 0);
-	p0 = { sp.x - dy / k, sp.y + dx / k };
-	p1 = { sp.x + dy / k, sp.y - dx / k };
+	rdx = r * dx / k;
+	rdy = r * dy / k;
 
-	p2 = { dp.x - dy / k, dp.y + dx / k };
-	// p3 = { dp.x + dy / k, dp.y - dx / k };
+	p0 = { sp.x - rdy, sp.y + rdx };
+	p1 = { sp.x + rdy, sp.y - rdx };
 
-	const POS32 dp01 = { 2 * dy / k, -2 * dx / k };
+	p2 = { dp.x - rdy, dp.y + rdx };
+	// p3 = { dp.x + dy, dp.y - dx };
+
+	const POS32 dp01 = { 2 * rdy, -2 * rdx };
 	const POS32 dp02 = { dx, dy };
 	const POS32 dp23 = dp01;
 	const POS32 dp13 = dp02;
