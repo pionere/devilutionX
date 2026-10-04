@@ -1679,10 +1679,18 @@ static int GetDunVector2(POS32 dp)
 	return ddx * ddx + ddy * ddy;
 }
 
-static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
+typedef struct RectDesc {
+	POS32 dp01;
+	POS32 dp02;
+	int64_t bdx01;
+	int64_t bdx02;
+	int64_t bdx23;
+	int64_t bdx13;
+} RectDesc;
+
+static void CalcRectDesc(POS32 sp, POS32 dp, unsigned r, RectDesc &rect)
 {
-	constexpr unsigned r = DUN_WIDTH / 2;
-	POS32 p0, p1, p2, p3;
+	POS32 p0, p1, p2; // , p3;
 
 	int dx = dp.x - sp.x;
 	int dy = dp.y - sp.y;
@@ -1693,31 +1701,49 @@ static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 	p1 = { sp.x + dy / k, sp.y - dx / k };
 
 	p2 = { dp.x - dy / k, dp.y + dx / k };
-	p3 = { dp.x + dy / k, dp.y - dx / k };
+	// p3 = { dp.x + dy / k, dp.y - dx / k };
 
 	const POS32 dp01 = { 2 * dy / k, -2 * dx / k };
 	const POS32 dp02 = { dx, dy };
 	const POS32 dp23 = dp01;
 	const POS32 dp13 = dp02;
 
-	const int64_t bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
-	const int64_t bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
-	const int64_t bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
-	const int64_t bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+	rect.dp01 = dp01;
+	rect.dp02 = dp02;
+	rect.bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
+	rect.bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
+	rect.bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
+	rect.bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+}
+
+static bool CheckRectPosHit(POS32 pos, const RectDesc &rect)
+{
+	if ((int64_t)rect.dp02.y * pos.x + rect.bdx02 <= (int64_t)pos.y * rect.dp02.x) {
+		return false; // on the right side of the projectal -> skip
+	}
+	if ((int64_t)rect.dp02.y * pos.x + rect.bdx13 >= (int64_t)pos.y * rect.dp02.x) { // dp13
+		return false; // on the left side of the projectal -> skip
+	}
+	if ((int64_t)rect.dp01.y * pos.x + rect.bdx01 >= (int64_t)pos.y * rect.dp01.x) {
+		return false; // behind the projectal -> skip
+	}
+	if ((int64_t)rect.dp01.y * pos.x + rect.bdx23 <= (int64_t)pos.y * rect.dp01.x) { // dp23
+		return false; // front of the projectal -> skip
+	}
+	return true;
+}
+
+static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
+{
+	constexpr unsigned r = DUN_WIDTH / 2;
+	RectDesc rect;
+
+	CalcRectDesc(sp, dp, r, rect);
 
 	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue;
-		if ((int64_t)dp02.y * plr._ppos.x + bdx02 <= (int64_t)plr._ppos.y * dp02.x) {
-			continue; // player is on the right side of the projectal -> skip
-		}
-		if ((int64_t)dp01.y * plr._ppos.x + bdx01 >= (int64_t)plr._ppos.y * dp01.x) {
-			continue; // player is behind the projectal -> skip
-		}
-		if ((int64_t)dp23.y * plr._ppos.x + bdx23 <= (int64_t)plr._ppos.y * dp23.x) {
-			continue; // player is to the front from the projectal -> skip
-		}
-		if ((int64_t)dp13.y * plr._ppos.x + bdx13 >= (int64_t)plr._ppos.y * dp13.x) {
-			continue; // player is on the left side of the projectal -> skip
+		if (!CheckRectPosHit(plr._ppos, rect)) {
+			continue; // player is not in the area -> skip
 		}
 		int doff = GetDunDistance2(plr._ppos, sp);
 		if (hit.v1 < doff) continue;
@@ -1731,43 +1757,15 @@ static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 {
 	constexpr unsigned r = DUN_WIDTH / 2;
-	POS32 p0, p1, p2, p3;
+	RectDesc rect;
 
-	int dx = dp.x - sp.x;
-	int dy = dp.y - sp.y;
-
-	int k = sqrt((int64_t)dx * dx + (int64_t)dy * dy) / r;
-	assert(k != 0);
-	p0 = { sp.x - dy / k, sp.y + dx / k };
-	p1 = { sp.x + dy / k, sp.y - dx / k };
-
-	p2 = { dp.x - dy / k, dp.y + dx / k };
-	p3 = { dp.x + dy / k, dp.y - dx / k };
-
-	const POS32 dp01 = { 2 * dy / k, -2 * dx / k };
-	const POS32 dp02 = { dx, dy };
-	const POS32 dp23 = dp01;
-	const POS32 dp13 = dp02;
-
-	const int64_t bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
-	const int64_t bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
-	const int64_t bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
-	const int64_t bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+	CalcRectDesc(sp, dp, r, rect);
 
 	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		const MonsterStruct* mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST/* || mon->_mmode == MM_DEATH*/) continue;
-		if ((int64_t)dp02.y * mon->_mpos.x + bdx02 <= (int64_t)mon->_mpos.y * dp02.x) {
-			continue; // monster is on the right side of the projectal -> skip
-		}
-		if ((int64_t)dp01.y * mon->_mpos.x + bdx01 >= (int64_t)mon->_mpos.y * dp01.x) {
-			continue; // monster is behind the projectal -> skip
-		}
-		if ((int64_t)dp23.y * mon->_mpos.x + bdx23 <= (int64_t)mon->_mpos.y * dp23.x) {
-			continue; // monster is to the front from the projectal -> skip
-		}
-		if ((int64_t)dp13.y * mon->_mpos.x + bdx13 >= (int64_t)mon->_mpos.y * dp13.x) {
-			continue; // monster is on the left side of the projectal -> skip
+		if (!CheckRectPosHit(mon->_mpos, rect)) {
+			continue; // monster is not in the area -> skip
 		}
 		int doff = GetDunDistance2(mon->_mpos, sp);
 		if (hit.v1 < doff) continue;
