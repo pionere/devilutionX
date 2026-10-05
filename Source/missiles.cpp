@@ -1571,6 +1571,12 @@ int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 	return hit;
 }
 
+/*
+ * Try to hit an actor with a missile, return whether there was a hit, update the last hit actor
+ * @param mpnum: the index of the actor to be hit (mnum if >= 0, -(pnum + 1) if < 0)
+ * @param mi: index of the missile
+ * @return whether the missile really hit
+ */
 static bool MisHitCallback(int mpnum, int mi)
 {
 	bool result;
@@ -1582,6 +1588,12 @@ static bool MisHitCallback(int mpnum, int mi)
 	return result;
 }
 
+/*
+ * Try to hit an actor with a missile, return whether there was a hit, but keep the last hit actor
+ * @param mpnum: the index of the actor to be hit (mnum if >= 0, -(pnum + 1) if < 0)
+ * @param mi: index of the missile
+ * @return whether the missile really hit
+ */
 static bool MisAreaCallback(int mpnum, int mi)
 {
 	int lh;
@@ -1663,7 +1675,7 @@ static void CheckSplashCol(int mi, int hit)
 /*
  * @param mx: Tile X-position
  * @param my: Tile Y-position
- * @return what was hit (0: nothing, 2: object, 3: wall)
+ * @return what was hit (0: nothing, -(MAX_PLRS+2): object, -(MAX_PLRS+3): wall)
  */
 static int CheckSubtileHit(int mx, int my)
 {
@@ -1675,11 +1687,11 @@ static int CheckSubtileHit(int mx, int my)
 		if (!objects[oi]._oMissFlag) {
 			if (objects[oi]._oBreak == OBM_BREAKABLE)
 				OperateObject(-1, oi, false);
-			hit = 2;
+			hit = -(MAX_PLRS + 2);
 		}
 	}
 	if (nMissileTable[dPiece[mx][my]]) {
-		hit = 3;
+		hit = -(MAX_PLRS + 3);
 	}
 
 	return hit;
@@ -1864,7 +1876,7 @@ static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
  * Test whether a subtile or an object is hit while moving between two positions, hit only the first one.
  * @param sp: the starting (precise dungeon) position
  * @param dp: the ending (precise dungeon) position
- * @return what was hit (0: nothing, 2: object, 3: wall) and the distance of the hit from the starting point
+ * @return what was hit (0: nothing, , -(MAX_PLRS+2): object, -(MAX_PLRS+3): wall) and the distance of the hit from the starting point
  */
 static INTPAIR CheckTileCollision(POS32 sp, POS32 dp)
 {
@@ -2011,15 +2023,13 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 	hit = CheckMonCollision(sp, dp, hit, missile[mi]._miVar8);
 	res = hit.v0;
 	if (res != 0) {
-		if (res < 0) {
-			res = -(res + 1);
-			if (res >= MAX_PLRS) {
-				res -= MAX_PLRS - 2;
-			} else {
-				res = PlrMissHit(res, mi) ? 1: 0;
-			}
+		if (res < -MAX_PLRS) {
+			// assert(res == -(MAX_PLRS + 2) || res == -(MAX_PLRS + 3));
+			res = -(res + MAX_PLRS);
+			// missile[mi]._miVar8 = res;
 		} else {
-			res = MonMissHit(res - 1, mi) ? 1 : 0;
+			res = res < 0 ? res : (res - 1);
+			res = MisHitCallback(res, mi) ? 1 : 0;
 		}
 	}
 	return res;
@@ -2042,9 +2052,10 @@ static int CheckWallHit(POS32 sp, POS32 dp, int mi)
 	hit = CheckPlrWallCol(sp, dp, range, hit, MisHitCallback, mi);
 	hit = CheckMonWallCol(sp, dp, range, hit, MisHitCallback, mi);
 	res = hit.v0;
-	if (res <= -(MAX_PLRS + 1)) {
-		res = -(res + 1);
-		res -= MAX_PLRS - 2;
+	if (res < -MAX_PLRS) {
+		// assert(res == -(MAX_PLRS + 2) || res == -(MAX_PLRS + 3));
+		res = -(res + MAX_PLRS);
+		// missile[mi]._miVar8 = 0;
 	} else {
 		missile[mi]._miVar8 = res;
 		res = (res != 0 && hit.v1 >= 0) ? 1 : 0;
