@@ -2092,10 +2092,10 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 	}
 }
 
-void MonHitByMon(int defm, int offm, int dam, int dir)
+void MonHitByMon(int defm, int offm, int dam, unsigned hitflags, int dir)
 {
 	MonsterStruct* dmon;
-	bool stun;
+	bool knockback, stun;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
 		dev_fatal("Invalid monster %d getting hit by monster/trap", defm);
@@ -2108,13 +2108,17 @@ void MonHitByMon(int defm, int offm, int dam, int dir)
 	}
 	PlayMonSfx(defm, MS_GOTHIT);
 	if (dmon->_mmode != MM_STONE) {
-		// TODO: implement monster vs. monster knockback & bleed?
-		//       assert(!(monsterdata[MT_GOLEM].mFlags & (MFLAG_KNOCKBACK | MFLAG_CAN_BLEED)));
+		if ((dmon->_mFlags & MFLAG_CAN_BLEED) && (hitflags & ISPL_FAKE_CAN_BLEED)
+		 && random_(47, 64) < ((hitflags & ISPL_BLEED) ? 8 : 1))
+			AddMissile({ 0, 0 }, { 0, 0 }, 0, MIS_BLEED, offm >= 0 ? MST_MONSTER : MST_OBJECT, offm, defm);
 		if (!(dmon->_mFlags & MFLAG_NOGETHIT)) {
-			stun = (dam << 2) >= dmon->_mmaxhp;
-			if (stun) {
+			knockback = (hitflags & ISPL_KNOCKBACK) != 0;
+			stun = (dam << ((hitflags & ISPL_STUN) ? 3 : 2)) >= dmon->_mmaxhp;
+			if (knockback || stun) {
 				MonStopWalk(defm);
-				if (/*stun && */dmon->_mType == MT_NBAT && offm >= 0)
+				if (knockback)
+					MonGetKnockback(defm, dir);
+				if (stun && dmon->_mType == MT_NBAT && offm >= 0)
 					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
 				MonStartGetHit(defm, OPPOSITE(dir));
 			}
@@ -2423,6 +2427,7 @@ static bool MonDoWalk(int mnum)
 
 static bool MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 {
+	unsigned hitFlags;
 	bool ret;
 
 	if ((unsigned)defm >= MAXMONSTERS) {
@@ -2439,7 +2444,9 @@ static bool MonHitMon(int offm, int defm, int hper, int mind, int maxd)
 		if (monsters[defm]._mhitpoints < (1 << 6)) {
 			MonKill(defm, offm);
 		} else {
-			MonHitByMon(defm, offm, dam, monsters[offm]._mdir);
+			hitFlags = (monsters[offm]._mFlags & ISPL_HITFLAGS_MASK) | ISPL_FAKE_CAN_BLEED;
+			static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MonHitMon uses _mFlags as hitFlags.");
+			MonHitByMon(defm, offm, dam, hitFlags, monsters[offm]._mdir);
 		}
 		return true;
 	}

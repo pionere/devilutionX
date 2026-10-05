@@ -967,6 +967,7 @@ static bool MissMonHitByMon(int mnum, int mi)
 	MissileStruct* mis;
 	MonsterStruct* mon;
 	int misource, hper, dir, dam;
+	unsigned hitFlags;
 	bool ret;
 
 	mon = &monsters[mnum];
@@ -1022,7 +1023,12 @@ static bool MissMonHitByMon(int mnum, int mi)
 			PlayMonSfx(mnum, MS_GOTHIT);
 		} else {*/
 			dir = MissDirection(mis, mon->_mdir, mon->_mx, mon->_my);
-			MonHitByMon(mnum, misource, dam, dir);
+			hitFlags = 0;
+			if (mis->_miFlags & MIF_ARROW) {
+				hitFlags = (misource >= 0 ? monsters[misource]._mFlags & ISPL_HITFLAGS_MASK : 0) | ISPL_FAKE_CAN_BLEED;
+				static_assert((int)MFLAG_KNOCKBACK == (int)ISPL_KNOCKBACK, "MissMonHitByMon uses _mFlags as hitFlags.");
+			}
+			MonHitByMon(mnum, misource, dam, hitFlags, dir);
 		//}
 	}
 	if (mon->_msquelch != SQUELCH_MAX) {
@@ -2866,16 +2872,14 @@ int AddBleed(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 	MonsterStruct* mon;
 
 	mis = &missile[mi];
-	static_assert(MAX_PLRS <= MAX_MINIONS, "MIS_BLEED uses a single int to store player and monster targets.");
-	assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-	if ((unsigned)spllvl >= MAX_MINIONS) {
-		// assert((unsigned)misource < MAXMONSTERS);
+	if (spllvl >= 0) {
+		// assert((unsigned)spllvl < MAXMONSTERS);
 		mon = &monsters[spllvl];
 		MonSetMissilePos(mon, mis);
 		mis->_miMinDam = mon->_mmaxhp >> (2 + 4);
 		mis->_miMaxDam = mon->_mmaxhp >> (1 + 4);
 	} else {
-		pnum = spllvl;
+		pnum = -(spllvl + 1);
 		PlrSetMissilePos(pnum, mis);
 		mis->_miMinDam = plr._pMaxHP >> (2 + 4);
 		mis->_miMaxDam = plr._pMaxHP >> (1 + 4);
@@ -4602,9 +4606,7 @@ void MI_Bleed(int mi)
 	mis = &missile[mi];
 	if (mis->_miVar1 == 0) {
 		tnum = mis->_miSpllvl;
-		static_assert(MAX_PLRS <= MAX_MINIONS, "MIS_BLEED uses a single int to store player and monster targets.");
-		// assert(!(monsterdata[MT_GOLEM].mFlags & MFLAG_CAN_BLEED));
-		if (tnum >= MAX_MINIONS) {
+		if (tnum >= 0) {
 			mon = &monsters[tnum];
 			if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
 				mis->_miVar1 = 1;
@@ -4613,7 +4615,7 @@ void MI_Bleed(int mi)
 				MonMissHit(tnum, mi);
 			}
 		} else {
-			pnum = tnum;
+			pnum = -(tnum + 1);
 			if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints == 0) {
 				mis->_miVar1 = 1;
 			} else {
