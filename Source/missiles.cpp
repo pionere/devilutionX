@@ -1725,32 +1725,58 @@ static void CalcRectDesc(POS32 sp, POS32 dp, unsigned r, RectDesc &rect)
 	dx = dp.x - sp.x;
 	dy = dp.y - sp.y;
 
-	k = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
-	assert(k != 0);
-	rdx = r * dx / k;
-	rdy = r * dy / k;
+	if (dx == 0 || dy == 0) {
+		// special case - use rectangle checks
+		int sx, sy, ex, ey;
+		sx = ex = p0.x;
+		sy = ey = p0.y;
+		if (p1.x < sx) sx = p1.x;
+		if (p2.x < sx) sx = p2.x;
+		if (p1.x > ex) ex = p1.x;
+		if (p2.x > ex) ex = p2.x;
 
-	p0 = { sp.x - rdy, sp.y + rdx };
-	p1 = { sp.x + rdy, sp.y - rdx };
+		if (p1.y < sy) sy = p1.y;
+		if (p2.y < sy) sy = p2.y;
+		if (p1.y > ey) ey = p1.y;
+		if (p2.y > ey) ey = p2.y;
 
-	p2 = { dp.x - rdy, dp.y + rdx };
-	// p3 = { dp.x + dy, dp.y - dx };
+		// rect.dp01 = { 0, 0 };
+		rect.dp02 = { 0, 0 };
+		rect.bdx01 = sx;
+		rect.bdx23 = ex;
+		rect.bdx02 = sy;
+		rect.bdx13 = ey;
+	} else {
+		k = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
+		assert(k != 0);
+		rdx = r * dx / k;
+		rdy = r * dy / k;
 
-	const POS32 dp01 = { 2 * rdy, -2 * rdx };
-	const POS32 dp02 = { dx, dy };
-	const POS32 dp23 = dp01;
-	const POS32 dp13 = dp02;
+		p0 = { sp.x - rdy, sp.y + rdx };
+		p1 = { sp.x + rdy, sp.y - rdx };
 
-	rect.dp01 = dp01;
-	rect.dp02 = dp02;
-	rect.bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
-	rect.bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
-	rect.bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
-	rect.bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+		p2 = { dp.x - rdy, dp.y + rdx };
+		// p3 = { dp.x + dy, dp.y - dx };
+
+		const POS32 dp01 = { 2 * rdy, -2 * rdx };
+		const POS32 dp02 = { dx, dy };
+		const POS32 dp23 = dp01;
+		const POS32 dp13 = dp02;
+
+		rect.dp01 = dp01;
+		rect.dp02 = dp02;
+		rect.bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
+		rect.bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
+		rect.bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
+		rect.bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
+	}
 }
 
 static bool CheckRectPosHit(POS32 pos, const RectDesc &rect)
 {
+	if (rect.dp02.x == 0) {
+		return POS_IN_AREA(pos.x, pos.y, (int)rect.bdx01, (int)rect.bdx02, (int)rect.bdx23, (int)rect.bdx13);
+	}
 	if ((int64_t)rect.dp02.y * pos.x + rect.bdx02 <= (int64_t)pos.y * rect.dp02.x) {
 		return false; // on the right side of the projectal -> skip
 	}
