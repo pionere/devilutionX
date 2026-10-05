@@ -1571,6 +1571,17 @@ int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 	return hit;
 }
 
+static bool MisHitCallback(int mpnum, int mi)
+{
+	bool result;
+	if (mpnum >= 0) {
+		result = MonMissHit(mpnum, mi);
+	} else {
+		result = PlrMissHit(-(mpnum + 1), mi);
+	}
+	return result;
+}
+
 static bool MisAreaCallback(int mpnum, int mi)
 {
 	int lh;
@@ -1764,6 +1775,69 @@ static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 	return hit;
 }
 
+static INTPAIR CheckPlrWallCol(POS32 sp, POS32 dp, int range, INTPAIR hit, bool(*callback)(int, int), int cbArg)
+{
+	constexpr unsigned r = DUN_WIDTH / 2;
+	RectDesc rect;
+	int lh = 0, ld = 0;
+
+	CalcRectDesc(sp, dp, r, rect);
+
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue; // not in game -> skip
+		if (!CheckRectPosHit(plr._ppos, rect)) continue; // not in the hit area -> skip
+		int doff = GetDunDistance2(plr._ppos, sp);
+		if (range < doff) continue; // wall is hit before -> skip
+		// preserve the 'last' hit
+		if (ld <= doff) {
+			ld = doff;
+			lh = -(pnum + 1);
+		}
+		if (!callback(-(pnum + 1), cbArg)) continue;
+		// register the hit
+		hit.v0 = -(pnum + 1);
+		hit.v1 = doff;
+	}
+	// there was a hit check, but it was not registered -> miss
+	if (lh != 0 && (hit.v0 == 0 || (hit.v1 < 0 && hit.v1 > -ld))) {
+		hit.v0 = lh;
+		hit.v1 = -ld;
+	}
+	return hit;
+}
+
+static INTPAIR CheckMonWallCol(POS32 sp, POS32 dp, int range, INTPAIR hit, bool (*callback)(int, int), int cbArg)
+{
+	constexpr unsigned r = DUN_WIDTH / 2;
+	RectDesc rect;
+	int lh = 0, ld = 0;
+
+	CalcRectDesc(sp, dp, r, rect);
+
+	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST/* || mon->_mmode == MM_DEATH*/) continue; // not in game -> skip
+		if (!CheckRectPosHit(mon->_mpos, rect)) continue; // not in the hit area -> skip
+		int doff = GetDunDistance2(mon->_mpos, sp);
+		if (range < doff) continue; // wall is hit before -> skip
+		// preserve the 'last' hit
+		if (ld <= doff) {
+			ld = doff;
+			lh = mnum + 1;
+		}
+		if (!callback(mnum, cbArg)) continue;
+		// register the hit
+		hit.v0 = mnum + 1;
+		hit.v1 = doff;
+	}
+	// there was a hit check, but it was not registered -> miss
+	if (lh != 0 && (hit.v0 == 0 || (hit.v1 < 0 && hit.v1 > -ld))) {
+		hit.v0 = lh;
+		hit.v1 = -ld;
+	}
+	return hit;
+}
+
 static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 {
 	constexpr unsigned r = DUN_WIDTH / 2;
@@ -1786,6 +1860,12 @@ static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
 	return hit;
 }
 
+/*
+ * Test whether a subtile or an object is hit while moving between two positions, hit only the first one.
+ * @param sp: the starting (precise dungeon) position
+ * @param dp: the ending (precise dungeon) position
+ * @return what was hit (0: nothing, 2: object, 3: wall) and the distance of the hit from the starting point
+ */
 static INTPAIR CheckTileCollision(POS32 sp, POS32 dp)
 {
 	INTPAIR hit = { 0, INT_MAX };
@@ -1915,6 +1995,7 @@ done:
 }
 
 /*
+ * Test whether something is hit while moving between two positions, hit only the first one.
  * @param sp: the starting (precise dungeon) position
  * @param dp: the ending (precise dungeon) position
  * @param mi: index of the missile
@@ -1945,6 +2026,33 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 }
 
 /*
+ * Test whether something is hit while moving between two positions, hit everything till a wall is hit.
+ * @param sp: the starting (precise dungeon) position
+ * @param dp: the ending (precise dungeon) position
+ * @param mi: index of the missile
+ * @return what was hit (0: nothing, 1: actor, 2: object, 3: wall)
+ */
+static int CheckWallHit(POS32 sp, POS32 dp, int mi)
+{
+	INTPAIR hit;
+	int res, range;
+	hit = CheckTileCollision(sp, dp);
+	range = hit.v1;
+	hit.v1 = 0;
+	hit = CheckPlrWallCol(sp, dp, range, hit, MisHitCallback, mi);
+	hit = CheckMonWallCol(sp, dp, range, hit, MisHitCallback, mi);
+	res = hit.v0;
+	if (res <= -(MAX_PLRS + 1)) {
+		res = -(res + 1);
+		res -= MAX_PLRS - 2;
+	} else {
+		missile[mi]._miVar8 = res;
+		res = (res != 0 && hit.v1 >= 0) ? 1 : 0;
+	}
+	return res;
+}
+
+/*
  * @param mi: index of the missile
  * @param steps: steps to move
  * @param mode: the collision mode (missile_collision_mode)
@@ -1958,7 +2066,10 @@ static int MoveProjectal(int mi, int steps, missile_collision_mode mode)
 	POS32 sp = mis->_mipos;
 	MoveMissile(mi, steps);
 	POS32 dp = mis->_mipos;
-	hit = CheckMoveHit(sp, dp, mi);
+	if (mode == MICM_BLOCK_ANY)
+		hit = CheckMoveHit(sp, dp, mi);
+	else
+		hit = CheckWallHit(sp, dp, mi);
 	if (hit != 0) {
 		if (mode == MICM_BLOCK_ANY || (hit != 1 /*&& mode == MICM_BLOCK_WALL*/))
 			mis->_miRange = -1;
