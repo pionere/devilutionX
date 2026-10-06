@@ -1709,12 +1709,11 @@ static int GetDunVector2(POS32 dp)
 }
 
 typedef struct RectDesc {
+	POS32 p0;
 	POS32 dp01;
 	POS32 dp02;
-	int64_t bdx01;
-	int64_t bdx02;
-	int64_t bdx23;
-	int64_t bdx13;
+	uint64_t dp01ms;
+	uint64_t dp02ms;
 } RectDesc;
 
 static void CalcRectDesc(POS32 sp, POS32 dp, unsigned r, RectDesc &rect)
@@ -1725,71 +1724,35 @@ static void CalcRectDesc(POS32 sp, POS32 dp, unsigned r, RectDesc &rect)
 	dx = dp.x - sp.x;
 	dy = dp.y - sp.y;
 
-	if (dx == 0 || dy == 0) {
-		// special case - use rectangle checks
-		int sx, sy, ex, ey;
-		sx = ex = p0.x;
-		sy = ey = p0.y;
-		if (p1.x < sx) sx = p1.x;
-		if (p2.x < sx) sx = p2.x;
-		if (p1.x > ex) ex = p1.x;
-		if (p2.x > ex) ex = p2.x;
+	k = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
+	assert(k != 0);
+	rdx = (int64_t)r * dx / k;
+	rdy = (int64_t)r * dy / k;
 
-		if (p1.y < sy) sy = p1.y;
-		if (p2.y < sy) sy = p2.y;
-		if (p1.y > ey) ey = p1.y;
-		if (p2.y > ey) ey = p2.y;
+	p0 = { sp.x - rdy, sp.y + rdx };
+	p1 = { sp.x + rdy, sp.y - rdx };
 
-		// rect.dp01 = { 0, 0 };
-		rect.dp02 = { 0, 0 };
-		rect.bdx01 = sx;
-		rect.bdx23 = ex;
-		rect.bdx02 = sy;
-		rect.bdx13 = ey;
-	} else {
-		k = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
-		assert(k != 0);
-		rdx = r * dx / k;
-		rdy = r * dy / k;
+	p2 = { dp.x - rdy, dp.y + rdx };
+	// p3 = { dp.x + dy, dp.y - dx };
 
-		p0 = { sp.x - rdy, sp.y + rdx };
-		p1 = { sp.x + rdy, sp.y - rdx };
-
-		p2 = { dp.x - rdy, dp.y + rdx };
-		// p3 = { dp.x + dy, dp.y - dx };
-
-		const POS32 dp01 = { 2 * rdy, -2 * rdx };
-		const POS32 dp02 = { dx, dy };
-		const POS32 dp23 = dp01;
-		const POS32 dp13 = dp02;
-
-		rect.dp01 = dp01;
-		rect.dp02 = dp02;
-		rect.bdx01 = ((int64_t)dp01.x * p0.y - (int64_t)dp01.y * p0.x);
-		rect.bdx02 = ((int64_t)dp02.x * p0.y - (int64_t)dp02.y * p0.x);
-		rect.bdx23 = ((int64_t)dp23.x * p2.y - (int64_t)dp23.y * p2.x);
-		rect.bdx13 = ((int64_t)dp13.x * p1.y - (int64_t)dp13.y * p1.x);
-	}
+	rect.p0 = p0;
+	rect.dp02 = { dx, dy };
+	rect.dp02ms = (int64_t)dx * dx + (int64_t)dy * dy;
+	dx = 2 * rdy;;
+	dy = -2 * rdx;
+	rect.dp01 = { dx, dy };
+	rect.dp01ms = (int64_t)dx * dx + (int64_t)dy * dy;
+	// assert(rect.dp01ms ~= (int64_t)4 * r * r);
 }
 
 static bool CheckRectPosHit(POS32 pos, const RectDesc &rect)
 {
-	if (rect.dp02.x == 0) {
-		return POS_IN_AREA(pos.x, pos.y, (int)rect.bdx01, (int)rect.bdx02, (int)rect.bdx23, (int)rect.bdx13);
-	}
-	if ((int64_t)rect.dp02.y * pos.x + rect.bdx02 <= (int64_t)pos.y * rect.dp02.x) {
-		return false; // on the right side of the projectal -> skip
-	}
-	if ((int64_t)rect.dp02.y * pos.x + rect.bdx13 >= (int64_t)pos.y * rect.dp02.x) { // dp13
-		return false; // on the left side of the projectal -> skip
-	}
-	if ((int64_t)rect.dp01.y * pos.x + rect.bdx01 >= (int64_t)pos.y * rect.dp01.x) {
-		return false; // behind the projectal -> skip
-	}
-	if ((int64_t)rect.dp01.y * pos.x + rect.bdx23 <= (int64_t)pos.y * rect.dp01.x) { // dp23
-		return false; // front of the projectal -> skip
-	}
-	return true;
+	POS32 dp = { pos.x - rect.p0.x, pos.y - rect.p0.y };
+
+	int64_t rp02 = (int64_t)dp.x * rect.dp02.x + (int64_t)dp.y * rect.dp02.y;
+	int64_t rp01 = (int64_t)dp.x * rect.dp01.x + (int64_t)dp.y * rect.dp01.y;
+
+	return (uint64_t)rp02 <= rect.dp02ms && (uint64_t)rp01 <= rect.dp01ms;
 }
 
 static INTPAIR CheckPlrCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
