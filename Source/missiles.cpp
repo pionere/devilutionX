@@ -717,19 +717,20 @@ static void PutMissileF(int mi, BYTE flag)
 
 static void GetMissileVel(MissileStruct* mis, POS32 dp, int v)
 {
-	double dxp, dyp, dr;
+	int dx, dy;
+	double dr;
 	POS32 sp;
 
 	sp = mis->_mipos;
 	dp.x -= sp.x;
 	dp.y -= sp.y;
 	assert(dp.x != 0 || dp.y != 0);
-	dxp = dp.x;
-	dyp = dp.y;
-	dr = sqrt(dxp * dxp + dyp * dyp);
+	dx = dp.x;
+	dy = dp.y;
+	dr = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
 	v <<= MIS_VELO_SHIFT;
-	mis->_mixvel = (dxp * v) / dr;
-	mis->_miyvel = (dyp * v) / dr;
+	mis->_mixvel = (int)(((int64_t)dx * v) / dr);
+	mis->_miyvel = (int)(((int64_t)dy * v) / dr);
 }
 
 static void SetMissilePos(MissileStruct* mis, int x, int y)
