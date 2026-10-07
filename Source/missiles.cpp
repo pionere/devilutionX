@@ -722,11 +722,9 @@ static void GetMissileVel(MissileStruct* mis, POS32 dp, int v)
 	POS32 sp;
 
 	sp = mis->_mipos;
-	dp.x -= sp.x;
-	dp.y -= sp.y;
-	assert(dp.x != 0 || dp.y != 0);
-	dx = dp.x;
-	dy = dp.y;
+	dx = dp.x - sp.x;
+	dy = dp.y - sp.y;
+	assert(dx != 0 || dy != 0);
 	dr = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
 	v <<= MIS_VELO_SHIFT;
 	mis->_mixvel = (int)(((int64_t)dx * v) / dr);
@@ -1717,18 +1715,18 @@ typedef struct RectDesc {
 	uint64_t dp02ms;
 } RectDesc;
 
-static void CalcRectDesc(POS32 sp, POS32 dp, unsigned r, RectDesc &rect)
+static void CalcRectDesc(POS32 sp, POS32 dp, int r, RectDesc &rect)
 {
 	POS32 p0, p1, p2; // , p3;
-	int dx, dy, k, rdx, rdy;
+	int dx, dy, rdx, rdy;
+	double dr;
 
 	dx = dp.x - sp.x;
 	dy = dp.y - sp.y;
-
-	k = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
-	assert(k != 0);
-	rdx = (int64_t)r * dx / k;
-	rdy = (int64_t)r * dy / k;
+	assert(dx != 0 || dy != 0);
+	dr = sqrt((int64_t)dx * dx + (int64_t)dy * dy);
+	rdx = (int)((int64_t)dx * r / dr);
+	rdy = (int)((int64_t)dy * r / dr);
 
 	p0 = { sp.x - rdy, sp.y + rdx };
 	p1 = { sp.x + rdy, sp.y - rdx };
