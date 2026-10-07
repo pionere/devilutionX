@@ -1477,12 +1477,6 @@ int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 	int hit = 0;
 	int x1 = rect.x/* + 1*/, x2 = rect.x + rect.w, y1 = rect.y/* + 1*/, y2 = rect.y + rect.h;
 
-	for (int oi = 0; oi < numobjects; oi++) {
-		if (!POS_IN_AREA(objects[oi]._opos.x, objects[oi]._opos.y, x1, y1, x2, y2)) continue;
-		if (!callback(-(MAX_PLRS + 1 + oi), cbArg)) continue;
-		hit = 2;
-	}
-
 	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
 		const MonsterStruct* mon = &monsters[mnum];
 		if (mon->_mmode > MM_INGAME_LAST/* || mon->_mmode == MM_DEATH*/) continue;
@@ -1497,6 +1491,13 @@ int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 		if (!callback(-(pnum + 1), cbArg)) continue;
 		hit = 1;
 	}
+	// check objects last to prevent hitting spawning monsters
+	for (int oi = 0; oi < numobjects; oi++) {
+		if (!POS_IN_AREA(objects[oi]._opos.x, objects[oi]._opos.y, x1, y1, x2, y2)) continue;
+		if (!callback(-(MAX_PLRS + 1 + oi), cbArg)) continue;
+		hit = 2;
+	}
+
 	return hit;
 }
 
