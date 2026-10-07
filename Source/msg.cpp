@@ -2854,12 +2854,16 @@ static unsigned On_USEPORTAL(const TCmd* pCmd, int pnum)
 static unsigned On_MONSTDEATH(const TCmd* pCmd, int pnum)
 {
 	const TCmdMonstKill* cmd = (const TCmdMonstKill*)pCmd;
-	int i, lvl;
+	int x, y, i, lvl;
 	unsigned totplrs, xp;
 	BYTE whoHit, mask;
 
-	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkParam1.bParam1)
-		MonSyncKill(cmd->mkMnum, cmd->mkParam1.x, cmd->mkParam1.y, cmd->mkPnum);
+	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkParam1.bParam1) {
+		x = cmd->mkParam1.x;
+		y = cmd->mkParam1.y;
+		net_check_cmd(IN_ACTIVE_AREA(x, y));
+		MonSyncKill(cmd->mkMnum, x, y, cmd->mkPnum);
+	}
 
 	whoHit = delta_kill_monster(cmd);
 
