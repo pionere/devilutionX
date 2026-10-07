@@ -2006,6 +2006,9 @@ static bool PlrChargeCallback(int mponum, int pnumLvlDist)
 		if (mponum < MAX_PLRS) {
 			// PlrHitPlr(pnum, SPL_CHARGE, sl, mponum);
 			PlrChargePlr(pnum, sl, minbl, maxbl, mponum);
+		} else {
+			mponum -= MAX_PLRS;
+			ObjHitByAny(mponum);
 		}
 	}
 	// does not matter

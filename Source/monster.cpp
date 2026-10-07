@@ -2544,11 +2544,9 @@ static bool MonHitCallback(int mponum, int mnumHit)
 			if (!result && mode == MOH_CHARGE && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 				PlrHitByAny(mponum, mnum, 0, ISPL_KNOCKBACK, mon->_mdir);
 			}
-#if 0
 		} else {
 			mponum -= MAX_PLRS;
 			ObjHitByAny(mponum);
-#endif
 		}
 	}
 	// does not matter
