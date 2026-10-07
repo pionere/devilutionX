@@ -48,7 +48,6 @@ void WakeNakrul();
 void InitMonsters();
 void MonChangeMap();
 void SetMonsterLoc(int mnum, int x, int y);
-void InitMonster(int mnum, int dir, int mtidx, int x, int y);
 void AddMonster(int mtidx, int x, int y);
 void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y);
 int SummonMonster(int x, int y, int dir, int mtidx);

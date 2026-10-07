@@ -565,7 +565,7 @@ void GetLevelMTypes()
 	//}
 }
 
-void InitMonster(int mnum, int dir, int mtidx, int x, int y)
+static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
 {
 	MapMonData* cmon = &mapMonTypes[mtidx];
 	MonsterStruct* mon = &monsters[mnum];
