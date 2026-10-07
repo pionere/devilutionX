@@ -1901,6 +1901,63 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	return true;
 }
 
+static void PlrChargeMonst(int pnum, int sl, int minbl, int maxbl, int mnum)
+{
+	MonsterStruct* mon;
+	int hper, dam, hitFlags;
+	bool ret;
+
+	if (mnum < MAX_MINIONS)
+		return;
+	mon = &monsters[mnum];
+
+	hper = sl * 16 - mon->_mArmorClass;
+	if (!CheckHit(hper) && mon->_mmode != MM_STONE)
+		return;
+
+	if (!CheckMonsterHit(mnum, &ret))
+		return;
+
+	dam = CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, minbl, maxbl, false);
+
+	//if (random_(151, 200) < plr._pICritChance)
+	//	dam <<= 1;
+
+	mon->_mhitpoints -= dam;
+
+	if (mon->_mhitpoints < (1 << 6)) {
+		MonKill(mnum, pnum);
+	} else {
+		hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
+		//if (hitFlags & ISPL_NOHEALMON)
+		//	mon->_mFlags |= MFLAG_NOHEAL;
+		MonHitByPlr(mnum, pnum, dam, hitFlags, plr._pdir);
+	}
+}
+
+static void PlrChargePlr(int offp, int sl, int minbl, int maxbl, int pnum)
+{
+	int hper, dam, hitFlags;
+	if (plx(offp)._pTeam == plr._pTeam || plr._pInvincible)
+		return;
+
+	hper = sl * 16 - plr._pIAC;
+	if (!CheckHit(hper))
+		return;
+
+	if (PlrCheckBlock(pnum, 2 * plx(offp)._pLevel + 16, OPPOSITE(plx(offp)._pdir)))
+		return;
+
+	dam = CalcPlrDam(pnum, MISR_BLUNT, minbl, maxbl);
+
+	//if (random_(151, 200) < plx(offp)._pICritChance)
+	//	dam <<= 1;
+	if (!PlrDecHp(pnum, dam, DMGTYPE_PLAYER)) {
+		hitFlags = (plx(offp)._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
+		PlrHitByAny(pnum, offp, dam, hitFlags, plx(offp)._pdir);
+	}
+}
+
 static bool PlrHitCallback(int mponum, int pnum)
 {
 	int sn, sl;
@@ -1921,6 +1978,36 @@ static bool PlrHitCallback(int mponum, int pnum)
 		}
 	}
 	plr._pVar3 += result ? 1 : 0; // HIT_COUNTER
+	// does not matter
+	return false;
+}
+
+static bool PlrChargeCallback(int mponum, int pnumLvlDist)
+{
+	int pnum, sl, dist, minbl, maxbl;
+	static_assert(MAX_PLRS <= (1 << 16), "Spell-level information can not propagated to PlrChargeCallback.");
+	static_assert(MAXSPLLEVEL <= 0xFF, "Distance information can not propagated to PlrChargeCallback.");
+	pnum = pnumLvlDist & 0xFFFF;
+	sl = (pnumLvlDist >> 16) & 0xFF;
+	dist = (pnumLvlDist >> 24) & 0xFF;
+
+	minbl = plr._pIChMinDam;
+	maxbl = plr._pIChMaxDam;
+	//if (maxbl != 0) {
+		minbl = (dist * minbl) >> 5;
+		maxbl = (dist * maxbl) >> 5;
+	//}
+
+	if (mponum >= 0) {
+		// PlrHitMonst(pnum, SPL_CHARGE, sl, mponum);
+		PlrChargeMonst(pnum, sl, minbl, maxbl, mponum);
+	} else {
+		mponum = -(mponum + 1);
+		if (mponum < MAX_PLRS) {
+			// PlrHitPlr(pnum, SPL_CHARGE, sl, mponum);
+			PlrChargePlr(pnum, sl, minbl, maxbl, mponum);
+		}
+	}
 	// does not matter
 	return false;
 }
@@ -2732,10 +2819,7 @@ void PlrHinder(int pnum, int spllvl, unsigned tick)
 void MissToPlr(int mi, bool hit)
 {
 	MissileStruct* mis;
-	MonsterStruct* mon;
-	int pnum, oldx, oldy, mpnum, dist, minbl, maxbl, dam, hper;
-	unsigned hitFlags;
-	bool ret;
+	int pnum, dist;
 
 	if ((unsigned)mi >= MAXMISSILES) {
 		dev_fatal("MissToPlr: illegal missile %d", mi);
@@ -2754,83 +2838,12 @@ void MissToPlr(int mi, bool hit)
 		PlrHitByAny(pnum, -1, 0, ISPL_FAKE_FORCE_STUN, OPPOSITE(plr._pdir));
 	//else
 	//	PlaySfxLoc(IS_BHIT, plr._ppos);
-	dist = (int)mis->_miRange - 24; // MISRANGE
-	// if (dist < 0)
-	//	return;
-	if (dist > 32)
-		dist = 32;
-	minbl = plr._pIChMinDam;
-	maxbl = plr._pIChMaxDam;
-	//if (maxbl != 0) {
-		minbl = ((64 + dist) * minbl) >> 5;
-		maxbl = ((64 + dist) * maxbl) >> 5;
-	//}
-	if (maxbl <= 0)
-		return;
-	//if (minbl < 0)
-	//	minbl = 0;
+	dist = (int)mis->_miRange + 40; // MISRANGE
+	if (dist > 96)
+		dist = 96;
 
-	oldx = mis->_mix;
-	oldy = mis->_miy;
-	mpnum = dMonster[oldx][oldy];
-	if (mpnum != 0) {
-		mpnum = CheckMonCol(mpnum);
-		if (/*mpnum < 0 ||*/ mpnum < MAX_MINIONS)
-			return;
-		//PlrHitMonst(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
-		mon = &monsters[mpnum];
-
-		hper = mis->_miSpllvl * 16 - mon->_mArmorClass;
-		if (!CheckHit(hper) && mon->_mmode != MM_STONE)
-			return;
-
-		if (!CheckMonsterHit(mpnum, &ret))
-			return;
-
-		dam = CalcMonsterDam(mon->_mMagicRes, MISR_BLUNT, minbl, maxbl, false);
-
-		//if (random_(151, 200) < plr._pICritChance)
-		//	dam <<= 1;
-
-		//if (pnum == mypnum) {
-			mon->_mhitpoints -= dam;
-		//}
-
-		if (mon->_mhitpoints < (1 << 6)) {
-			MonKill(mpnum, pnum);
-		} else {
-			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
-			//if (hitFlags & ISPL_NOHEALMON)
-			//	mon->_mFlags |= MFLAG_NOHEAL;
-			MonHitByPlr(mpnum, pnum, dam, hitFlags, plr._pdir);
-		}
-		return;
-	}
-	mpnum = dPlayer[oldx][oldy];
-	if (mpnum != 0) {
-		mpnum = CheckPlrCol(mpnum);
-		if (mpnum < 0)
-			return;
-		//PlrHitPlr(pnum, SPL_CHARGE, mis->_miSpllvl, mpnum);
-		if (plx(mpnum)._pTeam == plr._pTeam || plx(mpnum)._pInvincible)
-			return;
-
-		hper = mis->_miSpllvl * 16 - plx(mpnum)._pIAC;
-		if (!CheckHit(hper))
-			return;
-
-		if (PlrCheckBlock(mpnum, 2 * plr._pLevel + 16, OPPOSITE(plr._pdir)))
-			return;
-		dam = CalcPlrDam(mpnum, MISR_BLUNT, minbl, maxbl);
-
-		//if (random_(151, 200) < plr._pICritChance)
-		//	dam <<= 1;
-		if (!PlrDecHp(mpnum, dam, DMGTYPE_PLAYER)) {
-			hitFlags = (plr._pIFlags & ISPL_HITFLAGS_MASK) | ISPL_STUN;
-			PlrHitByAny(mpnum, pnum, dam, hitFlags, plr._pdir);
-		}
-		return;
-	}
+	RECT32 rect = { mis->_mix * DUN_WIDTH, mis->_miy * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	CheckHRectAreaHit(rect, PlrChargeCallback, (dist << 24) | (mis->_miSpllvl << 16) | pnum);
 }
 
 bool PosOkActor(int x, int y)
