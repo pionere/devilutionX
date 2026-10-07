@@ -1062,7 +1062,7 @@ void DeltaLoadLevel()
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
 					assert(mon->_mlid == NO_LIGHT);
-					InitSummonedMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mx, mon->_my);
+					InitSummonedMonster(i, mon->_mdir, mstr->dmSIdx - 1, mon->_mpos);
 					if (!monInGame)
 						nummonsters++;
 				}

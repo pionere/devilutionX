@@ -565,14 +565,14 @@ void GetLevelMTypes()
 	//}
 }
 
-static void InitMonster(int mnum, int dir, int mtidx, int x, int y)
+static void InitMonster(int mnum, int dir, int mtidx, POS32 pos)
 {
 	MapMonData* cmon = &mapMonTypes[mtidx];
 	MonsterStruct* mon = &monsters[mnum];
 
 	mon->_mMTidx = mtidx;
 	mon->_mdir = dir;
-	SetMonsterLoc(mnum, x, y);
+	SetMonsterPos(mnum, pos);
 	mon->_mType = cmon->cmType;
 	/*mon->_mName = cmon->cmName;
 	mon->_mFileNum = cmon->cmFileNum;
@@ -700,11 +700,11 @@ void WakeNakrul()
 }
 #endif
 
-void InitSummonedMonster(int mnum, int dir, int mtidx, int x, int y)
+void InitSummonedMonster(int mnum, int dir, int mtidx, POS32 pos)
 {
 	static_assert(DLV_TOWN == 0, "InitSummonedMonster skips the first entry glSeedTbl assuming the 'dynamic' seed is stored there.");
 	SetRndSeed(glSeedTbl[(mnum % (NUM_FIXLVLS - 1)) + 1]);
-	InitMonster(mnum, dir, mtidx, x, y);
+	InitMonster(mnum, dir, mtidx, pos);
 	monsters[mnum]._mFlags |= MFLAG_NOCORPSE | MFLAG_NODROP;
 }
 
@@ -718,7 +718,7 @@ int SummonMonster(int x, int y, int dir, int mtidx)
 
 		nummonsters++;
 		dMonster[x][y] = mnum + 1;
-		InitSummonedMonster(mnum, dir, mtidx, x, y);
+		InitSummonedMonster(mnum, dir, mtidx, DungeonToDunPos(x, y));
 		NetSendCmdMonstSummon(mnum);
 		return mnum;
 	}
@@ -734,7 +734,7 @@ static int PlaceMonster(int mtidx, int x, int y)
 	dMonster[x][y] = mnum + 1;
 
 	dir = random_(90, NUM_DIRS);
-	InitMonster(mnum, dir, mtidx, x, y);
+	InitMonster(mnum, dir, mtidx, DungeonToDunPos(x, y));
 	return mnum;
 }
 
@@ -1638,6 +1638,16 @@ void SetMonsterLoc(int mnum, int x, int y)
 	mon->_mx = mon->_mfutx = mon->_moldx = x;
 	mon->_my = mon->_mfuty = mon->_moldy = y;
 	mon->_mpos = DungeonToDunPos(x, y);
+}
+
+void SetMonsterPos(int mnum, POS32 pos)
+{
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+	mon->_mpos = pos;
+	mon->_mx = mon->_moldx = mon->_mfutx = (unsigned)pos.x / DUN_WIDTH;
+	mon->_my = mon->_moldy = mon->_mfuty = (unsigned)pos.y / DUN_WIDTH;
 }
 
 static void FixMonLocation(int mnum)
@@ -5213,7 +5223,7 @@ int PreSpawnSkeleton()
 		mnum = nummonsters;
 		nummonsters++;
 		n = mapSkelTypes[random_low(136, n)];
-		InitMonster(mnum, 0, n, 0, 0);
+		InitMonster(mnum, 0, n, { 0, 0 });
 		monsters[mnum]._mmode = MM_RESERVED;
 	}
 	return mnum;
@@ -5345,7 +5355,7 @@ void PreSpawnMinion(int mnum, int type, int level)
 	const MonsterAI follow = { AI_FOLLOW, 0, 0, 0 };
 
 	int mtidx = AddMonsterType(mmData.mtype, FALSE);
-	InitMonster(mnum, DIR_S, mtidx, 0, 0); // reset goal, enemy (+last)
+	InitMonster(mnum, DIR_S, mtidx, { 0, 0 }); // reset goal, enemy (+last)
 
 	assert((unsigned)level <= UINT8_MAX);
 	unsigned lvlBonus = level;
