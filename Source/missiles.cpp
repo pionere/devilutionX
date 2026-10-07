@@ -1625,8 +1625,7 @@ static int CheckSubtileHit(int mx, int my)
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (!objects[oi]._oMissFlag) {
-			if (objects[oi]._oBreak == OBM_BREAKABLE)
-				OperateObject(-1, oi, false);
+			ObjHitByAny(oi);
 			hit = -(MAX_PLRS + 2);
 		}
 	}
