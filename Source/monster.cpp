@@ -2547,10 +2547,7 @@ static bool MonHitCallback(int mponum, int mnumHit)
 #if 0
 		} else {
 			mponum -= MAX_PLRS;
-			// MonHitObj
-			if (objects[mponum]._oBreak == OBM_BREAKABLE) {
-				OperateObject(-1, oi, false);
-			}
+			ObjHitByAny(mponum);
 #endif
 		}
 	}

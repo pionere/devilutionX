@@ -2105,6 +2105,13 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 	RedoLightAndVision();
 }
 
+void ObjHitByAny(int oi)
+{
+	if (objects[oi]._oBreak == OBM_BREAKABLE) {
+		OperateObject(-1, oi, false);
+	}
+}
+
 void MonstCheckDoors(POS32 pos)
 {
 	int mx, my, i, oi;

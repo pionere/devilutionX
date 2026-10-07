@@ -1918,10 +1918,7 @@ static bool PlrHitCallback(int mponum, int pnumHit)
 			result = PlrHitPlr(pnum, sn, sl, mponum);
 		} else {
 			mponum -= MAX_PLRS;
-			// PlrHitObj
-			if (objects[mponum]._oBreak == OBM_BREAKABLE) {
-				OperateObject(-1, mponum, false);
-			}
+			ObjHitByAny(mponum);
 			result = false; // do not reduce the durability if the target is an object
 		}
 	}

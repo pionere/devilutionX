@@ -1608,8 +1608,8 @@ static bool MisAreaCallback(int mponum, int mi)
 			mponum -= MAX_PLRS;
 			// ObjMissHit
 			result = objects[mponum]._oMissFlag == 0;
-			if (result && objects[mponum]._oBreak == OBM_BREAKABLE) {
-				OperateObject(-1, mponum, false);
+			if (result) {
+				ObjHitByAny(mponum);
 			}
 		}
 	}
