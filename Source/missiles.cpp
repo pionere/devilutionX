@@ -3024,7 +3024,7 @@ int AddPortal(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 	if (spllvl >= 0) {
 		PlaySfxLoc(LS_SENTINEL, mis->_mipos);
 		if (misource == mypnum)
-			NetSendCmdLocBParam1(CMD_ACTIVATEPORTAL, dx, dy, currLvl._dLevelIdx);
+			NetSendCmdLocBParam1(CMD_ACTIVATEPORTAL, mis->_mipos, currLvl._dLevelIdx);
 	} else {
 		// a recreated portal (by AddWarpMissile or InitVP*Trigger)
 		// make sure the portal is in its final form even on the first frame

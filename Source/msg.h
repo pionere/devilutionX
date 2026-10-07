@@ -35,7 +35,7 @@ void NetSendCmdJoinLevel();
 void NetSendCmd(BYTE bCmd);
 void NetSendCmdLoc(BYTE bCmd, POS32 pos);
 void NetSendCmdLocParam1(BYTE bCmd, POS32 pos, uint16_t wParam1);
-void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1);
+void NetSendCmdLocBParam1(BYTE bCmd, POS32 pos, BYTE bParam1);
 void NetSendCmdLocBParam2(BYTE bCmd, POS32 pos, BYTE bParam1, BYTE bParam2);
 void NetSendCmdParam1(BYTE bCmd, uint16_t wParam1);
 void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, uint16_t wParam2);

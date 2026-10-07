@@ -1057,7 +1057,7 @@ void DeltaLoadLevel()
 					UpdateLeader(i, mon->_mleaderflag, mstr->dmleaderflag);
 					RemoveMonFromMap(i);
 				}
-				SetMonsterLoc(i, mstr->dmx, mstr->dmy);
+				SetMonsterPos(i, { mstr->dmx, mstr->dmy });
 				mon->_mdir = mstr->dmdir;
 				if (mstr->dmSIdx != 0) {
 					net_assert(mstr->dmSIdx <= nummtypes);
@@ -1096,6 +1096,8 @@ void DeltaLoadLevel()
 						mon->_mmode = MM_STAND;
 					}
 					dMonster[mon->_mx][mon->_my] = i + 1;
+					// keep the monster in the middle of the subtile after reentering the dungeon
+					mon->_mpos = DungeonToDunPos(mon->_mx, mon->_my);
 					// SyncMonsterAnim(mnum);
 					assert(mon->_mmode == MM_STAND);
 					mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
@@ -1957,8 +1959,8 @@ void NetSendCmdMonstKill(int mnum, int pnum)
 	mon = &monsters[mnum];
 	cmd.mkExp = mon->_mExp;
 	cmd.mkMonLevel = mon->_mLevel;
-	cmd.mkParam1.x = mon->_mx;
-	cmd.mkParam1.y = mon->_my;
+	cmd.mkParam1.x = mon->_mpos.x;
+	cmd.mkParam1.y = mon->_mpos.y;
 	cmd.mkDir = (!(mon->_mFlags & MFLAG_NOCORPSE) && mon->_mmode != MM_STONE) ? mon->_mdir : NUM_DIRS;
 	cmd.mkParam1.bParam1 = currLvl._dLevelIdx;
 
@@ -1992,13 +1994,13 @@ void NetSendCmdLoc(BYTE bCmd, POS32 pos)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdLocBParam1(BYTE bCmd, BYTE x, BYTE y, BYTE bParam1)
+void NetSendCmdLocBParam1(BYTE bCmd, POS32 pos, BYTE bParam1)
 {
 	TCmdLocBParam1 cmd;
 
 	cmd.bCmd = bCmd;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 	cmd.bParam1 = bParam1;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
@@ -2243,8 +2245,8 @@ void NetSendCmdMonstSummon(int mnum)
 	mon = &monsters[mnum];
 	cmd.mnParam1.bCmd = CMD_MONSTSUMMON;
 	cmd.mnParam1.bParam1 = currLvl._dLevelIdx;
-	cmd.mnParam1.x = mon->_mx;
-	cmd.mnParam1.y = mon->_my;
+	cmd.mnParam1.x = mon->_mpos.x;
+	cmd.mnParam1.y = mon->_mpos.y;
 	cmd.mnMnum = static_cast<uint16_t>(mnum);
 	cmd.mnSIdx = mon->_mMTidx;
 	cmd.mnDir = mon->_mdir;
@@ -2861,8 +2863,8 @@ static unsigned On_MONSTDEATH(const TCmd* pCmd, int pnum)
 	if (pnum != mypnum && currLvl._dLevelIdx == cmd->mkParam1.bParam1) {
 		x = cmd->mkParam1.x;
 		y = cmd->mkParam1.y;
-		net_check_cmd(IN_ACTIVE_AREA(x, y));
-		MonSyncKill(cmd->mkMnum, x, y, cmd->mkPnum);
+		net_check_cmd(IN_ACTIVE_DUN(x, y));
+		MonSyncKill(cmd->mkMnum, { x, y }, cmd->mkPnum);
 	}
 
 	whoHit = delta_kill_monster(cmd);
@@ -3375,10 +3377,16 @@ static unsigned On_ACTIVATEPORTAL(const TCmd* pCmd, int pnum)
 {
 	const TCmdLocBParam1* cmd = (const TCmdLocBParam1*)pCmd;
 	BYTE bLevel = cmd->bParam1;
+	int x, y;
+
+	x = cmd->x;
+	x = (unsigned)x / DUN_WIDTH;
+	y = cmd->y;
+	y = (unsigned)y / DUN_WIDTH;
 
 	net_check_cmd(bLevel != DLV_TOWN);
 	// net_check_cmd(bLevel < NUM_LEVELS);
-	net_check_cmd(IN_ACTIVE_AREA(cmd->x, cmd->y));
+	net_check_cmd(IN_ACTIVE_AREA(x, y));
 
 	static_assert(MAXPORTAL == MAX_PLRS, "On_ACTIVATEPORTAL uses pnum as portal-id.");
 	if (currLvl._dLevelIdx == DLV_TOWN)
@@ -3386,7 +3394,7 @@ static unsigned On_ACTIVATEPORTAL(const TCmd* pCmd, int pnum)
 	else if (currLvl._dLevelIdx != bLevel)
 		RemovePortalMissile(pnum);
 
-	ActivatePortal(pnum, cmd->x, cmd->y, bLevel);
+	ActivatePortal(pnum, x, y, bLevel);
 
 	return sizeof(*cmd);
 }

@@ -1545,8 +1545,8 @@ typedef struct TCmdLoc {
 
 typedef struct TCmdLocBParam1 {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BYTE bParam1;
 } TCmdLocBParam1;
 
@@ -1797,8 +1797,8 @@ typedef struct TSyncHeader {
 
 typedef struct TSyncMonster {
 	BYTE nmndx;
-	BYTE nmx;
-	BYTE nmy;
+	LE_INT32 nmx;
+	LE_INT32 nmy;
 	BYTE nmdir;
 	BYTE nmleaderflag;
 	LE_UINT32 nmactive;
@@ -1949,8 +1949,8 @@ typedef struct NormalMsgPkt {
 
 typedef struct DDMonster {
 	BYTE dmCmd;
-	BYTE dmx;
-	BYTE dmy;
+	LE_INT32 dmx;
+	LE_INT32 dmy;
 	BYTE dmdir;
 	BYTE dmleaderflag;
 	BYTE dmWhoHit;

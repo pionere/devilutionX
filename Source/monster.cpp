@@ -2356,7 +2356,7 @@ void MonKill(int mnum, int mpnum)
 	MonInitKill(mnum, mpnum, sendmsg);
 }
 
-void MonSyncKill(int mnum, int x, int y, int pnum)
+void MonSyncKill(int mnum, POS32 pos, int pnum)
 {
 	if ((unsigned)mnum >= MAXMONSTERS) {
 		dev_fatal("MonSyncKill: Invalid monster %d", mnum);
@@ -2369,13 +2369,12 @@ void MonSyncKill(int mnum, int x, int y, int pnum)
 #endif
 		return;
 	}
-	if (monsters[mnum]._mx != x || monsters[mnum]._my != y) {
+	if (monsters[mnum]._mpos.x != pos.x || monsters[mnum]._mpos.y != pos.y) {
 		RemoveMonFromMap(mnum);
-		//dMonster[x][y] = mnum + 1;
-		monsters[mnum]._mx = x;
-		monsters[mnum]._my = y;
-		//monsters[mnum]._moldx = x;
-		//monsters[mnum]._moldy = y;
+		// dMonster[x][y] = mnum + 1;
+		// SetMonsterPos(mnum, pos);
+		monsters[mnum]._mx = (unsigned)pos.x / DUN_WIDTH;
+		monsters[mnum]._my = (unsigned)pos.y / DUN_WIDTH;
 	}
 
 	MonInitKill(mnum, pnum, false);

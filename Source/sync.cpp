@@ -42,8 +42,8 @@ BYTE* sync_all_monsters(BYTE* pbBuf, unsigned size)
 			symon = (TSyncMonster*)pbBuf;
 			static_assert(MAXMONSTERS <= UCHAR_MAX, "Monster indices are transferred as BYTEs in sync_all_monsters.");
 			symon->nmndx = idx;
-			symon->nmx = mon->_mx;
-			symon->nmy = mon->_my;
+			symon->nmx = mon->_mpos.x;
+			symon->nmy = mon->_mpos.y;
 			symon->nmdir = mon->_mdir;
 			symon->nmleaderflag = mon->_mleaderflag;
 			symon->nmhitpoints = mon->_mhitpoints;
