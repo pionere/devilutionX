@@ -1901,40 +1901,68 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	return true;
 }
 
-static int PlrTryHit(int pnum, int dir)
+static bool PlrHitCallback(int mponum, int pnumHit)
 {
-	int dx, dy, mpo, sn, sl;
-
-	plr._pdir = dir;
-	dx = plr._px + offset_x[dir];
-	dy = plr._py + offset_y[dir];
+	int pnum, mode, sn, sl;
+	bool result;
+	static_assert(MAX_PLRS <= (1 << 16), "Hit mode information can not propagated to PlrHitCallback.");
+	pnum = pnumHit & 0xFFFF;
+	mode = pnumHit >> 16;
 	sn = plr._pVar5; // ATTACK_SKILL
 	sl = plr._pVar6; // ATTACK_SKILL_LEVEL
-
-	mpo = dMonster[dx][dy];
-	if (mpo != 0) {
-		mpo = CheckMonCol(mpo);
-		return (mpo >= 0 && PlrHitMonst(pnum, sn, sl, mpo)) ? 1 : 0;
-	}
-	mpo = dPlayer[dx][dy];
-	if (mpo != 0) {
-		mpo = CheckPlrCol(mpo);
-		return (mpo >= 0 && PlrHitPlr(pnum, sn, sl, mpo)) ? 1 : 0;
-	}
-	mpo = dObject[dx][dy];
-	if (mpo != 0) {
-		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
-		if (objects[mpo]._oBreak == OBM_BREAKABLE) {
-			OperateObject(pnum, mpo, false);
-			return 0; // do not reduce the durability if the target is an object
+	if (mponum >= 0) {
+		result = PlrHitMonst(pnum, sn, sl, mponum);
+	} else {
+		mponum = -(mponum + 1);
+		if (mponum < MAX_PLRS) {
+			result = PlrHitPlr(pnum, sn, sl, mponum);
+		} else {
+			mponum -= MAX_PLRS;
+			// PlrHitObj
+			if (objects[mponum]._oBreak == OBM_BREAKABLE) {
+				OperateObject(-1, mponum, false);
+			}
+			result = false; // do not reduce the durability if the target is an object
 		}
 	}
-	return 0;
+	plr._pVar3 += result ? 1 : 0; // HIT_COUNTER
+	// does not matter
+	return false;
+}
+
+static void PlrTryHit(int pnum)
+{
+	int dir, dx, dy, hitcnt;
+
+	dir = plr._pdir;
+	dx = plr._px + offset_x[dir];
+	dy = plr._py + offset_y[dir];
+
+	plr._pVar3 = 0; // HIT_COUNTER
+	RECT32 rect = { dx * DUN_WIDTH, dy * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	if (plr._pVar5 == SPL_SWIPE) { // ATTACK_SKILL
+		switch (dir) {
+		case DIR_S:  rect = { (dx - 1) * DUN_WIDTH, (dy - 1) * DUN_WIDTH, 2 * DUN_WIDTH, 2 * DUN_WIDTH }; break;
+		case DIR_W:  rect = { (dx + 0) * DUN_WIDTH, (dy - 1) * DUN_WIDTH, 2 * DUN_WIDTH, 2 * DUN_WIDTH }; break;
+		case DIR_N:  rect = { (dx + 0) * DUN_WIDTH, (dy + 0) * DUN_WIDTH, 2 * DUN_WIDTH, 2 * DUN_WIDTH }; break;
+		case DIR_E:  rect = { (dx - 1) * DUN_WIDTH, (dy + 0) * DUN_WIDTH, 2 * DUN_WIDTH, 2 * DUN_WIDTH }; break;
+		case DIR_NE: 
+		case DIR_SW: rect = { (dx - 1) * DUN_WIDTH, (dy + 0) * DUN_WIDTH, 3 * DUN_WIDTH, 1 * DUN_WIDTH }; break;
+		case DIR_SE:
+		case DIR_NW: rect = { (dx + 0) * DUN_WIDTH, (dy - 1) * DUN_WIDTH, 1 * DUN_WIDTH, 3 * DUN_WIDTH }; break;
+		default: ASSUME_UNREACHABLE; break;
+		}
+	}
+	CheckHRectAreaHit(rect, PlrHitCallback, (MOH_NORMAL << 16) | pnum);
+
+	hitcnt = plr._pVar3; // HIT_COUNTER
+	if (hitcnt != 0) {
+		WeaponDur(pnum, 40 - hitcnt * 8);
+	}
 }
 
 static void PlrDoAttack(int pnum)
 {
-	int dir, hitcnt;
 	bool stepAnim = false;
 
 	plr._pVar8++;         // ATTACK_TICK
@@ -1988,21 +2016,12 @@ static void PlrDoAttack(int pnum)
 	}
 	if (plr._pVar7 == 1) {
 		plr._pVar7 = 2;
-		dir = plr._pdir;
-		hitcnt = PlrTryHit(pnum, dir);
-		if (plr._pVar5 == SPL_SWIPE) {
-			hitcnt += PlrTryHit(pnum, (dir + 1) & 7);
-			hitcnt += PlrTryHit(pnum, (dir + 7) & 7);
-		}
+		PlrTryHit(pnum);
 
-		if (hitcnt != 0) {
-			WeaponDur(pnum, 40 - hitcnt * 8);
-		}
 		// return early if the weapon is lost or triggered a got-hit/death animation
 		if (plr._pmode != PM_ATTACK) {
 			return;
 		}
-		plr._pdir = dir;
 	}
 	assert(PlrAnimFrameLens[PGX_ATTACK] == 1);
 	// assert(plr._pAnims[PGX_ATTACK].paFrames == plr._pAnimLen);

@@ -1536,7 +1536,7 @@ int CheckPlrCol(int pnum)
 
 /*
  * @param rect: precise dungeon rectangle to check
- * @param callback: callback to notify on hitting actors
+ * @param callback: callback to notify on hitting actors or objects
  * @param cbArg: callback-argument to pass to the callback function
  * @return what was hit (0: nothing, 1: actor, 2: object)
  */
@@ -1546,10 +1546,8 @@ int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 	int x1 = rect.x/* + 1*/, x2 = rect.x + rect.w, y1 = rect.y/* + 1*/, y2 = rect.y + rect.h;
 
 	for (int oi = 0; oi < numobjects; oi++) {
-		if (objects[oi]._oMissFlag) continue;
 		if (!POS_IN_AREA(objects[oi]._opos.x, objects[oi]._opos.y, x1, y1, x2, y2)) continue;
-		if (objects[oi]._oBreak == OBM_BREAKABLE)
-			OperateObject(-1, oi, false);
+		if (!callback(-(MAX_PLRS + 1 + oi), cbArg)) continue;
 		hit = 2;
 	}
 
@@ -1582,27 +1580,38 @@ static bool MisHitCallback(int mpnum, int mi)
 	if (mpnum >= 0) {
 		result = MonMissHit(mpnum, mi);
 	} else {
-		result = PlrMissHit(-(mpnum + 1), mi);
+		mpnum = -(mpnum + 1);
+		result = PlrMissHit(mpnum, mi);
 	}
 	return result;
 }
 
 /*
- * Try to hit an actor with a missile, return whether there was a hit, but keep the last hit actor
- * @param mpnum: the index of the actor to be hit (mnum if >= 0, -(pnum + 1) if < 0)
+ * Try to hit an actor or an object with a missile, return whether there was a hit, but keep the last hit actor
+ * @param mponum: the index of the actor or object to be hit (mnum if >= 0, -(pnum + 1) if < 0 and >= -MAX_PLRS, -(MAX_PLRS + 1 + oi) otherwise)
  * @param mi: index of the missile
  * @return whether the missile really hit
  */
-static bool MisAreaCallback(int mpnum, int mi)
+static bool MisAreaCallback(int mponum, int mi)
 {
 	int lh;
 	bool result;
 	//  - keep last hit actor
 	lh = missile[mi]._miVar8;
-	if (mpnum >= 0) {
-		result = MonMissHit(mpnum, mi);
+	if (mponum >= 0) {
+		result = MonMissHit(mponum, mi);
 	} else {
-		result = PlrMissHit(-(mpnum + 1), mi);
+		mponum = -(mponum + 1);
+		if (mponum < MAX_PLRS) {
+			result = PlrMissHit(mponum, mi);
+		} else {
+			mponum -= MAX_PLRS;
+			// ObjMissHit
+			result = objects[mponum]._oMissFlag == 0;
+			if (result && objects[mponum]._oBreak == OBM_BREAKABLE) {
+				OperateObject(-1, mponum, false);
+			}
+		}
 	}
 	// - restore last hit actor
 	missile[mi]._miVar8 = lh;

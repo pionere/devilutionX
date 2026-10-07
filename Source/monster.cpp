@@ -2504,7 +2504,7 @@ static bool MonHitPlr(int mnum, int pnum, int hper, int MinDam, int MaxDam)
 	return true;
 }
 
-static bool MonHitCallback(int mpnum, int mnumHit)
+static bool MonHitCallback(int mponum, int mnumHit)
 {
 	MonsterStruct* mon;
 	int mnum, mode, Hit, MinDam, MaxDam;
@@ -2529,19 +2529,29 @@ static bool MonHitCallback(int mpnum, int mnumHit)
 		break;
 	default: ASSUME_UNREACHABLE; break;
 	}
-	if (mpnum >= 0) {
-		if (/*mnum != mpnum && */(mnum < MAX_MINIONS || mpnum < MAX_MINIONS)) {
-			result = MonHitMon(mnum, mpnum, Hit, MinDam, MaxDam);
+	if (mponum >= 0) {
+		if (/*mnum != mponum && */(mnum < MAX_MINIONS || mponum < MAX_MINIONS)) {
+			result = MonHitMon(mnum, mponum, Hit, MinDam, MaxDam);
 			if (!result && mode == MOH_CHARGE && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
 				// TODO: use MonHitByMon ?
-				PlayMonSfx(mpnum, MS_GOTHIT);
+				PlayMonSfx(mponum, MS_GOTHIT);
 			}
 		}
 	} else {
-		mpnum = -(mpnum + 1);
-		result = MonHitPlr(mnum, mpnum, Hit, MinDam, MaxDam);
-		if (!result && mode == MOH_CHARGE && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
-			PlrHitByAny(mpnum, mnum, 0, ISPL_KNOCKBACK, mon->_mdir);
+		mponum = -(mponum + 1);
+		if (mponum < MAX_PLRS) {
+			result = MonHitPlr(mnum, mponum, Hit, MinDam, MaxDam);
+			if (!result && mode == MOH_CHARGE && mon->_mAI.aiType == AI_RHINO) { /* mon->_mType < MT_NSNAKE || mon->_mType > MT_GSNAKE */
+				PlrHitByAny(mponum, mnum, 0, ISPL_KNOCKBACK, mon->_mdir);
+			}
+#if 0
+		} else {
+			mponum -= MAX_PLRS;
+			// MonHitObj
+			if (objects[mponum]._oBreak == OBM_BREAKABLE) {
+				OperateObject(-1, oi, false);
+			}
+#endif
 		}
 	}
 	// does not matter
