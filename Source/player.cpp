@@ -1901,13 +1901,11 @@ static bool PlrHitPlr(int offp, int sn, int sl, int pnum)
 	return true;
 }
 
-static bool PlrHitCallback(int mponum, int pnumHit)
+static bool PlrHitCallback(int mponum, int pnum)
 {
-	int pnum, mode, sn, sl;
+	int sn, sl;
 	bool result;
-	static_assert(MAX_PLRS <= (1 << 16), "Hit mode information can not propagated to PlrHitCallback.");
-	pnum = pnumHit & 0xFFFF;
-	mode = pnumHit >> 16;
+
 	sn = plr._pVar5; // ATTACK_SKILL
 	sl = plr._pVar6; // ATTACK_SKILL_LEVEL
 	if (mponum >= 0) {
@@ -1950,7 +1948,7 @@ static void PlrTryHit(int pnum)
 		default: ASSUME_UNREACHABLE; break;
 		}
 	}
-	CheckHRectAreaHit(rect, PlrHitCallback, (MOH_NORMAL << 16) | pnum);
+	CheckHRectAreaHit(rect, PlrHitCallback, pnum);
 
 	hitcnt = plr._pVar3; // HIT_COUNTER
 	if (hitcnt != 0) {
