@@ -731,7 +731,7 @@ static void GetMissileVel(MissileStruct* mis, POS32 dp, int v)
 	mis->_miyvel = (int)(((int64_t)dy * v) / dr);
 }
 
-static void SetMissilePos(MissileStruct* mis, int x, int y)
+static void SetMissileLoc(MissileStruct* mis, int x, int y)
 {
 	mis->_mix = x;
 	mis->_miy = y;
@@ -2883,7 +2883,7 @@ int AddBloodBoilC(int mi, POS32 dp, int midir, int micaster, int misource, int s
 	dy = (unsigned)dp.y / DUN_WIDTH;
 	// mis->_misx = dx - 2; -- unused
 	// mis->_misy = dy - 2;
-	SetMissilePos(mis, dx - 2, dy - 2);
+	SetMissileLoc(mis, dx - 2, dy - 2);
 	mis->_miVar1 = 0;
 	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
 	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * 8;
@@ -3018,7 +3018,7 @@ int AddPortal(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 	mis = &missile[mi];
 	mis->_misx = dx;
 	mis->_misy = dy;
-	SetMissilePos(mis, dx, dy);
+	SetMissileLoc(mis, dx, dy);
 	static_assert(MAX_LIGHT_RAD >= 15, "AddPortal needs at least light-radius of 15.");
 	mis->_miLid = AddLight(mis->_mipos, spllvl >= 0 ? 1 : 15);
 	if (spllvl >= 0) {
