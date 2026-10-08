@@ -936,9 +936,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- name: diablo
-          #  cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
-          #  artifact: 'diablo-nightly-vita.vpk'
+          - name: diablo
+            cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF'
+            artifact: 'diablo-nightly-vita.vpk'
           - name: hellfire
             cmakeargs: '-D DEVILUTIONX_SYSTEM_SDL2=OFF -DHELLFIRE=ON'
             artifact: 'hellfire-nightly-vita.vpk'
@@ -1528,11 +1528,11 @@ jobs:
     - run: mv ${{github.workspace}}/devilutionx.zip ${{github.workspace}}/hellfire-nightly-ps5.zip
 
     # vita-builds
-    #- name: Download a diablo vita artifact
-    #  uses: actions/download-artifact@v8
-    #  with:
-    #    name: diablo-nightly-vita.vpk
-    #- run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vita.vpk
+    - name: Download a diablo vita artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: diablo-nightly-vita.vpk
+    - run: mv ${{github.workspace}}/devilutionx.vpk ${{github.workspace}}/diablo-nightly-vita.vpk
 
     - name: Download a hellfire vita artifact
       uses: actions/download-artifact@v8
@@ -1666,7 +1666,7 @@ jobs:
         echo '<td align=center><code>iOS</code></td>'                                                                                      >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-ios.ipa">ios.ipa</a></td>'                 >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
-        echo '<td align=center>---</td>'                 >> RELEASE_NOTE.md
+        echo '<td align=center><a href="../../releases/download/devilx-nightly/diablo-nightly-vita.vpk">vita.vpk</a></td>'                 >> RELEASE_NOTE.md
         echo '<td align=center><code>Vita</code></td>'                                                                                     >> RELEASE_NOTE.md
         echo '<td align=center><a href="../../releases/download/devilx-nightly/hellfire-nightly-vita.vpk">vita.vpk</a></td>'               >> RELEASE_NOTE.md
         echo '</tr><tr>'                                                                                                                     >> RELEASE_NOTE.md
@@ -1778,6 +1778,7 @@ jobs:
           ${{github.workspace}}/diablo-nightly-aarch64.tar.xz
           ${{github.workspace}}/diablo-nightly-mac.dmg
           ${{github.workspace}}/diablo-nightly-ios.ipa
+          ${{github.workspace}}/diablo-nightly-vita.vpk
           ${{github.workspace}}/diablo-nightly-3ds.3dsx
           ${{github.workspace}}/diablo-nightly-3ds.cia
           ${{github.workspace}}/diablo-nightly-switch.nro
