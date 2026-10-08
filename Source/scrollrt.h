@@ -30,9 +30,6 @@ extern "C" {
 		y = (vertical) - (horizontal);       \
 	}
 
-#define GRID_SHIFT (PLR_WALK_SHIFT - 5)
-#define GRID_WIDTH (64 << GRID_SHIFT)
-
 #define DUN_SHIFT (16 - 6)
 #define DUN_WIDTH ((1 << 6) << DUN_SHIFT)
 
@@ -43,10 +40,6 @@ extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
 POS32 DungeonToDunPos(int x, int y);
-POS32 DungeonToGridPos(int x, int y);
-POS32 DungeonScreenToDunPos(int x, int y, int xoff, int yoff);
-POS32 DungeonScreenToGridPos(int x, int y, int xoff, int yoff);
-POS32 DunToGrid(POS32 pos);
 POS32 DunScreenOffset(POS32 pos);
 POS32 ScreenToDun(POS32 pos);
 /*
