@@ -10,8 +10,7 @@
 DEVILUTION_BEGIN_NAMESPACE
 
 /*
- * Similar to walk offsetx/y with PLR/MON_WALK_SHIFT, missile velocity values
- * are shifted with MIS_*VELO_SHIFT to the higher range for better precision.
+ * Missile velocity values are shifted with MIS_*VELO_SHIFT to the higher range for better precision.
  */
 #define MIS_VELO_SHIFT      16
 

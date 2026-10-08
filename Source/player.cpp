@@ -1078,15 +1078,8 @@ void PlrStartStand(int pnum)
 
 static void PlrChangeOffset(int pnum)
 {
-#if DUN_SHIFT <= PLR_WALK_SHIFT
-	int xoff = plr._pVar4 >> (PLR_WALK_SHIFT - DUN_SHIFT);
-	int yoff = plr._pVar5 >> (PLR_WALK_SHIFT - DUN_SHIFT);
-#else
-	int xoff = plr._pVar4 << (DUN_SHIFT - PLR_WALK_SHIFT);
-	int yoff = plr._pVar5 << (DUN_SHIFT - PLR_WALK_SHIFT);
-#endif
-	plr._ppos.x += xoff;
-	plr._ppos.y += yoff;
+	plr._ppos.x += plr._pVar4; // WALK_XVEL
+	plr._ppos.y += plr._pVar5; // WALK_YVEL
 
 	plr._pVar4 = plr._pVar6; // WALK_XVEL <- WALK_XVEL_MAX
 	plr._pVar5 = plr._pVar7; // WALK_YVEL <- WALK_YVEL_MAX
@@ -1151,7 +1144,6 @@ static void StartWalk(int pnum, int dir)
 	int mwi;
 
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
-	static_assert(PLR_WALK_SHIFT == MON_WALK_SHIFT, "To reuse MWVel in StartWalk, PLR_WALK_SHIFT must be equal to MON_WALK_SHIFT.");
 	assert(PLR_WALK_ANIMLEN < lengthof(MWVel));
 	assert(PLR_WALK_ANIMLEN == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
 	assert(PlrAnimFrameLens[PA_WALK] == 1);

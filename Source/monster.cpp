@@ -78,33 +78,33 @@ static MonEnemyStruct currEnemyInfo;
 /* data */
 
 /** Maps from monster walk animation length to monster velocity. */
-// MWVel[animLen - 1] = (TILE_WIDTH << MON_WALK_SHIFT) / animLen;
+// MWVel[animLen - 1] = DUN_WIDTH / animLen;
 const int MWVel[24] = {
 	// clang-format off
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 1,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 2,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 3,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 4,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 5,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 6,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 7,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 8,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 9,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 10,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 11,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 12,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 13,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 14,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 15,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 16,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 17,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 18,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 19,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 20,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 21,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 22,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 23,
-	((TILE_WIDTH / ASSET_MPL) << MON_WALK_SHIFT) / 24,
+	DUN_WIDTH / 1,
+	DUN_WIDTH / 2,
+	DUN_WIDTH / 3,
+	DUN_WIDTH / 4,
+	DUN_WIDTH / 5,
+	DUN_WIDTH / 6,
+	DUN_WIDTH / 7,
+	DUN_WIDTH / 8,
+	DUN_WIDTH / 9,
+	DUN_WIDTH / 10,
+	DUN_WIDTH / 11,
+	DUN_WIDTH / 12,
+	DUN_WIDTH / 13,
+	DUN_WIDTH / 14,
+	DUN_WIDTH / 15,
+	DUN_WIDTH / 16,
+	DUN_WIDTH / 17,
+	DUN_WIDTH / 18,
+	DUN_WIDTH / 19,
+	DUN_WIDTH / 20,
+	DUN_WIDTH / 21,
+	DUN_WIDTH / 22,
+	DUN_WIDTH / 23,
+	DUN_WIDTH / 24,
 	// clang-format on
 };
 /** Maps from monster action to monster animation letter. */
@@ -2395,15 +2395,9 @@ static void MonChangeOffset(int mnum)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-#if DUN_SHIFT <= MON_WALK_SHIFT
-	int xoff = mon->_mVar4 >> (MON_WALK_SHIFT - DUN_SHIFT);
-	int yoff = mon->_mVar5 >> (MON_WALK_SHIFT - DUN_SHIFT);
-#else
-	int xoff = mon->_mVar4 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_XVEL
-	int yoff = mon->_mVar5 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_YVEL
-#endif
-	mon->_mpos.x += xoff;
-	mon->_mpos.y += yoff;
+
+	mon->_mpos.x += mon->_mVar4; // WALK_XVEL
+	mon->_mpos.y += mon->_mVar5; // WALK_YVEL
 
 	mon->_mVar4 = mon->_mVar6; // WALK_XVEL <- WALK_XVEL_MAX
 	mon->_mVar5 = mon->_mVar7; // WALK_YVEL <- WALK_YVEL_MAX
