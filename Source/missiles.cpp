@@ -558,7 +558,7 @@ static void DoTeleport(int pnum, int dx, int dy)
 	//PlrDoTrans(px, py);
 	dPlayer[px][py] = pnum + 1;
 	ChangeLightXY(plr._plid, plr._ppos);
-	ChangeVisionXY(plr._pvid, px, py);
+	ChangeVisionXY(plr._pvid, plr._ppos);
 	UpdateScrollInfo(pnum);
 }
 
@@ -763,7 +763,7 @@ static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 	plr._ppos = mis->_mipos;
 
 	ChangeLightXY(plr._plid, plr._ppos);
-	ChangeVisionXY(plr._pvid, plr._px, plr._py);
+	ChangeVisionXY(plr._pvid, plr._ppos);
 }
 
 static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
@@ -775,7 +775,7 @@ static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 	// assert(mon->_mvid == NO_VISION);
 	// assert(mon->_mlid == NO_LIGHT);
 	// ChangeLightXY(mon->_mlid, mon->_mpos);
-	// ChangeVisionXY(mon->_mvid, mon->_mx, mon->my);
+	// ChangeVisionXY(mon->_mvid, mon->_mpos);
 }
 
 /**

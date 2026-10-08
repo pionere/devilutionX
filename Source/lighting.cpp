@@ -1049,10 +1049,13 @@ void LightAndVisionDone()
 	_gbDovision = false;
 }
 
-int AddVision(int x, int y, int r, bool mine)
+int AddVision(POS32 pos, int r, bool mine)
 {
 	LightListStruct* vis;
-	int vnum;
+	int x, y, vnum;
+
+	x = (unsigned)pos.x / DUN_WIDTH;
+	y = (unsigned)pos.y / DUN_WIDTH;
 
 	assert(numvision < MAXVISION);
 	vnum = visionactive[numvision++];
@@ -1090,18 +1093,24 @@ void ChangeVisionRadius(unsigned vnum, int r)
 	_gbDovision = true;
 }
 
-void ChangeVisionXY(unsigned vnum, int x, int y)
+void ChangeVisionXY(unsigned vnum, POS32 pos)
 {
 	LightListStruct* vis;
+	int x, y;
 
 	if (vnum >= MAXVISION)
 		return;
 
+	x = (unsigned)pos.x / DUN_WIDTH;
+	y = (unsigned)pos.y / DUN_WIDTH;
+
 	vis = &VisionList[vnum];
-	vis->_lunflag = true;
-	vis->_lx = x;
-	vis->_ly = y;
-	_gbDovision = true;
+	if (vis->_lx != x || vis->_ly != y) {
+		vis->_lunflag = true;
+		vis->_lx = x;
+		vis->_ly = y;
+		_gbDovision = true;
+	}
 }
 
 void ProcessVisionList()

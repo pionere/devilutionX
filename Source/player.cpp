@@ -663,7 +663,7 @@ static void PlrPlace(int pnum)
 {
 	FixPlayerLocation(pnum);
 	ChangeLightXY(plr._plid, plr._ppos);
-	ChangeVisionXY(plr._pvid, plr._px, plr._py);
+	ChangeVisionXY(plr._pvid, plr._ppos);
 }
 
 /*
@@ -781,7 +781,7 @@ void InitLvlPlayer(int pnum, bool entering)
 		plr._plid = AddLight(plr._ppos, plr._pLightRad);
 	}
 	if (currLvl._dLevelIdx != DLV_TOWN) {
-		plr._pvid = AddVision(plr._poldx, plr._poldy, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
+		plr._pvid = AddVision(plr._ppos, std::max(PLR_MIN_VISRAD, (int)plr._pLightRad), pnum == mypnum);
 	}
 }
 
@@ -1083,8 +1083,8 @@ static void PlrChangeOffset(int pnum)
 
 	UpdateScrollInfo(pnum);
 
-	//if (plr._plid != NO_LIGHT)
-		ChangeLightXY(plr._plid, plr._ppos);
+	ChangeLightXY(plr._plid, plr._ppos);
+	ChangeVisionXY(plr._pvid, plr._ppos);
 }
 
 /**

@@ -1984,8 +1984,8 @@ static void MonPlace(int mnum)
 	// assert(mon->_mlid == NO_LIGHT || (LightList[mon->_mlid]._lx == mx && LightList[mon->_mlid]._ly == my));
 	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 	//	ChangeLightXY(mon->_mlid, mon->_mpos);
-	if (mon->_mvid != NO_VISION)
-		ChangeVisionXY(mon->_mvid, mx, my);
+	// if (mon->_mvid != NO_VISION)
+		ChangeVisionXY(mon->_mvid, mon->_mpos);
 	// place monster in the new position
 	dMonster[mx][my] = mnum + 1;
 }
@@ -2422,6 +2422,8 @@ static bool MonDoWalk(int mnum)
 			// assert(mon->_mlid == NO_LIGHT);
 			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
 			//	ChangeLightXY(mon->_mlid, mon->_mpos);
+			// if (mon->_mvid != NO_VISION)
+				ChangeVisionXY(mon->_mvid, mon->_mpos);
 		//}
 		rv = false;
 	}
@@ -5407,11 +5409,11 @@ bool SpawnMinion(int mnum, int dx, int dy, int type, int level, int hitpoints)
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				PreSpawnMinion(mnum, type, level);
+				ActivateSpawn(mnum, tx, ty, DIR_S);
 				mon = &monsters[mnum];
 				if (hitpoints > 0)
 					mon->_mhitpoints = std::min(hitpoints, mon->_mmaxhp);
-				mon->_mvid = currLvl._dLevelIdx != DLV_TOWN ? AddVision(tx, ty, PLR_MIN_VISRAD, false) : NO_VISION;
-				ActivateSpawn(mnum, tx, ty, DIR_S);
+				mon->_mvid = currLvl._dLevelIdx != DLV_TOWN ? AddVision(mon->_mpos, PLR_MIN_VISRAD, false) : NO_VISION;
 				PlaySfxLoc(LS_GOLUM, mon->_mpos);
 				return true;
 			}

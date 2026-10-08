@@ -55,10 +55,10 @@ inline void LoadPreLighting()
 void InitLvlVision();
 void RedoLightAndVision();
 void LightAndVisionDone();
-int AddVision(int x, int y, int r, bool mine);
+int AddVision(POS32 pos, int r, bool mine);
 void AddUnVision(unsigned vnum);
 void ChangeVisionRadius(unsigned vnum, int r);
-void ChangeVisionXY(unsigned vnum, int x, int y);
+void ChangeVisionXY(unsigned vnum, POS32 pos);
 void ProcessVisionList();
 void lighting_update_caves();
 void lighting_update_hell();

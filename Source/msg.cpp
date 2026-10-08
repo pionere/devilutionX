@@ -1095,6 +1095,9 @@ void DeltaLoadLevel()
 					if (mon->_mmode == MM_RESERVED) {
 						mon->_mmode = MM_STAND;
 					}
+					// assert(mon->_mvid == NO_VISION);
+					// if (mon->_mvid != NO_VISION)
+					//	ChangeVisionXY(mon->_mvid, mon->_mpos);
 					dMonster[mon->_mx][mon->_my] = i + 1;
 					// keep the monster in the middle of the subtile after reentering the dungeon
 					mon->_mpos = DungeonToDunPos(mon->_mx, mon->_my);
@@ -1692,7 +1695,7 @@ void LevelDeltaLoad()
 				if (dDead[mon->_mx][mon->_my] == mnum + 1)
 					dDead[mon->_mx][mon->_my] = 0;
 			} else if (mnum < MAX_MINIONS && currLvl._dLevelIdx != DLV_TOWN) {
-				mon->_mvid = AddVision(mon->_moldx, mon->_moldy, PLR_MIN_VISRAD, false);
+				mon->_mvid = AddVision(mon->_mpos, PLR_MIN_VISRAD, false);
 			}
 		}
 		// move the light of the monster
