@@ -1646,7 +1646,7 @@ void LevelDeltaLoad()
 		net_assert(mi <= MM_INGAME_LAST);
 		if (mi != MM_STONE || mon->_mhitpoints != 0) {
 			// calculate the monster's (future/old) position based on its mode
-			int mdir, mx, my;
+			int mdir, mx, my, mwx, mwy;
 			if (mi == MM_STONE)
 				mi = mon->_mVar3;
 			net_assert(mi <= MM_INGAME_LAST);
@@ -1660,40 +1660,38 @@ void LevelDeltaLoad()
 					mon->_moldx = mx;
 					mon->_moldy = my;
 
-					mx += offset_x[mdir];
-					my += offset_y[mdir];
-					mon->_mfutx = mx;
-					mon->_mfuty = my;
+					mwx = mx + offset_x[mdir];
+					mwy = my + offset_y[mdir];
+					mon->_mfutx = mwx;
+					mon->_mfuty = mwy;
 				} else {
 					mon->_mfutx = mx;
 					mon->_mfuty = my;
 
-					mx -= offset_x[mdir];
-					my -= offset_y[mdir];
-					mon->_moldx = mx;
-					mon->_moldy = my;
+					mwx = mx - offset_x[mdir];
+					mwy = my - offset_y[mdir];
+					mon->_moldx = mwx;
+					mon->_moldy = mwy;
 				}
-				net_assert(IN_ACTIVE_AREA(mx, my));
-				// net_assert(PosOkMonster(mnum, mx, my));
+				net_assert(IN_ACTIVE_AREA(mwx, mwy));
+				// net_assert(PosOkMonster(mnum, mwx, mwy));
 			} else {
 				// net_assert(PosOkMonster(mnum, mx, my));
 				mon->_mfutx = mon->_moldx = mx;
 				mon->_mfuty = mon->_moldy = my;
 			}
 			// InitLvlMonster
-			dMonster[mon->_mx][mon->_my] = mnum + 1;
-			if (mi == MM_WALK2) {
-				dMonster[mon->_moldx][mon->_moldy] = -(mnum + 1);
-			} else if (mi == MM_WALK) {
-				dMonster[mon->_mfutx][mon->_mfuty] = -(mnum + 1);
+			dMonster[mx][my] = mnum + 1;
+			if (mi == MM_WALK || mi == MM_WALK2) {
+				dMonster[mwx][mwy] = -(mnum + 1);
 			} else if (mi == MM_CHARGE) {
-				dMonster[mon->_mx][mon->_my] = -(mnum + 1);
+				dMonster[mx][my] = -(mnum + 1);
 			}
 			// ensure dead bodies are not placed prematurely
 			if (mi == MM_DEATH) {
 				net_assert(mon->_mhitpoints == 0);
-				if (dDead[mon->_mx][mon->_my] == mnum + 1)
-					dDead[mon->_mx][mon->_my] = 0;
+				if (dDead[mx][my] == mnum + 1)
+					dDead[mx][my] = 0;
 			} else if (mnum < MAX_MINIONS && currLvl._dLevelIdx != DLV_TOWN) {
 				mon->_mvid = AddVision(mon->_mpos, PLR_MIN_VISRAD, false);
 			}
