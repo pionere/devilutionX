@@ -2136,7 +2136,7 @@ void MonHitByMon(int defm, int offm, int dam, unsigned hitflags, int dir)
 	}
 }
 
-static void MonFallenFear(int x, int y)
+static void MonFallenFear(POS32 pos)
 {
 	MonsterStruct* mon;
 	int i;
@@ -2145,8 +2145,8 @@ static void MonFallenFear(int x, int y)
 		mon = &monsters[i];
 		if (!MON_RELAXED // TODO: use LineClear instead to prevent retreat behind walls?
 		 && mon->_mAI.aiType == AI_FALLEN
-		 && abs(x - mon->_mx) < 5
-		 && abs(y - mon->_my) < 5
+		 && abs(pos.x - mon->_mpos.x) < 5 * DUN_WIDTH
+		 && abs(pos.y - mon->_mpos.y) < 5 * DUN_WIDTH
 		 && mon->_mhitpoints != 0
 		 && mon->_mAI.aiInt < 4) {
 #if DEBUG
@@ -2157,7 +2157,7 @@ static void MonFallenFear(int x, int y)
 			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = 8 - 2 * mon->_mAI.aiInt; // RETREAT_DISTANCE
-			mon->_mgoalvar2 = GetDirection(x, y, mon->_mx, mon->_my); // RETREAT_DIRECTION
+			mon->_mgoalvar2 = GetDirection(pos, mon->_mpos); // RETREAT_DIRECTION
 		}
 	}
 }
@@ -2314,7 +2314,7 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 	else
 		PlayMonSfx(mnum, MS_DEATH);
 
-	MonFallenFear(mon->_mx, mon->_my);
+	MonFallenFear(mon->_mpos);
 #ifdef HELLFIRE
 	if ((mon->_mType >= MT_NACID && mon->_mType <= MT_XACID) || mon->_mType == MT_SPIDLORD)
 #else
