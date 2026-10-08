@@ -2389,6 +2389,31 @@ static bool MonDoStand(int mnum)
 	return false;
 }
 
+static void MonChangeOffset(int mnum)
+{
+	MonsterStruct* mon;
+
+	mon = &monsters[mnum];
+#if DUN_SHIFT <= MON_WALK_SHIFT
+	int xoff = mon->_mVar4 >> (MON_WALK_SHIFT - DUN_SHIFT);
+	int yoff = mon->_mVar5 >> (MON_WALK_SHIFT - DUN_SHIFT);
+#else
+	int xoff = mon->_mVar4 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_XVEL
+	int yoff = mon->_mVar5 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_YVEL
+#endif
+	mon->_mpos.x += xoff;
+	mon->_mpos.y += yoff;
+
+	mon->_mVar4 = mon->_mVar6; // WALK_XVEL <- WALK_XVEL_MAX
+	mon->_mVar5 = mon->_mVar7; // WALK_YVEL <- WALK_YVEL_MAX
+
+	// assert(mon->_mlid == NO_LIGHT);
+	//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
+	//	ChangeLightXY(mon->_mlid, mon->_mpos);
+	// if (mon->_mvid != NO_VISION)
+		ChangeVisionXY(mon->_mvid, mon->_mpos);
+}
+
 static bool MonDoWalk(int mnum)
 {
 	MonsterStruct* mon;
@@ -2404,27 +2429,7 @@ static bool MonDoWalk(int mnum)
 		StartStand(mnum);
 		rv = true;
 	} else {
-		//if (mon->_mAnimCnt == 0) {
-			//mon->_mVar8++;
-#if DUN_SHIFT <= MON_WALK_SHIFT
-			int xoff = mon->_mVar4 >> (MON_WALK_SHIFT - DUN_SHIFT);
-			int yoff = mon->_mVar5 >> (MON_WALK_SHIFT - DUN_SHIFT);
-#else
-			int xoff = mon->_mVar4 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_XVEL
-			int yoff = mon->_mVar5 << (DUN_SHIFT - MON_WALK_SHIFT); // WALK_YVEL
-#endif
-			mon->_mpos.x += xoff;
-			mon->_mpos.y += yoff;
-
-			mon->_mVar4 = mon->_mVar6; // WALK_XVEL <- WALK_XVEL_MAX
-			mon->_mVar5 = mon->_mVar7; // WALK_YVEL <- WALK_YVEL_MAX
-
-			// assert(mon->_mlid == NO_LIGHT);
-			//if (mon->_mlid != NO_LIGHT && !(mon->_mFlags & MFLAG_HIDDEN))
-			//	ChangeLightXY(mon->_mlid, mon->_mpos);
-			// if (mon->_mvid != NO_VISION)
-				ChangeVisionXY(mon->_mvid, mon->_mpos);
-		//}
+		MonChangeOffset(mnum);
 		rv = false;
 	}
 
