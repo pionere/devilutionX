@@ -2157,7 +2157,7 @@ static void MonFallenFear(int x, int y)
 			mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 			mon->_mgoal = MGOAL_RETREAT;
 			mon->_mgoalvar1 = 8 - 2 * mon->_mAI.aiInt; // RETREAT_DISTANCE
-			mon->_mdir = GetDirection(x, y, mon->_mx, mon->_my);
+			mon->_mgoalvar2 = GetDirection(x, y, mon->_mx, mon->_my); // RETREAT_DIRECTION
 		}
 	}
 }
@@ -3538,7 +3538,7 @@ void MAI_Fallen(int mnum)
 		}
 	} else if (mon->_mgoal == MGOAL_RETREAT) {
 		if (--mon->_mgoalvar1 != 0) { // RETREAT_DISTANCE
-			MonCallWalk(mnum, mon->_mdir);
+			MonCallWalk(mnum, mon->_mgoalvar2); // RETREAT_DIRECTION
 		} else {
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mdir = OPPOSITE(mon->_mdir);
