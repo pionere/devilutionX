@@ -1503,18 +1503,27 @@ int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg)
 
 /*
  * Try to hit an actor with a missile, return whether there was a hit, update the last hit actor
- * @param mpnum: the index of the actor to be hit (mnum if >= 0, -(pnum + 1) if < 0)
+ * @param mponum: the index of the actor or object to be hit (mnum if >= 0, -(pnum + 1) if < 0 and >= -MAX_PLRS, -(MAX_PLRS + 1 + oi) otherwise)
  * @param mi: index of the missile
  * @return whether the missile really hit
  */
-static bool MisHitCallback(int mpnum, int mi)
+static bool MisHitCallback(int mponum, int mi)
 {
 	bool result;
-	if (mpnum >= 0) {
-		result = MonMissHit(mpnum, mi);
+	if (mponum >= 0) {
+		result = MonMissHit(mponum, mi);
 	} else {
-		mpnum = -(mpnum + 1);
-		result = PlrMissHit(mpnum, mi);
+		mponum = -(mponum + 1);
+		if (mponum < MAX_PLRS) {
+			result = PlrMissHit(mponum, mi);
+		} else {
+			mponum -= MAX_PLRS;
+			// ObjMissHit
+			result = objects[mponum]._oMissFlag == 0;
+			if (result) {
+				ObjHitByAny(mponum);
+			}
+		}
 	}
 	return result;
 }
@@ -1531,21 +1540,7 @@ static bool MisAreaCallback(int mponum, int mi)
 	bool result;
 	//  - keep last hit actor
 	lh = missile[mi]._miVar8;
-	if (mponum >= 0) {
-		result = MonMissHit(mponum, mi);
-	} else {
-		mponum = -(mponum + 1);
-		if (mponum < MAX_PLRS) {
-			result = PlrMissHit(mponum, mi);
-		} else {
-			mponum -= MAX_PLRS;
-			// ObjMissHit
-			result = objects[mponum]._oMissFlag == 0;
-			if (result) {
-				ObjHitByAny(mponum);
-			}
-		}
-	}
+	result = MisHitCallback(mponum, mi);
 	// - restore last hit actor
 	missile[mi]._miVar8 = lh;
 	return result;
@@ -1616,7 +1611,7 @@ static void CheckSplashCol(int mi, int hit)
 /*
  * @param mx: Tile X-position
  * @param my: Tile Y-position
- * @return what was hit (0: nothing, -(MAX_PLRS+2): object, -(MAX_PLRS+3): wall)
+ * @return what was hit (0: nothing, -(MAX_PLRS+1+oi): object, -(MAX_PLRS+1+MAXOBJECTS): wall)
  */
 static int CheckSubtileHit(int mx, int my)
 {
@@ -1626,12 +1621,11 @@ static int CheckSubtileHit(int mx, int my)
 	if (oi != 0) {
 		oi = oi >= 0 ? oi - 1 : -(oi + 1);
 		if (!objects[oi]._oMissFlag) {
-			ObjHitByAny(oi);
-			hit = -(MAX_PLRS + 2);
+			hit = -(MAX_PLRS + 1 + oi);
 		}
 	}
 	if (nMissileTable[dPiece[mx][my]]) {
-		hit = -(MAX_PLRS + 3);
+		hit = -(MAX_PLRS + 1 + MAXOBJECTS);
 	}
 
 	return hit;
@@ -1805,7 +1799,7 @@ static INTPAIR CheckMonCollision(POS32 sp, POS32 dp, INTPAIR hit, int lh)
  * Test whether a subtile or an object is hit while moving between two positions, hit only the first one.
  * @param sp: the starting (precise dungeon) position
  * @param dp: the ending (precise dungeon) position
- * @return what was hit (0: nothing, , -(MAX_PLRS+2): object, -(MAX_PLRS+3): wall) and the distance of the hit from the starting point
+ * @return what was hit (0: nothing, -(MAX_PLRS+1+oi): object, -(MAX_PLRS+1+MAXOBJECTS): wall) and the distance of the hit from the starting point
  */
 static INTPAIR CheckTileCollision(POS32 sp, POS32 dp)
 {
@@ -1952,20 +1946,19 @@ static int CheckMoveHit(POS32 sp, POS32 dp, int mi)
 	hit = CheckMonCollision(sp, dp, hit, missile[mi]._miVar8);
 	res = hit.v0;
 	if (res != 0) {
-		if (res < -MAX_PLRS) {
-			// assert(res == -(MAX_PLRS + 2) || res == -(MAX_PLRS + 3));
-			res = -(res + MAX_PLRS);
-			// missile[mi]._miVar8 = res;
+		if (res == -(MAX_PLRS + 1 + MAXOBJECTS)) {
+			res = 3;
+			// missile[mi]._miVar8 = 0;
 		} else {
 			res = res < 0 ? res : (res - 1);
-			res = MisHitCallback(res, mi) ? 1 : 0;
+			res = MisHitCallback(res, mi) ? (res < -MAX_PLRS ? 2 : 1) : 0;
 		}
 	}
 	return res;
 }
 
 /*
- * Test whether something is hit while moving between two positions, hit everything till a wall is hit.
+ * Test whether something is hit while moving between two positions, hit everything till a wall or object is hit.
  * @param sp: the starting (precise dungeon) position
  * @param dp: the ending (precise dungeon) position
  * @param mi: index of the missile
@@ -1976,18 +1969,23 @@ static int CheckWallHit(POS32 sp, POS32 dp, int mi)
 	INTPAIR hit;
 	int res, range;
 	hit = CheckTileCollision(sp, dp);
+	// hit the object
+	res = hit.v0;
+	if (res < 0 && res > -(MAX_PLRS + 1 + MAXOBJECTS)) {
+		// assert(res <= -(MAX_PLRS + 1));
+		MisHitCallback(res, mi);
+	}
 	range = hit.v1;
 	hit.v1 = 0;
 	hit = CheckPlrWallCol(sp, dp, range, hit, MisHitCallback, mi);
 	hit = CheckMonWallCol(sp, dp, range, hit, MisHitCallback, mi);
 	res = hit.v0;
-	if (res < -MAX_PLRS) {
-		// assert(res == -(MAX_PLRS + 2) || res == -(MAX_PLRS + 3));
-		res = -(res + MAX_PLRS);
+	if (res == -(MAX_PLRS + 1 + MAXOBJECTS)) {
+		res = 3;
 		// missile[mi]._miVar8 = 0;
 	} else {
 		missile[mi]._miVar8 = res;
-		res = (res != 0 && hit.v1 >= 0) ? 1 : 0;
+		res = (res != 0 && hit.v1 >= 0) ? (res < -MAX_PLRS ? 2 : 1) : 0;
 	}
 	return res;
 }
