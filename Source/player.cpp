@@ -758,17 +758,27 @@ void InitLvlPlayer(int pnum, bool entering)
 			assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			FixPlayerLocation(pnum);
 		}
+		int pdir, px, py, pwx, pwy;
+
+		px = plr._px;
+		py = plr._py;
+		pdir = plr._pdir;
 		if (plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
-			dPlayer[plr._px][plr._py] = pnum + 1;
-			if (plr._pmode == PM_WALK2) {
-				dPlayer[plr._poldx][plr._poldy] = -(pnum + 1);
-			} else if (plr._pmode == PM_WALK) {
-				dPlayer[plr._pfutx][plr._pfuty] = -(pnum + 1);
+			dPlayer[px][py] = pnum + 1;
+			if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
+				if (plr._pmode == MM_WALK) {
+					pwx = px + offset_x[pdir];
+					pwy = py + offset_y[pdir];
+				} else {
+					pwx = px - offset_x[pdir];
+					pwy = py - offset_y[pdir];
+				}
+				dPlayer[pwx][pwy] = -(pnum + 1);
 			} else if (plr._pmode == PM_CHARGE) {
-				dPlayer[plr._px][plr._py] = -(pnum + 1);
+				dPlayer[px][py] = -(pnum + 1);
 			}
 		} else {
-			dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
+			dFlags[px][py] |= BFLAG_DEAD_PLAYER;
 		}
 		SyncPlrAnim(pnum);
 	}
