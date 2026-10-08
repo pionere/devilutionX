@@ -2006,7 +2006,6 @@ static void MonStopWalk(int mnum)
 	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2)
 		return;
 
-	// assert(mon->_mAnims[MA_WALK].maFrames == mon->_mAnimLen);
 	x = (unsigned)mon->_mpos.x / DUN_WIDTH;
 	y = (unsigned)mon->_mpos.y / DUN_WIDTH;
 	mon->_mx = x;
@@ -2175,18 +2174,17 @@ static void MonDiabloDeath(int mnum)
 		mon = &monsters[i];
 		if (mon->_mmode > MM_INGAME_LAST)
 			continue;
+		mon->_mhitpoints = 0;
 		RemoveMonFromMap(i);
-		MonPlace(i);
+		SetMonsterPos(mnum, mon->_mpos);
 		//if (mon->_msquelch == 0)
 		//	continue;
-		mon->_mhitpoints = 0;
 		// if (mnum < MAX_MINIONS)
 			AddUnVision(mon->_mvid);
 		if (mon->_mmode != MM_STONE) {
 			NewMonsterAnim(i, MA_DEATH, mon->_mdir);
 			mon->_mmode = MM_DEATH;
-		} else {
-			dMonster[mon->_mx][mon->_my] = 0;
+			dMonster[mon->_mx][mon->_my] = mnum + 1;
 		}
 	}
 	mon = &monsters[mnum];
@@ -2286,17 +2284,15 @@ static void MonInitKill(int mnum, int mpnum, bool sendmsg)
 {
 	MonsterStruct* mon;
 
-	// fix the location of the monster before spawning loot or sending a message
 	RemoveMonFromMap(mnum);
-	MonPlace(mnum);
 
 	mon = &monsters[mnum];
+	SetMonsterPos(mnum, mon->_mpos);
 	if (mon->_mmode != MM_STONE) {
 		mon->_mmode = MM_DEATH;
+		dMonster[mon->_mx][mon->_my] = mnum + 1;
 		// TODO: might want to turn towards the offending enemy. Might not, though...
 		NewMonsterAnim(mnum, MA_DEATH, mon->_mdir);
-	} else {
-		dMonster[mon->_mx][mon->_my] = 0;
 	}
 	mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	mon->_mhitpoints = 0;
@@ -2371,10 +2367,9 @@ void MonSyncKill(int mnum, POS32 pos, int pnum)
 	}
 	if (monsters[mnum]._mpos.x != pos.x || monsters[mnum]._mpos.y != pos.y) {
 		RemoveMonFromMap(mnum);
-		// dMonster[x][y] = mnum + 1;
+		// dMonster[(unsigned)pos.x / DUN_WIDTH][(unsigned)pos.y / DUN_WIDTH] = mnum + 1;
 		// SetMonsterPos(mnum, pos);
-		monsters[mnum]._mx = (unsigned)pos.x / DUN_WIDTH;
-		monsters[mnum]._my = (unsigned)pos.y / DUN_WIDTH;
+		monsters[mnum]._mpos = pos;
 	}
 
 	MonInitKill(mnum, pnum, false);
