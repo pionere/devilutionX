@@ -455,9 +455,9 @@ static bool FindClosest(const POS32 sp, POS32& dp)
 		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
 		dist = GetDunDistance2(sp, mon->_mpos);
 		if (dist > bestDist) continue;
-		tx = mon->_mfutx;
-		ty = mon->_mfuty;
-		if ((sx == tx && sy == ty) || (sx == mon->_moldx && sy == mon->_moldy)) continue;
+		tx = (unsigned)mon->_mpos.x / DUN_WIDTH;
+		ty = (unsigned)mon->_mpos.y / DUN_WIDTH;
+		if (sx == tx && sy == ty) continue;
 		if (!LineClearPos(sp, mon->_mpos)) continue;
 		// if (dist == bestDist && random_(111, 2) == 0) continue;
 		bestDist = dist;
