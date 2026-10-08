@@ -2420,17 +2420,18 @@ static bool MonDoWalk(int mnum)
 	MonsterStruct* mon;
 	bool rv;
 
+	MonChangeOffset(mnum);
+
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAnimLen) {
 		// MonStartStand(mnum);
-		dMonster[mon->_moldx][mon->_moldy] = 0;
-		mon->_mx = mon->_mfutx;
-		mon->_my = mon->_mfuty;
+		RemoveMonFromMap(mnum);
+		mon->_mx = (unsigned)mon->_mpos.x / DUN_WIDTH;
+		mon->_my = (unsigned)mon->_mpos.y / DUN_WIDTH;
 		MonPlace(mnum);
 		StartStand(mnum);
 		rv = true;
 	} else {
-		MonChangeOffset(mnum);
 		rv = false;
 	}
 

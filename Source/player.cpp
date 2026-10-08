@@ -1658,14 +1658,13 @@ static void PlrDoWalk(int pnum)
 
 	assert(PlrAnimFrameLens[PGX_WALK] == 1);
 	// assert(plr._pAnims[PGX_WALK].paFrames == plr._pAnimLen);
+	PlrChangeOffset(pnum);
 	if (plr._pAnimFrame < plr._pAnimLen) {
-		PlrChangeOffset(pnum);
 		return;
 	}
-	// RemovePlrFromMap(pnum);
-	dPlayer[plr._poldx][plr._poldy] = 0;
-	px = plr._pfutx;
-	py = plr._pfuty;
+	RemovePlrFromMap(pnum);
+	px = (unsigned)plr._ppos.x / DUN_WIDTH;
+	py = (unsigned)plr._ppos.y / DUN_WIDTH;
 
 	plr._px = px;
 	plr._py = py;
