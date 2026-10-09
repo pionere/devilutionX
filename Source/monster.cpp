@@ -5051,58 +5051,6 @@ void MissToMonst(int mi)
 	CheckHRectAreaHit(rect, MonHitCallback, (MOH_CHARGE << 16) | mnum);
 }
 
-/*static bool monster_posok(int mnum, int x, int y)
-{
-	MissileStruct* mis;
-	bool ret = true, fire = false;
-	int mi = dMissile[x][y], i;
-
-	if (mi == 0 || mnum < 0)
-		return true;
-
-//#ifdef HELLFIRE
-//	bool lightning = false;
-
-//	if (mi != MIS_MULTI) {
-//		if (missile[mi - 1]._miType == MIS_FIREWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-//			fire = true;
-//		} else if (missile[mi - 1]._miType == MIS_LIGHTWALL) { // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-//			lightning = true;
-//		}
-//	} else {
-//		for (i = 0; i < nummissiles; i++) {
-//			mis = &missile[missileactive[i]];
-//			if (mis->_mix == x && mis->_miy == y) {
-//				if (mis->_miType == MIS_FIREWALL) {
-//					fire = true;
-//				} else if (mis->_miType == MIS_LIGHTWALL) {
-//					lightning = true;
-//				}
-//			}
-//		}
-//	}
-//	if (fire && (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
-//		ret = false;
-//	if (lightning && (monsters[mnum]._mMagicRes & MORS_LIGHTNING_IMMUNE) != MORS_LIGHTNING_IMMUNE)
-//		ret = false;
-//#else
-	if (mi != MIS_MULTI) {
-		if (missile[mi - 1]._miType == MIS_FIREWALL) // BUGFIX: Change 'mi' to 'mi - 1' (fixed)
-			fire = true;
-	} else {
-		for (i = 0; i < nummissiles; i++) {
-			mis = &missile[missileactive[i]];
-			if (mis->_mix == x && mis->_miy == y
-			 && mis->_miType == MIS_FIREWALL)
-				fire = true;
-		}
-	}
-	if (fire && (monsters[mnum]._mMagicRes & MORS_FIRE_IMMUNE) != MORS_FIRE_IMMUNE)
-		ret = false;
-//#endif
-	return ret;
-}*/
-
 bool PosOkMonster(int mnum, int x, int y)
 {
 	int mpo;
