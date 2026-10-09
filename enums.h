@@ -3833,7 +3833,6 @@ typedef enum _tile_flags {
 } _tile_flags;
 
 typedef enum dflag {
-	BFLAG_MISSILE_PRE = 0x01, // 'missile-on-floor' flag, used by DrawView to draw missiles in pre-phase
 	BFLAG_ALERT       = 0x02, // alert flag, used by monsters to set squelch
 	BFLAG_DEAD_PLAYER = 0x04,
 	BFLAG_HAZARD      = 0x20, // fire hazard flag, used by monsters to avoid tiles

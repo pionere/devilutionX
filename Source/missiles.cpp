@@ -4303,7 +4303,6 @@ void MI_Acidpud(int mi)
 			// assert(mis->_miAnimFrameLen == MIA_ACIDPUD_DELAY);
 		}
 	}
-	PutMissileF(mi, BFLAG_MISSILE_PRE);
 }
 
 void MI_Firewall(int mi)
@@ -4696,7 +4695,6 @@ void MI_Flash2(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	PutMissileF(mi, BFLAG_MISSILE_PRE);
 }
 
 void MI_FireWave(int mi)
@@ -5402,7 +5400,6 @@ void MI_Pulse(int mi)
 	mis->_miAnimFrame = tmp;
 	mis->_miPreFlag = dir != 0;
 	mis->_mizoff = dir != 0 ? TILE_HEIGHT/2 - ((NUM_DIRS - 1) + dir) * ASSET_MPL : 0;
-	PutMissileF(mi, dir != 0 ? BFLAG_MISSILE_PRE : 0);
 }
 
 void ProcessMissiles()
@@ -5413,7 +5410,7 @@ void ProcessMissiles()
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
 		assert(IN_DUNGEON_AREA(mis->_mix, mis->_miy));
-		dFlags[mis->_mix][mis->_miy] &= ~(BFLAG_MISSILE_PRE | BFLAG_HAZARD);
+		dFlags[mis->_mix][mis->_miy] &= ~(BFLAG_HAZARD);
 	}
 
 	for (i = 0; i < nummissiles; i++) {
@@ -5452,9 +5449,6 @@ void SyncMissilesAnim()
 		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
 			// PutMissileF(mi, BFLAG_HAZARD)
 			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
-		//} else if (mis->_miType == MIS_FLASH2 || mis->_miType == MIS_ACIDPUD) {
-		//	// PutMissileF(mi, BFLAG_MISSILE_PRE) - unnecessary, since it is just a gfx
-		//	dFlags[mis->_mix][mis->_miy] |= BFLAG_MISSILE_PRE;
 		}
 	}
 }
