@@ -187,7 +187,7 @@ static bool HasRangedSkill()
  */
 static void FindMonster(int mode, bool ranged)
 {
-	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, mnum, lastMon;
+	int newDistance, rotations, distance = MAXDUNX * MAXDUNY, mnum, lastMon;
 	bool canTalk = true;
 
 	if (mode == 0) {
@@ -239,7 +239,7 @@ static void FindMonster(int mode, bool ranged)
  */
 static void FindPlayer(int mode, bool ranged)
 {
-	int newDistance, rotations, distance = MAXDUNX + MAXDUNY, pnum;
+	int newDistance, rotations, distance = MAXDUNX * MAXDUNY, pnum;
 	bool sameTeam = mode == 0;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
