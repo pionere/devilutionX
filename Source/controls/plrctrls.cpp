@@ -48,16 +48,6 @@ static int GetRotaryDistance(int x, int y)
 }
 
 /**
- * @brief Get the best case walking steps to coordinates
- * @param dx Tile coordinates
- * @param dy Tile coordinates
- */
-static int GetMinDistance(int dx, int dy)
-{
-	return std::max(abs(myplr._pfutx - dx), abs(myplr._pfuty - dy));
-}
-
-/**
  * @brief Get walking steps to coordinate
  * @param dx Tile coordinates
  * @param dy Tile coordinates
@@ -66,7 +56,8 @@ static int GetMinDistance(int dx, int dy)
  */
 static int GetDistance(int dx, int dy, int maxDistance)
 {
-	if (GetMinDistance(dx, dy) > maxDistance) {
+	int dist = std::max(abs(myplr._pfutx - dx), abs(myplr._pfuty - dy));
+	if (dist > maxDistance) {
 		return 0;
 	}
 
