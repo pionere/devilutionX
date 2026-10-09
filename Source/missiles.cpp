@@ -2891,29 +2891,32 @@ int AddBloodBoil(int mi, POS32 dp, int midir, int micaster, int misource, int sp
 }
 
 /**
- * Var1: whether the target has died
+ * Var1: the id of the target (or 0 if it has died)
  */
 int AddBleed(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int pnum;
+	int tnum, pnum;
 	MonsterStruct* mon;
 
 	mis = &missile[mi];
-	if (spllvl >= 0) {
+	tnum = spllvl;
+	if (tnum >= 0) {
 		// assert((unsigned)spllvl < MAXMONSTERS);
-		mon = &monsters[spllvl];
+		mon = &monsters[tnum];
 		MonSetMissilePos(mon, mis);
 		mis->_miMinDam = mon->_mmaxhp >> (2 + 4);
 		mis->_miMaxDam = mon->_mmaxhp >> (1 + 4);
+
+		tnum++;
 	} else {
-		pnum = -(spllvl + 1);
+		pnum = -(tnum + 1);
 		PlrSetMissilePos(pnum, mis);
 		mis->_miMinDam = plr._pMaxHP >> (2 + 4);
 		mis->_miMaxDam = plr._pMaxHP >> (1 + 4);
 	}
 
-	// mis->_miVar1 = 0;
+	mis->_miVar1 = tnum;
 	return MIRES_DONE;
 }
 
@@ -4610,12 +4613,13 @@ void MI_Bleed(int mi)
 	MonsterStruct* mon;
 
 	mis = &missile[mi];
-	if (mis->_miVar1 == 0) {
-		tnum = mis->_miSpllvl;
+	tnum = mis->_miVar1;
+	if (tnum != 0) {
 		if (tnum >= 0) {
+			tnum = tnum - 1;
 			mon = &monsters[tnum];
 			if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) {
-				mis->_miVar1 = 1;
+				mis->_miVar1 = 0;
 			} else if (mon->_mmode != MM_STONE) {
 				// CheckMissileArea(mi);
 				MonMissHit(tnum, mi);
@@ -4623,7 +4627,7 @@ void MI_Bleed(int mi)
 		} else {
 			pnum = -(tnum + 1);
 			if (!plr._pActive || plr._pLvlChanging || plr._pHitPoints == 0) {
-				mis->_miVar1 = 1;
+				mis->_miVar1 = 0;
 			} else {
 				// CheckMissileArea(mi);
 				PlrMissHit(pnum, mi);
