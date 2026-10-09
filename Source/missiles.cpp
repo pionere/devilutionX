@@ -683,16 +683,16 @@ static void DeleteMissiles()
 	}
 }
 
-static void PutMissileF(int mi, BYTE flag)
+static void PutMissileH(const MissileStruct* mis)
 {
 	int x, y;
 
-	x = missile[mi]._mix;
-	y = missile[mi]._miy;
+	x = mis->_mix;
+	y = mis->_miy;
 	assert(IN_DUNGEON_AREA(x, y));
-	assert(!missile[mi]._miDelFlag);
-	//if (!missile[mi]._miDelFlag) {
-		dFlags[x][y] |= flag;
+	assert(!mis->_miDelFlag);
+	//if (!mis->_miDelFlag) {
+		dFlags[x][y] |= BFLAG_HAZARD;
 	//}
 }
 
@@ -4358,7 +4358,7 @@ void MI_Firewall(int mi)
 			PlaySfxLoc(LS_WALLLOOP, mis->_mipos);
 		}
 	}
-	PutMissileF(mi, BFLAG_HAZARD); // TODO: do not place hazard if the source is a monster
+	PutMissileH(mis); // TODO: do not place hazard if the source is a monster
 }
 
 /*void MI_Fireball(int mi)
@@ -5284,7 +5284,7 @@ void MI_InfernoC(int mi)
 		mis->_miDelFlag = TRUE;
 		return;
 	}
-	PutMissileF(mi, BFLAG_HAZARD);
+	PutMissileH(mis);
 }*/
 
 void MI_Cbolt(int mi)
@@ -5447,7 +5447,7 @@ void SyncMissilesAnim()
 		} else if (mis->_miType == MIS_CHARGE) {
 			SyncChargeAnim(mis);
 		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
-			PutMissileF(mi, BFLAG_HAZARD);
+			PutMissileH(mis);
 		}
 	}
 }
