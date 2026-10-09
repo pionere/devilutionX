@@ -26,19 +26,21 @@ bool InGameMenu()
 
 /**
  * Number of angles to turn to face the coordinate
- * @param x Tile coordinates
- * @param y Tile coordinates
+ * @param pos precise dungeon position
  * @return -1 == down
  */
-static int GetRotaryDistance(int x, int y)
+static int GetRotaryDistance(POS32 pos)
 {
+	POS32 mp;
 	int d, d1, d2;
 
-	if (myplr._pfutx == x && myplr._pfuty == y)
+	mp = myplr._ppos;
+	d = GetDunDistance2(mp, pos);
+	if (d < (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) / 4)
 		return -1;
 
 	d1 = myplr._pdir;
-	d2 = GetDirection(myplr._pfutx, myplr._pfuty, x, y);
+	d2 = GetDirection(mp, pos);
 
 	d = ((d2 - d1) + NUM_DIRS) & 7;
 	if (d > 4)
@@ -49,20 +51,23 @@ static int GetRotaryDistance(int x, int y)
 
 /**
  * @brief Get walking steps to coordinate
- * @param dx Tile coordinates
- * @param dy Tile coordinates
+ * @param pos precise dungeon position
  * @param maxDistance the max number of steps to search
  * @return number of steps, or -1 if not reachable
  */
-static int GetDistance(int dx, int dy, int maxDistance)
+static int GetDistance(POS32 pos, int maxDistance)
 {
-	int dist = std::max(abs(myplr._pfutx - dx), abs(myplr._pfuty - dy));
+	int dx = (unsigned)pos.x / DUN_WIDTH;
+	int dy = (unsigned)pos.y / DUN_WIDTH;
+	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
+	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
+	int dist = std::max(abs(mx - dx), abs(my - dy));
 	if (dist > maxDistance) {
 		return 0;
 	}
 
 	int8_t walkdir;
-	int steps = FindPath(PosOkPlayer, mypnum, myplr._pfutx, myplr._pfuty, dx, dy, &walkdir);
+	int steps = FindPath(PosOkPlayer, mypnum, mx, my, dx, dy, &walkdir);
 	if (steps > maxDistance)
 		return -1;
 
@@ -71,15 +76,11 @@ static int GetDistance(int dx, int dy, int maxDistance)
 
 /**
  * @brief Get distance to coordinate
- * @param dx Tile coordinates
- * @param dy Tile coordinates
+ * @param pos precise dungeon position
  */
-static int GetDistanceRanged(int dx, int dy)
+static int GetDistanceRanged(POS32 pos)
 {
-	int a = myplr._pfutx - dx;
-	int b = myplr._pfuty - dy;
-
-	return sqrt(a * a + b * b);
+	return GetDunDistance2(myplr._ppos, pos);
 }
 
 static void TargetPos(int x, int y)
@@ -91,8 +92,8 @@ static void TargetPos(int x, int y)
 
 static void FindItem()
 {
-	int mx = myplr._pfutx;
-	int my = myplr._pfuty;
+	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
+	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
 	int rotations = 5;
 
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItem expects a large enough border.");
@@ -104,10 +105,10 @@ static void FindItem()
 			ii--;
 			if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
 				continue;
-			int newRotations = GetRotaryDistance(mx + xx, my + yy);
+			int newRotations = GetRotaryDistance(items[ii]._ipos);
 			if (rotations < newRotations)
 				continue;
-			if (GetDistance(mx + xx, my + yy, 1) < 0)
+			if (GetDistance(items[ii]._ipos, 1) < 0)
 				continue;
 			rotations = newRotations;
 			pcursitem = ii;
@@ -118,8 +119,8 @@ static void FindItem()
 
 static void FindObject()
 {
-	int mx = myplr._pfutx;
-	int my = myplr._pfuty;
+	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
+	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
 	int rotations = 5;
 
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindObject expects a large enough border.");
@@ -133,10 +134,10 @@ static void FindObject()
 				continue;
 			if (xx == 0 && yy == 0 && objects[oi]._oDoorFlag != ODT_NONE)
 				continue; // Ignore doorway so we don't get stuck behind barrels
-			int newRotations = GetRotaryDistance(mx + xx, my + yy);
+			int newRotations = GetRotaryDistance(objects[oi]._opos);
 			if (rotations < newRotations)
 				continue;
-			if (GetDistance(mx + xx, my + yy, 1) < 0)
+			if (GetDistance(objects[oi]._opos, 1) < 0)
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
@@ -148,8 +149,7 @@ static void FindObject()
 static void FindTowner()
 {
 	for (int i = MAX_MINIONS; i < numtowners; i++) {
-		int distance = GetDistance(monsters[i]._mx, monsters[i]._my, 2);
-		if (distance < 0)
+		if (GetDistance(monsters[i]._mpos, 2) < 0)
 			continue;
 		pcursmonst = i;
 	}
@@ -178,7 +178,7 @@ static bool HasRangedSkill()
  */
 static void FindMonster(int mode, bool ranged)
 {
-	int newDistance, rotations, distance = MAXDUNX * MAXDUNY, mnum, lastMon;
+	int newDistance, rotations, distance = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * MAXDUNX * MAXDUNY, mnum, lastMon;
 	bool canTalk = true;
 
 	if (mode == 0) {
@@ -197,16 +197,14 @@ static void FindMonster(int mode, bool ranged)
 		if (!(dFlags[mon._mx][mon._my] & BFLAG_VISIBLE))
 			continue;
 
-		const int mx = mon._mfutx;
-		const int my = mon._mfuty;
 		if (ranged) {
-			newDistance = GetDistanceRanged(mx, my);
+			newDistance = GetDistanceRanged(mon._mpos);
 		} else {
-			newDistance = GetDistance(mx, my, distance);
+			newDistance = GetDistance(mon._mpos, distance);
 			if (newDistance < 0)
 				continue;
 		}
-		const int newRotations = GetRotaryDistance(mx, my);
+		const int newRotations = GetRotaryDistance(mon._mpos);
 		const bool newCanTalk = CanTalkToMonst(mnum);
 		if (canTalk == newCanTalk) {
 			if (distance < newDistance)
@@ -230,7 +228,7 @@ static void FindMonster(int mode, bool ranged)
  */
 static void FindPlayer(int mode, bool ranged)
 {
-	int newDistance, rotations, distance = MAXDUNX * MAXDUNY, pnum;
+	int newDistance, rotations, distance = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * MAXDUNX * MAXDUNY, pnum;
 	bool sameTeam = mode == 0;
 
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
@@ -243,16 +241,14 @@ static void FindPlayer(int mode, bool ranged)
 		if (!(dFlags[plr._px][plr._py] & BFLAG_VISIBLE))
 			continue;
 
-		const int mx = plr._pfutx;
-		const int my = plr._pfuty;
 		if (ranged) {
-			newDistance = GetDistanceRanged(mx, my);
+			newDistance = GetDistanceRanged(plr._ppos);
 		} else {
-			newDistance = GetDistance(mx, my, distance);
+			newDistance = GetDistance(plr._ppos, distance);
 			if (newDistance < 0)
 				continue;
 		}
-		const int newRotations = GetRotaryDistance(mx, my);
+		const int newRotations = GetRotaryDistance(plr._ppos);
 		const bool newSameTeam = plr._pTeam == myplr._pTeam;
 		if (sameTeam == newSameTeam) {
 			if (distance < newDistance)
@@ -287,7 +283,7 @@ static void FindTrigger()
 	for (int i = 0; i < numtrigs; i++) {
 		int tx = trigs[i]._tx;
 		int ty = trigs[i]._ty;
-		const int newDistance = GetDistance(tx, ty, 2);
+		const int newDistance = GetDistance(DungeonToDunPos(tx, ty), 2);
 		if (newDistance < 0)
 			continue;
 		TargetPos(tx, ty);
@@ -299,12 +295,12 @@ static void FindTrigger()
 		if (missile[mi]._miType == MIS_TOWN || missile[mi]._miType == MIS_RPORTAL) {
 			int mix = missile[mi]._mix;
 			int miy = missile[mi]._miy;
-			const int newDistance = GetDistance(mix, miy, 2);
+			const int newDistance = GetDistance(missile[mi]._mipos, 2);
 			if (newDistance < 0)
 				continue;
 			if (distance < newDistance)
 				continue;
-			const int newRotations = GetRotaryDistance(mix, miy);
+			const int newRotations = GetRotaryDistance(missile[mi]._mipos);
 			if (distance == newDistance && rotations < newRotations)
 				continue;
 			TargetPos(mix, miy);
@@ -923,13 +919,13 @@ static void UpdateSpellTarget()
 	pcursplr = PLR_NONE;
 	pcursmonst = MON_NONE;
 
-	const PlayerStruct& player = myplr;
-
 	int range = 1;
-	if (player._pAltSkill._psMove._suSkill == SPL_TELEPORT)
+	if (myplr._pAltSkill._psMove._suSkill == SPL_TELEPORT)
 		range = 4;
 
-	TargetPos(player._pfutx + offset_x[player._pdir] * range, player._pfuty + offset_y[player._pdir] * range);
+	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
+	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
+	TargetPos(mx + offset_x[myplr._pdir] * range, my + offset_y[myplr._pdir] * range);
 }
 
 /**
@@ -937,7 +933,9 @@ static void UpdateSpellTarget()
  */
 static void TryDropItem()
 {
-	TargetPos(myplr._pfutx + 1, myplr._pfuty);
+	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
+	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
+	TargetPos(mx + 1, my);
 	DropItem();
 }
 
@@ -961,7 +959,9 @@ void PerformSpellAction()
 				UpdateSpellTarget();
 			} else if (pcursicon >= CURSOR_FIRSTITEM) {
 				// prepare for DropItem
-				TargetPos(myplr._pfutx + 1, myplr._pfuty);
+				int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
+				int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
+				TargetPos(mx + 1, my);
 			}
 		}
 		InputBtnDown(ACT_ALTACT);
