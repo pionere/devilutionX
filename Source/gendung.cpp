@@ -121,14 +121,6 @@ static_assert(MAXOBJECTS <= CHAR_MAX, "Index of an object might not fit to dObje
  */
 BYTE dItem[MAXDUNX][MAXDUNY];
 static_assert(MAXITEMS <= UCHAR_MAX, "Index of an item might not fit to dItem.");
-/**
- * Contains the missile numbers (missiles array indices) of the map.
- *   mi + 1 : the missile is on the given location.
- * MIS_MULTI: more than one missile on the given location.
- */
-BYTE dMissile[MAXDUNX][MAXDUNY];
-static_assert(MAXMISSILES <= UCHAR_MAX, "Index of a missile might not fit to dMissile.");
-static_assert((BYTE)(MAXMISSILES + 1) < (BYTE)MIS_MULTI, "Multi-missile in dMissile reserves one entry.");
 
 #if !USE_PATCH
 static void patchTownMin(uint16_t* minFile, size_t* dwSubtiles);
@@ -1395,7 +1387,6 @@ void InitLvlMap()
 	memset(dDead, 0, sizeof(dDead));
 	memset(dObject, 0, sizeof(dObject));
 	memset(dItem, 0, sizeof(dItem));
-	memset(dMissile, 0, sizeof(dMissile));
 }
 
 void FinishLvlMap()

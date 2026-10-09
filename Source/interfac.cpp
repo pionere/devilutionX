@@ -254,7 +254,7 @@ void LoadGameLevel(int lvldir)
 	// fill post: themeLoc, pdungeon, dPiece, dTransVal
 	CreateDungeon();
 	LoadLvlPalette();
-	// reset: dMonster, dObject, dPlayer, dItem, dMissile, dFlags+, dLight+
+	// reset: dMonster, dObject, dPlayer, dItem, dFlags+, dLight+
 	InitLvlMap();
 	IncProgress(); // "MonsterFX" (6)
 	if (currLvl._dType != DTYPE_TOWN) {

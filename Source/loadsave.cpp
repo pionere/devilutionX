@@ -654,8 +654,6 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src += MAXDUNX * MAXDUNY;
 		memcpy(dPlayer, src, MAXDUNX * MAXDUNY);
 		src += MAXDUNX * MAXDUNY;
-		memcpy(dMissile, src, MAXDUNX * MAXDUNY);
-		src += MAXDUNX * MAXDUNY;
 	}
 
 	if (full || currLvl._dType != DTYPE_TOWN) {
@@ -1403,8 +1401,6 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 		memcpy(dest, dLight, MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY;
 		memcpy(dest, dPlayer, MAXDUNX * MAXDUNY);
-		dest += MAXDUNX * MAXDUNY;
-		memcpy(dest, dMissile, MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY;
 	}
 
