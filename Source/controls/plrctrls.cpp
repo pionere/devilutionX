@@ -83,11 +83,11 @@ static int GetDistanceRanged(POS32 pos)
 	return GetDunDistance2(myplr._ppos, pos);
 }
 
-static void TargetPos(int x, int y)
+static void TargetPos(POS32 pos)
 {
-	pcurspos.subtile.x = x;
-	pcurspos.subtile.y = y;
-	pcurspos.dun = DungeonToDunPos(x, y);
+	pcurspos.dun = pos;
+	pcurspos.subtile.x = (unsigned)pos.x / DUN_WIDTH;
+	pcurspos.subtile.y = (unsigned)pos.y / DUN_WIDTH;
 }
 
 static void FindItem()
@@ -112,7 +112,7 @@ static void FindItem()
 				continue;
 			rotations = newRotations;
 			pcursitem = ii;
-			TargetPos(mx + xx, my + yy);
+			TargetPos(items[ii]._ipos);
 		}
 	}
 }
@@ -142,7 +142,7 @@ static void FindObject()
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
-			TargetPos(mx + xx, my + yy);
+			TargetPos(pos);
 		}
 	}
 }
@@ -282,20 +282,17 @@ static void FindTrigger()
 		return; // Prefer showing items/objects over triggers (use of cursm* conflicts)
 
 	for (int i = 0; i < numtrigs; i++) {
-		int tx = trigs[i]._tx;
-		int ty = trigs[i]._ty;
-		const int newDistance = GetDistance(DungeonToDunPos(tx, ty), 2);
+		const POS32 pos = DungeonToDunPos(trigs[i]._tx, trigs[i]._ty);
+		const int newDistance = GetDistance(pos, 2);
 		if (newDistance < 0)
 			continue;
-		TargetPos(tx, ty);
+		TargetPos(pos);
 		pcurstrig = i;
 	}
 
 	for (int i = 0; i < nummissiles; i++) {
 		int mi = missileactive[i];
 		if (missile[mi]._miType == MIS_TOWN || missile[mi]._miType == MIS_RPORTAL) {
-			int mix = missile[mi]._mix;
-			int miy = missile[mi]._miy;
 			const int newDistance = GetDistance(missile[mi]._mipos, 2);
 			if (newDistance < 0)
 				continue;
@@ -304,7 +301,7 @@ static void FindTrigger()
 			const int newRotations = GetRotaryDistance(missile[mi]._mipos);
 			if (distance == newDistance && rotations < newRotations)
 				continue;
-			TargetPos(mix, miy);
+			TargetPos(missile[mi]._mipos);
 			pcurstrig = MAXTRIGGERS + mi + 1;
 			distance = newDistance;
 			rotations = newRotations;
@@ -317,7 +314,7 @@ static void FindTrigger()
 
 	pcurstrig = CheckTrigForce();
 	if (TRIG_VALID(pcurstrig)) {
-		TargetPos(trigs[pcurstrig]._tx, trigs[pcurstrig]._ty);
+		TargetPos(DungeonToDunPos(trigs[pcurstrig]._tx, trigs[pcurstrig]._ty));
 	} else {
 		CheckTownPortal();
 	}*/
@@ -796,7 +793,7 @@ void plrctrls_after_check_curs_move()
 		pcursplr = PLR_NONE;
 		pcurstrig = TRIG_NONE;
 		// pcurswnd = WND_NONE;
-		// TargetPos(-1, -1);
+		// TargetPos({-1, -1});
 		static_assert(MDM_ALIVE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects MDM_ALIVE to be zero.");
 		static_assert(STORE_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects STORE_NONE to be zero.");
 		static_assert(CMAP_NONE == 0, "BitOr optimization of plrctrls_after_check_curs_move expects CMAP_NONE to be zero.");	
@@ -906,7 +903,7 @@ static bool SpellHasActorTarget()
 		return false;
 
 	if (spl == SPL_FIREWALL && MON_VALID(pcursmonst)) {
-		TargetPos(monsters[pcursmonst]._mx, monsters[pcursmonst]._my);
+		TargetPos(monsters[pcursmonst]._mpos);
 	}
 
 	return PLR_VALID(pcursplr) || MON_VALID(pcursmonst);
@@ -926,7 +923,8 @@ static void UpdateSpellTarget()
 
 	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
 	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
-	TargetPos(mx + offset_x[myplr._pdir] * range, my + offset_y[myplr._pdir] * range);
+	POS32 pos = DungeonToDunPos(mx + offset_x[myplr._pdir] * range, my + offset_y[myplr._pdir] * range);
+	TargetPos(pos);
 }
 
 /**
@@ -934,9 +932,8 @@ static void UpdateSpellTarget()
  */
 static void TryDropItem()
 {
-	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
-	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
-	TargetPos(mx + 1, my);
+	const POS32 pos = { myplr._ppos.x + DUN_WIDTH, myplr._ppos.y};
+	TargetPos(pos);
 	DropItem();
 }
 
@@ -960,9 +957,8 @@ void PerformSpellAction()
 				UpdateSpellTarget();
 			} else if (pcursicon >= CURSOR_FIRSTITEM) {
 				// prepare for DropItem
-				int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
-				int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
-				TargetPos(mx + 1, my);
+				const POS32 pos = { myplr._ppos.x + DUN_WIDTH, myplr._ppos.y};
+				TargetPos(pos);
 			}
 		}
 		InputBtnDown(ACT_ALTACT);
