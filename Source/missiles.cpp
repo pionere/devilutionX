@@ -5447,8 +5447,7 @@ void SyncMissilesAnim()
 		} else if (mis->_miType == MIS_CHARGE) {
 			SyncChargeAnim(mis);
 		} else if (mis->_miType == MIS_FIREWALL || mis->_miType == MIS_FIREWAVE) {
-			// PutMissileF(mi, BFLAG_HAZARD)
-			dFlags[mis->_mix][mis->_miy] |= BFLAG_HAZARD;
+			PutMissileF(mi, BFLAG_HAZARD);
 		}
 	}
 }
