@@ -134,10 +134,11 @@ static void FindObject()
 				continue;
 			if (xx == 0 && yy == 0 && objects[oi]._oDoorFlag != ODT_NONE)
 				continue; // Ignore doorway so we don't get stuck behind barrels
-			int newRotations = GetRotaryDistance(objects[oi]._opos);
+			const POS32 pos = DungeonToDunPos(mx + xx, my + yy);
+			int newRotations = GetRotaryDistance(pos);
 			if (rotations < newRotations)
 				continue;
-			if (GetDistance(objects[oi]._opos, 1) < 0)
+			if (GetDistance(pos, 1) < 0)
 				continue;
 			rotations = newRotations;
 			pcursobj = oi;
