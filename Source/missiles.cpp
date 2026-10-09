@@ -2482,7 +2482,7 @@ int AddArrow(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 		// mis->_miMinDam = plx(misource)._pIPcMinDam;
 		// mis->_miMaxDam = plx(misource)._pIPcMaxDam;
 		if (mis->_miType == MIS_ASARROW) {
-			mis->_miVar1 = sqrt(GetDunDistance2(mis->_mipos, dp)) / missiledata[MIS_ASARROW].mdPrSpeed;
+			mis->_miVar1 = (int)(sqrt(GetDunDistance2(mis->_mipos, dp)) / missiledata[MIS_ASARROW].mdPrSpeed);
 		}
 		// mis->_miVar6 = plx(misource)._pIHitChance;
 	} else if (micaster == MST_MONSTER) {
@@ -3201,7 +3201,7 @@ int AddCharge(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 	}
 	plr._pmode = PM_CHARGE;
 	mis->_miDir = midir;
-	mis->_miVar1 = sqrt(GetDunDistance2(mis->_mipos, dp)) / chv;
+	mis->_miVar1 = (int)(sqrt(GetDunDistance2(mis->_mipos, dp)) / chv);
 	mis->_miAnimAdd = aa;
 	SyncChargeAnim(mis);
 	//mis->_miLid = mon->_mlid;
@@ -3458,7 +3458,7 @@ int AddElemental(int mi, POS32 dp, int midir, int micaster, int misource, int sp
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
-	mis->_miVar1 = sqrt(GetDunDistance2(mis->_mipos, dp)) / missiledata[MIS_ELEMENTAL].mdPrSpeed;
+	mis->_miVar1 = (int)(sqrt(GetDunDistance2(mis->_mipos, dp)) / missiledata[MIS_ELEMENTAL].mdPrSpeed);
 	mis->_miVar5 = midir; // MIS_DIR
 	static_assert(MAX_LIGHT_RAD >= 8, "AddElemental needs at least light-radius of 8.");
 	mis->_miLid = AddLight(mis->_mipos, 8);
