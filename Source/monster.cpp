@@ -1604,17 +1604,20 @@ static void MonFindEnemy(int mnum)
 	mon->_menemyy = y;
 }
 
+static int MonEnemyLastDir(int mnum)
+{
+	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
+}
+
 static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon;
-	int mx, my, dir, dist, dx, dy;
+	int dir, dist, dx, dy;
 	POS32 epos;
 
 	mon = &monsters[mnum];
-	mx = mon->_mx;
-	my = mon->_my;
 
-	nmInfo._meLastDir = GetDirection(mx, my, mon->_mlastx, mon->_mlasty);
+	nmInfo._meLastDir = MonEnemyLastDir(mnum);
 
 	epos = { 0, 0 };
 	dir = 0;
@@ -1626,8 +1629,8 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 			epos = monsters[-(mon->_menemy + 1)]._mpos;
 		}
 
-		dx = (unsigned)epos.x / DUN_WIDTH - mx;
-		dy = (unsigned)epos.y / DUN_WIDTH - my;
+		dx = (unsigned)epos.x / DUN_WIDTH - mon->_mx;
+		dy = (unsigned)epos.y / DUN_WIDTH - mon->_my;
 
 		dir = GetDirection(0, 0, dx, dy);
 		dist = std::max(abs(dx), abs(dy));
@@ -1635,11 +1638,6 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 	nmInfo._mePos = epos;
 	nmInfo._meRealDir = dir;
 	nmInfo._meRealDist = dist;
-}
-
-static int MonEnemyLastDir(int mnum)
-{
-	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
 }
 
 // Set each location to the input location.
