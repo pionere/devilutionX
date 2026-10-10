@@ -3068,7 +3068,7 @@ static bool MonCallWalk(int mnum, int md)
 	return md >= 0;
 }
 
-static bool MonDestWalk(int mnum)
+static bool MonDestWalk(int mnum, const MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon;
 	int8_t walkdir;
@@ -3084,7 +3084,7 @@ static bool MonDestWalk(int mnum)
 		if (md > 0) { // found path to the enemy -> go
 			md = walkdir;
 		} else if (md != 0) { // could not find path to the enemy -> just go in its generic direction
-			md = currEnemyInfo._meLastDir;
+			md = nmInfo._meLastDir;
 		} else { // enemy disappeared -> walk around randomly
 			md = random_(145, NUM_DIRS);
 			for (int i = 0; i < NUM_DIRS; i++) {
@@ -3097,7 +3097,7 @@ static bool MonDestWalk(int mnum)
 			}
 		}
 	} else {
-		md = currEnemyInfo._meLastDir;
+		md = nmInfo._meLastDir;
 	}
 
 	return MonCallWalk(mnum, md);
@@ -3182,7 +3182,7 @@ void MAI_SkelSd(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 	if (currEnemyInfo._meRealDist >= 2) { // STAND_PREV_MODE
 		if (mon->_mVar1 == MM_DELAY || (random_(106, 100) >= 35 - 4 * mon->_mAI.aiInt)) {
-			MonDestWalk(mnum);
+			MonDestWalk(mnum, currEnemyInfo);
 		} else {
 			MonStartDelay(mnum, RandRange(16, 23) - 2 * mon->_mAI.aiInt);
 		}
@@ -3238,7 +3238,7 @@ void MAI_Snake(int mnum)
 				mon->_mgoalvar2 = (mon->_mgoalvar2 + md) & 7;
 			}
 			if (!MonDumbWalk(mnum, mon->_mgoalvar2))
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 		} else {
 			MonStartDelay(mnum, RandRange(16, 23) - mon->_mAI.aiInt);
 		}
@@ -3291,7 +3291,7 @@ void MAI_Bat(int mnum)
 	} else if (dist >= 2) {
 		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < mon->_mAI.aiInt + 13) // STAND_TICK
 		 || (MON_JUST_WALKED && v < mon->_mAI.aiInt + 63)) {
-			MonDestWalk(mnum);
+			MonDestWalk(mnum, currEnemyInfo);
 		}
 	} else if (v < 4 * mon->_mAI.aiInt + 8) {
 		MonStartAttack(mnum);
@@ -3350,7 +3350,7 @@ void MAI_Fat(int mnum)
 	if (currEnemyInfo._meRealDist >= 2) {
 		if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 20) // STAND_TICK
 		 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 70)) {
-			MonDestWalk(mnum);
+			MonDestWalk(mnum, currEnemyInfo);
 		}
 	} else if (v < 4 * mon->_mAI.aiInt + 15) {
 		MonStartAttack(mnum);
@@ -3419,7 +3419,7 @@ void MAI_Sneak(int mnum)
 		if (dist >= 2) {
 			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 4 * mon->_mAI.aiInt + 14) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 4 * mon->_mAI.aiInt + 64))
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 		} else {
 			if (v < 4 * mon->_mAI.aiInt + 10)
 				MonStartAttack(mnum);
@@ -3544,7 +3544,7 @@ void MAI_Fallen(int mnum)
 			if (currEnemyInfo._meRealDist < 2) {
 				MonStartAttack(mnum);
 			} else {
-				if (!MonDestWalk(mnum)) {
+				if (!MonDestWalk(mnum, currEnemyInfo)) {
 					// prevent isolated fallens from burnout
 					int m = 12 - 1; // mon->_mAnims[MA_WALK].maFrameLen * mon->_mAnims[MA_WALK].maFrames - 1;
 					if (mon->_msquelch > (unsigned)m)
@@ -3568,7 +3568,7 @@ void MAI_Cleaver(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 
 	if (currEnemyInfo._meRealDist >= 2)
-		MonDestWalk(mnum);
+		MonDestWalk(mnum, currEnemyInfo);
 	else
 		MonStartAttack(mnum);
 }
@@ -3614,7 +3614,7 @@ void MAI_Round(int mnum)
 		if (dist >= 2) {
 			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mAI.aiInt + 28) // STAND_TICK
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 78)) {
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 			}
 		} else if (v < 2 * mon->_mAI.aiInt + 23) {
 			mon->_mdir = md;
@@ -3662,14 +3662,14 @@ void MAI_Ranged(int mnum)
 						MonStartRAttack(mnum, mon->_mAI.aiParam1);
 				} else if (currEnemyInfo._meRealDist >= 4
 				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
-					MonDestWalk(mnum);
+					MonDestWalk(mnum, currEnemyInfo);
 				}
 			} else {
 				MonStartDelay(mnum, md + 1);
 			}
 		}
 	} else {
-		MonDestWalk(mnum);
+		MonDestWalk(mnum, currEnemyInfo);
 	}
 }
 
@@ -3709,14 +3709,14 @@ static void MAI_RangedDist(int mnum)
 						MonStartRAttack(mnum, mon->_mAI.aiParam1);
 				} else if (currEnemyInfo._meRealDist >= 4
 				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
-					MonDestWalk(mnum);
+					MonDestWalk(mnum, currEnemyInfo);
 				}
 			} else {
 				MonStartDelay(mnum, md + 1);
 			}
 		}
 	} else {
-		MonDestWalk(mnum);
+		MonDestWalk(mnum, currEnemyInfo);
 	}
 }
 
@@ -3958,7 +3958,7 @@ void MAI_RoundRanged(int mnum)
 		} else if (dist >= 2) {
 			if (v < 10 * (mon->_mAI.aiInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mAI.aiInt + 8))) {
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 				return;
 			}
 		} else if (v < 10 * (mon->_mAI.aiInt + 6)) {
@@ -4021,7 +4021,7 @@ void MAI_RoundRanged2(int mnum)
 		if (dist >= 2) {
 			if (v < 10 * (mon->_mAI.aiInt + 5)
 			 || (MON_JUST_WALKED && v < 10 * (mon->_mAI.aiInt + 8))) {
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 				return;
 			}
 		} else {
@@ -4210,7 +4210,7 @@ void MAI_SkelKing(int mnum)
 			v = random_(129, 100);
 			if (v < mon->_mAI.aiInt + 25
 			 || (MON_JUST_WALKED && v < mon->_mAI.aiInt + 75)) {
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 			} else {
 				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
@@ -4264,7 +4264,7 @@ void MAI_Rhino(int mnum)
 			v = random_(134, 100);
 			if (v < 2 * mon->_mAI.aiInt + 33
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 83)) {
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 			} else {
 				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
@@ -4314,7 +4314,7 @@ void MAI_Horkdemon(int mnum)
 			v = random_(134, 100);
 			if (v < 2 * mon->_mAI.aiInt + 33
 			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 83)) {
-				MonDestWalk(mnum);
+				MonDestWalk(mnum, currEnemyInfo);
 			} else {
 				MonStartDelay(mnum, RandRange(11, 18) - mon->_mAI.aiInt);
 			}
