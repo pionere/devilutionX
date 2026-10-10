@@ -3526,7 +3526,7 @@ void MAI_Fallen(int mnum)
 
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (random_(113, 48) == 0) {
+		if (MON_HAS_ENEMY && random_(113, 48) == 0) {
 			MonStartRSpAttack(mnum, MIS_CTA);
 		} else {
 			MAI_SkelSd(mnum);
