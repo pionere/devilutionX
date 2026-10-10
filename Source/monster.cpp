@@ -1733,9 +1733,9 @@ static void MonStartRAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo)
  *          Mega, Diablo, SpiderLord, HorkDemon, Hellbat, Torchant
  * Not implemented for Nakrul.
  */
-static void MonStartRSpAttack(int mnum, int mitype)
+static void MonStartRSpAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo)
 {
-	int md = currEnemyInfo._meRealDir;
+	int md = nmInfo._meRealDir;
 	MonsterStruct* mon;
 
 	// assert(md == MonEnemyRealDir(mnum));
@@ -3525,7 +3525,7 @@ void MAI_Fallen(int mnum)
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (MON_HAS_ENEMY && random_(113, 48) == 0) {
-			MonStartRSpAttack(mnum, MIS_CTA);
+			MonStartRSpAttack(mnum, MIS_CTA, currEnemyInfo);
 		} else {
 			MAI_SkelSd(mnum);
 		}
@@ -3657,7 +3657,7 @@ void MAI_Ranged(int mnum)
 			if (md == 0 || mon->_mVar1 == MM_DELAY) {
 				if (EnemyInLine(mnum)) {
 					if (mon->_mAI.aiParam2)
-						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+						MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 					else
 						MonStartRAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 				} else if (currEnemyInfo._meRealDist >= 4
@@ -3704,7 +3704,7 @@ static void MAI_RangedDist(int mnum)
 			if (md == 0 || mon->_mVar1 == MM_DELAY) {
 				if (currEnemyInfo._meRealDist <= 8 && EnemyInLine(mnum)) {
 					if (mon->_mAI.aiParam2)
-						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+						MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 					else
 						MonStartRAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 				} else if (currEnemyInfo._meRealDist >= 4
@@ -3934,7 +3934,7 @@ void MAI_RoundRanged(int mnum)
 			/*if (mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, currEnemyInfo._meLastDir)) {
 				mon->_mgoal = MGOAL_NORMAL;
 			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2) && EnemyInLine(mnum)) {
-				MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+				MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
@@ -3953,7 +3953,7 @@ void MAI_RoundRanged(int mnum)
 		if (((dist > 2 && v < ((8 * (mon->_mAI.aiInt + 2)) >> mon->_mAI.aiParam2))
 		        || v < ((8 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2))
 			&& EnemyInLine(mnum)) {
-			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+			MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			return;
 		} else if (dist >= 2) {
 			if (v < 10 * (mon->_mAI.aiInt + 5)
@@ -4014,7 +4014,7 @@ void MAI_RoundRanged2(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist < 5 && (dist > 2 || v < 5 * (mon->_mAI.aiInt + 1)) && EnemyInLine(mnum)) {
-			MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+			MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			return;
 		}
 		v = random_(124, 100);
@@ -4029,7 +4029,7 @@ void MAI_RoundRanged2(int mnum)
 				if (random_(124, 2) != 0)
 					MonStartAttack(mnum, currEnemyInfo);
 				else
-					MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
+					MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 				return;
 			}
 		}
@@ -4304,7 +4304,7 @@ void MAI_Horkdemon(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist > 2 && v < 2 * mon->_mAI.aiInt + 43) {
 			if (PosOkMonst(mnum, mon->_mx + offset_x[mon->_mdir], mon->_my + offset_y[mon->_mdir]) && nummonsters < MAXMONSTERS) {
-				MonStartRSpAttack(mnum, MIS_HORKDMN);
+				MonStartRSpAttack(mnum, MIS_HORKDMN, currEnemyInfo);
 			}
 		} else if (dist < 2) {
 			if (v < 2 * mon->_mAI.aiInt + 28) {
