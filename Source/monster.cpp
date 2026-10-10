@@ -1702,6 +1702,10 @@ static void StartStand(int mnum)
  * Skeleton: spawning
  * SkeletonKing: raising a skeleton
 
+ * Scavengers: eating
+ * Gravediggers: digging
+ * Gargoyle: standing up
+
  * Fallen with spear: taunting
  * Fallen with sword: backflip
  */
@@ -1772,10 +1776,6 @@ static void MonStartRSpAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo
  * Toad(AI_FAT): punch
  * Defiler: scorpion-hit
  *
- * Scavengers: eating
- * Gravediggers: digging
- * Gargoyle: standing up
-
  * Rhino: running effect - handled by MIS_RHINO and MM_CHARGE
  */
 static void MonStartSpAttack(int mnum, const MonEnemyStruct &nmInfo)
@@ -2738,7 +2738,7 @@ static bool MonDoHeal(int mnum)
 			mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 		} else {
 			mon->_mhitpoints = mon->_mmaxhp;
-			// MonStartSpAttack(mnum, currEnemyInfo);
+			// MonStartSpStand(mnum, mon->_mdir);
 			mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
 			mon->_mmode = MM_SPATTACK;
 		}
@@ -3799,7 +3799,7 @@ void MAI_Scav(int mnum)
 			mon->_mgoalvar3--; // HEALING_ROUNDS
 			if (mon->_mgoalvar1 != 0 // DEAD_MONSTER
 			 && monsters[mon->_mgoalvar1 - 1]._mmode == MM_DEAD && mon->_mx == monsters[mon->_mgoalvar1 - 1]._mx && mon->_my == monsters[mon->_mgoalvar1 - 1]._my) {
-				MonStartSpAttack(mnum, currEnemyInfo);
+				MonStartSpStand(mnum, mon->_mdir);
 				maxhp = mon->_mmaxhp;
 				//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 #ifdef HELLFIRE
@@ -3882,7 +3882,7 @@ void MAI_Garg(int mnum)
 		if (mon->_mmode != MM_SPATTACK) {
 			// assert(mon->_mmode != MM_STONE);
 			if (mon->_mleaderflag == MLEADER_NONE) {
-				MonStartSpAttack(mnum, currEnemyInfo);
+				MonStartSpStand(mnum, mon->_mdir);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else {
 				mon->_mFlags &= ~MFLAG_GARG_STONE;
