@@ -1714,9 +1714,9 @@ static void MonStartAttack(int mnum, const MonEnemyStruct &nmInfo)
 	mon->_mmode = MM_ATTACK;
 }
 
-static void MonStartRAttack(int mnum, int mitype)
+static void MonStartRAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo)
 {
-	int md = currEnemyInfo._meRealDir;
+	int md = nmInfo._meRealDir;
 	MonsterStruct* mon;
 
 	// assert(md == MonEnemyRealDir(mnum));
@@ -3327,7 +3327,7 @@ void MAI_SkelBow(int mnum)
 	if (mon->_mVar1 == MM_DELAY) {
 		if (MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
 			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
-			MonStartRAttack(mnum, MIS_ARROW);
+			MonStartRAttack(mnum, MIS_ARROW, currEnemyInfo);
 		} else {
 			mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
 		}
@@ -3465,7 +3465,7 @@ void MAI_Sneak(int mnum)
 			mon->_mgoalvar1 = 0;
 			MonStartFadeout(mnum, true);
 		} else if (EnemyInLine(mnum)) {
-			MonStartRAttack(mnum, MIS_KRULL);
+			MonStartRAttack(mnum, MIS_KRULL, currEnemyInfo);
 		} else {
 			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
 		}
@@ -3659,7 +3659,7 @@ void MAI_Ranged(int mnum)
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 					else
-						MonStartRAttack(mnum, mon->_mAI.aiParam1);
+						MonStartRAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 				} else if (currEnemyInfo._meRealDist >= 4
 				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
 					MonDestWalk(mnum, currEnemyInfo);
@@ -3706,7 +3706,7 @@ static void MAI_RangedDist(int mnum)
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1);
 					else
-						MonStartRAttack(mnum, mon->_mAI.aiParam1);
+						MonStartRAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 				} else if (currEnemyInfo._meRealDist >= 4
 				 && random_(120, 100) < 10 * (mon->_mAI.aiInt + (currEnemyInfo._meRealDist != 4 ? 4 : 0))) {
 					MonDestWalk(mnum, currEnemyInfo);
@@ -4348,7 +4348,7 @@ void MAI_Counselor(int mnum)
 		v = random_(121, 100);
 		if (dist >= 2) {
 			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
-				MonStartRAttack(mnum, mon->_mAI.aiParam1);
+				MonStartRAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			} else if (random_(124, 128) < 39 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
 				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
@@ -4373,7 +4373,7 @@ void MAI_Counselor(int mnum)
 				mon->_mgoalvar1 = 5; // RETREAT_DISTANCE
 				MonStartFadeout(mnum, false);
 			} else if (mon->_mVar1 == MM_DELAY || v < 2 * mon->_mAI.aiInt + 20) {
-				MonStartRAttack(mnum, MIS_FLASH);
+				MonStartRAttack(mnum, MIS_FLASH, currEnemyInfo);
 			}
 		}
 		if (mon->_mmode == MM_STAND && mon->_mAI.aiType != AI_LAZARUS) {
@@ -4425,7 +4425,7 @@ void MAI_Mage(int mnum)
 		v = random_(121, 100);
 		if (dist >= 2) {
 			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
-				MonStartRAttack(mnum, v == (5 * (4 + 10) - 1) ? mon->_mAI.aiParam1 : MIS_MAGE /*mon->_mAI.aiParam2*/);
+				MonStartRAttack(mnum, v == (5 * (4 + 10) - 1) ? mon->_mAI.aiParam1 : MIS_MAGE /*mon->_mAI.aiParam2*/, currEnemyInfo);
 			} else if (mon->_msquelch >= SQUELCH_MAX && random_(124, 128) < 39) {
 #if DEBUG
 				assert((mon->_mAnims[MA_SPECIAL].maFrames - 1) * mon->_mAnims[MA_SPECIAL].maFrameLen * 2 +
@@ -4446,7 +4446,7 @@ void MAI_Mage(int mnum)
 			if (mon->_mVar1 == MM_FADEIN) // STAND_PREV_MODE
 				v >>= 1;
 			if (mon->_mVar1 == MM_DELAY || v < 2 * mon->_mAI.aiInt + 20) {
-				MonStartRAttack(mnum, v < 10 ? MIS_FLASH : MIS_MAGE /*mon->_mAI.aiParam2*/);
+				MonStartRAttack(mnum, v < 10 ? MIS_FLASH : MIS_MAGE /*mon->_mAI.aiParam2*/, currEnemyInfo);
 			}
 		}
 		if (mon->_mmode == MM_STAND) {
