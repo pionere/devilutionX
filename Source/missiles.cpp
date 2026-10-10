@@ -3906,7 +3906,7 @@ int AddCallToArms(int mi, POS32 dp, int midir, int micaster, int misource, int s
 {
 	// assert(micaster == MST_MONSTER);
 	// assert((unsigned)misource < MAXMONSTERS);
-	MonCallToArms(misource);
+	MonCallToArms(misource, dp);
 
 	return MIRES_DELETE;
 }

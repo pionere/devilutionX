@@ -3476,7 +3476,7 @@ void MAI_Sneak(int mnum)
 	}
 }*/
 
-void MonCallToArms(int mnum)
+void MonCallToArms(int mnum, POS32 pos)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int i, rad, amount;
@@ -3486,7 +3486,7 @@ void MonCallToArms(int mnum)
 		amount = mon->_mhitpoints + 2 * rad + 2;
 		mon->_mhitpoints = std::min(mon->_mmaxhp, amount);
 	//}
-	if (MON_HAS_ENEMY) {
+	{
 		if (rad > MAX_RAD) {
 			rad = MAX_RAD;
 		}
@@ -3511,8 +3511,8 @@ void MonCallToArms(int mnum)
 					bmon->_mgoal = MGOAL_ATTACK;
 					bmon->_mgoalvar1 = amount; // FALLEN_ATTACK_AMOUNT
 				}
-				bmon->_mlastx = mon->_menemyx;
-				bmon->_mlasty = mon->_menemyy;
+				bmon->_mlastx = (unsigned)pos.x / DUN_WIDTH;
+				bmon->_mlasty = (unsigned)pos.y / DUN_WIDTH;
 			}
 		}
 	}
