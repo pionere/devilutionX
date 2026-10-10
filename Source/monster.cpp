@@ -1725,6 +1725,8 @@ static void MonStartAttack(int mnum, const MonEnemyStruct &nmInfo)
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_ATTACK;
+	mon->_mVar4 = nmInfo._mePos.x; // ATTACK_TARGET_X
+	mon->_mVar5 = nmInfo._mePos.y; // ATTACK_TARGET_Y
 }
 
 static void MonStartRAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo)
@@ -1738,6 +1740,8 @@ static void MonStartRAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo)
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RATTACK;
 	mon->_mVar1 = mitype; // RATTACK_SKILL
+	mon->_mVar4 = nmInfo._mePos.x; // RATTACK_TARGET_X
+	mon->_mVar5 = nmInfo._mePos.y; // RATTACK_TARGET_Y
 }
 
 /*
@@ -1756,7 +1760,9 @@ static void MonStartRSpAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	mon = &monsters[mnum];
 	mon->_mmode = MM_RSPATTACK;
-	mon->_mVar1 = mitype; // SPATTACK_SKILL
+	mon->_mVar1 = mitype; // RSPATTACK_SKILL
+	mon->_mVar4 = nmInfo._mePos.x; // RSPATTACK_TARGET_X
+	mon->_mVar5 = nmInfo._mePos.y; // RSPATTACK_TARGET_Y
 }
 
 /*
@@ -1772,7 +1778,7 @@ static void MonStartRSpAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo
 
  * Rhino: running effect - handled by MIS_RHINO and MM_CHARGE
  */
-static void MonStartSpAttack(int mnum)
+static void MonStartSpAttack(int mnum, const MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
@@ -1780,6 +1786,8 @@ static void MonStartSpAttack(int mnum)
 	NewMonsterAnim(mnum, MA_SPECIAL, mon->_mdir);
 
 	mon->_mmode = MM_SPATTACK;
+	mon->_mVar4 = nmInfo._mePos.x; // RATTACK_TARGET_X
+	mon->_mVar5 = nmInfo._mePos.y; // RATTACK_TARGET_Y
 }
 
 /*
@@ -2576,11 +2584,12 @@ static bool MonHitCallback(int mponum, int mnumHit)
 static void MonTryH2HHit(int mnum, int mode)
 {
 	MonsterStruct* mon;
+	int mx, my;
 
 	mon = &monsters[mnum];
-	int mx = mon->_menemyx, my = mon->_menemyy;
-	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
-	CheckHRectAreaHit(rect, MonHitCallback, (mode << 16) | mnum);
+	mx = mon->_mVar4 - DUN_WIDTH / 2; // ATTACK_TARGET_X, SPATTACK_TARGET_X
+	my = mon->_mVar5 - DUN_WIDTH / 2; // ATTACK_TARGET_Y, SPATTACK_TARGET_Y
+	CheckHRectAreaHit({ mx, my, DUN_WIDTH, DUN_WIDTH }, MonHitCallback, (mode << 16) | mnum);
 }
 
 static bool MonDoAttack(int mnum)
@@ -2617,7 +2626,7 @@ static bool MonDoRAttack(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum) {
-		const POS32 dp = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
+		const POS32 dp = { mon->_mVar4, mon->_mVar5 }; // RATTACK_TARGET_X, RATTACK_TARGET_Y
 		AddMissile(mon->_mpos, dp, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // RATTACK_SKILL
 		PlayMonSfx(mnum, MS_ATTACK);
 	}
@@ -2637,8 +2646,8 @@ static bool MonDoRSpAttack(int mnum)
 	mon = &monsters[mnum];
 	if (mon->_mAnimFrame == mon->_mAFNum2) {
 		if (mon->_mAnimCnt == 0) {
-			const POS32 dp = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
-			AddMissile(mon->_mpos, dp, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // SPATTACK_SKILL
+			const POS32 dp = { mon->_mVar4, mon->_mVar5 }; // RSPATTACK_TARGET_X, RSPATTACK_TARGET_Y
+			AddMissile(mon->_mpos, dp, mon->_mdir, mon->_mVar1, MST_MONSTER, mnum, 0); // RSPATTACK_SKILL
 			PlayMonSfx(mnum, MS_SPECIAL);
 		}
 
@@ -2729,7 +2738,7 @@ static bool MonDoHeal(int mnum)
 			mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 		} else {
 			mon->_mhitpoints = mon->_mmaxhp;
-			// MonStartSpAttack(mnum);
+			// MonStartSpAttack(mnum, currEnemyInfo);
 			mon->_mFlags &= ~MFLAG_LOCK_ANIMATION;
 			mon->_mmode = MM_SPATTACK;
 		}
@@ -3365,7 +3374,7 @@ void MAI_Fat(int mnum)
 	} else if (v < 4 * mon->_mAI.aiInt + 15) {
 		MonStartAttack(mnum, currEnemyInfo);
 	} else if (v < 5 * mon->_mAI.aiInt + 18) {
-		MonStartSpAttack(mnum);
+		MonStartSpAttack(mnum, currEnemyInfo);
 	}
 }
 
@@ -3626,7 +3635,7 @@ void MAI_Round(int mnum)
 		} else if (v < 2 * mon->_mAI.aiInt + 23) {
 			mon->_mdir = md;
 			if (mon->_mAI.aiParam1 && mon->_mhitpoints < (mon->_mmaxhp >> 1) && random_(117, 2) != 0)
-				MonStartSpAttack(mnum);
+				MonStartSpAttack(mnum, currEnemyInfo);
 			else
 				MonStartAttack(mnum, currEnemyInfo);
 		}
@@ -3790,7 +3799,7 @@ void MAI_Scav(int mnum)
 			mon->_mgoalvar3--; // HEALING_ROUNDS
 			if (mon->_mgoalvar1 != 0 // DEAD_MONSTER
 			 && monsters[mon->_mgoalvar1 - 1]._mmode == MM_DEAD && mon->_mx == monsters[mon->_mgoalvar1 - 1]._mx && mon->_my == monsters[mon->_mgoalvar1 - 1]._my) {
-				MonStartSpAttack(mnum);
+				MonStartSpAttack(mnum, currEnemyInfo);
 				maxhp = mon->_mmaxhp;
 				//if (!(mon->_mFlags & MFLAG_NOHEAL)) {
 #ifdef HELLFIRE
@@ -3873,7 +3882,7 @@ void MAI_Garg(int mnum)
 		if (mon->_mmode != MM_SPATTACK) {
 			// assert(mon->_mmode != MM_STONE);
 			if (mon->_mleaderflag == MLEADER_NONE) {
-				MonStartSpAttack(mnum);
+				MonStartSpAttack(mnum, currEnemyInfo);
 				mon->_mFlags |= MFLAG_LOCK_ANIMATION;
 			} else {
 				mon->_mFlags &= ~MFLAG_GARG_STONE;
