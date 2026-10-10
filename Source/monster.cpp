@@ -1607,7 +1607,7 @@ static void MonFindEnemy(int mnum)
 static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon;
-	int mx, my, dx, dy;
+	int mx, my, dir, dist, dx, dy;
 	POS32 epos;
 
 	mon = &monsters[mnum];
@@ -1616,21 +1616,25 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 
 	nmInfo._meLastDir = GetDirection(mx, my, mon->_mlastx, mon->_mlasty);
 
-	dx = mon->_menemyx - mx;
-	dy = mon->_menemyy - my;
-
-	nmInfo._meRealDir = GetDirection(0, 0, dx, dy);
-	nmInfo._meRealDist = std::max(abs(dx), abs(dy));
-
 	epos = { 0, 0 };
+	dir = 0;
+	dist = INT_MAX;
 	if (MON_HAS_ENEMY) {
 		if (mon->_menemy >= 0) {
 			epos = players[mon->_menemy]._ppos;
 		} else {
 			epos = monsters[-(mon->_menemy + 1)]._mpos;
 		}
+
+		dx = (unsigned)epos.x / DUN_WIDTH - mx;
+		dy = (unsigned)epos.y / DUN_WIDTH - my;
+
+		dir = GetDirection(0, 0, dx, dy);
+		dist = std::max(abs(dx), abs(dy));
 	}
 	nmInfo._mePos = epos;
+	nmInfo._meRealDir = dir;
+	nmInfo._meRealDist = dist;
 }
 
 static int MonEnemyLastDir(int mnum)
