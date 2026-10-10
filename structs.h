@@ -824,6 +824,7 @@ typedef struct MonEnemyStruct {
 	int _meLastDir; // direction
 	int _meRealDir; // direction
 	int _meRealDist;
+	POS32 _mePos;
 } MonEnemyStruct;
 
 typedef struct UniqMonData {

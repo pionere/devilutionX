@@ -1608,6 +1608,7 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon;
 	int mx, my, dx, dy;
+	POS32 epos;
 
 	mon = &monsters[mnum];
 	mx = mon->_mx;
@@ -1620,6 +1621,16 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 
 	nmInfo._meRealDir = GetDirection(0, 0, dx, dy);
 	nmInfo._meRealDist = std::max(abs(dx), abs(dy));
+
+	epos = { 0, 0 };
+	if (MON_HAS_ENEMY) {
+		if (mon->_menemy >= 0) {
+			epos = players[mon->_menemy]._ppos;
+		} else {
+			epos = monsters[-(mon->_menemy + 1)]._mpos;
+		}
+	}
+	nmInfo._mePos = epos;
 }
 
 //static int MonEnemyRealDir(int mnum)
@@ -3211,8 +3222,7 @@ void MAI_Snake(int mnum)
 	dist = currEnemyInfo._meRealDist;
 	if (dist >= 2) { // STAND_PREV_MODE
 		if (dist == 2 && EnemyInLineMon(mnum) && mon->_mVar1 != MM_CHARGE) {
-			const POS32 dp = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
-			if (AddMissile(mon->_mpos, dp, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+			if (AddMissile(mon->_mpos, currEnemyInfo._mePos, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSfx(mnum, MS_ATTACK);
 				MonLeaveLeader(mnum);
 			}
@@ -3286,8 +3296,7 @@ void MAI_Bat(int mnum)
 	 && dist >= 5
 	 && v < 4 * mon->_mAI.aiInt + 33
 	 && EnemyInLineMon(mnum)) {
-		const POS32 dp = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
-		if (AddMissile(mon->_mpos, dp, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+		if (AddMissile(mon->_mpos, currEnemyInfo._mePos, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonLeaveLeader(mnum);
 		}
 	} else if (dist >= 2) {
@@ -3300,8 +3309,7 @@ void MAI_Bat(int mnum)
 		mon->_mgoal = MGOAL_RETREAT;
 		mon->_mgoalvar1 = 0; // RETREAT_FINISHED
 		if (mon->_mType == MT_XBAT) {
-			const POS32 ep = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
-			AddMissile(ep, { 0, 0 }, 0, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
+			AddMissile(currEnemyInfo._mePos, { 0, 0 }, 0, MIS_LIGHTNING, MST_MONSTER, mnum, -1);
 		}
 	}
 }
@@ -3328,7 +3336,7 @@ void MAI_SkelBow(int mnum)
 	// STAND_PREV_MODE
 	if (mon->_mVar1 == MM_DELAY) {
 		if (MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
-			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
+			// assert(LineClearPos(mon->_mpos, currEnemyInfo._mePos)); -- or just left the view, but who cares...
 			MonStartRAttack(mnum, MIS_ARROW, currEnemyInfo);
 		} else {
 			mon->_mVar1 = MM_STAND; // STAND_PREV_MODE
@@ -3432,21 +3440,18 @@ void MAI_Sneak(int mnum)
 /*void MAI_Fireman(int mnum)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int mx, my, fx, fy, md;
+	int mx, my, md;
 	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
 	MonEnemyInfo(mnum, currEnemyInfo);
 	mx = mon->_mx;
 	my = mon->_my;
-	fx = mon->_menemyx;
-	fy = mon->_menemyy;
 	md = currEnemyInfo._meRealDir;
 	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		const POS32 dp = DungeonToDunPos(fx, fy);
 		if (EnemyInLine(mnum)
-		 && AddMissile(mon->_mpos, dp, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
+		 && AddMissile(mon->_mpos, currEnemyInfo._mePos, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK;
 			//mon->_mgoalvar1 = 0; // FIREMAN_ACTION_PROGRESS
@@ -4193,7 +4198,7 @@ void MAI_SkelKing(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (((dist > 2 && v < 4 * mon->_mAI.aiInt + 35) || v < 6)
 			&& MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
-			// assert(LineClear(mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy)); -- or just left the view, but who cares...
+			// assert(LineClearPos(mon->_mpos, currEnemyInfo._mePos)); -- or just left the view, but who cares...
 			nx = mon->_mx + offset_x[md];
 			ny = mon->_my + offset_y[md];
 			if (PosOkMonst(mnum, nx, ny)) {
@@ -4253,8 +4258,7 @@ void MAI_Rhino(int mnum)
 		if (dist >= 5 && v < 2 * mon->_mAI.aiInt + 43
 		 && EnemyInLineMon(mnum)) {
 			mon->_mdir = currEnemyInfo._meLastDir;
-			const POS32 dp = DungeonToDunPos(mon->_menemyx, mon->_menemyy);
-			if (AddMissile(mon->_mpos, dp, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
+			if (AddMissile(mon->_mpos, currEnemyInfo._mePos, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSfx(mnum, MS_SPECIAL);
 				MonLeaveLeader(mnum);
 			}
