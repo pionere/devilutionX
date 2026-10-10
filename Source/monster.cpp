@@ -1606,15 +1606,17 @@ static void MonFindEnemy(int mnum)
 
 static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 {
+	MonsterStruct* mon;
 	int mx, my, dx, dy;
 
-	mx = monsters[mnum]._mx;
-	my = monsters[mnum]._my;
+	mon = &monsters[mnum];
+	mx = mon->_mx;
+	my = mon->_my;
 
-	nmInfo._meLastDir = GetDirection(mx, my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
+	nmInfo._meLastDir = GetDirection(mx, my, mon->_mlastx, mon->_mlasty);
 
-	dx = monsters[mnum]._menemyx - mx;
-	dy = monsters[mnum]._menemyy - my;
+	dx = mon->_menemyx - mx;
+	dy = mon->_menemyy - my;
 
 	nmInfo._meRealDir = GetDirection(0, 0, dx, dy);
 	nmInfo._meRealDist = std::max(abs(dx), abs(dy));
