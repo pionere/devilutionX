@@ -1633,11 +1633,6 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 	nmInfo._mePos = epos;
 }
 
-//static int MonEnemyRealDir(int mnum)
-//{
-//	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._menemyx, monsters[mnum]._menemyy);
-//}
-
 static int MonEnemyLastDir(int mnum)
 {
 	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
@@ -1724,7 +1719,6 @@ static void MonStartAttack(int mnum, const MonEnemyStruct &nmInfo)
 	int md = nmInfo._meRealDir;
 	MonsterStruct* mon;
 
-	// assert(md == MonEnemyRealDir(mnum));
 	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	mon = &monsters[mnum];
@@ -1738,7 +1732,6 @@ static void MonStartRAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo)
 	int md = nmInfo._meRealDir;
 	MonsterStruct* mon;
 
-	// assert(md == MonEnemyRealDir(mnum));
 	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_ATTACK, md);
 	mon = &monsters[mnum];
@@ -1759,7 +1752,6 @@ static void MonStartRSpAttack(int mnum, int mitype, const MonEnemyStruct &nmInfo
 	int md = nmInfo._meRealDir;
 	MonsterStruct* mon;
 
-	// assert(md == MonEnemyRealDir(mnum));
 	AssertFixMonLocation(mnum);
 	NewMonsterAnim(mnum, MA_SPECIAL, md);
 	mon = &monsters[mnum];
