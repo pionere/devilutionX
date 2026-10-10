@@ -1604,9 +1604,9 @@ static void MonFindEnemy(int mnum)
 	mon->_menemyy = y;
 }
 
-static int MonEnemyLastDir(int mnum)
+static int MonEnemyLastDir(const MonsterStruct* mon)
 {
-	return GetDirection(monsters[mnum]._mx, monsters[mnum]._my, monsters[mnum]._mlastx, monsters[mnum]._mlasty);
+	return GetDirection(mon->_mx, mon->_my, mon->_mlastx, mon->_mlasty);
 }
 
 static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
@@ -1617,7 +1617,7 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 
 	mon = &monsters[mnum];
 
-	nmInfo._meLastDir = MonEnemyLastDir(mnum);
+	nmInfo._meLastDir = MonEnemyLastDir(mon);
 
 	epos = { 0, 0 };
 	dir = 0;
@@ -2853,7 +2853,7 @@ static bool MonDoDelay(int mnum)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 	mon->_mAnimData = mon->_mAnims[MA_STAND].maAnimData[mon->_mdir];
 
 	if (mon->_mVar2-- <= 0) { // DELAY_TICK
@@ -4488,7 +4488,7 @@ void MAI_Garbud(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (mon->_mgoalvar1) { // TALK_SPEAKING
 			if (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) { // MON_TIMER
@@ -4518,7 +4518,7 @@ void MAI_Zhar(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (quests[Q_ZHAR]._qvar1 < QV_ZHAR_ATTACK) {
 			// assert(zharlib != -1);
@@ -4556,7 +4556,7 @@ void MAI_SnotSpil(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 
 	switch (quests[Q_BANNER]._qvar1) {
 	case QV_INIT: // quest not started -> skip
@@ -4604,7 +4604,7 @@ void MAI_Lazarus(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 
 	if (IsMultiGame) {
 		if (mon->_mgoal == MGOAL_TALKING) {
@@ -4656,7 +4656,7 @@ void MAI_Lazhelp(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 
 	if (mon->_mgoal == MGOAL_TALKING) {
 		if (!IsMultiGame && quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_TALK1)
@@ -4673,7 +4673,7 @@ void MAI_Lachdanan(int mnum)
 	if (MON_RELAXED || MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 
 	if (quests[Q_VEIL]._qactive == QUEST_DONE) { // MON_TIMER
 		//if (mon->_mVar8++ >= gnTicksRate * 32) {
@@ -4700,7 +4700,7 @@ void MAI_Warlord(int mnum)
 	if (MON_ACTIVE)
 		return;
 
-	mon->_mdir = MonEnemyLastDir(mnum);
+	mon->_mdir = MonEnemyLastDir(mon);
 
 	switch (quests[Q_WARLORD]._qvar1) {
 	case QV_INIT: // quest not started
