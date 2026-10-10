@@ -5148,8 +5148,8 @@ void MI_Charge(int mi)
 	mnum = mis->_miSource;
 	bx = mis->_mix;
 	by = mis->_miy;
-	cx = monsters[mnum]._menemyx;
-	cy = monsters[mnum]._menemyy;
+	cx = monsters[mnum]._mlastx;
+	cy = monsters[mnum]._mlasty;
 	if ((bx != ax || by != ay)
 	 && ((mis->_miVar1 && (abs(ax - cx) >= 4 || abs(ay - cy) >= 4)) || mis->_miVar2 > 1)
 	 && PosOkMonst(mnum, ax, ay)) {
