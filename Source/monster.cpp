@@ -67,7 +67,7 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 /** Standard MAI check if the monster is (not) 'disturbed'. */
 #define MON_RELAXED (mon->_msquelch < SQUELCH_LOW)
 /** Standard MAI check if the monster has a set enemy. */
-#define MON_HAS_ENEMY (mon->_menemyx != 0)
+#define MON_HAS_ENEMY (mon->_menemy != 0)
 
 /** Maps from walking path step to facing direction. */
 //const int8_t walk2dir[9] = { 0, DIR_NE, DIR_NW, DIR_SE, DIR_SW, DIR_N, DIR_E, DIR_S, DIR_W };
@@ -1508,7 +1508,7 @@ static void MonFindEnemy(int mnum)
 				if (dist > best_dist)
 					continue;
 				if (dist == best_dist) {
-					if (mon->_menemy != i)
+					if (mon->_menemy != i + 1)
 						continue;
 				}
 			} else if (!sameroom)
@@ -1579,6 +1579,7 @@ static void MonFindEnemy(int mnum)
 			bestsameroom = sameroom;
 		}
 	}
+	mon->_menemy = enemy;
 	// clear previous target-flags
 	if (enemy != 0) {
 		if (enemy > 0) {
@@ -1590,7 +1591,6 @@ static void MonFindEnemy(int mnum)
 			x = monsters[tnum]._mfutx;
 			y = monsters[tnum]._mfuty;
 		}
-		mon->_menemy = enemy;
 		mon->_mlastx = x;
 		mon->_mlasty = y;
 	} else {
@@ -1621,7 +1621,7 @@ static void MonEnemyInfo(int mnum, MonEnemyStruct &nmInfo)
 	dist = INT_MAX;
 	if (MON_HAS_ENEMY) {
 		if (mon->_menemy >= 0) {
-			epos = players[mon->_menemy]._ppos;
+			epos = players[mon->_menemy - 1]._ppos;
 		} else {
 			epos = monsters[-(mon->_menemy + 1)]._mpos;
 		}
@@ -4726,7 +4726,7 @@ void MAI_Warlord(int mnum)
 		if (!MON_HAS_ENEMY)
 			return;
 		quests[Q_WARLORD]._qvar1 = IsMultiGame ? QV_WARLORD_ATTACK : QV_WARLORD_TALK;
-		pnum = mon->_menemy >= 0 ? mon->_menemy : -(mon->_menemy + 1);
+		pnum = mon->_menemy >= 0 ? mon->_menemy - 1 : -(mon->_menemy + 1);
 		// assert(plr._pActive && plr._pDunLevel == currLvl._dLevelIdx && !plr._pLvlChanging);
 		if (pnum == mypnum) {
 			NetSendCmdQuest(Q_WARLORD, true);
