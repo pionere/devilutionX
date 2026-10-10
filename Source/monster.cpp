@@ -643,10 +643,10 @@ static void InitMonster(int mnum, int dir, int mtidx, POS32 pos)
 	//mon->_mgoalvar2 = 0;
 	//mon->_mgoalvar3 = 0;
 	mon->_menemy = 0;
-	mon->_menemyx = 0;
-	mon->_menemyy = 0;
-	mon->_mListener = 0;
-	mon->_mDelFlag = FALSE;
+	//mon->_menemyx = 0;
+	//mon->_menemyy = 0;
+	//mon->_mListener = 0;
+	//mon->_mDelFlag = FALSE;
 	mon->_mlastx = 0; // should be set before use (except for stone-rune)
 	mon->_mlasty = 0;
 	mon->_mRndSeed = NextRndSeed();
@@ -1593,12 +1593,12 @@ static void MonFindEnemy(int mnum)
 		}
 		mon->_mlastx = x;
 		mon->_mlasty = y;
-	} else {
-		x = 0;
-		y = 0;
+	// } else {
+	//	x = 0;
+	//	y = 0;
 	}
-	mon->_menemyx = x;
-	mon->_menemyy = y;
+	// mon->_menemyx = x;
+	// mon->_menemyy = y;
 }
 
 static int MonEnemyLastDir(const MonsterStruct* mon)
@@ -4819,8 +4819,8 @@ void ProcessMonsters()
 					assert(mon->_mmode == MM_STAND);
 				}
 				mon->_menemy = 0;
-				mon->_menemyx = 0;
-				mon->_menemyy = 0;
+				// mon->_menemyx = 0;
+				// mon->_menemyy = 0;
 				mon->_mlastx = 0;
 				mon->_mlasty = 0;
 				mon->_mVar1 = MM_STAND;           // STAND_PREV_MODE

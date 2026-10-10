@@ -1359,10 +1359,6 @@ void LevelDeltaExport()
 			tmon->smdy = mon->_mpos.y;
 			tmon->smdir = mon->_mdir;
 			tmon->smenemy = mon->_menemy;
-			tmon->smenemyx = mon->_menemyx;
-			tmon->smenemyy = mon->_menemyy;
-			tmon->smListener = mon->_mListener;
-			tmon->smDelFlag = mon->_mDelFlag; // unused
 			tmon->smAnimCnt = mon->_mAnimCnt;
 			tmon->smAnimFrame = mon->_mAnimFrame;
 			// assert(!mon->_mDelFlag || mon->_mmode == MM_STONE);
@@ -1619,10 +1615,6 @@ void LevelDeltaLoad()
 		mon->_mpos.y = tmon->smdy;
 		mon->_mdir = tmon->smdir;
 		mon->_menemy = tmon->smenemy;
-		mon->_menemyx = tmon->smenemyx;
-		mon->_menemyy = tmon->smenemyy;
-		mon->_mListener = tmon->smListener;
-		mon->_mDelFlag = tmon->smDelFlag;
 		mon->_mAnimCnt = tmon->smAnimCnt;
 		mon->_mAnimFrame = tmon->smAnimFrame;
 		mon->_mVar1 = tmon->smVar1;

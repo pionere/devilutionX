@@ -758,8 +758,8 @@ typedef struct MonsterStruct {
 	POS32 _mpos;       // Precise dungeon position of the monster
 	int _mdir;         // Direction faced by monster (direction enum)
 	int _menemy;       // The current target of the monster. An index in to either a player (positive) or a monster (negative)
-	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
+	BYTE _menemyx;     // Future (except for teleporting) tile X-coordinate of the enemy (unused)
+	BYTE _menemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy (unused)
 	BYTE _mListener;   // the player to whom the monster is talking to (unused)
 	BOOLEAN _mDelFlag; // unused
 	const BYTE* _mAnimData;
@@ -1348,8 +1348,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmdy;          // Precise dungeon Y-position of the monster
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
 	LE_INT32 vmenemy;       // The current target of the monster. An index in to either the plr or monster array depending on _mFlags (MFLAG_TARGETS_MONSTER)
-	BYTE vmenemyx;          // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE vmenemyy;          // Future (except for teleporting) tile Y-coordinate of the enemy
+	BYTE vmenemyx;          // Future (except for teleporting) tile X-coordinate of the enemy (unused)
+	BYTE vmenemyy;          // Future (except for teleporting) tile Y-coordinate of the enemy (unused)
 	BYTE vmListener;        // the player to whom the monster is talking to (unused)
 	BOOLEAN vmDelFlag; // unused
 	INT vmAnimDataAlign;
@@ -1861,10 +1861,6 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smdy;     // Precise dungeon Y-position of the monster
 	BYTE smdir;        // Direction faced by monster (direction enum)
 	LE_INT32 smenemy;  // The current target of the monster. An index in to either a player(zero or positive) or a monster (negative)
-	BYTE smenemyx;     // Future (except for teleporting) tile X-coordinate of the enemy
-	BYTE smenemyy;     // Future (except for teleporting) tile Y-coordinate of the enemy
-	BYTE smListener;   // the player to whom the monster is talking to (unused)
-	BOOLEAN smDelFlag; // unused
 	BYTE smAnimCnt;    // Increases by one each game tick, counting how close we are to _mAnimFrameLen
 	BYTE smAnimFrame;  // Current frame of animation.
 	LE_INT32 smVar1;
