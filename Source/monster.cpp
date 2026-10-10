@@ -1446,24 +1446,24 @@ bool LineClearPos(POS32 p1, POS32 p2)
 /**
  * Check if the enemy of the monster is in line for missiles
  */
-static bool EnemyInLine(int mnum)
+static bool EnemyInLine(int mnum, const MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
 	//if (!MON_HAS_ENEMY) -- does not really help. usually there is an enemy. If not the LineClearF supposed to fail.
 	//	return false;
-	return LineClearF(CheckAllowMissile, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy);
+	return LineClearF(CheckAllowMissile, mon->_mpos, nmInfo._mePos);
 }
 
 /**
  * Check if the enemy of the monster is in line for the monster
  */
-static bool EnemyInLineMon(int mnum)
+static bool EnemyInLineMon(int mnum, const MonEnemyStruct &nmInfo)
 {
 	MonsterStruct* mon = &monsters[mnum];
 
 	_gnCheckMnum = mnum;
-	return LineClearF(CheckMonMissile, mon->_mx, mon->_my, mon->_menemyx, mon->_menemyy);
+	return LineClearF(CheckMonMissile, mon->_mpos, nmInfo._mePos);
 }
 
 static void NewMonsterAnim(int mnum, int anim, int md)
@@ -3221,7 +3221,7 @@ void MAI_Snake(int mnum)
 	mon->_mdir = currEnemyInfo._meLastDir;
 	dist = currEnemyInfo._meRealDist;
 	if (dist >= 2) { // STAND_PREV_MODE
-		if (dist == 2 && EnemyInLineMon(mnum) && mon->_mVar1 != MM_CHARGE) {
+		if (dist == 2 && EnemyInLineMon(mnum, currEnemyInfo) && mon->_mVar1 != MM_CHARGE) {
 			if (AddMissile(mon->_mpos, currEnemyInfo._mePos, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSfx(mnum, MS_ATTACK);
 				MonLeaveLeader(mnum);
@@ -3295,7 +3295,7 @@ void MAI_Bat(int mnum)
 	if (mon->_mType == MT_GBAT
 	 && dist >= 5
 	 && v < 4 * mon->_mAI.aiInt + 33
-	 && EnemyInLineMon(mnum)) {
+	 && EnemyInLineMon(mnum, currEnemyInfo)) {
 		if (AddMissile(mon->_mpos, currEnemyInfo._mePos, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 			MonLeaveLeader(mnum);
 		}
@@ -3335,7 +3335,7 @@ void MAI_SkelBow(int mnum)
 
 	// STAND_PREV_MODE
 	if (mon->_mVar1 == MM_DELAY) {
-		if (MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
+		if (MON_HAS_ENEMY /*&& EnemyInLine(mnum, currEnemyInfo)*/) {
 			// assert(LineClearPos(mon->_mpos, currEnemyInfo._mePos)); -- or just left the view, but who cares...
 			MonStartRAttack(mnum, MIS_ARROW, currEnemyInfo);
 		} else {
@@ -3450,7 +3450,7 @@ void MAI_Sneak(int mnum)
 	md = currEnemyInfo._meRealDir;
 	mon->_mdir = md;
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (EnemyInLine(mnum)
+		if (EnemyInLine(mnum, currEnemyInfo)
 		 && AddMissile(mon->_mpos, currEnemyInfo._mePos, md, MIS_FIREMAN, MST_MONSTER, mnum, 0) != -1) {
 			mon->_mmode = MM_CHARGE;
 			mon->_mgoal = MGOAL_ATTACK;
@@ -3471,7 +3471,7 @@ void MAI_Sneak(int mnum)
 			mon->_mgoal = MGOAL_NORMAL;
 			mon->_mgoalvar1 = 0;
 			MonStartFadeout(mnum, true);
-		} else if (EnemyInLine(mnum)) {
+		} else if (EnemyInLine(mnum, currEnemyInfo)) {
 			MonStartRAttack(mnum, MIS_KRULL, currEnemyInfo);
 		} else {
 			MonStartDelay(mnum, RandRange(6, 13) - mon->_mAI.aiInt);
@@ -3662,7 +3662,7 @@ void MAI_Ranged(int mnum)
 			md = std::max(1, 20 - mon->_mAI.aiInt);
 			md = random_low(118, md); // STAND_PREV_MODE
 			if (md == 0 || mon->_mVar1 == MM_DELAY) {
-				if (EnemyInLine(mnum)) {
+				if (EnemyInLine(mnum, currEnemyInfo)) {
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 					else
@@ -3709,7 +3709,7 @@ static void MAI_RangedDist(int mnum)
 			md = std::max(1, 20 - mon->_mAI.aiInt);
 			md = random_low(118, md); // STAND_PREV_MODE
 			if (md == 0 || mon->_mVar1 == MM_DELAY) {
-				if (currEnemyInfo._meRealDist <= 8 && EnemyInLine(mnum)) {
+				if (currEnemyInfo._meRealDist <= 8 && EnemyInLine(mnum, currEnemyInfo)) {
 					if (mon->_mAI.aiParam2)
 						MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 					else
@@ -3940,12 +3940,12 @@ void MAI_RoundRanged(int mnum)
 			}
 			/*if (mon->_mgoalvar1++ >= 2 * dist && MonDirOK(mnum, currEnemyInfo._meLastDir)) {
 				mon->_mgoal = MGOAL_NORMAL;
-			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2) && EnemyInLine(mnum)) {
+			} else if (v < ((6 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2) && EnemyInLine(mnum, currEnemyInfo)) {
 				MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			} else {
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			}*/
-			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum)/*|| !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) { // MOVE_DISTANCE
+			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum, currEnemyInfo)/*|| !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) { // MOVE_DISTANCE
 				MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
 				mon->_mgoal = MGOAL_NORMAL;
@@ -3959,7 +3959,7 @@ void MAI_RoundRanged(int mnum)
 		v = random_(124, 100);
 		if (((dist > 2 && v < ((8 * (mon->_mAI.aiInt + 2)) >> mon->_mAI.aiParam2))
 		        || v < ((8 * (mon->_mAI.aiInt + 1)) >> mon->_mAI.aiParam2))
-			&& EnemyInLine(mnum)) {
+			&& EnemyInLine(mnum, currEnemyInfo)) {
 			MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			return;
 		} else if (dist >= 2) {
@@ -4008,7 +4008,7 @@ void MAI_RoundRanged2(int mnum)
 				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
 				mon->_mgoalvar2 = random_(123, 2); // MOVE_TURN_DIRECTION
 			}
-			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum)/* || !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) {
+			if (mon->_mgoalvar1++ < 2 * dist || !EnemyInLine(mnum, currEnemyInfo)/* || !MonDirOK(mnum, currEnemyInfo._meLastDir)*/) {
 				if (v < 5 * (mon->_mAI.aiInt + 16))
 					MonRoundWalk(mnum, currEnemyInfo._meLastDir, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
 			} else {
@@ -4020,7 +4020,7 @@ void MAI_RoundRanged2(int mnum)
 	}
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
-		if (dist < 5 && (dist > 2 || v < 5 * (mon->_mAI.aiInt + 1)) && EnemyInLine(mnum)) {
+		if (dist < 5 && (dist > 2 || v < 5 * (mon->_mAI.aiInt + 1)) && EnemyInLine(mnum, currEnemyInfo)) {
 			MonStartRSpAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			return;
 		}
@@ -4197,7 +4197,7 @@ void MAI_SkelKing(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (((dist > 2 && v < 4 * mon->_mAI.aiInt + 35) || v < 6)
-			&& MON_HAS_ENEMY /*&& EnemyInLine(mnum)*/) {
+			&& MON_HAS_ENEMY /*&& EnemyInLine(mnum, currEnemyInfo)*/) {
 			// assert(LineClearPos(mon->_mpos, currEnemyInfo._mePos)); -- or just left the view, but who cares...
 			nx = mon->_mx + offset_x[md];
 			ny = mon->_my + offset_y[md];
@@ -4256,7 +4256,7 @@ void MAI_Rhino(int mnum)
 
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (dist >= 5 && v < 2 * mon->_mAI.aiInt + 43
-		 && EnemyInLineMon(mnum)) {
+		 && EnemyInLineMon(mnum, currEnemyInfo)) {
 			mon->_mdir = currEnemyInfo._meLastDir;
 			if (AddMissile(mon->_mpos, currEnemyInfo._mePos, mon->_mdir, MIS_RHINO, MST_MONSTER, mnum, 0) != -1) {
 				PlayMonSfx(mnum, MS_SPECIAL);
@@ -4353,7 +4353,7 @@ void MAI_Counselor(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(121, 100);
 		if (dist >= 2) {
-			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
+			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum, currEnemyInfo)) {
 				MonStartRAttack(mnum, mon->_mAI.aiParam1, currEnemyInfo);
 			} else if (random_(124, 128) < 39 && mon->_msquelch == SQUELCH_MAX) {
 #if DEBUG
@@ -4430,7 +4430,7 @@ void MAI_Mage(int mnum)
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		v = random_(121, 100);
 		if (dist >= 2) {
-			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum)) {
+			if (v < 5 * (mon->_mAI.aiInt + 10) && EnemyInLine(mnum, currEnemyInfo)) {
 				MonStartRAttack(mnum, v == (5 * (4 + 10) - 1) ? mon->_mAI.aiParam1 : MIS_MAGE /*mon->_mAI.aiParam2*/, currEnemyInfo);
 			} else if (mon->_msquelch >= SQUELCH_MAX && random_(124, 128) < 39) {
 #if DEBUG
