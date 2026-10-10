@@ -3530,6 +3530,7 @@ void MAI_Fallen(int mnum)
 		return;
 
 	// assert(!(mon->_mFlags & MFLAG_CAN_OPEN_DOOR));
+	MonEnemyInfo(mnum, currEnemyInfo);
 	if (mon->_mgoal == MGOAL_NORMAL) {
 		if (MON_HAS_ENEMY && random_(113, 48) == 0) {
 			MonStartRSpAttack(mnum, MIS_CTA, currEnemyInfo);
@@ -3547,7 +3548,6 @@ void MAI_Fallen(int mnum)
 	} else {
 		assert(mon->_mgoal == MGOAL_ATTACK);
 		if (--mon->_mgoalvar1 != 0) { // FALLEN_ATTACK_AMOUNT
-			MonEnemyInfo(mnum, currEnemyInfo);
 			if (currEnemyInfo._meRealDist < 2) {
 				MonStartAttack(mnum, currEnemyInfo);
 			} else {
