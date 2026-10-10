@@ -1568,7 +1568,7 @@ static void CheckSplashCol(int mi, int hit)
 		}
 
 		//  - alter offset for better visual
-		if ((DunScreenOffset(mis->_mipos).x >= TILE_WIDTH / 2)) {
+		if ((DunScreenOffset(mis->_mipos).x >= TILE_WIDTH / 4)) {
 			mis->_mix++;
 			mis->_miy--;
 		}
