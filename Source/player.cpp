@@ -1391,26 +1391,33 @@ static void StartTalk(int pnum)
 
 void RemovePlrFromMap(int pnum)
 {
-	int pp, dx, dy, y, x;
+	int p1, dx, dy, y, x;
 
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("RemovePlrFromMap: illegal player %d", pnum);
 	}
 
+	p1 = pnum + 1;
 	dx = plr._poldx;
 	dy = plr._poldy;
-	assert(dx >= 1 && dx < MAXDUNX - 1);
-	assert(dy >= 1 && dy < MAXDUNY - 1);
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "RemovePlrFromMap expects a large enough border.");
-
-	pp = pnum + 1;
+	assert(dx > 0 && dx < MAXDUNX - 1);
+	assert(dy > 0 && dy < MAXDUNY - 1);
+	static_assert(DBORDERX > 0 && DBORDERY > 0, "RemovePlrFromMap expects a large enough border.");
 	for (x = dx - 1; x <= dx + 1; x++) {
 		for (y = dy - 1; y <= dy + 1; y++) {
-			if (abs(dPlayer[x][y]) == pp) {
+			if (abs(dPlayer[x][y]) == p1) {
 				dPlayer[x][y] = 0;
 			}
 		}
 	}
+#if DEBUG_MODE || DEV_MODE
+	for (x = 0; x < MAXDUNX; x++) {
+		for (y = 0; y < MAXDUNY; y++) {
+			if (abs(dPlayer[x][y]) == p1)
+				app_fatal("dPlayer not cleared on %d:%d id:%d mode:%d value %d  loc %d:%d dir%d", x, y, pnum, plr._pmode, dPlayer[x][y], plr._poldx, plr._poldy, plr._pdir);
+		}
+	}
+#endif
 }
 
 static void PlrStartGetHit(int pnum, int dir)

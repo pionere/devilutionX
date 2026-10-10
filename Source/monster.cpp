@@ -1961,23 +1961,27 @@ void MonUpdateLeader(int mnum)
 void RemoveMonFromMap(int mnum)
 {
 	MonsterStruct* mon;
-	int m1;
+	int m1, dx, dy, x, y;
 
 	m1 = mnum + 1;
 	mon = &monsters[mnum];
-	if (abs(dMonster[mon->_moldx][mon->_moldy]) == m1)
-		dMonster[mon->_moldx][mon->_moldy] = 0;
-	if (abs(dMonster[mon->_mfutx][mon->_mfuty]) == m1)
-		dMonster[mon->_mfutx][mon->_mfuty] = 0;
-#if DEV_MODE
-	int x, y, mx, my;
-
-	mx = mon->_moldx;
-	my = mon->_moldy;
-	for (x = mx - 1; x <= mx + 1; x++) {
-		for (y = my - 1; y <= my + 1; y++) {
+	dx = mon->_moldx;
+	dy = mon->_moldy;
+	assert(dx > 0 && dx < MAXDUNX - 1);
+	assert(dy > 0 && dy < MAXDUNY - 1);
+	static_assert(DBORDERX > 0 && DBORDERY > 0, "RemoveMonFromMap expects a large enough border.");
+	for (x = dx - 1; x <= dx + 1; x++) {
+		for (y = dy - 1; y <= dy + 1; y++) {
+			if (abs(dMonster[x][y]) == m1) {
+				dMonster[x][y] = 0;
+			}
+		}
+	}
+#if DEBUG_MODE || DEV_MODE
+	for (x = 0; x < MAXDUNX; x++) {
+		for (y = 0; y < MAXDUNY; y++) {
 			if (abs(dMonster[x][y]) == m1)
-				app_fatal("dMonster not cleared on %d:%d mode:%d ai:%d goal:%d", x, y, mon->_mmode, mon->_mAI.aiType, mon->_mgoal);
+				app_fatal("dMonster not cleared on %d:%d mode:%d ai:%d goal:%d", x, y, mon->_mmode, mon->_mAI.aiType, mon->_mgoal, dMonster[x][y], mon->_moldx, mon->_moldy, mon->_mdir);
 		}
 	}
 #endif
