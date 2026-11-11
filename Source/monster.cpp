@@ -3888,7 +3888,7 @@ void MAI_Garg(int mnum)
 	MonEnemyStruct nmInfo;
 
 	if (mon->_mFlags & MFLAG_GARG_STONE) {
-		if (mon->_mmode != MM_SPATTACK) {
+		if (mon->_mmode != MM_SPSTAND) {
 			// assert(mon->_mmode != MM_STONE);
 			if (mon->_mleaderflag == MLEADER_NONE) {
 				MonStartSpStand(mnum, mon->_mdir);
@@ -4814,7 +4814,7 @@ void ProcessMonsters()
 					mon->_mmode = MM_STAND;
 				if (mapMonTypes[mon->_mMTidx].cmFlags & MFLAG_GARG_STONE) {
 					mon->_mFlags |= MFLAG_GARG_STONE;
-					assert(mon->_mmode == MM_STAND || mon->_mmode == MM_SPATTACK);
+					assert(mon->_mmode == MM_STAND || mon->_mmode == MM_SPSTAND);
 				} else if (mapMonTypes[mon->_mMTidx].cmFlags & MFLAG_HIDDEN) {
 					mon->_mFlags |= MFLAG_HIDDEN;
 					assert(mon->_mmode == MM_STAND);
