@@ -1968,8 +1968,8 @@ static void Obj_Sun(int oi)
 
 	if (c != os->_oVar1) { // SUN_RISE
 		os->_oVar1 = c;
-		memset(dLight, c, sizeof(dLight));
-		SavePreLighting();
+		memset(dPreLight, c, sizeof(dPreLight));
+		LoadPreLighting();
 		RedoLightAndVision();
 	}
 }
@@ -2507,13 +2507,14 @@ static void SyncPedestal(/*int oi*/)
 		AddObject(OBJ_TORCHL2, sx, sy + 0);
 		AddObject(OBJ_TORCHL2, sx, sy + 2);
 		AddObject(OBJ_TORCHL2, sx, sy + 4);
+		LoadPreLighting();
 		}
 #else
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 		LoadMapSetObjects(pSetPieces[0]);
 		MemFreeDbg(pSetPieces[0]._spData);
+		LoadPreLighting();
 #endif
-		SavePreLighting();
 		//RedoLightAndVision();
 	} break;
 	default:

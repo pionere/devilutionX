@@ -1362,7 +1362,7 @@ static void DRLG_LightSubtiles()
 	int i, j, pn;
 
 	c = currLvl._dType == DTYPE_TOWN ? 0 : MAXDARKNESS;
-	memset(dLight, c, sizeof(dLight));
+	memset(dPreLight, c, sizeof(dPreLight));
 
 	if (!nCollLightTable[0]) {
 		for (i = 0; i < MAXDUNX; i++) {
@@ -1396,7 +1396,7 @@ void FinishLvlMap()
 	c = currLvl._dType == DTYPE_TOWN ? (BFLAG_VISIBLE | BFLAG_ALERT) : 0;
 	memset(dFlags, c, sizeof(dFlags));
 
-	SavePreLighting();
+	LoadPreLighting();
 }
 
 /**
@@ -1644,9 +1644,8 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	x2 = 2 * x2 + DBORDERX + 1;
 	y2 = 2 * y2 + DBORDERY + 1;
 	// TODO: DRLG_LightSubtiles?
-	LoadPreLighting();
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
-	SavePreLighting();
+	LoadPreLighting();
 	// RedoLightAndVision();
 	// activate monsters
 	MonChangeMap();

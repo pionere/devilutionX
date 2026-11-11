@@ -481,8 +481,8 @@ static bool LightPos(int x1, int y1, int radius_block, int idx)
 		return false;
 
 	BYTE v = srcDark[radius_block];
-	if (v < dLight[x1][y1])
-		dLight[x1][y1] = v;
+	if (v < dPreLight[x1][y1])
+		dPreLight[x1][y1] = v;
 
 	return proceed;
 }
@@ -495,8 +495,8 @@ void TraceLightSource(int nXPos, int nYPos, int nRadius)
 
 	srcDark = darkTable[nRadius];
 	BYTE v = srcDark[0];
-	if (v < dLight[nXPos][nYPos])
-		dLight[nXPos][nYPos] = v;
+	if (v < dPreLight[nXPos][nYPos])
+		dPreLight[nXPos][nYPos] = v;
 
 	nRadius = 2 * (nRadius + 1) * 8 * 16;
 	static_assert(INT_MAX / (2 * 8 * 16) > MAX_LIGHT_RAD, "Light tracing overflows in TraceLightSource.");
