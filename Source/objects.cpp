@@ -640,6 +640,31 @@ static void LoadMapSetObjects(const SetPieceStruct &sps)
 	//gbInitObjFlag = false; -- setpieces, setmap levers?
 }
 
+static void PlaceObject(int oi)
+{
+	ObjectStruct* os;
+	int ox, oy;
+
+	os = &objects[oi];
+	ox = (unsigned)os->_opos.x / DUN_WIDTH;
+	oy = (unsigned)os->_opos.y / DUN_WIDTH;
+	assert(dObject[ox][oy] == 0);
+	dObject[ox][oy] = oi + 1;
+	const int noi = -(oi + 1);
+	if (os->_oSolidFlag & 2) {
+		assert(dObject[ox][oy - 1] == 0);
+		dObject[ox][oy - 1] = noi;
+	}
+	if (os->_oSolidFlag & 4) {
+		assert(dObject[ox - 1][oy] == 0);
+		dObject[ox - 1][oy] = noi;
+	}
+	if (os->_oSolidFlag & 8) {
+		assert(dObject[ox - 1][oy - 1] == 0);
+		dObject[ox - 1][oy - 1] = noi;
+	}
+}
+
 static ObjectStruct* ObjectAt(int x, int y)
 {
 	int oi = dObject[x][y];
@@ -1437,22 +1462,8 @@ int AddObject(int type, int ox, int oy)
 	os->_opos = DungeonToDunPos(ox, oy);
 	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
 	const bool ready = !nSolidTable[dPiece[ox][oy]] || !(os->_oModeFlags & OMF_FLOOR);
-	assert(dObject[ox][oy] == 0);
-	dObject[ox][oy] = ready ? oi + 1 : 0;
-	const int noi = -(oi + 1);
-	if (ofd->oSolidFlags & 2) {
-		assert(dObject[ox][oy - 1] == 0);
-		dObject[ox][oy - 1] = noi;
-	}
-	if (ofd->oSolidFlags & 4) {
-		assert(dObject[ox - 1][oy] == 0);
-		dObject[ox - 1][oy] = noi;
-	}
-	if (ofd->oSolidFlags & 8) {
-		assert(dObject[ox - 1][oy - 1] == 0);
-		dObject[ox - 1][oy - 1] = noi;
-	}
 	if (ready) {
+		PlaceObject(oi);
 		if (ods->oDoorFlag != ODT_NONE) {
 			os->_oVar4 = DOOR_CLOSED;
 			//os->_oPreFlag = FALSE;
@@ -2156,7 +2167,7 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		if (nSolidTable[dPiece[os->_ox][os->_oy]])
 			continue;
 		// assert(os->_ox >= x1 && os->_ox <= x2 && os->_oy >= y1 && os->_oy <= y2);
-		dObject[os->_ox][os->_oy] = oi + 1;
+		PlaceObject(oi);
 		os->_oModeFlags &= ~OMF_RESERVED;
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
 	}
