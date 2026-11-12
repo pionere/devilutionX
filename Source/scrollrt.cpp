@@ -1897,7 +1897,7 @@ void scene_insertEntries(unsigned numCells)
 	for (int oi = 0; oi < numobjects; ++oi) {
 		// int mi = objectactive[i];
 		ObjectStruct* os = &objects[oi];
-		if (dObject[os->_ox][os->_oy] != oi + 1) continue;
+		if (os->_oModeFlags & OMF_RESERVED) continue;
 		const unsigned zorder = SubtileZOrder(os->_opos) | (((!os->_oPreFlag) ? ZOR_OBJECT : ZOR_PRE_OBJECT) << ZOR_SHIFT) | OffsetZOrder(os->_opos);
 		SceneEntry* entry = scene_placeEntry(area, os->_opos, os->_oAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
