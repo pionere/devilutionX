@@ -1447,6 +1447,61 @@ static bool PlrMissHit(int pnum, int mi)
 	}
 }
 
+static void CheckRoundAreaHit(POS32 dp, int r2, void (*callback)(int, int), int cbArg)
+{
+	for (int mnum = 0; mnum < MAXMONSTERS; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST/* || mon->_mmode == MM_DEATH*/) continue;
+		int doff = GetDunDistance2(mon->_mpos, dp);
+		if (doff > r2) continue;
+		callback(mnum, cbArg);
+	}
+
+	for (int pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue;
+		int doff = GetDunDistance2(plr._ppos, dp);
+		if (doff > r2) continue;
+		callback(-(pnum + 1), cbArg);
+	}
+}
+
+#define SWAMP_RANGE2 ((DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 2 * 2)
+static void SwampCallback(int mpnum, int mi)
+{
+	MissileStruct *mis, *bmis;
+	int i, bmi, pnum;
+	POS32 pos;
+
+	if (mpnum >= 0) {
+		pos = monsters[mpnum]._mpos;
+	} else {
+		pnum = -(mpnum + 1);
+		pos = plr._ppos;
+	}
+	mis = &missile[mi];
+	for (i = 0; i < nummissiles; i++) {
+		bmi = missileactive[i];
+		bmis = &missile[bmi];
+		if (bmis->_miType != MIS_SWAMPC)
+			continue;
+		if (bmis->_miSpllvl < mis->_miSpllvl)
+			continue;
+		if (bmis->_miSpllvl == mis->_miSpllvl && mi <= bmi)
+			continue;
+		
+		int doff = GetDunDistance2(pos, bmis->_mipos);
+		if (doff > SWAMP_RANGE2)
+			continue;
+		return;
+	}
+
+	if (mpnum >= 0) {
+		MonHinder(mpnum, mis->_miSpllvl, mis->_miVar1);
+	} else {
+		PlrHinder(pnum, mis->_miSpllvl, mis->_miVar1);
+	}
+}
+
 /*
  * @param rect: precise dungeon rectangle to check
  * @param callback: callback to notify on hitting actors or objects
@@ -2848,7 +2903,6 @@ int AddLightning(int mi, POS32 dp, int midir, int micaster, int misource, int sp
 int AddBloodBoilC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int dx, dy;
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
 	mis = &missile[mi];
 	if (micaster == MST_MONSTER) {
@@ -2856,11 +2910,11 @@ int AddBloodBoilC(int mi, POS32 dp, int midir, int micaster, int misource, int s
 		spllvl = monsters[misource]._mLevel / 6; // TODO: add _mSkillLvl?
 		mis->_miSpllvl = spllvl;
 	}
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	// mis->_misx = dx - 2; -- unused
-	// mis->_misy = dy - 2;
-	SetMissileLoc(mis, dx - 2, dy - 2);
+	mis->_mipos = dp;
+	mis->_mix = (unsigned)dp.x / DUN_WIDTH;
+	mis->_miy = (unsigned)dp.y / DUN_WIDTH;
+	// mis->_misx = mis->_mix; -- unused
+	// mis->_misy = mis->_miy;
 	mis->_miVar1 = 0;
 	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
 	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * 8;
@@ -4524,8 +4578,8 @@ void MI_BloodBoilC(int mi)
 		mis->_miVar2++;
 		if (mis->_miVar2 >= lengthof(BloodBoilLocs))
 			mis->_miVar2 = 0;
-		mx = mis->_mix + BloodBoilLocs[mis->_miVar2][0];
-		my = mis->_miy + BloodBoilLocs[mis->_miVar2][1];
+		mx = mis->_mipos.x / DUN_WIDTH + BloodBoilLocs[mis->_miVar2][0] - 2;
+		my = mis->_mipos.y / DUN_WIDTH + BloodBoilLocs[mis->_miVar2][1] - 2;
 		if ((nMissileTable[dPiece[mx][my]] | dObject[mx][my]) == 0) {
 			const POS32 mp = DungeonToDunPos(mx, my);
 			AddMissile(mp, { 0, 0 }, 0, mis->_miType == MIS_BLOODBOILC ? MIS_BLOODBOIL : MIS_SWAMP, mis->_miCaster, mis->_miSource, mis->_miSpllvl);
@@ -4538,54 +4592,10 @@ void MI_BloodBoilC(int mi)
 
 void MI_SwampC(int mi)
 {
-	MissileStruct *mis, *bmis;
-	int i, bmi, dx, dy, mx, my, mnum, pnum;
-	bool matches[16][16] = { false };
-	const int bx = 8 - 2; const int by = 8 - 2;
+	MissileStruct *mis;
 
 	mis = &missile[mi];
-	for (i = 0; i < nummissiles; i++) {
-		bmi = missileactive[i];
-		bmis = &missile[bmi];
-		if (bmis->_miType != MIS_SWAMPC)
-			continue;
-		if (bmis->_miSpllvl < mis->_miSpllvl)
-			continue;
-		if (bmis->_miSpllvl == mis->_miSpllvl && mi <= bmi)
-			continue;
-		dx = bmis->_mix - mis->_mix;
-		dy = bmis->_miy - mis->_miy;
-		if (dx < -4 || dx > 4 || dy < -4 || dy > 4)
-			continue;
-		dx += bx;
-		dy += by;
-		for (int n = 0; n < lengthof(BloodBoilLocs); n++) {
-			mx = dx + BloodBoilLocs[n][0];
-			my = dy + BloodBoilLocs[n][1];
-			matches[mx][my] = true;
-		}
-	}
-
-	for (int n = 0; n < lengthof(BloodBoilLocs); n++) {
-		dx = BloodBoilLocs[n][0];
-		dy = BloodBoilLocs[n][1];
-		if (matches[dx + bx][dy + by])
-			continue;
-		mx = mis->_mix + dx;
-		my = mis->_miy + dy;
-
-		mnum = dMonster[mx][my];
-		if (mnum < 0) {
-			mnum = -(mnum + 1);
-			MonHinder(mnum, mis->_miSpllvl, mis->_miVar1);
-		} else {
-			pnum = dPlayer[mx][my];
-			if (pnum < 0) {
-				pnum = -(pnum + 1);
-				PlrHinder(pnum, mis->_miSpllvl, mis->_miVar1);
-			}
-		}
-	}
+	CheckRoundAreaHit(mis->_mipos, SWAMP_RANGE2, SwampCallback, mi);
 
 	MI_BloodBoilC(mi);
 }
