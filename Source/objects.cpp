@@ -1453,17 +1453,6 @@ int AddObject(int type, int ox, int oy)
 		dObject[ox - 1][oy - 1] = noi;
 	}
 	if (ready) {
-		const BYTE olr = ods->oLightRadius;
-		if (olr != 0) {
-#if FLICKER_LIGHT
-			if (type == OBJ_L1LIGHT) {
-				os->_olid = NO_LIGHT;
-			} else
-#endif
-			{
-				TraceLightSource(ox + ((olr & OLF_XO) ? 1 : 0), oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
-			}
-		}
 		if (ods->oDoorFlag != ODT_NONE) {
 			os->_oVar4 = DOOR_CLOSED;
 			//os->_oPreFlag = FALSE;
@@ -2130,6 +2119,30 @@ void MonstCheckDoors(POS32 pos)
 	}
 }
 
+void ObjInitLight()
+{
+	int i;
+
+	for (i = 0; i < numobjects; i++) {
+		int oi = i; // objectactive[i];
+		ObjectStruct* os = &objects[oi];
+		if (os->_oModeFlags & OMF_RESERVED)
+			continue;
+		const ObjectData* ods = &objectdata[os->_otype];
+		const BYTE olr = ods->oLightRadius;
+		if (olr != 0) {
+#if FLICKER_LIGHT
+			if (type == OBJ_L1LIGHT) {
+				os->_olid = NO_LIGHT;
+			} else
+#endif
+			{
+				TraceLightSource(os->_ox + ((olr & OLF_XO) ? 1 : 0), os->_oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
+			}
+		}
+	}
+}
+
 void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
 	int i;
@@ -2146,19 +2159,6 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		dObject[os->_ox][os->_oy] = oi + 1;
 		os->_oModeFlags &= ~OMF_RESERVED;
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
-		assert(objectdata[os->_otype].oLightRadius == 0);
-		const ObjectData* ods = &objectdata[os->_otype];
-		const BYTE olr = ods->oLightRadius;
-		if (olr != 0) {
-#if FLICKER_LIGHT
-			if (type == OBJ_L1LIGHT) {
-				os->_olid = NO_LIGHT;
-			} else
-#endif
-			{
-				TraceLightSource(os->_ox + ((olr & OLF_XO) ? 1 : 0), os->_oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
-			}
-		}
 	}
 	// add new objects (doors + light) -- except when a delta of a single-player game is loaded
 	if (!deltaload || IsMultiGame)
@@ -2487,35 +2487,32 @@ static void SyncPedestal(/*int oi*/)
 		DRLG_ChangeMap(sx, sy + 3, sx + 2, sy + 7/*, false*/);
 		break;
 	case QV_BLOOD_STONE3: {
-		if (!deltaload)
-			DRLG_ChangeMap(sx + 2, sy, sx + 6, sy + 8/*, false*/);
-		else
-			DRLG_ChangeMap(sx, sy, sx + 9, sy + 8/*, false*/);
-		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches + always reload lighting)?
-		// LoadPreLighting();
+		// load the torches TODO: make this more generic (handle OMF_RESERVED in case of torches)?
 #if 1
 		if (!deltaload || IsMultiGame) {
 		// BYTE lvlMask = 1 << currLvl._dType;
 		// assert(objectdata[OBJ_TORCHR1].oLvlTypes & lvlMask);
 		// assert(objectdata[OBJ_TORCHR2].oLvlTypes & lvlMask);
-		sx = 2 * sx + DBORDERX + 6;
-		sy = 2 * sy + DBORDERX + 8;
-		AddObject(OBJ_TORCHL1, sx, sy + 0);
-		AddObject(OBJ_TORCHL1, sx, sy + 2);
-		AddObject(OBJ_TORCHL1, sx, sy + 4);
-		sx += 5;
-		AddObject(OBJ_TORCHL2, sx, sy + 0);
-		AddObject(OBJ_TORCHL2, sx, sy + 2);
-		AddObject(OBJ_TORCHL2, sx, sy + 4);
-		LoadPreLighting();
+		int dx = 2 * sx + DBORDERX + 6;
+		int dy = 2 * sy + DBORDERX + 8;
+		AddObject(OBJ_TORCHL1, dx, dy + 0);
+		AddObject(OBJ_TORCHL1, dx, dy + 2);
+		AddObject(OBJ_TORCHL1, dx, dy + 4);
+		dx += 5;
+		AddObject(OBJ_TORCHL2, dx, dy + 0);
+		AddObject(OBJ_TORCHL2, dx, dy + 2);
+		AddObject(OBJ_TORCHL2, dx, dy + 4);
 		}
 #else
 		pSetPieces[0]._spData = LoadFileInMem("Levels\\L2Data\\Blood2.DUN");
 		LoadMapSetObjects(pSetPieces[0]);
 		MemFreeDbg(pSetPieces[0]._spData);
-		LoadPreLighting();
 #endif
-		//RedoLightAndVision();
+		if (!deltaload)
+			DRLG_ChangeMap(sx + 2, sy, sx + 6, sy + 8/*, false*/);
+		else
+			DRLG_ChangeMap(sx, sy, sx + 9, sy + 8/*, false*/);
+		// RedoLightAndVision();
 	} break;
 	default:
 		ASSUME_UNREACHABLE

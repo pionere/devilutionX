@@ -1377,9 +1377,15 @@ static void DRLG_LightSubtiles()
 	}
 }
 
-void InitLvlMap()
+static void DRLG_InitLight()
 {
 	DRLG_LightSubtiles();
+	ObjInitLight();
+	LoadPreLighting();
+}
+
+void InitLvlMap()
+{
 	DRLG_InitFlags();
 
 	memset(dPlayer, 0, sizeof(dPlayer));
@@ -1396,7 +1402,7 @@ void FinishLvlMap()
 	c = currLvl._dType == DTYPE_TOWN ? (BFLAG_VISIBLE | BFLAG_ALERT) : 0;
 	memset(dFlags, c, sizeof(dFlags));
 
-	LoadPreLighting();
+	DRLG_InitLight();
 }
 
 /**
@@ -1645,7 +1651,7 @@ void DRLG_ChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 	y2 = 2 * y2 + DBORDERY + 1;
 	// TODO: DRLG_LightSubtiles?
 	ObjChangeMap(x1, y1, x2, y2 /*, bool hasNewObjPiece*/);
-	LoadPreLighting();
+	// DRLG_InitLight();
 	// RedoLightAndVision();
 	// activate monsters
 	MonChangeMap();
@@ -1678,6 +1684,7 @@ void DRLG_RedoTrans()
 		break;
 	}
 	// assert(!gbDoTransVals);
+	DRLG_InitLight();
 	RedoLightAndVision();
 }
 

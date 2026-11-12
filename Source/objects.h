@@ -28,6 +28,7 @@ void ObjAddDoorLock(int ox, int oy, int oi);
 void ProcessObjects();
 void ObjHitByAny(int oi);
 void MonstCheckDoors(POS32 pos);
+void ObjInitLight();
 void ObjChangeMap(int x1, int y1, int x2, int y2 /*, bool hasNewObjPiece*/);
 void DisarmObject(int pnum, int oi);
 void OperateObject(int pnum, int oi, bool TeleFlag);
