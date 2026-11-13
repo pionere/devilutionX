@@ -509,6 +509,34 @@ static bool FindNextMon(const POS32 sp, POS32& dp)
 	}
 	return bestDist >= 0;
 }
+
+static int FindClosestPc(const POS32 sp, const POS32 dp, int r2)
+{
+	const int MAX_DIST = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * r2;
+	int pnum, mnum, dist;
+	int bestDist = MAX_DIST;
+	int result = 0;
+
+	for (mnum = 0; mnum < MAX_MINIONS; mnum++) {
+		const MonsterStruct* mon = &monsters[mnum];
+		if (mon->_mmode > MM_INGAME_LAST || mon->_mmode == MM_DEATH) continue;
+		dist = GetDunDistance2(mon->_mpos, dp);
+		if (dist > bestDist) continue;
+		if (!LineClearPos(sp, mon->_mpos)) continue;
+		bestDist = dist;
+		result = mnum + 1;
+	}
+
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging || plr._pHitPoints == 0) continue;
+		dist = GetDunDistance2(plr._ppos, dp);
+		if (dist > bestDist) continue;
+		if (!LineClearPos(sp, plr._ppos)) continue;
+		bestDist = dist;
+		result = -(pnum + 1);
+	}
+	return result;
+}
 #ifdef HELLFIRE
 static bool FindNextActor(const POS32 sp, int r2, POS32& dp)
 {
@@ -2585,21 +2613,18 @@ int AddFirebolt(int mi, POS32 dp, int midir, int micaster, int misource, int spl
 }
 
 /**
- * Var1: the target player + 1
+ * Var1: the id of the affected target [0, -(pnum + 1), (mnum + 1)]
  * Var2: turn timer
  */
 int AddMage(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
 	constexpr int MAX_BRIGHTNESS = 10;
-	int dx, dy;
 
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
 	// assert(micaster == MST_MONSTER);
 	// assert((unsigned)misource < MAXMONSTERS);
 	mis = &missile[mi];
-	mis->_miVar1 = abs(dPlayer[dx][dy]);
+	mis->_miVar1 = FindClosestPc(mis->_mipos, dp, 1);
 	// mis->_miVar2 = 0;
 	mis->_miVar5 = midir; // MIS_DIR
 	mis->_miUniqTrans = MAX_BRIGHTNESS;
@@ -4198,11 +4223,28 @@ void MI_Mage(int mi)
 			return;
 		}
 
-		if (mis->_miVar1 != 0 && (mis->_miVar2++ & 7) == 0) {
-			int pnum = mis->_miVar1 - 1;
-			if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0 && (mis->_mix != plr._px || mis->_miy != plr._py)) {
-				mis->_miVar5 = GetDirection8(mis->_mipos, plr._ppos); // MIS_DIR
-				GetMissileVel(mis, plr._ppos, missiledata[MIS_MAGE].mdPrSpeed);
+		int tnum = mis->_miVar1;
+		if (tnum != 0 && (mis->_miVar2++ & 7) == 0) {
+			POS32 tpos = { 0, 0 };
+			if (mis->_miVar8 != tnum) {
+				if (tnum > 0) {
+					// - minion
+					MonsterStruct* mon = &monsters[tnum - 1];
+					if (mon->_mmode <= MM_INGAME_LAST && mon->_mmode != MM_DEATH) {
+						tpos = mon->_mpos;
+					}
+				} else {
+					// - player
+					int pnum = -(tnum + 1);
+					if (plr._pActive && plr._pDunLevel == currLvl._dLevelIdx/* && !plr._pLvlChanging*/ && plr._pHitPoints != 0) {
+						tpos = plr._ppos;
+					}
+				}
+			}
+			static_assert(DBORDERX != 0, "MI_Mage treats x = 0 as invalid.");
+			if (tpos.x != 0) {
+				mis->_miVar5 = GetDirection8(mis->_mipos, tpos); // MIS_DIR
+				GetMissileVel(mis, tpos, missiledata[MIS_MAGE].mdPrSpeed);
 			} else {
 				mis->_miVar1 = 0;
 			}
