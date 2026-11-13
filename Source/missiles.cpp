@@ -3454,7 +3454,7 @@ int AddHeal(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 
 int AddHealOther(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
-	int dx, dy, tnum, i, hp;
+	int tnum, i, hp;
 	MonsterStruct* mon;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
@@ -3479,28 +3479,21 @@ int AddHealOther(int mi, POS32 dp, int midir, int micaster, int misource, int sp
 		ASSUME_UNREACHABLE
 	}
 	// select target
-	dx = (unsigned)dp.x / DUN_WIDTH;
-	dy = (unsigned)dp.y / DUN_WIDTH;
-	tnum = dPlayer[dx][dy];
+	tnum = FindClosestPc(plx(misource)._ppos, dp, 1);
 	if (tnum != 0) {
-		// - player
-		tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-		if (tnum != misource)
-			PlrIncHp(tnum, hp);
-	} else {
-		// - minion
-		tnum = dMonster[dx][dy];
-		if (tnum != 0) {
-			tnum = tnum >= 0 ? tnum - 1 : -(tnum + 1);
-			if (tnum < MAX_MINIONS) {
-				mon = &monsters[tnum];
-				if (mon->_mhitpoints != 0) {
-					// MonIncHp(tnum, hp);
-					mon->_mhitpoints += hp;
-					if (mon->_mhitpoints > mon->_mmaxhp)
-						mon->_mhitpoints = mon->_mmaxhp;
-				}
-			}
+		if (tnum >= 0) {
+			// - minion
+			tnum = tnum - 1;
+			// MonIncHp(tnum, hp);
+			mon = &monsters[tnum];
+			mon->_mhitpoints += hp;
+			if (mon->_mhitpoints > mon->_mmaxhp)
+				mon->_mhitpoints = mon->_mmaxhp;
+		} else {
+			// - player
+			tnum = -(tnum + 1);
+			if (tnum != misource)
+				PlrIncHp(tnum, hp);
 		}
 	}
 	return MIRES_DELETE;
