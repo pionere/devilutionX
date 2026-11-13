@@ -1481,7 +1481,8 @@ static void NewMonsterAnim(int mnum, int anim, int md)
 static void MonFindEnemy(int mnum)
 {
 	int i, tnum;
-	int enemy, dist, best_dist;
+	int enemy;
+	unsigned dist, best_dist;
 	bool sameroom, bestsameroom;
 	MonsterStruct *mon = &monsters[mnum], *tmon;
 	const int mx = mon->_mx, my = mon->_my;
@@ -1489,7 +1490,7 @@ static void MonFindEnemy(int mnum)
 	int x, y;
 
 	enemy = 0;
-	best_dist = MAXDUNX + MAXDUNY;
+	best_dist = UINT_MAX;
 	bestsameroom = false;
 	if ((dFlags[mx][my] & BFLAG_ALERT) == 0) {
 		// enemy = 0;
