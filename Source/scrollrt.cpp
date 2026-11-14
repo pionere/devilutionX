@@ -1724,6 +1724,7 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
 	gbCelTransparencyActive = TransList[dTransVal[x][y]];
 
 	mpnum = dPiece[x][y];
+	assert(mpnum != 0);
 	scene_addCell(mpnum, x, y, sx, sy);
 
 	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
@@ -1799,10 +1800,7 @@ static void scene_addEntries(int x, int y, int sx, int sy, int mode)
 		int xx = x, yy = y;
 		do {
 			if (IN_DUNGEON_AREA(xx, yy)) {
-				assert(dPiece[xx][yy] != 0);
-				/*if (dPiece[xx][yy] != 0) */{
-					scene_addDungeon(xx, yy, cx, cy);
-				}
+				scene_addDungeon(xx, yy, cx, cy);
 			}
 			SHIFT_GRID(xx, yy, 1, 0);
 			cx += TILE_WIDTH;
