@@ -1791,7 +1791,6 @@ static void scene_addFloor(int x, int y, int sx, int sy, int mode)
 static void scene_addEntries(int x, int y, int sx, int sy, int mode)
 {
 	int i = 0;
-	BYTE skips = 0;
 	const int rightEnd = SCREEN_X + (gbZoomInFlag ? SCREEN_WIDTH / 2 : SCREEN_WIDTH);
 	const int bottomEnd = SCREEN_Y + (gbZoomInFlag ? SCREEN_HEIGHT / 2 : SCREEN_HEIGHT) + TILE_HEIGHT - 1 + TILE_HEIGHT * ((unsigned)MicroTileLen / ((TILE_WIDTH / MICRO_WIDTH) * (TILE_HEIGHT / MICRO_HEIGHT)) - 1);
 
@@ -1801,13 +1800,12 @@ static void scene_addEntries(int x, int y, int sx, int sy, int mode)
 		do {
 			if (IN_DUNGEON_AREA(xx, yy)) {
 				assert(dPiece[xx][yy] != 0);
-				if (/*dPiece[xx][yy] != 0 &&*/ !(skips & 1)) {
+				/*if (dPiece[xx][yy] != 0) */{
 					scene_addDungeon(xx, yy, cx, cy);
 				}
 			}
 			SHIFT_GRID(xx, yy, 1, 0);
 			cx += TILE_WIDTH;
-			skips >>= 1;
 		} while (cx < rightEnd);
 		// Jump to next row
 		sy += TILE_HEIGHT / 2;
