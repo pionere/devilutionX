@@ -1727,7 +1727,7 @@ static void scene_addDungeon(int x, int y, int sx, int sy)
 	assert(mpnum != 0);
 	scene_addCell(mpnum, x, y, sx, sy);
 
-	bv = nSpecTrapTable[dPiece[x][y]] & PST_SPEC_TYPE;
+	bv = nSpecTrapTable[mpnum] & PST_SPEC_TYPE;
 	if (bv != 0) {
 		scene_addSpecialCell(bv, x, y, sx, sy);
 	}
