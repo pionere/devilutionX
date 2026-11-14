@@ -38,6 +38,7 @@ extern int dPiece[MAXDUNX][MAXDUNY];
 extern BYTE dTransVal[MAXDUNX][MAXDUNY];
 extern BYTE dPreLight[MAXDUNX][MAXDUNY];
 extern BYTE dLight[MAXDUNX][MAXDUNY];
+extern uint16_t dSubtileZOrder[MAXDUNX][MAXDUNY];
 extern BYTE dFlags[MAXDUNX][MAXDUNY];
 extern int8_t dPlayer[MAXDUNX][MAXDUNY];
 extern int dMonster[MAXDUNX][MAXDUNY];

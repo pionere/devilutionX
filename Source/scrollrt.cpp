@@ -696,13 +696,7 @@ static void scrollrt_draw_cursor()
 
 static unsigned SubtileZOrderAt(int x, int y)
 {
-	int sx = x - y;
-	int sy = x + y;
-	static_assert(MAXDUNX < 128 && MAXDUNY < 128, "Higher bits of the zOrder might overflow.");
-	sx ^= 128;
-	sx &= 0xFF;
-	// assert(sy <= 0xFF);
-	return (sx << 16) | (sy << 24);
+	return (unsigned)dSubtileZOrder[x][y] << 16;
 }
 
 static unsigned SubtileZOrder(POS32 pos)

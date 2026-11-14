@@ -83,6 +83,8 @@ BYTE dTransVal[MAXDUNX][MAXDUNY];
 BYTE dPreLight[MAXDUNX][MAXDUNY];
 /** Specifies the current darkness levels of each square on the map. */
 BYTE dLight[MAXDUNX][MAXDUNY];
+/** Specifies the draw order of each square on the map. */
+uint16_t dSubtileZOrder[MAXDUNX][MAXDUNY];
 /** Specifies the (runtime) flags of each square on the map (dflag) */
 BYTE dFlags[MAXDUNX][MAXDUNY];
 /**
@@ -1377,6 +1379,23 @@ static void DRLG_LightSubtiles()
 	}
 }
 
+static void DRLG_InitSubtileZOrder()
+{
+	int x, y, sx, sy;
+
+	for (x = 0; x < MAXDUNX; x++) {
+		for (y = 0; y < MAXDUNY; y++) {
+			sx = x - y;
+			sy = x + y;
+			static_assert(MAXDUNX < 128 && MAXDUNY < 128, "Higher bits of the zOrder might overflow.");
+			sx ^= 128;
+			sx &= 0xFF;
+			// assert(sy <= 0xFF);
+			dSubtileZOrder[x][y] = (sx << 0) | (sy << 8);
+		}
+	}
+}
+
 static void DRLG_InitLight()
 {
 	DRLG_LightSubtiles();
@@ -1402,6 +1421,7 @@ void FinishLvlMap()
 	c = currLvl._dType == DTYPE_TOWN ? (BFLAG_VISIBLE | BFLAG_ALERT) : 0;
 	memset(dFlags, c, sizeof(dFlags));
 
+	DRLG_InitSubtileZOrder();
 	DRLG_InitLight();
 }
 
