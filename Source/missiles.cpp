@@ -4998,13 +4998,6 @@ void MI_Acidsplat(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	// assert(mis->_miAnimLen == MIA_ACIDSPLA_LENGTH);
-	// assert(mis->_miAnimFrameLen == MIA_ACIDSPLA_DELAY);
-	/*if (mis->_miRange == MIA_ACIDSPLA_LENGTH * MIA_ACIDSPLA_DELAY) {
-		mis->_mix++;
-		mis->_miy++;
-		mis->_miyoff -= TILE_HEIGHT;
-	}*/
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		return;
@@ -5012,9 +5005,6 @@ void MI_Acidsplat(int mi)
 	mis->_miDelFlag = TRUE;
 	// SetRndSeed(mis->_miRndSeed);
 	// assert(misfiledata[missiledata[MIS_ACIDPUD].mFileNum].mfAnimFAmt < NUM_DIRS);
-	// mis->_mix--;
-	// mis->_miy--;
-	// mis->_miyoff += TILE_HEIGHT;
 	AddMissile(mis->_mipos, { 0, 0 }, 0 /* mis->_miDir */, MIS_ACIDPUD, MST_MONSTER, mis->_miSource, 0);
 }
 
