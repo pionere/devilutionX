@@ -4,6 +4,7 @@
  * Implementation of general dungeon generation code.
  */
 #include "all.h"
+#include "engine/render/dun_render.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -1379,10 +1380,53 @@ static void DRLG_LightSubtiles()
 	}
 }
 
+static bool microColumnEmpty(int pn, int column)
+{
+	uint16_t levelCelBlock;
+	uint16_t* pMap;
+	pMap = &pSubtiles[pn][column];
+	for (int i = column; i < MicroTileLen; ) {
+		for (int j = 0; j < ASSET_MPL; j++) {
+			for (int k = 0; k < ASSET_MPL; k++) {
+				levelCelBlock = pMap[k + j * ASSET_MPL * 2];
+				if (levelCelBlock != 0) {
+					return false;
+				}
+			}
+			pMap++;
+		}
+		i += (TILE_WIDTH / MICRO_WIDTH);
+		pMap += ASSET_MPL;
+	}
+	return true;
+}
+
+static bool subtileFloorLeft(int pn)
+{
+	if (microFlags[pn] & TMIF_LEFT_REDRAW)
+		return false;
+	if (nMissileTable[pn])
+		return false;
+	if (nSpecTrapTable[pn] & PST_SPEC_TYPE)
+		return false;
+	return microColumnEmpty(pn, 2);
+}
+
+static bool subtileFloorRight(int pn)
+{
+	if (microFlags[pn] & TMIF_RIGHT_REDRAW)
+		return false;
+	if (nMissileTable[pn])
+		return false;
+	if (nSpecTrapTable[pn] & PST_SPEC_TYPE)
+		return false;
+	return microColumnEmpty(pn, 3);
+}
+
 static void DRLG_InitSubtileZOrder()
 {
-	int x, y, sx, sy;
-
+	int x, y, sx, sy, i;
+	// calculate base zorder
 	for (x = 0; x < MAXDUNX; x++) {
 		for (y = 0; y < MAXDUNY; y++) {
 			sx = x - y;
@@ -1393,6 +1437,75 @@ static void DRLG_InitSubtileZOrder()
 			// assert(sy <= 0xFF);
 			dSubtileZOrder[x][y] = (sx << 0) | (sy << 8);
 		}
+	}
+	if (currLvl._dType == DTYPE_TOWN)
+		return;
+	// adjust zorder for better visual
+	constexpr int DBORDER = DBORDERX >= DBORDERY ? DBORDERX : DBORDERY;
+	for (i = 0; i < MAXDUNX + MAXDUNY - 1 - 4 * DBORDER; i++) {
+		y = i + DBORDER;
+		x = DBORDER;
+		if (y > MAXDUNY - DBORDER - 1) {
+			x += y - (MAXDUNY - DBORDER - 1);
+			y = MAXDUNY - DBORDER - 1;
+		}
+next:
+		sx = x;
+		sy = y;
+		int state = 0;
+		int ex = x, ey = y;
+
+		while (true) {
+			// if (!subtileFloor(dPiece[x][y])) {
+			if (nMissileTable[dPiece[x][y]]) {
+				break;
+			}
+
+			bool needSwap = false;
+			if (state >= 0) {
+				assert(y + 1 < MAXDUNY && x > 0);
+				if (!subtileFloorLeft(dPiece[x + 0][y + 1]) && !subtileFloorRight(dPiece[x - 1][y + 1])) {
+					if (x - 1 < sx) {
+						sx = x - 1;
+						sy = y + 1;
+					}
+					ex = x;
+					ey = y;
+					needSwap = true;
+					state = -1;
+				}
+			}
+			if (state <= 0) {
+				assert(x + 1 < MAXDUNX && y > 0);
+				if (subtileFloorLeft(dPiece[x + 1][y + 0]) && !subtileFloorRight(dPiece[x + 0][y - 1]) && !subtileFloorLeft(dPiece[x + 1][y - 1])) {
+					ex = x + 1;
+					ey = y - 1;
+					needSwap = true;
+					state = 1;
+				}
+			}
+			if (!needSwap) {
+				break;
+			}
+			x += 2;
+			y -= 2;
+		}
+
+		x = ex;
+		y = ey;
+		while (ex > sx) {
+			std::swap(dSubtileZOrder[sx][sy], dSubtileZOrder[ex][ey]);
+			sx += 1;
+			sy -= 1;
+			ex -= 1;
+			ey += 1;
+		}
+
+		x += 1;
+		y -= 1;
+		// if (y >= 0 && x < MAXDUNX)
+		if (y >= DBORDERY && x < MAXDUNX - DBORDERX)
+			goto next;
 	}
 }
 
@@ -1704,6 +1817,7 @@ void DRLG_RedoTrans()
 		break;
 	}
 	// assert(!gbDoTransVals);
+	DRLG_InitSubtileZOrder();
 	DRLG_InitLight();
 	RedoLightAndVision();
 }

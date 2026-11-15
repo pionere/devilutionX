@@ -1650,12 +1650,6 @@ static void CheckSplashCol(int mi, int hit)
 			rect.h -= DUN_WIDTH;
 		}
 
-		//  - alter offset for better visual
-		if ((DunScreenOffset(mis->_mipos).x >= TILE_WIDTH / 4)) {
-			mis->_mix++;
-			mis->_miy--;
-		}
-
 		// MoveMissile(mi, 1);
 
 		// assert(lx != mx || ly != my);

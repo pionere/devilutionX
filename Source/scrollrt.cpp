@@ -1781,6 +1781,29 @@ static void scene_addFloor(int x, int y, int sx, int sy, int mode)
 	} while (sy < bottomEnd);
 }
 
+static int scene_addDungeonCells(int x, int y, int rightEnd, int sx, int sy)
+{
+	int lx = x, ly = y;
+	unsigned zorder = dSubtileZOrder[x][y];
+	while (true) {
+		SHIFT_GRID(x, y, 1, 0);
+		sx += TILE_WIDTH;
+		if (sx >= rightEnd)
+			break;
+		if (!IN_DUNGEON_AREA(x, y))
+			break;
+		if (dSubtileZOrder[x][y] > zorder)
+			break;
+	}
+	int len = x - lx;
+	while (x > lx) {
+		SHIFT_GRID(x, y, -1, 0);
+		sx -= TILE_WIDTH;
+		scene_addDungeon(x, y, sx, sy);
+	}
+	return len;
+}
+
 /**
  * @brief add dungeon subtiles and special frames to the scene
  * @param x dPiece coordinate
@@ -1800,7 +1823,10 @@ static void scene_addEntries(int x, int y, int sx, int sy, int mode)
 		int xx = x, yy = y;
 		do {
 			if (IN_DUNGEON_AREA(xx, yy)) {
-				scene_addDungeon(xx, yy, cx, cy);
+				int len = scene_addDungeonCells(xx, yy, rightEnd, cx, cy);
+				len--;
+				SHIFT_GRID(xx, yy, len, 0);
+				cx += len * TILE_WIDTH;
 			}
 			SHIFT_GRID(xx, yy, 1, 0);
 			cx += TILE_WIDTH;
@@ -1946,7 +1972,7 @@ void scene_insertEntries(unsigned numCells)
 		int mi = missileactive[i];
 		MissileStruct* mis = &missile[mi];
 		if (!mis->_miDrawFlag) continue;
-		const unsigned zorder = SubtileZOrderAt(mis->_mix, mis->_miy) | (((!mis->_miPreFlag) ? ZOR_MISSILE : ZOR_PRE_MISSILE) << ZOR_SHIFT) | OffsetZOrder(mis->_mipos);
+		const unsigned zorder = SubtileZOrder(mis->_mipos) | (((!mis->_miPreFlag) ? ZOR_MISSILE : ZOR_PRE_MISSILE) << ZOR_SHIFT) | OffsetZOrder(mis->_mipos);
 		SceneEntry* entry = scene_placeEntry(area, mis->_mipos, mis->_miAnimWidth, numCells, zorder);
 		if (entry == NULL) continue;
 		int lightIdx = dLight[(unsigned)mis->_mipos.x / DUN_WIDTH][(unsigned)mis->_mipos.y / DUN_WIDTH];
