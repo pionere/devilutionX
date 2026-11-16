@@ -482,8 +482,8 @@ void SceneCursor()
 			if (mi != TRIG_NONE) {
 				pcurstrig = MAXTRIGGERS + mi + 1;
 				pcurspos.dun = missile[mi]._mipos;
-				pcurspos.subtile.x = missile[mi]._mix;
-				pcurspos.subtile.y = missile[mi]._miy;
+				pcurspos.subtile.x = (unsigned)missile[mi]._mipos.x / DUN_WIDTH;
+				pcurspos.subtile.y = (unsigned)missile[mi]._mipos.y / DUN_WIDTH;
 			}			
 		}
 		break;

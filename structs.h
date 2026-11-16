@@ -574,14 +574,12 @@ typedef struct MissileStruct {
 	int _miAnimFrame; // Current frame of animation.
 	int _misx;    // Initial tile X-position
 	int _misy;    // Initial tile Y-position
-	int _mix;     // Tile X-position where the missile should be drawn
-	int _miy;     // Tile Y-position where the missile should be drawn
 	POS32 _mipos; // Precise dungeon position of the missile
 	int _mizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	int _miyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy get updated every game tick based on this
-	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy get updated every game tick based on this
+	int _mitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mipos get updated every game tick based on this
+	int _mityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mipos get updated every game tick based on this
 	int _miDir;   // The direction of the missile
 	int _miSpllvl;
 	int _miSource; // missile_source_type
@@ -599,7 +597,7 @@ typedef struct MissileStruct {
 	int _miVar6;
 	int _miVar7; // distance travelled in case of ARROW missiles
 	int _miVar8; // last target
-	ALIGNMENT(10, 24)
+	ALIGNMENT(12, 26)
 } MissileStruct;
 
 #ifdef X86_32bit_COMP
@@ -1421,15 +1419,13 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiAnimFrame; // Current frame of animation.
 	LE_INT32 vmisx;    // Initial tile X-position
 	LE_INT32 vmisy;    // Initial tile Y-position
-	LE_INT32 vmix;     // Tile X-position where the missile should be drawn
-	LE_INT32 vmiy;     // Tile Y-position where the missile should be drawn
 	LE_INT32 vmidx;    // Precise dungeon X-position of the missile
 	LE_INT32 vmidy;    // Precise dungeon Y-position of the missile
 	LE_INT32 vmizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 vmixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 vmiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy get updated every game tick based on this
-	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy get updated every game tick based on this
+	LE_INT32 vmitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mipos get updated every game tick based on this
+	LE_INT32 vmityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mipos get updated every game tick based on this
 	LE_INT32 vmiDir;   // The direction of the missile
 	LE_INT32 vmiSpllvl;
 	LE_INT32 vmiSource; // missile_source_type
@@ -1891,15 +1887,13 @@ typedef struct TSyncLvlMissile {
 	BYTE smiDir;   // The direction of the missile
 	BYTE smisx;    // Initial tile X-position for missile
 	BYTE smisy;    // Initial tile Y-position for missile
-	BYTE smix;     // Tile X-position where the missile should be drawn
-	BYTE smiy;     // Tile Y-position where the missile should be drawn
 	LE_INT32 smidx;    // Precise dungeon X-position of the missile
 	LE_INT32 smidy;    // Precise dungeon Y-position of the missile
 	LE_INT32 smizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	LE_INT32 smixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
 	LE_INT32 smiyvel;  // Missile tile (X + Y)-velocity while moving. This gets added onto _mityoff each game tick
-	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mix/miy/midx/midy get updated every game tick based on this
-	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mix/miy/midx/midy get updated every game tick based on this
+	LE_INT32 smitxoff; // How far the missile has travelled in its lifespan along the (X - Y)-axis. mipos get updated every game tick based on this
+	LE_INT32 smityoff; // How far the missile has travelled in its lifespan along the (X + Y)-axis. mipos get updated every game tick based on this
 	LE_INT32 smiSpllvl; // TODO: int?
 	LE_INT32 smiSource; // TODO: int?
 	LE_INT32 smiCaster; // TODO: int?

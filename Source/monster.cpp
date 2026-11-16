@@ -5077,7 +5077,9 @@ void MissToMonst(int mi)
 	if (mon->_mType == MT_GBAT) /* mon->_mAI.aiType == AI_BAT Foulwing? */
 		return;
 
-	RECT32 rect = { mis->_mix * DUN_WIDTH, mis->_miy * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	int mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	int my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
 	CheckHRectAreaHit(rect, MonHitCallback, (MOH_CHARGE << 16) | mnum);
 }
 

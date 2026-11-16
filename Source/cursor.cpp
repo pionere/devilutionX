@@ -272,13 +272,13 @@ void CheckTownPortal()
 			 *    ++|
 			 *      |
 			 */
-			int dx = pcurspos.subtile.x - (mis->_mix - 1);
-			int dy = pcurspos.subtile.y - (mis->_miy - 1);
+			int dx = pcurspos.subtile.x - ((unsigned)mis->_mipos.x / DUN_WIDTH - 1);
+			int dy = pcurspos.subtile.y - ((unsigned)mis->_mipos.y / DUN_WIDTH - 1);
 			if (abs(dx) < 2 && abs(dy) < 2 // select the 3x3 square around (-1;-1)
 			 && abs(dx - dy) < 2) {        // exclude the top left and bottom right positions
 				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
-				pcurspos.subtile.x = mis->_mix;
-				pcurspos.subtile.y = mis->_miy;
+				pcurspos.subtile.x = (unsigned)mis->_mipos.x / DUN_WIDTH;
+				pcurspos.subtile.y = (unsigned)mis->_mipos.y / DUN_WIDTH;
 				// pcurspos.dun = mis->_mipos;
 				// pcurspos.gx = mis->_migx;
 				// pcurspos.gy = mis->_migy;

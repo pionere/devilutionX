@@ -2853,7 +2853,9 @@ void MissToPlr(int mi, bool hit)
 	if (dist > 96)
 		dist = 96;
 
-	RECT32 rect = { mis->_mix * DUN_WIDTH, mis->_miy * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
+	int mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	int my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
 	CheckHRectAreaHit(rect, PlrChargeCallback, (dist << 24) | (mis->_miSpllvl << 16) | pnum);
 }
 

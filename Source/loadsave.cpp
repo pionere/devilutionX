@@ -410,8 +410,6 @@ static BYTE* LoadMissile(BYTE* DVL_RESTRICT src, int mi)
 	mis->_miAnimFrame = savedMis->vmiAnimFrame;
 	mis->_misx = savedMis->vmisx;
 	mis->_misy = savedMis->vmisy;
-	mis->_mix = savedMis->vmix;
-	mis->_miy = savedMis->vmiy;
 	mis->_mipos.x = savedMis->vmidx;
 	mis->_mipos.y = savedMis->vmidy;
 	mis->_mizoff = savedMis->vmizoff;
@@ -1177,8 +1175,6 @@ static BYTE* SaveMissile(BYTE* DVL_RESTRICT dest, int mi)
 	misSave->vmiAnimFrame = mis->_miAnimFrame;
 	misSave->vmisx = mis->_misx;
 	misSave->vmisy = mis->_misy;
-	misSave->vmix = mis->_mix;
-	misSave->vmiy = mis->_miy;
 	misSave->vmidx = mis->_mipos.x;
 	misSave->vmidy = mis->_mipos.y;
 	misSave->vmizoff = mis->_mizoff;

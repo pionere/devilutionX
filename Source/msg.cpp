@@ -1409,8 +1409,6 @@ void LevelDeltaExport()
 			tmis->smiDir = mis->_miDir;
 			tmis->smisx = mis->_misx;
 			tmis->smisy = mis->_misy;
-			tmis->smix = mis->_mix;
-			tmis->smiy = mis->_miy;
 			tmis->smidx = mis->_mipos.x;
 			tmis->smidy = mis->_mipos.y;
 			tmis->smizoff = mis->_mizoff / ASSET_MPL;
@@ -1728,8 +1726,6 @@ void LevelDeltaLoad()
 		mis->_miAnimFrame = tmis->smiAnimFrame;
 		mis->_misx = tmis->smisx;
 		mis->_misy = tmis->smisy;
-		mis->_mix = tmis->smix;
-		mis->_miy = tmis->smiy;
 		mis->_mipos.x = tmis->smidx;
 		mis->_mipos.y = tmis->smidy;
 		mis->_mizoff = tmis->smizoff * ASSET_MPL;

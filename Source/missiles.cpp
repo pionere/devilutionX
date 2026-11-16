@@ -715,8 +715,8 @@ static void PutMissileH(const MissileStruct* mis)
 {
 	int x, y;
 
-	x = mis->_mix;
-	y = mis->_miy;
+	x = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	y = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	assert(IN_DUNGEON_AREA(x, y));
 	assert(!mis->_miDelFlag);
 	//if (!mis->_miDelFlag) {
@@ -742,8 +742,6 @@ static void GetMissileVel(MissileStruct* mis, POS32 dp, int v)
 
 static void SetMissileLoc(MissileStruct* mis, int x, int y)
 {
-	mis->_mix = x;
-	mis->_miy = y;
 	mis->_mipos = DungeonToDunPos(x, y);
 }
 
@@ -751,8 +749,6 @@ static void PlrSetMissilePos(int pnum, MissileStruct* mis)
 {
 	// mis->_misx = plr._px;
 	// mis->_misy = plr._py;
-	mis->_mix = plr._px;
-	mis->_miy = plr._py;
 	mis->_mipos = plr._ppos;
 }
 
@@ -760,15 +756,13 @@ static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
 {
 	// mis->_misx = mon->_mx;
 	// mis->_misy = mon->_my;
-	mis->_mix = mon->_mx;
-	mis->_miy = mon->_my;
 	mis->_mipos = mon->_mpos;
 }
 
 static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 {
-	plr._px = plr._poldx = plr._pfutx = mis->_mix;
-	plr._py = plr._poldy = plr._pfuty = mis->_miy;
+	plr._px = plr._poldx = plr._pfutx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	plr._py = plr._poldy = plr._pfuty = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	plr._ppos = mis->_mipos;
 
 	ChangeLightXY(plr._plid, plr._ppos);
@@ -777,8 +771,8 @@ static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 
 static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 {
-	mon->_mx = mon->_moldx = mon->_mfutx = mis->_mix;
-	mon->_my = mon->_moldy = mon->_mfuty = mis->_miy;
+	mon->_mx = mon->_moldx = mon->_mfutx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	mon->_my = mon->_moldy = mon->_mfuty = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	mon->_mpos = mis->_mipos;
 
 	// assert(mon->_mvid == NO_VISION);
@@ -813,8 +807,6 @@ static void MoveMissile(int mi, int steps)
 	dp.x += dqx;
 	dp.y += dqy;
 	mis->_mipos = dp;
-	mis->_mix = (unsigned)dp.x / DUN_WIDTH;
-	mis->_miy = (unsigned)dp.y / DUN_WIDTH;
 
 	ChangeLightXY(mis->_miLid, mis->_mipos);
 }
@@ -854,11 +846,11 @@ static void ShiftMissilePos(MissileStruct* mis, int tiles)
 		ASSUME_UNREACHABLE
 		break;
 	}
-	x = mis->_mix + dx;
-	y = mis->_miy + dy;
+	x = (unsigned)mis->_mipos.x / DUN_WIDTH + dx;
+	y = (unsigned)mis->_mipos.y / DUN_WIDTH + dy;
 	if (PosOkActor(x, y)) {
-		mis->_mix += dx;
-		mis->_miy += dy;
+		mis->_mipos.x += dx * DUN_WIDTH;
+		mis->_mipos.y += dy * DUN_WIDTH;
 	}
 }
 #endif
@@ -1616,7 +1608,7 @@ static bool MisAreaCallback(int mponum, int mi)
  */
 static int CheckMissileArea(int mi)
 {
-	int mx = missile[mi]._mix, my = missile[mi]._miy;
+	int mx = (unsigned)missile[mi]._mipos.x / DUN_WIDTH, my = (unsigned)missile[mi]._mipos.y / DUN_WIDTH;
 	RECT32 rect = { mx * DUN_WIDTH, my * DUN_WIDTH, DUN_WIDTH, DUN_WIDTH };
 	return CheckHRectAreaHit(rect, MisAreaCallback, mi);
 }
@@ -1627,8 +1619,8 @@ static void CheckSplashCol(int mi, int hit)
 	int sx, sy, mx, my, lx, ly;
 
 	mis = &missile[mi];
-	mx = mis->_mix;
-	my = mis->_miy;
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	RECT32 rect = { (mx - 1) * DUN_WIDTH, (my - 1) * DUN_WIDTH, 3 * DUN_WIDTH, 3 * DUN_WIDTH };
 	if (hit == 3) {
 		// wall hit:
@@ -1636,8 +1628,8 @@ static void CheckSplashCol(int mi, int hit)
 		MoveMissile(mi, -1);
 
 		//  - limit the explosion area
-		lx = mis->_mix;
-		ly = mis->_miy;
+		lx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+		ly = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		if (lx != mx) {
 			if (lx > mx)
 				rect.x += DUN_WIDTH;
@@ -2373,7 +2365,7 @@ void InitMissiles()
  */
 int AddRune(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
-	int mitype, mirange, tx, ty;
+	int mitype, mirange;
 	MissileStruct* mis;
 	// (micaster == MST_PLAYER || micaster == MST_OBJECT);
 	mis = &missile[mi];
@@ -2400,12 +2392,8 @@ int AddRune(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 	mis->_mipos = { 0, 0 };
 	if (FindPlace(sp, 3, PosOkRune, dp)) {
 		mis->_mipos = dp;
-		tx = (unsigned)dp.x / DUN_WIDTH;
-		ty = (unsigned)dp.y / DUN_WIDTH;
-		mis->_mix = tx;
-		mis->_miy = ty;
-		// mis->_misx = tx; -- unused
-		// mis->_misy = ty;
+		// mis->_misx = (unsigned)mis->_mipos.x / DUN_WIDTH; -- unused
+		// mis->_misy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		static_assert(MAX_LIGHT_RAD >= 8, "AddRune needs at least light-radius of 8.");
 		mis->_miLid = AddLight(mis->_mipos, 8);
 		return MIRES_DONE;
@@ -2453,7 +2441,7 @@ int AddFireexp(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 	}
 	dam <<= 6;
 	mis->_miMinDam = mis->_miMaxDam = dam;
-	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
+	// assert(!nMissileTable[dPiece[(unsigned)mis->_mipos.x / DUN_WIDTH][(unsigned)mis->_mipos.y / DUN_WIDTH]]);
 	CheckSplashCol(mi, 0);
 	return MIRES_DONE;
 }
@@ -2930,10 +2918,8 @@ int AddBloodBoilC(int mi, POS32 dp, int midir, int micaster, int misource, int s
 		mis->_miSpllvl = spllvl;
 	}
 	mis->_mipos = dp;
-	mis->_mix = (unsigned)dp.x / DUN_WIDTH;
-	mis->_miy = (unsigned)dp.y / DUN_WIDTH;
-	// mis->_misx = mis->_mix; -- unused
-	// mis->_misy = mis->_miy;
+	// mis->_misx = (unsigned)mis->_mipos.x / DUN_WIDTH; -- unused
+	// mis->_misy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	mis->_miVar1 = 0;
 	mis->_miVar2 = random_(49, lengthof(BloodBoilLocs));
 	mis->_miRange = (lengthof(BloodBoilLocs) + spllvl * 2) * 8;
@@ -2996,19 +2982,14 @@ int AddBleed(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 int AddShroud(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddShroud expects a large enough border.");
 	if (FindPlace(mis->_mipos, 3, PosOkMis1, dp)) {
 		mis->_mipos = dp;
-		tx = (unsigned)dp.x / DUN_WIDTH;
-		ty = (unsigned)dp.y / DUN_WIDTH;
-		mis->_mix = tx;
-		mis->_miy = ty;
-		// mis->_misx = tx; -- unused
-		// mis->_misy = ty;
+		// mis->_misx = (unsigned)mis->_mipos.x / DUN_WIDTH; -- unused
+		// mis->_misy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		mis->_miRange = 32 * spllvl + 160;
 		return MIRES_DONE;
 	}
@@ -3144,7 +3125,7 @@ int AddFireWave(int mi, POS32 dp, int midir, int micaster, int misource, int spl
 int AddMeteor(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int power, mindam, maxdam, tx, ty;
+	int power, mindam, maxdam;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -3166,12 +3147,8 @@ int AddMeteor(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddMeteor expects a large enough border.");
 	if (FindPlace(mis->_mipos, 3, PosOkMis2, dp)) {
 		mis->_mipos = dp;
-		tx = (unsigned)dp.x / DUN_WIDTH;
-		ty = (unsigned)dp.y / DUN_WIDTH;
-		mis->_mix = tx;
-		mis->_miy = ty;
-		// mis->_misx = tx; -- unused
-		// mis->_misy = ty;
+		// mis->_misx = (unsigned)dp.x / DUN_WIDTH; -- unused
+		// mis->_misy = (unsigned)dp.y / DUN_WIDTH;
 		// assert(mis->_miAnimLen == MIA_SHATTER1_LENGTH);
 		mis->_miAnimFrame = MIA_SHATTER1_LENGTH;
 		mis->_miAnimAdd = -1;
@@ -3347,7 +3324,6 @@ int AddStone(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 int AddGuardian(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	mis = &missile[mi];
@@ -3357,12 +3333,8 @@ int AddGuardian(int mi, POS32 dp, int midir, int micaster, int misource, int spl
 	mis->_mipos = { 0, 0 };
 	if (FindPlace(sp, 3, PosOkGuardian, dp)) {
 		mis->_mipos = dp;
-		tx = (unsigned)dp.x / DUN_WIDTH;
-		ty = (unsigned)dp.y / DUN_WIDTH;
-		mis->_mix = tx;
-		mis->_miy = ty;
-		// mis->_misx = tx; -- unused
-		// mis->_misy = ty;
+		// mis->_misx = (unsigned)mis->_mipos.x / DUN_WIDTH; -- unused
+		// mis->_misy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		static_assert(MAX_LIGHT_RAD >= 1, "AddGuardian needs at least light-radius of 1.");
 		mis->_miLid = AddLight(mis->_mipos, 1);
 		mis->_miRange = spllvl + (plx(misource)._pLevel >> 1);
@@ -3532,19 +3504,14 @@ int AddOpItem(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 int AddWallC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int tx, ty;
 	// assert(micaster & MST_PLAYER);
 	// assert((unsigned)misource < MAX_PLRS);
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddWallC expects a large enough border.");
 	mis = &missile[mi];
 	if (FindPlace(mis->_mipos, 3, PosOkMis2, dp)) {
 		mis->_mipos = dp;
-		tx = (unsigned)dp.x / DUN_WIDTH;
-		ty = (unsigned)dp.y / DUN_WIDTH;
-		mis->_mix = tx;
-		mis->_miy = ty;
-		// mis->_misx = tx; -- unused
-		// mis->_misy = ty;
+		// mis->_misx = (unsigned)mis->_mipos.x / DUN_WIDTH; -- unused
+		// mis->_misy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		midir = plx(misource)._pdir;
 		midir = (midir - 2) & 7;
 		mis->_mixvel = XDirAdd[midir];
@@ -3640,8 +3607,6 @@ int AddInferno(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 	bmis = &missile[midir];
 	mis->_misx = bmis->_misx;
 	mis->_misy = bmis->_misy;
-	// mis->_mix = bmis->_mix;
-	// mis->_miy = bmis->_miy;
 	// mis->_mipos = bmis->_mipos;
 	// mis->_mizoff = bmis->_mizoff;
 	// mis->_mitxoff = bmis->_mitxoff;
@@ -3783,8 +3748,6 @@ int AddAttract(int mi, POS32 dp, int midir, int micaster, int misource, int spll
 	dy = (unsigned)dp.y / DUN_WIDTH;
 	// mis->_misx = dx; -- unused
 	// mis->_misy = dy;
-	mis->_mix = dx;
-	mis->_miy = dy;
 	mis->_mipos = dp;
 	mis->_miAnimFrame = 2;
 	mis->_miAnimAdd = 2;
@@ -3932,7 +3895,7 @@ int AddRage(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 int AddPulse(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
 	MissileStruct* mis;
-	int mindam, maxdam, tx, ty;
+	int mindam, maxdam;
 	mis = &missile[mi];
 
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
@@ -3955,12 +3918,8 @@ int AddPulse(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "AddPulse expects a large enough border.");
 	if (FindPlace(mis->_mipos, 3, PosOkMis2, dp)) {
 		mis->_mipos = dp;
-		tx = (unsigned)dp.x / DUN_WIDTH;
-		ty = (unsigned)dp.y / DUN_WIDTH;
-		mis->_mix = tx;
-		mis->_miy = ty;
-		// mis->_misx = tx; -- unused
-		// mis->_misy = ty;
+		// mis->_misx = (unsigned)mis->_mipos.x / DUN_WIDTH; -- unused
+		// mis->_misy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		static_assert(MAX_LIGHT_RAD >= 4, "AddPulse needs at least light-radius of 4.");
 		mis->_miLid = AddLight(mis->_mipos, 4);
 		return MIRES_DONE;
@@ -3999,8 +3958,8 @@ int AddMissile(POS32 sp, POS32 dp, int midir, int mitype, int micaster, int miso
 	mis->_miSpllvl = spllvl;
 	sx = (unsigned)sp.x / DUN_WIDTH;
 	sy = (unsigned)sp.y / DUN_WIDTH;
-	mis->_misx = mis->_mix = sx;
-	mis->_misy = mis->_miy = sy;
+	mis->_misx = sx;
+	mis->_misy = sy;
 	mis->_mipos = sp;
 	mis->_miType = mitype;
 	mds = &missiledata[mitype];
@@ -4092,12 +4051,15 @@ void MI_Arrow(int mi)
 void MI_AsArrow(int mi)
 {
 	MissileStruct* mis;
+	int mx, my;
 
 	mis = &missile[mi];
 	mis->_miVar7++; // MISDIST
 	MoveMissile(mi, 1);
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	mis->_miVar1--;
-	if (mis->_miVar1 > 0 && !nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
+	if (mis->_miVar1 > 0 && !nMissileTable[dPiece[mx][my]]) {
 		return;
 	}
 	// assert(missiledata[mis->_miType].miSFX == SFX_NONE);
@@ -4468,27 +4430,29 @@ void MI_Firewall(int mi)
 void MI_HorkSpawn(int mi)
 {
 	MissileStruct* mis;
-	int i, j, tx, ty;
+	int mx, my, i, j, tx, ty;
 	const int8_t* cr;
 
 	mis = &missile[mi];
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
 		MoveMissile(mi, 1);
-		// if ((mis->_mix == mis->_misx && mis->_miy == mis->_misy)) {
-		// if (PosOkMonster(mis->_miSource, mis->_mix, mis->_miy)) {
+		// if ((mx == mis->_misx && my == mis->_misy)) {
+		// if (PosOkMonster(mis->_miSource, mx, my)) {
 			return;
 		// }
 	}
-	// assert(abs(mis->_mix - mis->_misx) < 2 && abs(mis->_miy - mis->_misy) < 2);
+	// assert(abs(mx - mis->_misx) < 2 && abs(my - mis->_misy) < 2);
 	mis->_miDelFlag = TRUE;
 	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "MI_HorkSpawn expects a large enough border.");
 	static_assert(lengthof(CrawlNum) > 1, "MI_HorkSpawn uses CrawlTable/CrawlNum up to radius 1.");
 	for (i = 0; i <= 1; i++) {
 		cr = &CrawlTable[CrawlNum[i]];
 		for (j = (BYTE)*cr; j > 0; j--) {
-			tx = mis->_mix + *++cr;
-			ty = mis->_miy + *++cr;
+			tx = mx + *++cr;
+			ty = my + *++cr;
 			// assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkActor(tx, ty)) {
 				// assert(mapMonTypes[1].cmType == MT_HORKSPWN);
@@ -4502,7 +4466,7 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct* mis;
-	int ty;
+	int ty, mx, my;
 
 	mis = &missile[mi];
 	if (--mis->_miVar3 <= 0) {
@@ -4525,7 +4489,9 @@ void MI_Rune(int mi)
 			static_assert(SPL_RUNEWAVE == MIS_RUNEWAVE - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums III.");
 			static_assert(SPL_RUNESTONE == MIS_RUNESTONE - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums IV.");
 			ty = mis->_miType - MIS_RUNEFIRE + SPL_RUNEFIRE;
-			SpawnRune(ty, mis->_mix, mis->_miy);
+			mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+			my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+			SpawnRune(ty, mx, my);
 		}
 		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;
@@ -4556,8 +4522,8 @@ void MI_LightningC(int mi)
 
 	MoveMissile(mi, 1);
 
-	mx = mis->_mix;
-	my = mis->_miy;
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	assert(IN_DUNGEON_AREA(mx, my));
 	if (mx != mis->_miVar1 || my != mis->_miVar2) {
 		mis->_miVar1 = mx;
@@ -4684,6 +4650,7 @@ void MI_Bleed(int mi)
 void MI_Portal(int mi)
 {
 	MissileStruct* mis;
+	int mx, my;
 	static_assert(MAX_LIGHT_RAD >= 15, "MI_Portal needs at least light-radius of 15.");
 	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
 
@@ -4703,7 +4670,9 @@ void MI_Portal(int mi)
 	}
 
 	if (mis->_miType == MIS_TOWN) {
-		if (myplr._px == mis->_mix && myplr._py == mis->_miy && /*!myplr._pLvlChanging &&*/ myplr._pmode == PM_STAND && !mis->_miVar3) {
+		mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+		my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+		if (myplr._px == mx && myplr._py == my && /*!myplr._pLvlChanging &&*/ myplr._pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
 			NetSendCmdBParam1(CMD_USEPORTAL, mis->_miSource);
 		}
@@ -4715,7 +4684,7 @@ void MI_Flash(int mi)
 	MissileStruct* mis;
 
 	mis = &missile[mi];
-	// assert(!nMissileTable[dPiece[mis->_mix][mis->_miy]]);
+	// assert(!nMissileTable[dPiece[(unsigned)mis->_mipos.x / DUN_WIDTH][(unsigned)mis->_mipos.y / DUN_WIDTH]]);
 	CheckSplashCol(mi, 0);
 	// assert(mis->_miAnimLen == MIA_BLUEXFR_LENGTH);
 	// assert(mis->_miAnimFrameLen == 1);
@@ -4743,10 +4712,13 @@ void MI_Flash2(int mi)
 void MI_FireWave(int mi)
 {
 	MissileStruct* mis;
+	int mx, my;
 
 	mis = &missile[mi];
 	MoveMissile(mi, 1);
-	if (nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	if (nMissileTable[dPiece[mx][my]]) {
 		mis->_miDelFlag = TRUE;
 		return;
 	}
@@ -4890,8 +4862,8 @@ void MI_Chain(int mi)
 
 	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 
-	mx = mis->_mix;
-	my = mis->_miy;
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	{
 		if (hit == 1) {
 			if (mis->_miVar1-- != 0) {
@@ -5036,10 +5008,12 @@ void MI_Stone(int mi)
 void MI_Shroud(int mi)
 {
 	MissileStruct *mis, *bmis;
-	int i, mv;
+	int mx, my, i, mv;
 
 	mis = &missile[mi];
-	if (dPlayer[mis->_mix][mis->_miy] | dMonster[mis->_mix][mis->_miy])
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	if (dPlayer[mx][my] | dMonster[mx][my])
 		mis->_miRange = 0;
 	mis->_miRange--;
 	if (mis->_miRange >= 0) {
@@ -5097,7 +5071,7 @@ void MI_Shroud(int mi)
 void MI_Rhino(int mi)
 {
 	MissileStruct* mis;
-	int bx, by, mnum;
+	int mx, my, mnum;
 
 	mis = &missile[mi];
 	mnum = mis->_miSource;
@@ -5107,22 +5081,24 @@ void MI_Rhino(int mi)
 	}
 	// restore the real coordinates
 	//ShiftMissilePos(mis, -1);
-	//assert(dMonster[mis->_mix][mis->_miy] == -(mnum + 1));
-	dMonster[mis->_mix][mis->_miy] = 0;
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	//assert(dMonster[mx][my] == -(mnum + 1));
+	dMonster[mx][my] = 0;
 	MoveMissile(mi, 1);
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	// assert(monsters[mnum]._mFileNum != MOFILE_SNAKE || (monsters[mnum]._mAnims[MA_ATTACK].maFrames == 13 && monsters[mnum]._mAnims[MA_ATTACK].maFrameLen == 1));
 	// assert(monfiledata[MOFILE_SNAKE].moAnimFrameLen[MA_ATTACK] == 1);
-	if (!PosOkActor(mis->_mix, mis->_miy) || (mis->_miAnimFrame == 13 && monsters[mnum]._mFileNum == MOFILE_SNAKE)) {
+	if (!PosOkActor(mx, my) || (mis->_miAnimFrame == 13 && monsters[mnum]._mFileNum == MOFILE_SNAKE)) {
 		MissToMonst(mi);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
 	MisSetMonsterPos(mis, &monsters[mnum]);
-	bx = mis->_mix;
-	by = mis->_miy;
-	//assert(dMonster[bx][by] == 0);
-	//assert(dPlayer[bx][by] == 0);
-	dMonster[bx][by] = -(mnum + 1);
+	//assert(dMonster[mx][my] == 0);
+	//assert(dPlayer[mx][my] == 0);
+	dMonster[mx][my] = -(mnum + 1);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	//ShiftMissilePos(mis, 1);
 }
@@ -5130,7 +5106,7 @@ void MI_Rhino(int mi)
 void MI_Charge(int mi)
 {
 	MissileStruct* mis;
-	int bx, by, pnum;
+	int mx, my, pnum;
 
 	mis = &missile[mi];
 	pnum = mis->_miSource;
@@ -5141,19 +5117,21 @@ void MI_Charge(int mi)
 	mis->_miRange += mis->_miAnimAdd; // MISRANGE (used in MissToPlr)
 	// restore the real coordinates
 	//ShiftMissilePos(mis, -1);
-	dPlayer[mis->_mix][mis->_miy] = 0;
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	dPlayer[mx][my] = 0;
 	MoveMissile(mi, 1);
-	if (!PosOkActor(mis->_mix, mis->_miy)) {
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	if (!PosOkActor(mx, my)) {
 		MissToPlr(mi, true);
 		mis->_miDelFlag = TRUE;
 		return;
 	}
 	MisSetPlayerPos(mis, pnum);
-	bx = mis->_mix;
-	by = mis->_miy;
-	//assert(dMonster[bx][by] == 0);
-	//assert(dPlayer[bx][by] == 0);
-	dPlayer[bx][by] = -(pnum + 1);
+	//assert(dMonster[mx][my] == 0);
+	//assert(dPlayer[mx][my] == 0);
+	dPlayer[mx][my] = -(pnum + 1);
 	mis->_miVar1--;
 	if (mis->_miVar1 <= 0) {
 		MissToPlr(mi, false);
@@ -5171,12 +5149,12 @@ void MI_Charge(int mi)
 
 	mis = &missile[mi];
 	ShiftMissilePos(mis, -1);
-	ax = mis->_mix;
-	ay = mis->_miy;
+	ax = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	ay = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	MoveMissile(mi, 1);
 	mnum = mis->_miSource;
-	bx = mis->_mix;
-	by = mis->_miy;
+	bx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	by = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	cx = monsters[mnum]._mlastx;
 	cy = monsters[mnum]._mlasty;
 	if ((bx != ax || by != ay)
@@ -5206,7 +5184,7 @@ void MI_Charge(int mi)
 void MI_WallC(int mi)
 {
 	MissileStruct* mis;
-	int mitype, tx, ty;
+	int mitype, mx, my, tx, ty;
 
 	mis = &missile[mi];
 	mis->_miRange--;
@@ -5219,9 +5197,11 @@ void MI_WallC(int mi)
 	mitype = MIS_FIREWALL;
 //#endif
 	// SetRndSeed(mis->_miRndSeed);
+	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	if (!mis->_miVar2) {
-		tx = mis->_mix + mis->_mitxoff;
-		ty = mis->_miy + mis->_mityoff;
+		tx = mx + mis->_mitxoff;
+		ty = my + mis->_mityoff;
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (!nMissileTable[dPiece[tx][ty]]) {
 			const POS32 tp = DungeonToDunPos(tx, ty);
@@ -5231,8 +5211,8 @@ void MI_WallC(int mi)
 		}
 	}
 	if (!mis->_miVar3 && mis->_miVar1 != 0) {
-		tx = mis->_mix - mis->_mitxoff;
-		ty = mis->_miy - mis->_mityoff;
+		tx = mx - mis->_mitxoff;
+		ty = my - mis->_mityoff;
 		assert(IN_DUNGEON_AREA(tx, ty));
 		if (!nMissileTable[dPiece[tx][ty]]) {
 			const POS32 tp = DungeonToDunPos(tx, ty);
@@ -5279,12 +5259,15 @@ void MI_Inferno(int mi)
 void MI_InfernoC(int mi)
 {
 	MissileStruct* mis;
+	int mx, my;
 
 	mis = &missile[mi];
 	MoveMissile(mi, 1);
 	mis->_miVar1++;
 	if (!(mis->_miVar1 & 1)) {
-		if (!nMissileTable[dPiece[mis->_mix][mis->_miy]]) {
+		mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+		my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+		if (!nMissileTable[dPiece[mx][my]]) {
 			// SetRndSeed(mis->_miRndSeed);
 			// mis->_miRange used by MIS_INFERNO !
 			AddMissile(
@@ -5375,9 +5358,9 @@ void MI_Elemental(int mi)
 	}
 	// did not hit anything
 	if (mis->_miVar1-- == 0) { // destination reached the first time
-		cx = mis->_mix;
-		cy = mis->_miy;
 		// set the current position as the starting point
+		cx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+		cy = (unsigned)mis->_mipos.y / DUN_WIDTH;
 		const POS32 mp = DungeonToDunPos(cx, cy);
 		mis->_mitxoff = (mis->_mipos.x - mp.x) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
 		mis->_mityoff = (mis->_mipos.y - mp.y) * ((1 << MIS_VELO_SHIFT) / (DUN_WIDTH / 64));
@@ -5438,12 +5421,14 @@ void MI_Pulse(int mi)
 void ProcessMissiles()
 {
 	MissileStruct* mis;
-	int i, mi;
+	int i, mx, my, mi;
 
 	for (i = 0; i < nummissiles; i++) {
 		mis = &missile[missileactive[i]];
-		assert(IN_DUNGEON_AREA(mis->_mix, mis->_miy));
-		dFlags[mis->_mix][mis->_miy] &= ~(BFLAG_HAZARD);
+		mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+		my = (unsigned)mis->_mipos.y / DUN_WIDTH;
+		assert(IN_DUNGEON_AREA(mx, my));
+		dFlags[mx][my] &= ~(BFLAG_HAZARD);
 	}
 
 	for (i = 0; i < nummissiles; i++) {
