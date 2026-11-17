@@ -3194,8 +3194,7 @@ int AddRhino(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 	mis = &missile[mi];
 	sx = mis->_misx;
 	sy = mis->_misy;
-	// assert(dMonster[sx][sy] == misource + 1);
-	dMonster[sx][sy] = -(misource + 1);
+	assert(dMonster[sx][sy] == misource + 1);
 	monsters[misource]._mmode = MM_CHARGE;
 	mis->_miDir = midir;
 	SyncRhinoAnim(mis);
@@ -5082,7 +5081,7 @@ void MI_Rhino(int mi)
 	//ShiftMissilePos(mis, -1);
 	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
 	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
-	//assert(dMonster[mx][my] == -(mnum + 1));
+	//assert(dMonster[mx][my] == mnum + 1);
 	dMonster[mx][my] = 0;
 	MoveMissile(mi, 1);
 	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
@@ -5097,7 +5096,7 @@ void MI_Rhino(int mi)
 	MisSetMonsterPos(mis, &monsters[mnum]);
 	//assert(dMonster[mx][my] == 0);
 	//assert(dPlayer[mx][my] == 0);
-	dMonster[mx][my] = -(mnum + 1);
+	dMonster[mx][my] = mnum + 1;
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 	//ShiftMissilePos(mis, 1);
 }

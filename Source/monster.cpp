@@ -1872,13 +1872,12 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 	my = mon->_my;
 	assert(mon->_moldx == mx);
 	assert(mon->_moldy == my);
-
+	assert(dMonster[mx][my] == mnum + 1);
 	mx += offset_x[dir];
 	my += offset_y[dir];
 	mon->_mfutx = mx;
 	mon->_mfuty = my;
-
-	dMonster[mx][my] = -(mnum + 1);
+	dMonster[mx][my] = mnum + 1;
 }
 
 /**
@@ -1898,7 +1897,7 @@ static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int 
 	my = mon->_my;
 	assert(mon->_moldx == mx);
 	assert(mon->_moldy == my);
-	dMonster[mx][my] = -(mnum + 1);
+	assert(dMonster[mx][my] == mnum + 1);
 	mx += offset_x[dir];
 	my += offset_y[dir];
 	mon->_mx = mon->_mfutx = mx;
@@ -1973,7 +1972,7 @@ void RemoveMonFromMap(int mnum)
 	static_assert(DBORDERX > 0 && DBORDERY > 0, "RemoveMonFromMap expects a large enough border.");
 	for (x = dx - 1; x <= dx + 1; x++) {
 		for (y = dy - 1; y <= dy + 1; y++) {
-			if (abs(dMonster[x][y]) == m1) {
+			if (dMonster[x][y] == m1) {
 				dMonster[x][y] = 0;
 			}
 		}
@@ -2883,8 +2882,7 @@ static bool MonDoCharge(int mnum)
 	mon = &monsters[mnum];
 	dir = mon->_mdir;
 	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
-		//assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
-		dMonster[mon->_mx][mon->_my] = mnum + 1;
+		assert(dMonster[mon->_mx][mon->_my] == mnum + 1);
 		StartStand(mnum);
 		return true;
 	}
@@ -5042,8 +5040,7 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 			mon->_mVar4 = 0; // WALK_XVEL
 			mon->_mVar5 = 0; // WALK_YVEL
 		} else {
-			// assert(dMonster[mon->_mx][mon->_my] == -(mnum + 1));
-			dMonster[mon->_mx][mon->_my] = mnum + 1;
+			assert(dMonster[mon->_mx][mon->_my] == mnum + 1);
 			// assert(dPlayer[mon->_mx][mon->_my] == 0);
 			// assert(!(mon->_mFlags & MFLAG_HIDDEN));
 			//ChangeLightXY(mon->_mlid, mon->_mpos);
@@ -5092,7 +5089,7 @@ bool PosOkMonster(int mnum, int x, int y)
 
 	mpo = dMonster[x][y];
 	if (mpo != 0) {
-		mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+		mpo = mpo - 1;
 		return mpo == mnum;
 	}
 

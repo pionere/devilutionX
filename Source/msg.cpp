@@ -1674,8 +1674,6 @@ void LevelDeltaLoad()
 			dMonster[mx][my] = mnum + 1;
 			if (mi == MM_WALK || mi == MM_WALK2) {
 				dMonster[mwx][mwy] = -(mnum + 1);
-			} else if (mi == MM_CHARGE) {
-				dMonster[mx][my] = -(mnum + 1);
 			}
 			// ensure dead bodies are not placed prematurely
 			if (mi == MM_DEATH) {

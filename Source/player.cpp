@@ -2883,9 +2883,6 @@ bool PosOkPlayer(int pnum, int x, int y)
 			// additional checks commented out because a player (or a charging monster)
 			// should not walk over a dying monster
 			// (AddDead does not check dMonster before reseting its value)
-			//if (mpo < 0) {
-			//	return false;
-			//}
 			//if (monsters[mpo - 1]._mhitpoints != 0) {
 				return false;
 			//}
