@@ -2883,6 +2883,7 @@ static bool MonDoCharge(int mnum)
 	dir = mon->_mdir;
 	if (!monster_posok(mnum, mon->_mx + offset_x[dir], mon->_my + offset_y[dir])) {
 		assert(dMonster[mon->_mx][mon->_my] == mnum + 1);
+		FixMonLocation(mnum);
 		StartStand(mnum);
 		return true;
 	}
@@ -5043,7 +5044,7 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 			assert(dMonster[mon->_mx][mon->_my] == mnum + 1);
 			// assert(dPlayer[mon->_mx][mon->_my] == 0);
 			// assert(!(mon->_mFlags & MFLAG_HIDDEN));
-			//ChangeLightXY(mon->_mlid, mon->_mpos);
+			FixMonLocation(mnum);
 			StartStand(mnum);
 		}
 	}
