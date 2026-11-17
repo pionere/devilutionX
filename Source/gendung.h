@@ -40,7 +40,7 @@ extern BYTE dPreLight[MAXDUNX][MAXDUNY];
 extern BYTE dLight[MAXDUNX][MAXDUNY];
 extern uint16_t dSubtileZOrder[MAXDUNX][MAXDUNY];
 extern BYTE dFlags[MAXDUNX][MAXDUNY];
-extern int8_t dPlayer[MAXDUNX][MAXDUNY];
+extern BYTE dPlayer[MAXDUNX][MAXDUNY];
 extern int dMonster[MAXDUNX][MAXDUNY];
 extern BYTE dDead[MAXDUNX][MAXDUNY];
 extern int8_t dObject[MAXDUNX][MAXDUNY];

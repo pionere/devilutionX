@@ -91,10 +91,9 @@ BYTE dFlags[MAXDUNX][MAXDUNY];
 /**
  * Contains the player numbers (players array indices) of the map.
  *   pnum + 1 : the player is on the given location.
- * -(pnum + 1): reserved for a moving player
  */
-int8_t dPlayer[MAXDUNX][MAXDUNY];
-static_assert(MAX_PLRS <= CHAR_MAX, "Index of a player might not fit to dPlayer.");
+BYTE dPlayer[MAXDUNX][MAXDUNY];
+static_assert(MAX_PLRS <= UCHAR_MAX, "Index of a player might not fit to dPlayer.");
 /**
  * Contains the NPC numbers of the map. The NPC number represents a
  * towner number (towners array index) in Tristram and a monster number

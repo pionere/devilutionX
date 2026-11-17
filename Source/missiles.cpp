@@ -3214,8 +3214,7 @@ int AddCharge(int mi, POS32 dp, int midir, int micaster, int misource, int spllv
 	mis = &missile[mi];
 	sx = mis->_misx;
 	sy = mis->_misy;
-	// assert(dPlayer[sx][sy] == pnum + 1);
-	dPlayer[sx][sy] = -(pnum + 1);
+	assert(dPlayer[sx][sy] == pnum + 1);
 	chv = missiledata[MIS_CHARGE].mdPrSpeed;
 	aa = 2;
 	if (plr._pIWalkSpeed != 0) {
@@ -5131,7 +5130,7 @@ void MI_Charge(int mi)
 	MisSetPlayerPos(mis, pnum);
 	//assert(dMonster[mx][my] == 0);
 	//assert(dPlayer[mx][my] == 0);
-	dPlayer[mx][my] = -(pnum + 1);
+	dPlayer[mx][my] = pnum + 1;
 	mis->_miVar1--;
 	if (mis->_miVar1 <= 0) {
 		MissToPlr(mi, false);

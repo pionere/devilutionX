@@ -773,9 +773,7 @@ void InitLvlPlayer(int pnum, bool entering)
 					pwx = px - offset_x[pdir];
 					pwy = py - offset_y[pdir];
 				}
-				dPlayer[pwx][pwy] = -(pnum + 1);
-			} else if (plr._pmode == PM_CHARGE) {
-				dPlayer[px][py] = -(pnum + 1);
+				dPlayer[pwx][pwy] = pnum + 1;
 			}
 		} else {
 			dFlags[px][py] |= BFLAG_DEAD_PLAYER;
@@ -1106,13 +1104,12 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 	py = plr._py;
 	assert(plr._poldx == px);
 	assert(plr._poldy == py);
-
+	assert(dPlayer[px][py] == pnum + 1);
 	px += offset_x[dir];
 	py += offset_y[dir];
 	plr._pfutx = /*plr._pVar1 =*/ px; // the Player's x-coordinate after the movement
 	plr._pfuty = /*plr._pVar2 =*/ py; // the Player's y-coordinate after the movement
-
-	dPlayer[px][py] = -(pnum + 1);
+	dPlayer[px][py] = pnum + 1;
 }
 
 /**
@@ -1131,7 +1128,7 @@ static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir
 	py = plr._py;
 	assert(plr._poldx == px);
 	assert(plr._poldy == py);
-	dPlayer[px][py] = -(pnum + 1);
+	assert(dPlayer[px][py] == pnum + 1);
 	px += offset_x[dir];
 	py += offset_y[dir];
 	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
@@ -1405,7 +1402,7 @@ void RemovePlrFromMap(int pnum)
 	static_assert(DBORDERX > 0 && DBORDERY > 0, "RemovePlrFromMap expects a large enough border.");
 	for (x = dx - 1; x <= dx + 1; x++) {
 		for (y = dy - 1; y <= dy + 1; y++) {
-			if (abs(dPlayer[x][y]) == p1) {
+			if (dPlayer[x][y] == p1) {
 				dPlayer[x][y] = 0;
 			}
 		}
@@ -1413,7 +1410,7 @@ void RemovePlrFromMap(int pnum)
 #if DEBUG_MODE || DEV_MODE
 	for (x = 0; x < MAXDUNX; x++) {
 		for (y = 0; y < MAXDUNY; y++) {
-			if (abs(dPlayer[x][y]) == p1)
+			if (dPlayer[x][y] == p1)
 				app_fatal("dPlayer not cleared on %d:%d id:%d mode:%d value %d  loc %d:%d dir%d", x, y, pnum, plr._pmode, dPlayer[x][y], plr._poldx, plr._poldy, plr._pdir);
 		}
 	}
@@ -2905,7 +2902,7 @@ bool PosOkPlayer(int pnum, int x, int y)
 		}
 		mpo = dPlayer[x][y];
 		if (mpo != 0) {
-			mpo = mpo >= 0 ? mpo - 1 : -(mpo + 1);
+			mpo = mpo - 1;
 			// check commented out because a player should not walk over a dying player (looks bad)
 			return mpo == pnum /*|| plx(mpo)._pHitPoints == 0*/;
 		}
