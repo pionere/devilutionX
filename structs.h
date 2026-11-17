@@ -572,8 +572,7 @@ typedef struct MissileStruct {
 	int _miAnimCnt; // Increases by one each game tick, counting how close we are to _miAnimFrameLen
 	int _miAnimAdd;
 	int _miAnimFrame; // Current frame of animation.
-	int _misx;    // Initial tile X-position
-	int _misy;    // Initial tile Y-position
+	POS32 _misrcpos;  // Starting dungeon position of the missile
 	POS32 _mipos; // Precise dungeon position of the missile
 	int _mizoff;  // Pixel Z-offset from tile position where the missile should be drawn
 	int _mixvel;  // Missile tile (X - Y)-velocity while moving. This gets added onto _mitxoff each game tick
@@ -1417,8 +1416,8 @@ typedef struct LSaveMissileStruct {
 	LE_INT32 vmiAnimCnt; // Increases by one each game tick, counting how close we are to vmiAnimFrameLen
 	LE_INT32 vmiAnimAdd;
 	LE_INT32 vmiAnimFrame; // Current frame of animation.
-	LE_INT32 vmisx;    // Initial tile X-position
-	LE_INT32 vmisy;    // Initial tile Y-position
+	LE_INT32 vmisx;    // Starting dungeon X-position of the missile
+	LE_INT32 vmisy;    // Starting dungeon Y-position of the missile
 	LE_INT32 vmidx;    // Precise dungeon X-position of the missile
 	LE_INT32 vmidy;    // Precise dungeon Y-position of the missile
 	LE_INT32 vmizoff;  // Pixel Z-offset from tile position where the missile should be drawn
@@ -1885,8 +1884,8 @@ typedef struct TSyncLvlMissile {
 	int8_t smiAnimAdd;
 	BYTE smiAnimFrame; // Current frame of animation.
 	BYTE smiDir;   // The direction of the missile
-	BYTE smisx;    // Initial tile X-position for missile
-	BYTE smisy;    // Initial tile Y-position for missile
+	LE_INT32 smisx;    // Starting dungeon X-position of the missile
+	LE_INT32 smisy;    // Starting dungeon Y-position of the missile
 	LE_INT32 smidx;    // Precise dungeon X-position of the missile
 	LE_INT32 smidy;    // Precise dungeon Y-position of the missile
 	LE_INT32 smizoff;  // Pixel Z-offset from tile position where the missile should be drawn
