@@ -1042,9 +1042,10 @@ static bool MissMonHitByPlr(int mnum, int mi)
 {
 	MonsterStruct* mon;
 	MissileStruct* mis;
-	int pnum, hper, dir, dam, lx, ly;
+	int pnum, hper, dir, dam;
 	unsigned hitFlags;
 	bool tmac, ret;
+	POS32 lp;
 
 	mon = &monsters[mnum];
 	mis = &missile[mi];
@@ -1180,19 +1181,17 @@ static bool MissMonHitByPlr(int mnum, int mi)
 	if (mon->_msquelch != SQUELCH_MAX) {
 		mon->_msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 		// lead the monster to the player
-		lx = (unsigned)mis->_misrcpos.x;
-		ly = (unsigned)mis->_misrcpos.y;
+		lp = mis->_misrcpos;
 		if (mis->_miFlags & MIF_LEAD) {
 #ifdef HELLFIRE
 			if (mis->_miCaster == MST_PLAYER) // only if the missile is not from a rune
 #endif
 			{
-				lx = plr._px;
-				ly = plr._py;
+				lp = plr._ppos;
 			}
 		}
-		mon->_mlastx = lx;
-		mon->_mlasty = ly;
+		mon->_mlastx = (unsigned)lp.x / DUN_WIDTH;
+		mon->_mlasty = (unsigned)lp.y / DUN_WIDTH;
 	}
 	return true;
 }
@@ -3300,8 +3299,8 @@ int AddStone(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl
 		mon->_mmode = MM_STONE;
 		// ensure lastx/y are set when MI_Stone 'alerts' the monster
 		if (micaster == MST_PLAYER) {
-			mon->_mlastx = plx(misource)._px;
-			mon->_mlasty = plx(misource)._py;
+			mon->_mlastx = (unsigned)plx(misource)._ppos.x / DUN_WIDTH;
+			mon->_mlasty = (unsigned)plx(misource)._ppos.y / DUN_WIDTH;
 		//} else {
 		//	assert(!MON_RELAXED);
 		}
@@ -3775,8 +3774,8 @@ int AddTelekinesis(int mi, POS32 dp, int midir, int micaster, int misource, int 
 		if (LineClearPos(plr._ppos, monsters[target]._mpos)
 		 && CheckMonsterHit(target, &ret) && monsters[target]._mmode != MM_STONE && monsters[target]._mmode <= MM_INGAME_LAST && (monsters[target]._mmaxhp >> (6 + 1)) < plr._pIPower) {
 			monsters[target]._msquelch = SQUELCH_MAX;
-			monsters[target]._mlastx = plr._px;
-			monsters[target]._mlasty = plr._py;
+			monsters[target]._mlastx = (unsigned)plr._ppos.x / DUN_WIDTH;
+			monsters[target]._mlasty = (unsigned)plr._ppos.y / DUN_WIDTH;
 			// int dir = GetDirection8(plr._ppos, monsters[target]._mpos);
 			MonHitByPlr(target, pnum, 0, ISPL_KNOCKBACK, plr._pdir);
 		}
