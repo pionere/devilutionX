@@ -370,7 +370,7 @@ void SceneCursor()
 			dst = &curmon;
 			break;
 		case SCT_MONSTER:
-			if (monsters[mi]._mhitpoints == 0 || (monsters[mi]._mFlags & MFLAG_HIDDEN))
+			if (monsters[mi]._mhitpoints == 0)
 				continue;
 #if 0
 			// if (monsters[mi]._mSelFlag == 0) continue;
