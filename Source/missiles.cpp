@@ -4629,7 +4629,6 @@ void MI_Bleed(int mi)
 void MI_Portal(int mi)
 {
 	MissileStruct* mis;
-	int mx, my;
 	static_assert(MAX_LIGHT_RAD >= 15, "MI_Portal needs at least light-radius of 15.");
 	int ExpLight[17] = { 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15 };
 
@@ -4649,9 +4648,7 @@ void MI_Portal(int mi)
 	}
 
 	if (mis->_miType == MIS_TOWN) {
-		mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
-		my = (unsigned)mis->_mipos.y / DUN_WIDTH;
-		if (myplr._px == mx && myplr._py == my && /*!myplr._pLvlChanging &&*/ myplr._pmode == PM_STAND && !mis->_miVar3) {
+		if (myplr._ppos.x == mis->_mipos.x && myplr._ppos.y == mis->_mipos.y && /*!myplr._pLvlChanging &&*/ myplr._pmode == PM_STAND && !mis->_miVar3) {
 			mis->_miVar3 = TRUE;
 			NetSendCmdBParam1(CMD_USEPORTAL, mis->_miSource);
 		}
