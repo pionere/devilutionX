@@ -281,6 +281,16 @@ void InitScene()
 	// numDungeonEntries = 0;
 }
 
+SceneEntry* NextSceneEntry(int idx)
+{
+	SceneEntry* result = NULL;
+	idx += numDungeonEntries;
+	if (idx < numEntries)
+		result = &scene[idx];
+
+	return result;
+}
+
 void SceneCursor()
 {
 	INTPAIR curmon = { MON_NONE, 0 };

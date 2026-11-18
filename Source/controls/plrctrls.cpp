@@ -3,6 +3,7 @@
 #if HAS_GAMECTRL || HAS_JOYSTICK || HAS_KBCTRL || HAS_DPAD
 #include "controller_motion.h"
 #include "game_controls.h"
+#include "scrollrt.h"
 
 DEVILUTION_BEGIN_NAMESPACE
 
@@ -92,58 +93,92 @@ static void TargetPos(POS32 pos)
 
 static void FindItem()
 {
-	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
-	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
+	int ii;
 	int rotations = 5;
 
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindItem expects a large enough border.");
-	for (int xx = -1; xx <= 1; xx++) {
-		for (int yy = -1; yy <= 1; yy++) {
-			int ii = dItem[mx + xx][my + yy];
-			if (ii <= 0)
-				continue;
-			ii--;
-			if (items[ii]._itype == ITYPE_NONE || items[ii]._iSelFlag == 0)
-				continue;
-			int newRotations = GetRotaryDistance(items[ii]._ipos);
-			if (rotations < newRotations)
-				continue;
-			if (GetDistance(items[ii]._ipos, 1) < 0)
-				continue;
-			rotations = newRotations;
-			pcursitem = ii;
-			TargetPos(items[ii]._ipos);
-		}
+	for (int i = 0; ; i++) {
+		SceneEntry* entry = NextSceneEntry(i);
+		if (entry == NULL)
+			break;
+		if (entry->scType != SCT_ITEM)
+			continue;
+		ii = entry->scIdx;
+		if (items[ii]._iSelFlag == 0)
+			continue;
+
+		int newRotations = GetRotaryDistance(items[ii]._ipos);
+		if (rotations < newRotations)
+			continue;
+		if (GetDistance(items[ii]._ipos, 1) < 0)
+			continue;
+		rotations = newRotations;
+		pcursitem = ii;
+		TargetPos(items[ii]._ipos);
 	}
 }
 
 static void FindObject()
 {
-	int mx = (unsigned)myplr._ppos.x / DUN_WIDTH;
-	int my = (unsigned)myplr._ppos.y / DUN_WIDTH;
+	int oi;
 	int rotations = 5;
 
-	static_assert(DBORDERX >= 1 && DBORDERY >= 1, "FindObject expects a large enough border.");
-	for (int xx = -1; xx <= 1; xx++) {
-		for (int yy = -1; yy <= 1; yy++) {
-			int oi = dObject[mx + xx][my + yy];
-			if (oi == 0)
-				continue;
-			oi = oi >= 0 ? oi - 1 : -(oi + 1);
-			if (objects[oi]._oSelFlag == 0)
-				continue;
-			if (xx == 0 && yy == 0 && objects[oi]._oDoorFlag != ODT_NONE)
-				continue; // Ignore doorway so we don't get stuck behind barrels
-			const POS32 pos = DungeonToDunPos(mx + xx, my + yy);
-			int newRotations = GetRotaryDistance(pos);
-			if (rotations < newRotations)
-				continue;
-			if (GetDistance(pos, 1) < 0)
-				continue;
-			rotations = newRotations;
-			pcursobj = oi;
-			TargetPos(pos);
+	for (int i = 0; ; i++) {
+		SceneEntry* entry = NextSceneEntry(i);
+		if (entry == NULL)
+			break;
+		if (entry->scType != SCT_OBJECT)
+			continue;
+		oi = entry->scIdx;
+		const ObjectStruct& os = objects[oi];
+		if (os._oSelFlag == 0)
+			continue;
+		const POS32 pos = os._opos;
+		int distance = GetDistance(pos, 1);
+		if (distance < 0)
+			continue;
+		if (distance == 0 && os._oDoorFlag != ODT_NONE)
+			continue; // Ignore doorway so we don't get stuck behind barrels
+		int newRotations = GetRotaryDistance(pos);
+		POS32 tpos = pos;
+		if (os._oSolidFlag & 2) {
+			// extra tile at [0,-1]
+			POS32 opos = pos;
+			opos.y -= DUN_WIDTH;
+
+			int rota = GetRotaryDistance(opos);
+			if (rota < newRotations) {
+				newRotations = rota;
+				tpos = opos;
+			}
 		}
+		if (os._oSolidFlag & 4) {
+			// extra tile at [-1,0]
+			POS32 opos = pos;
+			opos.x -= DUN_WIDTH;
+
+			int rota = GetRotaryDistance(opos);
+			if (rota < newRotations) {
+				newRotations = rota;
+				tpos = opos;
+			}
+		}
+		if (os._oSolidFlag & 8) {
+			// extra tile at [-1,-1]
+			POS32 opos = pos;
+			opos.x -= DUN_WIDTH;
+			opos.y -= DUN_WIDTH;
+
+			int rota = GetRotaryDistance(opos);
+			if (rota < newRotations) {
+				newRotations = rota;
+				tpos = opos;
+			}
+		}
+		if (rotations < newRotations)
+			continue;
+		rotations = newRotations;
+		pcursobj = oi;
+		TargetPos(tpos);
 	}
 }
 
@@ -179,23 +214,27 @@ static bool HasRangedSkill()
  */
 static void FindMonster(int mode, bool ranged)
 {
-	int newDistance, rotations, distance = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * MAXDUNX * MAXDUNY, mnum, lastMon;
+	int newDistance, rotations, distance = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * MAXDUNX * MAXDUNY, firstMon, lastMon, mnum;
 	bool canTalk = true;
 
 	if (mode == 0) {
-		mnum = MAX_MINIONS;
+		firstMon = MAX_MINIONS;
 		lastMon = MAXMONSTERS;
 	} else {
-		mnum = 0;
+		firstMon = 0;
 		lastMon = MAX_MINIONS;
 	}
-	for ( ; mnum < lastMon; mnum++) {
+	for (int i = 0; ; i++) {
+		SceneEntry* entry = NextSceneEntry(i);
+		if (entry == NULL)
+			break;
+		if (entry->scType != SCT_MONSTER)
+			continue; // TODO: charging monsters?
+		mnum = entry->scIdx;
+		if (mnum < firstMon || mnum > lastMon)
+			continue;
 		const MonsterStruct& mon = monsters[mnum];
-		if (mon._mmode > MM_INGAME_LAST || mon._mhitpoints == 0)
-			continue;
-		if (mon._mFlags & MFLAG_HIDDEN)
-			continue;
-		if (!(dFlags[mon._mx][mon._my] & BFLAG_VISIBLE))
+		if (mon._mhitpoints == 0)
 			continue;
 
 		if (ranged) {
@@ -232,14 +271,16 @@ static void FindPlayer(int mode, bool ranged)
 	int newDistance, rotations, distance = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * MAXDUNX * MAXDUNY, pnum;
 	bool sameTeam = mode == 0;
 
-	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+	for (int i = 0; ; i++) {
+		SceneEntry* entry = NextSceneEntry(i);
+		if (entry == NULL)
+			break;
+		if (entry->scType != SCT_PLAYER && entry->scType != SCT_DEAD_PLAYER)
+			continue; // TODO: charging players?
+		pnum = entry->scIdx;
 		if (pnum == mypnum)
 			continue;
-		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
-			continue;
 		if ((mode == 2) != (plr._pHitPoints == 0))
-			continue;
-		if (!(dFlags[plr._px][plr._py] & BFLAG_VISIBLE))
 			continue;
 
 		if (ranged) {
@@ -275,7 +316,7 @@ static void FindPlayer(int mode, bool ranged)
 
 static void FindTrigger()
 {
-	int rotations;
+	int mi, rotations;
 	int distance = 2 + 1;
 
 	if (ITEM_VALID(pcursitem) || OBJ_VALID(pcursobj))
@@ -290,22 +331,27 @@ static void FindTrigger()
 		pcurstrig = i;
 	}
 
-	for (int i = 0; i < nummissiles; i++) {
-		int mi = missileactive[i];
-		if (missile[mi]._miType == MIS_TOWN || missile[mi]._miType == MIS_RPORTAL) {
-			const int newDistance = GetDistance(missile[mi]._mipos, 2);
-			if (newDistance < 0)
-				continue;
-			if (distance < newDistance)
-				continue;
-			const int newRotations = GetRotaryDistance(missile[mi]._mipos);
-			if (distance == newDistance && rotations < newRotations)
-				continue;
-			TargetPos(missile[mi]._mipos);
-			pcurstrig = MAXTRIGGERS + mi + 1;
-			distance = newDistance;
-			rotations = newRotations;
-		}
+	for (int i = 0; ; i++) {
+		SceneEntry* entry = NextSceneEntry(i);
+		if (entry == NULL)
+			break;
+		if (entry->scType != SCT_MISSILE)
+			continue;
+		mi = entry->scIdx;
+		if (missile[mi]._miType != MIS_TOWN && missile[mi]._miType != MIS_RPORTAL)
+			continue;
+		const int newDistance = GetDistance(missile[mi]._mipos, 2);
+		if (newDistance < 0)
+			continue;
+		if (distance < newDistance)
+			continue;
+		const int newRotations = GetRotaryDistance(missile[mi]._mipos);
+		if (distance == newDistance && rotations < newRotations)
+			continue;
+		TargetPos(missile[mi]._mipos);
+		pcurstrig = MAXTRIGGERS + mi + 1;
+		distance = newDistance;
+		rotations = newRotations;
 	}
 
 	/* commented out because it would just set the pcurspos.subtile.x/y and pcurstrig fields again
