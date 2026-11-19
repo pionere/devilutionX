@@ -504,8 +504,8 @@ void SceneCursor()
 tgtitem:
 			pcursitem = mi;
 			pcurspos.dun = items[mi]._ipos;
-			pcurspos.subtile.x = items[mi]._ix;
-			pcurspos.subtile.y = items[mi]._iy;
+			pcurspos.subtile.x = (unsigned)items[mi]._ipos.x / DUN_WIDTH;
+			pcurspos.subtile.y = (unsigned)items[mi]._ipos.y / DUN_WIDTH;
 		}
 		break;
 	case TGT_OBJECT:

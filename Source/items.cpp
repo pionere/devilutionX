@@ -35,8 +35,6 @@ static const int area3x3_y[NUM_DIRS + 1] = { 0, 1, 1, 1, 0, -1, -1, -1, 0 };
 
 static void SetItemLoc(int ii, int x, int y)
 {
-	items[ii]._ix = x;
-	items[ii]._iy = y;
 	items[ii]._ipos = DungeonToDunPos(x, y);
 	if (ii != MAXITEMS)
 		dItem[x][y] = ii + 1;
@@ -2229,7 +2227,7 @@ void DeleteItem(int ii)
 	itemactive[i] = itemactive[numitems];
 	itemactive[numitems] = ii;
 
-	dItem[items[ii]._ix][items[ii]._iy] = 0;
+	dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] = 0;
 }
 
 static void ItemDoppel()
@@ -2241,8 +2239,8 @@ static void ItemDoppel()
 	for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
 		if (dItem[idoppelx][i] != 0) {
 			is = &items[dItem[idoppelx][i] - 1];
-			if (is->_ix != idoppelx || is->_iy != i)
-				dev_fatal("Item %s of type %d is at the wrong place %d:%d vs %d:%d", ItemName(is), is->_itype, is->_ix, is->_iy, idoppelx, i);
+			if ((unsigned)is->_ipos.x / DUN_WIDTH != idoppelx || (unsigned)is->_ipos.y / DUN_WIDTH != i)
+				dev_fatal("Item %s of type %d is at the wrong place %d:%d vs %d:%d", ItemName(is), is->_itype, is->_ipos.x, is->_ipos.y, idoppelx, i);
 		}
 	}
 	idoppelx++;

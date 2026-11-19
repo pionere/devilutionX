@@ -261,11 +261,9 @@ typedef struct ItemStruct {
 	uint16_t _iIdx;        // item_indexes
 	uint16_t _iCreateInfo; // icreateinfo_flag
 	union {
-		int _ix;
+		POS32 _ipos;  // Precise dungeon position of the item
 		int _iPHolder; // parent index of a placeholder entry in InvList
 	};
-	int _iy;
-	POS32 _ipos;  // Precise dungeon position of the item
 	int _iCurs;   // item_cursor_graphic
 	int _itype;   // item_type
 	int _iMiscId; // item_misc_id
@@ -316,7 +314,7 @@ typedef struct ItemStruct {
 		ItemAffixStruct _iAffixes[6];
 		char _iPlrName[PLR_NAME_LEN];
 	};
-	ALIGNMENT(13, 12)
+	ALIGNMENT(15, 14)
 } ItemStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1230,8 +1228,6 @@ typedef struct LSaveGameLvlMetaStruct {
 
 typedef struct LSaveItemStruct {
 	PkItemStruct viPkItem;
-	LE_INT32 vix;
-	LE_INT32 viy;
 	LE_INT32 vidx;   // Precise dungeon X-position of the item
 	LE_INT32 vidy;   // Precise dungeon Y-position of the item
 	BYTE viMagical;  // item_quality

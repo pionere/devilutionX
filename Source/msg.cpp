@@ -1163,7 +1163,7 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
 			assert(items[i]._iSpawnIdx == i + 1);
-			assert(dItem[items[i]._ix][items[i]._iy] == i + 1);
+			assert(dItem[(unsigned)items[i]._ipos.x / DUN_WIDTH][(unsigned)items[i]._ipos.y / DUN_WIDTH] == i + 1);
 			DeleteItem(i);
 		}
 	}
@@ -4277,7 +4277,7 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 	return (unsigned)((size_t)src - (size_t)pCmd);
 }
 
-static const int ITEMCHECK_LEN = 4 + 2 + 2 + 1 + 1 + 1 + 1 + 4 + 4 + 4;
+static const int ITEMCHECK_LEN = 1 + 4 + 2 + 2 + 4 + 1 + 4 + 4 + 4;
 static BYTE* SendItem(const ItemStruct* is, BYTE* dst)
 {
 	BYTE* dstStart = dst;
@@ -4293,10 +4293,8 @@ static BYTE* SendItem(const ItemStruct* is, BYTE* dst)
 	*(WORD*)dst = is->_iCreateInfo;
 	dst += sizeof(WORD);
 
-	*(BYTE*)dst = is->_ix;
-	dst += sizeof(BYTE);
-	*(BYTE*)dst = is->_iy;
-	dst += sizeof(BYTE);
+	*(INT*)dst = is->_iPHolder;
+	dst += sizeof(INT);
 	*(BOOLEAN*)dst = is->_iUnidentified;
 	dst += sizeof(BOOLEAN);
 
@@ -4343,18 +4341,19 @@ static unsigned On_REQUEST_ITEMCHECK(const TCmd* pCmd, int pnum)
 		static_assert(MAXBELTITEMS * ITEMCHECK_LEN + 3 <= UCHAR_MAX, "Belt items dont fit into a single message");
 		NetSendChunk(items, MAXBELTITEMS * ITEMCHECK_LEN + 3);
 
-		static_assert(NUM_INV_GRID_ELEM == 40, "On_REQUEST_ITEMCHECK works with hardcoded item-grid");
-		for (int k = 0; k < NUM_INV_GRID_ELEM / 10; k++) {
+		constexpr int numItemsOnce = 8;
+		static_assert(NUM_INV_GRID_ELEM % numItemsOnce == 0, "On_REQUEST_ITEMCHECK needs to split the inventory to equal chunks");
+		for (int k = 0; k < NUM_INV_GRID_ELEM / numItemsOnce; k++) {
 			buf = &items[1];
 			buf++;
 			*buf = 2 + k;
 			buf++;
 
-			for (int j = k * 10; j < k * 10 + 10; j++)
+			for (int j = k * numItemsOnce; j < (k + 1) * numItemsOnce; j++)
 				buf = SendItem(&plx(i)._pInvList[j], buf);
 
-			static_assert(10 * ITEMCHECK_LEN + 3 <= UCHAR_MAX, "One line of inventory items dont fit into a single message");
-			NetSendChunk(items, 10 * ITEMCHECK_LEN + 3);
+			static_assert(numItemsOnce * ITEMCHECK_LEN + 3 <= UCHAR_MAX, "One batch of inventory items dont fit into a single message");
+			NetSendChunk(items, numItemsOnce * ITEMCHECK_LEN + 3);
 		}
 	}
 
@@ -4396,14 +4395,10 @@ static const BYTE* CheckItem(const ItemStruct* is, const BYTE* src, int pnum, in
 	}
 	src += sizeof(WORD);
 
-	if (placeholder && is->_ix != *(const BYTE*)src) {
-		PrintItemMismatch(is, "x", is->_ix, *(const BYTE*)src, sp, pnum, loc, subloc);
+	if (placeholder && is->_iPHolder != *(const INT*)src) {
+		PrintItemMismatch(is, "x", is->_iPHolder, *(const INT*)src, sp, pnum, loc, subloc);
 	}
-	src += sizeof(BYTE);
-	//if (!none && !placeholder && is->_iy != *(const BYTE*)src) {
-	//	PrintItemMismatch(is, "x", is->_iy, *(const BYTE*)src, sp, pnum, loc, subloc);
-	//}
-	src += sizeof(BYTE);
+	src += sizeof(INT);
 	if (!none && !placeholder && is->_iUnidentified != *(const BOOLEAN*)src) {
 		PrintItemMismatch(is, "unid", is->_iUnidentified, *(const BOOLEAN*)src, sp, pnum, loc, subloc);
 	}
@@ -4451,8 +4446,11 @@ static unsigned On_DO_ITEMCHECK(const TCmd* pCmd, int pnum)
 		break;
 	default: // inventory items
 		k = k - 2;
-		for (int j = k * 10; j < k * 10 + 10; j++) {
-			src = CheckItem(&plx(i)._pInvList[j], src, i, k + 2, j % 10, pnum);
+		constexpr unsigned numItemsOnce = 8;
+		constexpr unsigned numItemsPerRow = 10;
+		static_assert(NUM_INV_GRID_ELEM % numItemsPerRow == 0, "On_DO_ITEMCHECK requires fixed amount of slots per row in the inventory.");
+		for (int j = k * numItemsOnce; j < (k + 1) * numItemsOnce; j++) {
+			src = CheckItem(&plx(i)._pInvList[j], src, i, (j / numItemsPerRow) + 2, j % numItemsPerRow, pnum);
 		}
 		break;
 	}

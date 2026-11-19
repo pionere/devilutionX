@@ -42,8 +42,6 @@ static BYTE* LoadItem(BYTE* DVL_RESTRICT src, ItemStruct* DVL_RESTRICT is)
 {
 	LSaveItemStruct* DVL_RESTRICT savedItem = (LSaveItemStruct*)src;
 	UnPackItem(&savedItem->viPkItem, is);
-	is->_ix = savedItem->vix;
-	is->_iy = savedItem->viy;
 	is->_ipos.x = savedItem->vidx;
 	is->_ipos.y = savedItem->vidy;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX
@@ -823,8 +821,6 @@ static BYTE* SaveItem(BYTE* DVL_RESTRICT dest, ItemStruct* DVL_RESTRICT is)
 {
 	LSaveItemStruct* DVL_RESTRICT itemSave = (LSaveItemStruct*)dest;
 	PackItem(&itemSave->viPkItem, is);
-	itemSave->vix = is->_ix;
-	itemSave->viy = is->_iy;
 	itemSave->vidx = is->_ipos.x;
 	itemSave->vidy = is->_ipos.y;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN //|| INTPTR_MAX != INT32_MAX

@@ -1324,7 +1324,7 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			idx = TEXT_IM_FANG;
 		}
 	} else if (idx == IDI_NOTE1 || idx == IDI_NOTE2 || idx == IDI_NOTE3) {
-		int nn, i, x, y;
+		int nn, i;
 		POS32 pos;
 		if ((idx == IDI_NOTE1 || PlrHasStorageItem(pnum, IDI_NOTE1, &nn))
 		 && (idx == IDI_NOTE2 || PlrHasStorageItem(pnum, IDI_NOTE2, &nn))
@@ -1339,11 +1339,9 @@ static void CheckQuestItem(int pnum, ItemStruct* is)
 			}
 			// preserve seed and location of the last item (required by DeleteItem[AutoGetItem, InvGetItem])
 			idx = is->_iSeed;
-			x = is->_ix; y = is->_iy;
 			pos = is->_ipos;
 			SetItemSData(is, IDI_FULLNOTE);
 			is->_iSeed = idx;
-			is->_ix = x; is->_iy = y;
 			is->_ipos = pos;
 			delay = 10;
 			idx = TEXT_IM_FULLNOTE;
@@ -1373,7 +1371,7 @@ void SyncInvGetItem(int pnum, int ii)
 
 void InvGetItem(int pnum, int ii)
 {
-	assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
+	assert(dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] == ii + 1);
 
 	SyncInvGetItem(pnum, ii);
 
@@ -1413,7 +1411,7 @@ bool AutoGetItem(int pnum, int ii)
 {
 	bool done;
 
-	assert(dItem[items[ii]._ix][items[ii]._iy] == ii + 1);
+	assert(dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] == ii + 1);
 
 	done = SyncAutoGetItem(pnum, ii);
 
