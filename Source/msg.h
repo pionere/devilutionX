@@ -42,7 +42,7 @@ void NetSendCmdParamBW(BYTE bCmd, BYTE bParam1, uint16_t wParam2);
 void NetSendCmdBParam1(BYTE bCmd, BYTE bParam1);
 void NetSendCmdBParam2(BYTE bCmd, BYTE bParam1, BYTE bParam2);
 void NetSendCmdGItem(BYTE ii);
-void NetSendCmdPutItem(BYTE x, BYTE y);
+void NetSendCmdPutItem(POS32 pos);
 void NetSendCmdSpawnItem(bool flipFlag);
 /** Use a spell on an item.
  * @param cii: the index of the item in the inventory

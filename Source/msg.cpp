@@ -818,7 +818,7 @@ static bool delta_get_item(const TCmdGItem* pI)
  * Add an item to the delta of the given level.
  * @return -1: if there was no space, 0: if the item is a new item on the floor, 1: the item is supposed to be on the floor already
  */
-static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
+static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, POS32 pos)
 {
 	int i;
 	DDItem* pD;
@@ -835,8 +835,8 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 			bool onFloor = pD->bCmd != DCMD_ITM_TAKEN;
 			if (!onFloor) {
 				pD->bCmd = DCMD_ITM_MOVED;
-				pD->x = x;
-				pD->y = y;
+				pD->x = pos.x;
+				pD->y = pos.y;
 			}
 			return onFloor ? 1 : 0;
 		}
@@ -846,8 +846,8 @@ static int delta_put_item(const PkItemStruct* pItem, BYTE bLevel, int x, int y)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID || pD->bCmd == DCMD_ITM_TAKEN) {
 			pD->bCmd = pD->bCmd == DCMD_INVALID ? DCMD_ITM_DROPPED : DCMD_ITM_MOVED;
-			pD->x = x;
-			pD->y = y;
+			pD->x = pos.x;
+			pD->y = pos.y;
 			copy_pod(pD->item, *pItem);
 			return 0;
 		}
@@ -921,8 +921,8 @@ void DeltaAddItem(int ii)
 	for (i = 0; i < MAXITEMS; i++, pD++) {
 		if (pD->bCmd == DCMD_INVALID) {
 			pD->bCmd = DCMD_ITM_SPAWNED;
-			pD->x = is->_ix;
-			pD->y = is->_iy;
+			pD->x = is->_ipos.x;
+			pD->y = is->_ipos.y;
 			PackPkItem(&pD->item, is);
 			break;
 		}
@@ -1172,7 +1172,7 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_DROPPED || itm->bCmd == DCMD_ITM_MOVED) {
 			UnPackPkItem(&itm->item);
-			SyncPutItem(-1, itm->x, itm->y, &items[MAXITEMS], false);
+			SyncPutItem(-1, { itm->x, itm->y }, &items[MAXITEMS], false);
 		}
 	}
 
@@ -2116,8 +2116,8 @@ void NetSendCmdGItem(BYTE ii)
 	cmd.bCmd = !gbInvflag ? CMD_AUTOGETITEM : CMD_GETITEM;
 	cmd.bLevel = currLvl._dLevelIdx;
 	is = &items[ii];
-	cmd.x = is->_ix;
-	cmd.y = is->_iy;
+	cmd.x = is->_ipos.x;
+	cmd.y = is->_ipos.y;
 	cmd.fromFloor = is->_iSpawnIdx;
 
 	PackPkItem(&cmd.item, is);
@@ -2125,14 +2125,14 @@ void NetSendCmdGItem(BYTE ii)
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
 
-void NetSendCmdPutItem(BYTE x, BYTE y)
+void NetSendCmdPutItem(POS32 pos)
 {
 	TCmdPItem cmd;
 
 	cmd.bCmd = CMD_PUTITEM;
 	cmd.bLevel = currLvl._dLevelIdx;
-	cmd.x = x;
-	cmd.y = y;
+	cmd.x = pos.x;
+	cmd.y = pos.y;
 
 	NetSendChunk((BYTE*)&cmd, sizeof(cmd));
 }
@@ -2144,8 +2144,8 @@ void NetSendCmdSpawnItem(bool flipFlag)
 
 	is = &items[MAXITEMS];
 	cmd.bCmd = CMD_SPAWNITEM;
-	cmd.x = is->_ix;
-	cmd.y = is->_iy;
+	cmd.x = is->_ipos.x;
+	cmd.y = is->_ipos.y;
 	cmd.bLevel = currLvl._dLevelIdx;
 	cmd.bFlipFlag = flipFlag;
 
@@ -2463,7 +2463,7 @@ static unsigned On_GETITEM(const TCmd* pCmd, int pnum)
 		if (plr._pHoldItem._itype != ITYPE_NONE) {
 			PkItemStruct pkItem;
 			PackPkItem(&pkItem, &plr._pHoldItem);
-			delta_put_item(&pkItem, cmd->bLevel, cmd->x, cmd->y);
+			delta_put_item(&pkItem, cmd->bLevel, { cmd->x, cmd->y });
 			// plr._pHoldItem._itype = ITYPE_NONE;
 		}
 		if (currLvl._dLevelIdx == cmd->bLevel) {
@@ -2498,7 +2498,7 @@ static unsigned On_AUTOGETITEM(const TCmd* pCmd, int pnum)
 		if (!result) {
 			PkItemStruct pkItem;
 			PackPkItem(&pkItem, &items[ii]);
-			delta_put_item(&pkItem, cmd->bLevel, cmd->x, cmd->y);
+			delta_put_item(&pkItem, cmd->bLevel, { cmd->x, cmd->y });
 		}
 	}
 
@@ -2506,10 +2506,12 @@ static unsigned On_AUTOGETITEM(const TCmd* pCmd, int pnum)
 }
 
 #ifdef HELLFIRE
-static bool CheckTownTrigs(int pnum, int x, int y, int iidx)
+static bool CheckTownTrigs(int pnum, POS32 pos, int iidx)
 {
-	int i, j, sx, sy, dx, dy;
+	int x, y, i, j, sx, sy, dx, dy;
 
+	x = (unsigned)pos.x / DUN_WIDTH;
+	y = (unsigned)pos.y / DUN_WIDTH;
 	if (iidx == IDI_RUNEBOMB
 	 && x >= DBORDERX + 69 && x <= DBORDERX + 72 && y >= DBORDERY + 51 && y <= DBORDERY + 54
 	 && quests[Q_FARMER]._qactive != QUEST_DONE) {
@@ -2555,24 +2557,24 @@ static unsigned On_PUTITEM(const TCmd* pCmd, int pnum)
 {
 	const TCmdPItem* cmd = (const TCmdPItem*)pCmd;
 	ItemStruct* pi;
-	int x, y, pr;
+	int pr;
+	POS32 pos;
 
 	pi = &plr._pHoldItem;
 	if (pi->_itype != ITYPE_NONE) {
-		x = cmd->x;
-		y = cmd->y;
+		pos = { cmd->x, cmd->y };
 #ifdef HELLFIRE
-		if (cmd->bLevel != DLV_TOWN || !CheckTownTrigs(pnum, x, y, pi->_iIdx))
+		if (cmd->bLevel != DLV_TOWN || !CheckTownTrigs(pnum, pos, pi->_iIdx))
 #endif
 		{
 			PkItemStruct pkItem;
 			PackPkItem(&pkItem, pi);
-			pr = delta_put_item(&pkItem, cmd->bLevel, x, y);
+			pr = delta_put_item(&pkItem, cmd->bLevel, pos);
 			if (pr < 0) {
 				return sizeof(*cmd);
 			}
 			if (pr == 0 && currLvl._dLevelIdx == cmd->bLevel) {
-				SyncPutItem(pnum, x, y, pi, true);
+				SyncPutItem(pnum, pos, pi, true);
 			}
 		}
 		pi->_itype = ITYPE_NONE;
@@ -2588,10 +2590,12 @@ static unsigned On_PUTITEM(const TCmd* pCmd, int pnum)
 static unsigned On_SPAWNITEM(const TCmd* pCmd, int pnum)
 {
 	const TCmdRPItem* cmd = (const TCmdRPItem*)pCmd;
+	POS32 pos;
 
-	if (delta_put_item(&cmd->item, cmd->bLevel, cmd->x, cmd->y) == 0 && currLvl._dLevelIdx == cmd->bLevel) {
+	pos = { cmd->x, cmd->y };
+	if (delta_put_item(&cmd->item, cmd->bLevel, pos) == 0 && currLvl._dLevelIdx == cmd->bLevel) {
 		UnPackPkItem(&cmd->item);
-		SyncPutItem(-1, cmd->x, cmd->y, &items[MAXITEMS], cmd->bFlipFlag);
+		SyncPutItem(-1, pos, &items[MAXITEMS], cmd->bFlipFlag);
 	}
 
 	return sizeof(*cmd);
@@ -2916,7 +2920,8 @@ static unsigned On_MONSTSUMMON(const TCmd* pCmd, int pnum)
 
 static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 {
-	int x, y, pr;
+	int pr;
+	POS32 pos;
 
 	if (pi->_itype == ITYPE_NONE)
 		return true;
@@ -2924,13 +2929,13 @@ static bool PlrDeadItem(int pnum, ItemStruct* pi, int dir)
 	PkItemStruct pkItem;
 
 	PackPkItem(&pkItem, pi);
-	x = plr._px + offset_x[dir];
-	y = plr._py + offset_y[dir];
-	pr = delta_put_item(&pkItem, plr._pDunLevel, x, y);
+	pos.x = plr._ppos.x + offset_x[dir] * DUN_WIDTH;
+	pos.y = plr._ppos.y + offset_y[dir] * DUN_WIDTH;
+	pr = delta_put_item(&pkItem, plr._pDunLevel, pos);
 	if (pr < 0)
 		return false;
 	if (pr == 0 && currLvl._dLevelIdx == plr._pDunLevel) {
-		SyncPutItem(pnum, x, y, pi, true);
+		SyncPutItem(pnum, pos, pi, true);
 	}
 	pi->_itype = ITYPE_NONE;
 	return true;

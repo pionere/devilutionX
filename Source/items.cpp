@@ -2375,7 +2375,8 @@ void DropItem()
 	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
 		return; // false;
 
-	NetSendCmdPutItem(pos.x, pos.y);
+	pos = DungeonToDunPos(pos.x, pos.y);
+	NetSendCmdPutItem(pos);
 	return; // true;
 }
 
@@ -2383,20 +2384,20 @@ void DropItem()
  * Place an item around the given position.
  *
  * @param pnum the id of the player who places the item (might not be valid)
- * @param x tile coordinate to place the item
- * @param y tile coordinate to place the item
+ * @param pos precise dungeon position to place the item
  * @param is the item to be placed
  * @param flipFlag whether the item is dropped
  */
-void SyncPutItem(int pnum, int x, int y, const ItemStruct* is, bool flipFlag)
+void SyncPutItem(int pnum, POS32 pos, const ItemStruct* is, bool flipFlag)
 {
 	int ii;
-	POS32 tpos, pos = { x, y };
-
+	POS32 tpos;
 	// assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
+	pos.x = (unsigned)pos.x / DUN_WIDTH;
+	pos.y = (unsigned)pos.y / DUN_WIDTH;
 	if ((unsigned)pnum < MAX_PLRS) {
 		tpos.x = plr._px;
 		tpos.y = plr._py;

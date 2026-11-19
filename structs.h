@@ -1691,8 +1691,8 @@ typedef struct TCmdQuest {
 typedef struct TCmdGItem {
 	BYTE bCmd;
 	BYTE bLevel;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BYTE fromFloor;
 	PkItemStruct item;
 } TCmdGItem;
@@ -1700,15 +1700,15 @@ typedef struct TCmdGItem {
 typedef struct TCmdPItem {
 	BYTE bCmd;
 	BYTE bLevel;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 } TCmdPItem;
 
 typedef struct TCmdRPItem {
 	BYTE bCmd;
 	BYTE bLevel;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	BOOLEAN bFlipFlag;
 	PkItemStruct item;
 } TCmdRPItem;
@@ -1955,8 +1955,8 @@ typedef struct DDObject {
 
 typedef struct DDItem {
 	BYTE bCmd;
-	BYTE x;
-	BYTE y;
+	LE_INT32 x;
+	LE_INT32 y;
 	PkItemStruct item;
 } DDItem;
 
