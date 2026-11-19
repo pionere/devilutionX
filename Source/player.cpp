@@ -775,8 +775,6 @@ void InitLvlPlayer(int pnum, bool entering)
 				}
 				dPlayer[pwx][pwy] = pnum + 1;
 			}
-		} else {
-			dFlags[px][py] |= BFLAG_DEAD_PLAYER;
 		}
 		SyncPlrAnim(pnum);
 	}
@@ -1009,7 +1007,6 @@ static void StartPlrKill(int pnum, int dmgtype)
 
 		RemovePlrFromMap(pnum);
 		PlaySfxLoc(sgSFXSets[SFXS_PLR_71][plr._pClass], plr._ppos);
-		dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 		PlrPlace(pnum);
 
 		plr._pVar7 = pnum == mypnum ? 32 : 0; // DEATH_DELAY
@@ -2446,7 +2443,6 @@ static void PlrDoDeath(int pnum)
 				}
 			}
 		}
-		//dFlags[plr._px][plr._py] |= BFLAG_DEAD_PLAYER;
 	}
 }
 

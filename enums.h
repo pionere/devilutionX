@@ -3834,7 +3834,6 @@ typedef enum _tile_flags {
 
 typedef enum dflag {
 	BFLAG_ALERT       = 0x02, // alert flag, used by monsters to set squelch
-	BFLAG_DEAD_PLAYER = 0x04,
 	BFLAG_HAZARD      = 0x20, // fire hazard flag, used by monsters to avoid tiles
 	BFLAG_VISIBLE     = 0x40, // visibility flag, used by the local player to check if monsters/players are visible
 	BFLAG_EXPLORED    = 0x80, // whether the automapview is set (not in sync after load/deltaload/shrine-effect)

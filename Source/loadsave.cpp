@@ -1621,7 +1621,7 @@ void LoadLevel()
 	static_assert(sizeof(dFlags) == MAXDUNX * MAXDUNY, "Linear traverse of dFlags does not work in LoadLevel.");
 	tmp = &dFlags[0][0];
 	for (i = 0; i < MAXDUNX * MAXDUNY; i++, tmp++)
-		*tmp &= ~(BFLAG_ALERT /*| BFLAG_DEAD_PLAYER*/ | BFLAG_HAZARD);
+		*tmp &= ~(BFLAG_ALERT | BFLAG_HAZARD);
 	}
 	// reload light to clear the lights of the eliminated missiles
 	LoadPreLighting();
