@@ -1115,7 +1115,7 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 /**
  * @brief Start a move action and shift to the future position
  */
-static void StartWalk2(int pnum, int xvel, int yvel, int xoff, int yoff, int dir)
+static void StartWalk2(int pnum, int xvel, int yvel, int dir)
 {
 	int px, py;
 
@@ -1153,16 +1153,16 @@ static void StartWalk(int pnum, int dir)
 		StartWalk1(pnum, 0, -mwi, dir);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, mwi, -mwi, -TILE_WIDTH, 0, dir);
+		StartWalk2(pnum, mwi, -mwi, dir);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, mwi, 0, -TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, mwi, 0, dir);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, mwi, mwi, 0, -TILE_HEIGHT, dir);
+		StartWalk2(pnum, mwi, mwi, dir);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, 0, mwi, TILE_WIDTH/2, -TILE_HEIGHT/2, dir);
+		StartWalk2(pnum, 0, mwi, dir);
 		break;
 	case DIR_W:
 		StartWalk1(pnum, -mwi, mwi, dir);

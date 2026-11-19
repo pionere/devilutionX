@@ -1883,7 +1883,7 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 /**
  * @brief Starting a move action towards SW, S, SE or E
  */
-static void MonStartWalk2(int mnum, int xvel, int yvel, int xoff, int yoff, int dir)
+static void MonStartWalk2(int mnum, int xvel, int yvel, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
 	int mx, my;
@@ -2930,16 +2930,16 @@ static void MonWalkDir(int mnum, int md)
 		MonStartWalk1(mnum, 0, -mwi, md);
 		break;
 	case DIR_E:
-		MonStartWalk2(mnum, mwi, -mwi, -TILE_WIDTH, 0, md);
+		MonStartWalk2(mnum, mwi, -mwi, md);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, mwi, 0, -TILE_WIDTH/2, -TILE_HEIGHT/2, md);
+		MonStartWalk2(mnum, mwi, 0, md);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, mwi, mwi, 0, -TILE_HEIGHT, md);
+		MonStartWalk2(mnum, mwi, mwi, md);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, 0, mwi, TILE_WIDTH/2, -TILE_HEIGHT/2, md);
+		MonStartWalk2(mnum, 0, mwi, md);
 		break;
 	case DIR_W:
 		MonStartWalk1(mnum, -mwi, mwi, md);
