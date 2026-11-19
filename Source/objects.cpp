@@ -1917,15 +1917,16 @@ static void Obj_Trap(int oi)
 static void Obj_BCrossDamage(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy, pnum, fire_resist, damage;
+	int pnum, fire_resist, damage;
+	POS32 hp;
 
 	os = &objects[oi];
-	ox = os->_ox;
-	oy = os->_oy - 1;
+	hp = os->_opos;
+	hp.y -= 3 * DUN_WIDTH / 4;
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pInvincible)
 			continue;
-		if (plr._px != ox || plr._py != oy)
+		if (GetDunDistance2(hp, plr._ppos) > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) / 4)
 			continue;
 
 		damage = 4 + (currLvl._dLevel >> 2);
