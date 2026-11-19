@@ -1852,49 +1852,44 @@ typedef struct POS8 {
 static void Obj_Trap(int oi)
 {
 	ObjectStruct *os, *on;
-	int i, dir, trigNum;
-	const POS8* trigArea;
-	const POS8 baseTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { -1, -1 }, { 1, -1 } };
-	const POS8 sarcTrigArea[] = { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 0 }, { -1, 1 }, { 0, -2 }, { -1, -2 }, { 1, -2 }, { -1, -1 }, { 1, -1 } };
-
-	int sx, sy, dx, dy, x, y;
+	int trigDist, pnum, dir;
+	POS32 trigPos, dp;
 
 	os = &objects[oi];
 	if (os->_oVar4 != TRAP_ACTIVE) // TRAP_LIVE
 		return;
 
-	trigNum = -1;
 	on = &objects[os->_oVar1]; // TRAP_OI_REF
+	trigPos = on->_opos;
+	trigDist = -1;
 	switch (os->_oVar2) { // TRAP_TRIG_TYPE
 	case OTM_DOOR:
 		if (on->_oVar4 == DOOR_OPEN || on->_oVar4 == DOOR_BLOCKED) {
-			trigArea = baseTrigArea;
-			trigNum = lengthof(baseTrigArea);
+			trigDist = 2 * (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
 		}
 		break;
 	case OTM_1X1:
 		if (!(on->_oModeFlags & OMF_ACTIVE)) {
-			trigArea = baseTrigArea;
-			trigNum = lengthof(baseTrigArea);
+			trigDist = 2 * (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
 		}
 		break;
 	case OTM_1X2:
 		if (!(on->_oModeFlags & OMF_ACTIVE)) {
-			trigArea = sarcTrigArea;
-			trigNum = lengthof(sarcTrigArea);
+			trigPos.y -= DUN_WIDTH / 2;
+			trigDist = 13 * (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) / 4;
 		}
 		break;
 	case OTM_0X0:
 		// assert(on->_oAnimLen == objectdata[OBJ_PRSPLT1].oBaseFrame + 1);
 		if (on->_oGfxFrame == objectdata[OBJ_PRSPLT1].oBaseFrame + 1) { // PRSPLT_ACTIVE_FRAME
-			trigNum = 0;
+			trigDist = (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
 		}
 		break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
 	}
-	if (trigNum < 0)
+	if (trigDist < 0)
 		return;
 
 	os->_oVar4 = TRAP_INACTIVE; // TRAP_LIVE
@@ -1902,22 +1897,18 @@ static void Obj_Trap(int oi)
 
 	PlaySfxLoc(IS_TRAP, on->_opos);
 
-	sx = on->_ox;
-	sy = on->_oy;
-	dx = sx;
-	dy = sy;
-	for (i = 0; i < trigNum; i++) {
-		x = sx + trigArea[i].x;
-		y = sy + trigArea[i].y;
-		if (dPlayer[x][y] != 0) {
-			dx = x;
-			dy = y;
-		}
+	dp = trigPos;
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging || plr._pHitPoints == 0)
+			continue;
+		if (GetDunDistance2(dp, plr._ppos) > trigDist)
+			continue;
+		dp = plr._ppos;
+		break;
 	}
 
 	// SetRndSeed(os->_oRndSeed);
-	dir = GetDirection(os->_ox, os->_oy, dx, dy);
-	const POS32 dp = DungeonToDunPos(dx, dy);
+	dir = GetDirection(os->_opos, dp);
 	AddMissile(os->_opos, dp, dir, os->_oVar3, MST_OBJECT, -1, 0); // TRAP_MISTYPE
 
 	NetSendCmdParam1(CMD_TRAPDISABLE, oi);
