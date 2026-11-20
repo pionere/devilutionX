@@ -659,11 +659,6 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 		src += MAXDUNX * MAXDUNY;
 	}
 
-	if (currLvl._dType != DTYPE_TOWN) {
-		memcpy(dDead, src, MAXDUNX * MAXDUNY);
-		src += MAXDUNX * MAXDUNY;
-	}
-
 	deltaload = false;
 	return src;
 }
@@ -1400,11 +1395,6 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 		LE_SAVE_INTS(dest, &dMonster[0][0], MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY * sizeof(LE_INT32);
 		memcpy(dest, dObject, MAXDUNX * MAXDUNY);
-		dest += MAXDUNX * MAXDUNY;
-	}
-
-	if (currLvl._dType != DTYPE_TOWN) {
-		memcpy(dest, dDead, MAXDUNX * MAXDUNY);
 		dest += MAXDUNX * MAXDUNY;
 	}
 

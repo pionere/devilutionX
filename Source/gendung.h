@@ -42,7 +42,6 @@ extern uint16_t dSubtileZOrder[MAXDUNX][MAXDUNY];
 extern BYTE dFlags[MAXDUNX][MAXDUNY];
 extern BYTE dPlayer[MAXDUNX][MAXDUNY];
 extern int dMonster[MAXDUNX][MAXDUNY];
-extern BYTE dDead[MAXDUNX][MAXDUNY];
 extern int8_t dObject[MAXDUNX][MAXDUNY];
 extern BYTE dItem[MAXDUNX][MAXDUNY];
 

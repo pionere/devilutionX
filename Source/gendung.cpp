@@ -103,14 +103,6 @@ static_assert(MAX_PLRS <= UCHAR_MAX, "Index of a player might not fit to dPlayer
  */
 int dMonster[MAXDUNX][MAXDUNY];
 /**
- * Contains the dead NPC numbers of the map (only monsters at the moment).
- *   mnum + 1 : the NPC corpse is on the given location.
- *  DEAD_MULTI: more than one corpse on the given location.
- */
-BYTE dDead[MAXDUNX][MAXDUNY];
-static_assert(MAXMONSTERS <= UCHAR_MAX, "Index of a monster might not fit to dDead.");
-static_assert((BYTE)(MAXMONSTERS + 1) < (BYTE)DEAD_MULTI, "Multi-dead in dDead reserves one entry.");
-/**
  * Contains the object numbers (objects array indices) of the map.
  *   oi + 1 : the object is on the given location.
  * -(oi + 1): a large object protrudes from its base location.
@@ -1521,7 +1513,6 @@ void InitLvlMap()
 
 	memset(dPlayer, 0, sizeof(dPlayer));
 	memset(dMonster, 0, sizeof(dMonster));
-	memset(dDead, 0, sizeof(dDead));
 	memset(dObject, 0, sizeof(dObject));
 	memset(dItem, 0, sizeof(dItem));
 }

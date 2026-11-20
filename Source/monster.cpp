@@ -2787,19 +2787,6 @@ static void PrepDoEnding()
 	NetSendCmd(CMD_RETOWN);
 }
 
-/*
- * Add the corpse of the monster.
- *
- * @param mnum: the monster which died
- */
-void MonAddDead(int mnum)
-{
-	MonsterStruct* mon;
-
-	mon = &monsters[mnum];
-	dDead[mon->_mx][mon->_my] = dDead[mon->_mx][mon->_my] == 0 ? mnum + 1 : DEAD_MULTI;
-}
-
 static bool MonDoDeath(int mnum)
 {
 	MonsterStruct* mon;
@@ -2827,8 +2814,6 @@ static bool MonDoDeath(int mnum)
 		if (mnum >= MAX_MINIONS)
 			nummonsters--;
 		dMonster[mon->_mx][mon->_my] = 0;
-		if (!(mon->_mFlags & MFLAG_NOCORPSE))
-			MonAddDead(mnum);
 	}
 	return false;
 }
@@ -3761,24 +3746,6 @@ static void MonConsumeCorpse(MonsterStruct* mon)
 		NetSendCmdBParam2(CMD_MONSTCORPSE, currLvl._dLevelIdx, i);
 		break;
 	}
-	assert(i >= 0);
-	//  2. find out how many left
-	n = DEAD_MULTI;
-	while (--i >= 0) {
-		mon = &monsters[i];
-		if (mon->_mmode != MM_DEAD || mon->_mx != mx || mon->_my != my)
-			continue;
-		if (n == DEAD_MULTI) {
-			n = i;
-			continue;
-		}
-		n = DEAD_MULTI;
-		break;
-	}
-	assert(n == DEAD_MULTI || i < 0);
-	n = n == DEAD_MULTI ? n : n + 1;
-	//  3. update the matrix
-	dDead[mx][my] = n;
 }
 #endif
 

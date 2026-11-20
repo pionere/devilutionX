@@ -57,7 +57,6 @@ void MonKill(int mnum, int mpnum);
 void MonSyncKill(int mnum, POS32 pos, int pnum);
 void MonLeaveLeader(int mnum);
 void MonUpdateLeader(int mnum);
-void MonAddDead(int mnum);
 void DoEnding();
 void ProcessMonsters();
 void FreeMonsters();

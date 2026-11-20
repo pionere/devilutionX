@@ -1077,8 +1077,6 @@ void DeltaLoadLevel()
 				static_assert(DCMD_MON_DESTROYED == DCMD_MON_DEAD + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum I.");
 				static_assert(NUM_DCMD_MON == DCMD_MON_DESTROYED + 1, "DeltaLoadLevel expects ordered DCMD_MON_ enum II.");
 				if (mstr->dmCmd >= DCMD_MON_DEAD) {
-					if (mstr->dmCmd != DCMD_MON_DESTROYED)
-						MonAddDead(i);
 					// assert(mon->_mhitpoints == 0);
 					// TODO: RemoveMonFromGame ?
 					// reset squelch value to simplify MonFallenFear, sync_all_monsters and LevelDeltaExport
@@ -1675,11 +1673,9 @@ void LevelDeltaLoad()
 			if (mi == MM_WALK || mi == MM_WALK2) {
 				dMonster[mwx][mwy] = -(mnum + 1);
 			}
-			// ensure dead bodies are not placed prematurely
+			// initialize vision of the minions
 			if (mi == MM_DEATH) {
 				net_assert(mon->_mhitpoints == 0);
-				if (dDead[mx][my] == mnum + 1)
-					dDead[mx][my] = 0;
 			} else if (mnum < MAX_MINIONS && currLvl._dLevelIdx != DLV_TOWN) {
 				mon->_mvid = AddVision(mon->_mpos, PLR_MIN_VISRAD, false);
 			}

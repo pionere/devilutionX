@@ -120,7 +120,6 @@ static_assert(DMAXY % 2 == 0, "DRLG_L4 constructs the dungeon by mirroring a qua
 // seconds after a game-info becomes obsolete (zt)
 #define NET_TIMEOUT_GAME        5
 
-#define DEAD_MULTI              0xFF
 #define MAXITEMS                127
 #define ITEM_NONE               0xFF
 #define ITEM_VALID(x) ((int8_t)x >= 0)
