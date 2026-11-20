@@ -2046,14 +2046,8 @@ static void CloseDoor(ObjectStruct* os)
  */
 static bool PlrCheckDoor(const ObjectStruct* os, int pnum)
 {
-	int dx, dy;
-
-	dx = abs(os->_ox - plr._px);
-	dy = abs(os->_oy - plr._py);
-	if (os->_oDoorFlag == ODT_LEFT)
-		return dx == 1 && dy <= 1;
-	else // if (os->_oDoorFlag == ODT_RIGHT)
-		return dx <= 1 && dy == 1;
+	int dist = GetDunDistance2(plr._ppos, os->_opos);
+	return dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
 }
 
 static void SyncDoors(const ObjectStruct* os);
