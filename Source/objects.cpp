@@ -631,8 +631,7 @@ static void LoadMapSetObjects(const SetPieceStruct &sps)
 			oidx = SwapLE16(*lm); // index of ObjConvTbl
 			if (oidx != 0) {
 				assert(oidx < lengthof(ObjConvTbl));
-				oidx = ObjConvTbl[oidx]; // index of objectdata
-				AddObject(oidx, i, j);
+				AddObject(ObjConvTbl[oidx], i, j);
 			}
 			lm++;
 		}
