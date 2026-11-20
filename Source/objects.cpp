@@ -2375,7 +2375,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 			ASSUME_UNREACHABLE
 			break;
 		}
-		mdir = GetDirection(os->_ox, os->_oy, plr._px, plr._py);
+		mdir = GetDirection(os->_opos, plr._ppos);
 		AddMissile(os->_opos, plr._ppos, mdir, mtype, MST_OBJECT, -1, 0);
 	}
 }
