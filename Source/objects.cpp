@@ -1757,12 +1757,40 @@ static void Obj_Circle(int oi)
 
 static void UpdateDoorBlocks(ObjectStruct* os)
 {
-	int dx, dy;
+	int dist, pnum, mnum, ii;
+	bool blocked = false;
 
 	if (os->_oVar4 != DOOR_LOCKED) {
-		dx = os->_ox;
-		dy = os->_oy;
-		os->_oVar4 = (dMonster[dx][dy] | dItem[dx][dy] | dDead[dx][dy] | dPlayer[dx][dy]) == 0 ? DOOR_OPEN : DOOR_BLOCKED;
+		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
+		for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+			if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging)
+				continue;
+			dist = GetDunDistance2(plr._ppos, os->_opos);
+			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT))
+				continue;
+			if (dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && plr._pmode != PM_WALK && plr._pmode != PM_WALK2)
+				continue;
+			blocked = true;
+		}
+		for (mnum = 0; mnum < MAXMONSTERS; mnum++) {
+			const MonsterStruct* mon = &monsters[mnum];
+			if (mon->_mmode > MM_INGAME_LAST && mon->_mmode != MM_DEAD)
+				continue;
+			dist = GetDunDistance2(mon->_mpos, os->_opos);
+			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT))
+				continue;
+			if (dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && mon->_mmode != MM_WALK && mon->_mmode != MM_WALK2)
+				continue;
+			blocked = true;
+		}
+		for (ii = 0; ii < numitems; ii++) {
+			const ItemStruct* is = &items[itemactive[ii]];
+			if (abs(is->_ipos.x - os->_opos.x) > DUN_WIDTH / 2 || abs(is->_ipos.y - os->_opos.y) > DUN_WIDTH / 2)
+				continue;
+			blocked = true;
+		}
+
+		os->_oVar4 = blocked ? DOOR_BLOCKED : DOOR_OPEN;
 	}
 }
 
