@@ -312,13 +312,8 @@ static void SearchAutomapItem()
 	yoff -= (sp.y * (int)AutoMapScale) >> (MAP_SHIFT + 1);
 
 	p = &myplr;
-	if (p->_pmode == PM_WALK2) {
-		x = p->_poldx;
-		y = p->_poldy;
-	} else {
-		x = p->_px;
-		y = p->_py;
-	}
+	x = p->_poldx;
+	y = p->_poldy;
 
 	x1 = x - 8;
 	if (x1 < 0)
