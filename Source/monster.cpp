@@ -2174,7 +2174,7 @@ static void MonDiabloDeath(int mnum)
 			continue;
 		mon->_mhitpoints = 0;
 		RemoveMonFromMap(i);
-		SetMonsterPos(mnum, mon->_mpos);
+		SetMonsterPos(i, mon->_mpos);
 		//if (mon->_msquelch == 0)
 		//	continue;
 		// if (mnum < MAX_MINIONS)
@@ -2182,7 +2182,7 @@ static void MonDiabloDeath(int mnum)
 		if (mon->_mmode != MM_STONE) {
 			NewMonsterAnim(i, MA_DEATH, mon->_mdir);
 			mon->_mmode = MM_DEATH;
-			dMonster[mon->_mx][mon->_my] = mnum + 1;
+			dMonster[mon->_mx][mon->_my] = i + 1;
 		}
 	}
 	mon = &monsters[mnum];
