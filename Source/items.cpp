@@ -1937,7 +1937,7 @@ void SpawnUnique(int uid, int x, int y, int mode)
 		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 }
 
-static void SpawnRndItem(unsigned quality, unsigned lvl, int x, int y, int mode)
+static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, int mode)
 {
 	int idx, ii;
 
@@ -1980,7 +1980,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			return;
 		quality = CFDQ_NORMAL;
 	}
-	SpawnRndItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND : ICM_DUMMY);
+	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND : ICM_DUMMY);
 }
 
 void CreateRndItem(int x, int y, unsigned quality, int mode)
@@ -1989,7 +1989,7 @@ void CreateRndItem(int x, int y, unsigned quality, int mode)
 
 	lvl = items_get_currlevel();
 
-	SpawnRndItem(quality, lvl, x, y, mode);
+	SpawnRndLvlItem(quality, lvl, x, y, mode);
 }
 
 void PlaceRndItem(int x, int y, unsigned quality)
