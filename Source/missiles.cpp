@@ -394,7 +394,7 @@ static bool PosOkGuardian(POS32 dp, POS32 sp)
 		MissileStruct* bmis = &missile[missileactive[mi]];
 		if (bmis->_miType != MIS_GUARDIAN) continue;
 		// if (bmis == mis) continue;
-		if (GetDunDistance2(dp, bmis->_mipos) <= 24 * 24 * 2 * 2)
+		if (GetDunDistance2(dp, bmis->_mipos) <= (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 9 / 16)
 			return false;
 	}
 	return true;
@@ -411,7 +411,7 @@ static bool PosOkRune(POS32 dp, POS32 sp)
 		MissileStruct* bmis = &missile[missileactive[mi]];
 		if (bmis->_miType < MIS_RUNEFIRE || bmis->_miType > MIS_RUNESTONE) continue;
 		// if (bmis == mis) continue;
-		if (GetDunDistance2(dp, bmis->_mipos) <= 12 * 12 * 2 * 2)
+		if (GetDunDistance2(dp, bmis->_mipos) <= (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 9 / 64)
 			return false;
 	}
 	return true;
