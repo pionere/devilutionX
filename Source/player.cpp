@@ -1139,7 +1139,7 @@ static void StartWalk2(int pnum, int dir, int vel)
 	dPlayer[px][py] = pnum + 1;
 }
 
-static void StartWalk(int pnum, int dir)
+static void PlrWalkDir(int pnum, int dir)
 {
 	int mwi;
 
@@ -2512,7 +2512,7 @@ static void CheckNewPath(int pnum)
 			if (plr._pDestAction == ACTION_WALKDIR) { // || (plr._pDestAction == ACTION_WALK && path[1] == DIR_NONE)) {
 				plr._pDestAction = ACTION_NONE;
 			}
-			StartWalk(pnum, dir);
+			PlrWalkDir(pnum, dir);
 		} else {
 			// walk is necessary while trying to repeat an action -> restore the mode
 			plr._pmode = plr._pVar1; // STAND_PREV_MODE
