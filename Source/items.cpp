@@ -2058,7 +2058,7 @@ void SpawnRndUseful(int x, int y, bool sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
-void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode)
+void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode)
 {
 	int idx, ii;
 	unsigned lvl;
@@ -2069,26 +2069,16 @@ void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mo
 		idx = RndTypeItem(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
-	if (mode != ICM_DELTA) {
-		ii = MAXITEMS;
-	} else {
-		if (numitems >= MAXITEMS)
-			return; // should never be the case
-		ii = itemactive[numitems];
-		numitems++;
-	}
+	// assert(mode != ICM_DELTA);
+	ii = MAXITEMS;
+
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
 
 	GetSuperItemSpace(x, y, ii);
 
-	if (mode != ICM_DELTA) {
-		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "CreateTypeItem expects ordered ICM_ values.");
-		if (mode >= ICM_SEND) {
-			NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
-		}
-	} else {
-		RespawnItem(ii, false);
-		DeltaAddItem(ii);
+	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnTypeItem expects ordered ICM_ values.");
+	if (mode >= ICM_SEND) {
+		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 	}
 }
 

@@ -3033,11 +3033,11 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_DIVINE:
 		mode = sendmsg ? ICM_SEND_FLIP : ICM_DUMMY;
 		if (currLvl._dLevelIdx <= DLV_CATHEDRAL3) {
-			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLMANA, mode);
-			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLHEAL, mode);
+			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLMANA, mode);
+			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLHEAL, mode);
 		} else {
-			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
-			CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
+			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
+			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
 		}
 		if (pnum != mypnum)
 			return;
@@ -3131,7 +3131,7 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 				const POS32 dp = DungeonToDunPos(xx, yy);
 				AddMissile(plr._ppos, dp, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
 			} else {
-				CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
+				SpawnTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
 			}
 		}
 		if (pnum != mypnum)
@@ -3194,7 +3194,7 @@ static void OperateBook2(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_ISCROL, os->_opos);
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateBookCase(int oi, bool sendmsg)
@@ -3218,7 +3218,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	static_assert(OBJ_BOOKCASEL < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R I.");
 	static_assert(OBJ_BOOKCASER < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R II.");
 	static_assert(OBJ_BOOKSHELFR > OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R III.");
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC,
+	SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC,
 		(os->_otype < OBJ_BOOKSHELFL || random_(0, 2)) ? IMISC_BOOK : IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
@@ -3264,7 +3264,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	static_assert(ITYPE_LARMOR + 1 == ITYPE_MARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors I.");
 	static_assert(ITYPE_MARMOR + 1 == ITYPE_HARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors II.");
 	itype = ITYPE_LARMOR + random_(0, currLvl._dLevel >= 24 ? 3 : (currLvl._dLevel >= 10 ? 2 : 1));
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnTypeItem(os->_ox, os->_oy, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
@@ -3335,7 +3335,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	static_assert(ITYPE_AXE + 1 == ITYPE_BOW, "OperateWeaponRack expects an ordered ITYPE_ for weapons II.");
 	static_assert(ITYPE_BOW + 1 == ITYPE_MACE, "OperateWeaponRack expects an ordered ITYPE_ for weapons III.");
 	SetRndSeed(os->_oRndSeed);
-	CreateTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 /**

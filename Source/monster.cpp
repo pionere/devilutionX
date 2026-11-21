@@ -2242,7 +2242,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	switch (mon->_muniqtype - 1) {
 	case UMT_GARBUD:
 		// assert(QuestStatus(Q_GARBUD));
-		CreateTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
 		//if (IsSfxStreaming(USFX_LAZ1)) // minitxtdata[TEXT_VILE13].sfxnr
