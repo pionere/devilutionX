@@ -171,7 +171,7 @@ void InitItems()
 {
 	// if (!currLvl._dSetLvl) {
 		if (QuestStatus(Q_ANVIL))
-			CreateQuestItemAt(IDI_ANVIL, 2 * pSetPieces[0]._spx + DBORDERX + 11, 2 * pSetPieces[0]._spy + DBORDERY + 11, ICM_DELTA);
+			PlaceQuestItemAt(IDI_ANVIL, 2 * pSetPieces[0]._spx + DBORDERX + 11, 2 * pSetPieces[0]._spy + DBORDERY + 11);
 		if (currLvl._dLevelIdx == questlist[Q_VEIL]._qdlvl + 1 && quests[Q_VEIL]._qactive != QUEST_NOTAVAIL)
 			PlaceQuestItemInArea(IDI_GLDNELIX, 5);
 		if (QuestStatus(Q_MUSHROOM))
@@ -2099,20 +2099,16 @@ void PlaceGoldItem(int x, int y)
  * @param idx: the index of the item(item_indexes enum)
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
- * @param mode icreate_mode except for ICM_SEND_FLIP
  */
-void CreateQuestItemAt(int idx, int x, int y, int mode)
+void PlaceQuestItemAt(int idx, int x, int y)
 {
 	int ii;
 
-	if (mode != ICM_DELTA) {
-		ii = MAXITEMS;
-	} else {
-		if (numitems >= MAXITEMS)
-			return; // should never be the case
-		ii = itemactive[numitems];
-		numitems++;
-	}
+	if (numitems >= MAXITEMS)
+		return; // should never be the case
+	ii = itemactive[numitems];
+	numitems++;
+
 	SetItemData(ii, idx);
 	items[ii]._iCreateInfo = items_get_currlevel();
 	// set Seed for the bloodstones, otherwise quick successive pickup and use
@@ -2121,14 +2117,8 @@ void CreateQuestItemAt(int idx, int x, int y, int mode)
 
 	SetItemLoc(ii, x, y);
 
-	if (mode != ICM_DELTA) {
-		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "CreateQuestItemAt expects ordered ICM_ values.");
-		if (mode >= ICM_SEND)
-			NetSendCmdSpawnItem(/*mode == ICM_SEND ? false : true*/false);
-	} else {
-		RespawnItem(ii, false);
-		DeltaAddItem(ii);
-	}
+	RespawnItem(ii, false);
+	DeltaAddItem(ii);
 }
 
 /**

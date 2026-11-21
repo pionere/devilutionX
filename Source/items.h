@@ -51,7 +51,7 @@ void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mod
 void PlaceGoldItem(int x, int y);
 void RecreateItem(int32_t iseed, uint16_t wIndex, uint16_t wCI);
 void PlaceQuestItemInArea(int idx, int areasize);
-void CreateQuestItemAt(int idx, int x, int y, int mode);
+void PlaceQuestItemAt(int idx, int x, int y);
 void SpawnQuestItemAt(int idx, int x, int y, int mode);
 void PickQuestItemAt(int idx, int x, int y, int mode);
 #ifdef HELLFIRE
