@@ -1980,7 +1980,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			return;
 		quality = CFDQ_NORMAL;
 	}
-	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND : ICM_DUMMY);
+	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 void CreateRndItem(int x, int y, unsigned quality, int mode)
