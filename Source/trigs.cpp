@@ -157,55 +157,21 @@ void InitView(int entry)
 	//ScrollInfo._sdir = SDIR_NONE;
 	InitScene();
 
-	if (entry == ENTRY_PORTLVL) {
-		GetPortalLvlPos();
-		return;
-	}
-
-	if (currLvl._dLevelIdx == DLV_TOWN) {
-		if (entry == ENTRY_MAIN) {
-			// New game
-			myview.subtile = { 65 + DBORDERX, 58 + DBORDERY };
-		//} else if (entry == ENTRY_PREV) { // Cathedral
-		//	myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
-		} else if (entry == ENTRY_TWARPUP) {
-			switch (gbTWarpFrom) {
-			case TWARP_CATHEDRAL:
-				myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
-				break;
-			case TWARP_CATACOMB:
-				myview.subtile = { 39 + DBORDERX, 12 + DBORDERY };
-				break;
-			case TWARP_CAVES:
-				myview.subtile = { 8 + DBORDERX, 59 + DBORDERY };
-				break;
-			case TWARP_HELL:
-				myview.subtile = { 30 + DBORDERX, 70 + DBORDERY };
-				break;
-#ifdef HELLFIRE
-			case TWARP_CRYPT:
-				myview.subtile = { 26 + DBORDERX, 15 + DBORDERY };
-				break;
-			case TWARP_NEST:
-				myview.subtile = { 69 + DBORDERX, 52 + DBORDERY };
-				break;
-#endif
-			default:
-				ASSUME_UNREACHABLE
-				break;
-			}
-		} else if (entry == ENTRY_RETOWN) {
-			// Restart in Town
-			myview.subtile = { 63 + DBORDERX, 70 + DBORDERY };
-		}
-		return;
-	}
-
 	switch (entry) {
 	case ENTRY_MAIN:
+		if (currLvl._dLevelIdx == DLV_TOWN) {
+			// New game
+			myview.subtile = { 65 + DBORDERX, 58 + DBORDERY };
+			return;
+		}
 		type = DWARP_ENTRY;
 		break;
 	case ENTRY_PREV:
+		// if (currLvl._dLevelIdx == DLV_TOWN) {
+		//	// Cathedral
+		//	myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
+		//	return;
+		// }
 		type = DWARP_EXIT;
 		break;
 	case ENTRY_SETLVL:
@@ -227,18 +193,50 @@ void InitView(int entry)
 		}
 		break;
 	case ENTRY_LOAD:    // set from the save file
-	case ENTRY_PORTLVL: // should not happen
+		return;
+	case ENTRY_PORTLVL:
+		GetPortalLvlPos();
 		return;
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;
 		// if (pWarps[type]._wtype == WRPT_NONE)
 		//	type = DWARP_ENTRY; // MAIN vs TWARPDN from town
 		break;
-	case ENTRY_TWARPUP: // should not happen
-	case ENTRY_RETOWN:  // should not happen
+	case ENTRY_TWARPUP:
+		assert(currLvl._dLevelIdx == DLV_TOWN);
+		switch (gbTWarpFrom) {
+		case TWARP_CATHEDRAL:
+			myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
+			break;
+		case TWARP_CATACOMB:
+			myview.subtile = { 39 + DBORDERX, 12 + DBORDERY };
+			break;
+		case TWARP_CAVES:
+			myview.subtile = { 8 + DBORDERX, 59 + DBORDERY };
+			break;
+		case TWARP_HELL:
+			myview.subtile = { 30 + DBORDERX, 70 + DBORDERY };
+			break;
+#ifdef HELLFIRE
+		case TWARP_CRYPT:
+			myview.subtile = { 26 + DBORDERX, 15 + DBORDERY };
+			break;
+		case TWARP_NEST:
+			myview.subtile = { 69 + DBORDERX, 52 + DBORDERY };
+			break;
+#endif
+		default:
+			ASSUME_UNREACHABLE
+			break;
+		}
+		return;
+	case ENTRY_RETOWN:
+		assert(currLvl._dLevelIdx == DLV_TOWN);
+		// Restart in Town
+		myview.subtile = { 63 + DBORDERX, 70 + DBORDERY };
 		return;
 	}
-
+	assert(currLvl._dLevelIdx != DLV_TOWN);
 	myview.subtile = TrigEntryPos(type);
 }
 
