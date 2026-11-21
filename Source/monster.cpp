@@ -60,7 +60,7 @@ static_assert(MAXMONSTERS <= UCHAR_MAX, "Leader of monsters are stored in a BYTE
 #define MON_WALK_DELAY 20
 
 /** Check if the monster just finished a WALK (STAND_PREV_MODE, STAND_TICK)*/
-#define MON_JUST_WALKED ((mon->_mVar1 == MM_WALK || mon->_mVar1 == MM_WALK2) && mon->_mVar2 == 0)
+#define MON_JUST_WALKED (mon->_mVar1 == MM_WALK && mon->_mVar2 == 0)
 
 /** Standard MAI check if the monster has other things to do. */
 #define MON_ACTIVE (mon->_mmode != MM_STAND)
@@ -1856,12 +1856,15 @@ static void MonStartDelay(int mnum, int len)
 }
 
 /**
- * @brief Starting a move action towards NW, N, NE or W
+ * @brief Starting a move action
  */
-static void MonStartWalk1(int mnum, int dir, int vel)
+static void MonStartWalk(int mnum, int dir)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int xvel, yvel, mx, my;
+	int vel, xvel, yvel, mx, my;
+	// assert(mon->_mAnimFrameLen == 1);
+	vel = MWVel[mon->_mAnimLen - 1];
+	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonStartWalk relies on fix width/height ratio of the floor-tile.");
 
 	xvel = offset_x[dir] * vel;
 	yvel = offset_y[dir] * vel;
@@ -1880,34 +1883,6 @@ static void MonStartWalk1(int mnum, int dir, int vel)
 	my += offset_y[dir];
 	mon->_mfutx = mx;
 	mon->_mfuty = my;
-	dMonster[mx][my] = mnum + 1;
-}
-
-/**
- * @brief Starting a move action towards SW, S, SE or E
- */
-static void MonStartWalk2(int mnum, int dir, int vel)
-{
-	MonsterStruct* mon = &monsters[mnum];
-	int xvel, yvel, mx, my;
-
-	xvel = offset_x[dir] * vel;
-	yvel = offset_y[dir] * vel;
-
-	mon->_mmode = MM_WALK2;
-	mon->_mVar6 = mon->_mVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the monster in the X-direction
-	mon->_mVar7 = mon->_mVar5 = yvel; // WALK_YVEL_MAX, WALK_YVEL : velocity of the monster in the Y-direction
-	//mon->_mVar8 = 0;                // Value used to measure progress for moving from one tile to another
-
-	mx = mon->_mx;
-	my = mon->_my;
-	assert(mon->_moldx == mx);
-	assert(mon->_moldy == my);
-	assert(dMonster[mx][my] == mnum + 1);
-	mx += offset_x[dir];
-	my += offset_y[dir];
-	mon->_mx = mon->_mfutx = mx;
-	mon->_my = mon->_mfuty = my;
 	dMonster[mx][my] = mnum + 1;
 }
 
@@ -2026,7 +2001,7 @@ static void MonStopWalk(int mnum)
 	int x, y;
 
 	// assert(mon->_mmode != MM_STONE);
-	if (mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2)
+	if (mon->_mmode != MM_WALK)
 		return;
 
 	x = (unsigned)mon->_mpos.x / DUN_WIDTH;
@@ -2910,26 +2885,7 @@ static void MonWalkDir(int mnum, int md)
 	if (monsters[mnum]._mType == MT_FLESTHNG)
 		PlayMonSfx(mnum, MS_SPECIAL);
 #endif
-	// assert(monsters[mnum]._mAnimFrameLen == 1);
-	mwi = MWVel[monsters[mnum]._mAnimLen - 1];
-	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
-	switch (md) {
-	case DIR_N:
-	case DIR_NE:
-	case DIR_W:
-	case DIR_NW:
-		MonStartWalk1(mnum, md, mwi);
-		break;
-	case DIR_E:
-	case DIR_SE:
-	case DIR_S:
-	case DIR_SW:
-		MonStartWalk2(mnum, md, mwi);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	MonStartWalk(mnum, md);
 }
 
 static void ActivateSpawn(int mnum, int x, int y, int dir)
@@ -4802,7 +4758,6 @@ void ProcessMonsters()
 				raflag = MonDoStand(mnum);
 				break;
 			case MM_WALK:
-			case MM_WALK2:
 				raflag = MonDoWalk(mnum);
 				break;
 			case MM_ATTACK:
@@ -4944,7 +4899,6 @@ void SyncMonsterAnim(int mnum)
 		mode = mon->_mVar3;
 	switch (mode) {
 	case MM_WALK:
-	case MM_WALK2:
 		anim = MA_WALK;
 		break;
 	case MM_ATTACK:
@@ -4991,7 +4945,7 @@ void MonHinder(int mnum, int spllvl, unsigned tick)
 		dev_fatal("MonHinder: Invalid monster %d", mnum);
 	}
 	mon = &monsters[mnum];
-	if ((mon->_mmode < MM_WALK || mon->_mmode > MM_WALK2) && mon->_mmode != MM_CHARGE)
+	if (mon->_mmode != MM_WALK && mon->_mmode != MM_CHARGE)
 		return;
 
 	effect = spllvl * 6 - mon->_mLevel;

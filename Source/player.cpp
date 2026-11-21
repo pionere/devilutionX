@@ -765,14 +765,9 @@ void InitLvlPlayer(int pnum, bool entering)
 		pdir = plr._pdir;
 		if (plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
 			dPlayer[px][py] = pnum + 1;
-			if (plr._pmode == PM_WALK || plr._pmode == PM_WALK2) {
-				if (plr._pmode == MM_WALK) {
-					pwx = px + offset_x[pdir];
-					pwy = py + offset_y[pdir];
-				} else {
-					pwx = px - offset_x[pdir];
-					pwy = py - offset_y[pdir];
-				}
+			if (plr._pmode == PM_WALK) {
+				pwx = px + offset_x[pdir];
+				pwy = py + offset_y[pdir];
 				dPlayer[pwx][pwy] = pnum + 1;
 			}
 		}
@@ -1088,9 +1083,15 @@ static void PlrChangeOffset(int pnum)
 /**
  * @brief Start a move action
  */
-static void StartWalk1(int pnum, int dir, int vel)
+static void PlrStartWalk(int pnum, int dir)
 {
-	int xvel, yvel, px, py;
+	int vel, xvel, yvel, px, py;
+
+	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
+	assert(PLR_WALK_ANIMLEN < lengthof(MWVel));
+	assert(PLR_WALK_ANIMLEN == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
+	assert(PlrAnimFrameLens[PA_WALK] == 1);
+	vel = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 
 	xvel = offset_x[dir] * vel;
 	yvel = offset_y[dir] * vel;
@@ -1112,59 +1113,9 @@ static void StartWalk1(int pnum, int dir, int vel)
 	dPlayer[px][py] = pnum + 1;
 }
 
-/**
- * @brief Start a move action and shift to the future position
- */
-static void StartWalk2(int pnum, int dir, int vel)
-{
-	int xvel, yvel, px, py;
-
-	xvel = offset_x[dir] * vel;
-	yvel = offset_y[dir] * vel;
-
-	plr._pmode = PM_WALK2;
-	plr._pVar6 = plr._pVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the player in the X-direction
-	plr._pVar7 = plr._pVar5 = yvel; // WALK_YVEL_MAX, WALK_YVEL : velocity of the player in the Y-direction
-	plr._pVar8 = 0;                 // WALK_TICK : speed helper
-
-	px = plr._px;
-	py = plr._py;
-	assert(plr._poldx == px);
-	assert(plr._poldy == py);
-	assert(dPlayer[px][py] == pnum + 1);
-	px += offset_x[dir];
-	py += offset_y[dir];
-	plr._px = plr._pfutx = px; // Move player to the next tile to maintain correct render order
-	plr._py = plr._pfuty = py;
-	dPlayer[px][py] = pnum + 1;
-}
-
 static void PlrWalkDir(int pnum, int dir)
 {
-	int mwi;
-
-	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "StartWalk relies on fix width/height ratio of the floor-tile.");
-	assert(PLR_WALK_ANIMLEN < lengthof(MWVel));
-	assert(PLR_WALK_ANIMLEN == 8); // StartWalk relies on fix walk-animation length to calculate the x/y velocity
-	assert(PlrAnimFrameLens[PA_WALK] == 1);
-	mwi = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
-	switch (dir) {
-	case DIR_N:
-	case DIR_NE:
-	case DIR_W:
-	case DIR_NW:
-		StartWalk1(pnum, dir, mwi);
-		break;
-	case DIR_E:
-	case DIR_SE:
-	case DIR_S:
-	case DIR_SW:
-		StartWalk2(pnum, dir, mwi);
-		break;
-	default:
-		ASSUME_UNREACHABLE
-		break;
-	}
+	PlrStartWalk(pnum, dir);
 
 	if (!(plr._pGFXLoad & PGF_WALK)) {
 		LoadPlrGFX(pnum, PGF_WALK);
@@ -2748,7 +2699,6 @@ void ProcessPlayers()
 			case PM_STAND:
 				break;
 			case PM_WALK:
-			case PM_WALK2:
 				PlrDoWalk(pnum);
 				break;
 			case PM_CHARGE:
@@ -2798,7 +2748,7 @@ void PlrHinder(int pnum, int spllvl, unsigned tick)
 	if ((unsigned)pnum >= MAX_PLRS) {
 		dev_fatal("PlrHinder: illegal player %d", pnum);
 	}
-	if ((plr._pmode < PM_WALK || plr._pmode > PM_WALK2 /*|| plr._pAnimFrame == plr._pAnimLen*/) && plr._pmode != PM_CHARGE)
+	if ((plr._pmode != PM_WALK /*|| plr._pAnimFrame == plr._pAnimLen*/) && plr._pmode != PM_CHARGE)
 		return;
 	effect = spllvl * 4 - plr._pLevel;
 	effect = effect > 10 ? 2 : (effect > 0 ? 3 : (effect > -10 ? 4 : 0));
@@ -2916,7 +2866,6 @@ void SyncPlrAnim(int pnum)
 		animIdx = PGX_STAND;
 		break;
 	case PM_WALK:
-	case PM_WALK2:
 	case PM_CHARGE: // TODO: this should be PGX_MAGIC, but does not really matter...
 		animIdx = PGX_WALK;
 		break;

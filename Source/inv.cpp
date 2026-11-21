@@ -528,7 +528,7 @@ bool WeaponAutoPlace(int pnum, ItemStruct* is, bool saveflag)
 	if (!is->_iStatFlag || is->_iClass != ICLASS_WEAPON)
 		return false;
 
-	if (plr._pmode > PM_WALK2)
+	if (plr._pmode > PM_WALK)
 		return false;
 
 	if ((plr._pgfxnum & 0xF) != ANIM_ID_UNARMED && (plr._pgfxnum & 0xF) != ANIM_ID_UNARMED_SHIELD)

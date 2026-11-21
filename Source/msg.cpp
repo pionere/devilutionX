@@ -1545,24 +1545,14 @@ void LevelDeltaLoad()
 			net_assert(IN_DUNGEON_AREA(px, py));
 			mi = plr._pmode;
 			net_assert(mi < NUM_PLR_MODES);
-			if (mi == PM_WALK || mi == PM_WALK2) {
-				if (mi == PM_WALK) {
-					plr._poldx = px;
-					plr._poldy = py;
+			if (mi == PM_WALK) {
+				plr._poldx = px;
+				plr._poldy = py;
 
-					px += offset_x[pdir];
-					py += offset_y[pdir];
-					plr._pfutx = px;
-					plr._pfuty = py;
-				} else {
-					plr._pfutx = px;
-					plr._pfuty = py;
-
-					px -= offset_x[pdir];
-					py -= offset_y[pdir];
-					plr._poldx = px;
-					plr._poldy = py;
-				}
+				px += offset_x[pdir];
+				py += offset_y[pdir];
+				plr._pfutx = px;
+				plr._pfuty = py;
 				net_assert(IN_DUNGEON_AREA(px, py));
 			} else {
 				plr._pfutx = plr._poldx = px;
@@ -1643,24 +1633,14 @@ void LevelDeltaLoad()
 			mx = mon->_mx;
 			my = mon->_my;
 			net_assert(IN_ACTIVE_AREA(mx, my));
-			if (mi == MM_WALK || mi == MM_WALK2) {
-				if (mi == MM_WALK) {
-					mon->_moldx = mx;
-					mon->_moldy = my;
+			if (mi == MM_WALK) {
+				mon->_moldx = mx;
+				mon->_moldy = my;
 
-					mwx = mx + offset_x[mdir];
-					mwy = my + offset_y[mdir];
-					mon->_mfutx = mwx;
-					mon->_mfuty = mwy;
-				} else {
-					mon->_mfutx = mx;
-					mon->_mfuty = my;
-
-					mwx = mx - offset_x[mdir];
-					mwy = my - offset_y[mdir];
-					mon->_moldx = mwx;
-					mon->_moldy = mwy;
-				}
+				mwx = mx + offset_x[mdir];
+				mwy = my + offset_y[mdir];
+				mon->_mfutx = mwx;
+				mon->_mfuty = mwy;
 				net_assert(IN_ACTIVE_AREA(mwx, mwy));
 				// net_assert(PosOkMonster(mnum, mwx, mwy));
 			} else {
@@ -1670,7 +1650,7 @@ void LevelDeltaLoad()
 			}
 			// InitLvlMonster
 			dMonster[mx][my] = mnum + 1;
-			if (mi == MM_WALK || mi == MM_WALK2) {
+			if (mi == MM_WALK) {
 				dMonster[mwx][mwy] = mnum + 1;
 			}
 			// initialize vision of the minions

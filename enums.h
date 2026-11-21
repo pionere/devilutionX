@@ -3977,8 +3977,7 @@ typedef enum _speed {
 
 typedef enum MON_MODE {
 	MM_STAND,
-	MM_WALK, // Movement towards N, NW, NE or W
-	MM_WALK2, // Movement towards S, SW, SE or E
+	MM_WALK,
 	MM_ATTACK,
 	MM_GOTHIT,
 	MM_DEATH,
@@ -4026,8 +4025,7 @@ typedef enum MYPLR_DEATH_MODE {
 
 typedef enum PLR_MODE {
 	PM_STAND,
-	PM_WALK, // Movement towards N, NW, NE or W
-	PM_WALK2, // Movement towards S, SW, SE or E
+	PM_WALK,
 	PM_CHARGE,
 	PM_ATTACK,
 	PM_RATTACK,

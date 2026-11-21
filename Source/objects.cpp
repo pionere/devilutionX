@@ -1767,7 +1767,7 @@ static void UpdateDoorBlocks(ObjectStruct* os)
 			dist = GetDunDistance2(plr._ppos, os->_opos);
 			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT))
 				continue;
-			if (dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && plr._pmode != PM_WALK && plr._pmode != PM_WALK2)
+			if (dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && plr._pmode != PM_WALK)
 				continue;
 			blocked = true;
 		}
@@ -1778,7 +1778,7 @@ static void UpdateDoorBlocks(ObjectStruct* os)
 			dist = GetDunDistance2(mon->_mpos, os->_opos);
 			if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT))
 				continue;
-			if (dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && mon->_mmode != MM_WALK && mon->_mmode != MM_WALK2)
+			if (dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && mon->_mmode != MM_WALK)
 				continue;
 			blocked = true;
 		}
