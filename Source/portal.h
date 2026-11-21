@@ -21,7 +21,7 @@ void AddInTownPortal(int pidx);
 void ActivatePortal(int pidx, int x, int y, int lvl);
 void DeactivatePortal(int pidx);
 void UseCurrentPortal(int pidx);
-void GetPortalLvlPos();
+POS32 GetPortalLvlPos();
 bool PosOkPortal(int x, int y);
 
 #ifdef __cplusplus

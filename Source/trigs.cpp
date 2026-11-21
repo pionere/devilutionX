@@ -195,7 +195,7 @@ void InitView(int entry)
 	case ENTRY_LOAD:    // set from the save file
 		return;
 	case ENTRY_PORTLVL:
-		GetPortalLvlPos();
+		myview.subtile = GetPortalLvlPos();
 		return;
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;

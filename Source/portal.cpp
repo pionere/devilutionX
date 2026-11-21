@@ -93,15 +93,17 @@ void UseCurrentPortal(int pidx)
 	portalindex = pidx;
 }
 
-void GetPortalLvlPos()
+POS32 GetPortalLvlPos()
 {
+	POS32 pos;
 	if (currLvl._dLevelIdx == DLV_TOWN) {
-		myview.subtile.x = WARPDROPX(portalindex);
-		myview.subtile.y = WARPDROPY(portalindex);
+		pos.x = WARPDROPX(portalindex);
+		pos.y = WARPDROPY(portalindex);
 	} else {
-		myview.subtile.x = portals[portalindex]._rx;
-		myview.subtile.y = portals[portalindex]._ry;
+		pos.x = portals[portalindex]._rx;
+		pos.y = portals[portalindex]._ry;
 	}
+	return pos;
 }
 
 bool PosOkPortal(int x, int y)
