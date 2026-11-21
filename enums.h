@@ -893,7 +893,6 @@ typedef enum icreateinfo_flag {
 } icreateinfo_flag;
 
 typedef enum icreate_mode {
-	ICM_DELTA,    // floor item, generated with the level
 	ICM_DUMMY,    // spawn item, discarded
 	ICM_SEND,     // spawn item on the floor, sent to (other) players
 	ICM_SEND_FLIP // spawn item, sent to (other) players

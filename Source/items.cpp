@@ -2058,7 +2058,6 @@ void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mod
 		idx = RndTypeItem(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
-	// assert(mode != ICM_DELTA);
 	ii = MAXITEMS;
 
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
@@ -2134,28 +2133,17 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 {
 	int ii;
 
-	//if (mode != ICM_DELTA) {
-		ii = MAXITEMS;
-	//} else {
-	//	if (numitems >= MAXITEMS)
-	//		return; // should never be the case
-	//	ii = itemactive[numitems];
-	//	numitems++;
-	//}
+	ii = MAXITEMS;
+
 	SetItemData(ii, idx);
 	items[ii]._iCreateInfo = items_get_currlevel();
 	items[ii]._iSeed = NextRndSeed();
 
 	GetSuperItemSpace(x, y, ii);
 
-	//if (mode != ICM_DELTA) {
-		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnQuestItemAt expects ordered ICM_ values.");
-		if (mode >= ICM_SEND)
-			NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
-	//} else {
-	//	RespawnItem(ii, false);
-	//	DeltaAddItem(ii);
-	//}
+	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnQuestItemAt expects ordered ICM_ values.");
+	if (mode >= ICM_SEND)
+		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 }
 
 /**
