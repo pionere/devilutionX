@@ -1937,7 +1937,7 @@ void SpawnUnique(int uid, int x, int y, int mode)
 		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 }
 
-static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, int mode)
+static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, bool sendmsg)
 {
 	int idx, ii;
 
@@ -1946,26 +1946,14 @@ static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, int mo
 	else
 		idx = RndAnyItem(lvl);
 
-	if (mode != ICM_DELTA) {
-		ii = MAXITEMS;
-	} else {
-		if (numitems >= MAXITEMS)
-			return; // should never be the case
-		ii = itemactive[numitems];
-		numitems++;
-	}
+	ii = MAXITEMS;
+
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
 
 	GetSuperItemSpace(x, y, ii);
 
-	if (mode != ICM_DELTA) {
-		if (mode >= ICM_SEND) {
-			// assert(mode == ICM_SEND_FLIP);
-			NetSendCmdSpawnItem(true);
-		}
-	} else {
-		RespawnItem(ii, false);
-		DeltaAddItem(ii);
+	if (sendmsg) {
+		NetSendCmdSpawnItem(true);
 	}
 }
 
@@ -1980,7 +1968,7 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			return;
 		quality = CFDQ_NORMAL;
 	}
-	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg);
 }
 
 void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg)
@@ -1989,7 +1977,7 @@ void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg)
 
 	lvl = items_get_currlevel();
 
-	SpawnRndLvlItem(quality, lvl, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnRndLvlItem(quality, lvl, x, y, sendmsg);
 }
 
 void PlaceRndItem(int x, int y, unsigned quality)
