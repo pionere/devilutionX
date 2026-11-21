@@ -48,7 +48,7 @@ void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg);
 void PlaceRndItem(int x, int y, unsigned quality);
 void SpawnRndUseful(int x, int y, bool sendmsg);
 void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode);
-void PlaceTypeItem(int x, int y, unsigned quality, int itype, int imisc);
+void PlaceGoldItem(int x, int y);
 void RecreateItem(int32_t iseed, uint16_t wIndex, uint16_t wCI);
 void PlaceQuestItemInArea(int idx, int areasize);
 void CreateQuestItemAt(int idx, int x, int y, int mode);

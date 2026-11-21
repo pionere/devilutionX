@@ -2070,17 +2070,15 @@ void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mod
 	}
 }
 
-void PlaceTypeItem(int x, int y, unsigned quality, int itype, int imisc)
+void PlaceGoldItem(int x, int y)
 {
 	int idx, ii;
-	unsigned lvl;
+	unsigned quality, lvl;
 
 	lvl = items_get_currlevel();
 
-	if (itype != ITYPE_GOLD)
-		idx = RndTypeItem(itype, imisc, lvl);
-	else
-		idx = IDI_GOLD;
+	idx = IDI_GOLD;
+	quality = CFDQ_NORMAL;
 
 	if (numitems >= MAXITEMS)
 		return; // should never be the case

@@ -613,7 +613,7 @@ static void Theme_Treasure(int themeId)
 			// assert(dTransVal[xx][yy] == theme._tsTransVal);
 			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				if (random_low(0, treasrnd) == 0) {
-					PlaceTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_GOLD, IMISC_NONE);
+					PlaceGoldItem(xx, yy);
 				} else if (random_low(0, treasrnd) == 0) {
 					PlaceRndItem(xx, yy, CFDQ_NORMAL);
 				}
