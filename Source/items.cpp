@@ -2137,7 +2137,7 @@ void CreateQuestItemAt(int idx, int x, int y, int mode)
  * @param idx: the index of the item(item_indexes enum)
  * @param x tile-coordinate of the target location
  * @param y tile-coordinate of the target location
- * @param mode icreate_mode (ICM_SEND_FLIP or ICM_DUMMY)
+ * @param mode icreate_mode
  */
 void SpawnQuestItemAt(int idx, int x, int y, int mode)
 {
@@ -2160,8 +2160,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 	//if (mode != ICM_DELTA) {
 		static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnQuestItemAt expects ordered ICM_ values.");
 		if (mode >= ICM_SEND)
-	//		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
-			NetSendCmdSpawnItem(/*mode == ICM_SEND ? false :*/ true);
+			NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 	//} else {
 	//	RespawnItem(ii, false);
 	//	DeltaAddItem(ii);
