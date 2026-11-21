@@ -1065,7 +1065,7 @@ void CreatePlrItems(int pnum)
 }
 
 /**
- * Check the location if an item can be placed there while generating the dungeon.
+ * Check the location if an item can be placed there in 'runtime'.
  */
 static bool CanPut(int x, int y)
 {
@@ -1106,7 +1106,7 @@ static bool CanPut(int x, int y)
 }
 
 /**
- * Check the location if an item can be placed there in 'runtime'.
+ * Check the location if an item can be placed there in 'runtime' avoiding players and monsters.
  */
 bool ItemSpaceOk(int x, int y)
 {
