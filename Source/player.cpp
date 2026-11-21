@@ -1088,9 +1088,12 @@ static void PlrChangeOffset(int pnum)
 /**
  * @brief Start a move action
  */
-static void StartWalk1(int pnum, int xvel, int yvel, int dir)
+static void StartWalk1(int pnum, int dir, int vel)
 {
-	int px, py;
+	int xvel, yvel, px, py;
+
+	xvel = offset_x[dir] * vel;
+	yvel = offset_y[dir] * vel;
 
 	plr._pmode = PM_WALK;
 	plr._pVar6 = plr._pVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the player in the X-direction
@@ -1112,9 +1115,12 @@ static void StartWalk1(int pnum, int xvel, int yvel, int dir)
 /**
  * @brief Start a move action and shift to the future position
  */
-static void StartWalk2(int pnum, int xvel, int yvel, int dir)
+static void StartWalk2(int pnum, int dir, int vel)
 {
-	int px, py;
+	int xvel, yvel, px, py;
+
+	xvel = offset_x[dir] * vel;
+	yvel = offset_y[dir] * vel;
 
 	plr._pmode = PM_WALK2;
 	plr._pVar6 = plr._pVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the player in the X-direction
@@ -1144,28 +1150,28 @@ static void StartWalk(int pnum, int dir)
 	mwi = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, -mwi, -mwi, dir);
+		StartWalk1(pnum, dir, mwi);
 		break;
 	case DIR_NE:
-		StartWalk1(pnum, 0, -mwi, dir);
+		StartWalk1(pnum, dir, mwi);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, mwi, -mwi, dir);
+		StartWalk2(pnum, dir, mwi);
 		break;
 	case DIR_SE:
-		StartWalk2(pnum, mwi, 0, dir);
+		StartWalk2(pnum, dir, mwi);
 		break;
 	case DIR_S:
-		StartWalk2(pnum, mwi, mwi, dir);
+		StartWalk2(pnum, dir, mwi);
 		break;
 	case DIR_SW:
-		StartWalk2(pnum, 0, mwi, dir);
+		StartWalk2(pnum, dir, mwi);
 		break;
 	case DIR_W:
-		StartWalk1(pnum, -mwi, mwi, dir);
+		StartWalk1(pnum, dir, mwi);
 		break;
 	case DIR_NW:
-		StartWalk1(pnum, -mwi, 0, dir);
+		StartWalk1(pnum, dir, mwi);
 		break;
 	default:
 		ASSUME_UNREACHABLE

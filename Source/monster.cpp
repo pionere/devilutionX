@@ -1858,10 +1858,13 @@ static void MonStartDelay(int mnum, int len)
 /**
  * @brief Starting a move action towards NW, N, NE or W
  */
-static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
+static void MonStartWalk1(int mnum, int dir, int vel)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int mx, my;
+	int xvel, yvel, mx, my;
+
+	xvel = offset_x[dir] * vel;
+	yvel = offset_y[dir] * vel;
 
 	mon->_mmode = MM_WALK;
 	mon->_mVar6 = mon->_mVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the monster in the X-direction
@@ -1883,10 +1886,13 @@ static void MonStartWalk1(int mnum, int xvel, int yvel, int dir)
 /**
  * @brief Starting a move action towards SW, S, SE or E
  */
-static void MonStartWalk2(int mnum, int xvel, int yvel, int dir)
+static void MonStartWalk2(int mnum, int dir, int vel)
 {
 	MonsterStruct* mon = &monsters[mnum];
-	int mx, my;
+	int xvel, yvel, mx, my;
+
+	xvel = offset_x[dir] * vel;
+	yvel = offset_y[dir] * vel;
 
 	mon->_mmode = MM_WALK2;
 	mon->_mVar6 = mon->_mVar4 = xvel; // WALK_XVEL_MAX, WALK_XVEL : velocity of the monster in the X-direction
@@ -2909,28 +2915,28 @@ static void MonWalkDir(int mnum, int md)
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
 	case DIR_N:
-		MonStartWalk1(mnum, -mwi, -mwi, md);
+		MonStartWalk1(mnum, md, mwi);
 		break;
 	case DIR_NE:
-		MonStartWalk1(mnum, 0, -mwi, md);
+		MonStartWalk1(mnum, md, mwi);
 		break;
 	case DIR_E:
-		MonStartWalk2(mnum, mwi, -mwi, md);
+		MonStartWalk2(mnum, md, mwi);
 		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, mwi, 0, md);
+		MonStartWalk2(mnum, md, mwi);
 		break;
 	case DIR_S:
-		MonStartWalk2(mnum, mwi, mwi, md);
+		MonStartWalk2(mnum, md, mwi);
 		break;
 	case DIR_SW:
-		MonStartWalk2(mnum, 0, mwi, md);
+		MonStartWalk2(mnum, md, mwi);
 		break;
 	case DIR_W:
-		MonStartWalk1(mnum, -mwi, mwi, md);
+		MonStartWalk1(mnum, md, mwi);
 		break;
 	case DIR_NW:
-		MonStartWalk1(mnum, -mwi, 0, md);
+		MonStartWalk1(mnum, md, mwi);
 		break;
 	default:
 		ASSUME_UNREACHABLE
