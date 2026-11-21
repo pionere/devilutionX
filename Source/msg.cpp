@@ -1671,7 +1671,7 @@ void LevelDeltaLoad()
 			// InitLvlMonster
 			dMonster[mx][my] = mnum + 1;
 			if (mi == MM_WALK || mi == MM_WALK2) {
-				dMonster[mwx][mwy] = -(mnum + 1);
+				dMonster[mwx][mwy] = mnum + 1;
 			}
 			// initialize vision of the minions
 			if (mi == MM_DEATH) {
