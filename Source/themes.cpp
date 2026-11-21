@@ -424,7 +424,7 @@ static void PlaceThemeMonsts(const ThemeStruct &theme)
 	for (xx = theme._tsx1; xx < theme._tsx2; xx++) {
 		for (yy = theme._tsy1; yy < theme._tsy2; yy++) {
 			// assert(dTransVal[xx][yy] == theme._tsTransVal);
-			if (/*dTransVal[xx][yy] == tv &&*/ (nSolidTable[dPiece[xx][yy]] | dItem[xx][yy] | dObject[xx][yy]) == 0) {
+			if (/*dTransVal[xx][yy] == tv &&*/ (nSolidTable[dPiece[xx][yy]] | dObject[xx][yy]) == 0) {
 				if (random_low(0, rndfrq) == 0) {
 					AddMonster(mtidx, xx, yy);
 				}
