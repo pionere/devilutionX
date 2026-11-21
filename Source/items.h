@@ -44,7 +44,7 @@ void SetItemData(int ii, int idata);
 void SetItemSData(ItemStruct* is, int idata);
 void SpawnUnique(int uid, int x, int y, int mode);
 void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
-void CreateRndItem(int x, int y, unsigned quality, int mode);
+void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg);
 void PlaceRndItem(int x, int y, unsigned quality);
 void SpawnRndUseful(int x, int y, bool sendmsg);
 void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode);

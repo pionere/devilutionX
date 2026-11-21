@@ -1983,13 +1983,13 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
-void CreateRndItem(int x, int y, unsigned quality, int mode)
+void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg)
 {
 	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
-	SpawnRndLvlItem(quality, lvl, x, y, mode);
+	SpawnRndLvlItem(quality, lvl, x, y, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 void PlaceRndItem(int x, int y, unsigned quality)

@@ -2344,7 +2344,7 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		for (k = i; k > 1; k--)
 			NextRndSeed();
 		if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
-			CreateRndItem(os->_ox, os->_oy, os->_oVar2 == 8 ? CFDQ_GOOD : CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			SpawnRndItem(os->_ox, os->_oy, os->_oVar2 == 8 ? CFDQ_GOOD : CFDQ_NORMAL, sendmsg);
 		else
 			SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 	}
@@ -2488,7 +2488,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
-		CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg);
 	if (os->_oVar1 >= 8) // SARC_SKELE
 		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_NONE);
 }
@@ -3238,7 +3238,7 @@ static void OperateDecap(int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
-	CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg);
 }
 
 static void OperateArmorStand(int oi, bool sendmsg)
@@ -3525,7 +3525,7 @@ static void OperateBarrel(int oi, bool sendmsg)
 			if (os->_oVar3 == 0) // BARREL_ITEM_TYPE
 				SpawnRndUseful(os->_ox, os->_oy, sendmsg);
 			else
-				CreateRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+				SpawnRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg);
 		} else if (os->_oVar2 >= 8)
 			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy, DIR_NONE); // BARREL_SKELE
 	}
