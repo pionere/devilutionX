@@ -146,31 +146,23 @@ void InitVPEntryTrigger(bool recreate)
 	AddMissile({ 0, 0 }, tp, 0, MIS_RPORTAL, MST_NA, -1, recreate ? -1 : 0);
 }
 
-void InitView(int entry)
+static POS32 GetEntryPos(int entry)
 {
+	POS32 pos;
 	int type;
-	// unnecessary because UpdateScrollInfo is going to update this when the player enters the level
-	//ScrollInfo._sdx = 0;
-	//ScrollInfo._sdy = 0;
-	//ScrollInfo._sxoff = 0;
-	//ScrollInfo._syoff = 0;
-	//ScrollInfo._sdir = SDIR_NONE;
-	InitScene();
 
 	switch (entry) {
 	case ENTRY_MAIN:
 		if (currLvl._dLevelIdx == DLV_TOWN) {
 			// New game
-			myview.subtile = { 65 + DBORDERX, 58 + DBORDERY };
-			return;
+			return { 65 + DBORDERX, 58 + DBORDERY };
 		}
 		type = DWARP_ENTRY;
 		break;
 	case ENTRY_PREV:
 		// if (currLvl._dLevelIdx == DLV_TOWN) {
 		//	// Cathedral
-		//	myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
-		//	return;
+		//	return { 15 + DBORDERX, 21 + DBORDERY };
 		// }
 		type = DWARP_EXIT;
 		break;
@@ -184,19 +176,18 @@ void InitView(int entry)
 			// return from the betrayer side-map - TODO: better solution?
 			assert(currLvl._dLevelIdx == DLV_HELL3);
 			type = DWARP_EXIT;
-			myview.subtile.x = pWarps[type]._wx;
-			myview.subtile.y = pWarps[type]._wy;
+			pos.x = pWarps[type]._wx;
+			pos.y = pWarps[type]._wy;
 			assert(pWarps[type]._wtype == WRPT_L4_PENTA);
-			myview.subtile.x += -2;
-			myview.subtile.y += -2;
-			return;
+			pos.x += -2;
+			pos.y += -2;
+			return pos;
 		}
 		break;
 	case ENTRY_LOAD:    // set from the save file
-		return;
+		return { 0, 0 };
 	case ENTRY_PORTLVL:
-		myview.subtile = GetPortalLvlPos();
-		return;
+		return GetPortalLvlPos();
 	case ENTRY_TWARPDN:
 		type = DWARP_TOWN;
 		// if (pWarps[type]._wtype == WRPT_NONE)
@@ -206,38 +197,50 @@ void InitView(int entry)
 		assert(currLvl._dLevelIdx == DLV_TOWN);
 		switch (gbTWarpFrom) {
 		case TWARP_CATHEDRAL:
-			myview.subtile = { 15 + DBORDERX, 21 + DBORDERY };
+			pos = { 15 + DBORDERX, 21 + DBORDERY };
 			break;
 		case TWARP_CATACOMB:
-			myview.subtile = { 39 + DBORDERX, 12 + DBORDERY };
+			pos = { 39 + DBORDERX, 12 + DBORDERY };
 			break;
 		case TWARP_CAVES:
-			myview.subtile = { 8 + DBORDERX, 59 + DBORDERY };
+			pos = { 8 + DBORDERX, 59 + DBORDERY };
 			break;
 		case TWARP_HELL:
-			myview.subtile = { 30 + DBORDERX, 70 + DBORDERY };
+			pos = { 30 + DBORDERX, 70 + DBORDERY };
 			break;
 #ifdef HELLFIRE
 		case TWARP_CRYPT:
-			myview.subtile = { 26 + DBORDERX, 15 + DBORDERY };
+			pos = { 26 + DBORDERX, 15 + DBORDERY };
 			break;
 		case TWARP_NEST:
-			myview.subtile = { 69 + DBORDERX, 52 + DBORDERY };
+			pos = { 69 + DBORDERX, 52 + DBORDERY };
 			break;
 #endif
 		default:
 			ASSUME_UNREACHABLE
 			break;
 		}
-		return;
+		return pos;
 	case ENTRY_RETOWN:
 		assert(currLvl._dLevelIdx == DLV_TOWN);
 		// Restart in Town
-		myview.subtile = { 63 + DBORDERX, 70 + DBORDERY };
-		return;
+		return { 63 + DBORDERX, 70 + DBORDERY };
 	}
 	assert(currLvl._dLevelIdx != DLV_TOWN);
-	myview.subtile = TrigEntryPos(type);
+	return TrigEntryPos(type);
+}
+
+void InitView(int entry)
+{
+	// unnecessary because UpdateScrollInfo is going to update this when the player enters the level
+	//ScrollInfo._sdx = 0;
+	//ScrollInfo._sdy = 0;
+	//ScrollInfo._sxoff = 0;
+	//ScrollInfo._syoff = 0;
+	//ScrollInfo._sdir = SDIR_NONE;
+	InitScene();
+
+	myview.subtile = GetEntryPos(entry);
 }
 
 POS32 TrigEntryPos(int idx)
