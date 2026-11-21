@@ -281,7 +281,7 @@ void InitScene()
 	// numDungeonEntries = 0;
 }
 
-SceneEntry* NextSceneEntry(int idx)
+SceneEntry* NextSceneEntry(unsigned idx)
 {
 	SceneEntry* result = NULL;
 	idx += numDungeonEntries;
@@ -1793,7 +1793,7 @@ static void scene_addFloor(int x, int y, int sx, int sy, int mode)
 
 static int scene_addDungeonCells(int x, int y, int rightEnd, int sx, int sy)
 {
-	int lx = x, ly = y;
+	int lx = x;
 	unsigned zorder = dSubtileZOrder[x][y];
 	while (true) {
 		SHIFT_GRID(x, y, 1, 0);

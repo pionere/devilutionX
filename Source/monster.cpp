@@ -2878,8 +2878,6 @@ static bool MonDoStone(int mnum)
 
 static void MonWalkDir(int mnum, int md)
 {
-	int mwi;
-
 	NewMonsterAnim(mnum, MA_WALK, md);
 #ifdef HELLFIRE
 	if (monsters[mnum]._mType == MT_FLESTHNG)
@@ -3682,7 +3680,7 @@ static void MAI_RangedDist(int mnum)
 #ifdef HELLFIRE
 static void MonConsumeCorpse(MonsterStruct* mon)
 {
-	int i, n, mx, my;
+	int i, mx, my;
 
 	mx = mon->_mx;
 	my = mon->_my;

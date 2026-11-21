@@ -58,7 +58,7 @@ void UpdateScrollInfo(int pnum);
  */
 POS32 GridToScreen(int gx, int gy);
 void InitScene();
-SceneEntry* NextSceneEntry(int idx);
+SceneEntry* NextSceneEntry(unsigned idx);
 void SceneCursor();
 void ClearCursor();
 void CalcViewportGeometry();

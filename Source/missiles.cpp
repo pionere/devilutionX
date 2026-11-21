@@ -3617,9 +3617,9 @@ int AddInferno(int mi, POS32 dp, int midir, int micaster, int misource, int spll
  */
 int AddInfernoC(int mi, POS32 dp, int midir, int micaster, int misource, int spllvl)
 {
-	MissileStruct* mis;
+	// MissileStruct* mis;
 	// assert((micaster & MST_PLAYER) || micaster == MST_MONSTER);
-	mis = &missile[mi];
+	// mis = &missile[mi];
 	// mis->_miVar1 = 0;
 	return MIRES_DONE;
 }
@@ -4831,15 +4831,13 @@ collapse:
 void MI_Chain(int mi)
 {
 	MissileStruct* mis;
-	int hit, mx, my, sd;
+	int hit, sd;
 	POS32 dp;
 
 	mis = &missile[mi];
 
 	hit = MoveProjectal(mi, 1, MICM_BLOCK_ANY);
 
-	mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
-	my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	{
 		if (hit == 1) {
 			if (mis->_miVar1-- != 0) {
@@ -4852,9 +4850,9 @@ void MI_Chain(int mi)
 				// find a new target
 				if (!FindClosestChain(mis, dp)) {
 					// create pseudo-random seed using the monster which was hit (or the first real monster)
-					/*sd = dMonster[mx][my];
+					/*sd = mis->_miVar8;
 					if (sd != 0)
-						sd = sd >= 0 ? sd - 1 : -(sd + 1);
+						sd = sd - 1;
 					else
 						sd = MAX_MINIONS;
 					SetRndSeed(monsters[sd]._mRndSeed);*/
