@@ -157,10 +157,11 @@ static void PlaceInitItems()
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
-		// assert(gbLvlLoad);
-		RespawnItem(ii, false);
 
 		GetRandomItemSpace(ii);
+
+		// assert(gbLvlLoad);
+		RespawnItem(ii, false);
 		DeltaAddItem(ii);
 
 		numitems++;
