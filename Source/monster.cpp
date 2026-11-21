@@ -2915,28 +2915,16 @@ static void MonWalkDir(int mnum, int md)
 	static_assert(TILE_WIDTH / TILE_HEIGHT == 2, "MonWalkDir relies on fix width/height ratio of the floor-tile.");
 	switch (md) {
 	case DIR_N:
-		MonStartWalk1(mnum, md, mwi);
-		break;
 	case DIR_NE:
+	case DIR_W:
+	case DIR_NW:
 		MonStartWalk1(mnum, md, mwi);
 		break;
 	case DIR_E:
-		MonStartWalk2(mnum, md, mwi);
-		break;
 	case DIR_SE:
-		MonStartWalk2(mnum, md, mwi);
-		break;
 	case DIR_S:
-		MonStartWalk2(mnum, md, mwi);
-		break;
 	case DIR_SW:
 		MonStartWalk2(mnum, md, mwi);
-		break;
-	case DIR_W:
-		MonStartWalk1(mnum, md, mwi);
-		break;
-	case DIR_NW:
-		MonStartWalk1(mnum, md, mwi);
 		break;
 	default:
 		ASSUME_UNREACHABLE

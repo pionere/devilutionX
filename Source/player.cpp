@@ -1150,28 +1150,16 @@ static void StartWalk(int pnum, int dir)
 	mwi = MWVel[PLR_WALK_ANIMLEN - (plr._pIWalkSpeed == 0 ? 0 : (1 + plr._pIWalkSpeed)) - 1];
 	switch (dir) {
 	case DIR_N:
-		StartWalk1(pnum, dir, mwi);
-		break;
 	case DIR_NE:
+	case DIR_W:
+	case DIR_NW:
 		StartWalk1(pnum, dir, mwi);
 		break;
 	case DIR_E:
-		StartWalk2(pnum, dir, mwi);
-		break;
 	case DIR_SE:
-		StartWalk2(pnum, dir, mwi);
-		break;
 	case DIR_S:
-		StartWalk2(pnum, dir, mwi);
-		break;
 	case DIR_SW:
 		StartWalk2(pnum, dir, mwi);
-		break;
-	case DIR_W:
-		StartWalk1(pnum, dir, mwi);
-		break;
-	case DIR_NW:
-		StartWalk1(pnum, dir, mwi);
 		break;
 	default:
 		ASSUME_UNREACHABLE
