@@ -2774,15 +2774,29 @@ static bool MonDoDeath(int mnum)
 
 	mon = &monsters[mnum];
 	if (mon->_mType == MT_DIABLO) {
-		if (mon->_mx != myview.subtile.x) {
-			int dx  = mon->_mx > myview.subtile.x ? 1 : -1;
-			myview.subtile.x += dx;
-			myview.dun.x += dx * DUN_WIDTH;
+		int dx = mon->_mpos.x - myview.dun.x;
+		if (dx != 0) {
+			if (dx < 0) {
+				if (dx < -DUN_WIDTH)
+					dx = -DUN_WIDTH;
+			} else {
+				if (dx > DUN_WIDTH)
+					dx = DUN_WIDTH;
+			}
+			myview.dun.x += dx;
+			myview.subtile.x = (unsigned)myview.dun.x / DUN_WIDTH;
 		}
-		if (mon->_my != myview.subtile.y) {
-			int dy = mon->_my > myview.subtile.y ? 1 : -1;
-			myview.subtile.y += dy;
-			myview.dun.y += dy * DUN_WIDTH;
+		int dy = mon->_mpos.y - myview.dun.y;
+		if (dy != 0) {
+			if (dy < 0) {
+				if (dy < -DUN_WIDTH)
+					dy = -DUN_WIDTH;
+			} else {
+				if (dy > DUN_WIDTH)
+					dy = DUN_WIDTH;
+			}
+			myview.dun.y += dy;
+			myview.subtile.y = (unsigned)myview.dun.y / DUN_WIDTH;
 		}
 		if (--mon->_mVar1 == 0) // DIABLO_TICK
 			PrepDoEnding();
