@@ -1992,6 +1992,31 @@ void CreateRndItem(int x, int y, unsigned quality, int mode)
 	SpawnRndItem(quality, lvl, x, y, mode);
 }
 
+void PlaceRndItem(int x, int y, unsigned quality)
+{
+	unsigned lvl;
+	int idx, ii;
+
+	lvl = items_get_currlevel();
+
+	if (quality >= CFDQ_GOOD)
+		idx = RndUItem(lvl);
+	else
+		idx = RndAnyItem(lvl);
+
+	if (numitems >= MAXITEMS)
+		return; // should never be the case
+	ii = itemactive[numitems];
+	numitems++;
+
+	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
+
+	SetItemLoc(ii, x, y);
+
+	RespawnItem(ii, false);
+	DeltaAddItem(ii);
+}
+
 static void SetupUsefulItem(int ii, int32_t iseed, unsigned lvl)
 {
 	int idx;
@@ -2065,6 +2090,31 @@ void CreateTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mo
 		RespawnItem(ii, false);
 		DeltaAddItem(ii);
 	}
+}
+
+void PlaceTypeItem(int x, int y, unsigned quality, int itype, int imisc)
+{
+	int idx, ii;
+	unsigned lvl;
+
+	lvl = items_get_currlevel();
+
+	if (itype != ITYPE_GOLD)
+		idx = RndTypeItem(itype, imisc, lvl);
+	else
+		idx = IDI_GOLD;
+
+	if (numitems >= MAXITEMS)
+		return; // should never be the case
+	ii = itemactive[numitems];
+	numitems++;
+
+	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
+
+	SetItemLoc(ii, x, y);
+
+	RespawnItem(ii, false);
+	DeltaAddItem(ii);
 }
 
 /**

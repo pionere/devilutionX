@@ -499,7 +499,7 @@ static void Theme_MonstPit(int themeId)
 			for (yy = theme._tsy1; yy < theme._tsy2; yy++) {
 				// assert(dTransVal[xx][yy] == theme._tsTransVal);
 				if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]] && --r < 0) {
-					CreateRndItem(xx, yy, CFDQ_GOOD, ICM_DELTA);
+					PlaceRndItem(xx, yy, CFDQ_GOOD);
 					goto done;
 				}
 			}
@@ -613,9 +613,9 @@ static void Theme_Treasure(int themeId)
 			// assert(dTransVal[xx][yy] == theme._tsTransVal);
 			if (/*dTransVal[xx][yy] == tv &&*/ !nSolidTable[dPiece[xx][yy]]) {
 				if (random_low(0, treasrnd) == 0) {
-					CreateTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_GOLD, IMISC_NONE, ICM_DELTA);
+					PlaceTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_GOLD, IMISC_NONE);
 				} else if (random_low(0, treasrnd) == 0) {
-					CreateRndItem(xx, yy, CFDQ_NORMAL, ICM_DELTA);
+					PlaceRndItem(xx, yy, CFDQ_NORMAL);
 				}
 			}
 		}
