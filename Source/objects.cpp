@@ -2253,10 +2253,10 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	os = &objects[oi];
 	// assert(os->_oModeFlags & OMF_ACTIVE);
 	// assert(plr._pmode == PM_STAND && !deltaload);
-	if (plr._px != os->_ox || plr._py != os->_oy + 1)
+	if (plr._ppos.x != os->_opos.x || plr._ppos.y != os->_opos.y + DUN_WIDTH)
 		return;
 	// assert(os->_ox == DBORDERX + 10 || os->_ox == DBORDERX + 29);
-	dx = DBORDERX + ((os->_ox == DBORDERX + 10) ? 11 : 27);
+	dx = DBORDERX + (((unsigned)os->_opos.x / DUN_WIDTH == DBORDERX + 10) ? 11 : 27);
 	dy = DBORDERY + 13;
 	// int on = dObject[dx][dy] - 1;
 	// assert(objects[on]._otype == OBJ_MCIRCLE1 || objects[on]._otype == OBJ_MCIRCLE2);
