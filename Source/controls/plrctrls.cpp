@@ -1063,7 +1063,7 @@ void PerformSecondaryAction()
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.dun, pcursitem);
 	} else if (OBJ_VALID(pcursobj)) {
 		NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.dun, pcursobj);
-	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]]) {
+	} else if (TRIG_VALID(pcurstrig) && !nSolidTable[dPiece[(unsigned)pcurspos.dun.x / DUN_WIDTH][(unsigned)pcurspos.dun.y / DUN_WIDTH]]) {
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.dun);
 	}
 }

@@ -307,8 +307,8 @@ POS32 TrigEntryPos(int idx)
 int CheckTrigForce()
 {
 	for (int i = numtrigs - 1; i >= 0; i--) {
-		int dx = pcurspos.subtile.x - trigs[i]._tx;
-		int dy = pcurspos.subtile.y - trigs[i]._ty;
+		int dx = (unsigned)pcurspos.dun.x / DUN_WIDTH - trigs[i]._tx;
+		int dy = (unsigned)pcurspos.dun.y / DUN_WIDTH - trigs[i]._ty;
 		switch (trigs[i]._ttype) {
 		case WRPT_RPORTAL:
 			continue;

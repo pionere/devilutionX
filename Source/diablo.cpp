@@ -512,7 +512,7 @@ static void ActionBtnCmd(bool altSkill)
 		NetSendCmdLocParam1(CMD_GOTOGETITEM, pcurspos.dun, pcursitem);
 		return;
 	}
-	if (!nSolidTable[dPiece[pcurspos.subtile.x][pcurspos.subtile.y]])
+	if (!nSolidTable[dPiece[(unsigned)pcurspos.dun.x / DUN_WIDTH][(unsigned)pcurspos.dun.y / DUN_WIDTH]])
 		NetSendCmdLoc(CMD_WALKXY, pcurspos.dun);
 }
 
