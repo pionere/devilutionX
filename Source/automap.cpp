@@ -272,76 +272,15 @@ void DrawAutomapTile(int sx, int sy, BYTE automap_type)
 	}
 }
 
-/*static void DrawAutomapItem(int x, int y, BYTE color)
+/*static void DrawAutomapItem(int sx, int sy)
 {
-	int x1, y1, x2, y2;
-
-	x1 = x - MAP_TILE_WIDTH / 4;
-	y1 = y - MAP_TILE_WIDTH / 8;
-	x2 = x1 + MAP_TILE_WIDTH / 2;
-	y2 = y1 + MAP_TILE_WIDTH / 4;
-	DrawLine(x, y1, x1, y, color);
-	DrawLine(x, y1, x2, y, color);
-	DrawLine(x, y2, x1, y, color);
-	DrawLine(x, y2, x2, y, color);
-}
-
-static void SearchAutomapItem()
-{
-	PlayerStruct* p;
-	int x, y;
-	int x1, y1, x2, y2, xoff, yoff;
-	int i, j;
-	unsigned d16 = MAP_TILE_WIDTH / 4;
-	const POS32 vp = myview.dun;
-	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
-
-	x = AutoMapXOfs + mp.x;
-	y = AutoMapYOfs + mp.y;
-	if (gbAutomapflag == AMM_NORMAL) {
-		xoff = SCREEN_CENTERX(0);
-		yoff = SCREEN_CENTERY(0);
-	} else {
-		xoff = SCREEN_X + SCREEN_WIDTH - MAP_MINI_WIDTH / 2;
-		yoff = SCREEN_Y + MAP_MINI_HEIGHT / 2;
-	}
-	xoff -= (x - y) * d16;
-	yoff -= (x + y) * (d16 >> 1) - (d16 >> 1);
-	const POS32 sp = DunScreenOffset(vp);
-	xoff -= (sp.x * (int)AutoMapScale) >> (MAP_SHIFT + 1);
-	yoff -= (sp.y * (int)AutoMapScale) >> (MAP_SHIFT + 1);
-
-	p = &myplr;
-	x = p->_poldx;
-	y = p->_poldy;
-
-	x1 = x - 8;
-	if (x1 < 0)
-		x1 = 0;
-
-	y1 = y - 8;
-	if (y1 < 0)
-		y1 = 0;
-
-	x2 = x + 8;
-	if (x2 > MAXDUNX - 1)
-		x2 = MAXDUNX - 1;
-
-	y2 = y + 8;
-	if (y2 > MAXDUNY - 1)
-		y2 = MAXDUNY - 1;
-
-	for (i = x1; i <= x2; i++) {
-		for (j = y1; j <= y2; j++) {
-			if (dItem[i][j] != 0) {
-				x = xoff + (i - j) * d16;
-				y = yoff + (i + j) * (d16 >> 1);
-				DrawAutomapItem(x, y, COLOR_ITEM);
-			}
-		}
-	}
+	unsigned d32 = MAP_TILE_WIDTH / 2;
+	unsigned d16 = (d32 >> 1), d8 = (d32 >> 2);
+	DrawLine(sx - d16, sy - d16, sx - 1, sy - d16 + 1 - d8, COLOR_ITEM); // top left
+	DrawLine(sx, sy - d16 + 1 - d8, sx + d16 - 1, sy - d16, COLOR_ITEM); // top right
+	DrawLine(sx - d16, sy - d16 + 1, sx - 1, sy - d8, COLOR_ITEM);       // bottom left
+	DrawLine(sx, sy - d8, sx + d16 - 1, sy - d16 + 1, COLOR_ITEM);       // bottom right
 }*/
-
 /**
  * @brief Renders an arrow on the automap, centered on and facing the direction of the player.
  */
@@ -552,7 +491,9 @@ static void DrawAutomapContent()
 		}
 		aplrs[pnum] = std::pair<POS32, POS32>(ppos, { 0, 0 });;
 	}
-
+	// - initialize an array for the items
+	// POS32 aitempos[MAXITEMS];
+	// int numaitems = 0;
 	// draw the subtiles
 	cells *= 2;
 	unsigned d32 = d64 >> 1;
@@ -570,6 +511,14 @@ static void DrawAutomapContent()
 						aplrs[pnum].second.y = sy;
 					}
 				}
+				// for (int idx = 0; idx < numitems; idx++) {
+				// 	int ii = itemactive[idx];
+				// 	const ItemStruct* is = &items[ii];
+				// 	if ((unsigned)is->_ipos.x / DUN_WIDTH == mapx && (unsigned)is->_ipos.y / DUN_WIDTH == mapy) {
+				// 		aitempos[numaitems] = { sx, sy };
+				// 		numaitems++;
+				// 	}
+				// }
 			}
 			SHIFT_GRID(mapx, mapy, 1, 0);
 			x += d32;
@@ -590,14 +539,18 @@ static void DrawAutomapContent()
 			sy += (d32 >> 2);
 		}
 	}
+	// draw the items
+	// if (AutoMapShowItems) {
+	//	for (i = 0; i < numaitems; i++) {
+	//		DrawAutomapItem(aitempos[i].x, aitempos[i].y);
+	//	}
+	// }
 	// draw the players in a separate loop to have a consistent draw-order
 	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
 		// if (aplrs[pnum].first.x < 0) continue;
 		if (aplrs[pnum].second.x == 0) continue;
 		DrawAutomapPlr(pnum, aplrs[pnum].second.x, aplrs[pnum].second.y);
 	}
-	//if (AutoMapShowItems)
-	//	SearchAutomapItem();
 	//gpBufEnd = &gpBuffer[BUFFERXY(0, SCREEN_Y + SCREEN_HEIGHT)];
 }
 
