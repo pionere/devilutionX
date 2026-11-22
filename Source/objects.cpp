@@ -2075,7 +2075,7 @@ static void CloseDoor(ObjectStruct* os)
 static bool PlrCheckDoor(const ObjectStruct* os, int pnum)
 {
 	int dist = GetDunDistance2(plr._ppos, os->_opos);
-	return dist == (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
+	return dist <= 2 * (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) && dist >= (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
 }
 
 static void SyncDoors(const ObjectStruct* os);
