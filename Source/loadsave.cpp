@@ -803,7 +803,6 @@ void LoadGame()
 	//ProcessVisionList();
 
 	SyncMissilesAnim();
-	CalcViewportGeometry();
 
 	// restrore RNG seed
 	SetRndSeed(_CurrSeed);

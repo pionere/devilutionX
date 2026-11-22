@@ -996,7 +996,6 @@ void InputBtnDown(int transKey)
 		break;
 	case ACT_ZOOM:
 		gbZoomInFlag = !gbZoomInFlag;
-		CalcViewportGeometry();
 		break;
 	case ACT_VER:
 		VersionPlrMsg();
@@ -1451,7 +1450,6 @@ static WNDPROC InitGameFX()
 
 	gbDeathflag = MDM_ALIVE;
 	gbZoomInFlag = false;
-	CalcViewportGeometry();
 
 	gnTimeoutCurs = CURSOR_NONE;
 	gbActionBtnDown = 0;

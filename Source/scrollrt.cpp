@@ -24,18 +24,6 @@ static unsigned numDungeonEntries;
 static SceneEntry scene[(16 + 1) * (16 * 2 + 2 + 2) * 3 + MAXITEMS + MAXOBJECTS + MAXMISSILES + MAXMONSTERS + MAX_PLRS];
 
 /**
-  * Container to hold the cached properties of the viewport.
-  *
-  * _vColumns: the number of columns to draw to ensure the screen is covered. 
-  * _vRows: the number of rows to draw to ensure the screen is covered.
-  * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
-  * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to myview.subtile.x.
-  * _vShiftY: the base offset to myview.subtile.y.
-*/
-ViewportStruct gsTileVp;
-
-/**
  * Specifies the current light entry.
  */
 int light_trn_index;
@@ -2056,82 +2044,6 @@ static void TilesInView(unsigned* rcolumns, unsigned* rrows)
 
 	*rcolumns = columns;
 	*rrows = rows;
-}
-
-static void CalcTileViewport()
-{
-	int xo, yo;
-
-	// Adjust by player offset and tile grid alignment
-	CalcTileOffset(&xo, &yo);
-	gsTileVp._vOffsetX = xo - SCREEN_X;
-	gsTileVp._vOffsetY = yo - (SCREEN_Y + TILE_HEIGHT / 2 - 1);
-
-	TilesInView(&gsTileVp._vColumns, &gsTileVp._vRows);
-	unsigned lrow = gsTileVp._vRows;
-
-	// Center player tile on screen
-	SET_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0 - (gsTileVp._vColumns / 2), 0 - (lrow / 2));
-
-	gsTileVp._vRows *= 2;
-
-	// Align grid
-	if ((gsTileVp._vColumns & 1) == 0) {
-		gsTileVp._vShiftY--; // Shift player row to one that can be centered without pixel offset
-		if ((lrow & 1) == 0) {
-			// Offset tile to vertically align the player when both rows and colums are even
-			gsTileVp._vRows++;
-			gsTileVp._vOffsetY += TILE_HEIGHT / 2;
-		}
-	} else if (/*(gsTileVp._vColumns & 1) &&*/ (lrow & 1)) {
-		// Offset tile to vertically align the player when both rows and colums are odd
-		SHIFT_GRID(gsTileVp._vShiftX, gsTileVp._vShiftY, 0, -1);
-		gsTileVp._vRows++;
-		gsTileVp._vOffsetY += TILE_HEIGHT / 2;
-	}
-
-	// Slightly lower the zoomed view
-	if (gbZoomInFlag) {
-		gsTileVp._vOffsetY -= TILE_HEIGHT / 4;
-		if (yo < TILE_HEIGHT / 4)
-			gsTileVp._vRows++;
-	}
-
-	gsTileVp._vRows++; // Cover lower edge saw tooth, right edge accounted for in scrollrt_draw()
-}
-
-static void CalcMouseViewport()
-{
-	// Adjust by player offset and tile grid alignment
-	CalcTileOffset(&gsMouseVp._vOffsetX, &gsMouseVp._vOffsetY);
-
-	// Convert to tile grid
-	TilesInView(&gsMouseVp._vColumns, &gsMouseVp._vRows);
-	unsigned lrow = gsMouseVp._vRows;
-
-	// Center player tile on screen
-	SET_GRID(gsMouseVp._vShiftX, gsMouseVp._vShiftY, 0 - (gsMouseVp._vColumns / 2), 0 - (lrow / 2));
-
-	// Align grid
-	if ((gsMouseVp._vColumns & 1) == 0) {
-		if ((lrow & 1) == 0) {
-			gsMouseVp._vOffsetY += TILE_HEIGHT / 2;
-		}
-	} else if (/*gsMouseVp._vColumns & 1 &&*/ lrow & 1) {
-		gsMouseVp._vOffsetX -= TILE_WIDTH / 2;
-	} else /*if (gsMouseVp._vColumns & 1 && (lrow & 1) == 0)*/ {
-		gsMouseVp._vShiftY++;
-	}
-
-	if (gbZoomInFlag) {
-		gsMouseVp._vOffsetY -= TILE_HEIGHT / 4;
-	}
-}
-
-void CalcViewportGeometry()
-{
-	CalcTileViewport();
-	CalcMouseViewport();
 }
 
 /**

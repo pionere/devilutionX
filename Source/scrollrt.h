@@ -35,7 +35,6 @@ extern "C" {
 
 extern GRID_POS32 myview;
 extern ScrollStruct ScrollInfo;
-extern ViewportStruct gsTileVp;
 extern int light_trn_index;
 extern bool gbCelTransparencyActive;
 
@@ -61,7 +60,6 @@ void InitScene();
 SceneEntry* NextSceneEntry(unsigned idx);
 void SceneCursor();
 void ClearCursor();
-void CalcViewportGeometry();
 #if DEBUG_MODE
 void ScrollView();
 #endif

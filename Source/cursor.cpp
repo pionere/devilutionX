@@ -8,18 +8,6 @@
 
 DEVILUTION_BEGIN_NAMESPACE
 
-/**
-  * Container to hold the cached properties of the mouse-viewport.
-  *
-  * _vColumns: the number of columns on the screen 
-  * _vRows: the number of rows on the screen.
-  * _vOffsetX: the base X-offset to draw the tiles in the back buffer.
-  * _vOffsetY: the base Y-offset to draw the tiles in the back buffer.
-  * _vShiftX: the base offset to myview.subtile.x.
-  * _vShiftY: the base offset to myview.subtile.y.
-*/
-ViewportStruct gsMouseVp;
-
 /** Pixel width of the current cursor image */
 int cursW;
 /** Pixel height of the current cursor image */
