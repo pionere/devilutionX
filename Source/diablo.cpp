@@ -431,7 +431,7 @@ static void ActionBtnCmd(bool altSkill)
 #endif
 	if (skill._psAttack._suSkill != SPL_NULL) {
 		if (skill._psAttack._suSkill == SPL_BLOCK) {
-			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.subtile.x, pcurspos.subtile.y);
+			int dir = GetDirection(myplr._ppos, pcurspos.dun);
 			NetSendCmdBParam1(CMD_BLOCK, dir);
 			return;
 		}
@@ -468,7 +468,7 @@ static void ActionBtnCmd(bool altSkill)
 		if (skill._psAttack._suFrom == SPLFROM_INVALID_MANA || skill._psMove._suFrom == SPLFROM_INVALID_MANA) {
 			PlaySfx(sgSFXSets[SFXS_PLR_35][myplr._pClass]); // no mana
 		} else /*if (skill._psAttack._suFrom == SPLFROM_INVALID_TYPE && skill._psMove._suFrom == SPLFROM_INVALID_TYPE)*/ {
-			int dir = GetDirection(myplr._pfutx, myplr._pfuty, pcurspos.subtile.x, pcurspos.subtile.y);
+			int dir = GetDirection(myplr._ppos, pcurspos.dun);
 			NetSendCmdBParam1(CMD_TURN, dir);
 		}
 		return;
