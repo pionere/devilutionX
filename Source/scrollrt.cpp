@@ -2377,80 +2377,73 @@ static void DrawView()
  */
 void ScrollView()
 {
-	bool scroll;
+	int dx, dy, mx, my;
 
 	if (pcursicon >= CURSOR_FIRSTITEM)
 		return;
 
-	scroll = false;
-
+	dx = (unsigned)myview.dun.x / DUN_WIDTH;
+	dy = (unsigned)myview.dun.y / DUN_WIDTH;
+	mx = 0;
+	my = 0;
 	if (MousePos.x < 20) {
-		if (DSIZEY + DBORDERY - 1 <= myview.subtile.y || DBORDERX >= myview.subtile.x) {
-			if (DSIZEY + DBORDERY - 1 > myview.subtile.y) {
-				myview.subtile.y++;
-				scroll = true;
+		if (DSIZEY + DBORDERY - 1 <= dy || DBORDERX >= dx) {
+			if (DSIZEY + DBORDERY - 1 > dy) {
+				my++;
 			}
-			if (DBORDERX < myview.subtile.x) {
-				myview.subtile.x--;
-				scroll = true;
+			if (DBORDERX < dx) {
+				mx--;
 			}
 		} else {
-			myview.subtile.y++;
-			myview.subtile.x--;
-			scroll = true;
+			my++;
+			mx--;
 		}
-	}
-	if (MousePos.x > SCREEN_WIDTH - 20) {
-		if (DSIZEX + DBORDERX - 1 <= myview.subtile.x || DBORDERY >= myview.subtile.y) {
-			if (DSIZEX + DBORDERX - 1 > myview.subtile.x) {
-				myview.subtile.x++;
-				scroll = true;
+	} else if (MousePos.x > SCREEN_WIDTH - 20) {
+		if (DSIZEX + DBORDERX - 1 <= dx || DBORDERY >= dy) {
+			if (DSIZEX + DBORDERX - 1 > dx) {
+				mx++;
 			}
-			if (DBORDERY < myview.subtile.y) {
-				myview.subtile.y--;
-				scroll = true;
+			if (DBORDERY < dy) {
+				my--;
 			}
 		} else {
-			myview.subtile.y--;
-			myview.subtile.x++;
-			scroll = true;
+			my--;
+			mx++;
 		}
 	}
 	if (MousePos.y < 20) {
-		if (DBORDERY >= myview.subtile.y || DBORDERX >= myview.subtile.x) {
-			if (DBORDERY < myview.subtile.y) {
-				myview.subtile.y--;
-				scroll = true;
+		if (DBORDERY >= dy || DBORDERX >= dx) {
+			if (DBORDERY < dy) {
+				my--;
 			}
-			if (DBORDERX < myview.subtile.x) {
-				myview.subtile.x--;
-				scroll = true;
+			if (DBORDERX < dx) {
+				mx--;
 			}
 		} else {
-			myview.subtile.x--;
-			myview.subtile.y--;
-			scroll = true;
+			mx--;
+			my--;
 		}
-	}
-	if (MousePos.y > SCREEN_HEIGHT - 20) {
-		if (DSIZEY + DBORDERY - 1 <= myview.subtile.y || DSIZEX + DBORDERX - 1 <= myview.subtile.x) {
-			if (DSIZEY + DBORDERY - 1 > myview.subtile.y) {
-				myview.subtile.y++;
-				scroll = true;
+	} else if (MousePos.y > SCREEN_HEIGHT - 20) {
+		if (DSIZEY + DBORDERY - 1 <= dy || DSIZEX + DBORDERX - 1 <= dx) {
+			if (DSIZEY + DBORDERY - 1 > dy) {
+				my++;
 			}
-			if (DSIZEX + DBORDERX - 1 > myview.subtile.x) {
-				myview.subtile.x++;
-				scroll = true;
+			if (DSIZEX + DBORDERX - 1 > dx) {
+				mx++;
 			}
 		} else {
-			myview.subtile.x++;
-			myview.subtile.y++;
-			scroll = true;
+			mx++;
+			my++;
 		}
 	}
 
-//	if (scroll)
+	if (mx != 0 || my != 0) {
+		myview.subtile.x += mx;
+		myview.subtile.y += my;
+		myview.dun.x += mx * DUN_WIDTH;
+		myview.dun.y += my * DUN_WIDTH;
 //		ScrollInfo._sdir = SDIR_NONE;
+	}
 }
 
 /**
