@@ -1632,18 +1632,19 @@ int AddObject(int type, int ox, int oy)
 static void Obj_Light(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy, tr;
+	int mx, my, tr;
 	bool turnon;
 	static_assert(MAX_LIGHT_RAD >= 9, "Obj_Light needs at least light-radius of 9.");
 	const int lr = 8;
 
 	os = &objects[oi];
-	ox = os->_ox;
-	oy = os->_oy;
-	turnon = false;
 
-	tr = lr + 1 + (gsTileVp._vColumns + gsTileVp._vRows / 2) / 2;
-	turnon = abs(myview.x - ox) < tr && abs(myview.y - oy) < tr;
+	mx = SCREEN_WIDTH / 2u;
+	my = SCREEN_HEIGHT / 2u;
+	mx = (mx + TILE_WIDTH - 1) / TILE_WIDTH;
+	my = (my + TILE_HEIGHT - 1) / TILE_HEIGHT;
+	tr = lr + 1 + mx + my;
+	turnon = GetDunDistance2(myview.dun, os->_opos) < (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * tr * tr;
 
 	if (turnon) {
 		assert(objectdata[OBJ_L1LIGHT].ofindex == OFILE_L1BRAZ);
