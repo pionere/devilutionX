@@ -456,7 +456,7 @@ static void DrawAutomapText()
 static void DrawAutomapContent()
 {
 	int sx, sy, mapx, mapy;
-	int i, j, cells;
+	int pnum, i, j, cells;
 	unsigned d64 = MAP_TILE_WIDTH;
 	const POS32 vp = myview.dun;
 	const POS32 mp = { (int)((unsigned)vp.x / DUN_WIDTH), (int)((unsigned)vp.y / DUN_WIDTH) };
@@ -540,6 +540,19 @@ static void DrawAutomapContent()
 	// select the bottom edge of the tile
 	sy += (d64 >> 2);
 
+	// - initialize an array for the players on the current level
+	std::pair<POS32, POS32> aplrs[MAX_PLRS];
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		POS32 ppos = { -1, -1 };
+		if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx) {
+#if !INET_MODE
+			if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/ || plr._pHitPoints == 0)
+#endif
+				ppos = { (int)((unsigned)plr._ppos.x / DUN_WIDTH), (int)((unsigned)plr._ppos.y / DUN_WIDTH) };
+		}
+		aplrs[pnum] = std::pair<POS32, POS32>(ppos, { 0, 0 });;
+	}
+
 	// draw the subtiles
 	cells *= 2;
 	unsigned d32 = d64 >> 1;
@@ -551,13 +564,10 @@ static void DrawAutomapContent()
 				BYTE maptype = GetAutomapType(mapx, mapy);
 				if (maptype != MAT_NONE)
 					DrawAutomapTile(x, sy, maptype);
-				int pnum;
 				for (pnum = 0; pnum < MAX_PLRS; pnum++) {
-					if (plr._pActive && !plr._pLvlChanging && plr._pDunLevel == currLvl._dLevelIdx && (int)((unsigned)plr._ppos.x / DUN_WIDTH) == mapx && (int)((unsigned)plr._ppos.y / DUN_WIDTH) == mapy) {
-#if !INET_MODE
-						if (plr._pTeam == myplr._pTeam || (dFlags[mapx][mapy] & BFLAG_VISIBLE) || myplr._pTimer[PLTR_INFRAVISION] > 0/*|| myplr._pInfraFlag*/ || plr._pHitPoints == 0)
-#endif
-							DrawAutomapPlr(pnum, x, sy);
+					if (aplrs[pnum].first.x == mapx && aplrs[pnum].first.y == mapy) {
+						aplrs[pnum].second.x = x;
+						aplrs[pnum].second.y = sy;
 					}
 				}
 			}
@@ -579,6 +589,12 @@ static void DrawAutomapContent()
 			sx += (d32 >> 1);
 			sy += (d32 >> 2);
 		}
+	}
+	// draw the players in a separate loop to have a consistent draw-order
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		// if (aplrs[pnum].first.x < 0) continue;
+		if (aplrs[pnum].second.x == 0) continue;
+		DrawAutomapPlr(pnum, aplrs[pnum].second.x, aplrs[pnum].second.y);
 	}
 	//if (AutoMapShowItems)
 	//	SearchAutomapItem();
