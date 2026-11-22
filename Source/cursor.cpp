@@ -343,8 +343,6 @@ void CheckCursMove()
 	else if (dp.y >= (MAXDUNY - DBORDERY) * DUN_WIDTH)
 		dp.y = (MAXDUNY - DBORDERY) * DUN_WIDTH - 1;
 
-	pcurspos.subtile.x = (unsigned)dp.x / DUN_WIDTH;
-	pcurspos.subtile.y = (unsigned)dp.y / DUN_WIDTH;
 	pcurspos.dun = dp;
 
 	SceneCursor();

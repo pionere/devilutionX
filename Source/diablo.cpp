@@ -501,7 +501,7 @@ static void ActionBtnCmd(bool altSkill)
 		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
 	}
 	if (skill._psMove._suSkill != SPL_WALK) {
-		// TODO: check if pcurspos.subtile.x/y == _pfutx/y ?
+		// TODO: check if pcurspos.dun.x/y == _pfutx/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(pcurspos.dun, *((CmdSkillUse*)&skill._psMove));

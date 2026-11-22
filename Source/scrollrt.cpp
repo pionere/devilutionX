@@ -242,8 +242,6 @@ void UpdateScrollInfo(int pnum)
 		int dx = (unsigned)plr._ppos.x / DUN_WIDTH - (unsigned)myview.dun.x / DUN_WIDTH;
 		int dy = (unsigned)plr._ppos.y / DUN_WIDTH - (unsigned)myview.dun.y / DUN_WIDTH;
 #endif
-		myview.subtile.x = plr._px;
-		myview.subtile.y = plr._py;
 		myview.dun = plr._ppos;
 #if FOLLOW
 		POS32 sp = DunScreenOffset(myview.dun);
@@ -467,21 +465,15 @@ void SceneCursor()
 		if (mi != ITEM_NONE) {
 			goto tgtitem;
 		}
-		// pcurspos.subtile.x = mx;
-		// pcurspos.subtile.y = my;
 		pcurstrig = CheckTrigForce();
 		if (TRIG_VALID(pcurstrig)) {
-			pcurspos.subtile.x = trigs[pcurstrig]._tx;
-			pcurspos.subtile.y = trigs[pcurstrig]._ty;
-			pcurspos.dun = DungeonToDunPos(pcurspos.subtile.x, pcurspos.subtile.y);
+			pcurspos.dun = DungeonToDunPos(trigs[pcurstrig]._tx, trigs[pcurstrig]._ty);
 		} else {
 			// CheckTownPortal();
 			mi = curport.v0;
 			if (mi != TRIG_NONE) {
 				pcurstrig = MAXTRIGGERS + mi + 1;
 				pcurspos.dun = missile[mi]._mipos;
-				pcurspos.subtile.x = (unsigned)missile[mi]._mipos.x / DUN_WIDTH;
-				pcurspos.subtile.y = (unsigned)missile[mi]._mipos.y / DUN_WIDTH;
 			}			
 		}
 		break;
@@ -492,8 +484,6 @@ void SceneCursor()
 tgtitem:
 			pcursitem = mi;
 			pcurspos.dun = items[mi]._ipos;
-			pcurspos.subtile.x = (unsigned)items[mi]._ipos.x / DUN_WIDTH;
-			pcurspos.subtile.y = (unsigned)items[mi]._ipos.y / DUN_WIDTH;
 		}
 		break;
 	case TGT_OBJECT:
@@ -503,8 +493,6 @@ tgtobj:
 			mi = curobj.v0;
 			pcursobj = mi;
 			pcurspos.dun = curobjpos;
-			pcurspos.subtile.x = (unsigned)curobjpos.x / DUN_WIDTH;
-			pcurspos.subtile.y = (unsigned)curobjpos.y / DUN_WIDTH;
 		}
 		break;
 	case TGT_OTHER:
@@ -519,8 +507,6 @@ tgtobj:
 tgtmon:
 			pcursmonst = mi;
 			pcurspos.dun = monsters[mi]._mpos;
-			pcurspos.subtile.x = monsters[mi]._mx;
-			pcurspos.subtile.y = monsters[mi]._my;
 		}
 		break;
 	case TGT_DEAD:
@@ -530,8 +516,6 @@ tgtmon:
 tgtplr:
 			pcursplr = mi;
 			pcurspos.dun = players[mi]._ppos;
-			pcurspos.subtile.x = players[mi]._px;
-			pcurspos.subtile.y = players[mi]._py;
 		}
 		break;
 	case TGT_NONE:
@@ -2350,8 +2334,6 @@ void ScrollView()
 	}
 
 	if (mx != 0 || my != 0) {
-		myview.subtile.x += mx;
-		myview.subtile.y += my;
 		myview.dun.x += mx * DUN_WIDTH;
 		myview.dun.y += my * DUN_WIDTH;
 //		ScrollInfo._sdir = SDIR_NONE;

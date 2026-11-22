@@ -699,8 +699,6 @@ void LoadGame()
 		gDynLevels[i]._dnType = ghs->vhDynLvls[i].vdType;
 	}
 	// load player-data
-	_View.subtile.x = ghs->vhViewX;
-	_View.subtile.y = ghs->vhViewY;
 	_View.dun.x = ghs->vhViewDunX;
 	_View.dun.y = ghs->vhViewDunY;
 	// ghs->vhScrollX = ScrollInfo._sdx;
@@ -1468,8 +1466,6 @@ void SaveGame()
 	}
 	ghs->vhCurrSeed = GetRndSeed();
 	// save player-data
-	ghs->vhViewX = myview.subtile.x;
-	ghs->vhViewY = myview.subtile.y;
 	ghs->vhViewDunX = myview.dun.x;
 	ghs->vhViewDunY = myview.dun.y;
 	// ghs->vhScrollX = ScrollInfo._sdx;

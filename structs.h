@@ -105,7 +105,6 @@ typedef struct RECT_AREA32 {
 } RECT_AREA32;
 
 typedef struct GRID_POS32 {
-	POS32 subtile;
 	POS32 dun;
 } GRID_POS32;
 
@@ -1185,8 +1184,6 @@ typedef struct LSaveGameHeaderStruct {
 	LE_INT32 vhSeeds[NUM_LEVELS];
 	LSaveGameDynLvlStruct vhDynLvls[NUM_DYNLVLS];
 	LE_INT32 vhCurrSeed;
-	LE_INT32 vhViewX;
-	LE_INT32 vhViewY;
 	LE_INT32 vhViewDunX;
 	LE_INT32 vhViewDunY;
 	LE_INT32 vhScrollXOff;

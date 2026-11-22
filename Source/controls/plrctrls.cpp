@@ -87,8 +87,6 @@ static int GetDistanceRanged(POS32 pos)
 static void TargetPos(POS32 pos)
 {
 	pcurspos.dun = pos;
-	pcurspos.subtile.x = (unsigned)pos.x / DUN_WIDTH;
-	pcurspos.subtile.y = (unsigned)pos.y / DUN_WIDTH;
 }
 
 static void FindItem()

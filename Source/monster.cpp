@@ -2784,7 +2784,6 @@ static bool MonDoDeath(int mnum)
 					dx = DUN_WIDTH;
 			}
 			myview.dun.x += dx;
-			myview.subtile.x = (unsigned)myview.dun.x / DUN_WIDTH;
 		}
 		int dy = mon->_mpos.y - myview.dun.y;
 		if (dy != 0) {
@@ -2796,7 +2795,6 @@ static bool MonDoDeath(int mnum)
 					dy = DUN_WIDTH;
 			}
 			myview.dun.y += dy;
-			myview.subtile.y = (unsigned)myview.dun.y / DUN_WIDTH;
 		}
 		if (--mon->_mVar1 == 0) // DIABLO_TICK
 			PrepDoEnding();

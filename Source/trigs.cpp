@@ -240,8 +240,8 @@ void InitView(int entry)
 	//ScrollInfo._sdir = SDIR_NONE;
 	InitScene();
 
-	myview.subtile = GetEntryPos(entry);
-	myview.dun = DungeonToDunPos(myview.subtile.x, myview.subtile.y);
+	POS32 pos = GetEntryPos(entry);
+	myview.dun = DungeonToDunPos(pos.x, pos.y);
 }
 
 POS32 TrigEntryPos(int idx)
