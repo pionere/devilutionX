@@ -33,7 +33,6 @@ void FreeCursorGFX();
 void NewCursor(int i);
 void ChangeTarget();
 void InitLevelCursor();
-void CheckTownPortal();
 void CheckCursMove();
 
 /* rdata */

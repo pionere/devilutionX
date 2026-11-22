@@ -257,36 +257,6 @@ void InitLevelCursor()
 #endif
 }
 
-void CheckTownPortal()
-{
-	MissileStruct* mis;
-	int i;
-
-	for (i = 0; i < nummissiles; i++) {
-		mis = &missile[missileactive[i]];
-		if (mis->_miType == MIS_TOWN || mis->_miType == MIS_RPORTAL) {
-			/*      ^
-			 *      |
-			 * ----++------>
-			 *    +++
-			 *    ++|
-			 *      |
-			 */
-			int dx = pcurspos.subtile.x - ((unsigned)mis->_mipos.x / DUN_WIDTH - 1);
-			int dy = pcurspos.subtile.y - ((unsigned)mis->_mipos.y / DUN_WIDTH - 1);
-			if (abs(dx) < 2 && abs(dy) < 2 // select the 3x3 square around (-1;-1)
-			 && abs(dx - dy) < 2) {        // exclude the top left and bottom right positions
-				pcurstrig = MAXTRIGGERS + missileactive[i] + 1;
-				pcurspos.subtile.x = (unsigned)mis->_mipos.x / DUN_WIDTH;
-				pcurspos.subtile.y = (unsigned)mis->_mipos.y / DUN_WIDTH;
-				// pcurspos.dun = mis->_mipos;
-				// pcurspos.gx = mis->_migx;
-				// pcurspos.gy = mis->_migy;
-			}
-		}
-	}
-}
-
 void CheckCursMove()
 {
 	int i, sx, sy;

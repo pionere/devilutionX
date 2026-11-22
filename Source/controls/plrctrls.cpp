@@ -353,17 +353,6 @@ static void FindTrigger()
 		distance = newDistance;
 		rotations = newRotations;
 	}
-
-	/* commented out because it would just set the pcurspos.subtile.x/y and pcurstrig fields again
-	if (MON_VALID(pcursmonst) || PLR_VALID(pcursplr) || !TRIG_VALID(pcurstrig))
-		return; // Prefer monster/player info text
-
-	pcurstrig = CheckTrigForce();
-	if (TRIG_VALID(pcurstrig)) {
-		TargetPos(DungeonToDunPos(trigs[pcurstrig]._tx, trigs[pcurstrig]._ty));
-	} else {
-		CheckTownPortal();
-	}*/
 }
 
 static void AttrIncBtnSnap(int dir)
