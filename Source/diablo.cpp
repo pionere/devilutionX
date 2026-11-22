@@ -795,9 +795,9 @@ static void PressDebugChar(int vkey)
 		break;
 	case 'T':
 	case 't':
-		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "PX = %d  PY = %d", myplr._px, myplr._py);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "P = [%d:%d] / [%d:%d]", myplr._ppos.x, myplr._ppos.y, myplr._ppos.x / DUN_WIDTH, myplr._ppos.y / DUN_WIDTH);
 		NetSendCmdString(&msg, 1 << mypnum);
-		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "CX = %d  CY = %d  DP = %d", pcurspos.subtile.x, pcurspos.subtile.y, dungeon[pcurspos.subtile.x][pcurspos.subtile.y]);
+		msg.bsLen = snprintf(msg.str, sizeof(msg.str), "C = [%d:%d] / [%d:%d] DP = %d", pcurspos.dun.x, pcurspos.dun.y, pcurspos.dun.x / DUN_WIDTH, pcurspos.dun.y / DUN_WIDTH, dungeon[pcurspos.dun.x / DUN_WIDTH][pcurspos.dun.y / DUN_WIDTH]);
 		break;
 	case '[':
 		if (ITEM_VALID(pcursitem)) {
