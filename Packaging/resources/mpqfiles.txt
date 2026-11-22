@@ -133,6 +133,8 @@ Missiles\Larrow15.CL2
 Missiles\Larrow16.CL2
 Missiles\Larrow9.CL2
 Missiles\Magicexp.CL2
+Missiles\Portal1.CL2
+Missiles\Portal2.CL2
 Missiles\Scbsexpb.CL2
 Missiles\Scbsexpc.CL2
 Missiles\Scbsexpd.CL2
