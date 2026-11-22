@@ -1223,8 +1223,8 @@ void NetSendCmdJoinLevel()
 
 	cmd.bCmd = CMD_JOINLEVEL;
 	cmd.lLevel = myplr._pDunLevel;
-	cmd.px = myview.subtile.x;
-	cmd.py = myview.subtile.y;
+	cmd.px = myview.dun.x;
+	cmd.py = myview.dun.y;
 	cmd.php = myplr._pHPBase;
 	cmd.pmp = myplr._pManaBase;
 	cmd.lTimer1 = myplr._pTimer[PLTR_INFRAVISION];
@@ -3208,13 +3208,13 @@ static unsigned On_JOINLEVEL(const TCmd* pCmd, int pnum)
 	// if (geBufferMsgs != MSG_LVL_DELTA_WAIT &&
 	//// (geBufferMsgs != MSG_LVL_DELTA_SKIP_JOIN || currLvl._dLevelIdx != cmd->lLevel)) {
 		net_check_cmd(cmd->lLevel < NUM_LEVELS);
-		net_check_cmd(IN_ACTIVE_AREA(cmd->px, cmd->py));
+		net_check_cmd(IN_ACTIVE_DUN(cmd->px, cmd->py));
 		plr._pLvlChanging = FALSE;
 		//if (plr._pmode != PM_DEATH)
 			plr._pInvincible = 40;
 		plr._pDunLevel = cmd->lLevel;
-		plr._px = cmd->px;
-		plr._py = cmd->py;
+		plr._ppos.x = cmd->px;
+		plr._ppos.y = cmd->py;
 	// }
 
 	if (pnum != mypnum) {

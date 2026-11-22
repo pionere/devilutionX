@@ -734,6 +734,8 @@ void InitLvlPlayer(int pnum, bool entering)
 
 	plr._plid = NO_LIGHT;
 	plr._pvid = NO_VISION;
+	plr._px = (unsigned)plr._ppos.x / DUN_WIDTH;
+	plr._py = (unsigned)plr._ppos.y / DUN_WIDTH;
 	if (entering) {
 		PlacePlayer(pnum);
 		// RemovePlrFromMap(pnum);

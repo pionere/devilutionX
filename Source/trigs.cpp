@@ -241,6 +241,7 @@ void InitView(int entry)
 	InitScene();
 
 	myview.subtile = GetEntryPos(entry);
+	myview.dun = DungeonToDunPos(myview.subtile.x, myview.subtile.y);
 }
 
 POS32 TrigEntryPos(int idx)

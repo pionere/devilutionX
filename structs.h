@@ -1726,8 +1726,8 @@ typedef struct TCmdStore2 {
 typedef struct TCmdJoinLevel {
 	BYTE bCmd;
 	BYTE lLevel;
-	BYTE px;
-	BYTE py;
+	LE_INT32 px;
+	LE_INT32 py;
 	LE_INT32 php;
 	LE_INT32 pmp;
 	LE_INT16 lTimer1;
