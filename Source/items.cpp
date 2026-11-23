@@ -1689,7 +1689,7 @@ static void GetItemBonus(int ii, unsigned lvl, BYTE range, bool onlygood, bool a
 
 	switch (is->_itype) {
 	case ITYPE_MISC:
-		if (items[ii]._iMiscId != IMISC_MAP)
+		if (is->_iMiscId != IMISC_MAP)
 			return;
 		flgs = PLT_MAP;
 		break;
@@ -2056,6 +2056,7 @@ void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mod
 		idx = RndTypeItem(itype, imisc, lvl);
 	else
 		idx = IDI_GOLD;
+
 	ii = MAXITEMS;
 
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
