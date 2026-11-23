@@ -16,11 +16,6 @@ ItemStruct items[MAXITEMS + 1];
 static CelAnimBuf* itemanims[NUM_IFILE];
 int numitems;
 
-#if DEV_MODE
-/** Specifies the current X-coordinate used for validation of items on ground. */
-static int idoppelx = DBORDERX;
-#endif
-
 /** Maps from Griswold premium item number to a quality level delta as added to the base quality level. */
 const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format off
@@ -2234,25 +2229,6 @@ void DeleteItem(int ii)
 	dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] = 0;
 }
 
-static void ItemDoppel()
-{
-#if DEV_MODE
-	int i;
-	ItemStruct* is;
-
-	for (i = DBORDERY; i < DSIZEY + DBORDERY; i++) {
-		if (dItem[idoppelx][i] != 0) {
-			is = &items[dItem[idoppelx][i] - 1];
-			if ((unsigned)is->_ipos.x / DUN_WIDTH != idoppelx || (unsigned)is->_ipos.y / DUN_WIDTH != i)
-				dev_fatal("Item %s of type %d is at the wrong place %d:%d vs %d:%d", ItemName(is), is->_itype, is->_ipos.x, is->_ipos.y, idoppelx, i);
-		}
-	}
-	idoppelx++;
-	if (idoppelx == DSIZEX + DBORDERX)
-		idoppelx = DBORDERX;
-#endif
-}
-
 void ProcessItems()
 {
 	ItemStruct* is;
@@ -2291,7 +2267,6 @@ void ProcessItems()
 			}
 		}
 	}
-	ItemDoppel();
 }
 
 void SyncItemAnim(int ii)
