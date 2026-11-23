@@ -1166,12 +1166,12 @@ static bool GetItemSpace(int x, int y, bool (func)(int x, int y), int ii)
 	return true;
 }
 
-static void GetSuperItemSpace(int x, int y, int ii)
+static void GetSuperItemSpace(int x, int y)
 {
 	int xx, yy;
 	int i, j;
 
-	if (!GetItemSpace(x, y, ItemSpaceOk, ii) && !GetItemSpace(x, y, CanPut, ii)) {
+	if (!GetItemSpace(x, y, ItemSpaceOk, MAXITEMS) && !GetItemSpace(x, y, CanPut, MAXITEMS)) {
 		const int8_t* cr;
 		bool ignoreLine = false;
 restart:
@@ -1181,7 +1181,7 @@ restart:
 				xx = x + *++cr;
 				yy = y + *++cr;
 				if (CanPut(xx, yy) && (ignoreLine || LineClear(x, y, xx, yy))) {
-					SetItemLoc(ii, xx, yy);
+					SetItemLoc(MAXITEMS, xx, yy);
 					return;
 				}
 			}
@@ -1927,7 +1927,8 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
 	assert(items[MAXITEMS]._iUid == uid);
 
-	GetSuperItemSpace(x, y, MAXITEMS);
+	GetSuperItemSpace(x, y);
+
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
 		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
@@ -1946,7 +1947,7 @@ static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, bool s
 
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
 
-	GetSuperItemSpace(x, y, ii);
+	GetSuperItemSpace(x, y);
 
 	if (sendmsg) {
 		NetSendCmdSpawnItem(true);
@@ -2037,7 +2038,9 @@ void SpawnRndUseful(int x, int y, bool sendmsg)
 	lvl = items_get_currlevel();
 
 	SetupUsefulItem(MAXITEMS, NextRndSeed(), lvl);
-	GetSuperItemSpace(x, y, MAXITEMS);
+
+	GetSuperItemSpace(x, y);
+
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
@@ -2057,7 +2060,7 @@ void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mod
 
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
 
-	GetSuperItemSpace(x, y, ii);
+	GetSuperItemSpace(x, y);
 
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnTypeItem expects ordered ICM_ values.");
 	if (mode >= ICM_SEND) {
@@ -2134,7 +2137,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 	items[ii]._iCreateInfo = items_get_currlevel();
 	items[ii]._iSeed = NextRndSeed();
 
-	GetSuperItemSpace(x, y, ii);
+	GetSuperItemSpace(x, y);
 
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnQuestItemAt expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
@@ -3662,7 +3665,9 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 		if (items[MAXITEMS]._iSpell == ispell)
 			break;
 	}
-	GetSuperItemSpace(x, y, MAXITEMS);
+
+	GetSuperItemSpace(x, y);
+
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
@@ -3681,7 +3686,9 @@ void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 		if (items[MAXITEMS]._iCurs == ICURS_AMULET)
 			break;
 	}
-	GetSuperItemSpace(x, y, MAXITEMS);
+
+	GetSuperItemSpace(x, y);
+
 	//if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
@@ -3699,7 +3706,9 @@ void SpawnRune(int sn, int x, int y/*, bool sendmsg*/)
 		if (items[MAXITEMS]._iSpell == sn)
 			break;
 	}
-	GetSuperItemSpace(x, y, MAXITEMS);
+
+	GetSuperItemSpace(x, y);
+
 	//if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
@@ -3718,7 +3727,9 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 		if (items[MAXITEMS]._iCurs == icurs)
 			break;
 	}
-	GetSuperItemSpace(x, y, MAXITEMS);
+
+	GetSuperItemSpace(x, y);
+
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
