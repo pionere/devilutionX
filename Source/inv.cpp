@@ -1371,8 +1371,6 @@ void SyncInvGetItem(int pnum, int ii)
 
 void InvGetItem(int pnum, int ii)
 {
-	assert(dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] == ii + 1);
-
 	SyncInvGetItem(pnum, ii);
 
 	if (pnum == mypnum) {
@@ -1410,8 +1408,6 @@ bool SyncAutoGetItem(int pnum, int ii)
 bool AutoGetItem(int pnum, int ii)
 {
 	bool done;
-
-	assert(dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] == ii + 1);
 
 	done = SyncAutoGetItem(pnum, ii);
 

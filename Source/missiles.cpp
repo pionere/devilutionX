@@ -417,7 +417,7 @@ static bool PosOkRune(POS32 dp, POS32 sp)
 	return true;
 }
 #endif
-static bool FindPlace(const POS32 sp, int r, bool (*func)(POS32, POS32), POS32& dp)
+bool FindPlace(const POS32 sp, int r, bool (*func)(POS32, POS32), POS32& dp)
 {
 	int i, dx, dy, sx, sy, tx, ty;
 	dx = dp.x;

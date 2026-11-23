@@ -109,12 +109,6 @@ int dMonster[MAXDUNX][MAXDUNY];
  */
 int8_t dObject[MAXDUNX][MAXDUNY];
 static_assert(MAXOBJECTS <= CHAR_MAX, "Index of an object might not fit to dObject.");
-/**
- * Contains the item numbers (items array indices) of the map.
- *   ii + 1 : the item is on the floor on the given location.
- */
-BYTE dItem[MAXDUNX][MAXDUNY];
-static_assert(MAXITEMS <= UCHAR_MAX, "Index of an item might not fit to dItem.");
 
 #if !USE_PATCH
 static void patchTownMin(uint16_t* minFile, size_t* dwSubtiles);
@@ -1514,7 +1508,6 @@ void InitLvlMap()
 	memset(dPlayer, 0, sizeof(dPlayer));
 	memset(dMonster, 0, sizeof(dMonster));
 	memset(dObject, 0, sizeof(dObject));
-	memset(dItem, 0, sizeof(dItem));
 }
 
 void FinishLvlMap()

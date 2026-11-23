@@ -640,8 +640,6 @@ static BYTE* LoadLevelData(BYTE* src, bool full)
 
 	memcpy(dFlags, src, MAXDUNX * MAXDUNY);
 	src += MAXDUNX * MAXDUNY;
-	memcpy(dItem, src, MAXDUNX * MAXDUNY);
-	src += MAXDUNX * MAXDUNY;
 	memcpy(dPreLight, src, MAXDUNX * MAXDUNY);
 	src += MAXDUNX * MAXDUNY;
 
@@ -1376,8 +1374,6 @@ static BYTE* SaveLevelData(BYTE* dest, bool full)
 
 	memcpy(dest, dFlags, MAXDUNX * MAXDUNY);
 	dest += MAXDUNX * MAXDUNY;
-	memcpy(dest, dItem, MAXDUNX * MAXDUNY);
-	dest += MAXDUNX * MAXDUNY;
 	memcpy(dest, dPreLight, MAXDUNX * MAXDUNY);
 	dest += MAXDUNX * MAXDUNY;
 
@@ -1506,10 +1502,10 @@ void SaveGame()
 	// assert(currLvl._dLevelIdx == plx(0)._pDunLevel);
 	constexpr size_t slt = /*MAXDUNX * MAXDUNY +*/ sizeof(LSaveGameLvlMetaStruct) + (MAX_MINIONS + MAX_TOWNERS) * sizeof(LSaveMonsterStruct) + MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct)/* + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))*/ + MAXITEMS * (4 + sizeof(LSaveItemStruct))
-	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT)/* + MAXDUNX * MAXDUNY*/ + MAXDUNX * MAXDUNY;
+	 + 5 * MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY * sizeof(INT);
 	constexpr size_t sld = (MAXDUNX * MAXDUNY) + sizeof(LSaveGameLvlMetaStruct) + (MAXMONSTERS * sizeof(LSaveMonsterStruct) + MAXMISSILES * 4
 	 + MAXMISSILES * sizeof(LSaveMissileStruct) + MAXOBJECTS * (4 + sizeof(LSaveObjectStruct))) + MAXITEMS * (4 + sizeof(LSaveItemStruct))
-	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4 + MAXDUNX * MAXDUNY + MAXDUNX * MAXDUNY);
+	 + 5 * MAXDUNX * MAXDUNY + (MAXDUNX * MAXDUNY * 4);
 	tbuff = SaveLevelData(tbuff, true);
 
 	// save meta-data II. (modified by LoadGameLevel)

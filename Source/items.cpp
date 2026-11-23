@@ -23,29 +23,37 @@ const int premiumlvladd[SMITH_PREMIUM_ITEMS] = {
 	// clang-format on
 };
 
-/** Maps from direction to delta X-offset in an 3x3 area. */
-static const int area3x3_x[NUM_DIRS + 1] = { 0, 1, 0, -1, -1, -1, 0, 1, 1 };
-/** Maps from direction to delta Y-offset in an 3x3 area. */
-static const int area3x3_y[NUM_DIRS + 1] = { 0, 1, 1, 1, 0, -1, -1, -1, 0 };
-
 static void SetItemLoc(int ii, int x, int y)
 {
 	items[ii]._ipos = DungeonToDunPos(x, y);
-	if (ii != MAXITEMS)
-		dItem[x][y] = ii + 1;
 }
 
-/**
- * Check the location if an item can be placed there in 'runtime'.
- */
-bool ItemSpaceOk(int x, int y)
+static void SetItemPos(int ii, POS32 pos)
 {
-	int oi; // , oi2;
+	items[ii]._ipos = pos;
+}
 
+static bool PosOkItem(POS32 pos)
+{
+	int i;
+	for (i = 0; i < numitems; i++) {
+		const ItemStruct* is = &items[itemactive[i]];
+		if (GetDunDistance2(pos, is->_ipos) <= (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) * 4 / 16)
+			return false;
+	}
+	return true;
+}
+
+static bool PosOkItemSpawn(POS32 pos, POS32 unused)
+{
+	int x, y, oi, i;
+
+	x = (unsigned)pos.x / DUN_WIDTH;
+	y = (unsigned)pos.y / DUN_WIDTH;
 	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
 		return false;
 
-	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
+	if (nSolidTable[dPiece[x][y]] != 0)
 		return false;
 
 	oi = dObject[x][y];
@@ -73,18 +81,34 @@ bool ItemSpaceOk(int x, int y)
 		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
 			return false;
 
-	return true;
+	return PosOkItem(pos);
+}
+
+static bool PosOkItemSpawnFrom(POS32 dp, POS32 sp)
+{
+	return LineClearPos(sp, dp) && PosOkItemSpawn(dp, sp);
+}
+
+/**
+ * Check the location if an item can be placed there in 'runtime'.
+ */
+bool ItemSpaceOk(int x, int y)
+{
+	return PosOkItemSpawn(DungeonToDunPos(x, y), { 0, 0 });
 }
 
 /**
  * Check the location if an item can be placed there in the init phase.
- * Must not consider the player's position, since it is already initialized
- * and messes up the pseudo-random generated dungeon.
  */
 static bool RandomItemPlace(int x, int y)
 {
-	return (dMonster[x][y] | /*dPlayer[x][y] |*/ dItem[x][y] | dObject[x][y]
-	 | (dFlags[x][y] & BFLAG_OBJ_PROTECT) | nSolidTable[dPiece[x][y]]) == 0;
+	if (((dFlags[x][y] & BFLAG_OBJ_PROTECT) | nSolidTable[dPiece[x][y]]) != 0)
+		return false;
+
+	if (dObject[x][y] != 0)
+		return false;
+
+	return PosOkItem(DungeonToDunPos(x, y));
 }
 
 static POS32 GetRandomItemSpace()
@@ -1100,53 +1124,19 @@ void CreatePlrItems(int pnum)
 	// CalcPlrInv(pnum, false);
 }
 
-static bool GetItemSpace(int x, int y, bool (func)(int x, int y), int ii)
-{
-	BYTE i, rs;
-	BYTE slist[NUM_DIRS + 1];
-
-	rs = 0;
-	for (i = 0; i < lengthof(area3x3_x); i++) {
-		if (func(x + area3x3_x[i], y + area3x3_y[i])) {
-			slist[rs] = i;
-			rs++;
-		}
-	}
-
-	if (rs == 0)
-		return false;
-
-	rs = slist[random_low(13, rs)];
-
-	SetItemLoc(ii, x + area3x3_x[rs], y + area3x3_y[rs]);
-	return true;
-}
-
 static void GetSuperItemSpace(int x, int y)
 {
-	int xx, yy;
-	int i, j;
-
-	if (!GetItemSpace(x, y, ItemSpaceOk, MAXITEMS)) {
-		const int8_t* cr;
-		bool ignoreLine = false;
-restart:
-		for (i = 2; i < lengthof(CrawlNum); i++) {
-			cr = &CrawlTable[CrawlNum[i]];
-			for (j = (BYTE)*cr; j > 0; j--) {
-				xx = x + *++cr;
-				yy = y + *++cr;
-				if (ItemSpaceOk(xx, yy) && (ignoreLine || LineClear(x, y, xx, yy))) {
-					SetItemLoc(MAXITEMS, xx, yy);
-					return;
-				}
-			}
-		}
-		if (!ignoreLine) {
-			ignoreLine = true;
-			goto restart;
-		}
+	constexpr int MAXDUN = MAXDUNX >= MAXDUNY ? MAXDUNX : MAXDUNY;
+	int i;
+	POS32 pos = DungeonToDunPos(x, y);
+	for (i = 1; i < MAXDUN; i++) {
+		if (FindPlace(pos, i, PosOkItemSpawnFrom, pos))
+			break;
+		if (FindPlace(pos, i, PosOkItemSpawn, pos))
+			break;
 	}
+
+	SetItemPos(MAXITEMS, pos);
 }
 
 BYTE GetBookSpell(unsigned lvl)
@@ -2167,8 +2157,6 @@ void DeleteItem(int ii)
 	numitems--;
 	itemactive[i] = itemactive[numitems];
 	itemactive[numitems] = ii;
-
-	dItem[(unsigned)items[ii]._ipos.x / DUN_WIDTH][(unsigned)items[ii]._ipos.y / DUN_WIDTH] = 0;
 }
 
 void ProcessItems()
@@ -2234,69 +2222,35 @@ int FindGetItem(const PkItemStruct* pkItem)
 	return -1;
 }
 
-static bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
+static bool FindItemLocation(const POS32 sp, POS32& dp, int rad)
 {
-	int dir;
-	int xx, yy, i, j, k;
-
-	if (sx != pos.x || sy != pos.y) {
-		dir = GetDirection(sx, sy, pos.x, pos.y);
-		pos.x = sx + offset_x[dir];
-		pos.y = sy + offset_y[dir];
-		if (ItemSpaceOk(pos.x, pos.y))
+	int i;
+	for (i = 1; i <= rad; i++) {
+		if (FindPlace(sp, i, PosOkItemSpawnFrom, dp))
 			return true;
-
-		dir = (dir - 1) & 7;
-		pos.x = sx + offset_x[dir];
-		pos.y = sy + offset_y[dir];
-		if (ItemSpaceOk(pos.x, pos.y))
+		if (FindPlace(sp, i, PosOkItemSpawn, dp))
 			return true;
-
-		dir = (dir + 2) & 7;
-		pos.x = sx + offset_x[dir];
-		pos.y = sy + offset_y[dir];
-		if (ItemSpaceOk(pos.x, pos.y))
-			return true;
-
-		pos.x = sx;
-		pos.y = sy;
-	}
-
-	if (ItemSpaceOk(pos.x, pos.y))
-		return true;
-
-	xx = pos.x;
-	yy = pos.y;
-	for (k = 1; k <= rad; k++) {
-		for (j = -k; j <= k; j++) {
-			yy = j + sy;
-			for (i = -k; i <= k; i++) {
-				xx = i + sx;
-				if (ItemSpaceOk(xx, yy)) {
-					pos.x = xx;
-					pos.y = yy;
-					return true;
-				}
-			}
-		}
 	}
 	return false;
 }
 
 void DropItem()
 {
-	POS32 pos;
+	POS32 sp, dp;
+	int dir;
 
 	if (numitems >= MAXITEMS)
 		return; // false;
 
-	pos.x = (unsigned)pcurspos.dun.x / DUN_WIDTH;
-	pos.y = (unsigned)pcurspos.dun.y / DUN_WIDTH;
-	if (!FindItemLocation(myplr._px, myplr._py, pos, 1))
+	dp = pcurspos.dun;
+	sp = myplr._ppos;
+	dir = GetDirection(sp, dp);
+	dp.x = sp.x + offset_x[dir] * DUN_WIDTH;
+	dp.y = sp.y + offset_y[dir] * DUN_WIDTH;
+	if (!FindItemLocation(sp, dp, 1))
 		return; // false;
 
-	pos = DungeonToDunPos(pos.x, pos.y);
-	NetSendCmdPutItem(pos);
+	NetSendCmdPutItem(dp);
 	return; // true;
 }
 
@@ -2311,26 +2265,23 @@ void DropItem()
 void SyncPutItem(int pnum, POS32 pos, const ItemStruct* is, bool flipFlag)
 {
 	int ii;
-	POS32 tpos;
+	POS32 sp;
 	// assert(plr._pDunLevel == currLvl._dLevelIdx);
 	if (numitems >= MAXITEMS)
 		return; // -1;
 
-	pos.x = (unsigned)pos.x / DUN_WIDTH;
-	pos.y = (unsigned)pos.y / DUN_WIDTH;
+	constexpr int MAXDUN = MAXDUNX >= MAXDUNY ? MAXDUNX : MAXDUNY;
+	sp = pos;
 	if ((unsigned)pnum < MAX_PLRS) {
-		tpos.x = plr._px;
-		tpos.y = plr._py;
-	} else {
-		tpos = pos;
+		sp = plr._ppos;
 	}
-	if (!FindItemLocation(tpos.x, tpos.y, pos, DSIZEX / 2))
+	if (!FindItemLocation(sp, pos, 2 * MAXDUN))
 		return; // -1;
 
 	ii = itemactive[numitems];
 	numitems++;
 	copy_pod(items[ii], *is);
-	SetItemLoc(ii, pos.x, pos.y);
+	SetItemPos(ii, pos);
 	RespawnItem(ii, flipFlag);
 	//return ii;
 }

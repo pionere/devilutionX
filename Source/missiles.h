@@ -17,6 +17,7 @@ extern MissileStruct missile[MAXMISSILES];
 extern int nummissiles;
 
 void GetSkillDetails(int sn, int sl, SkillDetails* skd);
+bool FindPlace(const POS32 sp, int r, bool(*func)(POS32, POS32), POS32& dp);
 unsigned CalcMonsterDam(unsigned mor, BYTE mRes, unsigned mindam, unsigned maxdam, bool penetrates);
 unsigned CalcPlrDam(int pnum, BYTE mRes, unsigned mindam, unsigned maxdam);
 int CheckHRectAreaHit(RECT32 rect, bool(*callback)(int, int), int cbArg);

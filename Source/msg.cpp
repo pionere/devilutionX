@@ -1161,7 +1161,6 @@ void DeltaLoadLevel()
 	for (i = 0; i < MAXITEMS; i++, itm++) {
 		if (itm->bCmd == DCMD_ITM_TAKEN || itm->bCmd == DCMD_ITM_MOVED) {
 			assert(items[i]._iSpawnIdx == i + 1);
-			assert(dItem[(unsigned)items[i]._ipos.x / DUN_WIDTH][(unsigned)items[i]._ipos.y / DUN_WIDTH] == i + 1);
 			DeleteItem(i);
 		}
 	}
