@@ -38,7 +38,7 @@ static void SetItemLoc(int ii, int x, int y)
 /**
  * Check the location if an item can be placed there in 'runtime'.
  */
-static bool CanPut(int x, int y)
+bool ItemSpaceOk(int x, int y)
 {
 	int oi; // , oi2;
 
@@ -74,14 +74,6 @@ static bool CanPut(int x, int y)
 			return false;
 
 	return true;
-}
-
-/**
- * Check the location if an item can be placed there in 'runtime' avoiding players and monsters.
- */
-bool ItemSpaceOk(int x, int y)
-{
-	return CanPut(x, y) && (dMonster[x][y] | dPlayer[x][y]) == 0;
 }
 
 /**
@@ -1135,7 +1127,7 @@ static void GetSuperItemSpace(int x, int y)
 	int xx, yy;
 	int i, j;
 
-	if (!GetItemSpace(x, y, ItemSpaceOk, MAXITEMS) && !GetItemSpace(x, y, CanPut, MAXITEMS)) {
+	if (!GetItemSpace(x, y, ItemSpaceOk, MAXITEMS)) {
 		const int8_t* cr;
 		bool ignoreLine = false;
 restart:
@@ -1144,7 +1136,7 @@ restart:
 			for (j = (BYTE)*cr; j > 0; j--) {
 				xx = x + *++cr;
 				yy = y + *++cr;
-				if (CanPut(xx, yy) && (ignoreLine || LineClear(x, y, xx, yy))) {
+				if (ItemSpaceOk(xx, yy) && (ignoreLine || LineClear(x, y, xx, yy))) {
 					SetItemLoc(MAXITEMS, xx, yy);
 					return;
 				}
@@ -2251,26 +2243,26 @@ static bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
 		dir = GetDirection(sx, sy, pos.x, pos.y);
 		pos.x = sx + offset_x[dir];
 		pos.y = sy + offset_y[dir];
-		if (CanPut(pos.x, pos.y))
+		if (ItemSpaceOk(pos.x, pos.y))
 			return true;
 
 		dir = (dir - 1) & 7;
 		pos.x = sx + offset_x[dir];
 		pos.y = sy + offset_y[dir];
-		if (CanPut(pos.x, pos.y))
+		if (ItemSpaceOk(pos.x, pos.y))
 			return true;
 
 		dir = (dir + 2) & 7;
 		pos.x = sx + offset_x[dir];
 		pos.y = sy + offset_y[dir];
-		if (CanPut(pos.x, pos.y))
+		if (ItemSpaceOk(pos.x, pos.y))
 			return true;
 
 		pos.x = sx;
 		pos.y = sy;
 	}
 
-	if (CanPut(pos.x, pos.y))
+	if (ItemSpaceOk(pos.x, pos.y))
 		return true;
 
 	xx = pos.x;
@@ -2280,7 +2272,7 @@ static bool FindItemLocation(int sx, int sy, POS32& pos, int rad)
 			yy = j + sy;
 			for (i = -k; i <= k; i++) {
 				xx = i + sx;
-				if (CanPut(xx, yy)) {
+				if (ItemSpaceOk(xx, yy)) {
 					pos.x = xx;
 					pos.y = yy;
 					return true;
