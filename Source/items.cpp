@@ -82,42 +82,6 @@ static bool CanPut(int x, int y)
 bool ItemSpaceOk(int x, int y)
 {
 	return CanPut(x, y) && (dMonster[x][y] | dPlayer[x][y]) == 0;
-#if 0
-	int oi;
-
-	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
-		return false;
-
-	if ((dItem[x][y] | dMonster[x][y] | dPlayer[x][y] | nSolidTable[dPiece[x][y]]) != 0)
-		return false;
-
-	oi = dObject[x][y];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSolidFlag)
-			return false;
-	}
-
-	/*oi = dObject[x + 1][y + 1];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSelFlag != 0)
-			return false;
-	}
-
-	oi = dObject[x + 1][y];
-	if (oi > 0) {
-		oi2 = dObject[x][y + 1];
-		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
-			return false;
-	}
-
-	if (currLvl._dType == DTYPE_TOWN)
-		if (dMonster[x + 1][y + 1] != 0)
-			return false;
-	*/
-	return true;
-#endif
 }
 
 /**
@@ -1192,25 +1156,6 @@ restart:
 		}
 	}
 }
-
-/*static void GetSuperItemLoc(int x, int y, int ii)
-{
-	int xx, yy;
-	int i, j, k;
-
-	for (k = 1; k < 50; k++) {
-		for (j = -k; j <= k; j++) {
-			yy = y + j;
-			for (i = -k; i <= k; i++) {
-				xx = i + x;
-				if (ItemSpaceOk(xx, yy)) {
-					SetItemLoc(ii, xx, yy);
-					return;
-				}
-			}
-		}
-	}
-}*/
 
 BYTE GetBookSpell(unsigned lvl)
 {
