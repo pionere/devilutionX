@@ -36,6 +36,91 @@ static void SetItemLoc(int ii, int x, int y)
 }
 
 /**
+ * Check the location if an item can be placed there in 'runtime'.
+ */
+static bool CanPut(int x, int y)
+{
+	int oi; // , oi2;
+
+	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
+		return false;
+
+	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	/*oi = dObject[x + 1][y + 1];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSelFlag != 0)
+			return false;
+	}
+
+	oi = dObject[x + 1][y];
+	if (oi > 0) {
+		oi2 = dObject[x][y + 1];
+		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
+			return false;
+	}*/
+
+	if (currLvl._dType == DTYPE_TOWN)
+		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
+			return false;
+
+	return true;
+}
+
+/**
+ * Check the location if an item can be placed there in 'runtime' avoiding players and monsters.
+ */
+bool ItemSpaceOk(int x, int y)
+{
+	return CanPut(x, y) && (dMonster[x][y] | dPlayer[x][y]) == 0;
+#if 0
+	int oi;
+
+	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
+		return false;
+
+	if ((dItem[x][y] | dMonster[x][y] | dPlayer[x][y] | nSolidTable[dPiece[x][y]]) != 0)
+		return false;
+
+	oi = dObject[x][y];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSolidFlag)
+			return false;
+	}
+
+	/*oi = dObject[x + 1][y + 1];
+	if (oi != 0) {
+		oi = oi >= 0 ? oi - 1 : -(oi + 1);
+		if (objects[oi]._oSelFlag != 0)
+			return false;
+	}
+
+	oi = dObject[x + 1][y];
+	if (oi > 0) {
+		oi2 = dObject[x][y + 1];
+		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
+			return false;
+	}
+
+	if (currLvl._dType == DTYPE_TOWN)
+		if (dMonster[x + 1][y + 1] != 0)
+			return false;
+	*/
+	return true;
+#endif
+}
+
+/**
  * Check the location if an item can be placed there in the init phase.
  * Must not consider the player's position, since it is already initialized
  * and messes up the pseudo-random generated dungeon.
@@ -1057,91 +1142,6 @@ void CreatePlrItems(int pnum)
 	plr._pGold = 100;
 	// commented out, because it is not necessary (see CreatePlayer)
 	// CalcPlrInv(pnum, false);
-}
-
-/**
- * Check the location if an item can be placed there in 'runtime'.
- */
-static bool CanPut(int x, int y)
-{
-	int oi; // , oi2;
-
-	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
-		return false;
-
-	if ((dItem[x][y] | nSolidTable[dPiece[x][y]]) != 0)
-		return false;
-
-	oi = dObject[x][y];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSolidFlag)
-			return false;
-	}
-
-	/*oi = dObject[x + 1][y + 1];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSelFlag != 0)
-			return false;
-	}
-
-	oi = dObject[x + 1][y];
-	if (oi > 0) {
-		oi2 = dObject[x][y + 1];
-		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
-			return false;
-	}*/
-
-	if (currLvl._dType == DTYPE_TOWN)
-		if ((dMonster[x][y] /*| dMonster[x + 1][y + 1]*/) != 0)
-			return false;
-
-	return true;
-}
-
-/**
- * Check the location if an item can be placed there in 'runtime' avoiding players and monsters.
- */
-bool ItemSpaceOk(int x, int y)
-{
-	return CanPut(x, y) && (dMonster[x][y] | dPlayer[x][y]) == 0;
-#if 0
-	int oi;
-
-	if (x < DBORDERX || x >= DBORDERX + DSIZEX || y < DBORDERY || y >= DBORDERY + DSIZEY)
-		return false;
-
-	if ((dItem[x][y] | dMonster[x][y] | dPlayer[x][y] | nSolidTable[dPiece[x][y]]) != 0)
-		return false;
-
-	oi = dObject[x][y];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSolidFlag)
-			return false;
-	}
-
-	/*oi = dObject[x + 1][y + 1];
-	if (oi != 0) {
-		oi = oi >= 0 ? oi - 1 : -(oi + 1);
-		if (objects[oi]._oSelFlag != 0)
-			return false;
-	}
-
-	oi = dObject[x + 1][y];
-	if (oi > 0) {
-		oi2 = dObject[x][y + 1];
-		if (oi2 > 0 && objects[oi - 1]._oSelFlag != 0 && objects[oi2 - 1]._oSelFlag != 0)
-			return false;
-	}
-
-	if (currLvl._dType == DTYPE_TOWN)
-		if (dMonster[x + 1][y + 1] != 0)
-			return false;
-	*/
-	return true;
-#endif
 }
 
 static bool GetItemSpace(int x, int y, bool (func)(int x, int y), int ii)
