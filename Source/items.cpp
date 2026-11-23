@@ -46,7 +46,7 @@ static bool RandomItemPlace(int x, int y)
 	 | (dFlags[x][y] & BFLAG_OBJ_PROTECT) | nSolidTable[dPiece[x][y]]) == 0;
 }
 
-static void GetRandomItemSpace(int ii)
+static POS32 GetRandomItemSpace()
 {
 	int x, y;
 
@@ -54,10 +54,10 @@ static void GetRandomItemSpace(int ii)
 		x = random_(12, DSIZEX) + DBORDERX;
 		y = random_(12, DSIZEY) + DBORDERY;
 	} while (!RandomItemPlace(x, y));
-	SetItemLoc(ii, x, y);
+	return { x, y };
 }
 
-static void GetRandomItemSpace(int randarea, int ii)
+static POS32 GetRandomItemSpace(int randarea)
 {
 	int x, y, i, j, tries;
 	constexpr int numTries = 1000;
@@ -81,8 +81,7 @@ fail:
 			tries = numTries;
 		}
 	}
-
-	SetItemLoc(ii, x, y);
+	return { x, y };
 }
 
 static inline unsigned items_get_currlevel()
@@ -146,6 +145,8 @@ static void PlaceInitItems()
 	lvl = items_get_currlevel();
 
 	for (i = RandRange(3, 5); i != 0; i--) {
+		POS32 pos = GetRandomItemSpace();
+
 		ii = itemactive[numitems];
 		assert(ii == numitems);
 		seed = NextRndSeed();
@@ -153,7 +154,7 @@ static void PlaceInitItems()
 		items[ii]._iSeed = seed;
 		items[ii]._iCreateInfo = lvl; // | CF_PREGEN;
 
-		GetRandomItemSpace(ii);
+		SetItemLoc(ii, pos.x, pos.y);
 
 		// assert(gbLvlLoad);
 		RespawnItem(ii, false);
@@ -2170,6 +2171,7 @@ void PickQuestItemAt(int idx, int x, int y, int mode)
 void PlaceQuestItemInArea(int idx, int areasize)
 {
 	int ii;
+	POS32 pos = GetRandomItemSpace(areasize);
 
 	if (numitems >= MAXITEMS)
 		return; // should never be the case
@@ -2181,7 +2183,7 @@ void PlaceQuestItemInArea(int idx, int areasize)
 	items[ii]._iCreateInfo = items_get_currlevel(); // | CF_PREGEN;
 	items[ii]._iSeed = NextRndSeed();               // make sure it is unique
 
-	GetRandomItemSpace(areasize, ii);
+	SetItemLoc(ii, pos.x, pos.y);
 
 	RespawnItem(ii, false);
 	DeltaAddItem(ii);
