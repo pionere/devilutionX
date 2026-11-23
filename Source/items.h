@@ -38,7 +38,7 @@ void CreateBaseItem(ItemStruct* is, int idata);
 void GetItemSeed(ItemStruct* is);
 void SetGoldItemValue(ItemStruct* is, int value);
 void CreatePlrItems(int pnum);
-bool ItemSpaceOk(int x, int y);
+bool ItemSpaceOk(POS32 pos);
 BYTE GetBookSpell(unsigned lvl);
 void SetItemData(int ii, int idata);
 void SetItemSData(ItemStruct* is, int idata);

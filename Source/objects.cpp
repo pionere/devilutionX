@@ -3126,10 +3126,10 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		for (i = (BYTE)*cr; i > 0; i--) {
 			xx = plr._px + *++cr;
 			yy = plr._py + *++cr;
-			if (!ItemSpaceOk(xx, yy))
+			const POS32 dp = DungeonToDunPos(xx, yy);
+			if (!ItemSpaceOk(dp))
 				continue;
 			if (random_(0, 3) == 0) {
-				const POS32 dp = DungeonToDunPos(xx, yy);
 				AddMissile(plr._ppos, dp, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
 			} else {
 				SpawnTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);

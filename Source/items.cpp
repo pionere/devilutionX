@@ -92,9 +92,9 @@ static bool PosOkItemSpawnFrom(POS32 dp, POS32 sp)
 /**
  * Check the location if an item can be placed there in 'runtime'.
  */
-bool ItemSpaceOk(int x, int y)
+bool ItemSpaceOk(POS32 pos)
 {
-	return PosOkItemSpawn(DungeonToDunPos(x, y), { 0, 0 });
+	return PosOkItemSpawn(pos, { 0, 0 });
 }
 
 /**
