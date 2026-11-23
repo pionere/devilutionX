@@ -149,6 +149,7 @@ static void PlaceInitItems()
 
 		ii = itemactive[numitems];
 		assert(ii == numitems);
+		numitems++;
 		seed = NextRndSeed();
 		SetItemData(ii, random_(12, 2) != 0 ? IDI_HEAL : IDI_MANA);
 		items[ii]._iSeed = seed;
@@ -159,8 +160,6 @@ static void PlaceInitItems()
 		// assert(gbLvlLoad);
 		RespawnItem(ii, false);
 		DeltaAddItem(ii);
-
-		numitems++;
 	}
 }
 
