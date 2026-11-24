@@ -175,6 +175,18 @@ int GetDunDistance2(POS32 dp1, POS32 dp2)
 	return ddx * ddx + ddy * ddy;
 }
 
+POS32 GetPosBetween(POS32 p1, POS32 p2)
+{
+	int cx = (p1.x + p2.x) / 2u;
+	int cy = (p1.y + p2.y) / 2u;
+	return { cx, cy };
+}
+
+POS32 GetPosShifted(POS32 p1, int dir)
+{
+	return { p1.x + offset_x[dir] * (DUN_WIDTH / 2), p1.y + offset_y[dir] * (DUN_WIDTH / 2) };
+}
+
 /**
  * @brief Set the RNG seed
  * @param s RNG seed

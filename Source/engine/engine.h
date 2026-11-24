@@ -19,6 +19,10 @@ int GetDirection(int x1, int y1, int x2, int y2);
 int GetDirection(POS32 p1, POS32 p2);
 /* calculate the distance(square) between two dungeon-positions. */
 int GetDunDistance2(POS32 dp1, POS32 dp2);
+/* calculate the center between two dungeon-positions. */
+POS32 GetPosBetween(POS32 p1, POS32 p2);
+/* calculate a dungeon-position shifted with half of a subtile. */
+POS32 GetPosShifted(POS32 p1, int dir);
 /* Set the current RNG seed */
 void SetRndSeed(int32_t s);
 /* Retrieve the current RNG seed */

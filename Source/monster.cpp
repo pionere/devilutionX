@@ -2211,19 +2211,16 @@ static void MonDiabloDeath(int mnum)
 static void SpawnLoot(int mnum, bool sendmsg)
 {
 	MonsterStruct* mon;
-	int mx, my;
 
 	mon = &monsters[mnum];
 	if (mon->_mFlags & MFLAG_NODROP) {
 		return;
 	}
 	SetRndSeed(mon->_mRndSeed);
-	mx = mon->_mx;
-	my = mon->_my;
 	switch (mon->_muniqtype - 1) {
 	case UMT_GARBUD:
 		// assert(QuestStatus(Q_GARBUD));
-		SpawnTypeItem(mx, my, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnTypeItem(mon->_mpos, CFDQ_GOOD, ITYPE_MACE, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_LAZARUS:
 		//if (IsSfxStreaming(USFX_LAZ1)) // minitxtdata[TEXT_VILE13].sfxnr
@@ -2233,20 +2230,20 @@ static void SpawnLoot(int mnum, bool sendmsg)
 	case UMT_BUTCHER:
 		if (!IsMultiGame) {
 			int idx = (mon->_muniqtype - 1 == UMT_BUTCHER) ? UITEM_CLEAVER : UITEM_SKCROWN;
-			SpawnUnique(idx, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			SpawnUnique(idx, mon->_mpos, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
 	case UMT_ZAMPHIR:
 		if (quests[Q_MUSHROOM]._qactive != QUEST_NOTAVAIL && currLvl._dLevelIdx == uniqMonData[UMT_ZAMPHIR].muLevelIdx) {
-			SpawnQuestItemAt(IDI_BRAIN, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			SpawnQuestItemAt(IDI_BRAIN, mon->_mpos, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
 #ifdef HELLFIRE
 	case UMT_HORKDMN:
 		if (quests[Q_GIRL]._qactive != QUEST_NOTAVAIL && currLvl._dLevelIdx == uniqMonData[UMT_HORKDMN].muLevelIdx) {
-			SpawnQuestItemAt(IDI_THEODORE, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+			SpawnQuestItemAt(IDI_THEODORE, mon->_mpos, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 			return;
 		}
 		break;
@@ -2258,7 +2255,7 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		quests[Q_DEFILER]._qactive = QUEST_DONE;
 		if (sendmsg)
 			NetSendCmdQuest(Q_DEFILER, false); // recipient should not matter
-		SpawnQuestItemAt(IDI_FANG, mx, my, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+		SpawnQuestItemAt(IDI_FANG, mon->_mpos, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 		return;
 	case UMT_NAKRUL:
 		//    minitxtdata[TEXT_NAKRUL4].sfxnr   minitxtdata[TEXT_NAKRUL5].sfxnr   minitxtdata[TEXT_NAKRUL?].sfxnr
@@ -2268,14 +2265,14 @@ static void SpawnLoot(int mnum, bool sendmsg)
 		// quests[Q_NAKRUL]._qvar1 = quests[Q_NAKRUL]._qvar1 == QV_NAKRUL_BOOKOPEN ? QV_NAKRUL_DEADOPEN : QV_NAKRUL_DEAD; // set to new state so innocent monsters are not 'woke' -- does not sync if quest was done
 		if (sendmsg)
 			NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
-		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mx, mon->_my, sendmsg);
-		SpawnMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mx, mon->_my, sendmsg);
-		SpawnMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mx, mon->_my, sendmsg);*/
-		SpawnMonItem(mnum, mx, my, sendmsg); // double reward
+		/*SpawnMagicItem(ITYPE_SWORD, ICURS_GREAT_SWORD, mon->_mpos, sendmsg);
+		SpawnMagicItem(ITYPE_STAFF, ICURS_WAR_STAFF, mon->_mpos, sendmsg);
+		SpawnMagicItem(ITYPE_BOW, ICURS_LONG_WAR_BOW, mon->_mpos, sendmsg);*/
+		SpawnMonItem(mnum, mon->_mpos, sendmsg); // double reward
 		break;
 #endif
 	}
-	SpawnMonItem(mnum, mx, my, sendmsg);
+	SpawnMonItem(mnum, mon->_mpos, sendmsg);
 }
 
 static void MonInitKill(int mnum, int mpnum, bool sendmsg)
@@ -5148,7 +5145,7 @@ void SyncMonsterQ(int pnum, int idx)
 			return;
 		quests[Q_VEIL]._qactive = QUEST_DONE;
 		if (pnum == mypnum)
-			SpawnUnique(UITEM_STEELVEIL, plr._px, plr._py, ICM_SEND_FLIP);
+			SpawnUnique(UITEM_STEELVEIL, GetPosShifted(plr._ppos, plr._pdir), ICM_SEND_FLIP);
 		break;
 	default:
 		return;
@@ -5203,7 +5200,7 @@ void TalktoMonster(int mnum, int pnum)
 			quests[Q_GARBUD]._qlog = TRUE; // BUGFIX: (?) for other quests qactive and qlog go together, maybe this should actually go into the if above (fixed)
 		} else if (mon->_mgoalvar2 == TEXT_GARBUD2) { // TALK_MESSAGE
 			SetRndSeed(mon->_mRndSeed);
-			SpawnMonItem(mnum, plr._px, plr._py, pnum == mypnum);
+			SpawnMonItem(mnum, GetPosShifted(mon->_mpos, mon->_mdir), pnum == mypnum);
 		} //else if (mon->_mgoalvar2 == TEXT_GARBUD4) // TALK_MESSAGE
 		//	mon->_mVar8 = 0; // init MON_TIMER
 		quests[Q_GARBUD]._qvar1++; // (QV_GARBUD_TALK1, QV_GARBUD_TALK2, QV_GARBUD_TALK3, QV_GARBUD_ATTACK)
@@ -5236,7 +5233,7 @@ void TalktoMonster(int mnum, int pnum)
 			else if (plr._pClass == PC_SORCERER)
 				iv = SPL_LIGHTNING;
 			SetRndSeed(mon->_mRndSeed);
-			SpawnSpellBook(iv, plr._px, plr._py, pnum == mypnum);
+			SpawnSpellBook(iv, GetPosShifted(mon->_mpos, mon->_mdir), pnum == mypnum);
 		} else if (quests[Q_ZHAR]._qvar1 == QV_ZHAR_TALK1) {
 			mon->_mgoalvar2 = TEXT_ZHAR2; // TALK_MESSAGE
 			//mon->_mVar8 = 0; // init MON_TIMER

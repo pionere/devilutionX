@@ -4468,9 +4468,7 @@ void MI_Rune(int mi)
 			static_assert(SPL_RUNEWAVE == MIS_RUNEWAVE - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums III.");
 			static_assert(SPL_RUNESTONE == MIS_RUNESTONE - MIS_RUNEFIRE + SPL_RUNEFIRE, "MI_Rune expects ordered MIS/SPL enums IV.");
 			ty = mis->_miType - MIS_RUNEFIRE + SPL_RUNEFIRE;
-			mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
-			my = (unsigned)mis->_mipos.y / DUN_WIDTH;
-			SpawnRune(ty, mx, my);
+			SpawnRune(ty, mis->_mipos);
 		}
 		mis->_miDelFlag = TRUE; // + AddUnLight
 		return;

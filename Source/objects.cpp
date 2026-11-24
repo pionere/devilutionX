@@ -2294,8 +2294,10 @@ static void OperateBookLever(int oi, bool sendmsg)
 		//if (qn != Q_BLOOD) NULL_LVR_EFFECT
 			ObjLvrChangeMap(os/*, qn == Q_BLIND*/);
 		if (qn == Q_BLIND) {
-			if (!deltaload)
-				SpawnUnique(UITEM_OPTAMULET, 2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5, sendmsg ? ICM_SEND : ICM_DUMMY);
+			if (!deltaload) {
+				const POS32 pos = DungeonToDunPos(2 * os->_oVar1 + DBORDERX + 5, 2 * os->_oVar2 + DBORDERY + 5);
+				SpawnUnique(UITEM_OPTAMULET, pos, sendmsg ? ICM_SEND : ICM_DUMMY);
+			}
 			//int tv = dTransVal[2 * os->_oVar1 + DBORDERX + 1][2 * os->_oVar2 + DBORDERY + 1];
 			//DRLG_MRectTrans(os->_oVar1 + 2, os->_oVar2 + 2, os->_oVar1 + 4, os->_oVar2 + 4, tv); // LEVER_EFFECT
 			//DRLG_MRectTrans(os->_oVar1 + 6, os->_oVar2 + 6, os->_oVar1 + 8, os->_oVar2 + 8, tv); // LEVER_EFFECT
@@ -2313,7 +2315,8 @@ static void OperateBookLever(int oi, bool sendmsg)
 		quests[qn]._qlog = TRUE;
 		if (qn == Q_BLOOD) {
 			SetRndSeed(os->_oRndSeed);
-			SpawnQuestItemAt(IDI_BLDSTONE, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 17, sendmsg ? ICM_SEND : ICM_DUMMY);
+			const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 17);
+			SpawnQuestItemAt(IDI_BLDSTONE, pos, sendmsg ? ICM_SEND : ICM_DUMMY);
 		}
 		if (sendmsg) {
 			NetSendCmdQuest(qn, true);
@@ -2345,9 +2348,9 @@ static void OperateChest(int pnum, int oi, bool sendmsg)
 		for (k = i; k > 1; k--)
 			NextRndSeed();
 		if (os->_oVar2 != 0)           // CHEST_ITEM_TYPE
-			SpawnRndItem(os->_ox, os->_oy, os->_oVar2 == 8 ? CFDQ_GOOD : CFDQ_NORMAL, sendmsg);
+			SpawnRndItem(os->_opos, os->_oVar2 == 8 ? CFDQ_GOOD : CFDQ_NORMAL, sendmsg);
 		else
-			SpawnRndUseful(os->_ox, os->_oy, sendmsg);
+			SpawnRndUseful(os->_opos, sendmsg);
 	}
 	if (os->_oTrapChance != 0 && os->_oVar5 == 0) { // TRAP_OI_BACKREF
 		os->_oTrapChance = 0;
@@ -2401,7 +2404,7 @@ static void PickItemFromObject(int idx, int oi, bool sendmsg)
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
-	PickQuestItemAt(idx, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	PickQuestItemAt(idx, os->_opos, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateRockStand(int oi, bool sendmsg)
@@ -2441,7 +2444,7 @@ static void OperateSignChest(int pnum, int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	PlaySfxLoc(IS_CHEST, os->_opos);
-	SpawnQuestItemAt(IDI_BANNER, os->_ox, os->_oy, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnQuestItemAt(IDI_BANNER, os->_opos, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 /*static void OperateFlameTrapLever(int oi, bool sendmsg)
@@ -2489,7 +2492,7 @@ static void OperateSarc(int oi, bool sendmsg)
 	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
 	if (os->_oVar1 <= 2) // SARC_ITEM
-		SpawnRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg);
+		SpawnRndItem(os->_opos, CFDQ_NORMAL, sendmsg);
 	if (os->_oVar1 >= 8) // SARC_SKELE
 		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_NONE);
 }
@@ -2581,15 +2584,18 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 	switch (quests[Q_BLOOD]._qvar1) {
 	case QV_BLOOD_BOOK:
 		break; // should not really happen
-	case QV_BLOOD_STONE1:
-		SpawnQuestItemAt(IDI_BLDSTONE, 2 * pSetPieces[0]._spx + DBORDERX + 3, 2 * pSetPieces[0]._spy + DBORDERY + 10, iv);
-		break;
-	case QV_BLOOD_STONE2:
-		SpawnQuestItemAt(IDI_BLDSTONE, 2 * pSetPieces[0]._spx + DBORDERX + 15, 2 * pSetPieces[0]._spy + DBORDERY + 10, iv);
-		break;
-	case QV_BLOOD_STONE3:
-		SpawnUnique(UITEM_ARMOFVAL, 2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 3, iv);
-		break;
+	case QV_BLOOD_STONE1: {
+		const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 3, 2 * pSetPieces[0]._spy + DBORDERY + 10);
+		SpawnQuestItemAt(IDI_BLDSTONE, pos, iv);
+	} break;
+	case QV_BLOOD_STONE2: {
+		const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 15, 2 * pSetPieces[0]._spy + DBORDERY + 10);
+		SpawnQuestItemAt(IDI_BLDSTONE, pos, iv);
+	} break;
+	case QV_BLOOD_STONE3: {
+		const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 3);
+		SpawnUnique(UITEM_ARMOFVAL, pos, iv);
+	} break;
 	default:
 		ASSUME_UNREACHABLE
 		break;
@@ -3034,11 +3040,11 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 	case SHRINE_DIVINE:
 		mode = sendmsg ? ICM_SEND_FLIP : ICM_DUMMY;
 		if (currLvl._dLevelIdx <= DLV_CATHEDRAL3) {
-			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLMANA, mode);
-			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLHEAL, mode);
+			SpawnTypeItem(os->_opos, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLMANA, mode);
+			SpawnTypeItem(os->_opos, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLHEAL, mode);
 		} else {
-			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
-			SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
+			SpawnTypeItem(os->_opos, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
+			SpawnTypeItem(os->_opos, CFDQ_NORMAL, ITYPE_MISC, IMISC_FULLREJUV, mode);
 		}
 		if (pnum != mypnum)
 			return;
@@ -3124,15 +3130,15 @@ static void OperateShrine(int pnum, int oi, bool sendmsg)
 		const int8_t* cr = &CrawlTable[CrawlNum[3]];
 		mode = sendmsg ? ICM_SEND : ICM_DUMMY;
 		for (i = (BYTE)*cr; i > 0; i--) {
-			xx = plr._px + *++cr;
-			yy = plr._py + *++cr;
-			const POS32 dp = DungeonToDunPos(xx, yy);
+			xx = plr._ppos.x + *++cr * DUN_WIDTH;
+			yy = plr._ppos.y + *++cr * DUN_WIDTH;
+			const POS32 dp = { xx, yy };
 			if (!ItemSpaceOk(dp))
 				continue;
 			if (random_(0, 3) == 0) {
 				AddMissile(plr._ppos, dp, 0, MIS_RUNEFIRE + random_(0, 4), MST_OBJECT, -1, 0);
 			} else {
-				SpawnTypeItem(xx, yy, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
+				SpawnTypeItem(dp, CFDQ_NORMAL, ITYPE_MISC, IMISC_RUNE, mode);
 			}
 		}
 		if (pnum != mypnum)
@@ -3195,7 +3201,7 @@ static void OperateBook2(int oi, bool sendmsg)
 
 	PlaySfxLoc(IS_ISCROL, os->_opos);
 	SetRndSeed(os->_oRndSeed);
-	SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC, IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnTypeItem(os->_opos, CFDQ_NORMAL, ITYPE_MISC, IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateBookCase(int oi, bool sendmsg)
@@ -3219,7 +3225,7 @@ static void OperateBookCase(int oi, bool sendmsg)
 	static_assert(OBJ_BOOKCASEL < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R I.");
 	static_assert(OBJ_BOOKCASER < OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R II.");
 	static_assert(OBJ_BOOKSHELFR > OBJ_BOOKSHELFL, "OperateBookCase depends on the order of OBJ_BOOKCASEL/R and OBJ_BOOKSHELFL/R III.");
-	SpawnTypeItem(os->_ox, os->_oy, CFDQ_NORMAL, ITYPE_MISC,
+	SpawnTypeItem(os->_opos, CFDQ_NORMAL, ITYPE_MISC,
 		(os->_otype < OBJ_BOOKSHELFL || random_(0, 2)) ? IMISC_BOOK : IMISC_SCROLL, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
@@ -3239,7 +3245,7 @@ static void OperateDecap(int oi, bool sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
 
 	SetRndSeed(os->_oRndSeed);
-	SpawnRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg);
+	SpawnRndItem(os->_opos, CFDQ_NORMAL, sendmsg);
 }
 
 static void OperateArmorStand(int oi, bool sendmsg)
@@ -3265,7 +3271,7 @@ static void OperateArmorStand(int oi, bool sendmsg)
 	static_assert(ITYPE_LARMOR + 1 == ITYPE_MARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors I.");
 	static_assert(ITYPE_MARMOR + 1 == ITYPE_HARMOR, "OperateArmorStand expects an ordered ITYPE_ for armors II.");
 	itype = ITYPE_LARMOR + random_(0, currLvl._dLevel >= 24 ? 3 : (currLvl._dLevel >= 10 ? 2 : 1));
-	SpawnTypeItem(os->_ox, os->_oy, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnTypeItem(os->_opos, CFDQ_GOOD, itype, IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 static void OperateFountains(int pnum, int oi, bool sendmsg)
@@ -3336,7 +3342,7 @@ static void OperateWeaponRack(int oi, bool sendmsg)
 	static_assert(ITYPE_AXE + 1 == ITYPE_BOW, "OperateWeaponRack expects an ordered ITYPE_ for weapons II.");
 	static_assert(ITYPE_BOW + 1 == ITYPE_MACE, "OperateWeaponRack expects an ordered ITYPE_ for weapons III.");
 	SetRndSeed(os->_oRndSeed);
-	SpawnTypeItem(os->_ox, os->_oy, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
+	SpawnTypeItem(os->_opos, CFDQ_GOOD, ITYPE_SWORD + random_(0, 4), IMISC_NONE, sendmsg ? ICM_SEND_FLIP : ICM_DUMMY);
 }
 
 /**
@@ -3524,9 +3530,9 @@ static void OperateBarrel(int oi, bool sendmsg)
 	} else {
 		if (os->_oVar2 <= 1) {   // BARREL_ITEM
 			if (os->_oVar3 == 0) // BARREL_ITEM_TYPE
-				SpawnRndUseful(os->_ox, os->_oy, sendmsg);
+				SpawnRndUseful(os->_opos, sendmsg);
 			else
-				SpawnRndItem(os->_ox, os->_oy, CFDQ_NORMAL, sendmsg);
+				SpawnRndItem(os->_opos, CFDQ_NORMAL, sendmsg);
 		} else if (os->_oVar2 >= 8)
 			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy, DIR_NONE); // BARREL_SKELE
 	}

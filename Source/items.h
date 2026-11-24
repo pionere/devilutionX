@@ -42,21 +42,21 @@ bool ItemSpaceOk(POS32 pos);
 BYTE GetBookSpell(unsigned lvl);
 void SetItemData(int ii, int idata);
 void SetItemSData(ItemStruct* is, int idata);
-void SpawnUnique(int uid, int x, int y, int mode);
-void SpawnMonItem(int mnum, int x, int y, bool sendmsg);
-void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg);
+void SpawnUnique(int uid, POS32 pos, int mode);
+void SpawnMonItem(int mnum, POS32 pos, bool sendmsg);
+void SpawnRndItem(POS32 pos, unsigned quality, bool sendmsg);
 void PlaceRndItem(int x, int y, unsigned quality);
-void SpawnRndUseful(int x, int y, bool sendmsg);
-void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode);
+void SpawnRndUseful(POS32 pos, bool sendmsg);
+void SpawnTypeItem(POS32 pos, unsigned quality, int itype, int imisc, int mode);
 void PlaceGoldItem(int x, int y);
 void RecreateItem(int32_t iseed, uint16_t wIndex, uint16_t wCI);
 void PlaceQuestItemInArea(int idx, int areasize);
 void PlaceQuestItemAt(int idx, int x, int y);
-void SpawnQuestItemAt(int idx, int x, int y, int mode);
-void PickQuestItemAt(int idx, int x, int y, int mode);
+void SpawnQuestItemAt(int idx, POS32 pos, int mode);
+void PickQuestItemAt(int idx, POS32 pos, int mode);
 #ifdef HELLFIRE
-void SpawnAmulet(uint16_t wCI, int x, int y /*, bool sendmsg*/);
-void SpawnRune(int sn, int x, int y /*, bool sendmsg*/);
+void SpawnAmulet(uint16_t wCI, POS32 pos/*, bool sendmsg*/);
+void SpawnRune(int sn, POS32 pos/*, bool sendmsg*/);
 #endif
 void RespawnItem(int ii, bool FlipFlag);
 void DeleteItem(int ii);
@@ -77,8 +77,8 @@ void SpawnPremium(unsigned lvl);
 void SpawnWitch(unsigned lvl);
 void SpawnBoy(unsigned lvl);
 void SpawnHealer(unsigned lvl);
-void SpawnSpellBook(int ispell, int x, int y, bool sendmsg);
-void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg);
+void SpawnSpellBook(int ispell, POS32 pos, bool sendmsg);
+void SpawnMagicItem(int itype, int icurs, POS32 pos, bool sendmsg);
 
 #ifdef __cplusplus
 }

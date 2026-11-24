@@ -1124,11 +1124,10 @@ void CreatePlrItems(int pnum)
 	// CalcPlrInv(pnum, false);
 }
 
-static void GetSuperItemSpace(int x, int y)
+static void GetSuperItemSpace(POS32 pos)
 {
 	constexpr int MAXDUN = MAXDUNX >= MAXDUNY ? MAXDUNX : MAXDUNY;
 	int i;
-	POS32 pos = DungeonToDunPos(x, y);
 	for (i = 1; i < MAXDUN; i++) {
 		if (FindPlace(pos, i, PosOkItemSpawnFrom, pos))
 			break;
@@ -1838,7 +1837,7 @@ static void SetupItem(int ii, int idx, int32_t iseed, unsigned lvl, unsigned qua
 			ItemRndDur(ii);
 }
 
-void SpawnUnique(int uid, int x, int y, int mode)
+void SpawnUnique(int uid, POS32 pos, int mode)
 {
 	int idx;
 
@@ -1854,14 +1853,14 @@ void SpawnUnique(int uid, int x, int y, int mode)
 	} while (items[MAXITEMS]._iMagical != ITEM_QUALITY_UNIQUE);
 	assert(items[MAXITEMS]._iUid == uid);
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnUnique expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
 		NetSendCmdSpawnItem(mode == ICM_SEND ? false : true);
 }
 
-static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, bool sendmsg)
+static void SpawnRndLvlItem(unsigned quality, unsigned lvl, POS32 pos, bool sendmsg)
 {
 	int idx, ii;
 
@@ -1874,14 +1873,14 @@ static void SpawnRndLvlItem(unsigned quality, unsigned lvl, int x, int y, bool s
 
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	if (sendmsg) {
 		NetSendCmdSpawnItem(true);
 	}
 }
 
-void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
+void SpawnMonItem(int mnum, POS32 pos, bool sendmsg)
 {
 	MonsterStruct* mon;
 	mon = &monsters[mnum];
@@ -1892,16 +1891,16 @@ void SpawnMonItem(int mnum, int x, int y, bool sendmsg)
 			return;
 		quality = CFDQ_NORMAL;
 	}
-	SpawnRndLvlItem(quality, mon->_mLevel, x, y, sendmsg);
+	SpawnRndLvlItem(quality, mon->_mLevel, pos, sendmsg);
 }
 
-void SpawnRndItem(int x, int y, unsigned quality, bool sendmsg)
+void SpawnRndItem(POS32 pos, unsigned quality, bool sendmsg)
 {
 	unsigned lvl;
 
 	lvl = items_get_currlevel();
 
-	SpawnRndLvlItem(quality, lvl, x, y, sendmsg);
+	SpawnRndLvlItem(quality, lvl, pos, sendmsg);
 }
 
 void PlaceRndItem(int x, int y, unsigned quality)
@@ -1958,7 +1957,7 @@ static void SetupUsefulItem(int ii, int32_t iseed, unsigned lvl)
 	items[ii]._iCreateInfo = lvl; // | CF_USEFUL;
 }
 
-void SpawnRndUseful(int x, int y, bool sendmsg)
+void SpawnRndUseful(POS32 pos, bool sendmsg)
 {
 	unsigned lvl;
 
@@ -1966,13 +1965,13 @@ void SpawnRndUseful(int x, int y, bool sendmsg)
 
 	SetupUsefulItem(MAXITEMS, NextRndSeed(), lvl);
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
-void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mode)
+void SpawnTypeItem(POS32 pos, unsigned quality, int itype, int imisc, int mode)
 {
 	int idx, ii;
 	unsigned lvl;
@@ -1988,7 +1987,7 @@ void SpawnTypeItem(int x, int y, unsigned quality, int itype, int imisc, int mod
 
 	SetupItem(ii, idx, NextRndSeed(), lvl, quality);
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnTypeItem expects ordered ICM_ values.");
 	if (mode >= ICM_SEND) {
@@ -2051,11 +2050,10 @@ void PlaceQuestItemAt(int idx, int x, int y)
  * Spawn a fixed item around the given location.
  * 
  * @param idx: the index of the item(item_indexes enum)
- * @param x tile-coordinate of the target location
- * @param y tile-coordinate of the target location
+ * @param pos precise dungeon position of the target location
  * @param mode icreate_mode
  */
-void SpawnQuestItemAt(int idx, int x, int y, int mode)
+void SpawnQuestItemAt(int idx, POS32 pos, int mode)
 {
 	int ii;
 
@@ -2065,7 +2063,7 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
 	items[ii]._iCreateInfo = items_get_currlevel();
 	items[ii]._iSeed = NextRndSeed();
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	static_assert((int)ICM_SEND + 1 == (int)ICM_SEND_FLIP, "SpawnQuestItemAt expects ordered ICM_ values.");
 	if (mode >= ICM_SEND)
@@ -2076,14 +2074,13 @@ void SpawnQuestItemAt(int idx, int x, int y, int mode)
  * Spawn a fixed item around the given location and try to pick it up.
  * 
  * @param idx: the index of the item(item_indexes enum)
- * @param x tile-coordinate of the target location
- * @param y tile-coordinate of the target location
+ * @param pos precise dungeon position of the target location
  * @param mode icreate_mode (ICM_SEND_FLIP or ICM_DUMMY)
  */
-void PickQuestItemAt(int idx, int x, int y, int mode)
+void PickQuestItemAt(int idx, POS32 pos, int mode)
 {
-	PlaySfxLoc(IS_IGRAB, DungeonToDunPos(x, y));
-	SpawnQuestItemAt(idx, x, y, mode);
+	PlaySfxLoc(IS_IGRAB, pos);
+	SpawnQuestItemAt(idx, pos, mode);
 	if (mode >= ICM_SEND) {
 		NetSendCmdGItem(MAXITEMS);
 	}
@@ -3539,7 +3536,7 @@ void SpawnHealer(unsigned lvl)
 	SortItems(&healitem[srnd]);
 }
 
-void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
+void SpawnSpellBook(int ispell, POS32 pos, bool sendmsg)
 {
 	int idx;
 	unsigned lvl;
@@ -3556,14 +3553,14 @@ void SpawnSpellBook(int ispell, int x, int y, bool sendmsg)
 			break;
 	}
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
 #ifdef HELLFIRE
-void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
+void SpawnAmulet(uint16_t wCI, POS32 pos/*, bool sendmsg*/)
 {
 	int idx;
 	unsigned lvl;
@@ -3577,13 +3574,13 @@ void SpawnAmulet(uint16_t wCI, int x, int y/*, bool sendmsg*/)
 			break;
 	}
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	//if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 
-void SpawnRune(int sn, int x, int y/*, bool sendmsg*/)
+void SpawnRune(int sn, POS32 pos/*, bool sendmsg*/)
 {
 	int idx;
 	unsigned lvl;
@@ -3597,14 +3594,14 @@ void SpawnRune(int sn, int x, int y/*, bool sendmsg*/)
 			break;
 	}
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	//if (sendmsg)
 		NetSendCmdSpawnItem(true);
 }
 #endif
 
-void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
+void SpawnMagicItem(int itype, int icurs, POS32 pos, bool sendmsg)
 {
 	int idx;
 	unsigned lvl;
@@ -3618,7 +3615,7 @@ void SpawnMagicItem(int itype, int icurs, int x, int y, bool sendmsg)
 			break;
 	}
 
-	GetSuperItemSpace(x, y);
+	GetSuperItemSpace(pos);
 
 	if (sendmsg)
 		NetSendCmdSpawnItem(true);
