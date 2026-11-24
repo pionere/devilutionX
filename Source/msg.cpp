@@ -1344,8 +1344,6 @@ void LevelDeltaExport()
 			tmon->smGoalvar3 = mon->_mgoalvar3;
 			tmon->smx = mon->_mx;
 			tmon->smy = mon->_my;
-			//tmon->smfutx = mon->_mfutx;
-			//tmon->smfuty = mon->_mfuty;
 			tmon->smdx = mon->_mpos.x;
 			tmon->smdy = mon->_mpos.y;
 			tmon->smdir = mon->_mdir;
@@ -1569,8 +1567,6 @@ void LevelDeltaLoad()
 		mon->_mgoalvar3 = tmon->smGoalvar3;
 		mon->_mx = tmon->smx;
 		mon->_my = tmon->smy;
-		//mon->_mfutx = tmon->smfutx;
-		//mon->_mfuty = tmon->smfuty;
 		mon->_mpos.x = tmon->smdx;
 		mon->_mpos.y = tmon->smdy;
 		mon->_mdir = tmon->smdir;
@@ -1597,7 +1593,7 @@ void LevelDeltaLoad()
 		mi = mon->_mmode;
 		net_assert(mi <= MM_INGAME_LAST);
 		if (mi != MM_STONE || mon->_mhitpoints != 0) {
-			// calculate the monster's (future/old) position based on its mode
+			// validate the monster's position
 			int mdir, mx, my, mwx, mwy;
 			if (mi == MM_STONE)
 				mi = mon->_mVar3;
@@ -1608,8 +1604,6 @@ void LevelDeltaLoad()
 			my = mon->_my;
 			net_assert(IN_ACTIVE_AREA(mx, my));
 			// net_assert(PosOkMonster(mnum, mx, my));
-			mon->_mfutx = mx;
-			mon->_mfuty = my;
 			if (mi == MM_WALK) {
 				mwx = mx - offset_x[mdir];
 				mwy = my - offset_y[mdir];
@@ -3574,8 +3568,6 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	"gv3:%d "
 	"x:%d "
 	"y:%d "
-	"fx:%d "
-	"fy:%d "
 	"dx:%d "
 	"dy:%d "
 	"dir:%d "
@@ -3644,8 +3636,6 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_mgoalvar3,
 	mon->_mx,
 	mon->_my,
-	mon->_mfutx,
-	mon->_mfuty,
 	mon->_mpos.x,
 	mon->_mpos.y,
 	mon->_mdir,

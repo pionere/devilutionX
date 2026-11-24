@@ -741,8 +741,6 @@ typedef struct MonsterStruct {
 	int _mgoalvar3;
 	int _mx;           // (Future) subtile X-position of the monster
 	int _my;           // (Future) subtile Y-position of the monster
-	int _mfutx;        // Future tile X-position where the monster will be at the end of its action
-	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
 	POS32 _mpos;       // Precise dungeon position of the monster
 	int _mdir;         // Direction faced by monster (direction enum)
 	int _menemy;       // The current target of the monster. An index in to either a player (positive) or a monster (negative)
@@ -801,7 +799,7 @@ typedef struct MonsterStruct {
 	uint16_t _mAlign_0; // unused
 	int _mType; // _monster_id
 	MonAnimStruct* _mAnims;
-	ALIGNMENT(8, 4)
+	ALIGNMENT(10, 6)
 } MonsterStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1320,8 +1318,6 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmgoalvar3;
 	LE_INT32 vmx;           // (Future) subtile X-position of the monster
 	LE_INT32 vmy;           // (Future) subtile Y-position of the monster
-	LE_INT32 vmfutx;        // Future tile X-position where the monster will be at the end of its action
-	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 vmdx;          // Precise dungeon X-position of the monster
 	LE_INT32 vmdy;          // Precise dungeon Y-position of the monster
 	LE_INT32 vmdir;         // Direction faced by monster (direction enum)
@@ -1825,8 +1821,6 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar3;
 	BYTE smx;          // (Future) subtile X-position of the monster
 	BYTE smy;          // (Future) subtile Y-position of the monster
-//	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
-//	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 smdx;     // Precise dungeon X-position of the monster
 	LE_INT32 smdy;     // Precise dungeon Y-position of the monster
 	BYTE smdir;        // Direction faced by monster (direction enum)

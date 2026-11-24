@@ -1589,8 +1589,8 @@ static void MonFindEnemy(int mnum)
 			y = plx(enemy)._py;
 		} else {
 			tnum = -(enemy + 1);
-			x = monsters[tnum]._mfutx;
-			y = monsters[tnum]._mfuty;
+			x = monsters[tnum]._mx;
+			y = monsters[tnum]._my;
 		}
 		mon->_mlastx = x;
 		mon->_mlasty = y;
@@ -1644,8 +1644,8 @@ void SetMonsterLoc(int mnum, int x, int y)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	mon->_mx = mon->_mfutx = x;
-	mon->_my = mon->_mfuty = y;
+	mon->_mx = x;
+	mon->_my = y;
 	mon->_mpos = DungeonToDunPos(x, y);
 }
 
@@ -1655,8 +1655,8 @@ void SetMonsterPos(int mnum, POS32 pos)
 
 	mon = &monsters[mnum];
 	mon->_mpos = pos;
-	mon->_mx = mon->_mfutx = (unsigned)pos.x / DUN_WIDTH;
-	mon->_my = mon->_mfuty = (unsigned)pos.y / DUN_WIDTH;
+	mon->_mx = (unsigned)pos.x / DUN_WIDTH;
+	mon->_my = (unsigned)pos.y / DUN_WIDTH;
 }
 
 static void FixMonLocation(int mnum)
@@ -1672,8 +1672,6 @@ static void AssertFixMonLocation(int mnum)
 
 	assert(mon->_mpos.x == ((mon->_mx * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(mon->_mpos.y == ((mon->_my * DUN_WIDTH) | (DUN_WIDTH / 2)));
-	assert(mon->_mfutx == mon->_mx);
-	assert(mon->_mfuty == mon->_my);
 }
 
 static void StartStand(int mnum)
@@ -1877,8 +1875,8 @@ static void MonStartWalk(int mnum, int dir)
 	assert(dMonster[mx][my] == mnum + 1);
 	mx += offset_x[dir];
 	my += offset_y[dir];
-	mon->_mfutx = mon->_mx = mx;
-	mon->_mfuty = mon->_my = my;
+	mon->_mx = mx;
+	mon->_my = my;
 	dMonster[mx][my] = mnum + 1;
 }
 
@@ -2122,7 +2120,7 @@ void MonHitByMon(int defm, int offm, int dam, unsigned hitflags, int dir)
 				if (knockback)
 					MonGetKnockback(defm, dir);
 				if (stun && dmon->_mType == MT_NBAT && offm >= 0)
-					dir = MonTeleport(defm, monsters[offm]._mfutx, monsters[offm]._mfuty, dir);
+					dir = MonTeleport(defm, monsters[offm]._mx, monsters[offm]._my, dir);
 				MonStartGetHit(defm, OPPOSITE(dir));
 			}
 		}
@@ -2913,8 +2911,8 @@ static void GroupUnity(int mnum)
 		leader = &monsters[mon->_mleader];
 		clear = LineClearPos(mon->_mpos, leader->_mpos);
 		if (clear
-		 && abs(mon->_mx - leader->_mfutx) <= MON_PACK_DISTANCE
-		 && abs(mon->_my - leader->_mfuty) <= MON_PACK_DISTANCE) {
+		 && abs(mon->_mx - leader->_mx) <= MON_PACK_DISTANCE
+		 && abs(mon->_my - leader->_my) <= MON_PACK_DISTANCE) {
 			if (mon->_mleaderflag == MLEADER_AWAY) {
 				leader->_mpacksize++;
 				mon->_mleaderflag = MLEADER_PRESENT;
@@ -2967,8 +2965,8 @@ static bool MonDirOK(int mnum, int mdir)
 		return false;
 
 	if (monsters[mnum]._mleaderflag == MLEADER_PRESENT) {
-		return abs(fx - monsters[monsters[mnum]._mleader]._mfutx) <= MON_PACK_DISTANCE
-		    && abs(fy - monsters[monsters[mnum]._mleader]._mfuty) <= MON_PACK_DISTANCE;
+		return abs(fx - monsters[monsters[mnum]._mleader]._mx) <= MON_PACK_DISTANCE
+		    && abs(fy - monsters[monsters[mnum]._mleader]._my) <= MON_PACK_DISTANCE;
 	}
 	mcount = monsters[mnum]._mpacksize;
 	if (mcount == 0)
@@ -2976,8 +2974,8 @@ static bool MonDirOK(int mnum, int mdir)
 	// assert(mnum + MON_PACK_SIZE <= MAXMONSTERS);
 	for (ma = mnum + 1; ma < mnum + MON_PACK_SIZE; ma++) {
 		if (monsters[ma]._mleaderflag == MLEADER_PRESENT && monsters[ma]._mleader == mnum
-		 && abs(fx - monsters[ma]._mfutx) <= MON_PACK_DISTANCE
-		 && abs(fy - monsters[ma]._mfuty) <= MON_PACK_DISTANCE) {
+		 && abs(fx - monsters[ma]._mx) <= MON_PACK_DISTANCE
+		 && abs(fy - monsters[ma]._my) <= MON_PACK_DISTANCE) {
 			mcount--;
 		}
 	}
@@ -4706,7 +4704,7 @@ void ProcessMonsters()
 				mon->_mhitpoints = mon->_mmaxhp;
 		}
 
-		alert = (dFlags[mon->_mfutx][mon->_mfuty] & BFLAG_ALERT) != 0;
+		alert = (dFlags[mon->_mx][mon->_my] & BFLAG_ALERT) != 0;
 		if ((alert || MON_HAS_ENEMY) && (!MON_ACTIVE || (mon->_mFlags & MFLAG_GARG_STONE))) {
 			MonFindEnemy(mnum);
 			// commented out, because the player might went out of sight in the meantime

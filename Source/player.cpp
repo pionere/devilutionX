@@ -2427,7 +2427,7 @@ static void CheckNewPath(int pnum)
 			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
 		if (!(monsters[plr._pDestParam1]._mFlags & MFLAG_HIDDEN))
-			dir = MakePlrPath(pnum, monsters[plr._pDestParam1]._mfutx, monsters[plr._pDestParam1]._mfuty, false);
+			dir = MakePlrPath(pnum, monsters[plr._pDestParam1]._mx, monsters[plr._pDestParam1]._my, false);
 		else
 			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {

@@ -769,8 +769,8 @@ static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 
 static void MisSetMonsterPos(const MissileStruct* mis, MonsterStruct* mon)
 {
-	mon->_mx = mon->_mfutx = (unsigned)mis->_mipos.x / DUN_WIDTH;
-	mon->_my = mon->_mfuty = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	mon->_mx = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	mon->_my = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	mon->_mpos = mis->_mipos;
 
 	// assert(mon->_mvid == NO_VISION);

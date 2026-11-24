@@ -260,8 +260,6 @@ static BYTE* LoadMonster(BYTE* DVL_RESTRICT src, int mnum, bool full)
 	mon->_mgoalvar3 = savedMon->vmgoalvar3;
 	mon->_mx = savedMon->vmx;
 	mon->_my = savedMon->vmy;
-	mon->_mfutx = savedMon->vmfutx;
-	mon->_mfuty = savedMon->vmfuty;
 	mon->_mpos.x = savedMon->vmdx;
 	mon->_mpos.y = savedMon->vmdy;
 	mon->_mdir = savedMon->vmdir;
@@ -1028,8 +1026,6 @@ static BYTE* SaveMonster(BYTE* DVL_RESTRICT dest, int mnum)
 	monSave->vmgoalvar3 = mon->_mgoalvar3;
 	monSave->vmx = mon->_mx;
 	monSave->vmy = mon->_my;
-	monSave->vmfutx = mon->_mfutx;
-	monSave->vmfuty = mon->_mfuty;
 	monSave->vmdx = mon->_mpos.x;
 	monSave->vmdy = mon->_mpos.y;
 	monSave->vmdir = mon->_mdir;
