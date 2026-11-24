@@ -1984,53 +1984,6 @@ static void Zoom()
 }
 
 /**
- * @brief Calculate the offset needed for centering tiles in view area
- * @param offsetX Offset in pixels
- * @param offsetY Offset in pixels
- */
-static void CalcTileOffset(int* offsetX, int* offsetY)
-{
-	unsigned x, y;
-
-	x = SCREEN_WIDTH;
-	y = SCREEN_HEIGHT;
-	if (gbZoomInFlag) {
-		x >>= 1;
-		y >>= 1;
-	}
-	x %= TILE_WIDTH;
-	y %= TILE_HEIGHT;
-
-	x = ((TILE_WIDTH - x) % TILE_WIDTH) >> 1;
-	y = ((TILE_HEIGHT - y) % TILE_HEIGHT) >> 1;
-
-	*offsetX = x;
-	*offsetY = y;
-}
-
-/**
- * @brief Calculate the needed diamond tile to cover the view area
- * @param rcolumns Tiles needed per row
- * @param rrows Both even and odd rows
- */
-static void TilesInView(unsigned* rcolumns, unsigned* rrows)
-{
-	unsigned columns = (unsigned)(SCREEN_WIDTH - 1) / TILE_WIDTH + 1;
-	unsigned rows = (unsigned)(SCREEN_HEIGHT - 1) / TILE_HEIGHT + 1;
-
-	if (gbZoomInFlag) {
-		// Half the number of tiles, rounded up
-		columns++;
-		columns >>= 1;
-		rows++;
-		rows >>= 1;
-	}
-
-	*rcolumns = columns;
-	*rrows = rows;
-}
-
-/**
  * @brief Configure render and process screen rows
  */
 static void CreateScene()

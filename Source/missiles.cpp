@@ -4445,7 +4445,7 @@ void MI_HorkSpawn(int mi)
 void MI_Rune(int mi)
 {
 	MissileStruct* mis;
-	int ty, mx, my;
+	int ty;
 
 	mis = &missile[mi];
 	if (--mis->_miVar3 <= 0) {

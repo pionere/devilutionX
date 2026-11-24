@@ -46,7 +46,7 @@ static bool PosOkItem(POS32 pos)
 
 static bool PosOkItemSpawn(POS32 pos, POS32 unused)
 {
-	int x, y, oi, i;
+	int x, y, oi;
 
 	x = (unsigned)pos.x / DUN_WIDTH;
 	y = (unsigned)pos.y / DUN_WIDTH;
