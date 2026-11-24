@@ -1946,8 +1946,8 @@ void RemoveMonFromMap(int mnum)
 
 	m1 = mnum + 1;
 	mon = &monsters[mnum];
-	dx = mon->_moldx;
-	dy = mon->_moldy;
+	dx = (unsigned)mon->_mpos.x / DUN_WIDTH;
+	dy = (unsigned)mon->_mpos.y / DUN_WIDTH;
 	assert(dx > 0 && dx < MAXDUNX - 1);
 	assert(dy > 0 && dy < MAXDUNY - 1);
 	static_assert(DBORDERX > 0 && DBORDERY > 0, "RemoveMonFromMap expects a large enough border.");
@@ -1962,7 +1962,7 @@ void RemoveMonFromMap(int mnum)
 	for (x = 0; x < MAXDUNX; x++) {
 		for (y = 0; y < MAXDUNY; y++) {
 			if (abs(dMonster[x][y]) == m1)
-				app_fatal("dMonster not cleared on %d:%d mode:%d ai:%d goal:%d", x, y, mon->_mmode, mon->_mAI.aiType, mon->_mgoal, dMonster[x][y], mon->_moldx, mon->_moldy, mon->_mdir);
+				app_fatal("dMonster not cleared on %d:%d mode:%d ai:%d goal:%d", x, y, mon->_mmode, mon->_mAI.aiType, mon->_mgoal, dMonster[x][y], (unsigned)mon->_mpos.x / DUN_WIDTH, (unsigned)mon->_mpos.y / DUN_WIDTH, mon->_mdir);
 		}
 	}
 #endif

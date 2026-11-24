@@ -1339,8 +1339,8 @@ void RemovePlrFromMap(int pnum)
 	}
 
 	p1 = pnum + 1;
-	dx = plr._poldx;
-	dy = plr._poldy;
+	dx = (unsigned)plr._ppos.x / DUN_WIDTH;
+	dy = (unsigned)plr._ppos.y / DUN_WIDTH;
 	assert(dx > 0 && dx < MAXDUNX - 1);
 	assert(dy > 0 && dy < MAXDUNY - 1);
 	static_assert(DBORDERX > 0 && DBORDERY > 0, "RemovePlrFromMap expects a large enough border.");
@@ -1355,7 +1355,7 @@ void RemovePlrFromMap(int pnum)
 	for (x = 0; x < MAXDUNX; x++) {
 		for (y = 0; y < MAXDUNY; y++) {
 			if (dPlayer[x][y] == p1)
-				app_fatal("dPlayer not cleared on %d:%d id:%d mode:%d value %d  loc %d:%d dir%d", x, y, pnum, plr._pmode, dPlayer[x][y], plr._poldx, plr._poldy, plr._pdir);
+				app_fatal("dPlayer not cleared on %d:%d id:%d mode:%d value %d  loc %d:%d dir%d", x, y, pnum, plr._pmode, dPlayer[x][y], (unsigned)plr._ppos.x / DUN_WIDTH, (unsigned)plr._ppos.y / DUN_WIDTH, plr._pdir);
 		}
 	}
 #endif
