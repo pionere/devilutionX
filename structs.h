@@ -394,8 +394,6 @@ typedef struct PlayerStruct {
 	int _py;      // Tile Y-position where the player should be drawn
 	int _pfutx;   // Future tile X-position where the player will be at the end of its action
 	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
-	int _poldx;   // Most recent tile X-position where the player was at the start of its action
-	int _poldy;   // Most recent tile Y-position where the player was at the start of its action
 	POS32 _ppos;  // Precise dungeon position of the player
 	int _pdir;    // Direction faced by player (direction enum)
 	const BYTE* _pAnimData;
@@ -496,7 +494,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(192, 108)
+	ALIGNMENT(194, 110)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1263,8 +1261,6 @@ typedef struct LSavePlayerStruct {
 	LE_INT32 vpy;      // Tile Y-position where the player should be drawn
 	LE_INT32 vpfutx;   // Future tile X-position where the player will be at the end of its action
 	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
-	LE_INT32 vpoldx;   // Most recent tile X-position where the player was at the start of its action
-	LE_INT32 vpoldy;   // Most recent tile Y-position where the player was at the start of its action
 	LE_INT32 vpdx;     // Precise dungeon X-position of the player
 	LE_INT32 vpdy;     // Precise dungeon Y-position of the player
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
@@ -1804,8 +1800,6 @@ typedef struct TSyncLvlPlayer {
 	BYTE spy;      // Tile Y-position where the player should be drawn
 //	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
 //	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
-//	BYTE spoldx;   // Most recent tile X-position where the player was at the start of its action
-//	BYTE spoldy;   // Most recent tile Y-position where the player was at the start of its action
 	LE_INT32 spdx; // Precise dungeon X-position of the player
 	LE_INT32 spdy; // Precise dungeon Y-position of the player
 	BYTE spdir;    // Direction faced by player (direction enum)

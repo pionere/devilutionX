@@ -631,8 +631,8 @@ static void PlacePlayer(int pnum)
 //  but it is not worth it at the moment.
 void SetPlayerLoc(int pnum, int x, int y)
 {
-	plr._px = plr._pfutx = plr._poldx = x;
-	plr._py = plr._pfuty = plr._poldy = y;
+	plr._px = plr._pfutx = x;
+	plr._py = plr._pfuty = y;
 	plr._ppos = DungeonToDunPos(x, y);
 }
 
@@ -645,9 +645,7 @@ static void FixPlayerLocation(int pnum)
 static void AssertFixPlayerLocation(int pnum)
 {
 	assert(plr._pfutx == plr._px);
-	assert(plr._poldx == plr._px);
 	assert(plr._pfuty == plr._py);
-	assert(plr._poldy == plr._py);
 	assert(plr._ppos.x == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	if (pnum == mypnum) {
@@ -753,9 +751,7 @@ void InitLvlPlayer(int pnum, bool entering)
 	} else {
 		if (pnum == mypnum) {
 			assert(plr._pfutx == plr._px);
-			assert(plr._poldx == plr._px);
 			assert(plr._pfuty == plr._py);
-			assert(plr._poldy == plr._py);
 			assert(plr._ppos.x == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			FixPlayerLocation(pnum);
@@ -1105,8 +1101,6 @@ static void PlrStartWalk(int pnum, int dir)
 
 	px = plr._px;
 	py = plr._py;
-	assert(plr._poldx == px);
-	assert(plr._poldy == py);
 	assert(dPlayer[px][py] == pnum + 1);
 	px += offset_x[dir];
 	py += offset_y[dir];

@@ -111,8 +111,6 @@ static BYTE* LoadPlayer(BYTE* DVL_RESTRICT src, int pnum)
 	pr->_py = savedPlr->vpy;
 	pr->_pfutx = savedPlr->vpfutx;
 	pr->_pfuty = savedPlr->vpfuty;
-	pr->_poldx = savedPlr->vpoldx;
-	pr->_poldy = savedPlr->vpoldy;
 	pr->_ppos.x = savedPlr->vpdx;
 	pr->_ppos.y = savedPlr->vpdy;
 	pr->_pdir = savedPlr->vpdir;
@@ -879,8 +877,6 @@ static BYTE* SavePlayer(BYTE* DVL_RESTRICT dest, int pnum)
 	plrSave->vpy = pr->_py;
 	plrSave->vpfutx = pr->_pfutx;
 	plrSave->vpfuty = pr->_pfuty;
-	plrSave->vpoldx = pr->_poldx;
-	plrSave->vpoldy = pr->_poldy;
 	plrSave->vpdx = pr->_ppos.x;
 	plrSave->vpdy = pr->_ppos.y;
 	plrSave->vpdir = pr->_pdir;

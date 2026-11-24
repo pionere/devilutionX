@@ -1307,8 +1307,6 @@ void LevelDeltaExport()
 			tplr->spy = plr._py;
 			//tplr->spfutx = plr._pfutx;
 			//tplr->spfuty = plr._pfuty;
-			//tplr->spoldx = plr._poldx;
-			//tplr->spoldy = plr._poldy;
 			tplr->spdx = plr._ppos.x;
 			tplr->spdy = plr._ppos.y;
 			tplr->spdir = plr._pdir;
@@ -1512,8 +1510,6 @@ void LevelDeltaLoad()
 		plr._py = tplr->spy;
 		// plr._pfutx = tplr->spfutx;
 		// plr._pfuty = tplr->spfuty;
-		// plr._poldx = tplr->spoldx;
-		// plr._poldy = tplr->spoldy;
 		plr._ppos.x = tplr->spdx;
 		plr._ppos.y = tplr->spdy;
 		plr._pdir = tplr->spdir;
@@ -1543,17 +1539,14 @@ void LevelDeltaLoad()
 			mi = plr._pmode;
 			net_assert(mi < NUM_PLR_MODES);
 			if (mi == PM_WALK) {
-				plr._poldx = px;
-				plr._poldy = py;
-
 				px += offset_x[pdir];
 				py += offset_y[pdir];
 				plr._pfutx = px;
 				plr._pfuty = py;
 				net_assert(IN_DUNGEON_AREA(px, py));
 			} else {
-				plr._pfutx = plr._poldx = px;
-				plr._pfuty = plr._poldy = py;
+				plr._pfutx = px;
+				plr._pfuty = py;
 			}
 		}
 
@@ -1738,8 +1731,6 @@ void LevelDeltaLoad()
 			continue;
 		if (plr._pmode != PM_DYING && plr._pmode != PM_DEATH) {
 			int px = plr._pfutx, py = plr._pfuty;
-			net_assert(PosOkPlayer(pnum, px, py));
-			px = plr._poldx, py = plr._poldy;
 			net_assert(PosOkPlayer(pnum, px, py));
 			switch (plr._pmode) {
 			case PM_ATTACK:
@@ -3826,10 +3817,6 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._pfuty;
 		buf++;
-		*buf = plx(i)._poldx;
-		buf++;
-		*buf = plx(i)._poldy;
-		buf++;
 		//plr._ppos.x = tplr->spdx;
 		//plr._ppos.y = tplr->spdy;
 		*buf = plx(i)._pdir;
@@ -4128,12 +4115,6 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 		src++;
 		if (plx(i)._pfuty != *src)
 			PrintPlrMismatch("pfuty", plx(i)._pfuty, *src, pnum, i);
-		src++;
-		if (plx(i)._poldx != *src)
-			PrintPlrMismatch("poldx", plx(i)._poldx, *src, pnum, i);
-		src++;
-		if (plx(i)._poldy != *src)
-			PrintPlrMismatch("poldy", plx(i)._poldy, *src, pnum, i);
 		src++;
 
 		//int _ppos;   // Precise dungeon position of the player
