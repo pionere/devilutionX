@@ -1350,8 +1350,6 @@ void LevelDeltaExport()
 			tmon->smy = mon->_my;
 			//tmon->smfutx = mon->_mfutx;
 			//tmon->smfuty = mon->_mfuty;
-			//tmon->smoldx = mon->_moldx;
-			//tmon->smoldy = mon->_moldy;
 			tmon->smdx = mon->_mpos.x;
 			tmon->smdy = mon->_mpos.y;
 			tmon->smdir = mon->_mdir;
@@ -1594,8 +1592,6 @@ void LevelDeltaLoad()
 		mon->_my = tmon->smy;
 		//mon->_mfutx = tmon->smfutx;
 		//mon->_mfuty = tmon->smfuty;
-		//mon->_moldx = tmon->smoldx;
-		//mon->_moldy = tmon->smoldy;
 		mon->_mpos.x = tmon->smdx;
 		mon->_mpos.y = tmon->smdy;
 		mon->_mdir = tmon->smdir;
@@ -1633,9 +1629,6 @@ void LevelDeltaLoad()
 			my = mon->_my;
 			net_assert(IN_ACTIVE_AREA(mx, my));
 			if (mi == MM_WALK) {
-				mon->_moldx = mx;
-				mon->_moldy = my;
-
 				mwx = mx + offset_x[mdir];
 				mwy = my + offset_y[mdir];
 				mon->_mfutx = mwx;
@@ -1644,8 +1637,8 @@ void LevelDeltaLoad()
 				// net_assert(PosOkMonster(mnum, mwx, mwy));
 			} else {
 				// net_assert(PosOkMonster(mnum, mx, my));
-				mon->_mfutx = mon->_moldx = mx;
-				mon->_mfuty = mon->_moldy = my;
+				mon->_mfutx = mx;
+				mon->_mfuty = my;
 			}
 			// InitLvlMonster
 			dMonster[mx][my] = mnum + 1;
@@ -3613,8 +3606,6 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	"fy:%d "
 	"dx:%d "
 	"dy:%d "
-	"xf:%d "
-	"yf:%d "
 	"dir:%d "
 	"e:%d "
 	"ex:%d "
@@ -3683,8 +3674,6 @@ static unsigned On_DUMP_MONSTERS(const TCmd* pCmd, int pnum)
 	mon->_my,
 	mon->_mfutx,
 	mon->_mfuty,
-	mon->_moldx,
-	mon->_moldy,
 	mon->_mpos.x,
 	mon->_mpos.y,
 	mon->_mdir,

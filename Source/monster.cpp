@@ -1644,8 +1644,8 @@ void SetMonsterLoc(int mnum, int x, int y)
 	MonsterStruct* mon;
 
 	mon = &monsters[mnum];
-	mon->_mx = mon->_mfutx = mon->_moldx = x;
-	mon->_my = mon->_mfuty = mon->_moldy = y;
+	mon->_mx = mon->_mfutx = x;
+	mon->_my = mon->_mfuty = y;
 	mon->_mpos = DungeonToDunPos(x, y);
 }
 
@@ -1655,8 +1655,8 @@ void SetMonsterPos(int mnum, POS32 pos)
 
 	mon = &monsters[mnum];
 	mon->_mpos = pos;
-	mon->_mx = mon->_moldx = mon->_mfutx = (unsigned)pos.x / DUN_WIDTH;
-	mon->_my = mon->_moldy = mon->_mfuty = (unsigned)pos.y / DUN_WIDTH;
+	mon->_mx = mon->_mfutx = (unsigned)pos.x / DUN_WIDTH;
+	mon->_my = mon->_mfuty = (unsigned)pos.y / DUN_WIDTH;
 }
 
 static void FixMonLocation(int mnum)
@@ -1673,9 +1673,7 @@ static void AssertFixMonLocation(int mnum)
 	assert(mon->_mpos.x == ((mon->_mx * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(mon->_mpos.y == ((mon->_my * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(mon->_mfutx == mon->_mx);
-	assert(mon->_moldx == mon->_mx);
 	assert(mon->_mfuty == mon->_my);
-	assert(mon->_moldy == mon->_my);
 }
 
 static void StartStand(int mnum)
@@ -1876,8 +1874,6 @@ static void MonStartWalk(int mnum, int dir)
 
 	mx = mon->_mx;
 	my = mon->_my;
-	assert(mon->_moldx == mx);
-	assert(mon->_moldy == my);
 	assert(dMonster[mx][my] == mnum + 1);
 	mx += offset_x[dir];
 	my += offset_y[dir];
