@@ -1305,8 +1305,6 @@ void LevelDeltaExport()
 			tplr->spTimer[PLTR_RAGE] = plr._pTimer[PLTR_RAGE];
 			tplr->spx = plr._px;
 			tplr->spy = plr._py;
-			//tplr->spfutx = plr._pfutx;
-			//tplr->spfuty = plr._pfuty;
 			tplr->spdx = plr._ppos.x;
 			tplr->spdy = plr._ppos.y;
 			tplr->spdir = plr._pdir;
@@ -1508,8 +1506,6 @@ void LevelDeltaLoad()
 		plr._pTimer[PLTR_RAGE] = tplr->spTimer[PLTR_RAGE];
 		plr._px = tplr->spx;
 		plr._py = tplr->spy;
-		// plr._pfutx = tplr->spfutx;
-		// plr._pfuty = tplr->spfuty;
 		plr._ppos.x = tplr->spdx;
 		plr._ppos.y = tplr->spdy;
 		plr._pdir = tplr->spdir;
@@ -1529,7 +1525,7 @@ void LevelDeltaLoad()
 		ImportItemDurabilities(pnum, tplr->spItemsDur);
 
 		src += sizeof(TSyncLvlPlayer);
-		{ // calculate the player's (future/old) position based on its mode
+		{ // validate the player's position
 			int pdir = plr._pdir;
 			int px , py;
 			net_assert(pdir < NUM_DIRS);
@@ -1538,8 +1534,6 @@ void LevelDeltaLoad()
 			net_assert(IN_DUNGEON_AREA(px, py));
 			mi = plr._pmode;
 			net_assert(mi < NUM_PLR_MODES);
-			plr._pfutx = px;
-			plr._pfuty = py;
 		}
 
 		InitLvlPlayer(pnum, false);
@@ -1719,8 +1713,6 @@ void LevelDeltaLoad()
 		if (!plr._pActive || plr._pDunLevel != currLvl._dLevelIdx || plr._pLvlChanging)
 			continue;
 		if (plr._pmode != PM_DYING && plr._pmode != PM_DEATH) {
-			int px = plr._pfutx, py = plr._pfuty;
-			net_assert(PosOkPlayer(pnum, px, py));
 			switch (plr._pmode) {
 			case PM_ATTACK:
 				net_assert((unsigned)plr._pVar5 < NUM_SPELLS); // ATTACK_SKILL
@@ -3802,10 +3794,6 @@ static unsigned On_REQUEST_PLRCHECK(const TCmd* pCmd, int pnum)
 		buf++;
 		*buf = plx(i)._py;
 		buf++;
-		*buf = plx(i)._pfutx;
-		buf++;
-		*buf = plx(i)._pfuty;
-		buf++;
 		//plr._ppos.x = tplr->spdx;
 		//plr._ppos.y = tplr->spdy;
 		*buf = plx(i)._pdir;
@@ -4098,12 +4086,6 @@ static unsigned On_DO_PLRCHECK(const TCmd* pCmd, int pnum)
 		src++;
 		if (plx(i)._py != *src)
 			PrintPlrMismatch("py", plx(i)._py, *src, pnum, i);
-		src++;
-		if (plx(i)._pfutx != *src)
-			PrintPlrMismatch("pfutx", plx(i)._pfutx, *src, pnum, i);
-		src++;
-		if (plx(i)._pfuty != *src)
-			PrintPlrMismatch("pfuty", plx(i)._pfuty, *src, pnum, i);
 		src++;
 
 		//int _ppos;   // Precise dungeon position of the player

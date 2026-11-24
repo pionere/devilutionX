@@ -348,14 +348,14 @@ static void ActionDirCmd(const PlrSkillStruct& skill, const RECT_AREA32 &actionV
 	// assert(spelldata[skill._psMove._suSkill].spCurs == CURSOR_NONE); -- TODO extend if there are targeted move skills
 
 	if (skill._psMove._suSkill != SPL_WALK) {
-		// TODO: check if tpos.x/y == _pfutx/y ?
+		// TODO: check if tpos.x/y == _px/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionDirCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(tpos, *((CmdSkillUse*)&skill._psMove));
 		return;
 	}
 
-	POS32 pos8 = { myplr._pfutx, myplr._pfuty };
+	POS32 pos8 = { myplr._px, myplr._py };
 	pos8.x += offset_x[dir8];
 	pos8.y += offset_y[dir8];
 	pos8 = DungeonToDunPos(pos8.x, pos8.y);
@@ -501,7 +501,7 @@ static void ActionBtnCmd(bool altSkill)
 		//return; // TODO: proceed in case skill._psMove != SPL_WALK?
 	}
 	if (skill._psMove._suSkill != SPL_WALK) {
-		// TODO: check if pcurspos.dun.x/y == _pfutx/y ?
+		// TODO: check if pcurspos.dun.x/y == _px/y ?
 		static_assert(offsetof(CmdSkillUse, skill) == offsetof(PlrSkillUse, _suSkill) && offsetof(CmdSkillUse, from) == offsetof(PlrSkillUse, _suFrom) &&
 			sizeof(CmdSkillUse) == sizeof(skill._psAttack), "ActionBtnCmd fails to convert PlrSkillStruct to CmdSkillUse II.");
 		NetSendCmdLocSkill(pcurspos.dun, *((CmdSkillUse*)&skill._psMove));

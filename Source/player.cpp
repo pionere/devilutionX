@@ -631,8 +631,8 @@ static void PlacePlayer(int pnum)
 //  but it is not worth it at the moment.
 void SetPlayerLoc(int pnum, int x, int y)
 {
-	plr._px = plr._pfutx = x;
-	plr._py = plr._pfuty = y;
+	plr._px = x;
+	plr._py = y;
 	plr._ppos = DungeonToDunPos(x, y);
 }
 
@@ -644,8 +644,6 @@ static void FixPlayerLocation(int pnum)
 
 static void AssertFixPlayerLocation(int pnum)
 {
-	assert(plr._pfutx == plr._px);
-	assert(plr._pfuty == plr._py);
 	assert(plr._ppos.x == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 	if (pnum == mypnum) {
@@ -750,8 +748,6 @@ void InitLvlPlayer(int pnum, bool entering)
 		plr._pDestAction = ACTION_NONE;
 	} else {
 		if (pnum == mypnum) {
-			assert(plr._pfutx == plr._px);
-			assert(plr._pfuty == plr._py);
 			assert(plr._ppos.x == ((plr._px * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			assert(plr._ppos.y == ((plr._py * DUN_WIDTH) | (DUN_WIDTH / 2)));
 			FixPlayerLocation(pnum);
@@ -1104,8 +1100,8 @@ static void PlrStartWalk(int pnum, int dir)
 	assert(dPlayer[px][py] == pnum + 1);
 	px += offset_x[dir];
 	py += offset_y[dir];
-	plr._pfutx = plr._px = px; // the Player's x-coordinate after the movement
-	plr._pfuty = plr._py = py; // the Player's y-coordinate after the movement
+	plr._px = px; // the Player's x-coordinate after the movement
+	plr._py = py; // the Player's y-coordinate after the movement
 	dPlayer[px][py] = pnum + 1;
 }
 
@@ -2393,7 +2389,7 @@ static int MakePlrPath(int pnum, int xx, int yy, bool endspace)
 	int8_t walkdir;
 
 	if (!endspace || PosOkPlayer(pnum, xx, yy))
-		md = FindPath(PosOkPlayer, pnum, plr._pfutx, plr._pfuty, xx, yy, &walkdir);
+		md = FindPath(PosOkPlayer, pnum, plr._px, plr._py, xx, yy, &walkdir);
 	if (md < 0) {
 		return md;
 	}
@@ -2425,8 +2421,8 @@ static void CheckNewPath(int pnum)
 	if (plr._pDestAction == ACTION_WALK) {
 		dir = MakePlrPath(pnum, (unsigned)plr._pDestParam1 / DUN_WIDTH, (unsigned)plr._pDestParam2 / DUN_WIDTH, true);
 	} else if (plr._pDestAction == ACTION_WALKDIR) {
-		if (PathWalkable(plr._pfutx, plr._pfuty, dir2pdir[plr._pDestParam1])) // Don't start backtrack around obstacles
-			dir = MakePlrPath(pnum, plr._pfutx + offset_x[plr._pDestParam1], plr._pfuty + offset_y[plr._pDestParam1], true);
+		if (PathWalkable(plr._px, plr._py, dir2pdir[plr._pDestParam1])) // Don't start backtrack around obstacles
+			dir = MakePlrPath(pnum, plr._px + offset_x[plr._pDestParam1], plr._py + offset_y[plr._pDestParam1], true);
 		else
 			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKMON || plr._pDestAction == ACTION_TALK) {
@@ -2435,7 +2431,7 @@ static void CheckNewPath(int pnum)
 		else
 			dir = -1;
 	} else if (plr._pDestAction == ACTION_ATTACKPLR) {
-		dir = MakePlrPath(pnum, plx(plr._pDestParam1)._pfutx, plx(plr._pDestParam1)._pfuty, false);
+		dir = MakePlrPath(pnum, plx(plr._pDestParam1)._px, plx(plr._pDestParam1)._py, false);
 	} else if (plr._pDestAction == ACTION_PICKUPITEM) {
 		dir = MakePlrPath(pnum, (unsigned)plr._pDestParam1 / DUN_WIDTH, (unsigned)plr._pDestParam2 / DUN_WIDTH, false);
 	} else if (plr._pDestAction == ACTION_OPERATE || (plr._pDestAction == ACTION_SPELL && plr._pDestParam3 == SPL_DISARM)) {

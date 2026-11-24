@@ -392,8 +392,6 @@ typedef struct PlayerStruct {
 	unsigned _pNextExper;
 	int _px;      // (Future) subtile X-position of the player
 	int _py;      // (Future) subtile Y-position of the player
-	int _pfutx;   // Future tile X-position where the player will be at the end of its action
-	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
 	POS32 _ppos;  // Precise dungeon position of the player
 	int _pdir;    // Direction faced by player (direction enum)
 	const BYTE* _pAnimData;
@@ -494,7 +492,7 @@ typedef struct PlayerStruct {
 	int _pIAMinDam; // min acid damage (item's added acid damage)
 	int _pIAMaxDam; // max acid damage (item's added acid damage)
 	BYTE* _pAnimFileData[NUM_PGXS]; // file-pointers of the animations
-	ALIGNMENT(194, 110)
+	ALIGNMENT(196, 112)
 } PlayerStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1259,8 +1257,6 @@ typedef struct LSavePlayerStruct {
 	LE_UINT32 vpNextExper;
 	LE_INT32 vpx;      // (Future) subtile X-position of the player
 	LE_INT32 vpy;      // (Future) subtile Y-position of the player
-	LE_INT32 vpfutx;   // Future tile X-position where the player will be at the end of its action
-	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 vpdx;     // Precise dungeon X-position of the player
 	LE_INT32 vpdy;     // Precise dungeon Y-position of the player
 	LE_INT32 vpdir;    // Direction faced by player (direction enum)
@@ -1798,8 +1794,6 @@ typedef struct TSyncLvlPlayer {
 	LE_INT16 spTimer[NUM_PLRTIMERS];
 	BYTE spx;      // (Future) subtile X-position of the player
 	BYTE spy;      // (Future) subtile Y-position of the player
-//	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
-//	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 spdx; // Precise dungeon X-position of the player
 	LE_INT32 spdy; // Precise dungeon Y-position of the player
 	BYTE spdir;    // Direction faced by player (direction enum)

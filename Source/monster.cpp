@@ -1585,8 +1585,8 @@ static void MonFindEnemy(int mnum)
 	if (enemy != 0) {
 		if (enemy > 0) {
 			enemy--;
-			x = plx(enemy)._pfutx;
-			y = plx(enemy)._pfuty;
+			x = plx(enemy)._px;
+			y = plx(enemy)._py;
 		} else {
 			tnum = -(enemy + 1);
 			x = monsters[tnum]._mfutx;
@@ -2088,7 +2088,7 @@ void MonHitByPlr(int mnum, int pnum, int dam, unsigned hitflags, int dir)
 				if (knockback)
 					MonGetKnockback(mnum, dir);
 				if (stun && mon->_mType == MT_NBAT)
-					dir = MonTeleport(mnum, plr._pfutx, plr._pfuty, dir);
+					dir = MonTeleport(mnum, plr._px, plr._py, dir);
 				MonStartGetHit(mnum, OPPOSITE(dir));
 			}
 		}

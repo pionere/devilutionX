@@ -759,8 +759,8 @@ static void MonSetMissilePos(const MonsterStruct* mon, MissileStruct* mis)
 
 static void MisSetPlayerPos(const MissileStruct* mis, int pnum)
 {
-	plr._px = plr._pfutx = (unsigned)mis->_mipos.x / DUN_WIDTH;
-	plr._py = plr._pfuty = (unsigned)mis->_mipos.y / DUN_WIDTH;
+	plr._px = (unsigned)mis->_mipos.x / DUN_WIDTH;
+	plr._py = (unsigned)mis->_mipos.y / DUN_WIDTH;
 	plr._ppos = mis->_mipos;
 
 	ChangeLightXY(plr._plid, plr._ppos);
