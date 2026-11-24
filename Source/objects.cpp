@@ -2315,7 +2315,8 @@ static void OperateBookLever(int oi, bool sendmsg)
 		quests[qn]._qlog = TRUE;
 		if (qn == Q_BLOOD) {
 			SetRndSeed(os->_oRndSeed);
-			const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 17);
+			POS32 pos = os->_opos;
+			pos.y -= 7 * DUN_WIDTH;
 			SpawnQuestItemAt(IDI_BLDSTONE, pos, sendmsg ? ICM_SEND : ICM_DUMMY);
 		}
 		if (sendmsg) {
@@ -2585,15 +2586,21 @@ static void OperatePedestal(int pnum, int oi, bool sendmsg)
 	case QV_BLOOD_BOOK:
 		break; // should not really happen
 	case QV_BLOOD_STONE1: {
-		const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 3, 2 * pSetPieces[0]._spy + DBORDERY + 10);
+		POS32 pos = os->_opos;
+		pos.x -= 6 * DUN_WIDTH;
+		pos.y -= 6 * DUN_WIDTH;
 		SpawnQuestItemAt(IDI_BLDSTONE, pos, iv);
 	} break;
 	case QV_BLOOD_STONE2: {
-		const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 15, 2 * pSetPieces[0]._spy + DBORDERY + 10);
+		POS32 pos = os->_opos;
+		pos.x += 6 * DUN_WIDTH;
+		pos.y -= 6 * DUN_WIDTH;
 		SpawnQuestItemAt(IDI_BLDSTONE, pos, iv);
 	} break;
 	case QV_BLOOD_STONE3: {
-		const POS32 pos = DungeonToDunPos(2 * pSetPieces[0]._spx + DBORDERX + 9, 2 * pSetPieces[0]._spy + DBORDERY + 3);
+		POS32 pos = os->_opos;
+		pos.x -= 0 * DUN_WIDTH;
+		pos.y -= 13 * DUN_WIDTH;
 		SpawnUnique(UITEM_ARMOFVAL, pos, iv);
 	} break;
 	default:
