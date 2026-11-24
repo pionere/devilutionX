@@ -1877,8 +1877,8 @@ static void MonStartWalk(int mnum, int dir)
 	assert(dMonster[mx][my] == mnum + 1);
 	mx += offset_x[dir];
 	my += offset_y[dir];
-	mon->_mfutx = mx;
-	mon->_mfuty = my;
+	mon->_mfutx = mon->_mx = mx;
+	mon->_mfuty = mon->_my = my;
 	dMonster[mx][my] = mnum + 1;
 }
 

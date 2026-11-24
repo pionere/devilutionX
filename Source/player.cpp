@@ -764,8 +764,8 @@ void InitLvlPlayer(int pnum, bool entering)
 		if (plr._pmode != PM_DEATH && plr._pmode != PM_DYING) {
 			dPlayer[px][py] = pnum + 1;
 			if (plr._pmode == PM_WALK) {
-				pwx = px + offset_x[pdir];
-				pwy = py + offset_y[pdir];
+				pwx = px - offset_x[pdir];
+				pwy = py - offset_y[pdir];
 				dPlayer[pwx][pwy] = pnum + 1;
 			}
 		}
@@ -1104,8 +1104,8 @@ static void PlrStartWalk(int pnum, int dir)
 	assert(dPlayer[px][py] == pnum + 1);
 	px += offset_x[dir];
 	py += offset_y[dir];
-	plr._pfutx = /*plr._pVar1 =*/ px; // the Player's x-coordinate after the movement
-	plr._pfuty = /*plr._pVar2 =*/ py; // the Player's y-coordinate after the movement
+	plr._pfutx = plr._px = px; // the Player's x-coordinate after the movement
+	plr._pfuty = plr._py = py; // the Player's y-coordinate after the movement
 	dPlayer[px][py] = pnum + 1;
 }
 

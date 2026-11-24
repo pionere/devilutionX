@@ -1538,16 +1538,8 @@ void LevelDeltaLoad()
 			net_assert(IN_DUNGEON_AREA(px, py));
 			mi = plr._pmode;
 			net_assert(mi < NUM_PLR_MODES);
-			if (mi == PM_WALK) {
-				px += offset_x[pdir];
-				py += offset_y[pdir];
-				plr._pfutx = px;
-				plr._pfuty = py;
-				net_assert(IN_DUNGEON_AREA(px, py));
-			} else {
-				plr._pfutx = px;
-				plr._pfuty = py;
-			}
+			plr._pfutx = px;
+			plr._pfuty = py;
 		}
 
 		InitLvlPlayer(pnum, false);
@@ -1621,17 +1613,14 @@ void LevelDeltaLoad()
 			mx = mon->_mx;
 			my = mon->_my;
 			net_assert(IN_ACTIVE_AREA(mx, my));
+			// net_assert(PosOkMonster(mnum, mx, my));
+			mon->_mfutx = mx;
+			mon->_mfuty = my;
 			if (mi == MM_WALK) {
-				mwx = mx + offset_x[mdir];
-				mwy = my + offset_y[mdir];
-				mon->_mfutx = mwx;
-				mon->_mfuty = mwy;
+				mwx = mx - offset_x[mdir];
+				mwy = my - offset_y[mdir];
 				net_assert(IN_ACTIVE_AREA(mwx, mwy));
 				// net_assert(PosOkMonster(mnum, mwx, mwy));
-			} else {
-				// net_assert(PosOkMonster(mnum, mx, my));
-				mon->_mfutx = mx;
-				mon->_mfuty = my;
 			}
 			// InitLvlMonster
 			dMonster[mx][my] = mnum + 1;

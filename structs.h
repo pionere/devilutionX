@@ -390,8 +390,8 @@ typedef struct PlayerStruct {
 	int16_t _pTimer[NUM_PLRTIMERS];
 	unsigned _pExperience;
 	unsigned _pNextExper;
-	int _px;      // Tile X-position where the player should be drawn
-	int _py;      // Tile Y-position where the player should be drawn
+	int _px;      // (Future) subtile X-position of the player
+	int _py;      // (Future) subtile Y-position of the player
 	int _pfutx;   // Future tile X-position where the player will be at the end of its action
 	int _pfuty;   // Future tile Y-position where the player will be at the end of its action
 	POS32 _ppos;  // Precise dungeon position of the player
@@ -741,8 +741,8 @@ typedef struct MonsterStruct {
 	int _mgoalvar1;
 	int _mgoalvar2;
 	int _mgoalvar3;
-	int _mx;           // Tile X-position where the monster should be drawn
-	int _my;           // Tile Y-position where the monster should be drawn
+	int _mx;           // (Future) subtile X-position of the monster
+	int _my;           // (Future) subtile Y-position of the monster
 	int _mfutx;        // Future tile X-position where the monster will be at the end of its action
 	int _mfuty;        // Future tile Y-position where the monster will be at the end of its action
 	POS32 _mpos;       // Precise dungeon position of the monster
@@ -1257,8 +1257,8 @@ typedef struct LSavePlayerStruct {
 	LE_INT16 vpTimer[NUM_PLRTIMERS];
 	LE_UINT32 vpExperience;
 	LE_UINT32 vpNextExper;
-	LE_INT32 vpx;      // Tile X-position where the player should be drawn
-	LE_INT32 vpy;      // Tile Y-position where the player should be drawn
+	LE_INT32 vpx;      // (Future) subtile X-position of the player
+	LE_INT32 vpy;      // (Future) subtile Y-position of the player
 	LE_INT32 vpfutx;   // Future tile X-position where the player will be at the end of its action
 	LE_INT32 vpfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 vpdx;     // Precise dungeon X-position of the player
@@ -1322,8 +1322,8 @@ typedef struct LSaveMonsterStruct {
 	LE_INT32 vmgoalvar1;
 	LE_INT32 vmgoalvar2;
 	LE_INT32 vmgoalvar3;
-	LE_INT32 vmx;           // Tile X-position where the monster should be drawn
-	LE_INT32 vmy;           // Tile Y-position where the monster should be drawn
+	LE_INT32 vmx;           // (Future) subtile X-position of the monster
+	LE_INT32 vmy;           // (Future) subtile Y-position of the monster
 	LE_INT32 vmfutx;        // Future tile X-position where the monster will be at the end of its action
 	LE_INT32 vmfuty;        // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 vmdx;          // Precise dungeon X-position of the monster
@@ -1796,8 +1796,8 @@ typedef struct TSyncLvlPlayer {
 	LE_INT32 spDestParam3;
 	LE_INT32 spDestParam4;
 	LE_INT16 spTimer[NUM_PLRTIMERS];
-	BYTE spx;      // Tile X-position where the player should be drawn
-	BYTE spy;      // Tile Y-position where the player should be drawn
+	BYTE spx;      // (Future) subtile X-position of the player
+	BYTE spy;      // (Future) subtile Y-position of the player
 //	BYTE spfutx;   // Future tile X-position where the player will be at the end of its action
 //	BYTE spfuty;   // Future tile Y-position where the player will be at the end of its action
 	LE_INT32 spdx; // Precise dungeon X-position of the player
@@ -1829,8 +1829,8 @@ typedef struct TSyncLvlMonster {
 	LE_INT32 smGoalvar1;
 	LE_INT32 smGoalvar2;
 	LE_INT32 smGoalvar3;
-	BYTE smx;          // Tile X-position where the monster should be drawn
-	BYTE smy;          // Tile Y-position where the monster should be drawn
+	BYTE smx;          // (Future) subtile X-position of the monster
+	BYTE smy;          // (Future) subtile Y-position of the monster
 //	BYTE smfutx;       // Future tile X-position where the monster will be at the end of its action
 //	BYTE smfuty;       // Future tile Y-position where the monster will be at the end of its action
 	LE_INT32 smdx;     // Precise dungeon X-position of the monster
