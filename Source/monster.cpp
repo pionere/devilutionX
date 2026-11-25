@@ -2890,10 +2890,14 @@ static void MonWalkDir(int mnum, int md)
 	MonStartWalk(mnum, md);
 }
 
-static void ActivateSpawn(int mnum, int x, int y, int dir)
+void ActivateSpawn(int mnum, POS32 pos, int dir)
 {
+	int x, y;
+
+	x = (unsigned)pos.x / DUN_WIDTH;
+	y = (unsigned)pos.y / DUN_WIDTH;
 	dMonster[x][y] = mnum + 1;
-	SetMonsterLoc(mnum, x, y);
+	SetMonsterPos(mnum, pos);
 	MonStartSpStand(mnum, dir);
 	monsters[mnum]._msquelch = SQUELCH_MAX; // prevent monster from getting in relaxed state
 }
@@ -5145,36 +5149,6 @@ bool PosOkMonst3(int mnum, int x, int y)
 	return monster_posok(mnum, x, y);
 }
 
-void SpawnSkeleton(int mnum, int x, int y, int dir)
-{
-	int i, nok;
-	int monstok[NUM_DIRS];
-
-	if (mnum == -1)
-		return; // FALSE;
-
-	if (PosOkActor(x, y)) {
-		if (dir == DIR_NONE)
-			dir = random_(11, NUM_DIRS);
-		ActivateSpawn(mnum, x, y, dir);
-		return; // TRUE;
-	}
-
-	nok = 0;
-	for (i = 0; i < lengthof(offset_x); i++) {
-		if (PosOkActor(x + offset_x[i], y + offset_y[i])) {
-			monstok[nok] = i;
-			nok++;
-		}
-	}
-	if (nok == 0)
-		return;
-	dir = monstok[random_low(12, nok)];
-	ActivateSpawn(mnum, x + offset_x[dir], y + offset_y[dir], dir);
-
-	// return TRUE;
-}
-
 int PreSpawnSkeleton()
 {
 	int n = numSkelTypes, mnum = -1;
@@ -5373,7 +5347,7 @@ bool SpawnMinion(int mnum, int dx, int dy, int type, int level, int hitpoints)
 			assert(IN_DUNGEON_AREA(tx, ty));
 			if (PosOkActor(tx, ty) && PosOkPortal(tx, ty) && PosOkTrig(tx, ty) && LineClear(sx, sy, tx, ty)) {
 				PreSpawnMinion(mnum, type, level);
-				ActivateSpawn(mnum, tx, ty, DIR_S);
+				ActivateSpawn(mnum, DungeonToDunPos(tx, ty), DIR_S);
 				mon = &monsters[mnum];
 				if (hitpoints > 0)
 					mon->_mhitpoints = std::min(hitpoints, mon->_mmaxhp);

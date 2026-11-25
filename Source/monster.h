@@ -74,7 +74,7 @@ bool PosOkMonst(int mnum, int x, int y);
 bool PosOkMonst2(int mnum, int x, int y);
 /* Check if the monster could walk on the given position. (ignoring doors) */
 bool PosOkMonst3(int mnum, int x, int y);
-void SpawnSkeleton(int mnum, int x, int y, int dir);
+void ActivateSpawn(int mnum, POS32 pos, int dir);
 int PreSpawnSkeleton();
 void SyncMonsterQ(int pnum, int idx);
 void TalktoMonster(int mnum, int pnum);

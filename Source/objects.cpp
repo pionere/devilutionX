@@ -1063,12 +1063,21 @@ static void AddBanner(int oi)
 static void AddSarc(int oi)
 {
 	ObjectStruct* os;
+	int rnd;
 
 	os = &objects[oi];
-	os->_oVar1 = random_(153, 10);       // SARC_ITEM
 	//os->_oRndSeed = NextRndSeed();
-	if (os->_oVar1 >= 8)
-		os->_oVar2 = PreSpawnSkeleton(); // SARC_SKELE
+	rnd = random_(153, 128);
+	if (rnd < 64)
+		rnd = -1;                 // SARC_EMPTY
+	else if (rnd < 103)
+		rnd = 0;                  // SARC_ITEM
+	else {
+		rnd = PreSpawnSkeleton(); // SARC_SKELE
+		// assert(rnd1 == -1 || rnd1 >= MAX_MINIONS);
+		static_assert(MAX_MINIONS > 0, "AddSarc might not spawn a skeleton");
+	}
+	os->_oVar1 = rnd;
 }
 
 /*static void AddFlameTrap(int oi)
@@ -1112,13 +1121,22 @@ static void AddTrap(int oi)
 static void AddBarrel(int oi)
 {
 	ObjectStruct* os;
+	int rnd1, rnd2;
 
 	os = &objects[oi];
 	//os->_oRndSeed = NextRndSeed();
-	os->_oVar3 = random_(149, 3);  // BARREL_ITEM_TYPE
-	os->_oVar2 = random_(149, 10); // BARREL_ITEM
-	if (os->_oVar2 >= 8)
-		os->_oVar4 = PreSpawnSkeleton(); // BARREL_SKELE
+	rnd1 = random_(149, 128);
+	rnd2 = random_(149, 128);
+	if (rnd1 < 77) {
+		rnd1 = -1;                 // BARREL_EMPTY
+	} else if (rnd1 < 103) {
+		rnd1 = rnd2 >= 43 ? 1 : 0;  // BARREL_ITEM / BARREL_ITEM_TYPE
+	} else {
+		rnd1 = PreSpawnSkeleton(); // BARREL_SKELE
+		// assert(rnd1 == -1 || rnd1 >= MAX_MINIONS);
+		static_assert(MAX_MINIONS > 1, "AddBarrel might not spawn a skeleton");
+	}
+	os->_oVar1 = rnd1;
 }
 
 static int FindValidShrine(int filter)
@@ -2478,6 +2496,36 @@ static void OperateSignChest(int pnum, int oi, bool sendmsg)
 	}
 }*/
 
+static void SpawnSarcSkeleton(POS32 pos, int mnum)
+{
+	int x, y, xx, yy, nok, dir;
+	POS32 monstok[12];
+	POS32 dp;
+
+	x = (unsigned)pos.x / DUN_WIDTH;
+	y = (unsigned)pos.y / DUN_WIDTH;
+	nok = 0;
+	for (yy = y - 2; yy < y + 2; yy++) {
+		for (xx = x - 1; xx < x + 2; xx++) {
+			if (PosOkActor(xx, yy)) {
+				monstok[nok] = { xx , yy };
+				nok++;
+			}
+		}
+	}
+
+	if (nok == 0)
+		return;
+	nok = random_low(12, nok);
+	xx = monstok[nok].x;
+	yy = monstok[nok].y;
+
+	pos.y -= DUN_WIDTH / 2;
+	dp = DungeonToDunPos(xx, yy);
+	dir = GetDirection(pos, dp);
+	ActivateSpawn(mnum, dp, dir);
+}
+
 static void OperateSarc(int oi, bool sendmsg)
 {
 	ObjectStruct* os;
@@ -2499,10 +2547,11 @@ static void OperateSarc(int oi, bool sendmsg)
 	os->_oAnimFlag = OAM_ONCE;
 	//os->_oAnimFrameLen = 3;
 	SetRndSeed(os->_oRndSeed);
-	if (os->_oVar1 <= 2) // SARC_ITEM
-		SpawnRndItem(os->_opos, CFDQ_NORMAL, sendmsg);
-	if (os->_oVar1 >= 8) // SARC_SKELE
-		SpawnSkeleton(os->_oVar2, os->_ox, os->_oy, DIR_NONE);
+	if (os->_oVar1 == 0)       // SARC_ITEM
+		SpawnRndItem(GetPosShifted(GetPosShifted(os->_opos, DIR_SE), DIR_SE), CFDQ_NORMAL, sendmsg);
+	else if (os->_oVar1 > 0) { // SARC_SKELE
+		SpawnSarcSkeleton(os->_opos, os->_oVar1);
+	}
 }
 
 static void SyncPedestal(/*int oi*/)
@@ -3499,7 +3548,6 @@ static void OperateBarrel(int oi, bool sendmsg)
 		return;
 	os->_oModeFlags &= ~OMF_ACTIVE;
 
-	// os->_oVar1 = 0;
 	// os->_oAnimFlag = OAM_ONCE;
 	// os->_oAnimFrame = 1;
 	// os->_oAnimFrameLen = 1;
@@ -3542,13 +3590,16 @@ static void OperateBarrel(int oi, bool sendmsg)
 			}
 		}
 	} else {
-		if (os->_oVar2 <= 1) {   // BARREL_ITEM
-			if (os->_oVar3 == 0) // BARREL_ITEM_TYPE
+		if (os->_oVar1 >= 0) {
+			if (os->_oVar1 == 0)      // BARREL_ITEM
 				SpawnRndUseful(os->_opos, sendmsg);
-			else
+			else if (os->_oVar1 == 1) // BARREL_ITEM_TYPE
 				SpawnRndItem(os->_opos, CFDQ_NORMAL, sendmsg);
-		} else if (os->_oVar2 >= 8)
-			SpawnSkeleton(os->_oVar4, os->_ox, os->_oy, DIR_NONE); // BARREL_SKELE
+			else {                    // BARREL_SKELE
+				int dir = random_(11, NUM_DIRS);
+				ActivateSpawn(os->_oVar1, os->_opos, dir);
+			}
+		}
 	}
 	if (sendmsg)
 		NetSendCmdParam1(CMD_OPERATEOBJ, oi);
