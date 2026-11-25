@@ -1688,19 +1688,32 @@ static void ObjLvrChangeMap(const ObjectStruct* os/*, bool hasNewObjPiece*/)
 	DRLG_ChangeMap(os->_oVar1, os->_oVar2, os->_oVar3, os->_oVar4/*, hasNewObjPiece*/); // LEVER_EFFECT
 }
 
+static int FindPlrOver(int oi)
+{
+	ObjectStruct* os;
+	int pnum, dist;
+
+	os = &objects[oi];
+	for (pnum = 0; pnum < MAX_PLRS; pnum++) {
+		if (!plr._pActive || currLvl._dLevelIdx != plr._pDunLevel || plr._pLvlChanging || plr._pHitPoints == 0)
+			continue;
+		if (plr._pmode != PM_STAND) continue;
+		// if (plr._ppos.x != os->_opos.x || plr._ppos.y != os->_opos.y)
+		dist = GetDunDistance2(plr._ppos, os->_opos);
+		if (dist > (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT) / 4)
+			continue;
+		return pnum;
+	}
+	return -1;
+}
+
 static void Obj_Plate(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy, pnum;
+	int pnum;
 
+	pnum = FindPlrOver(oi);
 	os = &objects[oi];
-	ox = os->_ox;
-	oy = os->_oy;
-	pnum = dPlayer[ox][oy];
-	pnum--;
-	if (pnum >= 0 && plr._pmode != PM_STAND) {
-		pnum = -1;
-	}
 	assert(objectdata[OBJ_PRSPLT1].oBaseFrame == objectdata[OBJ_PRSPLT2].oBaseFrame);
 	os->_oGfxFrame = objectdata[OBJ_PRSPLT1].oBaseFrame + (pnum >= 0 ? 1 : 0); // PRSPLT_ACTIVE_FRAME
 	if (pnum >= 0) {
@@ -1721,16 +1734,10 @@ static void Obj_Plate(int oi)
 static void Obj_Circle(int oi)
 {
 	ObjectStruct* os;
-	int ox, oy, pnum;
+	int pnum;
 
+	pnum = FindPlrOver(oi);
 	os = &objects[oi];
-	ox = os->_ox;
-	oy = os->_oy;
-	pnum = dPlayer[ox][oy];
-	pnum--;
-	if (pnum >= 0 && plr._pmode != PM_STAND) {
-		pnum = -1;
-	}
 	// os->_oGfxFrame = os->_oVar6 - (pnum < 0 ? 1 : 0);
 	os->_oGfxFrame = objectdata[OBJ_MCIRCLE1].oBaseFrame + (pnum >= 0 ? 1 : 0); // CIRCLE_ACTIVE_FRAME
 	if (pnum >= 0) {
