@@ -47,6 +47,7 @@ void MAI_Lazarus(int mnum);
 void MAI_Lazhelp(int mnum);
 void MAI_Lachdanan(int mnum);
 void MAI_Warlord(int mnum);
+void MAI_Closer(int mnum);
 
 #ifdef __cplusplus
 }

@@ -2344,6 +2344,7 @@ typedef enum _monster_ai {
 	AI_LAZHELP,
 	AI_LACHDAN,
 	AI_WARLORD,
+	AI_CLOSER,
 #ifdef HELLFIRE
 	AI_HORKDMN,
 #endif

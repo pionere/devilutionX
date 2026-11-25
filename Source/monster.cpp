@@ -152,6 +152,7 @@ static void (*const AiProc[])(int i) = {
 /*AI_LAZHELP*/      &MAI_Lazhelp,
 /*AI_LACHDAN*/      &MAI_Lachdanan,
 /*AI_WARLORD*/      &MAI_Warlord,
+/*AI_CLOSER*/       &MAI_Closer,
 #ifdef HELLFIRE
 /*AI_HORKDMN*/      &MAI_Horkdemon,
 #endif
@@ -4681,6 +4682,74 @@ void MAI_Warlord(int mnum)
 
 	// assert(mon->_mgoal == MGOAL_NORMAL);
 		MAI_SkelSd(mnum);
+}
+
+static bool MonCloserWalk(int mnum, int md, int* dir)
+{
+	int mdtemp;
+	bool ok;
+
+	if (*dir)
+		md = (md - 1) & 7;
+	else
+		md = (md + 1) & 7;
+
+	ok = MonDirOK(mnum, md);
+	mdtemp = md;
+	if (!ok) {
+		ok = (md = (mdtemp + 1) & 7, MonDirOK(mnum, md))
+		  || (md = (mdtemp - 1) & 7, MonDirOK(mnum, md));
+	}
+	if (ok) {
+		MonWalkDir(mnum, md);
+	} else {
+		*dir = !*dir;
+		ok = MonCallWalk(mnum, OPPOSITE(mdtemp));
+	}
+	return ok;
+}
+
+void MAI_Closer(int mnum)
+{
+	MonsterStruct* mon = &monsters[mnum];
+	MonEnemyStruct nmInfo;
+	int md, dist, v;
+	if (MON_RELAXED || MON_ACTIVE)
+		return;
+
+	MonEnemyInfo(mnum, nmInfo);
+	if (mon->_msquelch < SQUELCH_MAX && (mon->_mFlags & MFLAG_CAN_OPEN_DOOR))
+		MonstCheckDoors(mon->_mpos);
+	md = nmInfo._meLastDir;
+	dist = nmInfo._meRealDist;
+	v = random_(114, 100);
+	if (dist >= 2 && mon->_msquelch == SQUELCH_MAX /*&& dTransVal[mon->_mx][mon->_my] == dTransVal[(unsigned)nmInfo._mePos.x / DUN_WIDTH][(unsigned)nmInfo._mePos.y / DUN_WIDTH]*/) {
+		if (mon->_mgoal == MGOAL_MOVE || (dist >= 2 && random_(115, 4) == 0)) {
+			if (mon->_mgoal != MGOAL_MOVE) {
+				mon->_mgoal = MGOAL_MOVE;
+				mon->_mgoalvar1 = 0;               // MOVE_DISTANCE
+				mon->_mgoalvar2 = random_(116, 2); // MOVE_TURN_DIRECTION
+			}
+			if (mon->_mgoalvar1++ < 2 * dist/* || !MonDirOK(mnum, md)*/) {
+				MonCloserWalk(mnum, md, &mon->_mgoalvar2); // MOVE_TURN_DIRECTION
+			} else {
+				mon->_mgoal = MGOAL_NORMAL;
+			}
+		}
+	} else {
+		mon->_mgoal = MGOAL_NORMAL;
+	}
+
+	if (mon->_mgoal == MGOAL_NORMAL) {
+		if (dist >= 2) {
+			if (((unsigned)mon->_mVar2 > MON_WALK_DELAY && v < 2 * mon->_mAI.aiInt + 28) // STAND_TICK
+			 || (MON_JUST_WALKED && v < 2 * mon->_mAI.aiInt + 78)) {
+				MonDestWalk(mnum, nmInfo);
+			}
+		} else if (v < 2 * mon->_mAI.aiInt + 23) {
+			MonStartAttack(mnum, nmInfo);
+		}
+	}
 }
 
 void ProcessMonsters()
