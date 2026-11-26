@@ -4565,10 +4565,12 @@ typedef enum quest_var1_state {
 
 	QV_BETRAYER_STAFFGIVEN = 2,
 	QV_BETRAYER_PORTALOPEN = 3,  // portal to the setlevel is opened
-	QV_BETRAYER_CENTRALOPEN = 4, // central block on the setlevel is open
-	QV_BETRAYER_TALK1 = 6,       // Lazarus talked
-	QV_BETRAYER_DEAD = 7,        // Lazarus dead
-	QV_BETRAYER_CAIN = 8,        // Cain talked
+	QV_BETRAYER_BOOK_ONE = 4,    // one book is read
+	QV_BETRAYER_BOOK_TWO = 5,    // both books are read
+	QV_BETRAYER_CENTRALOPEN = 6, // central block on the setlevel is open
+	QV_BETRAYER_TALK1 = 7,       // Lazarus talked
+	QV_BETRAYER_DEAD = 8,        // Lazarus dead
+	QV_BETRAYER_CAIN = 9,        // Cain talked
 	// hellfire-only
 	QV_JERSEY_BOMBGIVEN = 1,
 

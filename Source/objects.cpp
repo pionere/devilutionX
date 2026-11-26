@@ -1352,10 +1352,9 @@ static void AddDecap(int oi)
 
 static void AddMagicCircle(int oi)
 {
-	ObjectStruct* os;
+	// ObjectStruct* os;
 
-	os = &objects[oi];
-	os->_oVar5 = 0;                                          // VILE_CIRCLE_PROGRESS
+	// os = &objects[oi];
 	// assert(objectdata[OBJ_MCIRCLE1].oBaseFrame == os->_oGfxFrame);
 	// os->_oVar6 = objectdata[OBJ_MCIRCLE1].oBaseFrame + 1; // CIRCLE_ACTIVE_FRAME
 }
@@ -1757,7 +1756,7 @@ static void Obj_Circle(int oi)
 	if (pnum >= 0) {
 		// if (CheckLeverGroup(OBJ_VILEBOOK, os->_oVar8) ... ?
 		const POS32 cp = DungeonToDunPos(LAZ_CENTRAL_X, LAZ_CENTRAL_Y);
-		if (os->_opos.x == cp.x && os->_opos.y == cp.y && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
+		if (os->_opos.x == cp.x && os->_opos.y == cp.y && quests[Q_BETRAYER]._qvar1 >= QV_BETRAYER_BOOK_TWO) {
 			// assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
 				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CENTRALOPEN;
@@ -2286,8 +2285,9 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	FindClosestPlr(&dx, &dy);
 	const POS32 dp = DungeonToDunPos(dx, dy);
 	AddMissile(os->_opos, dp, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
-	objects[dObject[LAZ_CENTRAL_X][LAZ_CENTRAL_Y] - 1]._oVar5++; // VILE_CIRCLE_PROGRESS
-
+	// assert(quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_PORTALOPEN || quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_BOOK_ONE);
+	quests[Q_BETRAYER]._qvar1++;
+	// assert(quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_BOOK_ONE || quests[Q_BETRAYER]._qvar1 == QV_BETRAYER_BOOK_TWO);
 	os->_oModeFlags &= ~OMF_ACTIVE;
 	os->_oSelFlag = 0;
 	os->_oAnimFrame = os->_oVar6; // LEVER_BOOK_READ_ANIM
