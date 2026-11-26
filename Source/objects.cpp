@@ -2141,7 +2141,7 @@ static void OperateDoor(int pnum, int oi, bool sendmsg, bool TeleFlag)
 
 void ObjHitByAny(int oi)
 {
-	if (objects[oi]._oBreak == OBM_BREAKABLE) {
+	if (objects[oi]._oBreak != OBM_UNBREAKABLE) {
 		OperateObject(-1, oi, false);
 	}
 }
@@ -3540,8 +3540,7 @@ static void OperateCrux(int oi, bool sendmsg)
 static void OperateBarrel(int oi, bool sendmsg)
 {
 	ObjectStruct* os = &objects[oi];
-	int xotype, mpo;
-	int xp, yp;
+	int xotype;
 
 	if (!(os->_oModeFlags & OMF_ACTIVE))
 		return;
@@ -3552,6 +3551,7 @@ static void OperateBarrel(int oi, bool sendmsg)
 	// os->_oAnimFrameLen = 1;
 	os->_oSolidFlag = FALSE;
 	// os->_oMissFlag = TRUE;
+	xotype = os->_oBreak;
 	os->_oBreak = OBM_BROKEN;
 	os->_oSelFlag = 0;
 	os->_oPreFlag = TRUE;
@@ -3567,27 +3567,9 @@ static void OperateBarrel(int oi, bool sendmsg)
 	// assert(os->_oSFXCnt == 1);
 	PlaySfxLoc(os->_oSFX, os->_opos);
 
-	xotype = OBJ_BARRELEX;
-#ifdef HELLFIRE
-	if (currLvl._dType == DTYPE_CRYPT)
-		xotype = OBJ_URNEX;
-	else if (currLvl._dType == DTYPE_NEST)
-		xotype = OBJ_PODEX;
-#endif
-
 	SetRndSeed(os->_oRndSeed);
-	if (os->_otype == xotype) {
+	if (xotype == OBM_VOLATILE) {
 		AddMissile(os->_opos, { 0, 0 }, 0, MIS_BARRELEX, MST_NA, -1, 0);
-		for (int i = 0; i < lengthof(offset_x); i++) {
-			xp = os->_ox + offset_x[i];
-			yp = os->_oy + offset_y[i];
-			mpo = dObject[xp][yp];
-			if (mpo > 0) {
-				mpo--;
-				if (objects[mpo]._otype == xotype && objects[mpo]._oBreak == OBM_BREAKABLE)
-					OperateBarrel(mpo, sendmsg);
-			}
-		}
 	} else {
 		if (os->_oVar1 >= 0) {
 			if (os->_oVar1 == 0)      // BARREL_ITEM

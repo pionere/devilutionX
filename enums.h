@@ -3305,6 +3305,7 @@ typedef enum object_anim_mode {
 typedef enum object_break_mode {
 	OBM_UNBREAKABLE,
 	OBM_BREAKABLE,
+	OBM_VOLATILE,
 	OBM_BROKEN
 } object_break_mode;
 

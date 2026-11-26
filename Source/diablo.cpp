@@ -494,7 +494,7 @@ static void ActionBtnCmd(bool altSkill)
 
 	if (OBJ_VALID(pcursobj)) {
 		bool bNear = GetDunDistance2(pcurspos.dun, myplr._ppos) <= 2 * (DUN_WIDTH >> DUN_SHIFT) * (DUN_WIDTH >> DUN_SHIFT);
-		if (skill._psMove._suSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak == OBM_BREAKABLE)) {
+		if (skill._psMove._suSkill == SPL_WALK || (bNear && objects[pcursobj]._oBreak != OBM_UNBREAKABLE)) {
 			NetSendCmdLocParam1(CMD_OPOBJXY, pcurspos.dun, pcursobj);
 			return;
 		}

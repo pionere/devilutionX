@@ -376,7 +376,7 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_BKURNS*/// { "Bkurns",   SFX_NONE,          1, OAM_SWITCH,            1,           OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_WATERJUG*///{ "Waterjug", SFX_NONE,          1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
 /*OFILE_BARREL*/   { "Barrel",   IS_BARREL,         1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
-/*OFILE_BARRELEX*/ { "Barrelex", IS_BARLFIRE,       1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
+/*OFILE_BARRELEX*/ { "Barrelex", IS_BARLFIRE,       1, OAM_ONCE,              1,           OBM_VOLATILE,    ALIGN32 },
 /*OFILE_LSHRINEG*/ { "LShrineG", IS_MAGIC,          2, OAM_ONCE,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_RSHRINEG*/ { "RShrineG", IS_MAGIC,          2, OAM_ONCE,              0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_BLOODFNT*/ { "Bloodfnt", SFX_NONE,          0, OAM_LOOP,              1,           OBM_UNBREAKABLE, ALIGN32 },
@@ -399,12 +399,12 @@ const ObjFileData objfiledata[NUM_OFILE_TYPES] = {
 /*OFILE_L5DOOR*/   { "L5Door",   IS_CROPEN,         2, OAM_SWITCH,            0,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L5SARCO*/  { "L5Sarco",  SFX_NONE,          0, OAM_ONCE,              1 | 2,       OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_URN*/      { "Urn",      IS_POPPOP2,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
-/*OFILE_URNEXPLD*/ { "Urnexpld", IS_POPPOP3,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
+/*OFILE_URNEXPLD*/ { "Urnexpld", IS_POPPOP3,        1, OAM_ONCE,              1,           OBM_VOLATILE,    ALIGN32 },
 /*OFILE_L5BOOKS*/  { "L5Books",  SFX_NONE,          0, OAM_NONE /*OAM_ONCE*/, 1,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L5LIGHT*/  { "L5Light",  SFX_NONE,          0, OAM_NONE,              1,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L5LEVER*/  { "L5Lever",  SFX_NONE,          0, OAM_SWITCH,            1,           OBM_UNBREAKABLE, ALIGN32 },
 /*OFILE_L6POD1*/   { "L6Pod1",   IS_POPPOP5,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
-/*OFILE_L6POD2*/   { "L6Pod2",   IS_POPPOP8,        1, OAM_ONCE,              1,           OBM_BREAKABLE,   ALIGN32 },
+/*OFILE_L6POD2*/   { "L6Pod2",   IS_POPPOP8,        1, OAM_ONCE,              1,           OBM_VOLATILE,    ALIGN32 },
 #endif
 	// clang-format on
 };

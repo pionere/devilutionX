@@ -1573,6 +1573,8 @@ static bool MisHitCallback(int mponum, int mi)
 			mponum -= MAX_PLRS;
 			// ObjMissHit
 			result = objects[mponum]._oMissFlag == 0;
+			if (missile[mi]._miType == MIS_BARRELEX)
+				result |= objects[mponum]._oBreak == OBM_VOLATILE;
 			if (result) {
 				ObjHitByAny(mponum);
 			}
