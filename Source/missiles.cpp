@@ -21,7 +21,7 @@ int nummissiles;
 // container for live data of missile-animations
 static CelAnimBuf* misanimdata[NUM_MFILE + 1][16] = { { 0 } };
 
-// TODO: merge XDirAdd/YDirAdd, offset_x/offset_y, bxadd/byadd, pathxdir/pathydir, plrxoff2/plryoff2, trm3x/trm3y
+// TODO: merge XDirAdd/YDirAdd, offset_x/offset_y, pathxdir/pathydir, plrxoff2/plryoff2, trm3x/trm3y
 /** Maps from direction to X-offset. */
 static const int XDirAdd[NUM_DIRS] = { 1, 0, -1, -1, -1, 0, 1, 1 };
 /** Maps from direction to Y-offset. */
