@@ -1760,14 +1760,14 @@ static void Obj_Circle(int oi)
 	os->_oGfxFrame = objectdata[OBJ_MCIRCLE1].oBaseFrame + (pnum >= 0 ? 1 : 0); // CIRCLE_ACTIVE_FRAME
 	if (pnum >= 0) {
 		// if (CheckLeverGroup(OBJ_VILEBOOK, os->_oVar8) ... ?
-		if (/*ox == LAZ_CENTRAL_X && oy == LAZ_CENTRAL_Y &&*/ os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
-			// assert(currLvl._dLevelIdx == SL_VILEBETRAYER && ox == LAZ_CENTRAL_X && oy == LAZ_CENTRAL_Y);
+		const POS32 cp = DungeonToDunPos(LAZ_CENTRAL_X, LAZ_CENTRAL_Y);
+		if (os->_opos.x == cp.x && os->_opos.y == cp.y && os->_oVar5 == 2) { // VILE_CIRCLE_PROGRESS
+			// assert(currLvl._dLevelIdx == SL_VILEBETRAYER);
 			if (/*quests[Q_BETRAYER]._qactive == QUEST_ACTIVE &&*/ quests[Q_BETRAYER]._qvar1 < QV_BETRAYER_CENTRALOPEN) {
 				quests[Q_BETRAYER]._qvar1 = QV_BETRAYER_CENTRALOPEN;
 				// ObjLvrChangeMap(os/*, true*/);
 				DRLG_ChangeMap(7, 11, 13, 18/*, true*/);
 			}
-			const POS32 cp = DungeonToDunPos(LAZ_CENTRAL_X, LAZ_CENTRAL_Y);
 			const POS32 dp = DungeonToDunPos(LAZ_CIRCLE_X, LAZ_CIRCLE_Y);
 			AddMissile(cp, dp, 0, MIS_RNDTELEPORT, MST_OBJECT, pnum, 0);
 			// assert(pnum == mypnum);
