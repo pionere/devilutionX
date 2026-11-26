@@ -892,7 +892,7 @@ static void Theme_WeaponRack(int themeId)
  *
  * @param themeId: theme id.
  */
-void Theme_Lock(int themeId)
+static void Theme_Lock(int themeId)
 {
 	int xx, yy, oi, doi = -1;
 	POS32 pos;
