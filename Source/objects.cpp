@@ -3486,8 +3486,11 @@ static void OperateNakrulLever(int oi, bool sendmsg)
 			if (sendmsg)
 				NetSendCmdQuest(Q_NAKRUL, false); // recipient should not matter
 		}
-		PlaySfxLoc(IS_LEVER, os->_opos);
-		PlaySfxLoc(IS_CROPEN, DungeonToDunPos(os->_ox - 3, os->_oy + 1));
+		POS32 pos = os->_opos;
+		PlaySfxLoc(IS_LEVER, pos);
+		pos.x -= 3 * DUN_WIDTH;
+		pos.y += 1 * DUN_WIDTH;
+		PlaySfxLoc(IS_CROPEN, pos);
 	}
 	OpenNakrulRoom();
 }
