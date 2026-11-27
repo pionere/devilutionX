@@ -447,8 +447,6 @@ static BYTE* LoadObject(BYTE* DVL_RESTRICT src, int oi, bool full)
 	LSaveObjectStruct* DVL_RESTRICT savedObj = (LSaveObjectStruct*)src;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	os->_otype = savedObj->votype;
-	os->_ox = savedObj->vox;
-	os->_oy = savedObj->voy;
 	os->_opos.x = savedObj->vodx;
 	os->_opos.y = savedObj->vody;
 	os->_oSFX = savedObj->voSFX;
@@ -1192,8 +1190,6 @@ static BYTE* SaveObject(BYTE* DVL_RESTRICT dest, int oi)
 	LSaveObjectStruct* DVL_RESTRICT objSave = (LSaveObjectStruct*)dest;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	objSave->votype = os->_otype;
-	objSave->vox = os->_ox;
-	objSave->voy = os->_oy;
 	objSave->vodx = os->_opos.x;
 	objSave->vody = os->_opos.y;
 	objSave->voSFX = os->_oSFX;

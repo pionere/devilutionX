@@ -903,8 +903,6 @@ static_warning((sizeof(ObjFileData) & (sizeof(ObjFileData) - 1)) == 0, "Align Ob
 
 typedef struct ObjectStruct {
 	int _otype; // _object_id
-	int _ox;    // Tile X-position of the object
-	int _oy;    // Tile Y-position of the object
 	POS32 _opos; // Precise dungeon position of the object
 	int _oSFX;  // _sfx_id
 	BYTE _oSFXCnt;
@@ -937,7 +935,7 @@ typedef struct ObjectStruct {
 	int _oVar6;
 	int _oVar7;
 	int _oVar8;
-	ALIGNMENT(6, 5)
+	ALIGNMENT(8, 7)
 } ObjectStruct;
 
 #if defined(X86_32bit_COMP) || defined(X86_64bit_COMP)
@@ -1422,8 +1420,6 @@ typedef struct LSaveMissileStruct {
 
 typedef struct LSaveObjectStruct {
 	LE_INT32 votype; // _object_id
-	LE_INT32 vox;
-	LE_INT32 voy;
 	LE_INT32 vodx;
 	LE_INT32 vody;
 	LE_INT32 voSFX; // ssfx_id

@@ -565,8 +565,8 @@ static void ObjAddTraps()
 			continue;
 		if (random_(144, 128) >= rndv)
 			continue;
-		ox = os->_ox;
-		oy = os->_oy;
+		ox = (unsigned)os->_opos.x / DUN_WIDTH;
+		oy = (unsigned)os->_opos.y / DUN_WIDTH;
 		if (random_(144, 2) == 0) {
 			tx = ox - 1;
 			while (!nSolidTable[dPiece[tx][oy]])
@@ -996,7 +996,9 @@ void InitObjects()
 /*static void DeleteObject_(int oi, int idx)
 {
 	//objectavail[MAXOBJECTS - numobjects] = oi;
-	dObject[objects[oi]._ox][objects[oi]._oy] = 0;
+	int ox = (unsigned)objects[oi]._opos.x / DUN_WIDTH;
+	int oy = (unsigned)objects[oi]._opos.y / DUN_WIDTH;
+	dObject[ox][oy] = 0;
 	//objectavail[numobjects] = oi;
 	numobjects--;
 	if (numobjects > 0 && idx != numobjects)
@@ -1469,8 +1471,6 @@ int AddObject(int type, int ox, int oy)
 	os->_oUniqAnim = TRN_NONE;
 	os->_oRndSeed = NextRndSeed();
 	// place object
-	os->_ox = ox;
-	os->_oy = oy;
 	os->_opos = DungeonToDunPos(ox, oy);
 	// dFlags[ox][oy] |= BFLAG_OBJ_PROTECT | BFLAG_MON_PROTECT;
 	const bool ready = !nSolidTable[dPiece[ox][oy]] || !(os->_oModeFlags & OMF_FLOOR);
@@ -1861,16 +1861,16 @@ static void Obj_FlameTrap(int oi)
 		}
 	} else if (os->_oVar4 == FLAMETRAP_FIRE_INACTIVE) {
 		if (os->_oVar3 == FLAMETRAP_DIR_X) {
-			x = os->_ox - 2;
-			y = os->_oy;
+			x = os->_opos.x / DUN_WIDTH - 2;
+			y = os->_opos.y / DUN_WIDTH;
 			for (i = 0; i < 5; i++) {
 				if ((dPlayer[x][y] | dMonster[x][y]) != 0)
 					os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
 				x++;
 			}
 		} else {
-			x = os->_ox;
-			y = os->_oy - 2;
+			x = os->_opos.x / DUN_WIDTH;
+			y = os->_opos.y / DUN_WIDTH - 2;
 			for (i = 0; i < 5; i++) {
 				if ((dPlayer[x][y] | dMonster[x][y]) != 0)
 					os->_oVar4 = FLAMETRAP_FIRE_ACTIVE;
@@ -2182,7 +2182,9 @@ void ObjInitLight()
 			} else
 #endif
 			{
-				TraceLightSource(os->_ox + ((olr & OLF_XO) ? 1 : 0), os->_oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
+				int ox = (unsigned)os->_opos.x / DUN_WIDTH;
+				int oy = (unsigned)os->_opos.y / DUN_WIDTH;
+				TraceLightSource(ox + ((olr & OLF_XO) ? 1 : 0), oy + ((olr & OLF_YO) ? 1 : 0), olr & OLF_MASK);
 			}
 		}
 	}
@@ -2190,7 +2192,7 @@ void ObjInitLight()
 
 void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 {
-	int i;
+	int i, ox, oy;
 
 	// activate objects
 	for (i = 0; i < numobjects; i++) {
@@ -2198,9 +2200,11 @@ void ObjChangeMap(int x1, int y1, int x2, int y2/*, bool hasNewObjPiece*/)
 		ObjectStruct* os = &objects[oi];
 		if (!(os->_oModeFlags & OMF_RESERVED))
 			continue;
-		if (nSolidTable[dPiece[os->_ox][os->_oy]])
+		ox = (unsigned)os->_opos.x / DUN_WIDTH;
+		oy = (unsigned)os->_opos.y / DUN_WIDTH;
+		if (nSolidTable[dPiece[ox][oy]])
 			continue;
-		// assert(os->_ox >= x1 && os->_ox <= x2 && os->_oy >= y1 && os->_oy <= y2);
+		// assert(ox >= x1 && ox <= x2 && oy >= y1 && oy <= y2);
 		PlaceObject(oi);
 		os->_oModeFlags &= ~OMF_RESERVED;
 		os->_oSelFlag = objectdata[os->_otype].oSelFlag;
@@ -2276,7 +2280,7 @@ static void OperateVileBook(int pnum, int oi, bool sendmsg)
 	// assert(plr._pmode == PM_STAND && !deltaload);
 	if (plr._ppos.x != os->_opos.x || plr._ppos.y != os->_opos.y + DUN_WIDTH)
 		return;
-	// assert(os->_ox == DBORDERX + 10 || os->_ox == DBORDERX + 29);
+	// assert(os->_opos.x / DUN_WIDTH == DBORDERX + 10 || os->_opos.x / DUN_WIDTH == DBORDERX + 29);
 	dx = DBORDERX + (((unsigned)os->_opos.x / DUN_WIDTH == DBORDERX + 10) ? 11 : 27);
 	dy = DBORDERY + 13;
 	// int on = dObject[dx][dy] - 1;
@@ -3226,7 +3230,7 @@ static void OperateBook1(int oi, bool sendmsg)
 	if (os->_oVar5 == BK_ANCIENT) { // STORY_BOOK_NAME
 		PlaySfxLoc(IS_QUESTDN, os->_opos);
 		// SetRndSeed(os->_oRndSeed);
-		// AddMissile(plr._ppos, { os->_ox - 2, os->_oy - 4 }, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
+		// AddMissile(plr._ppos, { os->_opos.x - 2 * DUN_WIDTH, os->_opos.y - 4 * DUN_WIDTH }, 0, MIS_GUARDIAN, MST_PLAYER, pnum, 0);
 		quests[Q_BCHAMB]._qactive = QUEST_DONE;
 		if (sendmsg) {
 			NetSendCmdQuest(Q_BCHAMB, true); // recipient should not matter
@@ -3907,14 +3911,16 @@ static void SyncNakrulLever(const ObjectStruct* os)
 
 static void SyncDoors(const ObjectStruct* os)
 {
-	int pn;
+	int pn, ox, oy;
 
 	pn = os->_oVar1; // DOOR_PIECE_CLOSED
 	if (os->_oVar4 != DOOR_CLOSED && os->_oVar4 != DOOR_LOCKED) {
 		// assert(os->_oVar4 == DOOR_OPEN || os->_oVar4 == DOOR_BLOCKED);
 		pn--;
 	}
-	dPiece[os->_ox][os->_oy] = pn;
+	ox = (unsigned)os->_opos.x / DUN_WIDTH;
+	oy = (unsigned)os->_opos.y / DUN_WIDTH;
+	dPiece[ox][oy] = pn;
 }
 
 void SyncObjectAnim(int oi)
