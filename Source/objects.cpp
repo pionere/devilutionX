@@ -1124,13 +1124,13 @@ static void AddBarrel(int oi)
 	rnd1 = random_(149, 128);
 	rnd2 = random_(149, 128);
 	if (rnd1 < 77) {
-		rnd1 = -1;                 // BARREL_EMPTY
+		rnd1 = -1;                     // BARREL_EMPTY
 	} else if (rnd1 < 103) {
-		rnd1 = rnd2 >= 43 ? 1 : 0;  // BARREL_ITEM / BARREL_ITEM_TYPE
+		rnd1 = rnd2 >= 43 ? 1 : 0;     // BARREL_ITEM / BARREL_ITEM_TYPE
 	} else {
-		rnd1 = PreSpawnSkeleton(); // BARREL_SKELE
+		rnd1 = PreSpawnSkeleton() + 1; // BARREL_SKELE
 		// assert(rnd1 == -1 || rnd1 >= MAX_MINIONS);
-		static_assert(MAX_MINIONS > 1, "AddBarrel might not spawn a skeleton");
+		static_assert(MAX_MINIONS + 1 > 1, "AddBarrel might not spawn a skeleton");
 	}
 	os->_oVar1 = rnd1;
 }
@@ -3578,7 +3578,7 @@ static void OperateBarrel(int oi, bool sendmsg)
 				SpawnRndItem(os->_opos, CFDQ_NORMAL, sendmsg);
 			else {                    // BARREL_SKELE
 				int dir = random_(11, NUM_DIRS);
-				ActivateSpawn(os->_oVar1, os->_opos, dir);
+				ActivateSpawn(os->_oVar1 - 1, os->_opos, dir);
 			}
 		}
 	}
