@@ -1631,70 +1631,30 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
  */
 static void L1FillChambers()
 {
-	int c;
+	int c, i, x, y, xp, yp;
 
-	if (ChambersVertical) {
-		// draw the vertical chambers
-		if (ChambersFirst)
-			DRLG_L1GChamber(15, 1);
-		if (ChambersMiddle)
-			DRLG_L1GChamber(15, 15);
-		if (ChambersLast)
-			DRLG_L1GChamber(15, 29);
-		// add pillars to the hall between the vertical chambers
-		if (ChambersMiddle) {
-			if (ChambersFirst)
-				DRLG_L1GHallVert(18, 11, 14);
-			if (ChambersLast)
-				DRLG_L1GHallVert(18, 25, 28);
-		} else {
-			//assert(ChambersFirst && ChambersLast);
-			DRLG_L1GHallVert(18, 11, 28);
+	c = ChambersFirst + ChambersMiddle + ChambersLast;
+	for (i = 0; i < c; i++) {
+		x = drlg.L1RoomList[i].lrx;
+		y = drlg.L1RoomList[i].lry;
+		DRLG_L1GChamber(x, y);
+		if (i != 0) {
+			if (x == xp) {
+				DRLG_L1GHallVert(x + 3, yp + CHAMBER_SIZE, y - 1);
+			} else {
+				// assert(y == yp);
+				DRLG_L1GHallHoriz(xp + CHAMBER_SIZE, y + 3, x - 1);
+			}
 		}
-	} else {
-		// draw the horizontal chambers
-		if (ChambersFirst)
-			DRLG_L1GChamber(1, 15);
-		if (ChambersMiddle)
-			DRLG_L1GChamber(15, 15);
-		if (ChambersLast)
-			DRLG_L1GChamber(29, 15);
-		// add pillars to the hall between the horizontal chambers
-		if (ChambersMiddle) {
-			if (ChambersFirst)
-				DRLG_L1GHallHoriz(11, 18, 14);
-			if (ChambersLast)
-				DRLG_L1GHallHoriz(25, 18, 28);
-		} else {
-			//assert(ChambersFirst && ChambersLast);
-			DRLG_L1GHallHoriz(11, 18, 28);
-		}
+		xp = x;
+		yp = y;
 	}
 
 	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
-		c = ChambersFirst + ChambersMiddle + ChambersLast;
-		c = random_low(0, c);
-		if (ChambersFirst) {
-			if (c == 0)
-				c = 2; // select the first chamber for the set piece
-			else
-				c--;   // 'deselect' the first chamber
-		}
-		if (ChambersMiddle) {
-			if (c == 0)
-				c = 16; // select the middle chamber for the set piece
-			else if (c != 2)
-				c--;    // 'deselect' the middle chamber (only if the first was not selected)
-		}
-		if (ChambersLast) {
-			if (c == 0)
-				c = 30; // select the last chamber for the set piece
-		}
-		if (ChambersVertical) {
-			DRLG_L1SetRoom(16, c);
-		} else {
-			DRLG_L1SetRoom(c, 16);
-		}
+		i = random_low(0, c);
+		x = drlg.L1RoomList[i].lrx;
+		y = drlg.L1RoomList[i].lry;
+		DRLG_L1SetRoom(x + 1, y + 1);
 	}
 }
 
