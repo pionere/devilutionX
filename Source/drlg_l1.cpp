@@ -15,6 +15,9 @@ DEVILUTION_BEGIN_NAMESPACE
 #define PLACEHOLDER_MEGATILE_L1 0xFF
 /** Size of the main chambers in the dungeon. */
 #define CHAMBER_SIZE 10
+/** Size of the additional rooms in the dungeon. */
+#define ROOM_MIN 2
+#define ROOM_MAX 6
 /** Shadow type of the base floor(13). */
 #define SF 4
 
@@ -1096,8 +1099,8 @@ static void L1RoomGen(int x, int y, int w, int h, bool dir)
 	if (dir == (dirProb == 0)) {
 		// try to place a room to the left
 		for (i = 20; i != 0; i--) {
-			width = RandRange(2, 6) & ~1;
-			height = RandRange(2, 6) & ~1;
+			width = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
+			height = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
 			ry = h / 2u + y - height / 2u;
 			rx = x - width;
 			if (L1CheckVHall(x, ry - 1, height + 2)
@@ -1127,8 +1130,8 @@ right:
 			}
 			if (--i == 0)
 				break;
-			width = RandRange(2, 6) & ~1;
-			height = RandRange(2, 6) & ~1;
+			width = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
+			height = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
 			ry = h / 2u + y - height / 2u;
 		}
 		// proceed with the placed a room on the left
@@ -1140,8 +1143,8 @@ right:
 	} else {
 		// try to place a room to the top
 		for (i = 20; i != 0; i--) {
-			width = RandRange(2, 6) & ~1;
-			height = RandRange(2, 6) & ~1;
+			width = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
+			height = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
 			rx = w / 2u + x - width / 2u;
 			ry = y - height;
 			if (L1CheckHHall(y, rx - 1, width + 2)
@@ -1171,8 +1174,8 @@ bottom:
 			}
 			if (--i == 0)
 				break;
-			width = RandRange(2, 6) & ~1;
-			height = RandRange(2, 6) & ~1;
+			width = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
+			height = RandRange(ROOM_MIN, ROOM_MAX) & ~1;
 			rx = w / 2u + x - width / 2u;
 		}
 		// proceed with the placed a room on the top
