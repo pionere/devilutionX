@@ -1634,10 +1634,12 @@ static void DRLG_L1SetRoom(int rx1, int ry1)
  */
 static void L1FillChambers()
 {
-	int c, i, x, y, xp, yp;
+	int i, x, y, xp, yp;
 
-	c = ChambersFirst + ChambersMiddle + ChambersLast;
-	for (i = 0; i < c; i++) {
+	for (i = 0; ; i++) {
+		static_assert(ROOM_MAX < CHAMBER_SIZE, "L1FillChambers might mistake a room for a chamber.");
+		if (drlg.L1RoomList[i].lrw != CHAMBER_SIZE)
+			break;
 		x = drlg.L1RoomList[i].lrx;
 		y = drlg.L1RoomList[i].lry;
 		DRLG_L1GChamber(x, y);
@@ -1654,7 +1656,7 @@ static void L1FillChambers()
 	}
 
 	if (pSetPieces[0]._spData != NULL) { // pSetPieces[0]._sptype != SPT_NONE
-		i = random_low(0, c);
+		i = random_low(0, i);
 		x = drlg.L1RoomList[i].lrx;
 		y = drlg.L1RoomList[i].lry;
 		DRLG_L1SetRoom(x + 1, y + 1);
@@ -1946,7 +1948,9 @@ static void DRLG_L1PlaceThemeRooms()
 {
 	RECT_AREA32 thops[32];
 	int i, numops = 0;
-	for (i = ChambersFirst + ChambersMiddle + ChambersLast; i < nRoomCnt; i++) {
+	for (i = 0; i < nRoomCnt; i++) {
+		static_assert(ROOM_MAX < CHAMBER_SIZE, "DRLG_L1PlaceThemeRooms might mistake a room for a chamber.");
+		if (drlg.L1RoomList[i].lrw == CHAMBER_SIZE) continue;
 		const L1ROOM &room = drlg.L1RoomList[i];
 		const RECT_AREA32 area = { room.lrx, room.lry, room.lrx + room.lrw, room.lry + room.lrh };
 		for (int x = area.x1; x < area.x2; x++) {
