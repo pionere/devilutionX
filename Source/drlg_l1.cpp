@@ -23,14 +23,6 @@ DEVILUTION_BEGIN_NAMESPACE
 
 /**  The number of generated rooms */
 static int nRoomCnt;
-/** Specifies whether to generate a vertical or horizontal rooms in the Cathedral. */
-static BOOLEAN ChambersVertical;
-/** Specifies whether to generate a room at position 1 in the Cathedral. */
-static BOOLEAN ChambersFirst;
-/** Specifies whether to generate a room at position 2 in the Cathedral. */
-static BOOLEAN ChambersMiddle;
-/** Specifies whether to generate a room at position 3 in the Cathedral. */
-static BOOLEAN ChambersLast;
 
 /*
  * Maps tile IDs to their corresponding undecorated tile type.
@@ -1193,6 +1185,7 @@ bottom:
  */
 static void DRLG_L1CreateDungeon()
 {
+	BOOLEAN ChambersVertical, ChambersFirst, ChambersMiddle, ChambersLast;
 	int is, ie, i;
 
 	nRoomCnt = 0;
